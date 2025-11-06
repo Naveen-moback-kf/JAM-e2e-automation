@@ -292,7 +292,7 @@ jobs:
           if-no-files-found: warn
       
       - name: 📧 Send Slack Notification
-        if: always() && secrets.SLACK_WEBHOOK_URL != ''
+        if: always()
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
