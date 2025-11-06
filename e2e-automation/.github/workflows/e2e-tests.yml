@@ -128,6 +128,16 @@ jobs:
           mkdir -p e2e-automation/logs
           mkdir -p e2e-automation/JobCatalogBackups
       
+      - name: 🔧 Remove UTF-8 BOM from Java Files
+        working-directory: e2e-automation
+        run: |
+          echo "🔧 Removing UTF-8 BOM characters from Java files..."
+          # Install dos2unix if not available
+          sudo apt-get install -y dos2unix
+          # Find and fix all Java files with BOM
+          find src -name "*.java" -type f -exec sed -i '1s/^\xEF\xBB\xBF//' {} \;
+          echo "✅ BOM removal completed"
+      
       - name: ⚙️ Configure Test Environment
         working-directory: e2e-automation
         run: |
@@ -151,7 +161,7 @@ jobs:
         run: |
           echo "🖥️  Setting up virtual display for headless execution..."
           sudo apt-get update -qq
-          sudo apt-get install -y xvfb libxi6 libgconf-2-4
+          sudo apt-get install -y xvfb libxi6 libgbm1
           sudo Xvfb :99 -ac -screen 0 1920x1080x24 > /dev/null 2>&1 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
           echo "✅ Virtual display configured (Xvfb on :99)"
@@ -290,18 +300,6 @@ jobs:
           path: e2e-automation/logs/
           retention-days: 7
           if-no-files-found: warn
-      
-      - name: 📧 Send Slack Notification
-        if: always() && secrets.SLACK_WEBHOOK_URL != ''
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          text: |
-            Job Mapping E2E Tests - ${{ job.status }}
-            Test Suite: ${{ github.event.inputs.test_suite || 'smoke_tests.xml' }}
-            Browser: ${{ github.event.inputs.browser || 'chrome' }}
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        continue-on-error: true
       
       - name: 💬 Comment PR with Results
         if: github.event_name == 'pull_request' && always()
