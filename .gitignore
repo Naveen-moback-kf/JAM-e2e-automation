@@ -1,0 +1,17 @@
+# Eclipse workspace metadata
+.metadata/
+
+# IDE specific
+.idea/
+.vscode/
+*.iml
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
