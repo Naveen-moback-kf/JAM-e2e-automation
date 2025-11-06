@@ -11,6 +11,8 @@
 	<properties>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<cucumber.version>7.18.1</cucumber.version>
 		<selenium.version>4.25.0</selenium.version>
 		<log4j.version>2.25.1</log4j.version>
@@ -121,6 +123,10 @@
 				<configuration>
 					<source>17</source>
 					<target>17</target>
+					<encoding>UTF-8</encoding>
+					<compilerArgs>
+						<arg>-Xlint:none</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 			
