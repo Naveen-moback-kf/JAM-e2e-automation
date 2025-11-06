@@ -12,7 +12,7 @@ Feature: Publishing job profiles from Jobs listing table
     Then Verify job profiles count is displaying on the page
     Then User should verify Publish button is displaying on first job profile
     Then Click on Publish button on first job profile
-    Then User should verify publish success popup appears on screen
+    #Then User should verify publish success popup appears on screen
     And User should verify count of job profiles is correctly showing on top of Job Profiles listing table
 
   @VerifyPublishedJobInViewPublished

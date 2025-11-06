@@ -1,3 +1,0 @@
-# This file ensures the JobCatalogBackups directory is tracked by Git
-# Backup files (*.csv) are ignored by .gitignore but the folder structure is preserved
-

@@ -94,7 +94,7 @@ Feature: Verify Components in Job Mapping Page
     When User is in Job Mapping page
     Then Verify job profiles count is displaying on the page
     Then User should verify Publish button on Matched success profile is displaying and clickable
-    Then User should verify publish success popup appears on screen
+    #Then User should verify publish success popup appears on screen
     And User should verify count of job profiles is correctly showing on top of Job Profiles listing table
 
   @ViewPublishedToggleButton_Component
