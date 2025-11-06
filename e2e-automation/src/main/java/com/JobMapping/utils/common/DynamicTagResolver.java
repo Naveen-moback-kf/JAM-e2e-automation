@@ -1,12 +1,12 @@
 package com.JobMapping.utils.common;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 
 
 public class DynamicTagResolver {
     
-    private static final Logger LOGGER = (Logger) LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger(DynamicTagResolver.class);
     
     // Login type constants
     public static final String SSO_LOGIN = "SSO";
