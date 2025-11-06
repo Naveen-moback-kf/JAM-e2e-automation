@@ -81,32 +81,22 @@ git add .
 
 echo.
 echo 💾 Creating initial commit...
-git commit -m "Initial commit: Job Mapping E2E Automation Framework
-
-- Complete BDD framework with Cucumber + TestNG
-- 46+ Feature files covering Job Mapping functionality
-- 70+ Page Objects with Page Object Model pattern
-- 134+ Test Runners (Normal + Cross-Browser)
-- GitHub Actions CI/CD workflow configured
-- Dual Excel reporting system (Normal + Cross-Browser)
-- ExtentReports HTML dashboard
-- WebDriverManager integration
-- Multi-environment support (Dev, QA, Stage, Prod)
-- Comprehensive documentation and guides
-- Performance optimizations applied
-- Screenshot capture on failures
-- Log4j2 logging configuration
-
-Framework Version: 2.1.0-SNAPSHOT
-Package: com.JobMapping
-Java Version: 17
-Maven: 3.x"
+git commit -m "Initial commit: Job Mapping E2E Automation Framework - Complete BDD framework with Cucumber, TestNG, 46+ Feature files, 70+ Page Objects, 134+ Test Runners, GitHub Actions CI/CD, Dual Excel reporting, ExtentReports, WebDriverManager, Multi-environment support, Documentation, Performance optimizations, Screenshot capture, Log4j2 logging - Framework v2.1.0-SNAPSHOT"
 
 if errorlevel 1 (
     echo.
     echo ⚠️  Commit failed or nothing to commit
     echo.
     git status
+    
+    REM Check if already committed
+    git log --oneline -1 >nul 2>&1
+    if not errorlevel 1 (
+        echo.
+        echo ℹ️  Files already committed. Proceeding to push...
+        goto :push
+    )
+    
     pause
     exit /b 1
 )
@@ -114,6 +104,7 @@ if errorlevel 1 (
 echo ✅ Commit created successfully
 echo.
 
+:push
 echo 📤 Pushing to GitHub...
 echo    Repository: https://github.com/Naveen-moback-kf/JAM-e2e-automation.git
 echo    Branch: main
