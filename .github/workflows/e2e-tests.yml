@@ -60,6 +60,21 @@ on:
         required: false
         default: false
         type: boolean
+      
+      login_type:
+        description: 'Login Type'
+        required: true
+        default: 'NON_SSO'
+        type: choice
+        options:
+          - SSO
+          - NON_SSO
+      
+      pams_id:
+        description: 'Target PAMS ID (leave empty to verify all clients)'
+        required: false
+        default: '23139'
+        type: string
   
   # Schedule: Run daily at 2 AM UTC
   schedule:
@@ -140,11 +155,15 @@ jobs:
           HEADLESS="${{ github.event.inputs.headless_mode || 'true' }}"
           BROWSER="${{ github.event.inputs.browser || 'chrome' }}"
           ENVIRONMENT="${{ github.event.inputs.environment || 'Dev' }}"
+          LOGIN_TYPE="${{ github.event.inputs.login_type || 'NON_SSO' }}"
+          PAMS_ID="${{ github.event.inputs.pams_id || '23139' }}"
           
           # Update basic settings
           sed -i "s/^headless\.mode=.*/headless.mode=${HEADLESS}/" src/test/resources/config.properties
           sed -i "s/^browser=.*/browser=${BROWSER}/" src/test/resources/config.properties
           sed -i "s/^Environment=.*/Environment=${ENVIRONMENT}/" src/test/resources/config.properties
+          sed -i "s/^login\.type=.*/login.type=${LOGIN_TYPE}/" src/test/resources/config.properties
+          sed -i "s/^target\.pams\.id=.*/target.pams.id=${PAMS_ID}/" src/test/resources/config.properties
           
           # Inject credentials from GitHub Secrets
           echo "🔐 Injecting credentials from GitHub Secrets..."
@@ -154,7 +173,12 @@ jobs:
           sed -i "s/\${NON_SSO_PASSWORD}/${{ secrets.NON_SSO_PASSWORD }}/" src/test/resources/config.properties
           
           echo "✅ config.properties created and configured"
-          echo "📋 Settings: Browser=${BROWSER}, Environment=${ENVIRONMENT}, Headless=${HEADLESS}"
+          echo "📋 Configuration Summary:"
+          echo "   Browser: ${BROWSER}"
+          echo "   Environment: ${ENVIRONMENT}"
+          echo "   Headless: ${HEADLESS}"
+          echo "   Login Type: ${LOGIN_TYPE}"
+          echo "   PAMS ID: ${PAMS_ID}"
       
       - name: 🖥️ Setup Display for Headless (Linux)
         if: runner.os == 'Linux'
@@ -174,6 +198,8 @@ jobs:
           ENVIRONMENT="${{ github.event.inputs.environment || 'qa' }}"
           HEADLESS="${{ github.event.inputs.headless_mode || 'true' }}"
           PARALLEL="${{ github.event.inputs.parallel_execution || 'false' }}"
+          LOGIN_TYPE="${{ github.event.inputs.login_type || 'NON_SSO' }}"
+          PAMS_ID="${{ github.event.inputs.pams_id || '23139' }}"
           
           echo "════════════════════════════════════════"
           echo "    E2E TEST EXECUTION CONFIGURATION"
@@ -181,6 +207,8 @@ jobs:
           echo "Test Suite: ${TEST_SUITE}"
           echo "Browser: ${BROWSER}"
           echo "Environment: ${ENVIRONMENT}"
+          echo "Login Type: ${LOGIN_TYPE}"
+          echo "PAMS ID: ${PAMS_ID}"
           echo "Headless Mode: ${HEADLESS}"
           echo "Parallel Execution: ${PARALLEL}"
           echo "Working Directory: $(pwd)"

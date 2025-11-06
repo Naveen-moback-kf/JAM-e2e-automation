@@ -111,10 +111,19 @@ SSO_Login_Password=202410TestDigital!
 2. Go to **Actions** tab
 3. Click **"Job Mapping E2E Tests"** workflow
 4. Click **"Run workflow"** dropdown
-5. Click **"Run workflow"** button
+5. Configure options:
+   - **Test Suite**: Choose smoke/regression/all tests
+   - **Browser**: chrome/firefox/edge
+   - **Environment**: dev/qa/stage/prodeu/produs
+   - **Login Type**: SSO or NON_SSO
+   - **PAMS ID**: Target client ID (e.g., 23139)
+   - **Headless Mode**: true/false
+   - **Parallel Execution**: true/false
+6. Click **"Run workflow"** button
 
 The workflow will:
 - ✅ Create config.properties from template
+- ✅ Configure login type and PAMS ID
 - ✅ Inject your GitHub Secrets
 - ✅ Run tests with proper credentials
 
