@@ -1,4 +1,4 @@
-﻿package testrunners.functional.JobMapping.crossbrowser;
+package testrunners.functional.JobMapping.crossbrowser;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;

@@ -1,4 +1,4 @@
-﻿package testrunners.functional.JobMapping;
+package testrunners.functional.JobMapping;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;

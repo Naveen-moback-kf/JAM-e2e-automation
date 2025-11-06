@@ -1,4 +1,4 @@
-﻿package com.JobMapping.manager;
+package com.JobMapping.manager;
 
 import java.io.IOException;
 

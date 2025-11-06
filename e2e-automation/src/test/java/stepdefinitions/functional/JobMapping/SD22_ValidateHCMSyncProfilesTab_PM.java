@@ -1,4 +1,4 @@
-﻿package stepdefinitions.functional.JobMapping;
+package stepdefinitions.functional.JobMapping;
 
 import java.io.IOException;
 
