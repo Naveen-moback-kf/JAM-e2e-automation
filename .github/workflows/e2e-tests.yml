@@ -131,20 +131,30 @@ jobs:
       - name: ⚙️ Configure Test Environment
         working-directory: e2e-automation
         run: |
-          # Update config.properties for CI/CD environment
-          echo "🔧 Configuring headless mode in config.properties..."
+          echo "🔧 Creating config.properties from template..."
+          
+          # Copy template to config.properties
+          cp src/test/resources/config.properties.template src/test/resources/config.properties
+          
+          # Configure from workflow inputs
           HEADLESS="${{ github.event.inputs.headless_mode || 'true' }}"
+          BROWSER="${{ github.event.inputs.browser || 'chrome' }}"
+          ENVIRONMENT="${{ github.event.inputs.environment || 'Dev' }}"
           
-          if [ "${HEADLESS}" = "true" ]; then
-            sed -i 's/headless.mode=false/headless.mode=true/g' src/test/resources/config.properties
-            echo "✅ Headless mode enabled"
-          else
-            echo "ℹ️  Headless mode disabled (visible browser)"
-          fi
+          # Update basic settings
+          sed -i "s/^headless\.mode=.*/headless.mode=${HEADLESS}/" src/test/resources/config.properties
+          sed -i "s/^browser=.*/browser=${BROWSER}/" src/test/resources/config.properties
+          sed -i "s/^Environment=.*/Environment=${ENVIRONMENT}/" src/test/resources/config.properties
           
-          # Display current configuration
-          echo "📋 Current config.properties settings:"
-          grep -E "headless.mode|browser=" src/test/resources/config.properties || echo "Config check complete"
+          # Inject credentials from GitHub Secrets
+          echo "🔐 Injecting credentials from GitHub Secrets..."
+          sed -i "s/\${SSO_USERNAME}/${{ secrets.SSO_USERNAME }}/" src/test/resources/config.properties
+          sed -i "s/\${SSO_PASSWORD}/${{ secrets.SSO_PASSWORD }}/" src/test/resources/config.properties
+          sed -i "s/\${NON_SSO_USERNAME}/${{ secrets.NON_SSO_USERNAME }}/" src/test/resources/config.properties
+          sed -i "s/\${NON_SSO_PASSWORD}/${{ secrets.NON_SSO_PASSWORD }}/" src/test/resources/config.properties
+          
+          echo "✅ config.properties created and configured"
+          echo "📋 Settings: Browser=${BROWSER}, Environment=${ENVIRONMENT}, Headless=${HEADLESS}"
       
       - name: 🖥️ Setup Display for Headless (Linux)
         if: runner.os == 'Linux'
