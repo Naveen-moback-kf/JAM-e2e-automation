@@ -534,7 +534,7 @@ jobs:
           name: extent-report-${{ matrix.browser }}
           path: e2e-automation/test-output/ExtentReports/
           retention-days: 30
-          if-no-files-found: warn
+          if-no-files-found: ignore
       
       - name: 📤 Upload TestNG Results
         if: always()
@@ -544,8 +544,10 @@ jobs:
           path: |
             e2e-automation/test-output/testng-results.xml
             e2e-automation/test-output/emailable-report.html
+            e2e-automation/target/surefire-reports/testng-results.xml
+            e2e-automation/target/surefire-reports/emailable-report.html
           retention-days: 30
-          if-no-files-found: warn
+          if-no-files-found: ignore
       
       - name: 🔍 Debug - List Excel Report Files
         if: always()
@@ -585,7 +587,7 @@ jobs:
           name: excel-reports-${{ matrix.browser }}
           path: e2e-automation/ExcelReports/
           retention-days: 30
-          if-no-files-found: warn
+          if-no-files-found: ignore
       
       - name: 📤 Upload Screenshots
         if: always()
