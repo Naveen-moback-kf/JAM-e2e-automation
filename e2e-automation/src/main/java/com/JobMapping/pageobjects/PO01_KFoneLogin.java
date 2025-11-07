@@ -118,9 +118,13 @@ public class PO01_KFoneLogin {
 	@CacheLookup
 	public WebElement PMHeader;
 	
-	@FindBy(xpath = "//*[//*[@id='title-svg-icon']]")
+	@FindBy(xpath = "//*[@id='title-svg-icon']")
 	@CacheLookup
 	public WebElement KFONE_landingPage_title;
+	
+	@FindBy(xpath = "//*[@data-testid='clients']//h2")
+	@CacheLookup
+	public WebElement KFONE_clientsPage_header;
 	
 	By KfoneClientsPageTitle = By.xpath("//h2[text()='Clients']");
 	
@@ -148,6 +152,10 @@ public class PO01_KFoneLogin {
 	@FindBy(xpath = "//input[@id='search-client-input-search']")
 	@CacheLookup
 	WebElement clientSearchBar;
+	
+	@FindBy(xpath = "//h1[contains(text(),'Hi,')]")
+	@CacheLookup
+	WebElement KFONEHomePageHeader;
 	
 	@FindBy(xpath = "//h2[contains(text(),'Your products')]")
 	@CacheLookup
@@ -324,7 +332,8 @@ public class PO01_KFoneLogin {
 			
 			// Verify landing page elements
 			wait.until(ExpectedConditions.visibilityOf(KFONE_landingPage_title)).isDisplayed();
-			String text1 = utils.readText(KfoneClientsPageTitle, driver);
+			wait.until(ExpectedConditions.visibilityOf(KFONE_clientsPage_header)).isDisplayed();
+			String text1 = wait.until(ExpectedConditions.visibilityOf(KFONE_clientsPage_header)).getText();
 			String obj1 = "Clients";
 			Assert.assertEquals(obj1, text1);
 			
@@ -835,6 +844,12 @@ public class PO01_KFoneLogin {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			SmartWaits.waitForPageLoad(driver);
 			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			// Verify KFONE Home page header
+			wait.until(ExpectedConditions.visibilityOf(KFONE_landingPage_title)).isDisplayed();
+			wait.until(ExpectedConditions.visibilityOf(KFONEHomePageHeader)).isDisplayed();
+			String text1 = wait.until(ExpectedConditions.visibilityOf(KFONEHomePageHeader)).getText();
+			LOGGER.info(text1 + " is displaying on KFONE Home Page as expected");
 			
 			// Verify that user is on KFONE Home page by checking for Your Products section
 			wait.until(ExpectedConditions.visibilityOf(yourProductsSection)).isDisplayed();
