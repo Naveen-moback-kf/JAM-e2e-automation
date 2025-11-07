@@ -198,6 +198,11 @@ public class KeepAwakeUtil {
      * Query a specific power setting from Windows
      */
     private static String queryPowerSetting(String settingName) {
+        // Return null on non-Windows systems
+        if (!isWindows()) {
+            return null;
+        }
+        
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(
                 "cmd.exe", "/c", "powercfg /q SCHEME_CURRENT SUB_SLEEP"
@@ -457,9 +462,23 @@ public class KeepAwakeUtil {
     }
     
     /**
-     * Execute Windows powercfg command
+     * Check if running on Windows OS
+     */
+    private static boolean isWindows() {
+        String os = System.getProperty("os.name").toLowerCase();
+        return os.contains("win");
+    }
+    
+    /**
+     * Execute Windows powercfg command (Windows only)
      */
     private static void executePowerCommand(String command) {
+        // Skip power commands on non-Windows systems (Linux, Mac, etc.)
+        if (!isWindows()) {
+            LOGGER.debug("Skipping power command (not Windows): " + command);
+            return;
+        }
+        
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", command);
             processBuilder.redirectErrorStream(true);
