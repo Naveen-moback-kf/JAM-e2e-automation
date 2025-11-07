@@ -610,7 +610,7 @@ jobs:
           if-no-files-found: ignore
       
       - name: 📤 Upload Screenshots
-        if: always()
+        if: failure() || contains(github.event.head_commit.message, 'force-screenshots')
         uses: actions/upload-artifact@v4
         with:
           name: screenshots-${{ matrix.browser }}
