@@ -119,7 +119,7 @@ public class PO03_ValidateJobmappingHeaderSection {
 	@CacheLookup
 	WebElement searchIconInLearnMorePage;
 	
-	@FindBy(xpath = "//div[contains(@class,'global-nav-client-name')]//div")
+	@FindBy(xpath = "//button[contains(@class,'global-nav-client-name')]//span")
 	@CacheLookup
 	WebElement clientname;
 	

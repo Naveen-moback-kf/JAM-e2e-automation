@@ -783,10 +783,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			}
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_unpublished_jobs_count_after_adding_more_jobs", e);
-			LOGGER.error("Issue in verifying Unpublished job profiles count after adding - Method: verify_unpublished_job_profiles_count_after_adding", e);
-			e.printStackTrace();
+			LOGGER.error("Unpublished Jobs count is NOT UPDATED in Job Mapping page after adding More Jobs - Method: verify_unpublished_job_profiles_count_after_adding", e);
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Unpublished job profiles count in Job Mapping page after adding more jobs...Please Investigate!!!");
-			Assert.fail("Issue in verifying Unpublished job profiles count in Job Mapping page after adding more jobs...Please Investigate!!!");
+			Assert.fail("Unpublished Jobs count is NOT UPDATED in Job Mapping page after adding More Jobs...Please Investigate!!!");
 		}
 	}
 	
