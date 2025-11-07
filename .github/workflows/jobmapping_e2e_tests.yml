@@ -17,15 +17,86 @@ on:
   # Manual trigger with parameters (ENABLED)
   workflow_dispatch:
     inputs:
-      test_suite:
-        description: 'Test Suite to Execute'
+      execution_mode:
+        description: '🎯 Execution Mode'
         required: true
+        default: 'test_suite'
+        type: choice
+        options:
+          - test_suite
+          - individual_runner
+      
+      test_suite:
+        description: '📋 Test Suite to Execute (when execution_mode = test_suite)'
+        required: false
         default: 'smoke_tests.xml'
         type: choice
         options:
           - smoke_tests.xml
           - regression_tests.xml
           - all_tests.xml
+      
+      individual_runner:
+        description: '🏃 Individual Runner (when execution_mode = individual_runner)'
+        required: false
+        default: 'Runner01_KFoneLogin'
+        type: choice
+        options:
+          - Runner01_KFoneLogin
+          - Runner02_ValidateAddMoreJobsFunctionality
+          - Runner03_ValidateJobmappingHeaderSection
+          - Runner04_VerifyJobMappingPageComponents
+          - Runner05_ValidateJobProfileDetailsPopup
+          - Runner06_PublishJobProfile
+          - Runner07_PublishJobFromComparisonScreen
+          - Runner08_PublishJobFromDetailsPopup
+          - Runner09_PublishSelectedProfiles
+          - Runner10_ValidateScreen1SearchResults
+          - Runner11a_ValidateGradeFilters
+          - Runner11b_ValidateDepartmentFilters
+          - Runner11c_ValidateFunctionSubfunctionFilters
+          - Runner11d_ValidateMappingStatusAndMultipleFilters
+          - Runner12a_ValidateBasicFilterPersistence
+          - Runner12b_ValidateAdvancedFilterPersistence
+          - Runner13_AddandVerifyCustomSPinJobComparsionPage
+          - Runner14_ValidateProfileLevelFunctionality
+          - Runner15_ValidateRecommendedProfileDetails
+          - Runner16_ValidatePCRestrictedTipMessage
+          - Runner17_ValidateSortingFunctionality
+          - Runner18a_ValidateBasicSortingPersistence
+          - Runner18b_ValidateAdvancedSortingPersistence
+          - Runner19_VerifyJobsWithNoBICMappings
+          - Runner20_ManualMappingofSPinAutoAI
+          - Runner21_MapDifferentSPtoProfileInAutoAI
+          - Runner22_ValidateHCMSyncProfilesTab_PM
+          - Runner23_VerifyProfileswithNoJobCode_PM
+          - Runner24_ValidatePublishCenter_PM
+          - Runner25_ValidateExportStatusFunctionality_PM
+          - Runner26_VerifyJobsMissingDataTipMessage
+          - Runner27_VerifyInfoMessageForMissingDataProfiles
+          - Runner28_VerifyInfoMessageForManualMappingProfiles
+          - Runner29_ValidateJobsWithMissingGRADEdataInJobMapping
+          - Runner30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping
+          - Runner31_ValidateJobsWithMissingFUNCTIONdataInJobMapping
+          - Runner32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping
+          - Runner33_ValidateSelectAndHCMSyncLoadedProfiles_PM
+          - Runner34_ValidateSelectAndSyncAllProfiles_PM
+          - Runner35_ValidateSelectAllWithSearchFunctionality_PM
+          - Runner35a_ValidateLoadedProfilesSelectionWithSearch_PM
+          - Runner36_ValidateSelectAllWithFiltersFunctionality_PM
+          - Runner36a_ValidateLoadedProfilesSelectionWithFilters_PM
+          - Runner37_ValidateSelectAndPublishLoadedProfiles_JAM
+          - Runner38_ValidateSelectAllWithSearchFunctionality_JAM
+          - Runner38a_ValidateLoadedProfilesSelectionWithSearch_JAM
+          - Runner39_ValidateSelectAllWithFiltersFunctionality_JAM
+          - Runner39a_ValidateLoadedProfilesSelectionWithFilters_JAM
+          - Runner40_ValidateSelectAndPublishAllJobProfiles_JAM
+          - Runner41_ValidateApplicationPerformance_JAM_and_HCM
+          - Runner42_ClearProfileSelectionwithHeaderCheckbox_PM
+          - Runner43_ClearProfileSelectionwithNoneButton_PM
+          - Runner44_ClearProfileSelectionwithHeaderCheckbox_JAM
+          - Runner45_ClearProfileSelectionwithNoneButton_JAM
+          - Runner46_ValidateSelectionOfUnmappedJobs_JAM
       
       browser:
         description: 'Browser'
@@ -88,17 +159,95 @@ on:
         default: ''
         type: string
   
-  # Schedule: Commented out - Manual execution only
+  # ═══════════════════════════════════════════════════════════════════
+  # 📅 SCHEDULED RUNS - CURRENTLY DISABLED (Manual execution only)
+  # ═══════════════════════════════════════════════════════════════════
+  # Status: ❌ All schedules DISABLED for manual testing phase
+  # To enable: Uncomment the "schedule:" line and any cron schedule below
+  # Note: All times are in UTC. Convert your local time to UTC.
+  # Cron format: minute hour day_of_month month day_of_week
+  # Example: '0 2 * * *' = 2:00 AM UTC every day
+  # Use https://crontab.guru/ to build custom schedules
+  # ═══════════════════════════════════════════════════════════════════
+  
   # schedule:
-  #   - cron: '0 2 * * *'
+    # ── Daily Schedules ────────────────────────────────────────────
+    # Daily at 2:00 AM UTC (runs smoke tests by default)
+    # - cron: '0 2 * * *'
+    
+    # Daily at 6:00 AM UTC (morning run)
+    # - cron: '0 6 * * *'
+    
+    # Daily at 2:00 PM UTC (afternoon run)
+    # - cron: '0 14 * * *'
+    
+    # Daily at 10:00 PM UTC (evening run)
+    # - cron: '0 22 * * *'
+    
+    # ── Multiple Times Per Day ─────────────────────────────────────
+    # Twice daily: 6:00 AM and 6:00 PM UTC
+    # - cron: '0 6,18 * * *'
+    
+    # Three times daily: 6:00 AM, 2:00 PM, 10:00 PM UTC
+    # - cron: '0 6,14,22 * * *'
+    
+    # Every 6 hours
+    # - cron: '0 */6 * * *'
+    
+    # Every 12 hours
+    # - cron: '0 */12 * * *'
+    
+    # ── Weekly Schedules ───────────────────────────────────────────
+    # Every Monday at 9:00 AM UTC
+    # - cron: '0 9 * * 1'
+    
+    # Every Friday at 5:00 PM UTC (weekly regression)
+    # - cron: '0 17 * * 5'
+    
+    # Weekdays only (Mon-Fri) at 7:00 AM UTC
+    # - cron: '0 7 * * 1-5'
+    
+    # Weekends only (Sat-Sun) at 10:00 AM UTC
+    # - cron: '0 10 * * 6,0'
+    
+    # ── Business Hours ─────────────────────────────────────────────
+    # Every weekday at 8:00 AM UTC (business hours start)
+    # - cron: '0 8 * * 1-5'
+    
+    # Every weekday at 6:00 PM UTC (business hours end)
+    # - cron: '0 18 * * 1-5'
+    
+    # ── Custom Intervals ───────────────────────────────────────────
+    # Every 4 hours during business days
+    # - cron: '0 */4 * * 1-5'
+    
+    # First day of every month at midnight UTC
+    # - cron: '0 0 1 * *'
+    
+    # Every Sunday at midnight (weekly full regression)
+    # - cron: '0 0 * * 0'
 
 env:
   JAVA_VERSION: '17'
   MAVEN_VERSION: '3.9.5'
+  
+  # ═══════════════════════════════════════════════════════════════════
+  # 📅 SCHEDULED RUN CONFIGURATION
+  # ═══════════════════════════════════════════════════════════════════
+  # Configure what runs automatically when triggered by schedule
+  # These defaults are used ONLY for scheduled runs (cron triggers)
+  # Manual runs via workflow_dispatch use the UI input selections
+  # ═══════════════════════════════════════════════════════════════════
+  SCHEDULED_TEST_SUITE: 'smoke_tests.xml'           # Options: smoke_tests.xml, regression_tests.xml, all_tests.xml
+  SCHEDULED_BROWSER: 'chrome'                        # Options: chrome, firefox, edge
+  SCHEDULED_ENVIRONMENT: 'qa'                        # Options: dev, qa, stage, prodeu, produs
+  SCHEDULED_HEADLESS: 'true'                         # Options: true, false
+  SCHEDULED_LOGIN_TYPE: 'NON_SSO'                    # Options: SSO, NON_SSO
+  SCHEDULED_PAMS_ID: '23139'                         # Target PAMS ID for scheduled runs
 
 jobs:
   e2e-tests:
-    name: 🧪 E2E Tests (${{ github.event.inputs.browser || 'chrome' }})
+    name: 🧪 E2E Tests - ${{ github.event_name == 'schedule' && format('⏰ Scheduled - {0}', env.SCHEDULED_TEST_SUITE) || github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite || 'smoke_tests.xml' }} (${{ github.event.inputs.browser || env.SCHEDULED_BROWSER || 'chrome' }})
     runs-on: ubuntu-latest
     
     strategy:
@@ -244,20 +393,44 @@ jobs:
       - name: 🚀 Execute E2E Tests
         working-directory: e2e-automation
         run: |
-          TEST_SUITE="${{ github.event.inputs.test_suite || 'smoke_tests.xml' }}"
-          BROWSER="${{ github.event.inputs.browser || 'chrome' }}"
-          ENVIRONMENT="${{ github.event.inputs.environment || 'qa' }}"
-          HEADLESS="${{ github.event.inputs.headless_mode || 'true' }}"
-          PARALLEL="${{ github.event.inputs.parallel_execution || 'false' }}"
-          LOGIN_TYPE="${{ github.event.inputs.login_type || 'NON_SSO' }}"
-          PAMS_ID="${{ github.event.inputs.pams_id || '23139' }}"
-          
-          INPUT_USERNAME="${{ github.event.inputs.username }}"
+          # Detect if this is a scheduled run or manual run
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "⏰ SCHEDULED RUN DETECTED - Using scheduled configuration"
+            EXECUTION_MODE="test_suite"
+            TEST_SUITE="${{ env.SCHEDULED_TEST_SUITE }}"
+            INDIVIDUAL_RUNNER=""
+            BROWSER="${{ env.SCHEDULED_BROWSER }}"
+            ENVIRONMENT="${{ env.SCHEDULED_ENVIRONMENT }}"
+            HEADLESS="${{ env.SCHEDULED_HEADLESS }}"
+            PARALLEL="false"
+            LOGIN_TYPE="${{ env.SCHEDULED_LOGIN_TYPE }}"
+            PAMS_ID="${{ env.SCHEDULED_PAMS_ID }}"
+            INPUT_USERNAME=""
+          else
+            echo "👤 MANUAL RUN DETECTED - Using workflow inputs"
+            EXECUTION_MODE="${{ github.event.inputs.execution_mode || 'test_suite' }}"
+            TEST_SUITE="${{ github.event.inputs.test_suite || 'smoke_tests.xml' }}"
+            INDIVIDUAL_RUNNER="${{ github.event.inputs.individual_runner || '' }}"
+            BROWSER="${{ github.event.inputs.browser || 'chrome' }}"
+            ENVIRONMENT="${{ github.event.inputs.environment || 'qa' }}"
+            HEADLESS="${{ github.event.inputs.headless_mode || 'true' }}"
+            PARALLEL="${{ github.event.inputs.parallel_execution || 'false' }}"
+            LOGIN_TYPE="${{ github.event.inputs.login_type || 'NON_SSO' }}"
+            PAMS_ID="${{ github.event.inputs.pams_id || '23139' }}"
+            INPUT_USERNAME="${{ github.event.inputs.username }}"
+          fi
           
           echo "════════════════════════════════════════"
           echo "    E2E TEST EXECUTION CONFIGURATION"
           echo "════════════════════════════════════════"
-          echo "Test Suite: ${TEST_SUITE}"
+          echo "Execution Mode: ${EXECUTION_MODE}"
+          
+          if [ "${EXECUTION_MODE}" = "individual_runner" ]; then
+            echo "🏃 Individual Runner: ${INDIVIDUAL_RUNNER}"
+          else
+            echo "📋 Test Suite: ${TEST_SUITE}"
+          fi
+          
           echo "Browser: ${BROWSER}"
           echo "Environment: ${ENVIRONMENT}"
           echo "Login Type: ${LOGIN_TYPE}"
@@ -272,17 +445,24 @@ jobs:
           echo "Working Directory: $(pwd)"
           echo "════════════════════════════════════════"
           
-          # Verify test suite file exists
-          if [ ! -f "${TEST_SUITE}" ]; then
-            echo "❌ ERROR: Test suite file not found: ${TEST_SUITE}"
-            echo "📂 Available suite files:"
-            ls -la *.xml || echo "No XML files found in current directory"
-            exit 1
+          # Build Maven command based on execution mode
+          if [ "${EXECUTION_MODE}" = "individual_runner" ]; then
+            # Run individual test runner
+            RUNNER_CLASS="testrunners.functional.JobMapping.${INDIVIDUAL_RUNNER}"
+            echo "🏃 Running individual test runner: ${RUNNER_CLASS}"
+            MVN_CMD="mvn test -Dtest=${RUNNER_CLASS}"
+          else
+            # Run test suite XML
+            # Verify test suite file exists
+            if [ ! -f "${TEST_SUITE}" ]; then
+              echo "❌ ERROR: Test suite file not found: ${TEST_SUITE}"
+              echo "📂 Available suite files:"
+              ls -la *.xml || echo "No XML files found in current directory"
+              exit 1
+            fi
+            echo "✅ Test suite file found: ${TEST_SUITE}"
+            MVN_CMD="mvn test -DsuiteXmlFile=${TEST_SUITE}"
           fi
-          echo "✅ Test suite file found: ${TEST_SUITE}"
-          
-          # Build Maven command
-          MVN_CMD="mvn test -DsuiteXmlFile=${TEST_SUITE}"
           
           # Add browser parameter (if needed by your framework)
           # MVN_CMD="${MVN_CMD} -Dbrowser=${BROWSER}"
@@ -290,8 +470,8 @@ jobs:
           # Add environment parameter (if needed by your framework)
           # MVN_CMD="${MVN_CMD} -Denvironment=${ENVIRONMENT}"
           
-          # Add parallel execution if enabled
-          if [ "${PARALLEL}" = "true" ]; then
+          # Add parallel execution if enabled (only for test suite mode)
+          if [ "${PARALLEL}" = "true" ] && [ "${EXECUTION_MODE}" = "test_suite" ]; then
             MVN_CMD="${MVN_CMD} -Dparallel=methods -DthreadCount=3"
             echo "⚡ Parallel execution enabled (3 threads)"
           fi
@@ -333,10 +513,32 @@ jobs:
         run: |
           echo "## 🧪 Test Execution Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Test Suite:** ${{ github.event.inputs.test_suite || 'smoke_tests.xml' }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Browser:** ${{ github.event.inputs.browser || 'chrome' }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Environment:** ${{ github.event.inputs.environment || 'qa' }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Headless Mode:** ${{ github.event.inputs.headless_mode || 'true' }}" >> $GITHUB_STEP_SUMMARY
+          
+          # Show trigger type
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "**Trigger:** ⏰ Scheduled Run (Automatic)" >> $GITHUB_STEP_SUMMARY
+            echo "**Test Suite:** ${{ env.SCHEDULED_TEST_SUITE }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Browser:** ${{ env.SCHEDULED_BROWSER }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Environment:** ${{ env.SCHEDULED_ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Headless Mode:** ${{ env.SCHEDULED_HEADLESS }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Login Type:** ${{ env.SCHEDULED_LOGIN_TYPE }}" >> $GITHUB_STEP_SUMMARY
+            echo "**PAMS ID:** ${{ env.SCHEDULED_PAMS_ID }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Trigger:** 👤 Manual Run" >> $GITHUB_STEP_SUMMARY
+            EXECUTION_MODE="${{ github.event.inputs.execution_mode || 'test_suite' }}"
+            echo "**Execution Mode:** ${EXECUTION_MODE}" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "${EXECUTION_MODE}" = "individual_runner" ]; then
+              echo "**Runner:** ${{ github.event.inputs.individual_runner }}" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "**Test Suite:** ${{ github.event.inputs.test_suite || 'smoke_tests.xml' }}" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            echo "**Browser:** ${{ github.event.inputs.browser || 'chrome' }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Environment:** ${{ github.event.inputs.environment || 'qa' }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Headless Mode:** ${{ github.event.inputs.headless_mode || 'true' }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📂 **Reports Available:** ExtentReports, Excel Reports, Screenshots" >> $GITHUB_STEP_SUMMARY
       
