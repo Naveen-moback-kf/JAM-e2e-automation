@@ -266,14 +266,21 @@ public class DailyExcelTracker {
 
     private static void collectTestNGResults(TestResultsSummary summary) {
         try {
-            File testOutputDir = new File("test-output");
-            if (!testOutputDir.exists()) {
-                return;
-            }
-
-            File testngResults = new File(testOutputDir, "testng-results.xml");
+            // Try multiple locations for testng-results.xml
+            // Location 1: test-output/testng-results.xml (test suite execution)
+            File testngResults = new File("test-output", "testng-results.xml");
+            
+            // Location 2: target/surefire-reports/testng-results.xml (Maven Surefire with -Dtest)
+            File surefireTestngResults = new File("target/surefire-reports", "testng-results.xml");
+            
             if (testngResults.exists()) {
+                LOGGER.debug("Found TestNG results at: test-output/testng-results.xml");
                 parseTestNGXML(testngResults, summary);
+            } else if (surefireTestngResults.exists()) {
+                LOGGER.debug("Found TestNG results at: target/surefire-reports/testng-results.xml (Surefire location)");
+                parseTestNGXML(surefireTestngResults, summary);
+            } else {
+                LOGGER.debug("TestNG results not found in test-output/ or target/surefire-reports/");
             }
 
         } catch (Exception e) {
