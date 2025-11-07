@@ -511,6 +511,37 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
       
+      - name: 🔍 Debug - List Excel Report Files
+        if: always()
+        run: |
+          echo "═══════════════════════════════════════════════"
+          echo "🔍 Searching for Excel Reports..."
+          echo "═══════════════════════════════════════════════"
+          
+          echo ""
+          echo "📂 Current directory:"
+          pwd
+          
+          echo ""
+          echo "📂 Checking e2e-automation/ExcelReports/:"
+          if [ -d "e2e-automation/ExcelReports" ]; then
+            echo "✅ Directory exists!"
+            ls -laR e2e-automation/ExcelReports/
+          else
+            echo "❌ Directory does NOT exist"
+          fi
+          
+          echo ""
+          echo "📂 Checking for ExcelReports anywhere in e2e-automation:"
+          find e2e-automation -type d -name "ExcelReports" 2>/dev/null || echo "No ExcelReports directories found"
+          
+          echo ""
+          echo "📂 Looking for *.xlsx files in e2e-automation:"
+          find e2e-automation -name "*.xlsx" -type f 2>/dev/null || echo "No .xlsx files found"
+          
+          echo ""
+          echo "═══════════════════════════════════════════════"
+      
       - name: 📤 Upload Excel Reports
         if: always()
         uses: actions/upload-artifact@v4
