@@ -297,6 +297,26 @@ jobs:
           mkdir -p e2e-automation/logs
           mkdir -p e2e-automation/JobCatalogBackups
       
+      - name: 📥 Download Previous Excel Report (if exists)
+        continue-on-error: true
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: jobmapping_e2e_tests.yml
+          name: excel-reports-${{ matrix.browser }}
+          path: e2e-automation/ExcelReports/
+          if_no_artifact_found: ignore
+          search_artifacts: true
+          workflow_conclusion: ""
+      
+      - name: ✅ Check for Existing Excel Report
+        run: |
+          if [ -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" ]; then
+            echo "✅ Found existing Excel report - will append new results to it"
+            ls -lh e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx
+          else
+            echo "ℹ️  No existing Excel report found - will create new one"
+          fi
+      
       - name: ⚙️ Configure Test Environment
         working-directory: e2e-automation
         run: |
