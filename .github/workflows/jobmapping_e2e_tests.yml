@@ -399,7 +399,9 @@ jobs:
             # Run individual test runner
             RUNNER_CLASS="testrunners.functional.JobMapping.${INDIVIDUAL_RUNNER}"
             echo "🏃 Running individual test runner: ${RUNNER_CLASS}"
-            MVN_CMD="mvn test -Dtest=${RUNNER_CLASS}"
+            # Force TestNG to generate XML results for Excel reporting
+            # Set TestNG output directory and ensure XML reports are generated
+            MVN_CMD="mvn test -Dtest=${RUNNER_CLASS} -Dtestng.outputdir=test-output"
           else
             # Run test suite XML
             # Verify test suite file exists
@@ -443,19 +445,53 @@ jobs:
           echo "✅ Test execution completed"
           echo ""
           
-          # Display summary
+          # Display detailed test output summary
+          echo "═══════════════════════════════════════════════"
+          echo "📊 Test Output Summary"
+          echo "═══════════════════════════════════════════════"
+          
+          # Check TestNG results
           if [ -f "test-output/testng-results.xml" ]; then
-            echo "📊 TestNG results file generated successfully"
+            echo "✅ TestNG results file: test-output/testng-results.xml ($(wc -l < test-output/testng-results.xml) lines)"
           else
-            echo "⚠️  TestNG results file not found"
+            echo "❌ TestNG results file NOT FOUND: test-output/testng-results.xml"
           fi
           
+          # List everything in test-output
+          if [ -d "test-output" ]; then
+            echo ""
+            echo "📂 Contents of test-output/:"
+            ls -lah test-output/ || echo "Cannot list test-output/"
+          else
+            echo "❌ test-output/ directory does NOT exist"
+          fi
+          
+          # Check Surefire reports
+          if [ -d "target/surefire-reports" ]; then
+            echo ""
+            echo "📂 Contents of target/surefire-reports/:"
+            ls -lah target/surefire-reports/ | head -20
+          fi
+          
+          # Check ExtentReports
           if [ -d "test-output/ExtentReports" ]; then
-            echo "📈 ExtentReports directory exists"
+            echo ""
+            echo "✅ ExtentReports directory exists"
             ls -la test-output/ExtentReports/ || echo "ExtentReports directory is empty"
           else
             echo "⚠️  ExtentReports directory not found"
           fi
+          
+          # Check ExcelReports
+          if [ -d "ExcelReports" ]; then
+            echo ""
+            echo "✅ ExcelReports directory exists"
+            ls -la ExcelReports/ || echo "ExcelReports directory is empty"
+          else
+            echo "⚠️  ExcelReports directory not found"
+          fi
+          
+          echo "═══════════════════════════════════════════════"
       
       - name: 📊 Generate Test Report Summary
         if: always()
