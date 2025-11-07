@@ -147,17 +147,10 @@ on:
         default: '23139'
         type: string
       
-      username:
-        description: 'Login Username (optional - uses GitHub Secret if empty)'
-        required: false
-        default: ''
-        type: string
-      
-      password:
-        description: '⚠️ Login Password (VISIBLE IN LOGS - use GitHub Secrets instead!)'
-        required: false
-        default: ''
-        type: string
+      # Note: Username and password inputs removed due to GitHub's 10-input limit
+      # All credentials are now sourced from GitHub Secrets (more secure)
+      # Configure in: Settings > Secrets and variables > Actions
+      # Required secrets: SSO_USERNAME, SSO_PASSWORD, NON_SSO_USERNAME, NON_SSO_PASSWORD
   
   # ═══════════════════════════════════════════════════════════════════
   # 📅 SCHEDULED RUNS - CURRENTLY DISABLED (Manual execution only)
@@ -318,8 +311,6 @@ jobs:
           ENVIRONMENT="${{ github.event.inputs.environment || 'Dev' }}"
           LOGIN_TYPE="${{ github.event.inputs.login_type || 'NON_SSO' }}"
           PAMS_ID="${{ github.event.inputs.pams_id || '23139' }}"
-          INPUT_USERNAME="${{ github.event.inputs.username }}"
-          INPUT_PASSWORD="${{ github.event.inputs.password }}"
           
           # Update basic settings
           sed -i "s/^headless\.mode=.*/headless.mode=${HEADLESS}/" src/test/resources/config.properties
@@ -328,48 +319,12 @@ jobs:
           sed -i "s/^login\.type=.*/login.type=${LOGIN_TYPE}/" src/test/resources/config.properties
           sed -i "s/^target\.pams\.id=.*/target.pams.id=${PAMS_ID}/" src/test/resources/config.properties
           
-          # Inject credentials - Use input params if provided, otherwise use GitHub Secrets
-          echo "🔐 Injecting credentials..."
-          
-          if [ -n "$INPUT_USERNAME" ] && [ -n "$INPUT_PASSWORD" ]; then
-            echo "⚠️  Using credentials from workflow inputs (VISIBLE IN LOGS)"
-            # Use provided username/password for both SSO and NON_SSO based on login type
-            if [ "$LOGIN_TYPE" = "SSO" ]; then
-              sed -i "s/\${SSO_USERNAME}/${INPUT_USERNAME}/" src/test/resources/config.properties
-              sed -i "s/\${SSO_PASSWORD}/${INPUT_PASSWORD}/" src/test/resources/config.properties
-              sed -i "s/\${NON_SSO_USERNAME}/${{ secrets.NON_SSO_USERNAME }}/" src/test/resources/config.properties
-              sed -i "s/\${NON_SSO_PASSWORD}/${{ secrets.NON_SSO_PASSWORD }}/" src/test/resources/config.properties
-              CRED_SOURCE="Workflow Input (SSO)"
-            else
-              sed -i "s/\${SSO_USERNAME}/${{ secrets.SSO_USERNAME }}/" src/test/resources/config.properties
-              sed -i "s/\${SSO_PASSWORD}/${{ secrets.SSO_PASSWORD }}/" src/test/resources/config.properties
-              sed -i "s/\${NON_SSO_USERNAME}/${INPUT_USERNAME}/" src/test/resources/config.properties
-              sed -i "s/\${NON_SSO_PASSWORD}/${INPUT_PASSWORD}/" src/test/resources/config.properties
-              CRED_SOURCE="Workflow Input (NON_SSO)"
-            fi
-          elif [ -n "$INPUT_USERNAME" ]; then
-            echo "✅ Using username from input + password from GitHub Secrets"
-            if [ "$LOGIN_TYPE" = "SSO" ]; then
-              sed -i "s/\${SSO_USERNAME}/${INPUT_USERNAME}/" src/test/resources/config.properties
-              sed -i "s/\${SSO_PASSWORD}/${{ secrets.SSO_PASSWORD }}/" src/test/resources/config.properties
-              sed -i "s/\${NON_SSO_USERNAME}/${{ secrets.NON_SSO_USERNAME }}/" src/test/resources/config.properties
-              sed -i "s/\${NON_SSO_PASSWORD}/${{ secrets.NON_SSO_PASSWORD }}/" src/test/resources/config.properties
-              CRED_SOURCE="Input Username + Secret Password (SSO)"
-            else
-              sed -i "s/\${SSO_USERNAME}/${{ secrets.SSO_USERNAME }}/" src/test/resources/config.properties
-              sed -i "s/\${SSO_PASSWORD}/${{ secrets.SSO_PASSWORD }}/" src/test/resources/config.properties
-              sed -i "s/\${NON_SSO_USERNAME}/${INPUT_USERNAME}/" src/test/resources/config.properties
-              sed -i "s/\${NON_SSO_PASSWORD}/${{ secrets.NON_SSO_PASSWORD }}/" src/test/resources/config.properties
-              CRED_SOURCE="Input Username + Secret Password (NON_SSO)"
-            fi
-          else
-            echo "✅ Using credentials from GitHub Secrets (SECURE)"
-            sed -i "s/\${SSO_USERNAME}/${{ secrets.SSO_USERNAME }}/" src/test/resources/config.properties
-            sed -i "s/\${SSO_PASSWORD}/${{ secrets.SSO_PASSWORD }}/" src/test/resources/config.properties
-            sed -i "s/\${NON_SSO_USERNAME}/${{ secrets.NON_SSO_USERNAME }}/" src/test/resources/config.properties
-            sed -i "s/\${NON_SSO_PASSWORD}/${{ secrets.NON_SSO_PASSWORD }}/" src/test/resources/config.properties
-            CRED_SOURCE="GitHub Secrets (All Credentials)"
-          fi
+          # Inject credentials from GitHub Secrets (SECURE)
+          echo "🔐 Injecting credentials from GitHub Secrets..."
+          sed -i "s/\${SSO_USERNAME}/${{ secrets.SSO_USERNAME }}/" src/test/resources/config.properties
+          sed -i "s/\${SSO_PASSWORD}/${{ secrets.SSO_PASSWORD }}/" src/test/resources/config.properties
+          sed -i "s/\${NON_SSO_USERNAME}/${{ secrets.NON_SSO_USERNAME }}/" src/test/resources/config.properties
+          sed -i "s/\${NON_SSO_PASSWORD}/${{ secrets.NON_SSO_PASSWORD }}/" src/test/resources/config.properties
           
           echo "✅ config.properties created and configured"
           echo "📋 Configuration Summary:"
@@ -378,7 +333,7 @@ jobs:
           echo "   Headless: ${HEADLESS}"
           echo "   Login Type: ${LOGIN_TYPE}"
           echo "   PAMS ID: ${PAMS_ID}"
-          echo "   Credentials: ${CRED_SOURCE}"
+          echo "   Credentials: GitHub Secrets"
       
       - name: 🖥️ Setup Display for Headless (Linux)
         if: runner.os == 'Linux'
@@ -405,7 +360,6 @@ jobs:
             PARALLEL="false"
             LOGIN_TYPE="${{ env.SCHEDULED_LOGIN_TYPE }}"
             PAMS_ID="${{ env.SCHEDULED_PAMS_ID }}"
-            INPUT_USERNAME=""
           else
             echo "👤 MANUAL RUN DETECTED - Using workflow inputs"
             EXECUTION_MODE="${{ github.event.inputs.execution_mode || 'test_suite' }}"
@@ -417,7 +371,6 @@ jobs:
             PARALLEL="${{ github.event.inputs.parallel_execution || 'false' }}"
             LOGIN_TYPE="${{ github.event.inputs.login_type || 'NON_SSO' }}"
             PAMS_ID="${{ github.event.inputs.pams_id || '23139' }}"
-            INPUT_USERNAME="${{ github.event.inputs.username }}"
           fi
           
           echo "════════════════════════════════════════"
@@ -435,11 +388,7 @@ jobs:
           echo "Environment: ${ENVIRONMENT}"
           echo "Login Type: ${LOGIN_TYPE}"
           echo "PAMS ID: ${PAMS_ID}"
-          if [ -n "$INPUT_USERNAME" ]; then
-            echo "Username: ${INPUT_USERNAME} (from workflow input)"
-          else
-            echo "Username: (from GitHub Secrets)"
-          fi
+          echo "Credentials: GitHub Secrets"
           echo "Headless Mode: ${HEADLESS}"
           echo "Parallel Execution: ${PARALLEL}"
           echo "Working Directory: $(pwd)"
