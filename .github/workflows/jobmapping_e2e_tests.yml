@@ -247,7 +247,7 @@ env:
 
 jobs:
   e2e-tests:
-    name: 🧪 E2E Tests - ${{ github.event_name == 'schedule' && format('⏰ Scheduled - {0}', env.SCHEDULED_TEST_SUITE) || github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite || 'smoke_tests.xml' }} (${{ github.event.inputs.browser || env.SCHEDULED_BROWSER || 'chrome' }})
+    name: 🧪 E2E Tests - ${{ github.event_name == 'schedule' && '⏰ Scheduled Run' || github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite || 'smoke_tests.xml' }} (${{ github.event.inputs.browser || 'chrome' }})
     runs-on: ubuntu-latest
     
     strategy:
