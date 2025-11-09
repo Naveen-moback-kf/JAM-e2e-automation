@@ -1690,7 +1690,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			}
 			
 			// If message doesn't contain "failed", verify it's the expected success message
-			Assert.assertEquals(SyncwithHCMSuccessMsg, "Your profiles are being exported. This may take a few minutes to complete");
+			Assert.assertEquals(SyncwithHCMSuccessMsg, "Your profiles are being exported. This may take a few minutes to complete.");
 			wait.until(ExpectedConditions.visibilityOf(SyncwithHCMSuccessPopupCloseBtn)).click();
 			LOGGER.info("Sync with HCM Success Popup closed successfully in HCM Sync Profiles screen in PM....");
 			ExtentCucumberAdapter.addTestStepLog("Sync with HCM Success Popup closed successfully in HCM Sync Profiles screen in PM....");
