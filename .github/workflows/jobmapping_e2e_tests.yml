@@ -572,10 +572,22 @@ jobs:
           
           # Find TestNG results file - check multiple possible locations
           TESTNG_FILE=""
+          echo "🔍 Searching for TestNG results file..."
+          
+          # Check location 1: test-output
           if [ -f "e2e-automation/test-output/testng-results.xml" ]; then
             TESTNG_FILE="e2e-automation/test-output/testng-results.xml"
-          elif [ -f "e2e-automation/target/surefire-reports/testng-results.xml" ]; then
+            echo "✅ Found TestNG results at: test-output/testng-results.xml"
+          fi
+          
+          # Check location 2: target/surefire-reports (Maven default)
+          if [ -z "$TESTNG_FILE" ] && [ -f "e2e-automation/target/surefire-reports/testng-results.xml" ]; then
             TESTNG_FILE="e2e-automation/target/surefire-reports/testng-results.xml"
+            echo "✅ Found TestNG results at: target/surefire-reports/testng-results.xml"
+          fi
+          
+          if [ -z "$TESTNG_FILE" ]; then
+            echo "❌ TestNG results file not found at any location"
           fi
           
           # Parse TestNG results and display test statistics
