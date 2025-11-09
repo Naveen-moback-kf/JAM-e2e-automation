@@ -568,16 +568,24 @@ jobs:
           
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Parse TestNG results and display test statistics
+          # Find TestNG results file - check multiple possible locations
+          TESTNG_FILE=""
           if [ -f "e2e-automation/test-output/testng-results.xml" ]; then
+            TESTNG_FILE="e2e-automation/test-output/testng-results.xml"
+          elif [ -f "e2e-automation/target/surefire-reports/testng-results.xml" ]; then
+            TESTNG_FILE="e2e-automation/target/surefire-reports/testng-results.xml"
+          fi
+          
+          # Parse TestNG results and display test statistics
+          if [ -n "$TESTNG_FILE" ]; then
             echo "## 📈 Test Results" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             
             # Extract test counts from TestNG XML
-            TOTAL=$(grep -oP '(?<=<testng-results.*total=")[^"]*' e2e-automation/test-output/testng-results.xml || echo "0")
-            PASSED=$(grep -oP '(?<=passed=")[^"]*' e2e-automation/test-output/testng-results.xml || echo "0")
-            FAILED=$(grep -oP '(?<=failed=")[^"]*' e2e-automation/test-output/testng-results.xml || echo "0")
-            SKIPPED=$(grep -oP '(?<=skipped=")[^"]*' e2e-automation/test-output/testng-results.xml || echo "0")
+            TOTAL=$(grep -oP '(?<=<testng-results.*total=")[^"]*' "$TESTNG_FILE" || echo "0")
+            PASSED=$(grep -oP '(?<=passed=")[^"]*' "$TESTNG_FILE" || echo "0")
+            FAILED=$(grep -oP '(?<=failed=")[^"]*' "$TESTNG_FILE" || echo "0")
+            SKIPPED=$(grep -oP '(?<=skipped=")[^"]*' "$TESTNG_FILE" || echo "0")
             
             # Calculate pass rate
             if [ "$TOTAL" -gt 0 ]; then
@@ -610,7 +618,11 @@ jobs:
             echo "**Pass Rate:** ${PASS_RATE}%" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           else
-            echo "⚠️ **Warning:** TestNG results file not found. Test execution may have failed." >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Warning:** TestNG results file not found at expected locations." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Searched locations:" >> $GITHUB_STEP_SUMMARY
+            echo "- \`e2e-automation/test-output/testng-results.xml\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`e2e-automation/target/surefire-reports/testng-results.xml\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
           
