@@ -581,11 +581,16 @@ jobs:
             echo "## 📈 Test Results" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             
-            # Extract test counts from TestNG XML
-            TOTAL=$(grep -oP '(?<=<testng-results.*total=")[^"]*' "$TESTNG_FILE" || echo "0")
-            PASSED=$(grep -oP '(?<=passed=")[^"]*' "$TESTNG_FILE" || echo "0")
-            FAILED=$(grep -oP '(?<=failed=")[^"]*' "$TESTNG_FILE" || echo "0")
-            SKIPPED=$(grep -oP '(?<=skipped=")[^"]*' "$TESTNG_FILE" || echo "0")
+            # Extract test counts from TestNG XML - using simpler regex patterns
+            PASSED=$(grep -oP 'passed="\K[^"]+' "$TESTNG_FILE" | head -1 || echo "0")
+            FAILED=$(grep -oP 'failed="\K[^"]+' "$TESTNG_FILE" | head -1 || echo "0")
+            SKIPPED=$(grep -oP 'skipped="\K[^"]+' "$TESTNG_FILE" | head -1 || echo "0")
+            TOTAL=$(grep -oP 'total="\K[^"]+' "$TESTNG_FILE" | head -1 || echo "0")
+            
+            # If TOTAL is still 0 or not found, calculate it from other values
+            if [ "$TOTAL" -eq 0 ] 2>/dev/null || [ -z "$TOTAL" ]; then
+              TOTAL=$((PASSED + FAILED + SKIPPED))
+            fi
             
             # Calculate pass rate
             if [ "$TOTAL" -gt 0 ]; then
