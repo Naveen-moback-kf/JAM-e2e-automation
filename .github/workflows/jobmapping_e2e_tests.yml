@@ -1,5 +1,14 @@
 name: 🧪 Job Mapping E2E Tests
 
+run-name: |
+  ${{ 
+    github.event_name == 'schedule' && 
+    format('⏰ Scheduled: {0} | {1} | {2}', env.SCHEDULED_TEST_SUITE, env.SCHEDULED_BROWSER, env.SCHEDULED_ENVIRONMENT) || 
+    (github.event.inputs.execution_mode == 'individual_runner' && 
+    format('🏃 {0} | {1} | {2}', github.event.inputs.individual_runner, github.event.inputs.browser, github.event.inputs.environment)) || 
+    format('📋 {0} | {1} | {2}', github.event.inputs.test_suite, github.event.inputs.browser, github.event.inputs.environment)
+  }}
+
 on:
   # Automatic triggers disabled - Manual execution only
   # Uncomment below to re-enable automatic execution on push/PR
@@ -368,6 +377,8 @@ jobs:
       - name: 🚀 Execute E2E Tests
         working-directory: e2e-automation
         run: |
+          # Record start time
+          START_TIME=$(date +%s)
           # Detect if this is a scheduled run or manual run
           if [ "${{ github.event_name }}" = "schedule" ]; then
             echo "⏰ SCHEDULED RUN DETECTED - Using scheduled configuration"
@@ -465,6 +476,14 @@ jobs:
           echo "✅ Test execution completed"
           echo ""
           
+          # Calculate and display execution time
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          echo "⏱️  Total Execution Time: ${MINUTES}m ${SECONDS}s"
+          echo ""
+          
           # Display detailed test output summary
           echo "═══════════════════════════════════════════════"
           echo "📊 Test Output Summary"
@@ -542,10 +561,71 @@ jobs:
             echo "**Browser:** ${{ github.event.inputs.browser || 'chrome' }}" >> $GITHUB_STEP_SUMMARY
             echo "**Environment:** ${{ github.event.inputs.environment || 'qa' }}" >> $GITHUB_STEP_SUMMARY
             echo "**Headless Mode:** ${{ github.event.inputs.headless_mode || 'true' }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Parallel Execution:** ${{ github.event.inputs.parallel_execution || 'false' }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Login Type:** ${{ github.event.inputs.login_type || 'NON_SSO' }}" >> $GITHUB_STEP_SUMMARY
+            echo "**PAMS ID:** ${{ github.event.inputs.pams_id || '23139' }}" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📂 **Reports Available:** ExtentReports, Excel Reports, Screenshots" >> $GITHUB_STEP_SUMMARY
+          
+          # Parse TestNG results and display test statistics
+          if [ -f "e2e-automation/test-output/testng-results.xml" ]; then
+            echo "## 📈 Test Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Extract test counts from TestNG XML
+            TOTAL=$(grep -oP '(?<=<testng-results.*total=")[^"]*' e2e-automation/test-output/testng-results.xml || echo "0")
+            PASSED=$(grep -oP '(?<=passed=")[^"]*' e2e-automation/test-output/testng-results.xml || echo "0")
+            FAILED=$(grep -oP '(?<=failed=")[^"]*' e2e-automation/test-output/testng-results.xml || echo "0")
+            SKIPPED=$(grep -oP '(?<=skipped=")[^"]*' e2e-automation/test-output/testng-results.xml || echo "0")
+            
+            # Calculate pass rate
+            if [ "$TOTAL" -gt 0 ]; then
+              PASS_RATE=$(awk "BEGIN {printf \"%.1f\", ($PASSED/$TOTAL)*100}")
+            else
+              PASS_RATE="0.0"
+            fi
+            
+            # Determine status emoji
+            if [ "$FAILED" -eq 0 ] && [ "$PASSED" -gt 0 ]; then
+              STATUS_EMOJI="✅"
+              STATUS_TEXT="All Tests Passed"
+            elif [ "$FAILED" -gt 0 ]; then
+              STATUS_EMOJI="❌"
+              STATUS_TEXT="Some Tests Failed"
+            else
+              STATUS_EMOJI="⚠️"
+              STATUS_TEXT="No Tests Executed"
+            fi
+            
+            echo "### ${STATUS_EMOJI} ${STATUS_TEXT}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Count | Percentage |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|------------|" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ **Passed** | **${PASSED}** | $(awk "BEGIN {printf \"%.1f%%\", ($PASSED/$TOTAL)*100}" 2>/dev/null || echo "N/A") |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ **Failed** | **${FAILED}** | $(awk "BEGIN {printf \"%.1f%%\", ($FAILED/$TOTAL)*100}" 2>/dev/null || echo "N/A") |" >> $GITHUB_STEP_SUMMARY
+            echo "| ⏭️ **Skipped** | **${SKIPPED}** | $(awk "BEGIN {printf \"%.1f%%\", ($SKIPPED/$TOTAL)*100}" 2>/dev/null || echo "N/A") |" >> $GITHUB_STEP_SUMMARY
+            echo "| 📊 **Total** | **${TOTAL}** | 100% |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Pass Rate:** ${PASS_RATE}%" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Warning:** TestNG results file not found. Test execution may have failed." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Add quick links to artifacts
+          echo "## 📦 Available Reports & Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "After the workflow completes, the following artifacts will be available for download:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 **Extent Report** - Detailed HTML test report with screenshots" >> $GITHUB_STEP_SUMMARY
+          echo "- 📈 **Excel Reports** - Comprehensive test results in Excel format" >> $GITHUB_STEP_SUMMARY
+          echo "- 🧪 **TestNG Results** - Raw TestNG XML and HTML reports" >> $GITHUB_STEP_SUMMARY
+          echo "- 📝 **Logs** - Detailed execution logs for debugging" >> $GITHUB_STEP_SUMMARY
+          echo "- 📸 **Screenshots** - Failure screenshots (if any tests failed)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> 💡 **Tip:** Click on the 'Summary' tab above to download artifacts quickly!" >> $GITHUB_STEP_SUMMARY
       
       - name: 📤 Upload Extent Report
         if: always()
