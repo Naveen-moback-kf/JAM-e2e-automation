@@ -3,7 +3,7 @@ name: 🧪 Job Mapping E2E Tests
 run-name: |
   ${{ 
     github.event_name == 'schedule' && 
-    format('⏰ Scheduled: {0} | {1} | {2}', env.SCHEDULED_TEST_SUITE, env.SCHEDULED_BROWSER, env.SCHEDULED_ENVIRONMENT) || 
+    '⏰ Scheduled Run | smoke_tests.xml | chrome | qa' || 
     (github.event.inputs.execution_mode == 'individual_runner' && 
     format('🏃 {0} | {1} | {2}', github.event.inputs.individual_runner, github.event.inputs.browser, github.event.inputs.environment)) || 
     format('📋 {0} | {1} | {2}', github.event.inputs.test_suite, github.event.inputs.browser, github.event.inputs.environment)
