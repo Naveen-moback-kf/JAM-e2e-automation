@@ -311,11 +311,13 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         with:
           workflow: jobmapping_e2e_tests.yml
-          name: excel-reports-${{ matrix.browser }}
+          name_is_regexp: true
+          name: ^excel-reports_.*
           path: e2e-automation/ExcelReports/
           if_no_artifact_found: ignore
           search_artifacts: true
           workflow_conclusion: ""
+          check_artifacts: true
       
       - name: ✅ Check for Existing Excel Report
         run: |
@@ -648,7 +650,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: extent-report-${{ matrix.browser }}
+          name: extent-report_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
           path: e2e-automation/test-output/ExtentReports/
           retention-days: 30
           if-no-files-found: ignore
@@ -657,7 +659,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: testng-results-${{ matrix.browser }}
+          name: testng-results_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
           path: |
             e2e-automation/test-output/testng-results.xml
             e2e-automation/test-output/emailable-report.html
@@ -701,7 +703,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: excel-reports-${{ matrix.browser }}
+          name: excel-reports_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
           path: e2e-automation/ExcelReports/
           retention-days: 30
           if-no-files-found: ignore
@@ -710,7 +712,7 @@ jobs:
         if: failure() || contains(github.event.head_commit.message, 'force-screenshots')
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots-${{ matrix.browser }}
+          name: screenshots_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
           path: e2e-automation/test-output/screenshots/
           retention-days: 7
           if-no-files-found: ignore
@@ -719,7 +721,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: logs-${{ matrix.browser }}
+          name: logs_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
           path: e2e-automation/logs/
           retention-days: 7
           if-no-files-found: warn
