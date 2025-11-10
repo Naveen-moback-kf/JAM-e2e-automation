@@ -3,7 +3,7 @@ name: 🧪 Job Mapping E2E Tests
 run-name: |
   ${{ 
     github.event_name == 'schedule' && 
-    '⏰ Scheduled Run | smoke_tests.xml | chrome | qa' || 
+    '⏰ Scheduled Run | JAM_SmokeTestSuite.xml | chrome | qa' || 
     (github.event.inputs.execution_mode == 'individual_runner' && 
     format('🏃 {0} | {1} | {2}', github.event.inputs.individual_runner, github.event.inputs.browser, github.event.inputs.environment)) || 
     format('📋 {0} | {1} | {2}', github.event.inputs.test_suite, github.event.inputs.browser, github.event.inputs.environment)
@@ -38,12 +38,12 @@ on:
       test_suite:
         description: '📋 Test Suite to Execute (when execution_mode = test_suite)'
         required: false
-        default: 'smoke_tests.xml'
+        default: 'JAM_SmokeTestSuite.xml'
         type: choice
         options:
-          - smoke_tests.xml
-          - regression_tests.xml
-          - all_tests.xml
+          - JAM_SanityTestSuite.xml
+          - JAM_SmokeTestSuite.xml
+          - JAM_RegressionTestSuite.xml
       
       individual_runner:
         description: '🏃 Individual Runner (when execution_mode = individual_runner)'
@@ -240,7 +240,7 @@ env:
   # These defaults are used ONLY for scheduled runs (cron triggers)
   # Manual runs via workflow_dispatch use the UI input selections
   # ═══════════════════════════════════════════════════════════════════
-  SCHEDULED_TEST_SUITE: 'smoke_tests.xml'           # Options: smoke_tests.xml, regression_tests.xml, all_tests.xml
+  SCHEDULED_TEST_SUITE: 'JAM_SmokeTestSuite.xml'    # Options: JAM_SanityTestSuite.xml, JAM_SmokeTestSuite.xml, JAM_RegressionTestSuite.xml
   SCHEDULED_BROWSER: 'chrome'                        # Options: chrome, firefox, edge
   SCHEDULED_ENVIRONMENT: 'qa'                        # Options: dev, qa, stage, prodeu, produs
   SCHEDULED_HEADLESS: 'true'                         # Options: true, false
@@ -249,7 +249,7 @@ env:
 
 jobs:
   e2e-tests:
-    name: 🧪 E2E Tests - ${{ github.event_name == 'schedule' && '⏰ Scheduled Run' || github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite || 'smoke_tests.xml' }} (${{ github.event.inputs.browser || 'chrome' }})
+    name: 🧪 E2E Tests - ${{ github.event_name == 'schedule' && '⏰ Scheduled Run' || github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }} (${{ github.event.inputs.browser || 'chrome' }})
     runs-on: ubuntu-latest
     
     strategy:
@@ -304,7 +304,7 @@ jobs:
           mkdir -p e2e-automation/test-output/screenshots
           mkdir -p e2e-automation/ExcelReports
           mkdir -p e2e-automation/logs
-          mkdir -p e2e-automation/JobCatalogBackups
+          mkdir -p e2e-automation/src/test/resources/JobCatalogBackups
       
       - name: 📥 Download Previous Excel Report (if exists)
         continue-on-error: true
@@ -396,7 +396,7 @@ jobs:
           else
             echo "👤 MANUAL RUN DETECTED - Using workflow inputs"
             EXECUTION_MODE="${{ github.event.inputs.execution_mode || 'test_suite' }}"
-            TEST_SUITE="${{ github.event.inputs.test_suite || 'smoke_tests.xml' }}"
+            TEST_SUITE="${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}"
             INDIVIDUAL_RUNNER="${{ github.event.inputs.individual_runner || '' }}"
             BROWSER="${{ github.event.inputs.browser || 'chrome' }}"
             ENVIRONMENT="${{ github.event.inputs.environment || 'qa' }}"
@@ -557,7 +557,7 @@ jobs:
             if [ "${EXECUTION_MODE}" = "individual_runner" ]; then
               echo "**Runner:** ${{ github.event.inputs.individual_runner }}" >> $GITHUB_STEP_SUMMARY
             else
-              echo "**Test Suite:** ${{ github.event.inputs.test_suite || 'smoke_tests.xml' }}" >> $GITHUB_STEP_SUMMARY
+              echo "**Test Suite:** ${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}" >> $GITHUB_STEP_SUMMARY
             fi
             
             echo "**Browser:** ${{ github.event.inputs.browser || 'chrome' }}" >> $GITHUB_STEP_SUMMARY
@@ -748,7 +748,7 @@ jobs:
             let comment = `## 🧪 E2E Test Results\n\n`;
             comment += `**Status:** ${{ job.status }}\n`;
             comment += `**Browser:** ${{ github.event.inputs.browser || 'chrome' }}\n`;
-            comment += `**Test Suite:** ${{ github.event.inputs.test_suite || 'smoke_tests.xml' }}\n\n`;
+            comment += `**Test Suite:** ${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}\n\n`;
             comment += `📊 [View Full Report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})\n`;
             
             try {
