@@ -136,10 +136,8 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.2.5</version>
 				<configuration>
-					<!-- Default test suite -->
-					<suiteXmlFiles>
-						<suiteXmlFile>JAM_SmokeTestSuite.xml</suiteXmlFile>
-					</suiteXmlFiles>
+					<!-- Test suite specified via command line: -DsuiteXmlFile=<suite>.xml -->
+					<!-- No default suite - must be provided at runtime -->
 					<!-- Enable parallel execution for cross-browser testing -->
 					<parallel>methods</parallel>
 					<threadCount>3</threadCount>
