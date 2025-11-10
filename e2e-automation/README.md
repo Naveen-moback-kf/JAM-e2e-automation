@@ -74,9 +74,9 @@ This project is built using modern, enterprise-ready technologies:
 ## 📁 Project Structure
 
 ```
-e2e-automation/
+kfonetalentsuite/
 ├── src/
-│   ├── main/java/com/JobMapping/
+│   ├── main/java/com/kfonetalentsuite/
 │   │   ├── listeners/           # TestNG listeners with Excel integration
 │   │   │   └── ExcelReportListener.java      # Enhanced Excel reporting (Normal and Cross-Browser execution)
 │   │   ├── manager/            # Page Object Manager
@@ -232,7 +232,7 @@ e2e-automation/
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd "e2e-automation"
+   cd "kfonetalentsuite"
    ```
 
 2. **Install Maven dependencies**
@@ -484,7 +484,7 @@ DailyExcelTracker.generateDailyReport();
 **PDF Conversion** (Optional):
 ```bash
 # Convert Excel report to PDF
-java -cp "target/classes:lib/*" com.JobMapping.utils.PDFReportGenerator
+java -cp "target/classes:lib/*" com.kfonetalentsuite.utils.PDFReportGenerator
 ```
 
 ### 📸 ExtentReports (Technical + Visual)
@@ -813,13 +813,13 @@ mvn test -Dscreenshot.enabled=true -Dscreenshot.debug=true
 - Maintain professional, clean codebase
 - Implement consistent error handling patterns
 - Use meaningful variable names and comprehensive documentation
-- Follow package naming conventions (com.JobMapping.*)
+- Follow package naming conventions (com.kfonetalentsuite.*)
 
 ## 🤝 Contributing
 
 ### Development Guidelines
 1. **Code Standards**: Follow existing code structure and naming conventions
-2. **Package Naming**: Use `com.JobMapping.*` package structure
+2. **Package Naming**: Use `com.kfonetalentsuite.*` package structure
 3. **Documentation**: Add comprehensive javadoc for new methods and classes
 4. **Testing**: Implement both positive and negative test scenarios
 5. **Error Handling**: Include ScreenshotHandler for all new page object methods
@@ -857,10 +857,10 @@ mvn test -Dlog.level=debug -Dscreenshot.enabled=true
 mvn test -Dheadless.mode=true
 
 # Generate manual Excel report
-mvn exec:java -Dexec.mainClass="com.JobMapping.utils.DailyExcelTracker"
+mvn exec:java -Dexec.mainClass="com.kfonetalentsuite.utils.DailyExcelTracker"
 
 # Convert Excel to PDF
-java -cp "target/classes:lib/*" com.JobMapping.utils.PDFReportGenerator
+java -cp "target/classes:lib/*" com.kfonetalentsuite.utils.PDFReportGenerator
 ```
 
 ---
@@ -884,7 +884,7 @@ java -cp "target/classes:lib/*" com.JobMapping.utils.PDFReportGenerator
 
 **Last Updated**: November 2025  
 **Framework Version**: 2.2.0-SNAPSHOT  
-**Package Namespace**: com.JobMapping  
+**Package Namespace**: com.kfonetalentsuite  
 **Maintained By**: QA Automation Team  
 
 ### 🚀 Release History

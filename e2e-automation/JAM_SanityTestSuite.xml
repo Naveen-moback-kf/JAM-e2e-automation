@@ -4,7 +4,7 @@
 <suite name="Job Mapping - Sanity Test Suite" preserve-order="true" verbose="1" thread-count="1">
     
     <listeners> 
-        <listener class-name="com.JobMapping.listeners.ExcelReportListener" />
+        <listener class-name="com.kfonetalentsuite.listeners.ExcelReportListener" />
     </listeners>
     
     <!-- SANITY TESTS - Critical Path Tests (7 tests) -->
@@ -14,49 +14,49 @@
     <!-- 1. Login - Must be able to login -->
     <test name="KFone Login">
         <classes>
-            <class name="testrunners.functional.JobMapping.Runner01_KFoneLogin" />
+            <class name="testrunners.JobMapping.Runner01_KFoneLogin" />
         </classes>
     </test>
     
     <!-- 2. Core job loading functionality -->
     <test name="Validate Add More Jobs Functionality">
         <classes>
-            <class name="testrunners.functional.JobMapping.Runner02_ValidateAddMoreJobsFunctionality" />
+            <class name="testrunners.JobMapping.Runner02_ValidateAddMoreJobsFunctionality" />
         </classes>
     </test>
     
     <!-- 3. Basic UI loads correctly -->
     <test name="Verify Job Mapping Page Components">
         <classes>
-            <class name="testrunners.functional.JobMapping.Runner04_VerifyJobMappingPageComponents" />
+            <class name="testrunners.JobMapping.Runner04_VerifyJobMappingPageComponents" />
         </classes>
     </test>
     
     <!-- 4. Core publish workflow works -->
     <test name="Publish Job From Details Popup">
         <classes>
-            <class name="testrunners.functional.JobMapping.Runner08_PublishJobFromDetailsPopup" />
+            <class name="testrunners.JobMapping.Runner08_PublishJobFromDetailsPopup" />
         </classes>
     </test>
     
     <!-- 5. Basic filtering works -->
     <test name="Validate Function Subfunction Filters">
         <classes>
-            <class name="testrunners.functional.JobMapping.Runner11c_ValidateFunctionSubfunctionFilters" />
+            <class name="testrunners.JobMapping.Runner11c_ValidateFunctionSubfunctionFilters" />
         </classes>
     </test>
     
     <!-- 6. PM module accessible -->
     <test name="Validate HCM Sync Profiles Tab in PM">
         <classes>
-            <class name="testrunners.functional.JobMapping.Runner22_ValidateHCMSyncProfilesTab_PM" />
+            <class name="testrunners.JobMapping.Runner22_ValidateHCMSyncProfilesTab_PM" />
         </classes>
     </test>
     
     <!-- 7. JAM module accessible -->
     <test name="Validate Select And Publish Loaded Profiles in JAM">
         <classes>
-            <class name="testrunners.functional.JobMapping.Runner37_ValidateSelectAndPublishLoadedProfiles_JAM" />
+            <class name="testrunners.JobMapping.Runner37_ValidateSelectAndPublishLoadedProfiles_JAM" />
         </classes>
     </test>
     
