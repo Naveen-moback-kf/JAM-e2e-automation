@@ -116,8 +116,8 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 	@CacheLookup
 	public WebElement KFONEjobsCount;
 	
-	@FindBy(xpath = "//button[@id='btnUpload']")
-	public WebElement uploadFileBtn;
+	@FindBy(xpath = "//*[@aria-label='Browse Files']")
+	public WebElement browseFilesBtn;
 	
 	@FindBy(xpath = "//div[contains(@class,'text-ods-font-styles-body-regular-small')]")
 	@CacheLookup
@@ -347,9 +347,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 		}
 	}
 	
-	public void upload_job_catalog_file_using_attach_file_button() {
+	public void upload_job_catalog_file_using_browse_files_button() {
 		String uploadFilePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + 
-								"test" + File.separator + "resources" + File.separator + "Job Catalog with 50 profiles.csv";
+								"test" + File.separator + "resources" + File.separator + "Job Catalog with 100 profiles.csv";
 		
 		// Verify file exists before attempting upload
 		File uploadFile = new File(uploadFilePath);
@@ -388,8 +388,8 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			
 			// Verify upload success
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(attachedFileName)).isDisplayed());
-			LOGGER.info("Job catalog file uploaded successfully using Attach File button...");
-			ExtentCucumberAdapter.addTestStepLog("Job catalog file uploaded successfully using Attach File button...");
+			LOGGER.info("Job catalog file uploaded successfully using Browse Files button...");
+			ExtentCucumberAdapter.addTestStepLog("Job catalog file uploaded successfully using Browse Files button...");
 			
 			String uploadedFileNameText = wait.until(ExpectedConditions.visibilityOf(attachedFileName)).getText();
 			LOGGER.info("File name : " + uploadedFileNameText + " is displaying on KFONE Add Job Data screen as Expected");
@@ -455,10 +455,10 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			LOGGER.info("Attempting Strategy 2: Click button then find input approach...");
 			
 			// Get button text before clicking to avoid stale element issues
-			String buttonText = uploadFileBtn.getText();
+			String buttonText = browseFilesBtn.getText();
 			
 			// Click the upload button to potentially reveal hidden input
-			wait.until(ExpectedConditions.elementToBeClickable(uploadFileBtn)).click();
+			wait.until(ExpectedConditions.elementToBeClickable(browseFilesBtn)).click();
 			LOGGER.info("Clicked on " + buttonText + " Button....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on " + buttonText + " Button....");
 			
@@ -556,7 +556,7 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			LOGGER.warn("Using Robot class - this will not work in headless mode");
 			
 			// Ensure upload button is clicked
-			wait.until(ExpectedConditions.elementToBeClickable(uploadFileBtn)).click();
+			wait.until(ExpectedConditions.elementToBeClickable(browseFilesBtn)).click();
 			
 			// Using Robot Class Methods (original implementation)
 			Robot rb = new Robot();

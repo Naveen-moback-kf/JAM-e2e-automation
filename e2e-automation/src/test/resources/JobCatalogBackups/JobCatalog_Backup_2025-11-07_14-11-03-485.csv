@@ -1,0 +1,51 @@
+﻿Client Job Code,Client Job Title,Department,Job Family,Job Sub Family,Job Grade,Is Executive
+JOB-01-20251107141008, Automation Engineer 20251107141008, Education, UI/UX Design & User Research, Executive Support,JGL01,FALSE
+JOB-02-20251107141008, Bankruptcy Attorney 20251107141008, Engineering, Vendor Relations & Supply Chain Coordination, Finance Operations,JGL02,FALSE
+JOB-03-20251107141008, Benefits Analyst 20251107141008, Environmental Services, Web Development & Digital Solutions, Financial Analysis,JGL03,FALSE
+JOB-04-20251107141008, Biotech Researcher 20251107141008, Finance, Web Analytics & Performance Optimization, Financial Reporting,JGL04,FALSE
+JOB-05-20251107141008, Brand Manager 20251107141008, Financial Planning, Workforce Planning & Talent Strategy, Forecasting,JGL05,FALSE
+JOB-06-20251107141008, Broadcast Producer 20251107141008, Food & Beverage, Workplace Health & Safety & Risk Management, Fraud Prevention,JGL06,FALSE
+JOB-07-20251107141008, Buyer 20251107141008, Government, Youth Engagement & Community Outreach, Full Stack Development,JGL07,FALSE
+JOB-08-20251107141008, Call Center Representative 20251107141008, Graphic Design,Accounting & Finance Management, Graphic Design,JGL08,FALSE
+JOB-09-20251107141008, Car Detailer 20251107141008, Healthcare, Advertising & Brand Strategy, HR Administration,JGL09,FALSE
+JOB-10-20251107141008, Career Counselor 20251107141008, Human Resources, Business Development & Strategic Partnerships, HR Analytics,JGL10,FALSE
+JOB-11-20251107141008, Carpet Installer 20251107141008, Information Technology (IT), Client Relations & Customer Success, HR Business Partner,JGL10,FALSE
+JOB-12-20251107141008, Cash Flow Analyst 20251107141008, Insurance, Cloud & Infrastructure Management, HR Compliance,JGL01,FALSE
+JOB-13-20251107141008, Cell Biologist 20251107141008, Interior Design, Content Creation & Digital Media, HR Training,JGL02,FALSE
+JOB-14-20251107141008, Certified Nursing Assistant (CNA) 20251107141008, International Relations, Data Analytics & Business Intelligence, Internal Audit,JGL03,FALSE
+JOB-15-20251107141008, Chemical Safety Engineer 20251107141008, IT Support, Data Engineering & Architecture, Internal Communications,JGL04,FALSE
+JOB-16-20251107141008, Chief Executive Officer (CEO) 20251107141008, Legal, Design & Creative Direction, IT Architecture,JGL05,FALSE
+JOB-17-20251107141008, Clinical Data Analyst 20251107141008, Logistics, Employee Relations & Human Resources, IT Infrastructure,JGL06,FALSE
+JOB-18-20251107141008, Cloud Engineer 20251107141008, Marketing, Enterprise Software Development & Solutions, IT Project Management,JGL07,FALSE
+JOB-19-20251107141008, Coffee Barista 20251107141008, Media, Event Planning & Coordination, IT Security,JGL08,FALSE
+JOB-20-20251107141008, Compensation Consultant 20251107141008, Music, Financial Planning & Investment Analysis, Legal Counsel,JGL09,FALSE
+JOB-21-20251107141008, Compliance Analyst 20251107141008, Non-Profit, Healthcare Management & Operations, Legal Support,JGL10,FALSE
+JOB-22-20251107141008, Computer Support Specialist 20251107141008, Nursing, Information Security & Cybersecurity, Learning & Development,JGL11,FALSE
+JOB-23-20251107141008, Construction Foreman 20251107141008, Operations, IT Consulting & Solutions, Logistics Coordination,JGL12,FALSE
+JOB-24-20251107141008, Conversion Rate Optimization (CRO) Specialist 20251107141008, Procurement, IT Project Management & Strategy, Market Research,JGL01,FALSE
+JOB-25-20251107141008, Corporate Communications Manager 20251107141008, Product Management, Legal Research & Corporate Law, Marketing Campaigns,JGL02,FALSE
+JOB-26-20251107141008, Copy Editor 20251107141008, Project Management, Market Research & Consumer Insights, Marketing Communications,JGL03,FALSE
+JOB-27-20251107141008, Customer Experience Manager 20251107141008, Quality Assurance, Marketing & Communications Strategy, Marketing Operations,JGL04,FALSE
+JOB-28-20251107141008, Customer Success Manager 20251107141008, Real Estate, Media Relations & Publicity, Media Buying,JGL05,FALSE
+JOB-29-20251107141008, Cybersecurity Engineer 20251107141008, Research & Development, Mobile Application Development & Design, Media Relations,JGL06,FALSE
+JOB-30-20251107141008, Data Architect 20251107141008, Retail, Operations & Supply Chain Management, Mobile Development,JGL07,FALSE
+JOB-31-20251107141008, Data Warehouse Engineer 20251107141008, Sales, Organizational Development & Change Management, Operations Management,JGL08,FALSE
+JOB-32-20251107141008, Digital Marketing Strategist 20251107141008, Science, Payroll & Benefits Administration, Payroll,JGL09,FALSE
+JOB-33-20251107141008, Digital Media Buyer 20251107141008, Security, Performance Optimization & Business Strategy, Performance Management,JGL10,FALSE
+JOB-34-20251107141008, Digital Product Manager 20251107141008, Software Development, Product Design & Development, Pricing Strategy,JGL11,FALSE
+JOB-35-20251107141008, Direct Sales Representative 20251107141008, Strategy, Product Marketing & Go-to-Market Strategy, Product Development,JGL12,FALSE
+JOB-36-20251107141008, Electrical Safety Engineer 20251107141008, Supply Chain, Project Coordination & Resource Management, Product Marketing,JGL01,FALSE
+JOB-37-20251107141008, Emergency Room Nurse 20251107141008, Sustainability, Public Relations & Media Strategy, Procurement & Sourcing,JGL02,FALSE
+JOB-38-20251107141008, Environmental Engineer 20251107141008, Telecommunications, Quality Assurance & Testing, Process Improvement,JGL03,FALSE
+JOB-39-20251107141008, Environmental Health and Safety Specialist 20251107141008, Training & Development, Recruitment & Talent Acquisition, Product Management,JGL04,FALSE
+JOB-40-20251107141008, Event Coordinator 20251107141008, Transportation, Research & Data Science, Project Coordination,JGL05,FALSE
+JOB-41-20251107141008, Executive Director 20251107141008, Tourism, Risk Assessment & Management, Public Relations,JGL06,FALSE
+JOB-42-20251107141008, Export Manager 20251107141008, Retail Management, Sales Enablement & Operations, Quality Control,JGL07,FALSE
+JOB-43-20251107141008, Family Therapist 20251107141008, Quality Control, Sales Strategy & Account Management, Quality Assurance,JGL08,FALSE
+JOB-44-20251107141008, Financial Planner 20251107141008, Risk Management, Social Media & Community Management, Recruiting,JGL09,FALSE
+JOB-45-20251107141008, Fitness Coach 20251107141008, Event Planning, Software Engineering & Development, Research & Development,JGL10,FALSE
+JOB-46-20251107141008, Floral Designer 20251107141008, Manufacturing,,,JGL01,FALSE
+JOB-47-20251107141008, Freight Coordinator 20251107141008, Public Relations, Strategic Planning & Business Development, Risk Management,,FALSE
+JOB-48-20251107141008, Fundraising Consultant 20251107141008, Publishing, Taxation & Financial Compliance,,JGL03,FALSE
+JOB-49-20251107141008, Game Developer 20251107141008, Social Media,, Sales Operations,JGL04,FALSE
+JOB-50-20251107141008, Gardener 20251107141008,, Telecommunications & Network Management, Social Media Management,JGL02,FALSE

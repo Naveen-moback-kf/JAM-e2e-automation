@@ -19,8 +19,8 @@ import java.util.*;
 public class JobCatalogRefresher {
     
     private static final Logger LOGGER = LogManager.getLogger(JobCatalogRefresher.class);
-    private static final String CSV_FILE_PATH = "src/test/resources/Job Catalog with 50 profiles.csv";
-    private static final String BACKUP_DIR = "JobCatalogBackups";
+    private static final String CSV_FILE_PATH = "src/test/resources/Job Catalog with 100 profiles.csv";
+    private static final String BACKUP_DIR = "src/test/resources/JobCatalogBackups";
     private static boolean hasRefreshedThisSession = false;
     
     /**
@@ -180,7 +180,7 @@ public class JobCatalogRefresher {
     
     /**
      * Create backup of Job Catalog CSV for every refresh
-     * Backups are stored in JobCatalogBackups/ directory with unique timestamps
+     * Backups are stored in src/test/resources/JobCatalogBackups/ directory with unique timestamps
      */
     private static void createBackup(Path originalFile) {
         try {

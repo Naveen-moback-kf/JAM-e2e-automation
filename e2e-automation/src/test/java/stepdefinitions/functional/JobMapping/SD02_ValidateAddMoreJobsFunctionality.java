@@ -45,9 +45,9 @@ public class SD02_ValidateAddMoreJobsFunctionality {
 		validateAddMoreJobsFunctionality.getValidateAddMoreJobsFunctionality().verify_last_synced_info_on_add_job_data_screen_before_adding_more_jobs();
 	}
 
-	@Then("Upload Job Catalog file using Attach File button")
-	public void upload_job_catalog_file_using_attach_file_button() throws IOException {
-		validateAddMoreJobsFunctionality.getValidateAddMoreJobsFunctionality().upload_job_catalog_file_using_attach_file_button();
+	@Then("Upload Job Catalog file using Browse Files button")
+	public void upload_job_catalog_file_using_browse_files_button() throws IOException {
+		validateAddMoreJobsFunctionality.getValidateAddMoreJobsFunctionality().upload_job_catalog_file_using_browse_files_button();
 	}
 
 	@Then("User should verify File Close button displaying and clickable")

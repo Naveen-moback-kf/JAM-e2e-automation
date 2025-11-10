@@ -21,9 +21,9 @@ Feature: Validate Add More Jobs functionality in AI Auto Job Mapping Page
     Then Verify Jobs count in KFONE Add Job Data screen before adding more jobs
     #Then Verify Last Synced Info on Add Job Data screen before adding more jobs
     Then Click on Done button in KFONE Add Job Data page
-    Then Upload Job Catalog file using Attach File button
+    Then Upload Job Catalog file using Browse Files button
     Then User should verify File Close button displaying and clickable
-    Then Upload Job Catalog file using Attach File button
+    Then Upload Job Catalog file using Browse Files button
     Then Click on Continue button in Add Job data screen
 
   @ValidateJobDataUploadSuccess

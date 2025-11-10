@@ -139,6 +139,8 @@ e2e-automation/
 │           │   │       ├── 03PublishJobProfile.feature
 │           │   │       ├── 04-32...
 │           │   │       └── ...
+│           ├── JobCatalogBackups/    # Job Catalog CSV backup files (auto-created before refresh)
+│           ├── Job Catalog with 100 profiles.csv  # Test data file
 │           ├── config.properties      # Enhanced configuration with Excel reporting toggle
 │           ├── cucumber.properties    # Cucumber specific configuration
 │           ├── extent-config.xml     # ExtentReports configuration
@@ -149,7 +151,6 @@ e2e-automation/
 ├── ExcelReports/              # Business-friendly Excel reports
 │   ├── JobMappingAutomationTestResults.xlsx
 │   └── Backup/                # Historical backup files
-├── JobCatalogBackups/         # Job Catalog CSV backup files (created before each refresh)
 ├── logs/                      # Application logs (console & file)
 ├── Report/                    # ExtentReports with visual evidence
 ├── test-output/              # TestNG comprehensive output
