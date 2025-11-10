@@ -1,4 +1,4 @@
-﻿@Validate_HCMSyncProfiles_Tab_in_PM @Smoke_Test
+﻿@Validate_HCMSyncProfiles_Tab_in_PM
 Feature: Validate HCM Sync Profiles screen functionality in PM
 
   @Navigate_HCM_Sync_Profiles

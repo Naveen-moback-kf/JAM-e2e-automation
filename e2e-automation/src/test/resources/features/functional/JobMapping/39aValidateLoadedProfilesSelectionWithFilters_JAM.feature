@@ -1,4 +1,4 @@
-@Select_Job_Mapping_Loaded_Profiles_With_Filter_JAM @Smoke_Test
+@Select_Job_Mapping_Loaded_Profiles_With_Filter_JAM
 Feature: Filter profiles and Select Loaded Profiles in Job Mapping screen
 
 	@Navigate_To_Job_Mapping

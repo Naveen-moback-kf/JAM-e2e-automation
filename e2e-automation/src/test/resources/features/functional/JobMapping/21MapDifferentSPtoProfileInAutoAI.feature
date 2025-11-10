@@ -1,4 +1,4 @@
-﻿@Map_Different_SP_in_AutoAI @Smoke_Test
+﻿@Map_Different_SP_in_AutoAI
 Feature: Manually Map different Success Profile for the Organization Profile in Auto AI Job Mapping
 
   @Navigate_To_Job_Mapping

@@ -1,4 +1,4 @@
-﻿@SelectAll_Profiles_And_Sync @Smoke_Test
+﻿@SelectAll_Profiles_And_Sync
 Feature: Select All Profiles in HCM Sync Profiles screen and Sync with HCM
 	
 	@Navigate_HCM_Sync_Profiles

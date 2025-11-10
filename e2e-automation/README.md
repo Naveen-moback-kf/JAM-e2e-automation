@@ -2,9 +2,17 @@
 
 A comprehensive, enterprise-grade end-to-end automation testing framework for Korn Ferry's AI-powered Job Mapping and Profile Management functionality. This framework focuses on Job Mapping workflows with specialized manual mapping capabilities across multiple environments, featuring robust error handling, visual reporting, and session recovery mechanisms.
 
-## 🚀 Latest Enhancements (October 2025)
+## 🚀 Latest Enhancements (November 2025)
 
-### **📁 Framework Modernization & Refactoring (NEW)**
+### **📊 Test Suite Organization & Coverage Enhancement (NEW)**
+- **Hierarchical Test Suites** - 3 strategically organized suites: Sanity (7 tests), Smoke (18 tests), Regression (55 tests)
+- **Smart Execution Strategy** - Clear guidelines for optimal test execution at different stages
+- **JAM Test Suites** - Standardized naming: JAM_SanityTestSuite.xml, JAM_SmokeTestSuite.xml, JAM_RegressionTestSuite.xml
+- **Coverage Documentation** - Complete TEST_SUITE_COVERAGE.md for transparent suite mapping
+- **Execution Efficiency** - Reduced feedback time from 60-90 min (full suite) to 5-10 min (sanity) or 15-25 min (smoke)
+- **Build Verification** - Quick sanity checks ensure build stability before deeper testing
+
+### **📁 Framework Modernization & Refactoring**
 - **Codebase Restructuring** - Complete migration from `AIautoMap` to `JobMapping` package naming
 - **Scenario Breakdown & Optimization** - Large multi-step scenarios refactored into focused, maintainable tests
 - **Tag Cleanup** - Simplified tagging system with one primary tag per scenario for better organization
@@ -146,9 +154,10 @@ e2e-automation/
 ├── Report/                    # ExtentReports with visual evidence
 ├── test-output/              # TestNG comprehensive output
 ├── pom.xml                   # Maven project configuration
-├── regression_tests.xml      # Regression test suite configuration
-├── smoke_tests.xml           # Smoke test suite configuration
-└── sample_Suite.xml          # Sample test suite configuration
+├── JAM_SanityTestSuite.xml   # Sanity test suite (7 critical path tests - 5-10 min)
+├── JAM_SmokeTestSuite.xml    # Smoke test suite (18 key feature tests - 15-25 min)
+├── JAM_RegressionTestSuite.xml # Regression test suite (55 comprehensive tests - 60-90 min)
+└── TEST_SUITE_COVERAGE.md    # Complete test suite coverage mapping
 ```
 
 ## ✨ Key Features
@@ -302,22 +311,92 @@ e2e-automation/
    mvn test -Dtest="CrossBrowser*"
    ```
 
-### Individual Test Suites
+### Test Suite Execution Strategy
 
-1. **Smoke Tests (Critical Path)**
-   ```bash
-   mvn test -DsuiteXmlFile=smoke_tests.xml
-   ```
+#### **📊 Test Suite Hierarchy**
+- **Sanity Suite** → 7 tests (5-10 min) - Verify application is minimally functional
+- **Smoke Suite** → 18 tests (15-25 min) - Validate major features before release
+- **Regression Suite** → 55 tests (60-90 min) - Complete coverage for nightly/weekly runs
 
-2. **Regression Tests (Complete Suite)**
-   ```bash
-   mvn test -DsuiteXmlFile=regression_tests.xml
-   ```
+#### **1. Sanity Tests (Critical Path - Build Verification)**
+```bash
+mvn test -DsuiteXmlFile=JAM_SanityTestSuite.xml
+```
+**Purpose:** Quick verification that the build is not broken. If these fail, stop further testing.  
+**When to Run:** Every build, before any other testing
 
-3. **Sample Suite (Custom Tests)**
-   ```bash
-   mvn test -DsuiteXmlFile=sample_Suite.xml
-   ```
+#### **2. Smoke Tests (Pre-Release Validation)**
+```bash
+mvn test -DsuiteXmlFile=JAM_SmokeTestSuite.xml
+```
+**Purpose:** Validate major features work correctly before release to QA/Staging.  
+**When to Run:** Before each release, after code merges
+
+#### **3. Regression Tests (Comprehensive Coverage)**
+```bash
+mvn test -DsuiteXmlFile=JAM_RegressionTestSuite.xml
+```
+**Purpose:** Complete end-to-end testing with all edge cases and scenarios.  
+**When to Run:** Nightly builds, weekly regression cycles, before production release
+
+---
+
+### 📊 Test Suite Coverage Details
+
+#### **🔴 Sanity Test Suite (7 Runners)**
+**Critical path tests that verify basic functionality:**
+- Login functionality (KFone)
+- Add More Jobs functionality
+- Job Mapping page components
+- Publish job from details popup
+- Function/Subfunction filters
+- HCM Sync Profiles Tab (PM)
+- Select and Publish Loaded Profiles (JAM)
+
+**Quick Reference:**
+```bash
+mvn test -DsuiteXmlFile=JAM_SanityTestSuite.xml
+```
+
+#### **🟡 Smoke Test Suite (18 Runners)**
+**Includes all 7 Sanity tests + 11 additional major feature tests:**
+- All Sanity tests
+- Additional publish workflows
+- Search functionality
+- Sorting and persistence
+- AI mapping features
+- PM publish center
+- Data validation messages
+- Profile selection and sync
+
+**Quick Reference:**
+```bash
+mvn test -DsuiteXmlFile=JAM_SmokeTestSuite.xml
+```
+
+#### **🟢 Regression Test Suite (55 Runners)**
+**Complete coverage including all 18 Smoke tests + 37 additional tests:**
+- All Smoke tests
+- Extended basic operations (5 tests)
+- Extended filter tests (3 tests)
+- Persistence tests (2 tests)
+- Profile & validation tests (4 tests)
+- Mapping tests (2 tests)
+- Profile Manager extended (3 tests)
+- Missing data validation (6 tests)
+- Profile selection PM extended (5 tests)
+- Profile selection JAM extended (5 tests)
+- Performance & edge cases (2 tests)
+
+**Quick Reference:**
+```bash
+mvn test -DsuiteXmlFile=JAM_RegressionTestSuite.xml
+```
+
+**📋 Coverage Documentation:**  
+See `TEST_SUITE_COVERAGE.md` for complete runner-to-suite mapping.
+
+---
 
 ### Running Specific Test Runners
 
@@ -761,8 +840,14 @@ mvn test -Dscreenshot.enabled=true -Dscreenshot.debug=true
 
 ### Quick Reference Commands
 ```bash
+# Run sanity tests (critical path - fastest verification)
+mvn test -DsuiteXmlFile=JAM_SanityTestSuite.xml
+
 # Run smoke tests with visual reporting
-mvn test -DsuiteXmlFile=smoke_tests.xml
+mvn test -DsuiteXmlFile=JAM_SmokeTestSuite.xml
+
+# Run full regression suite
+mvn test -DsuiteXmlFile=JAM_RegressionTestSuite.xml
 
 # Debug mode with detailed logging
 mvn test -Dlog.level=debug -Dscreenshot.enabled=true
@@ -781,9 +866,10 @@ java -cp "target/classes:lib/*" com.JobMapping.utils.PDFReportGenerator
 
 ## 📊 Project Statistics
 
-- **Test Feature Files**: 33 comprehensive feature files (2 Login + 31 JobMapping)
+- **Test Feature Files**: 55 comprehensive feature files covering complete Job Mapping workflows
 - **Page Objects**: 31 enhanced classes with screenshot functionality and clean code
-- **Test Runners**: 59 specialized test runners (33 Normal + 26 Cross-Browser)
+- **Test Runners**: 55 specialized test runners (Runner01-Runner46 + KFone Login)
+- **Test Suites**: 3 hierarchical test suites (Sanity: 7 tests, Smoke: 18 tests, Regression: 55 tests)
 - **Cross-Browser Coverage**: 26 cross-browser runners supporting Chrome, Firefox, and Edge
 - **Step Definitions**: 31 step definition files for complete BDD coverage
 - **Supported Environments**: 5 environments (Dev, QA, Stage, ProdEU, ProdUS) + KFOne integration
@@ -791,15 +877,25 @@ java -cp "target/classes:lib/*" com.JobMapping.utils.PDFReportGenerator
 - **Reporting Formats**: Dual Excel dashboards (Normal + Cross-Browser), HTML, JSON, XML with visual evidence
 - **Dashboard Analytics**: 2 specialized dashboards with browser compatibility metrics
 - **Code Quality**: Professional codebase with consistent package naming and optimized logging
+- **Test Suite Coverage**: Complete documentation in TEST_SUITE_COVERAGE.md
 
 ---
 
-**Last Updated**: October 2025  
-**Framework Version**: 2.1.0-SNAPSHOT  
+**Last Updated**: November 2025  
+**Framework Version**: 2.2.0-SNAPSHOT  
 **Package Namespace**: com.JobMapping  
 **Maintained By**: QA Automation Team  
 
 ### 🚀 Release History
+
+#### **v2.2.0 (November 2025)** - Test Suite Organization & Coverage Enhancement
+- 📊 **Test Suite Restructuring**: Complete reorganization into 3 hierarchical suites (Sanity/Smoke/Regression)
+- 🎯 **Smart Test Categorization**: 7 Sanity tests, 18 Smoke tests, 55 Regression tests for optimal execution
+- 📋 **Coverage Documentation**: New TEST_SUITE_COVERAGE.md for complete suite mapping
+- ⚡ **Execution Strategy**: Clear guidelines for when to run each test suite (build/release/nightly)
+- 🔤 **Suite Naming Convention**: Standardized JAM_ prefix for all test suite XML files
+- 📈 **Improved Efficiency**: Strategic test selection reduces feedback time while maintaining coverage
+- 📚 **Enhanced Documentation**: Comprehensive README updates with test suite hierarchy and coverage details
 
 #### **v2.1.0 (October 2025)** - Framework Modernization & Code Quality Release
 - 📁 **Framework Restructuring**: Complete migration from `AIautoMap` to `JobMapping` package naming

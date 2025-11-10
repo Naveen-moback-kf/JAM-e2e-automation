@@ -1,4 +1,4 @@
-@Validate_Jobs_With_Missing_FUNCTION_Data_In_JobMapping @Smoke_Test
+@Validate_Jobs_With_Missing_FUNCTION_Data_In_JobMapping
 Feature: Validate Jobs with Missing FUNCTION Data in Job Mapping UI
 
   @Navigate_To_Job_Mapping

@@ -1,4 +1,4 @@
-@Validate_Basic_Sorting_Persistence @Smoke_Test
+@Validate_Basic_Sorting_Persistence
 Feature: Validate Basic Sorting Persistence in Job Mapping UI
 
   @Navigate_To_Job_Mapping

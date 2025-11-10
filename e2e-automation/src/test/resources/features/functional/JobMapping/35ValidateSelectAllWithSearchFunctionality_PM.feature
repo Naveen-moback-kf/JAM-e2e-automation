@@ -1,4 +1,4 @@
-@SelectAll_With_Search_Functionality_in_HCM_PM @Smoke_Test
+@SelectAll_With_Search_Functionality_in_HCM_PM
 Feature: Validate Select All Profiles with Search Functionality in HCM Sync Profiles screen
 
 	@Navigate_HCM_Sync_Profiles

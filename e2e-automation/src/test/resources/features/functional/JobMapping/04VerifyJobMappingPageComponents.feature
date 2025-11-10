@@ -1,4 +1,4 @@
-@Verify_Job_Mapping_Page_Components @Smoke_Test
+@Verify_Job_Mapping_Page_Components
 Feature: Verify Components in Job Mapping Page
   
   @Navigate_To_Job_Mapping

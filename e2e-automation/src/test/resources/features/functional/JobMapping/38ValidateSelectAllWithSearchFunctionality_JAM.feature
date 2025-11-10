@@ -1,4 +1,4 @@
-@SelectAll_With_Search_Functionality_in_JAM @Smoke_Test
+@SelectAll_With_Search_Functionality_in_JAM
 Feature: Validate Select All Profiles with Search Functionality in Job Mapping screen
 
 	@Navigate_To_Job_Mapping

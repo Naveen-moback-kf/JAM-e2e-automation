@@ -1,4 +1,4 @@
-@Verify_Info_Message_Missing_Data_Profiles  @Smoke_Test
+@Verify_Info_Message_Missing_Data_Profiles
 Feature: Verify Info Message for Multiple Profiles with Missing Data
 
   @Navigate_To_Job_Mapping

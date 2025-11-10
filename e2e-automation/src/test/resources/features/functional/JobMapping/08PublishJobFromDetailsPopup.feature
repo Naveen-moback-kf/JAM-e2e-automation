@@ -1,4 +1,4 @@
-﻿@Validate_Publish_Job_From_Profile_Popup @Smoke_Test
+﻿@Validate_Publish_Job_From_Profile_Popup
 Feature: Publishing job profiles from Job profile details popup
 
   @Navigate_To_Job_Mapping

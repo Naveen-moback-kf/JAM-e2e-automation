@@ -1,4 +1,4 @@
-@Validate_Function_Subfunction_Filters @Smoke_Test
+@Validate_Function_Subfunction_Filters
 Feature: Validate Function and Subfunction Filters Functionality in Job Mapping UI
 
   @Navigate_To_Job_Mapping

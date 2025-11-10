@@ -1,4 +1,4 @@
-@Select_HCM_Sync_Loaded_Profiles_With_Filter_PM @Smoke_Test
+@Select_HCM_Sync_Loaded_Profiles_With_Filter_PM
 Feature: Filter profiles and Select Loaded Profiles in HCM Sync Profiles screen in PM
 
 	@Navigate_HCM_Sync_Profiles

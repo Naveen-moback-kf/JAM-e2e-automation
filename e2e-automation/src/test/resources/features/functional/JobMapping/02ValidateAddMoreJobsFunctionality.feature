@@ -1,4 +1,4 @@
-@Validate_Add_More_Jobs_Functionality @Smoke_Test
+@Validate_Add_More_Jobs_Functionality
 Feature: Validate Add More Jobs functionality in AI Auto Job Mapping Page
 
   @Navigate_To_Job_Mapping
