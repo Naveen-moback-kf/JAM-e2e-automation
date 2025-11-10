@@ -138,7 +138,7 @@
 				<configuration>
 					<!-- Default test suite -->
 					<suiteXmlFiles>
-						<suiteXmlFile>smoke_tests.xml</suiteXmlFile>
+						<suiteXmlFile>JAM_SmokeTestSuite.xml</suiteXmlFile>
 					</suiteXmlFiles>
 					<!-- Enable parallel execution for cross-browser testing -->
 					<parallel>methods</parallel>
