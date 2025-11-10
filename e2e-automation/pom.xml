@@ -137,13 +137,15 @@
 				<version>3.2.5</version>
 				<configuration>
 					<!-- Test suite specified via command line: -DsuiteXmlFile=<suite>.xml -->
-					<!-- No default suite - must be provided at runtime -->
+					<!-- Example: mvn test -DsuiteXmlFile=JAM_SanityTestSuite.xml -->
+					<suiteXmlFiles>
+						<suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
+					</suiteXmlFiles>
 					<!-- Enable parallel execution for cross-browser testing -->
 					<parallel>methods</parallel>
 					<threadCount>3</threadCount>
 					<perCoreThreadCount>true</perCoreThreadCount>
 				</configuration>
-				<!-- Cleaned up - focusing on individual runners like AutoRun_CrossBrowser_LoginPageRunner01 -->
 			</plugin>
 
 			<!-- ADDED: Dependency Check Plugin for Security Scanning -->
