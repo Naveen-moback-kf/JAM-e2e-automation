@@ -468,11 +468,18 @@ jobs:
           echo "${MVN_CMD}"
           echo ""
           
-          # Execute tests (continue on failure to generate reports)
-          ${MVN_CMD} || {
-            echo "⚠️  Tests completed with failures (this is expected, reports will be generated)"
-            EXIT_CODE=$?
-          }
+          # Execute tests and capture exit code
+          set +e  # Temporarily disable exit on error
+          ${MVN_CMD}
+          MVN_EXIT_CODE=$?
+          set -e  # Re-enable exit on error
+          
+          echo ""
+          echo "Maven Exit Code: ${MVN_EXIT_CODE}"
+          
+          if [ ${MVN_EXIT_CODE} -ne 0 ]; then
+            echo "⚠️  Maven execution completed with exit code: ${MVN_EXIT_CODE}"
+          fi
           
           echo ""
           echo "✅ Test execution completed"
@@ -533,6 +540,72 @@ jobs:
           fi
           
           echo "═══════════════════════════════════════════════"
+          
+          # ═══════════════════════════════════════════════════════════════
+          # CRITICAL VALIDATION: Ensure tests actually executed
+          # ═══════════════════════════════════════════════════════════════
+          echo ""
+          echo "═══════════════════════════════════════════════"
+          echo "🔍 VALIDATION: Checking if tests were executed"
+          echo "═══════════════════════════════════════════════"
+          
+          VALIDATION_FAILED=0
+          
+          # Find TestNG results file
+          TESTNG_RESULTS=""
+          if [ -f "test-output/testng-results.xml" ]; then
+            TESTNG_RESULTS="test-output/testng-results.xml"
+          elif [ -f "target/surefire-reports/testng-results.xml" ]; then
+            TESTNG_RESULTS="target/surefire-reports/testng-results.xml"
+          fi
+          
+          if [ -z "$TESTNG_RESULTS" ]; then
+            echo "❌ CRITICAL ERROR: TestNG results file not found!"
+            echo "   Expected locations:"
+            echo "   - test-output/testng-results.xml"
+            echo "   - target/surefire-reports/testng-results.xml"
+            VALIDATION_FAILED=1
+          else
+            echo "✅ Found TestNG results: $TESTNG_RESULTS"
+            
+            # Extract test counts
+            TOTAL_TESTS=$(grep -oP 'total="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
+            PASSED_TESTS=$(grep -oP 'passed="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
+            FAILED_TESTS=$(grep -oP 'failed="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
+            SKIPPED_TESTS=$(grep -oP 'skipped="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
+            
+            echo "📊 Test Execution Summary:"
+            echo "   Total Tests: ${TOTAL_TESTS}"
+            echo "   Passed: ${PASSED_TESTS}"
+            echo "   Failed: ${FAILED_TESTS}"
+            echo "   Skipped: ${SKIPPED_TESTS}"
+            
+            # Validate that tests were actually executed
+            if [ "$TOTAL_TESTS" = "0" ] || [ -z "$TOTAL_TESTS" ]; then
+              echo ""
+              echo "❌ CRITICAL ERROR: NO TESTS WERE EXECUTED!"
+              echo "   This indicates a configuration problem."
+              echo "   Possible causes:"
+              echo "   - Test suite XML has incorrect class paths"
+              echo "   - Runner classes not found"
+              echo "   - Cucumber glue paths are incorrect"
+              echo "   - Test classes don't extend correct base class"
+              VALIDATION_FAILED=1
+            else
+              echo ""
+              echo "✅ VALIDATION PASSED: ${TOTAL_TESTS} test(s) were executed"
+            fi
+          fi
+          
+          echo "═══════════════════════════════════════════════"
+          
+          # Fail the workflow if validation failed
+          if [ $VALIDATION_FAILED -eq 1 ]; then
+            echo ""
+            echo "💥 WORKFLOW FAILED: Critical validation errors detected"
+            echo "   The workflow will now exit with failure status"
+            exit 1
+          fi
       
       - name: 📊 Generate Test Report Summary
         if: always()
