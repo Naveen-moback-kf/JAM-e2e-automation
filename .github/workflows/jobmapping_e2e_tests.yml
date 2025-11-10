@@ -594,6 +594,20 @@ jobs:
             else
               echo ""
               echo "✅ VALIDATION PASSED: ${TOTAL_TESTS} test(s) were executed"
+              
+              # Check for test failures
+              if [ "$FAILED_TESTS" != "0" ] && [ -n "$FAILED_TESTS" ]; then
+                echo ""
+                echo "❌ TEST FAILURES DETECTED!"
+                echo "   Failed Tests: ${FAILED_TESTS} out of ${TOTAL_TESTS}"
+                echo "   Pass Rate: $(awk "BEGIN {printf \"%.1f%%\", (${PASSED_TESTS}/${TOTAL_TESTS})*100}")"
+                echo ""
+                echo "   ⚠️  The workflow will FAIL due to test failures"
+                echo "   📊 Review the test reports for details"
+                VALIDATION_FAILED=1
+              else
+                echo "✅ All ${TOTAL_TESTS} test(s) PASSED - No failures detected!"
+              fi
             fi
           fi
           
