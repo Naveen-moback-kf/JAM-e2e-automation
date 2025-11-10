@@ -430,7 +430,7 @@ jobs:
           # Build Maven command based on execution mode
           if [ "${EXECUTION_MODE}" = "individual_runner" ]; then
             # Run individual test runner
-            RUNNER_CLASS="testrunners.functional.JobMapping.${INDIVIDUAL_RUNNER}"
+            RUNNER_CLASS="testrunners.JobMapping.${INDIVIDUAL_RUNNER}"
             echo "🏃 Running individual test runner: ${RUNNER_CLASS}"
             # Force TestNG to generate XML results for Excel reporting
             # Set TestNG output directory and ensure XML reports are generated

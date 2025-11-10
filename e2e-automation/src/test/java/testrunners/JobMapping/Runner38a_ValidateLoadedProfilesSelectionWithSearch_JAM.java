@@ -19,7 +19,7 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = "src/test/resources/features/JobMapping",
 		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Select_Loaded_Profiles_With_Search_JAM",
-		glue = {"stepdefinitions.JobMapping", "stepdefinitions.hooks"},
+		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
 		)
