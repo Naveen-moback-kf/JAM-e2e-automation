@@ -70,7 +70,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 	@CacheLookup
 	WebElement clearFiltersBtn;
 	
-	@FindBy(xpath = "//button[text()='-']")
+	@FindBy(xpath = "//button[@data-testid='clear-filters-button']")
 	@CacheLookup
 	WebElement clearFiltersXbtn;
 	

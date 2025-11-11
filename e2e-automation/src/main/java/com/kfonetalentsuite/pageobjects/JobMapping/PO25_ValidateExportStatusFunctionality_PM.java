@@ -1,4 +1,4 @@
-package com.kfonetalentsuite.pageobjects.JobMapping;
+﻿package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -463,7 +463,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 		
 		for (int col = 1; col <= 8; col++) {
 			WebElement dataElement = findTableElement(rowNumber, col);
-			String headerText = headers[col-1].getText().split(" -")[0];
+			String headerText = headers[col-1].getText().replaceAll("\\s+[^\\w\\s]+$", "");
 			details.append(headerText).append(" : ").append(dataElement.getText()).append("   ");
 		}
 		

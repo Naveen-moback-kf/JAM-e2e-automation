@@ -1,4 +1,4 @@
-package com.kfonetalentsuite.pageobjects.JobMapping;
+﻿package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -226,17 +226,17 @@ public class PO24_ValidatePublishCenter_PM {
 			LOGGER.info("Action taken tag displaying as " + "Downloaded" +" for the Recently downloaded Job Profile as expected");
 			ExtentCucumberAdapter.addTestStepLog("Action taken tag displaying as " + "Downloaded" +" for the Recently downloaded Job Profile as expected");
 			LOGGER.info("Below are the details of the Recently Downloaded Job Profile in Job Profile History screen : \n "
-					+ jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCountinRow1.getText() + "   "
-					+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedByinRow1.getText() + "   "
-					+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDateinRow1.getText() + "   "
-					+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTakeninRow1.getText()+ "   "
-					+ jphHeader5.getText().split(" -")[0] + " : " + jphStatusinRow1.getText());
+					+ jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCountinRow1.getText() + "   "
+					+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedByinRow1.getText() + "   "
+					+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDateinRow1.getText() + "   "
+					+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTakeninRow1.getText()+ "   "
+					+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatusinRow1.getText());
 			ExtentCucumberAdapter.addTestStepLog("Below are the details of the Recently Downloaded Job Profile in Job Profile History screen : \n "
-					+ jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCountinRow1.getText() + "   "
-					+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedByinRow1.getText() + "   "
-					+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDateinRow1.getText() + "   "
-				+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTakeninRow1.getText()+ "   "
-				+ jphHeader5.getText().split(" -")[0] + " : " + jphStatusinRow1.getText());
+					+ jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCountinRow1.getText() + "   "
+					+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedByinRow1.getText() + "   "
+					+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDateinRow1.getText() + "   "
+				+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTakeninRow1.getText()+ "   "
+				+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatusinRow1.getText());
 		
 	} catch (Exception e) {
 		LOGGER.error("Issue verifying downloaded profile details - Method: verify_details_of_the_recently_downloaded_job_profiles_in_job_profile_history_screen", e);
@@ -419,17 +419,17 @@ public class PO24_ValidatePublishCenter_PM {
 			LOGGER.info("Action taken tag displaying as Exported to HCM for the Recently downloaded Job Profile as expected");
 			ExtentCucumberAdapter.addTestStepLog("Action taken tag displaying as Export to HCM for the Recently downloaded Job Profile as expected");
 			LOGGER.info("Below are the details of the Recently Exported Job Profiles in Job Profile History screen : \n "
-					+ jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCountinRow1.getText() + "   "
-					+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedByinRow1.getText() + "   "
-					+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDateinRow1.getText() + "   "
-					+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTakeninRow1.getText() + "   "
-					+ jphHeader5.getText().split(" -")[0] + " : " + jphStatusinRow1.getText());
+					+ jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCountinRow1.getText() + "   "
+					+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedByinRow1.getText() + "   "
+					+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDateinRow1.getText() + "   "
+					+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTakeninRow1.getText() + "   "
+					+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatusinRow1.getText());
 			ExtentCucumberAdapter.addTestStepLog("Below are the details of the Recently Exported Job Profiles in Job Profile History screen : \n "
-					+ jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCountinRow1.getText() + "   "
-					+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedByinRow1.getText() + "   "
-					+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDateinRow1.getText() + "   "
-					+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTakeninRow1.getText() + "   "
-					+ jphHeader5.getText().split(" -")[0] + " : " + jphStatusinRow1.getText());
+					+ jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCountinRow1.getText() + "   "
+					+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedByinRow1.getText() + "   "
+					+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDateinRow1.getText() + "   "
+					+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTakeninRow1.getText() + "   "
+					+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatusinRow1.getText());
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying details of the Recently Exported Job Profiles in Job Profile History screen in Publish Center...Please Investigate!!!");
@@ -560,16 +560,16 @@ public class PO24_ValidatePublishCenter_PM {
 				WebElement jphAccessedDate = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[3]/span"));
 				WebElement jphActionTaken = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]/span"));
 				WebElement jphStatus = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[5]/span"));
-				LOGGER.info(jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().split(" -")[0] + " : " + jphStatus.getText());
-				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().split(" -")[0] + " : " + jphStatus.getText());
+				LOGGER.info(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
+						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
+						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
+						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
+				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
+						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
+						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
+						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
 				profilesCountInDefaultOrder.add(jphProfilesCount.getText());
 			}
 			LOGGER.info("Default Order of first thirty Job Profiles before applying sorting in Job Profile History screen is verified successfully");
@@ -615,16 +615,16 @@ public class PO24_ValidatePublishCenter_PM {
 				WebElement jphAccessedDate = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[3]/span"));
 				WebElement jphActionTaken = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]/span | //*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]"));
 				WebElement jphStatus = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[5]/span"));
-				LOGGER.info(jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().split(" -")[0] + " : " + jphStatus.getText());
-				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().split(" -")[0] + " : " + jphStatus.getText());
+				LOGGER.info(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
+						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
+						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
+						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
+				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
+						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
+						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
+						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
 			}
 			LOGGER.info("First thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Ascending Order is verified successfully");
 			ExtentCucumberAdapter.addTestStepLog("First thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Ascending Order is verified successfully");
@@ -708,16 +708,16 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profile
 				WebElement jphAccessedDate = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[3]/span"));
 				WebElement jphActionTaken = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]/span | //*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]"));
 				WebElement jphStatus = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[5]/span"));
-				LOGGER.info(jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().split(" -")[0] + " : " + jphStatus.getText());
-				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().split(" -")[0] + " : " + jphStatus.getText());
+				LOGGER.info(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
+						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
+						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
+						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
+				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
+						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
+						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
+						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
 			}
 			LOGGER.info("First thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Descending Order is verified successfully");
 			ExtentCucumberAdapter.addTestStepLog("First thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Descending Order is verified successfully");
@@ -762,16 +762,16 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profile
 				WebElement jphAccessedDate = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[3]/span"));
 				WebElement jphActionTaken = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]/span | //*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]"));
 				WebElement jphStatus = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[5]/span"));
-				LOGGER.info(jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().split(" -")[0] + " : " + jphStatus.getText());
-				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().split(" -")[0] + " : " + jphStatus.getText());			}
+				LOGGER.info(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
+						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
+						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
+						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
+				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
+						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
+						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
+						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());			}
 			LOGGER.info("First thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Ascending Order is verified successfully");
 			ExtentCucumberAdapter.addTestStepLog("First thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Ascending Order is verified successfully");
 			
@@ -827,16 +827,16 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date
 				WebElement jphAccessedDate = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[3]/span"));
 				WebElement jphActionTaken = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]/span | //*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]"));
 				WebElement jphStatus = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[5]/span"));
-				LOGGER.info(jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().split(" -")[0] + " : " + jphStatus.getText());
-				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().split(" -")[0] + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().split(" -")[0] + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().split(" -")[0] + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().split(" -")[0] + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().split(" -")[0] + " : " + jphStatus.getText());
+				LOGGER.info(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
+						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
+						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
+						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
+				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
+						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
+						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
+						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
 			}
 			LOGGER.info("First thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Descending Order is verified successfully");
 			ExtentCucumberAdapter.addTestStepLog("First thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Descending Order is verified successfully");

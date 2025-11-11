@@ -1,4 +1,4 @@
-package com.kfonetalentsuite.pageobjects.JobMapping;
+﻿package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -188,23 +188,23 @@ public void user_should_search_for_success_profile_with_no_job_code_assigned() {
 				WebElement	SP_LastModified = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[7]//*"));
 				WebElement	SP_ExportStatus = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[8]//*"));
 				LOGGER.info("Below are the details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM : \n "
-						+ tableHeader1.getText().split(" -")[0] + " : " + SP_JobName.getText() + "   "
-						+ tableHeader2.getText().split(" -")[0] + " : " + SP_Status.getText() + "   "
-						+ tableHeader3.getText().split(" -")[0] + " : " + SP_KFGrade.getText() + "   "
-						+ tableHeader4.getText().split(" -")[0] + " : " + SP_Level.getText() + "   "
-						+ tableHeader5.getText().split(" -")[0] + " : " + SP_Function.getText() + "  "
-						+ tableHeader6.getText().split(" -")[0] + " : " + SP_CreatedBy.getText() + "   "
-						+ tableHeader7.getText().split(" -")[0] + " : " + SP_LastModified.getText() + "  "
-						+ tableHeader8.getText().split(" -")[0] + " : " + SP_ExportStatus.getText() + "   ");
+						+ tableHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobName.getText() + "   "
+						+ tableHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Status.getText() + "   "
+						+ tableHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_KFGrade.getText() + "   "
+						+ tableHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Level.getText() + "   "
+						+ tableHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Function.getText() + "  "
+						+ tableHeader6.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_CreatedBy.getText() + "   "
+						+ tableHeader7.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_LastModified.getText() + "  "
+						+ tableHeader8.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_ExportStatus.getText() + "   ");
 				ExtentCucumberAdapter.addTestStepLog("Below are the details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM : \n "
-						+ tableHeader1.getText().split(" -")[0] + " : " + SP_JobName.getText() + "   "
-						+ tableHeader2.getText().split(" -")[0] + " : " + SP_Status.getText() + "   "
-						+ tableHeader3.getText().split(" -")[0] + " : " + SP_KFGrade.getText() + "   "
-						+ tableHeader4.getText().split(" -")[0] + " : " + SP_Level.getText() + "   "
-						+ tableHeader5.getText().split(" -")[0] + " : " + SP_Function.getText() + "  "
-						+ tableHeader6.getText().split(" -")[0] + " : " + SP_CreatedBy.getText() + "   "
-					+ tableHeader7.getText().split(" -")[0] + " : " + SP_LastModified.getText() + "  "
-					+ tableHeader8.getText().split(" -")[0] + " : " + SP_ExportStatus.getText() + "   ");
+						+ tableHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobName.getText() + "   "
+						+ tableHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Status.getText() + "   "
+						+ tableHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_KFGrade.getText() + "   "
+						+ tableHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Level.getText() + "   "
+						+ tableHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Function.getText() + "  "
+						+ tableHeader6.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_CreatedBy.getText() + "   "
+					+ tableHeader7.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_LastModified.getText() + "  "
+					+ tableHeader8.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_ExportStatus.getText() + "   ");
 		} catch (Exception e) {
 			LOGGER.error(" Issue verifying profile details - Method: verify_details_of_the_success_profile_with_no_job_code_assigned_in_hcm_sync_profiles_tab", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profile_details_no_job_code", e);
