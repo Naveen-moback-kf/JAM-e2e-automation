@@ -46,7 +46,7 @@ public class EnhancedLogger {
         LOGGER.error(message, e);
         // Add error to ExtentReports with full context
         try {
-            ExtentCucumberAdapter.addTestStepLog("âŒ " + message + ": " + e.getMessage());
+            ExtentCucumberAdapter.addTestStepLog(" " + message + ": " + e.getMessage());
         } catch (Exception ex) {
             LOGGER.debug("ExtentReports not available for error logging: {}", ex.getMessage());
         }
@@ -59,7 +59,7 @@ public class EnhancedLogger {
     public static void warn(String message) {
         LOGGER.warn(message);
         try {
-            ExtentCucumberAdapter.addTestStepLog("âš ï¸ Warning: " + message);
+            ExtentCucumberAdapter.addTestStepLog(" Warning: " + message);
         } catch (Exception e) {
             LOGGER.debug("ExtentReports not available for warning logging: {}", e.getMessage());
         }
@@ -70,9 +70,9 @@ public class EnhancedLogger {
      * @param message - The success message
      */
     public static void success(String message) {
-        LOGGER.info("âœ… " + message);
+        LOGGER.info("... " + message);
         try {
-            ExtentCucumberAdapter.addTestStepLog("âœ… " + message);
+            ExtentCucumberAdapter.addTestStepLog("... " + message);
         } catch (Exception e) {
             LOGGER.debug("ExtentReports not available for success logging: {}", e.getMessage());
         }
@@ -99,7 +99,7 @@ public class EnhancedLogger {
      * @param stepDescription - Description of the test step
      */
     public static void step(String stepDescription) {
-        String message = "ðŸ”„ Step: " + stepDescription;
+        String message = " Step: " + stepDescription;
         LOGGER.info(message);
         try {
             ExtentCucumberAdapter.addTestStepLog(message);

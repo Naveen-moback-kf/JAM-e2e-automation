@@ -24,7 +24,7 @@ import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 /**
  * ENHANCED: Manual Mapping Profile Info Message Validation
  * 
- * ðŸŒ GLOBAL TRACKING & AGGRESSIVE SEARCH SYSTEM - BULLETPROOF DUPLICATE PREVENTION:
+ *  GLOBAL TRACKING & AGGRESSIVE SEARCH SYSTEM - BULLETPROOF DUPLICATE PREVENTION:
  * 1. GLOBAL PROFILE TRACKING: Persistent first profile storage across entire test execution
  * 2. AGGRESSIVE SCROLLING: Up to 25 search attempts + extra aggressive scrolling when needed
  * 3. MULTI-LAYER VALIDATION: Row Index + Profile Number + Job Name + Job Code verification  
@@ -36,36 +36,36 @@ import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
  * 9. BULLETPROOF ERROR HANDLING: Clear messages when duplicates detected with context
  * 10. ENHANCED DEBUGGING: Detailed duplicate detection messages with global tracking info
  * 
- * ðŸ”’ GLOBAL TRACKING SYSTEM:
+ *  GLOBAL TRACKING SYSTEM:
  * - globalFirstManualProfileRowIndex: Persistent row index of first profile
  * - globalFirstManualProfileNumber: Persistent profile number of first profile  
  * - globalFirstManualJobNameWithInfoMessage: Job name for content comparison
  * - globalFirstManualJobCodeWithInfoMessage: Job code for content comparison
  * 
- * ðŸŽ¯ AGGRESSIVE SEARCH STRATEGY:
+ *  AGGRESSIVE SEARCH STRATEGY:
  * - Phase 1: Check currently visible profiles with info messages (FIRST PROFILE)
- * - Phase 2: GLOBAL STORAGE â†’ Store first profile information for bulletproof tracking
- * - Phase 3: If found â†’ STOP and start validation immediately (NO unnecessary scrolling)  
- * - Phase 4: For second profile â†’ AGGRESSIVE SEARCH using global tracking (up to 25 attempts)
- * - Phase 5: MULTI-LAYER VALIDATION â†’ Row + Profile Number + Content checks per candidate
- * - Phase 6: IMMEDIATE STOP â†’ Stop scrolling as soon as different profile found
- * - Phase 7: EXTRA AGGRESSIVE SCROLLING â†’ Force scroll to bottom + additional attempts when needed
+ * - Phase 2: GLOBAL STORAGE  Store first profile information for bulletproof tracking
+ * - Phase 3: If found  STOP and start validation immediately (NO unnecessary scrolling)  
+ * - Phase 4: For second profile  AGGRESSIVE SEARCH using global tracking (up to 25 attempts)
+ * - Phase 5: MULTI-LAYER VALIDATION  Row + Profile Number + Content checks per candidate
+ * - Phase 6: IMMEDIATE STOP  Stop scrolling as soon as different profile found
+ * - Phase 7: EXTRA AGGRESSIVE SCROLLING  Force scroll to bottom + additional attempts when needed
  * - Phase 8: Handle success case when only one unique profile exists
  * 
- * ðŸ›¡ï¸ BULLETPROOF DUPLICATE PREVENTION:
- * âœ… GLOBAL TRACKING: Impossible to lose first profile information across test execution
- * âœ… ROW INDEX CHECK: Skip profiles with same table row as global first
- * âœ… PROFILE NUMBER CHECK: Skip profiles with same profile number as global first  
- * âœ… CONTENT VERIFICATION: Job Name + Job Code comparison for absolute certainty
- * âœ… PROFILE TYPE FILTERING: Only Manual Mapping profiles (have "Search a different profile" buttons)
- * âœ… AGGRESSIVE SCROLLING: Up to 25 attempts + extra aggressive when needed
- * âœ… IMMEDIATE STOP: Performance optimized - stop as soon as different profile found
- * âœ… SUCCESS CASE: Graceful handling when no profiles with missing data exist
- * âœ… SINGLE PROFILE MODE: Handle scenarios with only one Manual Mapping profile available
- * âœ… CLEAR SEPARATION: No interference with AutoMapped profile test scenarios
- * âœ… ENHANCED LOGGING: Comprehensive duplicate detection messages with global context
+ *  BULLETPROOF DUPLICATE PREVENTION:
+ * ... GLOBAL TRACKING: Impossible to lose first profile information across test execution
+ * ... ROW INDEX CHECK: Skip profiles with same table row as global first
+ * ... PROFILE NUMBER CHECK: Skip profiles with same profile number as global first  
+ * ... CONTENT VERIFICATION: Job Name + Job Code comparison for absolute certainty
+ * ... PROFILE TYPE FILTERING: Only Manual Mapping profiles (have "Search a different profile" buttons)
+ * ... AGGRESSIVE SCROLLING: Up to 25 attempts + extra aggressive when needed
+ * ... IMMEDIATE STOP: Performance optimized - stop as soon as different profile found
+ * ... SUCCESS CASE: Graceful handling when no profiles with missing data exist
+ * ... SINGLE PROFILE MODE: Handle scenarios with only one Manual Mapping profile available
+ * ... CLEAR SEPARATION: No interference with AutoMapped profile test scenarios
+ * ... ENHANCED LOGGING: Comprehensive duplicate detection messages with global context
  * 
- * ðŸš« GUARANTEED: Zero duplicate profile validations - each test validates two genuinely different Manual Mapping profiles!
+ *  GUARANTEED: Zero duplicate profile validations - each test validates two genuinely different Manual Mapping profiles!
  */
 public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManager {
 	
@@ -203,7 +203,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 	 * @return true if Manual Mapping profile found and details extracted, false otherwise
 	 */
 	private boolean checkCurrentProfilesForManualMapped(List<WebElement> infoMessages, int searchAttempt) {
-		LOGGER.info("ðŸ” Checking {} visible profiles for Manual Mapping ones (search attempt {})", infoMessages.size(), searchAttempt);
+		LOGGER.info(" Checking {} visible profiles for Manual Mapping ones (search attempt {})", infoMessages.size(), searchAttempt);
 		
 		for (WebElement infoMessage : infoMessages) {
 			if (infoMessage.isDisplayed()) {
@@ -216,7 +216,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 						// CRITICAL: Validate this is a Manual Mapping profile (has "Search a different profile")
 						if (!isManualMappingProfile(rowIndex)) {
 							int profileNumber = getProfileNumber(rowIndex);
-							LOGGER.info("â­ï¸ Skipping Profile {} (row {}) - AutoMapped profile", profileNumber, rowIndex);
+							LOGGER.info(" Skipping Profile {} (row {}) - AutoMapped profile", profileNumber, rowIndex);
 							continue; // Skip this profile and look for Manual Mapping ones
 						}
 						
@@ -241,13 +241,13 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 						globalFirstManualJobCodeWithInfoMessage = manualJobCodeWithInfoMessage;
 						
 						// Display the extracted job details with profile context
-						LOGGER.info("âœ… FOUND: Manual Mapping Profile {} with Info Message (table row {}) after search attempt {}:", profileNumber, rowIndex, searchAttempt);
+						LOGGER.info("... FOUND: Manual Mapping Profile {} with Info Message (table row {}) after search attempt {}:", profileNumber, rowIndex, searchAttempt);
 						LOGGER.info("  Job Name: {}", manualJobNameWithInfoMessage);
 						LOGGER.info("  Job Code: {}", manualJobCodeWithInfoMessage);
 						LOGGER.info("  Grade: {}", manualGradeWithInfoMessage);
 						LOGGER.info("  Department: {}", manualDepartmentWithInfoMessage);
 						LOGGER.info("  Function/Sub-function: {}", manualFunctionSubfunctionWithInfoMessage);
-						LOGGER.info("ðŸ”’ GLOBAL TRACKING: First manual mapping profile stored (Row: {}, Profile: {}) for duplicate prevention", globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
+						LOGGER.info(" GLOBAL TRACKING: First manual mapping profile stored (Row: {}, Profile: {}) for duplicate prevention", globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
 						
 						return true; // Found! Return immediately to stop further searching
 					}
@@ -257,7 +257,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			}
 		}
 		
-		LOGGER.info("âŒ No Manual Mapping profiles found in current {} visible profiles", infoMessages.size());
+		LOGGER.info(" No Manual Mapping profiles found in current {} visible profiles", infoMessages.size());
 		return false; // No Manual Mapping profile found in current visible profiles
 	}
 
@@ -269,7 +269,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 	 * @return WebElement of second Manual Mapping profile if found, null otherwise
 	 */
 	private WebElement checkCurrentProfilesForSecondManualMapped(List<WebElement> infoMessages, int searchAttempt) {
-		LOGGER.info("ðŸ” Checking {} visible profiles for second Manual Mapping one (different from GLOBAL first: row {}, profile {})", 
+		LOGGER.info(" Checking {} visible profiles for second Manual Mapping one (different from GLOBAL first: row {}, profile {})", 
 			infoMessages.size(), globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
 		
 		for (int i = 0; i < infoMessages.size(); i++) {
@@ -284,14 +284,14 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 						
 						// CRITICAL: Skip if this is the same profile as the globally tracked first one
 						if (candidateRowIndex == globalFirstManualProfileRowIndex || candidateProfileNumber == globalFirstManualProfileNumber) {
-							LOGGER.info("â­ï¸ DUPLICATE DETECTED: Skipping info message at index {} - Same profile as GLOBAL first (row {}, profile {})", 
+							LOGGER.info(" DUPLICATE DETECTED: Skipping info message at index {} - Same profile as GLOBAL first (row {}, profile {})", 
 								i, candidateRowIndex, candidateProfileNumber);
 							continue;
 						}
 						
 						// CRITICAL: Validate this is a Manual Mapping profile (has "Search a different profile")
 						if (!isManualMappingProfile(candidateRowIndex)) {
-							LOGGER.info("â­ï¸ Skipping Profile {} (row {}) - AutoMapped profile", candidateProfileNumber, candidateRowIndex);
+							LOGGER.info(" Skipping Profile {} (row {}) - AutoMapped profile", candidateProfileNumber, candidateRowIndex);
 							continue; // Skip this profile and look for Manual Mapping ones
 						}
 						
@@ -314,7 +314,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 							
 							// FINAL CHECK: Compare with global first profile job details
 							if (candidateJobName.equals(globalFirstManualJobNameWithInfoMessage) && candidateJobCode.equals(globalFirstManualJobCodeWithInfoMessage)) {
-								LOGGER.info("â­ï¸ CONTENT DUPLICATE DETECTED: Skipping Profile {} - Same job content as GLOBAL first (Name: '{}', Code: '{}')", 
+								LOGGER.info(" CONTENT DUPLICATE DETECTED: Skipping Profile {} - Same job content as GLOBAL first (Name: '{}', Code: '{}')", 
 									candidateProfileNumber, candidateJobName, candidateJobCode);
 								continue;
 							}
@@ -324,7 +324,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 						}
 						
 						// FOUND: Second Manual Mapping profile with info message (different from first)!
-						LOGGER.info("âœ… FOUND: Second Manual Mapping Profile {} with Info Message (table row {}) after search attempt {} - DIFFERENT from GLOBAL first (row {}, profile {}):", 
+						LOGGER.info("... FOUND: Second Manual Mapping Profile {} with Info Message (table row {}) after search attempt {} - DIFFERENT from GLOBAL first (row {}, profile {}):", 
 							candidateProfileNumber, candidateRowIndex, searchAttempt, globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
 						
 						return candidateInfoMessage; // Found! Return immediately to stop further searching
@@ -335,7 +335,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			}
 		}
 		
-		LOGGER.info("âŒ No second Manual Mapping profiles found in current {} visible profiles (different from GLOBAL first)", infoMessages.size());
+		LOGGER.info(" No second Manual Mapping profiles found in current {} visible profiles (different from GLOBAL first)", infoMessages.size());
 		return null; // No second Manual Mapping profile found in current visible profiles
 	}
 
@@ -363,7 +363,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 				});
 			
 			if (hasSearchDifferentButton) {
-				LOGGER.debug("âœ… Profile at row {} is Manual Mapping (has 'Search a different profile' button)", rowIndex);
+				LOGGER.debug("... Profile at row {} is Manual Mapping (has 'Search a different profile' button)", rowIndex);
 				return true;
 			}
 			
@@ -382,15 +382,15 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 				});
 			
 			if (hasViewOtherMatchesButton) {
-				LOGGER.debug("âŒ Profile at row {} is AutoMapped (has 'View Other Matches' button) - skipping", rowIndex);
+				LOGGER.debug(" Profile at row {} is AutoMapped (has 'View Other Matches' button) - skipping", rowIndex);
 				return false;
 			}
 			
-			LOGGER.debug("âš ï¸ Profile at row {} has unclear type - no recognizable action buttons found", rowIndex);
+			LOGGER.debug(" Profile at row {} has unclear type - no recognizable action buttons found", rowIndex);
 			return false; // Default to false if unclear
 			
 		} catch (Exception e) {
-			LOGGER.debug("âš ï¸ Error checking profile type at row {}: {}", rowIndex, e.getMessage());
+			LOGGER.debug(" Error checking profile type at row {}: {}", rowIndex, e.getMessage());
 			return false;
 		}
 	}
@@ -401,7 +401,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 	 */
 	private boolean scrollDownAndFindMoreManualMappingProfiles() {
 		try {
-			LOGGER.info("ðŸ”„ Enhanced scrolling to find Manual Mapping profiles with info messages...");
+			LOGGER.info(" Enhanced scrolling to find Manual Mapping profiles with info messages...");
 			
 			// Get initial count of all profiles and info messages
 			int initialInfoMessageCount = driver.findElements(
@@ -412,7 +412,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 				By.xpath("//div[@id='org-job-container']//tbody//tr")
 			).size();
 			
-			LOGGER.info("ðŸ“Š Initial state: {} info messages, {} table rows", initialInfoMessageCount, initialProfileCount);
+			LOGGER.info(" Initial state: {} info messages, {} table rows", initialInfoMessageCount, initialProfileCount);
 			
 			// Perform comprehensive scrolling to load more content
 			for (int i = 0; i < 10; i++) { // Increased scroll attempts
@@ -430,7 +430,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 				).size();
 				
 				if (currentInfoMessageCount > initialInfoMessageCount || currentProfileCount > initialProfileCount) {
-					LOGGER.info("âœ… New content loaded after scroll {}: {} info messages (+{}), {} table rows (+{})", 
+					LOGGER.info("... New content loaded after scroll {}: {} info messages (+{}), {} table rows (+{})", 
 						i + 1, currentInfoMessageCount, (currentInfoMessageCount - initialInfoMessageCount),
 						currentProfileCount, (currentProfileCount - initialProfileCount));
 					
@@ -445,13 +445,13 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 						By.xpath("//div[@id='org-job-container']//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']")
 					).size();
 					
-					LOGGER.info("ðŸ“ˆ Final result: {} info messages (net gain: {})", finalInfoMessageCount, (finalInfoMessageCount - initialInfoMessageCount));
+					LOGGER.info(" Final result: {} info messages (net gain: {})", finalInfoMessageCount, (finalInfoMessageCount - initialInfoMessageCount));
 					return finalInfoMessageCount > initialInfoMessageCount;
 				}
 			}
 			
 			// Final attempt: Scroll to bottom and wait
-			LOGGER.info("ðŸ”š Final scroll attempt: Going to bottom of page...");
+			LOGGER.info(" Final scroll attempt: Going to bottom of page...");
 			jsExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 			safeSleep(2000); // Longer wait for final load
 			
@@ -461,13 +461,13 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			).size();
 			
 			boolean foundNew = finalInfoMessageCount > initialInfoMessageCount;
-			LOGGER.info("ðŸ” Scroll complete: Initial={}, Final={}, New content found={}", 
+			LOGGER.info(" Scroll complete: Initial={}, Final={}, New content found={}", 
 				initialInfoMessageCount, finalInfoMessageCount, foundNew);
 				
 			return foundNew;
 			
 		} catch (Exception e) {
-			LOGGER.warn("âš ï¸ Error during enhanced scrolling operation for Manual Mapping profiles: " + e.getMessage());
+			LOGGER.warn(" Error during enhanced scrolling operation for Manual Mapping profiles: " + e.getMessage());
 			return false;
 		}
 	}
@@ -606,18 +606,18 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 		
 		// Phase 1: Check currently visible profiles first
 		searchAttempts++;
-		LOGGER.info("ðŸ” Initial search for Manual Mapping profiles in visible content");
+		LOGGER.info(" Initial search for Manual Mapping profiles in visible content");
 		foundManualMappingProfile = checkCurrentProfilesForManualMapped(infoMessages, searchAttempts);
 		
 		// Phase 2: Scroll and check immediately after each scroll until found or end reached
 		while (!foundManualMappingProfile) {
-			LOGGER.info("ðŸ”„ No Manual Mapping profiles found in current view, scrolling to load more profiles...");
+			LOGGER.info(" No Manual Mapping profiles found in current view, scrolling to load more profiles...");
 			
 			// Scroll down to load more profiles
 			boolean foundMoreProfiles = scrollDownAndFindMoreManualMappingProfiles();
 			
 			if (!foundMoreProfiles) {
-				LOGGER.info("âœ… Reached end of all profiles - no more content available after {} search attempts", searchAttempts);
+				LOGGER.info("... Reached end of all profiles - no more content available after {} search attempts", searchAttempts);
 				break; // No more content to load, exit while loop
 			}
 			
@@ -626,13 +626,13 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			infoMessages = driver.findElements(
 				By.xpath("//div[@id='org-job-container']//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']")
 			);
-			LOGGER.info("ðŸ”„ After scrolling: Found {} total info messages to check", infoMessages.size());
+			LOGGER.info(" After scrolling: Found {} total info messages to check", infoMessages.size());
 			
 			// CRITICAL: Check immediately after each scroll - stop as soon as Manual Mapping profile found
 			foundManualMappingProfile = checkCurrentProfilesForManualMapped(infoMessages, searchAttempts);
 			
 			if (foundManualMappingProfile) {
-				LOGGER.info("ðŸŽ¯ OPTIMIZATION: Stopped scrolling immediately after finding Manual Mapping profile!");
+				LOGGER.info(" OPTIMIZATION: Stopped scrolling immediately after finding Manual Mapping profile!");
 				break; // Stop scrolling immediately!
 			}
 		}
@@ -645,12 +645,12 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			);
 			
 			if (allInfoMessages.isEmpty()) {
-				LOGGER.info("âœ… SUCCESS: No profiles with missing data found after complete search of all {} attempts", searchAttempts);
-				LOGGER.info("ðŸŽ¯ RESULT: All profiles have complete data - no info messages present");
+				LOGGER.info("... SUCCESS: No profiles with missing data found after complete search of all {} attempts", searchAttempts);
+				LOGGER.info(" RESULT: All profiles have complete data - no info messages present");
 				ExtentCucumberAdapter.addTestStepLog("SUCCESS: No profiles with missing data found - all profiles have complete data");
 				return; // Exit successfully - no missing data is a positive outcome!
 			} else {
-				LOGGER.warn("ðŸ” ENHANCED DEBUGGING - Found {} info messages but all are AutoMapped profiles:", allInfoMessages.size());
+				LOGGER.warn(" ENHANCED DEBUGGING - Found {} info messages but all are AutoMapped profiles:", allInfoMessages.size());
 				
 				Assert.fail(String.format("Found %d profiles with info messages after %d search attempts, " +
 					"but all appear to be AutoMapped profiles (have 'View Other Matches' buttons). " +
@@ -1269,7 +1269,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 
 	public void find_second_manually_mapped_profile_with_missing_data_and_info_message() throws IOException {
 		try {
-			LOGGER.info("ðŸ” AGGRESSIVE SEARCH: Finding second Manual Mapping profile different from GLOBAL first (row {}, profile {})", 
+			LOGGER.info(" AGGRESSIVE SEARCH: Finding second Manual Mapping profile different from GLOBAL first (row {}, profile {})", 
 				globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
 			safeSleep(2000);
 			
@@ -1306,7 +1306,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 		
 		// SMART INITIALIZATION: If global tracking not available, find and store first profile automatically
 		if (globalFirstManualProfileRowIndex <= 0) {
-			LOGGER.info("ðŸ”„ SMART INITIALIZATION: Global tracking not available, automatically finding first Manual Mapping profile...");
+			LOGGER.info(" SMART INITIALIZATION: Global tracking not available, automatically finding first Manual Mapping profile...");
 			
 			// Call the first profile method to populate global tracking
 			boolean foundFirstProfile = checkCurrentProfilesForManualMapped(infoMessages, 0);
@@ -1318,11 +1318,11 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 				
 				while (!foundFirstProfile && firstProfileAttempts < MAX_FIRST_PROFILE_ATTEMPTS) {
 					firstProfileAttempts++;
-					LOGGER.info("ðŸ” Smart initialization attempt {} to find first Manual Mapping profile", firstProfileAttempts);
+					LOGGER.info(" Smart initialization attempt {} to find first Manual Mapping profile", firstProfileAttempts);
 					
 					boolean foundMoreProfiles = scrollDownAndFindMoreManualMappingProfiles();
 					if (!foundMoreProfiles) {
-						LOGGER.warn("âš ï¸ No more content available during smart initialization attempt {}", firstProfileAttempts);
+						LOGGER.warn(" No more content available during smart initialization attempt {}", firstProfileAttempts);
 						break;
 					}
 					
@@ -1339,7 +1339,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 				throw new IOException("SMART INITIALIZATION FAILED: Could not find first Manual Mapping profile to establish global tracking. Please ensure at least one Manual Mapping profile with info message exists.");
 			}
 			
-			LOGGER.info("âœ… SMART INITIALIZATION SUCCESS: Global tracking established (Row: {}, Profile: {})", 
+			LOGGER.info("... SMART INITIALIZATION SUCCESS: Global tracking established (Row: {}, Profile: {})", 
 				globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
 		}
 		
@@ -1349,38 +1349,38 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 		WebElement targetInfoMessage = null;
 		final int MAX_SCROLL_ATTEMPTS = 25; // Allow extensive searching
 		
-		LOGGER.info("ðŸŽ¯ STARTING AGGRESSIVE SEARCH: Will scroll until different Manual Mapping profile found or {} attempts reached", MAX_SCROLL_ATTEMPTS);
+		LOGGER.info(" STARTING AGGRESSIVE SEARCH: Will scroll until different Manual Mapping profile found or {} attempts reached", MAX_SCROLL_ATTEMPTS);
 		
 		// First, try to find a second Manual Mapping profile from current info messages using GLOBAL tracking
-		LOGGER.info("ðŸ” Initial search for second Manual Mapping profile in visible content (different from GLOBAL first)");
+		LOGGER.info(" Initial search for second Manual Mapping profile in visible content (different from GLOBAL first)");
 		targetInfoMessage = checkCurrentProfilesForSecondManualMapped(infoMessages, 0);
 		
 		if (targetInfoMessage != null) {
 			foundSecondManualMappingProfile = true;
-			LOGGER.info("âœ… Found second Manual Mapping profile in initially visible content - no scrolling needed!");
+			LOGGER.info("... Found second Manual Mapping profile in initially visible content - no scrolling needed!");
 		}
 		
 		// AGGRESSIVE SCROLLING: Continue until truly different second Manual Mapping profile found
 		while (!foundSecondManualMappingProfile && searchAttempts < MAX_SCROLL_ATTEMPTS) {
 			searchAttempts++;
-			LOGGER.info("ðŸ” Aggressive search attempt {} for second Manual Mapping profile (different from GLOBAL first)", searchAttempts);
+			LOGGER.info(" Aggressive search attempt {} for second Manual Mapping profile (different from GLOBAL first)", searchAttempts);
 			
 			// Check current visible profiles using GLOBAL tracking
 			targetInfoMessage = checkCurrentProfilesForSecondManualMapped(infoMessages, searchAttempts);
 			
 			if (targetInfoMessage != null) {
 				foundSecondManualMappingProfile = true;
-				LOGGER.info("âœ… SUCCESS: Found different Manual Mapping profile after {} search attempts!", searchAttempts);
+				LOGGER.info("... SUCCESS: Found different Manual Mapping profile after {} search attempts!", searchAttempts);
 				break; // Found different profile - stop searching!
 			}
 			
 			// If not found in current view, scroll down for more content
-			LOGGER.info("ðŸ”„ No different Manual Mapping profiles in current view - scrolling for more content (attempt {})", searchAttempts);
+			LOGGER.info(" No different Manual Mapping profiles in current view - scrolling for more content (attempt {})", searchAttempts);
 			
 			boolean foundMoreProfiles = scrollDownAndFindMoreManualMappingProfiles();
 			if (!foundMoreProfiles) {
 				// Try extra aggressive scrolling before giving up
-				LOGGER.info("ðŸ”„ No new content - trying extra aggressive scrolling...");
+				LOGGER.info(" No new content - trying extra aggressive scrolling...");
 				jsExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 				safeSleep(3000); // Wait longer for potential lazy loading
 				
@@ -1394,9 +1394,9 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 				
 				if (newInfoMessages.size() > infoMessages.size()) {
 					foundMoreProfiles = true;
-					LOGGER.info("ðŸ”„ Extra aggressive scrolling loaded {} new info messages", newInfoMessages.size() - infoMessages.size());
+					LOGGER.info(" Extra aggressive scrolling loaded {} new info messages", newInfoMessages.size() - infoMessages.size());
 				} else {
-					LOGGER.info("âœ… TRULY REACHED END: No more content after extensive scrolling (attempt {})", searchAttempts);
+					LOGGER.info("... TRULY REACHED END: No more content after extensive scrolling (attempt {})", searchAttempts);
 					break; // Absolutely no more content available
 				}
 			}
@@ -1405,13 +1405,13 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			infoMessages = driver.findElements(
 				By.xpath("//div[@id='org-job-container']//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']")
 			);
-			LOGGER.info("ðŸ”„ After aggressive scroll attempt {}: Found {} total info messages to check", searchAttempts, infoMessages.size());
+			LOGGER.info(" After aggressive scroll attempt {}: Found {} total info messages to check", searchAttempts, infoMessages.size());
 		}
 		
 		// Handle results
 		if (!foundSecondManualMappingProfile) {
-			LOGGER.info("â„¹ï¸ AGGRESSIVE SEARCH COMPLETE: Only one unique Manual Mapping profile found after {} search attempts", searchAttempts);
-			LOGGER.info("ðŸŽ¯ SINGLE PROFILE MODE: Using GLOBAL first profile for validation (GLOBAL row: {}, profile: {})", 
+			LOGGER.info(" AGGRESSIVE SEARCH COMPLETE: Only one unique Manual Mapping profile found after {} search attempts", searchAttempts);
+			LOGGER.info(" SINGLE PROFILE MODE: Using GLOBAL first profile for validation (GLOBAL row: {}, profile: {})", 
 				globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
 			
 			ExtentCucumberAdapter.addTestStepLog("Single Manual Mapping profile validation: " + globalFirstManualJobNameWithInfoMessage + 
@@ -1434,9 +1434,9 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 					extractFunctionSubfunctionFromRowForSecondManualProfile(rowIndex);
 					
 					// Display success
-					LOGGER.info("âœ… AGGRESSIVE SEARCH SUCCESS: Second Manual Mapping Profile {} found (table row {}) after {} attempts", 
+					LOGGER.info("... AGGRESSIVE SEARCH SUCCESS: Second Manual Mapping Profile {} found (table row {}) after {} attempts", 
 						profileNumber, rowIndex, searchAttempts);
-					LOGGER.info("ðŸ”’ CONFIRMED DIFFERENT from GLOBAL first: (row {}, profile {}) vs (row {}, profile {})", 
+					LOGGER.info(" CONFIRMED DIFFERENT from GLOBAL first: (row {}, profile {}) vs (row {}, profile {})", 
 						globalFirstManualProfileRowIndex, globalFirstManualProfileNumber, rowIndex, profileNumber);
 					LOGGER.info("  Job Name: {}", secondManualJobNameWithInfoMessage);
 					LOGGER.info("  Job Code: {}", secondManualJobCodeWithInfoMessage);

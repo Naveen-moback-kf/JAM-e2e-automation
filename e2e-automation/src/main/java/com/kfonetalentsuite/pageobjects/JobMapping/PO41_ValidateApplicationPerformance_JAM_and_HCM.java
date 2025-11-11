@@ -268,8 +268,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_page_load_time_failed", e);
-			LOGGER.error("âŒ Failed to measure page load time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure page load time: " + e.getMessage());
+			LOGGER.error(" Failed to measure page load time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure page load time: " + e.getMessage());
 		}
 	}
 	
@@ -282,8 +282,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			validateThreshold(totalPageLoadTime, PAGE_LOAD_THRESHOLD_MS, "Page Load", "page_load");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_page_load_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate page load threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate page load threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate page load threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate page load threshold: " + e.getMessage());
 			Assert.fail("Failed to validate page load threshold: " + e.getMessage());
 		}
 	}
@@ -307,12 +307,12 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			if (verifyComponent("Filters", filtersDropdownButton)) loadedComponents++;
 			
 			// Summary
-			String summaryMsg = String.format("ðŸ“Š Components Loaded: %d/%d", loadedComponents, totalComponents);
+			String summaryMsg = String.format(" Components Loaded: %d/%d", loadedComponents, totalComponents);
 			LOGGER.info(summaryMsg);
 			ExtentCucumberAdapter.addTestStepLog(summaryMsg);
 			
 			if (loadedComponents < totalComponents) {
-				String failMsg = String.format("âŒ Only %d/%d components loaded", loadedComponents, totalComponents);
+				String failMsg = String.format(" Only %d/%d components loaded", loadedComponents, totalComponents);
 				LOGGER.error(failMsg);
 				ScreenshotHandler.captureFailureScreenshot("critical_components_missing", new Exception(failMsg));
 				Assert.fail(failMsg);
@@ -320,8 +320,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_critical_components_failed", e);
-			LOGGER.error("âŒ Failed to verify critical components", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify critical components: " + e.getMessage());
+			LOGGER.error(" Failed to verify critical components", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify critical components: " + e.getMessage());
 			Assert.fail("Failed to verify critical components: " + e.getMessage());
 		}
 	}
@@ -333,7 +333,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 		try {
 			return element != null && element.isDisplayed();
 		} catch (Exception e) {
-			LOGGER.warn("âš ï¸ " + componentName + " not found");
+			LOGGER.warn(" " + componentName + " not found");
 			return false;
 		}
 	}
@@ -347,7 +347,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	 * Reduced verbosity - only for major sections
 	 */
 	private void logSectionHeader(String title) {
-		LOGGER.debug("â–¶ " + title);
+		LOGGER.debug("- " + title);
 	}
 	
 	/**
@@ -356,11 +356,11 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	private String getPerformanceRating(long actualTime, long threshold) {
 		double percentage = (actualTime / (double) threshold) * 100;
 		
-		if (percentage <= 50) return "âš¡ EXCELLENT";
-		else if (percentage <= 75) return "âœ… GOOD";
-		else if (percentage <= 100) return "âš ï¸ ACCEPTABLE";
-		else if (percentage <= 150) return "âŒ POOR";
-		else return "ðŸ”´ VERY POOR";
+		if (percentage <= 50) return " EXCELLENT";
+		else if (percentage <= 75) return "... GOOD";
+		else if (percentage <= 100) return " ACCEPTABLE";
+		else if (percentage <= 150) return " POOR";
+		else return " VERY POOR";
 	}
 	
 	/**
@@ -376,7 +376,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.warn("âš ï¸ Could not parse results count: " + resultsText);
+			LOGGER.warn(" Could not parse results count: " + resultsText);
 		}
 		return 0;
 	}
@@ -389,7 +389,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	 */
 	private void validateThreshold(long actualTime, long threshold, String operationName, String screenshotPrefix) {
 		if (actualTime == 0) {
-			String errorMsg = "âŒ TECHNICAL FAILURE: " + operationName + " time was not measured";
+			String errorMsg = " TECHNICAL FAILURE: " + operationName + " time was not measured";
 			LOGGER.error(errorMsg);
 			ExtentCucumberAdapter.addTestStepLog(errorMsg);
 			Assert.fail(errorMsg);
@@ -405,11 +405,11 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			if (scenarioName != null && !scenarioName.isEmpty()) {
 				// Clean rating for Excel (remove emoji prefixes)
 				String cleanRating = performanceRating
-					.replace("âš¡ ", "")
-					.replace("âœ… ", "")
-					.replace("âš ï¸ ", "")
-					.replace("âŒ ", "")
-					.replace("ðŸ”´ ", "");
+					.replace(" ", "")
+					.replace("... ", "")
+					.replace(" ", "")
+					.replace(" ", "")
+					.replace(" ", "");
 				
 				com.kfonetalentsuite.listeners.ExcelReportListener.setPerformanceMetrics(
 					scenarioName, threshold, actualTime, cleanRating, operationName);
@@ -420,13 +420,13 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 		}
 		
 		if (actualTime <= threshold) {
-			String successMsg = String.format("âœ… %s: %d ms (%.2f sec) | %s",
+			String successMsg = String.format("... %s: %d ms (%.2f sec) | %s",
 				operationName, actualTime, actualTime / 1000.0, performanceRating);
 			LOGGER.info(successMsg);
 			ExtentCucumberAdapter.addTestStepLog(successMsg);
 		} else {
 			long difference = actualTime - threshold;
-			String warnMsg = String.format("âš ï¸ %s: %d ms (%.2f sec) | Exceeded by %d ms | %s",
+			String warnMsg = String.format(" %s: %d ms (%.2f sec) | Exceeded by %d ms | %s",
 				operationName, actualTime, actualTime / 1000.0, difference, performanceRating);
 			LOGGER.warn(warnMsg);
 			ExtentCucumberAdapter.addTestStepLog(warnMsg);
@@ -533,8 +533,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("job_mapping_page_not_ready", e);
-			LOGGER.error("âŒ Job Mapping page not ready", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Job Mapping page not ready: " + e.getMessage());
+			LOGGER.error(" Job Mapping page not ready", e);
+			ExtentCucumberAdapter.addTestStepLog(" Job Mapping page not ready: " + e.getMessage());
 			Assert.fail("Job Mapping page not ready: " + e.getMessage());
 		}
 	}
@@ -572,8 +572,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_search_time_failed", e);
-			LOGGER.error("âŒ Failed to measure search time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure search time: " + e.getMessage());
+			LOGGER.error(" Failed to measure search time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure search time: " + e.getMessage());
 			Assert.fail("Failed to measure search time: " + e.getMessage());
 		}
 	}
@@ -587,8 +587,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			validateThreshold(totalSearchTime, SEARCH_THRESHOLD_MS, "Search", "search");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_search_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate search threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate search threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate search threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate search threshold: " + e.getMessage());
 			Assert.fail("Failed to validate search threshold: " + e.getMessage());
 		}
 	}
@@ -617,7 +617,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				}
 			}
 			
-			String accuracyMsg = String.format("ðŸ“Š Search '%s': %d matching | %d â†’ %d profiles",
+			String accuracyMsg = String.format(" Search '%s': %d matching | %d  %d profiles",
 				searchKeyword, matchingResults, resultsCountBeforeSearch, resultsCountAfterSearch);
 			
 			LOGGER.info(accuracyMsg);
@@ -625,8 +625,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_search_results_failed", e);
-			LOGGER.error("âŒ Failed to verify search results", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify search results: " + e.getMessage());
+			LOGGER.error(" Failed to verify search results", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify search results: " + e.getMessage());
 			Assert.fail("Failed to verify search results: " + e.getMessage());
 		}
 	}
@@ -641,21 +641,21 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			String responseMsg;
 			
 			if (totalSearchTime <= instantThreshold) {
-				responseMsg = String.format("âœ… Search UI Responsive: %d ms (Instant)", totalSearchTime);
+				responseMsg = String.format("... Search UI Responsive: %d ms (Instant)", totalSearchTime);
 				LOGGER.info(responseMsg);
 			} else if (totalSearchTime <= SEARCH_THRESHOLD_MS) {
-				responseMsg = String.format("âš ï¸ Search UI Acceptable: %d ms (Not instant)", totalSearchTime);
+				responseMsg = String.format(" Search UI Acceptable: %d ms (Not instant)", totalSearchTime);
 				LOGGER.warn(responseMsg);
 			} else {
-				responseMsg = String.format("âŒ Search UI Slow: %d ms", totalSearchTime);
+				responseMsg = String.format(" Search UI Slow: %d ms", totalSearchTime);
 				LOGGER.error(responseMsg);
 			}
 			ExtentCucumberAdapter.addTestStepLog(responseMsg);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_search_suggestions_failed", e);
-			LOGGER.error("âŒ Failed to validate search UI responsiveness", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate search UI: " + e.getMessage());
+			LOGGER.error(" Failed to validate search UI responsiveness", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate search UI: " + e.getMessage());
 			Assert.fail("Failed to validate search UI: " + e.getMessage());
 		}
 	}
@@ -677,7 +677,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			String currentSearchText = searchBar.getAttribute("value");
 			if (currentSearchText == null || currentSearchText.trim().isEmpty()) {
-				String errorMsg = "âŒ Search bar is empty";
+				String errorMsg = " Search bar is empty";
 				LOGGER.error(errorMsg);
 				ExtentCucumberAdapter.addTestStepLog(errorMsg);
 				Assert.fail(errorMsg);
@@ -685,8 +685,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("search_not_performed", e);
-			LOGGER.error("âŒ Failed to verify search state", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify search state: " + e.getMessage());
+			LOGGER.error(" Failed to verify search state", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify search state: " + e.getMessage());
 			Assert.fail("Failed to verify search state: " + e.getMessage());
 		}
 	}
@@ -729,8 +729,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_clear_search_time_failed", e);
-			LOGGER.error("âŒ Failed to measure clear search time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure clear search time: " + e.getMessage());
+			LOGGER.error(" Failed to measure clear search time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure clear search time: " + e.getMessage());
 			Assert.fail("Failed to measure clear search time: " + e.getMessage());
 		}
 	}
@@ -744,8 +744,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			validateThreshold(totalClearSearchTime, CLEAR_SEARCH_THRESHOLD_MS, "Clear Search", "clear_search");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_clear_search_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate clear search threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate clear search threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate clear search threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate clear search threshold: " + e.getMessage());
 			Assert.fail("Failed to validate clear search threshold: " + e.getMessage());
 		}
 	}
@@ -764,14 +764,14 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			boolean isSearchBarEmpty = (currentSearchText == null || currentSearchText.trim().isEmpty());
 			boolean countsMatch = (resultsCountAfterClear == resultsCountBeforeSearch);
 			
-			String restorationMsg = String.format("ðŸ“Š Restoration: %d â†’ %d â†’ %d profiles | Empty: %s | Match: %s",
+			String restorationMsg = String.format(" Restoration: %d  %d  %d profiles | Empty: %s | Match: %s",
 				resultsCountBeforeSearch, resultsCountAfterSearch, resultsCountAfterClear,
-				isSearchBarEmpty ? "âœ“" : "âœ—", countsMatch ? "âœ“" : "âœ—");
+				isSearchBarEmpty ? "" : "-", countsMatch ? "" : "-");
 			LOGGER.info(restorationMsg);
 			ExtentCucumberAdapter.addTestStepLog(restorationMsg);
 			
 			if (!countsMatch) {
-				String failMsg = String.format("âŒ Profile count mismatch: Expected %d, Actual %d",
+				String failMsg = String.format(" Profile count mismatch: Expected %d, Actual %d",
 					resultsCountBeforeSearch, resultsCountAfterClear);
 				LOGGER.error(failMsg);
 				ExtentCucumberAdapter.addTestStepLog(failMsg);
@@ -781,8 +781,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_restoration_failed", e);
-			LOGGER.error("âŒ Failed to verify profile restoration", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify profile restoration: " + e.getMessage());
+			LOGGER.error(" Failed to verify profile restoration", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify profile restoration: " + e.getMessage());
 			Assert.fail("Failed to verify profile restoration: " + e.getMessage());
 		}
 	}
@@ -797,21 +797,21 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			String responseMsg;
 			
 			if (totalClearSearchTime <= instantThreshold) {
-				responseMsg = String.format("âœ… Clear UI Responsive: %d ms (Instant)", totalClearSearchTime);
+				responseMsg = String.format("... Clear UI Responsive: %d ms (Instant)", totalClearSearchTime);
 				LOGGER.info(responseMsg);
 			} else if (totalClearSearchTime <= CLEAR_SEARCH_THRESHOLD_MS) {
-				responseMsg = String.format("âš ï¸ Clear UI Acceptable: %d ms (Not instant)", totalClearSearchTime);
+				responseMsg = String.format(" Clear UI Acceptable: %d ms (Not instant)", totalClearSearchTime);
 				LOGGER.warn(responseMsg);
 			} else {
-				responseMsg = String.format("âŒ Clear UI Slow: %d ms", totalClearSearchTime);
+				responseMsg = String.format(" Clear UI Slow: %d ms", totalClearSearchTime);
 				LOGGER.error(responseMsg);
 			}
 			ExtentCucumberAdapter.addTestStepLog(responseMsg);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_clear_ui_responsiveness_failed", e);
-			LOGGER.error("âŒ Failed to validate clear UI responsiveness", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate clear UI: " + e.getMessage());
+			LOGGER.error(" Failed to validate clear UI responsiveness", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate clear UI: " + e.getMessage());
 			Assert.fail("Failed to validate clear UI: " + e.getMessage());
 		}
 	}
@@ -838,15 +838,15 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			filterDropdownOpenEndTime = System.currentTimeMillis();
 			totalFilterDropdownOpenTime = filterDropdownOpenEndTime - filterDropdownOpenStartTime;
 			
-			String performanceLog = String.format("ðŸ“Š Dropdown Open: %d ms (%.2f sec)",
+			String performanceLog = String.format(" Dropdown Open: %d ms (%.2f sec)",
 				totalFilterDropdownOpenTime, totalFilterDropdownOpenTime / 1000.0);
 			LOGGER.info(performanceLog);
 			ExtentCucumberAdapter.addTestStepLog(performanceLog);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_filter_dropdown_open_failed", e);
-			LOGGER.error("âŒ Failed to measure filter dropdown open time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure filter dropdown open time: " + e.getMessage());
+			LOGGER.error(" Failed to measure filter dropdown open time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure filter dropdown open time: " + e.getMessage());
 			Assert.fail("Failed to measure filter dropdown open time: " + e.getMessage());
 		}
 	}
@@ -904,7 +904,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 					// Click to expand the filter category
 					filterHeader.click();
 					Thread.sleep(800); // Increased wait for checkboxes to render
-					LOGGER.debug("âœ“ Expanded " + filterType + " filter category");
+					LOGGER.debug(" Expanded " + filterType + " filter category");
 					
 					// Find available filter options (checkboxes) for this category
 					// Try multiple XPath strategies to find checkboxes
@@ -944,7 +944,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 							}
 							
 							appliedFilterType = filterType;
-							LOGGER.info("âœ“ Applied filter: " + filterType + " = " + appliedFilterValue);
+							LOGGER.info(" Applied filter: " + filterType + " = " + appliedFilterValue);
 							
 							// Wait for results to update
 							Thread.sleep(1500);
@@ -975,7 +975,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				LOGGER.debug("Closing filters dropdown after applying filter");
 				wait.until(ExpectedConditions.elementToBeClickable(filtersDropdownButton)).click();
 				Thread.sleep(500);
-				LOGGER.debug("âœ“ Filters dropdown closed");
+				LOGGER.debug(" Filters dropdown closed");
 			} catch (Exception e) {
 				LOGGER.debug("Could not close filters dropdown: " + e.getMessage());
 			}
@@ -991,8 +991,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_single_filter_failed", e);
-			LOGGER.error("âŒ Failed to measure single filter time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure single filter time: " + e.getMessage());
+			LOGGER.error(" Failed to measure single filter time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure single filter time: " + e.getMessage());
 			Assert.fail("Failed to measure single filter time: " + e.getMessage());
 		}
 	}
@@ -1005,8 +1005,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			validateThreshold(totalSingleFilterTime, SINGLE_FILTER_THRESHOLD_MS, "Single Filter", "filter");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_filter_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate filter threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate filter threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate filter threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate filter threshold: " + e.getMessage());
 			Assert.fail("Failed to validate filter threshold: " + e.getMessage());
 		}
 	}
@@ -1027,16 +1027,16 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				// Clear button check skipped
 			}
 			
-			String validationMsg = String.format("ðŸ“Š Filter %s=%s: %d â†’ %d profiles | Clear Btn: %s",
+			String validationMsg = String.format(" Filter %s=%s: %d  %d profiles | Clear Btn: %s",
 				appliedFilterType, appliedFilterValue, resultsCountBeforeFilter, resultsCountAfterFilter,
-				clearFiltersVisible ? "âœ“" : "âœ—");
+				clearFiltersVisible ? "" : "-");
 			LOGGER.info(validationMsg);
 			ExtentCucumberAdapter.addTestStepLog(validationMsg);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_filtered_results_failed", e);
-			LOGGER.error("âŒ Failed to verify filtered results", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify filtered results: " + e.getMessage());
+			LOGGER.error(" Failed to verify filtered results", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify filtered results: " + e.getMessage());
 			Assert.fail("Failed to verify filtered results: " + e.getMessage());
 		}
 	}
@@ -1050,21 +1050,21 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			String responseMsg;
 			
 			if (totalSingleFilterTime <= instantThreshold) {
-				responseMsg = String.format("âœ… Filter UI Responsive: %d ms (Instant)", totalSingleFilterTime);
+				responseMsg = String.format("... Filter UI Responsive: %d ms (Instant)", totalSingleFilterTime);
 				LOGGER.info(responseMsg);
 			} else if (totalSingleFilterTime <= SINGLE_FILTER_THRESHOLD_MS) {
-				responseMsg = String.format("âš ï¸ Filter UI Acceptable: %d ms (Not instant)", totalSingleFilterTime);
+				responseMsg = String.format(" Filter UI Acceptable: %d ms (Not instant)", totalSingleFilterTime);
 				LOGGER.warn(responseMsg);
 			} else {
-				responseMsg = String.format("âŒ Filter UI Slow: %d ms", totalSingleFilterTime);
+				responseMsg = String.format(" Filter UI Slow: %d ms", totalSingleFilterTime);
 				LOGGER.error(responseMsg);
 			}
 			ExtentCucumberAdapter.addTestStepLog(responseMsg);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_filter_ui_responsiveness_failed", e);
-			LOGGER.error("âŒ Failed to validate filter UI responsiveness", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate filter UI: " + e.getMessage());
+			LOGGER.error(" Failed to validate filter UI responsiveness", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate filter UI: " + e.getMessage());
 			Assert.fail("Failed to validate filter UI: " + e.getMessage());
 		}
 	}
@@ -1166,8 +1166,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 							}
 							
 							numberOfFiltersApplied++;
-							appliedFiltersLog.append(String.format("   â€¢ %s = %s%n", filterType, filterValue));
-							LOGGER.info("âœ“ Applied filter " + numberOfFiltersApplied + ": " + filterType + " = " + filterValue);
+							appliedFiltersLog.append(String.format("    %s = %s%n", filterType, filterValue));
+							LOGGER.info(" Applied filter " + numberOfFiltersApplied + ": " + filterType + " = " + filterValue);
 							
 							Thread.sleep(1500);
 							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
@@ -1201,11 +1201,11 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			resultsCountAfterFilter = Integer.parseInt(resultsText.replaceAll("[^0-9]", "").substring(resultsText.replaceAll("[^0-9]", "").length() - 2));
 			
 			String performanceLog = String.format(
-				"ðŸ“Š Performance Metrics:%n" +
-				"   â€¢ Filters Applied: %d%n" +
+				" Performance Metrics:%n" +
+				"    Filters Applied: %d%n" +
 				"%s" +
-				"   â€¢ Total Time: %d ms (%.2f sec)%n" +
-				"   â€¢ Results: %d â†’ %d profiles",
+				"    Total Time: %d ms (%.2f sec)%n" +
+				"    Results: %d  %d profiles",
 				numberOfFiltersApplied,
 				appliedFiltersLog.toString(),
 				totalMultipleFiltersTime, totalMultipleFiltersTime / 1000.0,
@@ -1215,8 +1215,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_multiple_filters_failed", e);
-			LOGGER.error("âŒ Failed to measure multiple filters time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure multiple filters time: " + e.getMessage());
+			LOGGER.error(" Failed to measure multiple filters time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure multiple filters time: " + e.getMessage());
 			Assert.fail("Failed to measure multiple filters time: " + e.getMessage());
 		}
 	}
@@ -1229,8 +1229,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			validateThreshold(totalMultipleFiltersTime, MULTIPLE_FILTERS_THRESHOLD_MS, "Multiple Filters (" + numberOfFiltersApplied + " filters)", "multiple_filters");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_multiple_filters_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate multiple filters threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate multiple filters threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate multiple filters threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate multiple filters threshold: " + e.getMessage());
 			Assert.fail("Failed to validate multiple filters threshold: " + e.getMessage());
 		}
 	}
@@ -1261,21 +1261,21 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			boolean resultsCountDisplayed = !resultsText.isEmpty();
 			
 			String validationMsg = String.format(
-				"ðŸ“Š Combined Filter Results: %d filters applied | %d â†’ %d profiles | Clear button: %s",
+				" Combined Filter Results: %d filters applied | %d  %d profiles | Clear button: %s",
 				numberOfFiltersApplied, resultsCountBeforeFilter, resultsCountAfterFilter,
-				clearFiltersVisible ? "Visible âœ“" : "Not visible âœ—"
+				clearFiltersVisible ? "Visible " : "Not visible -"
 			);
 			LOGGER.info(validationMsg);
 			ExtentCucumberAdapter.addTestStepLog(validationMsg);
 			
 			if (resultsDecreased && clearFiltersVisible && resultsCountDisplayed) {
-				ExtentCucumberAdapter.addTestStepLog("âœ… All combined filter validations passed");
+				ExtentCucumberAdapter.addTestStepLog("... All combined filter validations passed");
 			}
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_combined_filtered_results_failed", e);
-			LOGGER.error("âŒ Failed to verify combined filtered results", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify combined filtered results: " + e.getMessage());
+			LOGGER.error(" Failed to verify combined filtered results", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify combined filtered results: " + e.getMessage());
 			Assert.fail("Failed to verify combined filtered results: " + e.getMessage());
 		}
 	}
@@ -1288,17 +1288,17 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			long smoothThreshold = 3000;
 			String responseMsg;
 			if (totalMultipleFiltersTime <= smoothThreshold) {
-				responseMsg = String.format("âœ… UI Responsive: %d ms (Smooth)", totalMultipleFiltersTime);
+				responseMsg = String.format("... UI Responsive: %d ms (Smooth)", totalMultipleFiltersTime);
 			} else {
-				responseMsg = String.format("âš ï¸ UI Acceptable: %d ms (Not instant)", totalMultipleFiltersTime);
+				responseMsg = String.format(" UI Acceptable: %d ms (Not instant)", totalMultipleFiltersTime);
 			}
 			LOGGER.info(responseMsg);
 			ExtentCucumberAdapter.addTestStepLog(responseMsg);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_multi_filter_ui_lag_failed", e);
-			LOGGER.error("âŒ Failed to validate UI lag", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate UI lag: " + e.getMessage());
+			LOGGER.error(" Failed to validate UI lag", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate UI lag: " + e.getMessage());
 			Assert.fail("Failed to validate UI lag: " + e.getMessage());
 		}
 	}
@@ -1357,7 +1357,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			}
 			
 			if (resultsCountBeforeFilter <= 0) {
-				String errorMsg = "âŒ Failed to capture valid profile count before filtering after " + maxRetries + " attempts";
+				String errorMsg = " Failed to capture valid profile count before filtering after " + maxRetries + " attempts";
 				LOGGER.error(errorMsg);
 				ScreenshotHandler.captureFailureScreenshot("invalid_profile_count_before_filter", new Exception(errorMsg));
 				Assert.fail(errorMsg);
@@ -1440,7 +1440,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 							}
 							
 							appliedFilterType = filterType;
-							LOGGER.info("âœ“ Applied filter: " + filterType + " = " + appliedFilterValue);
+							LOGGER.info(" Applied filter: " + filterType + " = " + appliedFilterValue);
 							
 							Thread.sleep(1500);
 							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
@@ -1475,15 +1475,15 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			resultsText = showingJobResultsCount.getText().trim();
 			resultsCountAfterFilter = Integer.parseInt(resultsText.replaceAll("[^0-9]", "").substring(resultsText.replaceAll("[^0-9]", "").length() - 2));
 			
-			String setupMsg = String.format("ðŸ“Š Filter applied: %s = %s | %d â†’ %d profiles", 
+			String setupMsg = String.format(" Filter applied: %s = %s | %d  %d profiles", 
 				appliedFilterType, appliedFilterValue, resultsCountBeforeFilter, resultsCountAfterFilter);
 			LOGGER.info(setupMsg);
 			ExtentCucumberAdapter.addTestStepLog(setupMsg);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("apply_filter_for_clear_test_failed", e);
-			LOGGER.error("âŒ Failed to apply filter for clear test", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to apply filter for clear test: " + e.getMessage());
+			LOGGER.error(" Failed to apply filter for clear test", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to apply filter for clear test: " + e.getMessage());
 			Assert.fail("Failed to apply filter for clear test: " + e.getMessage());
 		}
 	}
@@ -1531,20 +1531,20 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 		resultsCountAfterClearFilters = extractResultsCount(resultsText);
 			
 			String performanceLog = String.format(
-				"ðŸ“Š Performance Metrics:%n" +
-				"   â€¢ Clear Filters Time: %d ms (%.2f sec)%n" +
-				"   â€¢ Results: %d â†’ %d profiles%n" +
-				"   â€¢ Restored to original: %s",
+				" Performance Metrics:%n" +
+				"    Clear Filters Time: %d ms (%.2f sec)%n" +
+				"    Results: %d  %d profiles%n" +
+				"    Restored to original: %s",
 				totalClearFiltersTime, totalClearFiltersTime / 1000.0,
 				resultsCountAfterFilter, resultsCountAfterClearFilters,
-				resultsCountAfterClearFilters == resultsCountBeforeFilter ? "Yes âœ“" : "No âœ—"
+				resultsCountAfterClearFilters == resultsCountBeforeFilter ? "Yes " : "No -"
 			);
 			ExtentCucumberAdapter.addTestStepLog(performanceLog);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_clear_filters_failed", e);
-			LOGGER.error("âŒ Failed to measure clear filters time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure clear filters time: " + e.getMessage());
+			LOGGER.error(" Failed to measure clear filters time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure clear filters time: " + e.getMessage());
 			Assert.fail("Failed to measure clear filters time: " + e.getMessage());
 		}
 	}
@@ -1557,8 +1557,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			validateThreshold(totalClearFiltersTime, CLEAR_FILTERS_THRESHOLD_MS, "Clear Filters", "clear_filters");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_clear_filters_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate clear filters threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate clear filters threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate clear filters threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate clear filters threshold: " + e.getMessage());
 			Assert.fail("Failed to validate clear filters threshold: " + e.getMessage());
 		}
 	}
@@ -1571,17 +1571,17 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 1);
 			
-			String restorationMsg = String.format("ðŸ“Š Restored profiles: %d â†’ %d â†’ %d | Match: %s",
+			String restorationMsg = String.format(" Restored profiles: %d  %d  %d | Match: %s",
 				resultsCountBeforeFilter, resultsCountAfterFilter, resultsCountAfterClearFilters,
-				resultsCountAfterClearFilters == resultsCountBeforeFilter ? "Yes âœ“" : "No âœ—");
+				resultsCountAfterClearFilters == resultsCountBeforeFilter ? "Yes " : "No -");
 			LOGGER.info(restorationMsg);
 			ExtentCucumberAdapter.addTestStepLog(restorationMsg);
 			
 			if (resultsCountAfterClearFilters == resultsCountBeforeFilter) {
-				ExtentCucumberAdapter.addTestStepLog("âœ… All profiles restored to original count");
+				ExtentCucumberAdapter.addTestStepLog("... All profiles restored to original count");
 			} else {
 				int difference = Math.abs(resultsCountAfterClearFilters - resultsCountBeforeFilter);
-				String failMsg = String.format("âŒ Count mismatch: Expected %d, Actual %d (Diff: %d)",
+				String failMsg = String.format(" Count mismatch: Expected %d, Actual %d (Diff: %d)",
 					resultsCountBeforeFilter, resultsCountAfterClearFilters, difference);
 				LOGGER.error(failMsg);
 				ExtentCucumberAdapter.addTestStepLog(failMsg);
@@ -1591,8 +1591,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_restoration_after_clear_filters_failed", e);
-			LOGGER.error("âŒ Failed to verify profile restoration", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify profile restoration: " + e.getMessage());
+			LOGGER.error(" Failed to verify profile restoration", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify profile restoration: " + e.getMessage());
 			Assert.fail("Failed to verify profile restoration: " + e.getMessage());
 		}
 	}
@@ -1605,17 +1605,17 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			long instantThreshold = 1000;
 			String responseMsg;
 			if (totalClearFiltersTime <= instantThreshold) {
-				responseMsg = String.format("âœ… UI Responsive: %d ms (Instant)", totalClearFiltersTime);
+				responseMsg = String.format("... UI Responsive: %d ms (Instant)", totalClearFiltersTime);
 			} else {
-				responseMsg = String.format("âš ï¸ UI Acceptable: %d ms (Not instant)", totalClearFiltersTime);
+				responseMsg = String.format(" UI Acceptable: %d ms (Not instant)", totalClearFiltersTime);
 			}
 			LOGGER.info(responseMsg);
 			ExtentCucumberAdapter.addTestStepLog(responseMsg);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_clear_filters_ui_freeze_failed", e);
-			LOGGER.error("âŒ Failed to validate UI freeze", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate UI freeze: " + e.getMessage());
+			LOGGER.error(" Failed to validate UI freeze", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate UI freeze: " + e.getMessage());
 			Assert.fail("Failed to validate UI freeze: " + e.getMessage());
 		}
 	}
@@ -1693,14 +1693,14 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			avgLazyLoadTime = lazyLoadTimes.stream().mapToLong(Long::longValue).sum() / lazyLoadTimes.size();
 		}
 			
-			String performanceLog = String.format("ðŸ“Š Scroll Metrics: %d scrolls | %d â†’ %d profiles | Avg lazy load: %d ms | Total: %d ms",
+			String performanceLog = String.format(" Scroll Metrics: %d scrolls | %d  %d profiles | Avg lazy load: %d ms | Total: %d ms",
 				totalScrolls, initialProfileCount, finalProfileCount, avgLazyLoadTime, totalScrollTime);
 			ExtentCucumberAdapter.addTestStepLog(performanceLog);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_scroll_time_failed", e);
-			LOGGER.error("âŒ Failed to measure scroll time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure scroll time: " + e.getMessage());
+			LOGGER.error(" Failed to measure scroll time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure scroll time: " + e.getMessage());
 			Assert.fail("Failed to measure scroll time: " + e.getMessage());
 		}
 	}
@@ -1712,21 +1712,21 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	public void user_validates_lazy_loading_triggers_at_appropriate_intervals() {
 		try {
 			if (lazyLoadTimes.isEmpty()) {
-				LOGGER.warn("âš ï¸ No lazy loading detected");
-				ExtentCucumberAdapter.addTestStepLog("âš ï¸ No lazy loading detected");
+				LOGGER.warn(" No lazy loading detected");
+				ExtentCucumberAdapter.addTestStepLog(" No lazy loading detected");
 				return;
 			}
 			
 			boolean lazyLoadPerformanceGood = avgLazyLoadTime <= LAZY_LOAD_THRESHOLD_MS;
-			String validationMsg = String.format("ðŸ“Š Lazy Load: %d triggers | Avg: %d ms | Status: %s",
-				lazyLoadTimes.size(), avgLazyLoadTime, lazyLoadPerformanceGood ? "âœ“" : "âœ—");
+			String validationMsg = String.format(" Lazy Load: %d triggers | Avg: %d ms | Status: %s",
+				lazyLoadTimes.size(), avgLazyLoadTime, lazyLoadPerformanceGood ? "" : "-");
 			LOGGER.info(validationMsg);
 			ExtentCucumberAdapter.addTestStepLog(validationMsg);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_lazy_loading_failed", e);
-			LOGGER.error("âŒ Failed to validate lazy loading", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate lazy loading: " + e.getMessage());
+			LOGGER.error(" Failed to validate lazy loading", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate lazy loading: " + e.getMessage());
 			Assert.fail("Failed to validate lazy loading: " + e.getMessage());
 		}
 	}
@@ -1740,8 +1740,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			validateThreshold(totalScrollTime, SCROLL_OPERATION_THRESHOLD_MS, "Scroll Operation", "scroll");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_scroll_performance_failed", e);
-			LOGGER.error("âŒ Failed to verify scroll performance", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify scroll performance: " + e.getMessage());
+			LOGGER.error(" Failed to verify scroll performance", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify scroll performance: " + e.getMessage());
 			Assert.fail("Failed to verify scroll performance: " + e.getMessage());
 		}
 	}
@@ -1753,8 +1753,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	public void user_validates_newly_loaded_profiles_render_within_acceptable_time() {
 		try {
 			if (lazyLoadTimes.isEmpty()) {
-				LOGGER.info("âœ“ All profiles loaded initially - no lazy loading required");
-				ExtentCucumberAdapter.addTestStepLog("âœ“ No lazy loading - all profiles available on page load");
+				LOGGER.info(" All profiles loaded initially - no lazy loading required");
+				ExtentCucumberAdapter.addTestStepLog(" No lazy loading - all profiles available on page load");
 				return;
 			}
 			
@@ -1763,19 +1763,19 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			boolean allWithinThreshold = maxLazyLoadTime <= LAZY_LOAD_THRESHOLD_MS;
 			
 			String renderMsg = String.format(
-				"ðŸ“Š Render Times: Min %d ms | Avg %d ms | Max %d ms | Threshold: %d ms | Status: %s",
+				" Render Times: Min %d ms | Avg %d ms | Max %d ms | Threshold: %d ms | Status: %s",
 				minLazyLoadTime, avgLazyLoadTime, maxLazyLoadTime, LAZY_LOAD_THRESHOLD_MS,
-				allWithinThreshold ? "âœ“" : "âœ—"
+				allWithinThreshold ? "" : "-"
 			);
 			
 			LOGGER.info(renderMsg);
 			ExtentCucumberAdapter.addTestStepLog(renderMsg);
 			
 			if (allWithinThreshold) {
-				LOGGER.info("âœ… All profile render times within acceptable threshold");
+				LOGGER.info("... All profile render times within acceptable threshold");
 			} else {
 				String warnMsg = String.format(
-					"âš ï¸ Some lazy load times exceeded threshold (Max: %d ms > %d ms)",
+					" Some lazy load times exceeded threshold (Max: %d ms > %d ms)",
 					maxLazyLoadTime, LAZY_LOAD_THRESHOLD_MS
 				);
 				LOGGER.warn(warnMsg);
@@ -1784,8 +1784,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_render_time_failed", e);
-			LOGGER.error("âŒ Failed to validate render time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate render time: " + e.getMessage());
+			LOGGER.error(" Failed to validate render time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate render time: " + e.getMessage());
 			Assert.fail("Failed to validate render time: " + e.getMessage());
 		}
 	}
@@ -1797,17 +1797,17 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	public void user_verifies_total_time_to_load_all_profiles_via_scrolling() {
 		try {
 			String summaryMsg = String.format(
-				"â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•%n" +
-				"ðŸ“Š Scroll Performance Summary:%n" +
-				"   â€¢ Test Scope: 4 scroll operations (3-4 pages)%n" +
-				"   â€¢ Total Time: %d ms (%.2f sec)%n" +
-				"   â€¢ Initial Profiles: %d%n" +
-				"   â€¢ Final Profiles: %d%n" +
-				"   â€¢ New Profiles Loaded: %d%n" +
-				"   â€¢ Lazy Load Operations: %d%n" +
-				"   â€¢ Avg Lazy Load Time: %d ms%n" +
-				"   â€¢ Performance Rating: %s%n" +
-				"â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•",
+				"%n" +
+				" Scroll Performance Summary:%n" +
+				"    Test Scope: 4 scroll operations (3-4 pages)%n" +
+				"    Total Time: %d ms (%.2f sec)%n" +
+				"    Initial Profiles: %d%n" +
+				"    Final Profiles: %d%n" +
+				"    New Profiles Loaded: %d%n" +
+				"    Lazy Load Operations: %d%n" +
+				"    Avg Lazy Load Time: %d ms%n" +
+				"    Performance Rating: %s%n" +
+				"",
 				totalScrollTime, totalScrollTime / 1000.0,
 				initialProfileCount, finalProfileCount,
 				(finalProfileCount - initialProfileCount),
@@ -1821,15 +1821,15 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			if (totalScrollTime <= SCROLL_OPERATION_THRESHOLD_MS && 
 			    (lazyLoadTimes.isEmpty() || avgLazyLoadTime <= LAZY_LOAD_THRESHOLD_MS)) {
-				LOGGER.info("âœ… Scroll and lazy load performance meets all requirements");
+				LOGGER.info("... Scroll and lazy load performance meets all requirements");
 			} else {
-				LOGGER.warn("âš ï¸ Some performance metrics need attention");
+				LOGGER.warn(" Some performance metrics need attention");
 			}
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_total_scroll_time_failed", e);
-			LOGGER.error("âŒ Failed to verify total scroll time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify total scroll time: " + e.getMessage());
+			LOGGER.error(" Failed to verify total scroll time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify total scroll time: " + e.getMessage());
 			Assert.fail("Failed to verify total scroll time: " + e.getMessage());
 		}
 	}
@@ -1910,8 +1910,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_navigation_to_comparison_failed", e);
-			LOGGER.error("âŒ Failed to measure navigation time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure navigation time: " + e.getMessage());
+			LOGGER.error(" Failed to measure navigation time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure navigation time: " + e.getMessage());
 			Assert.fail("Failed to measure navigation time: " + e.getMessage());
 		}
 	}
@@ -1925,8 +1925,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_navigation_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate navigation threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate navigation threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate navigation threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate navigation threshold: " + e.getMessage());
 			Assert.fail("Failed to validate navigation threshold: " + e.getMessage());
 		}
 	}
@@ -1940,16 +1940,16 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			String headerText = jobComparisonHeader.getText();
 			
 			if (headerText.equals("Which profile do you want to use for this job?")) {
-				LOGGER.info(String.format("âœ… Job Comparison screen loaded successfully | Profile: %s", jobNameForComparison));
-				ExtentCucumberAdapter.addTestStepLog("âœ… Job Comparison screen verified");
+				LOGGER.info(String.format("... Job Comparison screen loaded successfully | Profile: %s", jobNameForComparison));
+				ExtentCucumberAdapter.addTestStepLog("... Job Comparison screen verified");
 			} else {
 				throw new Exception("Job Comparison screen header mismatch. Expected: 'Which profile do you want to use for this job?', Got: '" + headerText + "'");
 			}
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_comparison_screen_failed", e);
-			LOGGER.error("âŒ Failed to verify Job Comparison screen", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify Job Comparison screen: " + e.getMessage());
+			LOGGER.error(" Failed to verify Job Comparison screen", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify Job Comparison screen: " + e.getMessage());
 			Assert.fail("Failed to verify Job Comparison screen: " + e.getMessage());
 		}
 	}
@@ -1975,8 +1975,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_navigation_back_failed", e);
-			LOGGER.error("âŒ Failed to measure back navigation time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure back navigation time: " + e.getMessage());
+			LOGGER.error(" Failed to measure back navigation time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure back navigation time: " + e.getMessage());
 			Assert.fail("Failed to measure back navigation time: " + e.getMessage());
 		}
 	}
@@ -1990,8 +1990,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_back_navigation_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate back navigation threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate back navigation threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate back navigation threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate back navigation threshold: " + e.getMessage());
 			Assert.fail("Failed to validate back navigation threshold: " + e.getMessage());
 		}
 	}
@@ -2012,13 +2012,13 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			String resultsText = resultsCountElement.getText().trim();
 			int profileCount = extractResultsCount(resultsText);
 			
-			LOGGER.info(String.format("âœ… Job Mapping screen loaded successfully | %d profiles available", profileCount));
-			ExtentCucumberAdapter.addTestStepLog("âœ… Job Mapping screen verified after navigation");
+			LOGGER.info(String.format("... Job Mapping screen loaded successfully | %d profiles available", profileCount));
+			ExtentCucumberAdapter.addTestStepLog("... Job Mapping screen verified after navigation");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_mapping_screen_after_nav_failed", e);
-			LOGGER.error("âŒ Failed to verify Job Mapping screen", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify Job Mapping screen: " + e.getMessage());
+			LOGGER.error(" Failed to verify Job Mapping screen", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify Job Mapping screen: " + e.getMessage());
 			Assert.fail("Failed to verify Job Mapping screen: " + e.getMessage());
 		}
 	}
@@ -2059,14 +2059,14 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			resultsText = showingJobResultsCount.getText().trim();
 			int finalCount = extractResultsCount(resultsText);
 			
-			LOGGER.info(String.format("âœ“ Maximum profiles loaded: %d profiles (%d initial â†’ %d final)", 
+			LOGGER.info(String.format(" Maximum profiles loaded: %d profiles (%d initial  %d final)", 
 				finalCount, currentCount, finalCount));
-			ExtentCucumberAdapter.addTestStepLog("âœ“ Maximum profiles loaded for sort test: " + finalCount);
+			ExtentCucumberAdapter.addTestStepLog(" Maximum profiles loaded for sort test: " + finalCount);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("load_max_profiles_failed", e);
-			LOGGER.error("âŒ Failed to load maximum profiles", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to load maximum profiles: " + e.getMessage());
+			LOGGER.error(" Failed to load maximum profiles", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to load maximum profiles: " + e.getMessage());
 			Assert.fail("Failed to load maximum profiles: " + e.getMessage());
 		}
 	}
@@ -2097,8 +2097,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sort_by_title_failed", e);
-			LOGGER.error("âŒ Failed to measure sort by Job Title", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure sort by Job Title: " + e.getMessage());
+			LOGGER.error(" Failed to measure sort by Job Title", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure sort by Job Title: " + e.getMessage());
 			Assert.fail("Failed to measure sort by Job Title: " + e.getMessage());
 		}
 	}
@@ -2129,8 +2129,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sort_by_grade_failed", e);
-			LOGGER.error("âŒ Failed to measure sort by Grade", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure sort by Grade: " + e.getMessage());
+			LOGGER.error(" Failed to measure sort by Grade", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure sort by Grade: " + e.getMessage());
 			Assert.fail("Failed to measure sort by Grade: " + e.getMessage());
 		}
 	}
@@ -2144,12 +2144,12 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			validateThreshold(totalSortByGradeTime, SORT_OPERATION_THRESHOLD_MS, "Sort by Grade", "sort_by_grade");
 			
 			long avgSortTime = (totalSortByJobTitleTime + totalSortByGradeTime) / 2;
-			LOGGER.info(String.format("ðŸ“Š Average Sort Time: %d ms (%.2f sec)", avgSortTime, avgSortTime / 1000.0));
+			LOGGER.info(String.format(" Average Sort Time: %d ms (%.2f sec)", avgSortTime, avgSortTime / 1000.0));
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_sort_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate sort threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate sort threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate sort threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate sort threshold: " + e.getMessage());
 			Assert.fail("Failed to validate sort threshold: " + e.getMessage());
 		}
 	}
@@ -2167,13 +2167,13 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				org.openqa.selenium.By.xpath("//div[@id='org-job-container']//tbody//tr//td[2]//div[contains(text(),'(')]")
 			);
 			
-			LOGGER.info(String.format("âœ… Sort completed successfully | %d profiles visible in sorted view", rows.size()));
-			ExtentCucumberAdapter.addTestStepLog("âœ… Sorted results verified (table populated)");
+			LOGGER.info(String.format("... Sort completed successfully | %d profiles visible in sorted view", rows.size()));
+			ExtentCucumberAdapter.addTestStepLog("... Sorted results verified (table populated)");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_sorted_results_failed", e);
-			LOGGER.error("âŒ Failed to verify sorted results", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify sorted results: " + e.getMessage());
+			LOGGER.error(" Failed to verify sorted results", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify sorted results: " + e.getMessage());
 			Assert.fail("Failed to verify sorted results: " + e.getMessage());
 		}
 	}
@@ -2188,21 +2188,21 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			String responseMsg;
 			if (maxSortTime <= instantThreshold) {
-				responseMsg = String.format("âœ… Sort operations feel instant (max: %d ms)", maxSortTime);
+				responseMsg = String.format("... Sort operations feel instant (max: %d ms)", maxSortTime);
 				LOGGER.info(responseMsg);
 			} else if (maxSortTime <= SORT_OPERATION_THRESHOLD_MS) {
-				responseMsg = String.format("âš ï¸ Sort operations acceptable but not instant (max: %d ms)", maxSortTime);
+				responseMsg = String.format(" Sort operations acceptable but not instant (max: %d ms)", maxSortTime);
 				LOGGER.warn(responseMsg);
 			} else {
-				responseMsg = String.format("âŒ Sort operations too slow (max: %d ms)", maxSortTime);
+				responseMsg = String.format(" Sort operations too slow (max: %d ms)", maxSortTime);
 				LOGGER.error(responseMsg);
 			}
 			ExtentCucumberAdapter.addTestStepLog(responseMsg);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_sort_ui_responsiveness_failed", e);
-			LOGGER.error("âŒ Failed to validate UI responsiveness", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate UI responsiveness: " + e.getMessage());
+			LOGGER.error(" Failed to validate UI responsiveness", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate UI responsiveness: " + e.getMessage());
 			Assert.fail("Failed to validate UI responsiveness: " + e.getMessage());
 		}
 	}
@@ -2247,8 +2247,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_chevron_click_failed", e);
-			LOGGER.error("âŒ Failed to measure chevron click time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure chevron click time: " + e.getMessage());
+			LOGGER.error(" Failed to measure chevron click time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure chevron click time: " + e.getMessage());
 			Assert.fail("Failed to measure chevron click time: " + e.getMessage());
 		}
 	}
@@ -2279,8 +2279,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_select_all_click_failed", e);
-			LOGGER.error("âŒ Failed to measure Select All click time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure Select All click time: " + e.getMessage());
+			LOGGER.error(" Failed to measure Select All click time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure Select All click time: " + e.getMessage());
 			Assert.fail("Failed to measure Select All click time: " + e.getMessage());
 		}
 	}
@@ -2294,13 +2294,13 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			validateThreshold(totalSelectAllOperationTime, SELECT_ALL_THRESHOLD_MS, "Select All Operation (Chevron + Select All)", "select_all_operation");
 			
-			LOGGER.info(String.format("ðŸ“Š Breakdown: Chevron (%d ms) + Select All (%d ms) = Total (%d ms)", 
+			LOGGER.info(String.format(" Breakdown: Chevron (%d ms) + Select All (%d ms) = Total (%d ms)", 
 				totalChevronClickTime, totalSelectAllClickTime, totalSelectAllOperationTime));
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_select_all_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate Select All threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate Select All threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate Select All threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate Select All threshold: " + e.getMessage());
 			Assert.fail("Failed to validate Select All threshold: " + e.getMessage());
 		}
 	}
@@ -2331,14 +2331,14 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			profilesCountAfterSelectAll = selectedCount / 3;
 			
-			LOGGER.info(String.format("âœ… Selected profiles verified: %d profiles selected (Sample of %d checkboxes checked)", 
+			LOGGER.info(String.format("... Selected profiles verified: %d profiles selected (Sample of %d checkboxes checked)", 
 				profilesCountAfterSelectAll, selectedCount));
-			ExtentCucumberAdapter.addTestStepLog(String.format("âœ… Select All successful: %d profiles selected", profilesCountAfterSelectAll));
+			ExtentCucumberAdapter.addTestStepLog(String.format("... Select All successful: %d profiles selected", profilesCountAfterSelectAll));
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_all_profiles_selected_failed", e);
-			LOGGER.error("âŒ Failed to verify all profiles selected", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify all profiles selected: " + e.getMessage());
+			LOGGER.error(" Failed to verify all profiles selected", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify all profiles selected: " + e.getMessage());
 			Assert.fail("Failed to verify all profiles selected: " + e.getMessage());
 		}
 	}
@@ -2353,21 +2353,21 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			String responseMsg;
 			if (totalOperationTime <= instantThreshold) {
-				responseMsg = String.format("âœ… Select All operation feels instant (%d ms)", totalOperationTime);
+				responseMsg = String.format("... Select All operation feels instant (%d ms)", totalOperationTime);
 				LOGGER.info(responseMsg);
 			} else if (totalOperationTime <= SELECT_ALL_THRESHOLD_MS) {
-				responseMsg = String.format("âš ï¸ Select All operation acceptable but not instant (%d ms)", totalOperationTime);
+				responseMsg = String.format(" Select All operation acceptable but not instant (%d ms)", totalOperationTime);
 				LOGGER.warn(responseMsg);
 			} else {
-				responseMsg = String.format("âŒ Select All operation too slow (%d ms)", totalOperationTime);
+				responseMsg = String.format(" Select All operation too slow (%d ms)", totalOperationTime);
 				LOGGER.error(responseMsg);
 			}
 			ExtentCucumberAdapter.addTestStepLog(responseMsg);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_bulk_selection_ui_responsiveness_failed", e);
-			LOGGER.error("âŒ Failed to validate UI responsiveness", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate UI responsiveness: " + e.getMessage());
+			LOGGER.error(" Failed to validate UI responsiveness", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate UI responsiveness: " + e.getMessage());
 			Assert.fail("Failed to validate UI responsiveness: " + e.getMessage());
 		}
 	}
@@ -2418,13 +2418,13 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			wait.until(ExpectedConditions.visibilityOf(profileManagerHeader));
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			LOGGER.info("âœ… Navigated to Profile Manager screen");
-			ExtentCucumberAdapter.addTestStepLog("âœ… Navigated to Profile Manager screen");
+			LOGGER.info("... Navigated to Profile Manager screen");
+			ExtentCucumberAdapter.addTestStepLog("... Navigated to Profile Manager screen");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("navigate_to_profile_manager_failed", e);
-			LOGGER.error("âŒ Failed to navigate to Profile Manager", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to navigate to Profile Manager: " + e.getMessage());
+			LOGGER.error(" Failed to navigate to Profile Manager", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to navigate to Profile Manager: " + e.getMessage());
 			Assert.fail("Failed to navigate to Profile Manager: " + e.getMessage());
 		}
 	}
@@ -2437,13 +2437,13 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesHeaderTab)).click();
 			Thread.sleep(500);
 			
-			LOGGER.info("âœ… Clicked on HCM Sync Profiles tab");
-			ExtentCucumberAdapter.addTestStepLog("âœ… Clicked on HCM Sync Profiles tab");
+			LOGGER.info("... Clicked on HCM Sync Profiles tab");
+			ExtentCucumberAdapter.addTestStepLog("... Clicked on HCM Sync Profiles tab");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_hcm_tab_failed", e);
-			LOGGER.error("âŒ Failed to click HCM tab", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to click HCM tab: " + e.getMessage());
+			LOGGER.error(" Failed to click HCM tab", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to click HCM tab: " + e.getMessage());
 			Assert.fail("Failed to click HCM tab: " + e.getMessage());
 		}
 	}
@@ -2465,8 +2465,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_hcm_page_load_failed", e);
-			LOGGER.error("âŒ Failed to measure HCM page load time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure HCM page load time: " + e.getMessage());
+			LOGGER.error(" Failed to measure HCM page load time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure HCM page load time: " + e.getMessage());
 			Assert.fail("Failed to measure HCM page load time: " + e.getMessage());
 		}
 	}
@@ -2480,8 +2480,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_hcm_page_load_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate HCM page load threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate HCM page load threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate HCM page load threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate HCM page load threshold: " + e.getMessage());
 			Assert.fail("Failed to validate HCM page load threshold: " + e.getMessage());
 		}
 	}
@@ -2497,21 +2497,21 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				);
 				String resultsText = hcmResultsCount.getText().trim();
 				hcmProfilesCount = extractResultsCount(resultsText);
-				LOGGER.info(String.format("âœ… HCM Sync Profiles loaded successfully | %d profiles available", hcmProfilesCount));
+				LOGGER.info(String.format("... HCM Sync Profiles loaded successfully | %d profiles available", hcmProfilesCount));
 			} catch (Exception e) {
 				java.util.List<WebElement> profileCheckboxes = driver.findElements(
 					By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox")
 				);
 				hcmProfilesCount = profileCheckboxes.size();
-				LOGGER.info(String.format("âœ… HCM Sync Profiles loaded successfully | %d profiles found", hcmProfilesCount));
+				LOGGER.info(String.format("... HCM Sync Profiles loaded successfully | %d profiles found", hcmProfilesCount));
 			}
 			
-			ExtentCucumberAdapter.addTestStepLog(String.format("âœ… HCM profiles loaded: %d profiles", hcmProfilesCount));
+			ExtentCucumberAdapter.addTestStepLog(String.format("... HCM profiles loaded: %d profiles", hcmProfilesCount));
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_hcm_profiles_loaded_failed", e);
-			LOGGER.error("âŒ Failed to verify HCM profiles loaded", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify HCM profiles loaded: " + e.getMessage());
+			LOGGER.error(" Failed to verify HCM profiles loaded", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify HCM profiles loaded: " + e.getMessage());
 			Assert.fail("Failed to verify HCM profiles loaded: " + e.getMessage());
 		}
 	}
@@ -2558,19 +2558,19 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			Thread.sleep(500);
 			PerformanceUtils.waitForPageReady(driver, 1);
 			
-			LOGGER.info(String.format("âœ“ Selected profiles using header checkbox: %d profiles ready for sync", selectedProfilesCountBeforeSync));
-			ExtentCucumberAdapter.addTestStepLog(String.format("âœ“ %d profiles selected for sync test", selectedProfilesCountBeforeSync));
+			LOGGER.info(String.format(" Selected profiles using header checkbox: %d profiles ready for sync", selectedProfilesCountBeforeSync));
+			ExtentCucumberAdapter.addTestStepLog(String.format(" %d profiles selected for sync test", selectedProfilesCountBeforeSync));
 			
 			// Verify Sync button is enabled
 			wait.until(ExpectedConditions.visibilityOf(syncWithHCMBtn));
 			if (!syncWithHCMBtn.isEnabled()) {
-				LOGGER.warn("âš ï¸ Sync with HCM button is not enabled, profiles may not be selected");
+				LOGGER.warn(" Sync with HCM button is not enabled, profiles may not be selected");
 			}
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_selected_profiles_for_sync_failed", e);
-			LOGGER.error("âŒ Failed to verify selected profiles for sync", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify selected profiles for sync: " + e.getMessage());
+			LOGGER.error(" Failed to verify selected profiles for sync", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify selected profiles for sync: " + e.getMessage());
 			Assert.fail("Failed to verify selected profiles for sync: " + e.getMessage());
 		}
 	}
@@ -2597,8 +2597,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sync_click_failed", e);
-			LOGGER.error("âŒ Failed to measure sync click time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure sync click time: " + e.getMessage());
+			LOGGER.error(" Failed to measure sync click time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure sync click time: " + e.getMessage());
 			Assert.fail("Failed to measure sync click time: " + e.getMessage());
 		}
 	}
@@ -2617,8 +2617,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sync_process_failed", e);
-			LOGGER.error("âŒ Failed to measure sync process time", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to measure sync process time: " + e.getMessage());
+			LOGGER.error(" Failed to measure sync process time", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to measure sync process time: " + e.getMessage());
 			Assert.fail("Failed to measure sync process time: " + e.getMessage());
 		}
 	}
@@ -2632,13 +2632,13 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			validateThreshold(totalSyncTime, SYNC_OPERATION_THRESHOLD_MS, "Sync Operation (Click + Process)", "sync_operation");
 			
-			LOGGER.info(String.format("ðŸ“Š Breakdown: Click (%d ms) + Process (%d ms) = Total (%d ms)", 
+			LOGGER.info(String.format(" Breakdown: Click (%d ms) + Process (%d ms) = Total (%d ms)", 
 				totalSyncClickTime, totalSyncProcessTime, totalSyncTime));
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_sync_threshold_failed", e);
-			LOGGER.error("âŒ Failed to validate sync threshold", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to validate sync threshold: " + e.getMessage());
+			LOGGER.error(" Failed to validate sync threshold", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to validate sync threshold: " + e.getMessage());
 			Assert.fail("Failed to validate sync threshold: " + e.getMessage());
 		}
 	}
@@ -2649,19 +2649,19 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	public void user_validates_sync_status_updates_appear_promptly() {
 		try {
 			String successMsg = syncSuccessPopupText.getText().trim();
-			LOGGER.info(String.format("âœ… Sync success message displayed: \"%s\"", successMsg));
-			ExtentCucumberAdapter.addTestStepLog("âœ… Sync success message displayed promptly");
+			LOGGER.info(String.format("... Sync success message displayed: \"%s\"", successMsg));
+			ExtentCucumberAdapter.addTestStepLog("... Sync success message displayed promptly");
 			
 			syncSuccessPopupCloseBtn.click();
 			Thread.sleep(500);
 			
-			LOGGER.info(String.format("âœ… Sync operation completed | %d profiles synced with HCM", selectedProfilesCountBeforeSync));
-			ExtentCucumberAdapter.addTestStepLog(String.format("âœ… Synced %d profiles successfully", selectedProfilesCountBeforeSync));
+			LOGGER.info(String.format("... Sync operation completed | %d profiles synced with HCM", selectedProfilesCountBeforeSync));
+			ExtentCucumberAdapter.addTestStepLog(String.format("... Synced %d profiles successfully", selectedProfilesCountBeforeSync));
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_sync_status_failed", e);
-			LOGGER.error("âŒ Failed to verify sync status", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Failed to verify sync status: " + e.getMessage());
+			LOGGER.error(" Failed to verify sync status", e);
+			ExtentCucumberAdapter.addTestStepLog(" Failed to verify sync status: " + e.getMessage());
 			Assert.fail("Failed to verify sync status: " + e.getMessage());
 		}
 	}

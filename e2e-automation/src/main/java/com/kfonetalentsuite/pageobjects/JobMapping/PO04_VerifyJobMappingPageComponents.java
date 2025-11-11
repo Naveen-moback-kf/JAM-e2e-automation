@@ -511,7 +511,7 @@ public class PO04_VerifyJobMappingPageComponents {
 						resultsCountText = showingJobResultsCount.getText().trim();
 						LOGGER.info("   Search results: " + resultsCountText);
 					} catch (Exception e) {
-						LOGGER.info("   âœ— No profiles found with string '" + substring + "' (results element not found)");
+						LOGGER.info("   - No profiles found with string '" + substring + "' (results element not found)");
 						LOGGER.info("   Looking for profiles with another string...");
 						continue; // Try next substring
 					}
@@ -522,26 +522,26 @@ public class PO04_VerifyJobMappingPageComponents {
 						jobnamesubstring = substring; // Update static variable for other methods to use
 						foundResults = true;
 						
-						LOGGER.info("âœ“ Found results with substring: '" + substring + "'");
+						LOGGER.info(" Found results with substring: '" + substring + "'");
 						LOGGER.info("   Results: " + resultsCountText);
-						ExtentCucumberAdapter.addTestStepLog("âœ“ Search successful with substring '" + substring + "' - " + resultsCountText);
+						ExtentCucumberAdapter.addTestStepLog(" Search successful with substring '" + substring + "' - " + resultsCountText);
 						break; // Stop trying other substrings
 					} else {
-						LOGGER.info("   âœ— No profiles found with string '" + substring + "' (0 results)");
+						LOGGER.info("   - No profiles found with string '" + substring + "' (0 results)");
 						LOGGER.info("   Looking for profiles with another string...");
 					}
 					
 				} catch (Exception e) {
-					LOGGER.info("   âœ— Error searching with '" + substring + "', trying next...");
+					LOGGER.info("   - Error searching with '" + substring + "', trying next...");
 					// Continue to next substring
 				}
 			}
 			
 			if (!foundResults) {
 				// All substrings exhausted, use the last one
-				LOGGER.warn("âš ï¸ All search substrings exhausted without finding results");
+				LOGGER.warn(" All search substrings exhausted without finding results");
 				LOGGER.warn("   Proceeding with last substring: '" + selectedSubstring + "'");
-				ExtentCucumberAdapter.addTestStepLog("âš ï¸ No search substring returned results. Using: '" + selectedSubstring + "'");
+				ExtentCucumberAdapter.addTestStepLog(" No search substring returned results. Using: '" + selectedSubstring + "'");
 			}
 			
 			LOGGER.info("========================================");
@@ -830,7 +830,7 @@ public class PO04_VerifyJobMappingPageComponents {
 			// Verify dropdown is closed (the wait is only for invisibility check)
 			Assert.assertTrue(wait.until(ExpectedConditions.invisibilityOf(filterOptions)));
 			
-			LOGGER.info("âœ“ Filters dropdown closed successfully");
+			LOGGER.info(" Filters dropdown closed successfully");
 			ExtentCucumberAdapter.addTestStepLog("Closed Filters dropdown");
 			
 		} catch (Exception e) {
@@ -1037,9 +1037,9 @@ public class PO04_VerifyJobMappingPageComponents {
 			selectedProfilesAfterHeaderCheckboxClick = profilesCount;
 			
 			LOGGER.info("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick + " job profiles in Job Mapping screen");
-			LOGGER.info("   â†’ Loaded profiles (before click): " + loadedProfilesBeforeHeaderCheckboxClick);
-			LOGGER.info("   â†’ Selected profiles: " + selectedProfilesAfterHeaderCheckboxClick);
-			LOGGER.info("   â†’ Disabled profiles: " + disabledProfilesCountInLoadedProfiles);
+			LOGGER.info("    Loaded profiles (before click): " + loadedProfilesBeforeHeaderCheckboxClick);
+			LOGGER.info("    Selected profiles: " + selectedProfilesAfterHeaderCheckboxClick);
+			LOGGER.info("    Disabled profiles: " + disabledProfilesCountInLoadedProfiles);
 			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick + " job profiles in Job Mapping screen");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_header_checkbox_to_select_loaded_job_profiles_in_job_mapping_screen", e);
@@ -1231,7 +1231,7 @@ public class PO04_VerifyJobMappingPageComponents {
 		try {
 //			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			
-			// âœ… IMPROVED: Use smooth scroll with throttling to prevent browser unresponsiveness
+			// ... IMPROVED: Use smooth scroll with throttling to prevent browser unresponsiveness
 			js.executeScript("window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});");
 			Thread.sleep(1000); // Reduced from potential rapid scrolling
 			

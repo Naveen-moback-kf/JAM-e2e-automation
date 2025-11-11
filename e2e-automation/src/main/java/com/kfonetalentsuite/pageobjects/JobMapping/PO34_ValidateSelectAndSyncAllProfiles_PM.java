@@ -144,11 +144,11 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 			
 			if (totalProfiles == 0) {
 				LOGGER.warn("Could not determine total profile count. Will scroll until no more data loads.");
-				ExtentCucumberAdapter.addTestStepLog("âš ï¸ Could not determine total profile count. Scrolling through all available profiles...");
+				ExtentCucumberAdapter.addTestStepLog(" Could not determine total profile count. Scrolling through all available profiles...");
 			}
 			
 		// Step 2: Scroll to load all profiles
-		LOGGER.info("ðŸ”„ Starting to scroll and load all profiles...");
+		LOGGER.info(" Starting to scroll and load all profiles...");
 		ExtentCucumberAdapter.addTestStepLog("Loading all profiles by scrolling...");
 		
 		int currentRowCount = 0;
@@ -175,7 +175,7 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 				noChangeCount++;
 				LOGGER.debug("No new rows loaded. Count: {}/3", noChangeCount);
 				if (noChangeCount >= 3) {
-					LOGGER.info("âœ… Reached end of content. Total rows loaded: {}", currentRowCount);
+					LOGGER.info("... Reached end of content. Total rows loaded: {}", currentRowCount);
 					break;
 				}
 			} else {
@@ -186,9 +186,9 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 			previousRowCount = currentRowCount;
 		}
 		
-		LOGGER.info("âœ… Scrolling complete. Total rows loaded: {}, Scrolls performed: {}", 
+		LOGGER.info("... Scrolling complete. Total rows loaded: {}, Scrolls performed: {}", 
 			currentRowCount, scrollCount);
-		ExtentCucumberAdapter.addTestStepLog("âœ… Total rows loaded: " + currentRowCount + " (using " + scrollCount + " scrolls)");
+		ExtentCucumberAdapter.addTestStepLog("... Total rows loaded: " + currentRowCount + " (using " + scrollCount + " scrolls)");
 			
 			// Step 3: Count selected checkboxes (enabled ones only, excluding disabled)
 			LOGGER.info("Counting selected profiles...");
@@ -211,7 +211,7 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 				// Calculate enabled checkboxes (all - disabled = enabled/selected)
 				selectedCount = totalCheckboxes - disabledCount;
 				
-				LOGGER.info("âœ“ Counted using JavaScript - Total: " + totalCheckboxes + ", Disabled: " + disabledCount + ", Selected: " + selectedCount);
+				LOGGER.info(" Counted using JavaScript - Total: " + totalCheckboxes + ", Disabled: " + disabledCount + ", Selected: " + selectedCount);
 				
 			} catch (Exception jsException) {
 				// Fallback: Use XPath counting (still faster than looping)
@@ -230,17 +230,17 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 				// Calculate enabled checkboxes (all - disabled = enabled)
 				selectedCount = totalCheckboxes - disabledCount;
 				
-				LOGGER.info("âœ“ Counted using XPath - Total: " + totalCheckboxes + ", Disabled: " + disabledCount + ", Selected: " + selectedCount);
+				LOGGER.info(" Counted using XPath - Total: " + totalCheckboxes + ", Disabled: " + disabledCount + ", Selected: " + selectedCount);
 			}
 			
 			LOGGER.info("Found " + (selectedCount + disabledCount) + " total checkbox elements");
 			LOGGER.info("Disabled checkboxes: " + disabledCount);
 			LOGGER.info("Enabled (selected) checkboxes: " + selectedCount);
 			
-			LOGGER.info("âœ“ Successfully counted selected profiles: " + selectedCount + " out of " + currentRowCount + " profiles in HCM Sync Profiles screen");
-			LOGGER.info("âœ“ Disabled profiles (skipped): " + disabledCount);
-			ExtentCucumberAdapter.addTestStepLog("âœ“ Total rows loaded: " + currentRowCount);
-			ExtentCucumberAdapter.addTestStepLog("âœ“ Selected profiles: " + selectedCount + " | Disabled: " + disabledCount);
+			LOGGER.info(" Successfully counted selected profiles: " + selectedCount + " out of " + currentRowCount + " profiles in HCM Sync Profiles screen");
+			LOGGER.info(" Disabled profiles (skipped): " + disabledCount);
+			ExtentCucumberAdapter.addTestStepLog(" Total rows loaded: " + currentRowCount);
+			ExtentCucumberAdapter.addTestStepLog(" Selected profiles: " + selectedCount + " | Disabled: " + disabledCount);
 			
 			CountOfProfilesSelectedToExport = selectedCount;
 			PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount = CountOfProfilesSelectedToExport;
@@ -248,7 +248,7 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_count_of_selected_profiles_by_scrolling_through_all_profiles", e);
 			LOGGER.error("Error getting selected profiles count in HCM Sync Profiles screen - Method: verify_count_of_selected_profiles_by_scrolling_through_all_profiles", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Error getting selected profiles count");
+			ExtentCucumberAdapter.addTestStepLog(" Error getting selected profiles count");
 		}
 	}
 }

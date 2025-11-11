@@ -25,9 +25,9 @@ import io.cucumber.java.Scenario;
  * When log message contains: "Currently, All Profiles in Job Mapping are Mapped with BIC Profiles"
  * 
  * BEHAVIOR:
- * ✅ First scenario runs normally and checks for unmapped profiles
- * ❌ If no unmapped profiles found → Skip all remaining scenarios in that feature
- * ✅ Other features continue to run normally
+ *  First scenario runs normally and checks for unmapped profiles
+ * ERROR: If no unmapped profiles found -> Skip all remaining scenarios in that feature
+ *  Other features continue to run normally
  */
 public class ConditionalScenarioSkip {
     
@@ -53,26 +53,26 @@ public class ConditionalScenarioSkip {
         
         // ENHANCED: Always allow @CloseBrowser scenarios to execute for proper cleanup
         if (isCloseBrowserScenario(scenario)) {
-            LOGGER.info("🔄 CLEANUP SCENARIO: '{}' will always execute for proper browser cleanup", scenarioName);
+            LOGGER.info(" CLEANUP SCENARIO: '{}' will always execute for proper browser cleanup", scenarioName);
             return; // Skip the conditional check for browser cleanup scenarios
         }
         
         // Check if skip condition is enabled for this feature
         if (skipEnabledFeatures.contains(TARGET_FEATURE)) {
             String skipMessage = String.format(
-                "⏭️ CONDITIONAL SKIP: Scenario '%s' skipped because all profiles are already mapped with BIC profiles. " +
+                " CONDITIONAL SKIP: Scenario '%s' skipped because all profiles are already mapped with BIC profiles. " +
                 "No unmapped jobs available for manual mapping in this test run.", 
                 scenarioName);
             
             LOGGER.warn(skipMessage);
-            ExtentCucumberAdapter.addTestStepLog("⏭️ " + skipMessage);
+            ExtentCucumberAdapter.addTestStepLog(" " + skipMessage);
             
             // Skip this scenario
             throw new SkipException(skipMessage);
         }
         
         // First scenario in the feature - will run normally to check the condition
-        LOGGER.info("🔍 CONDITIONAL CHECK: Scenario '{}' will check for unmapped profiles", scenarioName);
+        LOGGER.info(" CONDITIONAL CHECK: Scenario '{}' will check for unmapped profiles", scenarioName);
     }
     
     @After(order = 10) // Run after other hooks
@@ -100,26 +100,26 @@ public class ConditionalScenarioSkip {
                 skipEnabledFeatures.add(TARGET_FEATURE);
                 
                 String message = String.format(
-                    "🚫 SKIP CONDITION DETECTED: All profiles are mapped with BIC profiles. " +
+                    " SKIP CONDITION DETECTED: All profiles are mapped with BIC profiles. " +
                     "All remaining scenarios in '%s' will be skipped.", 
                     TARGET_FEATURE);
                 
                 LOGGER.warn(message);
-                ExtentCucumberAdapter.addTestStepLog("🚫 " + message);
+                ExtentCucumberAdapter.addTestStepLog(" " + message);
                 
                 // Log which scenarios will be skipped
-                LOGGER.info("📋 SCENARIOS TO BE SKIPPED:");
-                LOGGER.info("   • Click on Find Match button and Search for SP in Manual Mapping screen");
-                LOGGER.info("   • Validate and Manually Map SP to Organization Job in Auto AI");
-                LOGGER.info("   • Verify details of SP which is Mapped to Organization Job");
-                LOGGER.info("   • Validate content in manually mapped Job profile details popup");
-                LOGGER.info("📋 SCENARIOS THAT WILL STILL EXECUTE:");
-                LOGGER.info("   ✅ Close the Browser after Validation (@CloseBrowser scenarios always execute for cleanup)");
-                ExtentCucumberAdapter.addTestStepLog("📋 Remaining functional scenarios will be skipped, but cleanup scenarios will still execute");
+                LOGGER.info(" SCENARIOS TO BE SKIPPED:");
+                LOGGER.info("    Click on Find Match button and Search for SP in Manual Mapping screen");
+                LOGGER.info("    Validate and Manually Map SP to Organization Job in Auto AI");
+                LOGGER.info("    Verify details of SP which is Mapped to Organization Job");
+                LOGGER.info("    Validate content in manually mapped Job profile details popup");
+                LOGGER.info(" SCENARIOS THAT WILL STILL EXECUTE:");
+                LOGGER.info("    Close the Browser after Validation (@CloseBrowser scenarios always execute for cleanup)");
+                ExtentCucumberAdapter.addTestStepLog(" Remaining functional scenarios will be skipped, but cleanup scenarios will still execute");
                 
             } else {
-                LOGGER.info("✅ PROFILES AVAILABLE: Found unmapped profiles - manual mapping scenarios will proceed");
-                ExtentCucumberAdapter.addTestStepLog("✅ Found unmapped profiles - proceeding with manual mapping tests");
+                LOGGER.info(" PROFILES AVAILABLE: Found unmapped profiles - manual mapping scenarios will proceed");
+                ExtentCucumberAdapter.addTestStepLog(" Found unmapped profiles - proceeding with manual mapping tests");
             }
         }
     }
@@ -141,15 +141,15 @@ public class ConditionalScenarioSkip {
             boolean allMapped = (mapSPValue != null && !mapSPValue);
             
             if (allMapped) {
-                LOGGER.info("🔍 CONDITION CHECK: MapDifferentSPtoProfileInAutoAI.mapSP = false (All profiles mapped)");
+                LOGGER.info(" CONDITION CHECK: MapDifferentSPtoProfileInAutoAI.mapSP = false (All profiles mapped)");
             } else {
-                LOGGER.info("🔍 CONDITION CHECK: MapDifferentSPtoProfileInAutoAI.mapSP = true (Unmapped profiles available)");
+                LOGGER.info(" CONDITION CHECK: MapDifferentSPtoProfileInAutoAI.mapSP = true (Unmapped profiles available)");
             }
             
             return allMapped;
             
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Could not check mapSP flag, assuming profiles are available: " + e.getMessage());
+            LOGGER.warn("WARNING: Could not check mapSP flag, assuming profiles are available: " + e.getMessage());
             return false; // Default to not skipping if we can't determine the condition
         }
     }
@@ -185,7 +185,7 @@ public class ConditionalScenarioSkip {
     public static void enableSkipForFeature(String featureName) {
         skipEnabledFeatures.add(featureName);
         LogManager.getLogger(ConditionalScenarioSkip.class)
-                .info("🚫 SKIP ENABLED: All scenarios in '{}' will be skipped", featureName);
+                .info(" SKIP ENABLED: All scenarios in '{}' will be skipped", featureName);
     }
     
     /**
@@ -194,7 +194,7 @@ public class ConditionalScenarioSkip {
     public static void clearSkipConditions() {
         skipEnabledFeatures.clear();
         LogManager.getLogger(ConditionalScenarioSkip.class)
-                .info("🔄 SKIP CONDITIONS CLEARED: All features reset to normal execution");
+                .info(" SKIP CONDITIONS CLEARED: All features reset to normal execution");
     }
     
     /**

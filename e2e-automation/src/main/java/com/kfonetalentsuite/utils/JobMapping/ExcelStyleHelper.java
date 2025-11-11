@@ -168,7 +168,7 @@ public class ExcelStyleHelper {
     }
     
     // ==================================================================================
-    // ðŸŽ¨ ROW-LEVEL COLORING ENHANCEMENT
+    //  ROW-LEVEL COLORING ENHANCEMENT
     // ==================================================================================
     // Added: January 2025 - Full row background coloring based on Quality Status
     // Purpose: Apply same background color to entire row (A-I) as Quality Status column (J)

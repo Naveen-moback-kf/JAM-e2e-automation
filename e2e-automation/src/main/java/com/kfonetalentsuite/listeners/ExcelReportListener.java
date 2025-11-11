@@ -48,9 +48,9 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             System.setProperty("extent.reporter.spark.start", String.valueOf(extentEnabled));
             
             if (extentEnabled) {
-                LOGGER.info("âœ… Extent HTML reports ENABLED");
+                LOGGER.info("... Extent HTML reports ENABLED");
             } else {
-                LOGGER.info("âš ï¸ Extent HTML reports DISABLED");
+                LOGGER.info(" Extent HTML reports DISABLED");
             }
             
         } catch (Exception e) {

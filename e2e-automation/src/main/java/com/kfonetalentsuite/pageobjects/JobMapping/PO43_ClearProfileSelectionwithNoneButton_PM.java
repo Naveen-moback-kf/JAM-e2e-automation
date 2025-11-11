@@ -74,7 +74,7 @@ public class PO43_ClearProfileSelectionwithNoneButton_PM {
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_none_button_in_hcm_sync_profiles_screen", e);
 			LOGGER.error("Error clicking on None button - Method: click_on_none_button_in_hcm_sync_profiles_screen", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Error clicking on None button in HCM Sync Profiles Screen");
+			ExtentCucumberAdapter.addTestStepLog(" Error clicking on None button in HCM Sync Profiles Screen");
 			Assert.fail("Error clicking on None button in HCM Sync Profiles Screen: " + e.getMessage());
 		}
 	}
@@ -123,7 +123,7 @@ public class PO43_ClearProfileSelectionwithNoneButton_PM {
 					
 					if (isSelected) {
 						selectedProfilesFound++;
-						LOGGER.warn("âš ï¸ Profile at position " + (i + 1) + " is SELECTED (should be unselected!)");
+						LOGGER.warn(" Profile at position " + (i + 1) + " is SELECTED (should be unselected!)");
 					}
 					
 				} catch (Exception e) {
@@ -141,18 +141,18 @@ public class PO43_ClearProfileSelectionwithNoneButton_PM {
 			LOGGER.info("========================================");
 			
 			if (selectedProfilesFound == 0) {
-				LOGGER.info("âœ“ VALIDATION PASSED: All profiles are correctly unselected");
-				ExtentCucumberAdapter.addTestStepLog("âœ“ Validation PASSED: All " + totalProfilesChecked + " profiles are unselected");
+				LOGGER.info(" VALIDATION PASSED: All profiles are correctly unselected");
+				ExtentCucumberAdapter.addTestStepLog(" Validation PASSED: All " + totalProfilesChecked + " profiles are unselected");
 			} else {
-				LOGGER.error("âŒ VALIDATION FAILED: Found " + selectedProfilesFound + " selected profiles (expected 0)");
-				ExtentCucumberAdapter.addTestStepLog("âŒ Validation FAILED: " + selectedProfilesFound + " profiles are still selected");
+				LOGGER.error(" VALIDATION FAILED: Found " + selectedProfilesFound + " selected profiles (expected 0)");
+				ExtentCucumberAdapter.addTestStepLog(" Validation FAILED: " + selectedProfilesFound + " profiles are still selected");
 				Assert.fail("Validation FAILED: " + selectedProfilesFound + " profiles are still selected");
 			}
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_all_loaded_profiles_are_unselected_in_hcm_sync_profiles_screen", e);
 			LOGGER.error("Error verifying all profiles are unselected - Method: verify_all_loaded_profiles_are_unselected_in_hcm_sync_profiles_screen", e);
-			ExtentCucumberAdapter.addTestStepLog("âŒ Error verifying all loaded profiles are unselected");
+			ExtentCucumberAdapter.addTestStepLog(" Error verifying all loaded profiles are unselected");
 			Assert.fail("Error verifying all loaded profiles are unselected: " + e.getMessage());
 		}
 	}

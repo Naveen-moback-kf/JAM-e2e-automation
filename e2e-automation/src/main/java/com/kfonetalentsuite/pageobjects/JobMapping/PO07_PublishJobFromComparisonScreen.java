@@ -69,7 +69,7 @@ public class PO07_PublishJobFromComparisonScreen {
 		ExtentCucumberAdapter.addTestStepLog("User landed on the Job Comparison screen successfully");
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("verify_user_landed_on_job_comparison_screen", e);
-		LOGGER.error("âŒ Failed to land on Job Comparison screen - Method: verify_user_landed_on_job_comparison_screen", e);
+		LOGGER.error(" Failed to land on Job Comparison screen - Method: verify_user_landed_on_job_comparison_screen", e);
 		e.printStackTrace();
 		Assert.fail("Issue in landing Job Comparison screen....Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in landing Job Comparison screen....Please Investigate!!!");
@@ -102,7 +102,7 @@ public void select_second_profile_from_ds_suggestions_of_organization_job() {
 		PerformanceUtils.waitForUIStability(driver, 1);
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("select_second_profile_from_ds_suggestions_of_organization_job", e);
-		LOGGER.error("âŒ Failed to select second profile from DS suggestions - Method: select_second_profile_from_ds_suggestions_of_organization_job", e);
+		LOGGER.error(" Failed to select second profile from DS suggestions - Method: select_second_profile_from_ds_suggestions_of_organization_job", e);
 		e.printStackTrace();
 		Assert.fail("Issue in selecting Second Profile from DS Suggestions of the Organization Job in Job Comparison Page...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in selecting Second Profile from DS Suggestions of the Organization Job in Job Comparison Page...Please Investigate!!!");
@@ -126,7 +126,7 @@ public void select_second_profile_from_ds_suggestions_of_organization_job() {
 		ExtentCucumberAdapter.addTestStepLog("Clicked on Publish Selected button in the Job Comparison Page for job profile with Organization Name: " + job1OrgName);	
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("click_on_publish_selected_button_in_job_comparison_page", e);
-		LOGGER.error("âŒ Failed to click Publish Selected button - Method: click_on_publish_selected_button_in_job_comparison_page", e);
+		LOGGER.error(" Failed to click Publish Selected button - Method: click_on_publish_selected_button_in_job_comparison_page", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking Publish Selected button in the Job Comparison Page....Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in clicking Publish Selected button in the Job Comparison Page....Please Investigate!!!");

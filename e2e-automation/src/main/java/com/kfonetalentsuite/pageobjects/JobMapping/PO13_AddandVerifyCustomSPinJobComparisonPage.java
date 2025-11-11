@@ -150,9 +150,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 		ExtentCucumberAdapter.addTestStepLog("Clicked on Search bar in Job Comparison page....");
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("click_on_search_bar_in_job_comparison_page", e);
-		LOGGER.error("âŒ Issue in clicking Search bar in Job Comparison page - Method: click_on_search_bar_in_job_comparison_page", e);
+		LOGGER.error(" Issue in clicking Search bar in Job Comparison page - Method: click_on_search_bar_in_job_comparison_page", e);
 		e.printStackTrace();
-		ExtentCucumberAdapter.addTestStepLog("âŒ Issue in clicking Search bar in Job Comparison page...Please Investigate!!!");
+		ExtentCucumberAdapter.addTestStepLog(" Issue in clicking Search bar in Job Comparison page...Please Investigate!!!");
 		Assert.fail("Issue in clicking Search bar in Job Comparison page...Please Investigate!!!");
 	}
 	}
@@ -165,9 +165,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 		ExtentCucumberAdapter.addTestStepLog("Search bar Placeholder text is Verified Successfully in Job Comparison page....");
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("verify_search_bar_placeholder_text_in_job_comparison_page", e);
-		LOGGER.error("âŒ Issue in verifying Search bar Placeholder text - Method: verify_search_bar_placeholder_text_in_job_comparison_page", e);
+		LOGGER.error(" Issue in verifying Search bar Placeholder text - Method: verify_search_bar_placeholder_text_in_job_comparison_page", e);
 		e.printStackTrace();
-		ExtentCucumberAdapter.addTestStepLog("âŒ Issue in Verifying Search bar Placeholder text in Job Comparison page...Please Investigate!!!");
+		ExtentCucumberAdapter.addTestStepLog(" Issue in Verifying Search bar Placeholder text in Job Comparison page...Please Investigate!!!");
 		Assert.fail("Issue in Verifying Search bar Placeholder text in Job Comparison page...Please Investigate!!!");
 	}
 	}
@@ -180,9 +180,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 		ExtentCucumberAdapter.addTestStepLog("Entered " + customSPSearchString + " as Custom SP Search String in the search bar in Job Comparison page");
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("user_should_enter_custom_sp_search_string_in_the_search_bar", e);
-		LOGGER.error("âŒ Failed to enter Custom SP Search String - Method: user_should_enter_custom_sp_search_string_in_the_search_bar", e);
+		LOGGER.error(" Failed to enter Custom SP Search String - Method: user_should_enter_custom_sp_search_string_in_the_search_bar", e);
 		e.printStackTrace();
-		ExtentCucumberAdapter.addTestStepLog("âŒ Failed to enter Custom SP Search String in the search bar in Job Comparison page...Please Investigate!!!");
+		ExtentCucumberAdapter.addTestStepLog(" Failed to enter Custom SP Search String in the search bar in Job Comparison page...Please Investigate!!!");
 		Assert.fail("Failed to enter Custom SP Search String in the search bar in Job Comparison page...Please Investigate!!!");
 	}
 	}
@@ -198,9 +198,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 		wait.until(ExpectedConditions.invisibilityOf(firstSearchResultBtninJCPage));
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("select_first_custom_sp_from_search_results", e);
-		LOGGER.error("âŒ Issue in selecting First Custom SP from Search Results - Method: select_first_custom_sp_from_search_results", e);
+		LOGGER.error(" Issue in selecting First Custom SP from Search Results - Method: select_first_custom_sp_from_search_results", e);
 		e.printStackTrace();
-		ExtentCucumberAdapter.addTestStepLog("âŒ Issue in Selecting First Custom SP from Search Results in Job Comparison page...Please Investigate!!!");
+		ExtentCucumberAdapter.addTestStepLog(" Issue in Selecting First Custom SP from Search Results in Job Comparison page...Please Investigate!!!");
 		Assert.fail("Issue in Selecting First Custom SP from Search Results in Job Comparison page...Please Investigate!!!");
 	}	
 	}
@@ -214,9 +214,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 			ExtentCucumberAdapter.addTestStepLog("Custom SP with Name : "+ JCpageProfile1TitleText + " added to Profiles List in Job Comparison page");
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_custom_sp_added_to_profiles_list_in_job_comparison_page", e);
-			LOGGER.error("âŒ Issue in adding Custom SP to Profiles List - Method: verify_custom_sp_added_to_profiles_list_in_job_comparison_page", e);
+			LOGGER.error(" Issue in adding Custom SP to Profiles List - Method: verify_custom_sp_added_to_profiles_list_in_job_comparison_page", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in adding Custom SP to Profiles List in Job Comparison page...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog(" Issue in adding Custom SP to Profiles List in Job Comparison page...Please Investigate!!!");
 			Assert.fail("Issue in adding Custom SP to Profiles List in Job Comparison page...Please Investigate!!!");
 		}	
 	}
@@ -232,9 +232,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 			ExtentCucumberAdapter.addTestStepLog("Close or Cancel Button is displaying in search bar after adding Custom SP to Profiles List in Job Comparison page....");
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_custom_sp_name_and_close_button_are_displaying_in_search_bar_after_adding_custom_sp", e);
-			LOGGER.error("âŒ Issue in verifying Custom SP Name and Close button in Search Bar - Method: user_should_verify_custom_sp_name_and_close_button_are_displaying_in_search_bar_after_adding_custom_sp", e);
+			LOGGER.error(" Issue in verifying Custom SP Name and Close button in Search Bar - Method: user_should_verify_custom_sp_name_and_close_button_are_displaying_in_search_bar_after_adding_custom_sp", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in Verifying Custom SP Name and Close button in Search Bar after Adding Custom SP in Job Comparison page...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog(" Issue in Verifying Custom SP Name and Close button in Search Bar after Adding Custom SP in Job Comparison page...Please Investigate!!!");
 			Assert.fail("Issue in Verifying Custom SP Name and Close button in Search Bar after Adding Custom SP in Job Comparison page...Please Investigate!!!");
 		}
 	}
@@ -274,9 +274,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 			ExtentCucumberAdapter.addTestStepLog("Selected Custom SP Profile and is in Selected status as Expected");
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_close_button_and_select_button_are_displaying_on_the_profile", e);
-			LOGGER.error("âŒ Issue in verifying Close and Select buttons on Custom SP Profile - Method: user_should_verify_close_button_and_select_button_are_displaying_on_the_profile", e);
+			LOGGER.error(" Issue in verifying Close and Select buttons on Custom SP Profile - Method: user_should_verify_close_button_and_select_button_are_displaying_on_the_profile", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in Verifying Close button and Select button on Custom SP Profile in the Job Compare page....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog(" Issue in Verifying Close button and Select button on Custom SP Profile in the Job Compare page....Please Investigate!!!");
 			Assert.fail("Issue in Verifying Close button and Select button on Custom SP Profile in the Job Compare page....Please Investigate!!!");
 		}	
 	}
@@ -288,9 +288,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 			ExtentCucumberAdapter.addTestStepLog("Custom SP Profile Grade : " + JCpageProfile1GradeText);
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_custom_sp_profile_grade", e);
-			LOGGER.error("âŒ Issue in verifying Custom SP Profile Grade - Method: verify_custom_sp_profile_grade", e);
+			LOGGER.error(" Issue in verifying Custom SP Profile Grade - Method: verify_custom_sp_profile_grade", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in Verifying Custom SP Profile Grade in the Job Compare page....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog(" Issue in Verifying Custom SP Profile Grade in the Job Compare page....Please Investigate!!!");
 			Assert.fail("Issue in Verifying Custom SP Profile Grade in the Job Compare page....Please Investigate!!!");
 		}
 	}
@@ -426,9 +426,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 			LOGGER.info("Custom SP Profile Responsibilities : \n" + JCpageProfile1ResponsibilitiesText);
 			ExtentCucumberAdapter.addTestStepLog("Custom SP Profile Responsibilities : \n" + JCpageProfile1ResponsibilitiesText);
 	} catch (Exception e) {
-			LOGGER.error("âŒ Issue in verifying Custom SP Profile Responsibilities - Method: verify_custom_sp_profile_responsibilities", e);
+			LOGGER.error(" Issue in verifying Custom SP Profile Responsibilities - Method: verify_custom_sp_profile_responsibilities", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in Verifying Custom SP Profile Responsibilities in the Job Compare page....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog(" Issue in Verifying Custom SP Profile Responsibilities in the Job Compare page....Please Investigate!!!");
 			Assert.fail("Issue in Verifying Custom SP Profile Responsibilities in the Job Compare page....Please Investigate!!!");
 		}
 		
@@ -496,9 +496,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 			LOGGER.info("Custom SP Profile Skills : \n" + JCpageProfile1SkillsText);
 			ExtentCucumberAdapter.addTestStepLog("Custom SP Profile Skills : \n" + JCpageProfile1SkillsText);
 	} catch (Exception e) {
-			LOGGER.error("âŒ Issue in verifying Custom SP Profile Skills - Method: verify_custom_sp_profile_skills", e);
+			LOGGER.error(" Issue in verifying Custom SP Profile Skills - Method: verify_custom_sp_profile_skills", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in Verifying Custom SP Profile Skills in the Job Compare page....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog(" Issue in Verifying Custom SP Profile Skills in the Job Compare page....Please Investigate!!!");
 			Assert.fail("Issue in Verifying Custom SP Profile Skills in the Job Compare page....Please Investigate!!!");
 		}
 	}
@@ -564,9 +564,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 			ExtentCucumberAdapter.addTestStepLog("New Custom SP with Name : "+ JCpageProfile1TitleText + " successfully replaced with existing Custom SP in Profiles List in Job Comparison page");
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_new_custom_sp_replaces_existing_custom_sp_in_profiles_list_in_job_comparison_page", e);
-			LOGGER.error("âŒ Issue in replacing New Custom SP with existing Custom SP - Method: verify_new_custom_sp_replaces_existing_custom_sp_in_profiles_list_in_job_comparison_page", e);
+			LOGGER.error(" Issue in replacing New Custom SP with existing Custom SP - Method: verify_new_custom_sp_replaces_existing_custom_sp_in_profiles_list_in_job_comparison_page", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in replacing New Custom SP with existing Custom SP in Profiles List in Job Comparison page...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog(" Issue in replacing New Custom SP with existing Custom SP in Profiles List in Job Comparison page...Please Investigate!!!");
 			Assert.fail("Issue in replacing New Custom SP with existing Custom SP in Profiles List in Job Comparison page...Please Investigate!!!");
 		}	
 	}
@@ -584,9 +584,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 			ExtentCucumberAdapter.addTestStepLog("Added Custom SP and text in Search bar are cleared successfully with close button on the profile...");
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("clear_custom_sp_and_text_in_search_bar_with_close_button_on_the_profile", e);
-			LOGGER.error("âŒ Issue in clearing Custom SP and text in search bar - Method: clear_custom_sp_and_text_in_search_bar_with_close_button_on_the_profile", e);
+			LOGGER.error(" Issue in clearing Custom SP and text in search bar - Method: clear_custom_sp_and_text_in_search_bar_with_close_button_on_the_profile", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in clearing Added Custom SP and Search bar text together with close button on the Profile in Job Comparison page...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog(" Issue in clearing Added Custom SP and Search bar text together with close button on the Profile in Job Comparison page...Please Investigate!!!");
 			Assert.fail("Issue in clearing Added Custom SP and Search bar text together with close button on the Profile in Job Comparison page...Please Investigate!!!");
 		}	
 	}

@@ -52,9 +52,9 @@ public class TestLogger {
                                !configValue.trim().equalsIgnoreCase("false");
                 
                 if (extentEnabled) {
-                    LOGGER.info("âœ… Extent Reporting is ENABLED - HTML reports will be generated with detailed test steps");
+                    LOGGER.info("... Extent Reporting is ENABLED - HTML reports will be generated with detailed test steps");
                 } else {
-                    LOGGER.info("âš ï¸ Extent Reporting is DISABLED - Only Log4j and Excel reports will be generated");
+                    LOGGER.info(" Extent Reporting is DISABLED - Only Log4j and Excel reports will be generated");
                 }
             } catch (Exception e) {
                 // Default to enabled if there's any issue reading the configuration
@@ -123,7 +123,7 @@ public class TestLogger {
         // Conditionally log to Extent Reports
         if (isExtentEnabled()) {
             try {
-                ExtentCucumberAdapter.addTestStepLog("âŒ ERROR: " + message);
+                ExtentCucumberAdapter.addTestStepLog(" ERROR: " + message);
             } catch (Exception e) {
                 LOGGER.debug("Failed to log error to Extent Reports: {}", e.getMessage());
             }
@@ -143,7 +143,7 @@ public class TestLogger {
         // Conditionally log to Extent Reports
         if (isExtentEnabled()) {
             try {
-                ExtentCucumberAdapter.addTestStepLog("âŒ ERROR: " + message);
+                ExtentCucumberAdapter.addTestStepLog(" ERROR: " + message);
             } catch (Exception e) {
                 logger.debug("Failed to log error to Extent Reports: {}", e.getMessage());
             }
@@ -164,7 +164,7 @@ public class TestLogger {
         // Conditionally log to Extent Reports
         if (isExtentEnabled()) {
             try {
-                ExtentCucumberAdapter.addTestStepLog("âš ï¸ WARNING: " + message);
+                ExtentCucumberAdapter.addTestStepLog(" WARNING: " + message);
             } catch (Exception e) {
                 LOGGER.debug("Failed to log warning to Extent Reports: {}", e.getMessage());
             }
@@ -184,7 +184,7 @@ public class TestLogger {
         // Conditionally log to Extent Reports
         if (isExtentEnabled()) {
             try {
-                ExtentCucumberAdapter.addTestStepLog("âš ï¸ WARNING: " + message);
+                ExtentCucumberAdapter.addTestStepLog(" WARNING: " + message);
             } catch (Exception e) {
                 logger.debug("Failed to log warning to Extent Reports: {}", e.getMessage());
             }

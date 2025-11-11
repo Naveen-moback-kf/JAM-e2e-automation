@@ -114,7 +114,7 @@ public class PO05_ValidateJobProfileDetailsPopup {
 		ExtentCucumberAdapter.addTestStepLog("Profile header on the details popup : " + profileHeaderName);
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_profile_header_matches_with_matched_profile_name", e);
-			LOGGER.error("âŒ Failed to verify profile details popup header - Method: verify_profile_header_matches_with_matched_profile_name", e);
+			LOGGER.error(" Failed to verify profile details popup header - Method: verify_profile_header_matches_with_matched_profile_name", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying profile details popup header....Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying profile details popup header....Please Investigate!!!");
@@ -131,7 +131,7 @@ public class PO05_ValidateJobProfileDetailsPopup {
 		ExtentCucumberAdapter.addTestStepLog(profileDeatilsText);
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_profile_details_displaying_on_the_popup", e);
-			LOGGER.error("âŒ Failed to display profile details on the popup screen - Method: verify_profile_details_displaying_on_the_popup", e);
+			LOGGER.error(" Failed to display profile details on the popup screen - Method: verify_profile_details_displaying_on_the_popup", e);
 			e.printStackTrace();
 			Assert.fail("Issue in displaying profile details on the popup screen....Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in displaying profile details on the popup screen....Please Investigate!!!");
@@ -163,7 +163,7 @@ public class PO05_ValidateJobProfileDetailsPopup {
 		
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown", e);
-			LOGGER.error("âŒ Failed to validate profile level dropdown - Method: user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown", e);
+			LOGGER.error(" Failed to validate profile level dropdown - Method: user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown", e);
 			e.printStackTrace();
 			Assert.fail("Issue in validating profile level dropdown in profile details popup in Job Mapping page...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in validating profile level dropdown in profile details popup in Job Mapping page...Please Investigate!!!");
@@ -179,7 +179,7 @@ public class PO05_ValidateJobProfileDetailsPopup {
 		ExtentCucumberAdapter.addTestStepLog("Role summary of Matched Success Profile : " + ProfileRoleSummary); 
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("validate_role_summary_is_displaying", e);
-		LOGGER.error("âŒ Failed to validate Role Summary in Profile Details Popup - Method: validate_role_summary_is_displaying", e);
+		LOGGER.error(" Failed to validate Role Summary in Profile Details Popup - Method: validate_role_summary_is_displaying", e);
 		e.printStackTrace();
 		Assert.fail("Issue in validating Role Summary in Profile Details Popup in Job Mapping page...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in validating Role Summary in Profile Details Popup in Job Mapping page...Please Investigate!!!");
@@ -219,7 +219,7 @@ public void validate_data_in_responsibilities_tab() {
 //			ExtentCucumberAdapter.addTestStepLog("Data present in Responsibilities screen : \n" + responsibilitiesDataText);
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("validate_data_in_responsibilities_tab", e);
-		LOGGER.error("âŒ Failed to validate data in Responsibilities screen - Method: validate_data_in_responsibilities_tab", e);
+		LOGGER.error(" Failed to validate data in Responsibilities screen - Method: validate_data_in_responsibilities_tab", e);
 		e.printStackTrace();
 		Assert.fail("Issue in validating data in Responsibilities screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in validating data in Responsibilities screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
@@ -262,7 +262,7 @@ public void validate_data_in_behavioural_competencies_tab() {
 //			ExtentCucumberAdapter.addTestStepLog("Data present in Behaviour Competencies screen : \n" + behaviourDataText);
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("validate_data_in_behavioural_competencies_tab", e);
-		LOGGER.error("âŒ Failed to validate data in Behaviour Competencies screen - Method: validate_data_in_behavioural_competencies_tab", e);
+		LOGGER.error(" Failed to validate data in Behaviour Competencies screen - Method: validate_data_in_behavioural_competencies_tab", e);
 		e.printStackTrace();
 		Assert.fail("Issue in validating data in Behaviour Competencies screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in validating data in Behaviour Competencies screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
@@ -305,7 +305,7 @@ public void validate_data_in_skills_tab() {
 //			ExtentCucumberAdapter.addTestStepLog("Data present in Skills screen : \n" + skillsDataText);
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_data_in_skills_tab", e);
-		LOGGER.error("âŒ Failed to validate data in Skills screen - Method: validate_data_in_skills_tab", e);
+		LOGGER.error(" Failed to validate data in Skills screen - Method: validate_data_in_skills_tab", e);
 		e.printStackTrace();
 		Assert.fail("Issue in validating data in Skills screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in validating data in Skills screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
@@ -321,7 +321,7 @@ public void validate_data_in_skills_tab() {
 		ExtentCucumberAdapter.addTestStepLog("Publish button is displaying on the Profile Details Popup and is clickable");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_publish_profile_button_is_available_on_popup_screen", e);
-			LOGGER.error("âŒ Failed to verify Publish Profile button on profile details popup - Method: user_should_verify_publish_profile_button_is_available_on_popup_screen", e);
+			LOGGER.error(" Failed to verify Publish Profile button on profile details popup - Method: user_should_verify_publish_profile_button_is_available_on_popup_screen", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying Publish Profile button on profile details popup screen in Job Mapping page....Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Publish Profile button on profile details popup screen in Job Mapping page....Please Investigate!!!");

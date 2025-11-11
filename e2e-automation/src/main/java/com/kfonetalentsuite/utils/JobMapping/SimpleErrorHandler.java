@@ -29,7 +29,7 @@ public class SimpleErrorHandler {
         if (e instanceof StaleElementReferenceException || 
             e instanceof ElementNotInteractableException) {
             
-            LOGGER.warn("âš ï¸ Retryable error in {} for {}: {}", methodName, elementContext, e.getMessage());
+            LOGGER.warn(" Retryable error in {} for {}: {}", methodName, elementContext, e.getMessage());
             
             try {
                 Thread.sleep(1000); // Simple 1-second wait
@@ -41,7 +41,7 @@ public class SimpleErrorHandler {
         
         // Enhanced error message with context
         String errorMsg = String.format(
-            "âŒ Method: %s | Element: %s | Error: %s", 
+            " Method: %s | Element: %s | Error: %s", 
             formatMethodName(methodName), 
             elementContext, 
             e.getMessage()
@@ -55,11 +55,11 @@ public class SimpleErrorHandler {
         
         // Log with appropriate level
         if (e instanceof TimeoutException || e instanceof NoSuchElementException) {
-            LOGGER.error("ðŸ” ELEMENT ISSUE - {}", errorMsg);
+            LOGGER.error(" ELEMENT ISSUE - {}", errorMsg);
         } else if (e instanceof AssertionError) {
-            LOGGER.error("ðŸ”´ ASSERTION FAILED - {}", errorMsg);
+            LOGGER.error(" ASSERTION FAILED - {}", errorMsg);
         } else {
-            LOGGER.error("âŒ ERROR - {}", errorMsg);
+            LOGGER.error(" ERROR - {}", errorMsg);
         }
         
         // Add to report

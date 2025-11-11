@@ -35,7 +35,7 @@ public class Runner27_VerifyInfoMessageForMissingDataProfiles extends CustomizeT
 	@Override
 	protected String resolveLoginTag() {
 		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info("ðŸ”„ Using KFone login tag: " + loginTag);
+		LOGGER.info(" Using KFone login tag: " + loginTag);
 		return loginTag;
 	}
 

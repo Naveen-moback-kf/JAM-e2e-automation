@@ -35,7 +35,7 @@ public class Runner45_ClearProfileSelectionwithNoneButton_JAM extends CustomizeT
 	@Override
 	protected String resolveLoginTag() {
 		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info("ðŸ”„ Using KFone login tag: " + loginTag);
+		LOGGER.info(" Using KFone login tag: " + loginTag);
 		return loginTag;
 	}
 

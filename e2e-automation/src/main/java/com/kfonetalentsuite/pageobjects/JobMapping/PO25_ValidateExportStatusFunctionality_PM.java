@@ -180,7 +180,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			try {
 				Boolean jsReady = (Boolean) js.executeScript("return document.readyState === 'complete'");
 				if (Boolean.TRUE.equals(jsReady)) {
-//					LOGGER.debug("âœ… Page already ready - early exit from custom waitForPageReady");
+//					LOGGER.debug("... Page already ready - early exit from custom waitForPageReady");
 					return; // Fast exit!
 				}
 			} catch (Exception e) {
@@ -463,7 +463,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 		
 		for (int col = 1; col <= 8; col++) {
 			WebElement dataElement = findTableElement(rowNumber, col);
-			String headerText = headers[col-1].getText().split(" â–¼")[0];
+			String headerText = headers[col-1].getText().split(" -")[0];
 			details.append(headerText).append(" : ").append(dataElement.getText()).append("   ");
 		}
 		
@@ -512,7 +512,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			
 			// Simple validation before clicking
 			if (!checkbox.isEnabled()) {
-				LOGGER.warn("âš ï¸ Checkbox is disabled for profile: {}", SPJobName);
+				LOGGER.warn(" Checkbox is disabled for profile: {}", SPJobName);
 				throw new IllegalStateException("Checkbox is disabled for profile: " + SPJobName);
 			}
 			
@@ -763,7 +763,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 				if (!currentUrl.contains("profile") && !currentUrl.contains("details")) {
 					throw new AssertionError("Navigation failed - Expected SP details page but URL does not indicate success: " + currentUrl);
 				} else {
-					LOGGER.warn("âš ï¸ Page element not found but URL suggests navigation worked: {}", currentUrl);
+					LOGGER.warn(" Page element not found but URL suggests navigation worked: {}", currentUrl);
 				}
 			}
 			

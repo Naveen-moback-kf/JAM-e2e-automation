@@ -282,7 +282,7 @@ public class PO06_PublishJobProfile {
 				// Popup didn't auto-dismiss (common in headless mode) - this is OK
 				LOGGER.warn("Success popup did not auto-dismiss within 10 seconds (expected in headless mode)");
 				LOGGER.info("Continuing test execution - success message was verified");
-				ExtentCucumberAdapter.addTestStepLog("âœ“ Success popup verified (auto-dismiss skipped for headless compatibility)");
+				ExtentCucumberAdapter.addTestStepLog(" Success popup verified (auto-dismiss skipped for headless compatibility)");
 			}
 			
 		// Final spinner check

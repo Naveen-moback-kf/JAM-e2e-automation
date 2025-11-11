@@ -36,7 +36,7 @@ public class Runner11a_ValidateGradeFilters extends CustomizeTestNGCucumberRunne
 	@Override
 	protected String resolveLoginTag() {
 		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info("ðŸ”„ Using KFone login tag: " + loginTag);
+		LOGGER.info(" Using KFone login tag: " + loginTag);
 		return loginTag;
 	}
 	

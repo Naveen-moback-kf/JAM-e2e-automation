@@ -45,8 +45,8 @@ public class LargeDatasetHandler {
 		int noChangeCount = 0;
 		int maxNoChangeAllowed = 3;
 		
-		LOGGER.info("ðŸ”„ Starting throttled scroll to load large dataset...");
-		LOGGER.info("âš™ï¸ Max scrolls: {}, Scroll delay: {}ms", maxScrolls, scrollDelay);
+		LOGGER.info(" Starting throttled scroll to load large dataset...");
+		LOGGER.info(" Max scrolls: {}, Scroll delay: {}ms", maxScrolls, scrollDelay);
 		
 		try {
 			while (scrollCount < maxScrolls) {
@@ -59,7 +59,7 @@ public class LargeDatasetHandler {
 					LOGGER.debug("No height change detected. Count: {}/{}", noChangeCount, maxNoChangeAllowed);
 					
 					if (noChangeCount >= maxNoChangeAllowed) {
-						LOGGER.info("âœ… Reached end of content. No more data to load.");
+						LOGGER.info("... Reached end of content. No more data to load.");
 						break;
 					}
 				} else {
@@ -88,23 +88,23 @@ public class LargeDatasetHandler {
 				// Clear browser console periodically to free memory
 				if (scrollCount % 10 == 0) {
 					js.executeScript("console.clear();");
-					LOGGER.debug("ðŸ§¹ Cleared browser console at scroll " + scrollCount);
+					LOGGER.debug(" Cleared browser console at scroll " + scrollCount);
 				}
 				
 				previousHeight = currentHeight;
 				
 				if (scrollCount % 5 == 0) {
-					LOGGER.info("ðŸ“Š Progress: {} scrolls completed. Current height: {}", scrollCount, currentHeight);
+					LOGGER.info(" Progress: {} scrolls completed. Current height: {}", scrollCount, currentHeight);
 				}
 			}
 			
-			LOGGER.info("âœ… Scroll operation completed. Total scrolls: {}", scrollCount);
+			LOGGER.info("... Scroll operation completed. Total scrolls: {}", scrollCount);
 			
 		} catch (InterruptedException e) {
-			LOGGER.error("âŒ Scroll operation interrupted", e);
+			LOGGER.error(" Scroll operation interrupted", e);
 			Thread.currentThread().interrupt();
 		} catch (Exception e) {
-			LOGGER.error("âŒ Error during scroll operation", e);
+			LOGGER.error(" Error during scroll operation", e);
 		}
 		
 		return scrollCount;
@@ -123,8 +123,8 @@ public class LargeDatasetHandler {
 		int totalProcessed = 0;
 		int chunksProcessed = 0;
 		
-		LOGGER.info("ðŸ”„ Starting chunk-based processing...");
-		LOGGER.info("âš™ï¸ Records per chunk: {}, Target total: {}", recordsPerChunk, totalRecordsNeeded);
+		LOGGER.info(" Starting chunk-based processing...");
+		LOGGER.info(" Records per chunk: {}, Target total: {}", recordsPerChunk, totalRecordsNeeded);
 		
 		try {
 			while (totalProcessed < totalRecordsNeeded) {
@@ -142,7 +142,7 @@ public class LargeDatasetHandler {
 				totalProcessed = currentCount;
 				chunksProcessed++;
 				
-				LOGGER.info("ðŸ“Š Chunk {} processed. Total records: {}", chunksProcessed, totalProcessed);
+				LOGGER.info(" Chunk {} processed. Total records: {}", chunksProcessed, totalProcessed);
 				
 				// Clear browser memory every 5 chunks
 				if (chunksProcessed % 5 == 0) {
@@ -155,15 +155,15 @@ public class LargeDatasetHandler {
 				Long clientHeight = (Long) js.executeScript("return document.documentElement.clientHeight;");
 				
 				if (scrollTop + clientHeight >= scrollHeight - 100) {
-					LOGGER.info("âœ… Reached bottom of page");
+					LOGGER.info("... Reached bottom of page");
 					break;
 				}
 			}
 			
-			LOGGER.info("âœ… Chunk processing completed. Total processed: {}", totalProcessed);
+			LOGGER.info("... Chunk processing completed. Total processed: {}", totalProcessed);
 			
 		} catch (Exception e) {
-			LOGGER.error("âŒ Error during chunk processing", e);
+			LOGGER.error(" Error during chunk processing", e);
 		}
 		
 		return totalProcessed;
@@ -188,16 +188,16 @@ public class LargeDatasetHandler {
 			if (driver instanceof ChromeDriver) {
 				try {
 					((ChromeDriver) driver).executeCdpCommand("Network.clearBrowserCache", new HashMap<>());
-					LOGGER.debug("ðŸ§¹ Browser cache cleared");
+					LOGGER.debug(" Browser cache cleared");
 				} catch (Exception e) {
 					LOGGER.debug("Cache clear not available or failed");
 				}
 			}
 			
-			LOGGER.info("ðŸ§¹ Browser memory cleanup performed");
+			LOGGER.info(" Browser memory cleanup performed");
 			
 		} catch (Exception e) {
-			LOGGER.warn("âš ï¸ Could not clear browser memory: " + e.getMessage());
+			LOGGER.warn(" Could not clear browser memory: " + e.getMessage());
 		}
 	}
 	
@@ -216,7 +216,7 @@ public class LargeDatasetHandler {
 		
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		
-		LOGGER.info("ðŸ”„ Extracting data directly via JavaScript...");
+		LOGGER.info(" Extracting data directly via JavaScript...");
 		
 		// Build JavaScript extraction script
 		StringBuilder script = new StringBuilder();
@@ -238,11 +238,11 @@ public class LargeDatasetHandler {
 			List<Map<String, String>> extractedData = 
 				(List<Map<String, String>>) js.executeScript(script.toString());
 			
-			LOGGER.info("âœ… Extracted {} records via JavaScript", extractedData.size());
+			LOGGER.info("... Extracted {} records via JavaScript", extractedData.size());
 			return extractedData;
 			
 		} catch (Exception e) {
-			LOGGER.error("âŒ Error extracting data via JavaScript", e);
+			LOGGER.error(" Error extracting data via JavaScript", e);
 			return new ArrayList<>();
 		}
 	}
@@ -264,7 +264,7 @@ public class LargeDatasetHandler {
 		int scrollAttempts = 0;
 		int loadedRecords = 0;
 		
-		LOGGER.info("ðŸ”„ Loading {} records via scrolling...", targetRecordCount);
+		LOGGER.info(" Loading {} records via scrolling...", targetRecordCount);
 		
 		try {
 			while (scrollAttempts < maxScrollAttempts) {
@@ -273,7 +273,7 @@ public class LargeDatasetHandler {
 				loadedRecords = records.size();
 				
 				if (loadedRecords >= targetRecordCount) {
-					LOGGER.info("âœ… Target record count reached: {}", loadedRecords);
+					LOGGER.info("... Target record count reached: {}", loadedRecords);
 					break;
 				}
 				
@@ -285,16 +285,16 @@ public class LargeDatasetHandler {
 				scrollAttempts++;
 				
 				if (scrollAttempts % 10 == 0) {
-					LOGGER.info("ðŸ“Š Progress: {} records loaded, {} scrolls performed", 
+					LOGGER.info(" Progress: {} records loaded, {} scrolls performed", 
 						loadedRecords, scrollAttempts);
 				}
 			}
 			
-			LOGGER.info("âœ… Scroll loading completed. Records loaded: {}, Scrolls: {}", 
+			LOGGER.info("... Scroll loading completed. Records loaded: {}, Scrolls: {}", 
 				loadedRecords, scrollAttempts);
 			
 		} catch (Exception e) {
-			LOGGER.error("âŒ Error during scroll loading", e);
+			LOGGER.error(" Error during scroll loading", e);
 		}
 		
 		return loadedRecords;

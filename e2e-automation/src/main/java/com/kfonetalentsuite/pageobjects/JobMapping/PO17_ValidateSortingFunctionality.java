@@ -87,7 +87,7 @@ public class PO17_ValidateSortingFunctionality {
 		// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 		PerformanceUtils.waitForPageReady(driver);	
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue in scrolling page - Method: scroll_page_down_two_times", e);
+		LOGGER.error(" Issue in scrolling page - Method: scroll_page_down_two_times", e);
 		ScreenshotHandler.captureFailureScreenshot("scroll_page_down_two_times", e);
 		e.printStackTrace();
 		Assert.fail("Issue in scrolling page down two times to view first thirty job profiles...Please Investigate!!!");
@@ -111,7 +111,7 @@ public class PO17_ValidateSortingFunctionality {
 			ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Name Job Name / Code : " + text);
 		}
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue verifying default order - Method: verify_first_thirty_job_profiles_in_default_order", e);
+		LOGGER.error(" Issue verifying default order - Method: verify_first_thirty_job_profiles_in_default_order", e);
 		ScreenshotHandler.captureFailureScreenshot("verify_first_thirty_job_profiles_in_default_order", e);
 		e.printStackTrace();
 		Assert.fail("Issue in Verifying default Order of first thirty Job Profiles before applying sorting...Please Investigate!!!");
@@ -142,7 +142,7 @@ public class PO17_ValidateSortingFunctionality {
 		// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 		PerformanceUtils.waitForPageReady(driver);
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue sorting by org job name ascending - Method: sort_job_profiles_by_organiztion_job_name_in_ascending_order", e);
+		LOGGER.error(" Issue sorting by org job name ascending - Method: sort_job_profiles_by_organiztion_job_name_in_ascending_order", e);
 		ScreenshotHandler.captureFailureScreenshot("sort_job_profiles_by_organiztion_job_name_in_ascending_order", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking on Organization job name / code header to Sort Job Profiles by Name in ascending order...Please Investigate!!!");
@@ -164,7 +164,7 @@ public class PO17_ValidateSortingFunctionality {
 			ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Name Job Name / Code : " + text);
 		}
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue verifying sorted profiles ascending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_organiztion_job_name_in_ascending_order", e);
+		LOGGER.error(" Issue verifying sorted profiles ascending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_organiztion_job_name_in_ascending_order", e);
 		ScreenshotHandler.captureFailureScreenshot("verify_job_profiles_sorted_by_name_ascending", e);
 		e.printStackTrace();
 		Assert.fail("Issue in Verifying first thirty Job Profiles After sorting Job Profiles by Name in Ascending Order...Please Investigate!!!");
@@ -193,7 +193,7 @@ public class PO17_ValidateSortingFunctionality {
 		LOGGER.info("Organization Job Profiles are in Default Order as expected After Refreshing the Job Mapping page....");
 		ExtentCucumberAdapter.addTestStepLog("Organization Job Profiles are in Default Order as expected After Refreshing the Job Mapping page....");
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue verifying default order after refresh - Method: user_should_refresh_job_mapping_and_verify_job_profiles_are_in_default_order", e);
+		LOGGER.error(" Issue verifying default order after refresh - Method: user_should_refresh_job_mapping_and_verify_job_profiles_are_in_default_order", e);
 		ScreenshotHandler.captureFailureScreenshot("verify_default_order_after_refresh", e);
 		e.printStackTrace();
 		Assert.fail("Issue in Verifying Default order of Job Profiles after Refreshing Job Mapping page...Please Investigate!!!");
@@ -237,7 +237,7 @@ public class PO17_ValidateSortingFunctionality {
 		LOGGER.info("Clicked two times on Organization job name / code header to Sort Job Profiles by Name in Descending order");
 		ExtentCucumberAdapter.addTestStepLog("Clicked two times on Organization job name / code header to Sort Job Profiles by Name in Descending order");
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue sorting by org job name descending - Method: sort_job_profiles_by_organiztion_job_name_in_descending_order", e);
+		LOGGER.error(" Issue sorting by org job name descending - Method: sort_job_profiles_by_organiztion_job_name_in_descending_order", e);
 		ScreenshotHandler.captureFailureScreenshot("sort_job_profiles_by_name_descending", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking on Organization job name / code header to Sort Job Profiles by Name in Descending order...Please Investigate!!!");
@@ -259,7 +259,7 @@ public class PO17_ValidateSortingFunctionality {
 			ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Name Job Name / Code : " + text);
 		}
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue verifying sorted profiles descending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_organiztion_job_name_in_descending_order", e);
+		LOGGER.error(" Issue verifying sorted profiles descending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_organiztion_job_name_in_descending_order", e);
 		ScreenshotHandler.captureFailureScreenshot("verify_job_profiles_sorted_by_name_descending", e);
 		e.printStackTrace();
 		Assert.fail("Issue in Verifying first thirty Job Profiles After sorting Job Profiles by Name in Descending Order...Please Investigate!!!");
@@ -281,7 +281,7 @@ public class PO17_ValidateSortingFunctionality {
 		LOGGER.info("Clicked on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in ascending order");
 		ExtentCucumberAdapter.addTestStepLog("Clicked on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in ascending order");
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue sorting by SP grade ascending - Method: sort_job_profiles_by_matched_success_profile_grade_in_ascending_order", e);
+		LOGGER.error(" Issue sorting by SP grade ascending - Method: sort_job_profiles_by_matched_success_profile_grade_in_ascending_order", e);
 		ScreenshotHandler.captureFailureScreenshot("sort_by_sp_grade_ascending", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in ascending order...Please Investigate!!!");
@@ -325,7 +325,7 @@ public class PO17_ValidateSortingFunctionality {
 				ExtentCucumberAdapter.addTestStepLog("Found " + unmappedCount + " unmapped job(s) without SP grade details");
 			}
 		} catch (Exception e) {
-			LOGGER.error("âŒ Issue verifying sorted by SP grade ascending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_grade_in_ascending_order", e);
+			LOGGER.error(" Issue verifying sorted by SP grade ascending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_grade_in_ascending_order", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_sorted_by_sp_grade_ascending", e);
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Job Profiles After sorting by Matched Success Profile Grade in Ascending Order...Please Investigate!!!");
 		}
@@ -357,7 +357,7 @@ public class PO17_ValidateSortingFunctionality {
 		LOGGER.info("Clicked two times on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in descending order");
 		ExtentCucumberAdapter.addTestStepLog("Clicked two times on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in descending order");
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue sorting by SP grade descending - Method: sort_job_profiles_by_matched_success_profile_grade_in_descending_order", e);
+		LOGGER.error(" Issue sorting by SP grade descending - Method: sort_job_profiles_by_matched_success_profile_grade_in_descending_order", e);
 		ScreenshotHandler.captureFailureScreenshot("sort_by_sp_grade_descending", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking two times on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in descending order...Please Investigate!!!");
@@ -401,7 +401,7 @@ public class PO17_ValidateSortingFunctionality {
 				ExtentCucumberAdapter.addTestStepLog("Found " + unmappedCount + " unmapped job(s) without SP grade details");
 			}
 		} catch (Exception e) {
-			LOGGER.error("âŒ Issue verifying sorted by SP grade descending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_grade_in_descending_order", e);
+			LOGGER.error(" Issue verifying sorted by SP grade descending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_grade_in_descending_order", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_sorted_by_sp_grade_descending", e);
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Job Profiles After sorting by Matched Success Profile Grade in Descending Order...Please Investigate!!!");
 		}
@@ -421,7 +421,7 @@ public class PO17_ValidateSortingFunctionality {
 		LOGGER.info("Clicked on Matched Success Profile Name header to Sort Job Profiles by Matched SP Name in ascending order");
 		ExtentCucumberAdapter.addTestStepLog("Clicked on Matched Success Profile Name header to Sort Job Profiles by Matched SP Name in ascending order");
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue sorting by SP name ascending - Method: sort_job_profiles_by_matched_success_profile_name_in_ascending_order", e);
+		LOGGER.error(" Issue sorting by SP name ascending - Method: sort_job_profiles_by_matched_success_profile_name_in_ascending_order", e);
 		ScreenshotHandler.captureFailureScreenshot("sort_by_sp_name_ascending", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking on Matched Success Profile Name header to Sort Job Profiles by Matched SP Name in ascending order...Please Investigate!!!");
@@ -468,7 +468,7 @@ public class PO17_ValidateSortingFunctionality {
 				ExtentCucumberAdapter.addTestStepLog("Found " + unmappedCount + " unmapped job(s) without SP name details");
 			}
 		} catch (Exception e) {
-			LOGGER.error("âŒ Issue verifying sorted by SP name ascending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_name_in_ascending_order", e);
+			LOGGER.error(" Issue verifying sorted by SP name ascending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_name_in_ascending_order", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_sorted_by_sp_name_ascending", e);
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Job Profiles After sorting by Matched Success Profile Name in Ascending Order...Please Investigate!!!");
 		}
@@ -487,7 +487,7 @@ public class PO17_ValidateSortingFunctionality {
 		LOGGER.info("Clicked on Organization Grade header to Sort Job Profiles by Grade in ascending order");
 		ExtentCucumberAdapter.addTestStepLog("Clicked on Organization Grade header to Sort Job Profiles by Grade in ascending order");
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue sorting by org grade ascending - Method: sort_job_profiles_by_organization_grade_in_ascending_order", e);
+		LOGGER.error(" Issue sorting by org grade ascending - Method: sort_job_profiles_by_organization_grade_in_ascending_order", e);
 		ScreenshotHandler.captureFailureScreenshot("sort_by_org_grade_ascending", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking on Organization Grade header to Sort Job Profiles by Grade in ascending order...Please Investigate!!!");
@@ -520,7 +520,7 @@ public class PO17_ValidateSortingFunctionality {
 				ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Job Name / Code : " + text + " with Organization Job Grade : " + GradeText);
 			}
 		} catch (Exception e) {
-			LOGGER.error("âŒ Issue verifying sorted by org grade ascending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_and_organization_job_name_in_ascending_order", e);
+			LOGGER.error(" Issue verifying sorted by org grade ascending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_and_organization_job_name_in_ascending_order", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_sorted_by_org_grade_ascending", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying Job Profiles After sorting by Organization Grade and Organization Job Name in Ascending Order...Please Investigate!!!");
@@ -544,7 +544,7 @@ public class PO17_ValidateSortingFunctionality {
 		LOGGER.info("Clicked two times on Organization Grade header to Sort Job Profiles by Grade in Descending order");
 		ExtentCucumberAdapter.addTestStepLog("Clicked two times on Organization Grade to Sort Job Profiles by Grade in Descending order");
 	} catch (Exception e) {
-		LOGGER.error("âŒ Issue sorting by org grade descending - Method: sort_job_profiles_by_organization_grade_in_descending_order", e);
+		LOGGER.error(" Issue sorting by org grade descending - Method: sort_job_profiles_by_organization_grade_in_descending_order", e);
 		ScreenshotHandler.captureFailureScreenshot("sort_by_org_grade_descending", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking on Organization Grade to Sort Job Profiles by Grade in Descending order...Please Investigate!!!");
@@ -577,7 +577,7 @@ public class PO17_ValidateSortingFunctionality {
 				ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Job Name / Code : " + text + " with Organization Job Grade : " + GradeText);
 			}
 		} catch (Exception e) {
-			LOGGER.error("âŒ Issue verifying sorted by org grade descending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_in_descending_order_and_organization_job_name_in_ascending_order", e);
+			LOGGER.error(" Issue verifying sorted by org grade descending - Method: user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_in_descending_order_and_organization_job_name_in_ascending_order", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_sorted_by_org_grade_descending", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying Job Profiles After sorting by Organization Grade in Descending Order and Organization Job Name in Ascending Order...Please Investigate!!!");

@@ -811,22 +811,22 @@ public class Utilities {
 			}
 			
 			if (actualRole == null) {
-				LOGGER.error("âŒ Could not retrieve user role from session storage");
+				LOGGER.error(" Could not retrieve user role from session storage");
 				return false;
 			}
 			
-			LOGGER.info("ðŸ” Current User Role: '{}'", actualRole);
+			LOGGER.info(" Current User Role: '{}'", actualRole);
 			
 			if (expectedRole != null && !expectedRole.trim().isEmpty()) {
 				if (actualRole.equals(expectedRole)) {
-					LOGGER.info("âœ… User role verification PASSED: Expected '{}', Found '{}'", expectedRole, actualRole);
+					LOGGER.info("... User role verification PASSED: Expected '{}', Found '{}'", expectedRole, actualRole);
 					return true;
 				} else {
-					LOGGER.error("âŒ User role verification FAILED: Expected '{}', Found '{}'", expectedRole, actualRole);
+					LOGGER.error(" User role verification FAILED: Expected '{}', Found '{}'", expectedRole, actualRole);
 					return false;
 				}
 			} else {
-				LOGGER.info("âœ… User role successfully retrieved: '{}'", actualRole);
+				LOGGER.info("... User role successfully retrieved: '{}'", actualRole);
 				return true;
 			}
 			
