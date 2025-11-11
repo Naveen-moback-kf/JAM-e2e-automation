@@ -102,8 +102,6 @@ public class KeepAwakeUtil {
                         LOGGER.warn("âš ï¸ Failed to backup current power settings - Keep Awake feature disabled for safety");
                     }
                 } else {
-                    LOGGER.debug("Keep System Awake functionality is disabled in configuration");
-                    
                     // Apply Windows recommended power settings
                     applyRecommendedPowerSettings();
                 }
@@ -368,8 +366,6 @@ public class KeepAwakeUtil {
      */
     private static void applyRecommendedPowerSettings() {
         try {
-            LOGGER.debug("Applying Windows Recommended power settings...");
-            
             // Windows Recommended values (as per Windows 11 defaults)
             final int RECOMMENDED_SCREEN_AC = 5;    // 5 minutes (Plugged in)
             final int RECOMMENDED_SLEEP_AC = 5;     // 5 minutes (Plugged in)
@@ -384,10 +380,8 @@ public class KeepAwakeUtil {
             executePowerCommand("powercfg /change standby-timeout-ac " + RECOMMENDED_SLEEP_AC);
             executePowerCommand("powercfg /change standby-timeout-dc " + RECOMMENDED_SLEEP_DC);
             
-            LOGGER.debug("Windows Recommended power settings applied successfully");
-            
         } catch (Exception e) {
-            LOGGER.debug("Failed to apply Windows Recommended power settings: " + e.getMessage());
+            // Silently ignore - non-critical operation
         }
     }
     
@@ -516,7 +510,6 @@ public class KeepAwakeUtil {
     private static void executePowerCommand(String command) {
         // Skip power commands on non-Windows systems (Linux, Mac, etc.)
         if (!isWindows()) {
-            LOGGER.debug("Skipping power command (not Windows): " + command);
             return;
         }
         

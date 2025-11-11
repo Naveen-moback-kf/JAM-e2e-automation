@@ -627,7 +627,6 @@ public class ScreenshotHandler {
     public static void resetCounters() {
         lastScreenshotTime.clear();
         screenshotCount.clear();
-        LOGGER.debug("Screenshot performance counters reset");
     }
     
     /**

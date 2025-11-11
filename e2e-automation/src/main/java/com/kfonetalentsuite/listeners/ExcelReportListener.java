@@ -177,8 +177,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
         failedTestMethods = 0;
         skippedTestMethods = 0;
         
-        LOGGER.debug("Excel reporting listener initialized");
-        
         // Reset class tracking for incremental updates
         completedMethodsPerClass.clear();
         totalMethodsPerClass.clear();
@@ -189,9 +187,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
         
         // PERFORMANCE OPTIMIZATION: Reset screenshot counters for clean tracking
         ScreenshotHandler.resetCounters();
-        
-        LOGGER.debug("Screenshot performance mode: {}", 
-                   ScreenshotHandler.isPerformanceModeEnabled() ? "ENABLED" : "DISABLED");
     }
     
     // ISuiteListener implementation - for suite-level tracking
