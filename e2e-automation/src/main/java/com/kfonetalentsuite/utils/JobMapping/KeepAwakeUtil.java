@@ -83,21 +83,21 @@ public class KeepAwakeUtil {
                 
                 if (isKeepAwakeEnabled()) {
                     String executionType = isSuiteExecution ? "Test Suite" : "Individual Runner";
-                    LOGGER.info("ðŸ”„ Initializing Keep System Awake functionality for " + executionType + "...");
+                    LOGGER.info("Initializing Keep System Awake functionality for " + executionType + "...");
                     
                     // ENHANCED: Backup current settings before modifying
                     if (backupCurrentPowerSettings()) {
                         enableKeepAwake();
                         createModificationMarker();
                         isInitialized = true;
-                        LOGGER.info("âœ… Keep System Awake functionality enabled successfully");
+                        LOGGER.info("Keep System Awake functionality enabled successfully");
                         
                         if (isSuiteExecution) {
-                            LOGGER.info("ðŸ“Œ System will remain awake indefinitely (Never sleep) throughout test suite execution");
+                            LOGGER.info("System will remain awake indefinitely (Never sleep) throughout test suite execution");
                         } else {
-                            LOGGER.info("ðŸ“Œ System will use 30-minute timeouts throughout individual runner execution");
+                            LOGGER.info("System will use 30-minute timeouts throughout individual runner execution");
                         }
-                        LOGGER.info("ðŸ’¾ Your original power settings have been backed up and will be restored after execution");
+                        LOGGER.info("Your original power settings have been backed up and will be restored after execution");
                     } else {
                         LOGGER.warn("âš ï¸ Failed to backup current power settings - Keep Awake feature disabled for safety");
                     }
