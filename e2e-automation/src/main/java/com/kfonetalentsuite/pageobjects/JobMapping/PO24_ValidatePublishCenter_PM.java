@@ -1,4 +1,4 @@
-﻿package com.kfonetalentsuite.pageobjects.JobMapping;
+package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
