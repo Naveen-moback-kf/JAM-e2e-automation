@@ -162,6 +162,12 @@ public class CrossBrowserDriverManager {
             LOGGER.info("Chrome configured in HEADLESS mode");
             options.addArguments("--headless=new");
             options.addArguments("--window-size=1920,1080");
+            // HEADLESS STABILITY FIXES
+            options.addArguments("--disable-gpu"); // GPU issues in headless
+            options.addArguments("--disable-dev-shm-usage"); // Overcome limited resource problems
+            options.addArguments("--no-sandbox"); // Bypass OS security model (CI/CD)
+            options.addArguments("--disable-software-rasterizer"); // Avoid rendering issues
+            options.addArguments("--remote-allow-origins=*"); // CORS issues in headless
         } else {
             LOGGER.info("Chrome configured in WINDOWED mode");
             options.addArguments("--start-maximized");
@@ -361,6 +367,12 @@ public class CrossBrowserDriverManager {
             LOGGER.info("Edge configured in HEADLESS mode");
             options.addArguments("--headless=new");
             options.addArguments("--window-size=1920,1080");
+            // HEADLESS STABILITY FIXES
+            options.addArguments("--disable-gpu"); // GPU issues in headless
+            options.addArguments("--disable-dev-shm-usage"); // Overcome limited resource problems
+            options.addArguments("--no-sandbox"); // Bypass OS security model (CI/CD)
+            options.addArguments("--disable-software-rasterizer"); // Avoid rendering issues
+            options.addArguments("--remote-allow-origins=*"); // CORS issues in headless
         } else {
             LOGGER.info("Edge configured in WINDOWED mode");
             options.addArguments("--start-maximized");
