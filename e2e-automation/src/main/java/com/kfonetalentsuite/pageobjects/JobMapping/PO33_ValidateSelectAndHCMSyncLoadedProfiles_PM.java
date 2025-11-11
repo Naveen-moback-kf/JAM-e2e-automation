@@ -49,8 +49,8 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 	 * 
 	 * Expected Flow:
 	 * 1. Loaded Profiles on screen (BEFORE Header checkbox is clicked): 100 profiles
-	 * 2. Header checkbox is clicked → Selects 61 profiles (39 are disabled, cannot be selected)
-	 * 3. User scrolls → Loads 50 MORE profiles (Total now = 150)
+	 * 2. Header checkbox is clicked â†’ Selects 61 profiles (39 are disabled, cannot be selected)
+	 * 3. User scrolls â†’ Loads 50 MORE profiles (Total now = 150)
 	 * 4. These 50 newly loaded profiles should NOT be selected
 	 * 
 	 * Implementation:
@@ -86,9 +86,9 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 			newlyLoadedProfilesAfterScrolling = totalProfilesCurrentlyLoaded - loadedProfilesBeforeHeaderCheckboxClick;
 			
 			if (newlyLoadedProfilesAfterScrolling <= 0) {
-				LOGGER.warn("⚠️ No newly loaded profiles detected after scrolling");
+				LOGGER.warn("âš ï¸ No newly loaded profiles detected after scrolling");
 				LOGGER.warn("   Total profiles: " + totalProfilesCurrentlyLoaded + ", Loaded before checkbox: " + loadedProfilesBeforeHeaderCheckboxClick);
-				ExtentCucumberAdapter.addTestStepLog("⚠️ No newly loaded profiles to verify");
+				ExtentCucumberAdapter.addTestStepLog("âš ï¸ No newly loaded profiles to verify");
 				return;
 			}
 			
@@ -131,7 +131,7 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 					if (!isSelected) {
 						unselectedProfilesCount++;
 					} else {
-						LOGGER.warn("⚠️ Newly loaded profile at position " + i + " is SELECTED (should be unselected!)");
+						LOGGER.warn("âš ï¸ Newly loaded profile at position " + i + " is SELECTED (should be unselected!)");
 					}
 					
 				} catch (Exception e) {
@@ -154,20 +154,20 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 			int expectedUnselected = newlyLoadedProfilesAfterScrolling - disabledInNewlyLoadedProfiles;
 			
 			if (unselectedProfilesCount >= expectedUnselected) {
-				LOGGER.info("✓ VALIDATION PASSED: All " + unselectedProfilesCount + " newly loaded profiles are correctly unselected");
-				ExtentCucumberAdapter.addTestStepLog("✓ Validation PASSED: " + unselectedProfilesCount + " newly loaded profiles are NOT selected (as expected)");
+				LOGGER.info("âœ“ VALIDATION PASSED: All " + unselectedProfilesCount + " newly loaded profiles are correctly unselected");
+				ExtentCucumberAdapter.addTestStepLog("âœ“ Validation PASSED: " + unselectedProfilesCount + " newly loaded profiles are NOT selected (as expected)");
 			} else {
 				int missingUnselected = expectedUnselected - unselectedProfilesCount;
-				LOGGER.error("❌ VALIDATION FAILED: Expected " + expectedUnselected + " unselected, but found only " + unselectedProfilesCount);
-				LOGGER.error("   → " + missingUnselected + " newly loaded profiles are unexpectedly SELECTED");
-				ExtentCucumberAdapter.addTestStepLog("❌ Validation FAILED: " + missingUnselected + " newly loaded profiles are unexpectedly selected");
+				LOGGER.error("âŒ VALIDATION FAILED: Expected " + expectedUnselected + " unselected, but found only " + unselectedProfilesCount);
+				LOGGER.error("   â†’ " + missingUnselected + " newly loaded profiles are unexpectedly SELECTED");
+				ExtentCucumberAdapter.addTestStepLog("âŒ Validation FAILED: " + missingUnselected + " newly loaded profiles are unexpectedly selected");
 				Assert.fail("Validation FAILED: " + missingUnselected + " newly loaded profiles are selected (should be unselected)");
 			}
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen", e);
 			LOGGER.error("Error verifying newly loaded profiles in HCM Sync Profiles Screen - Method: verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen", e);
-			ExtentCucumberAdapter.addTestStepLog("❌ Error verifying newly loaded profiles are not selected in HCM Sync Profiles Screen");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Error verifying newly loaded profiles are not selected in HCM Sync Profiles Screen");
 			Assert.fail("Error verifying newly loaded profiles are not selected: " + e.getMessage());
 		}
 	}

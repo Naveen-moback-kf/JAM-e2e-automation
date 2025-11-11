@@ -92,7 +92,7 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_header_checkbox_to_unselect_loaded_job_profiles_in_job_mapping_screen", e);
 			LOGGER.error("Error clicking on header checkbox to unselect profiles - Method: click_on_header_checkbox_to_unselect_loaded_job_profiles_in_job_mapping_screen", e);
-			ExtentCucumberAdapter.addTestStepLog("❌ Error clicking on header checkbox to unselect profiles");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Error clicking on header checkbox to unselect profiles");
 			Assert.fail("Error clicking on header checkbox to unselect profiles: " + e.getMessage());
 		}
 	}
@@ -138,7 +138,7 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 					if (!isSelected) {
 						unselectedProfilesCount++;
 					} else {
-						LOGGER.warn("⚠️ Profile at position " + (i+1) + " is still SELECTED (should be unselected!)");
+						LOGGER.warn("âš ï¸ Profile at position " + (i+1) + " is still SELECTED (should be unselected!)");
 					}
 					
 				} catch (Exception e) {
@@ -159,18 +159,18 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 			LOGGER.info("========================================");
 			
 			if (unselectedProfilesCount >= expectedUnselected) {
-				LOGGER.info("✓ VALIDATION PASSED: All loaded profiles are correctly unselected");
-				ExtentCucumberAdapter.addTestStepLog("✓ Validation PASSED: " + unselectedProfilesCount + " loaded profiles are unselected");
+				LOGGER.info("âœ“ VALIDATION PASSED: All loaded profiles are correctly unselected");
+				ExtentCucumberAdapter.addTestStepLog("âœ“ Validation PASSED: " + unselectedProfilesCount + " loaded profiles are unselected");
 			} else {
-				LOGGER.error("❌ VALIDATION FAILED: Expected " + expectedUnselected + " unselected, but found only " + unselectedProfilesCount);
-				ExtentCucumberAdapter.addTestStepLog("❌ Validation FAILED: Not all loaded profiles are unselected");
+				LOGGER.error("âŒ VALIDATION FAILED: Expected " + expectedUnselected + " unselected, but found only " + unselectedProfilesCount);
+				ExtentCucumberAdapter.addTestStepLog("âŒ Validation FAILED: Not all loaded profiles are unselected");
 				Assert.fail("Validation FAILED: Not all loaded profiles are unselected");
 			}
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_loaded_profiles_are_unselected_in_job_mapping_screen", e);
 			LOGGER.error("Error verifying loaded profiles are unselected - Method: verify_loaded_profiles_are_unselected_in_job_mapping_screen", e);
-			ExtentCucumberAdapter.addTestStepLog("❌ Error verifying loaded profiles are unselected");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Error verifying loaded profiles are unselected");
 			Assert.fail("Error verifying loaded profiles are unselected: " + e.getMessage());
 		}
 	}
@@ -199,8 +199,8 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 			newlyLoadedProfiles = totalProfilesNow - loadedProfilesBeforeUncheck;
 			
 			if (newlyLoadedProfiles <= 0) {
-				LOGGER.warn("⚠️ No newly loaded profiles detected after scrolling");
-				ExtentCucumberAdapter.addTestStepLog("⚠️ No newly loaded profiles to verify");
+				LOGGER.warn("âš ï¸ No newly loaded profiles detected after scrolling");
+				ExtentCucumberAdapter.addTestStepLog("âš ï¸ No newly loaded profiles to verify");
 				return;
 			}
 			
@@ -228,7 +228,7 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 					if (isSelected) {
 						selectedInNewlyLoaded++;
 					} else {
-						LOGGER.warn("⚠️ Newly loaded profile at position " + (i+1) + " is UNSELECTED (should be selected!)");
+						LOGGER.warn("âš ï¸ Newly loaded profile at position " + (i+1) + " is UNSELECTED (should be selected!)");
 					}
 					
 				} catch (Exception e) {
@@ -249,18 +249,18 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 			LOGGER.info("========================================");
 			
 			if (selectedInNewlyLoaded >= expectedSelected) {
-				LOGGER.info("✓ VALIDATION PASSED: All newly loaded profiles are still selected");
-				ExtentCucumberAdapter.addTestStepLog("✓ Validation PASSED: " + selectedInNewlyLoaded + " newly loaded profiles are still selected");
+				LOGGER.info("âœ“ VALIDATION PASSED: All newly loaded profiles are still selected");
+				ExtentCucumberAdapter.addTestStepLog("âœ“ Validation PASSED: " + selectedInNewlyLoaded + " newly loaded profiles are still selected");
 			} else {
-				LOGGER.error("❌ VALIDATION FAILED: Expected " + expectedSelected + " selected, but found only " + selectedInNewlyLoaded);
-				ExtentCucumberAdapter.addTestStepLog("❌ Validation FAILED: Not all newly loaded profiles are selected");
+				LOGGER.error("âŒ VALIDATION FAILED: Expected " + expectedSelected + " selected, but found only " + selectedInNewlyLoaded);
+				ExtentCucumberAdapter.addTestStepLog("âŒ Validation FAILED: Not all newly loaded profiles are selected");
 				Assert.fail("Validation FAILED: Not all newly loaded profiles are selected");
 			}
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_newly_loaded_profiles_are_still_selected_in_job_mapping_screen", e);
 			LOGGER.error("Error verifying newly loaded profiles are still selected - Method: verify_newly_loaded_profiles_are_still_selected_in_job_mapping_screen", e);
-			ExtentCucumberAdapter.addTestStepLog("❌ Error verifying newly loaded profiles are still selected");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Error verifying newly loaded profiles are still selected");
 			Assert.fail("Error verifying newly loaded profiles are still selected: " + e.getMessage());
 		}
 	}

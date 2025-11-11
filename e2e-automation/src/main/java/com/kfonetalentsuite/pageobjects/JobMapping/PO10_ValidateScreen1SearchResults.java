@@ -67,8 +67,8 @@ public class PO10_ValidateScreen1SearchResults {
 	public void user_should_scroll_down_to_view_last_search_result() throws InterruptedException {
 		// SKIP if no search results found
 		if (!hasSearchResults) {
-			LOGGER.info("⏭️ SKIPPING scroll step - No search results found (0 results)");
-			ExtentCucumberAdapter.addTestStepLog("⏭️ SKIPPING scroll step - No search results found (0 results)");
+			LOGGER.info("â­ï¸ SKIPPING scroll step - No search results found (0 results)");
+			ExtentCucumberAdapter.addTestStepLog("â­ï¸ SKIPPING scroll step - No search results found (0 results)");
 			return;
 		}
 		try {
@@ -102,8 +102,8 @@ public class PO10_ValidateScreen1SearchResults {
 	public void user_should_validate_all_search_results_contains_substring_used_for_searching() {
 		// SKIP if no search results found
 		if (!hasSearchResults) {
-			LOGGER.info("⏭️ SKIPPING validation step - No search results found (0 results)");
-			ExtentCucumberAdapter.addTestStepLog("⏭️ SKIPPING validation step - No search results found (0 results)");
+			LOGGER.info("â­ï¸ SKIPPING validation step - No search results found (0 results)");
+			ExtentCucumberAdapter.addTestStepLog("â­ï¸ SKIPPING validation step - No search results found (0 results)");
 			return;
 		}
 		

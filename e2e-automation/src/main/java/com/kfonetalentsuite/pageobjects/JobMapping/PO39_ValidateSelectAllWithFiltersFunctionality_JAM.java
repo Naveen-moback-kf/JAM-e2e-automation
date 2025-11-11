@@ -90,7 +90,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				utils.jsClick(driver, gradesFiltersDropdown);
 				PerformanceUtils.waitForPageReady(driver, 1);
 				Thread.sleep(500);
-				LOGGER.info("✓ Expanded Grades filter dropdown");
+				LOGGER.info("âœ“ Expanded Grades filter dropdown");
 				
 				// DYNAMIC XPATH: Find all available Grades options without hardcoding values
 				// Strategy 1: Direct descendant approach
@@ -144,20 +144,20 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 					
 					try {
 						wait.until(ExpectedConditions.elementToBeClickable(elementToClick)).click();
-						LOGGER.info("✓ Clicked Grades option using standard click");
+						LOGGER.info("âœ“ Clicked Grades option using standard click");
 					} catch (Exception e) {
 						LOGGER.warn("Standard click failed, trying JS click...");
 						js.executeScript("arguments[0].click();", elementToClick);
-						LOGGER.info("✓ Clicked Grades option using JS click");
+						LOGGER.info("âœ“ Clicked Grades option using JS click");
 					}
 					
 					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 					PerformanceUtils.waitForPageReady(driver, 2);
 					
-					LOGGER.info("✓ Applied filter: " + firstFilterType + " = " + firstFilterValue);
+					LOGGER.info("âœ“ Applied filter: " + firstFilterType + " = " + firstFilterValue);
 					ExtentCucumberAdapter.addTestStepLog("Applied filter: " + firstFilterType + " = " + firstFilterValue);
 				} else {
-					LOGGER.error("❌ No Grades options found after expanding dropdown - All 4 strategies failed");
+					LOGGER.error("âŒ No Grades options found after expanding dropdown - All 4 strategies failed");
 					ScreenshotHandler.captureFailureScreenshot("no_grades_options_found", new Exception("No options found"));
 					throw new Exception("No Grades filter options found");
 				}
@@ -173,7 +173,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 					utils.jsClick(driver, departmentsFiltersDropdown);
 					PerformanceUtils.waitForPageReady(driver, 1);
 					Thread.sleep(500);
-					LOGGER.info("✓ Expanded Departments filter dropdown");
+					LOGGER.info("âœ“ Expanded Departments filter dropdown");
 					
 					// DYNAMIC XPATH: Find all available Departments options without hardcoding values
 					// Strategy 1: Direct descendant approach
@@ -227,32 +227,32 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						
 						try {
 							wait.until(ExpectedConditions.elementToBeClickable(elementToClick)).click();
-							LOGGER.info("✓ Clicked Departments option using standard click");
+							LOGGER.info("âœ“ Clicked Departments option using standard click");
 						} catch (Exception e) {
 							LOGGER.warn("Standard click failed, trying JS click...");
 							js.executeScript("arguments[0].click();", elementToClick);
-							LOGGER.info("✓ Clicked Departments option using JS click");
+							LOGGER.info("âœ“ Clicked Departments option using JS click");
 						}
 						
 						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 						PerformanceUtils.waitForPageReady(driver, 2);
 						
-						LOGGER.info("✓ Applied filter: " + firstFilterType + " = " + firstFilterValue);
+						LOGGER.info("âœ“ Applied filter: " + firstFilterType + " = " + firstFilterValue);
 						ExtentCucumberAdapter.addTestStepLog("Applied filter: " + firstFilterType + " = " + firstFilterValue);
 					} else {
-						LOGGER.error("❌ No Departments options found after expanding dropdown - All 4 strategies failed");
+						LOGGER.error("âŒ No Departments options found after expanding dropdown - All 4 strategies failed");
 						ScreenshotHandler.captureFailureScreenshot("no_departments_options_found", new Exception("No options found"));
 						throw new Exception("No Departments filter options found");
 					}
 				} catch (Exception departmentsException) {
-					LOGGER.error("❌ Both Grades and Departments filters failed", departmentsException);
+					LOGGER.error("âŒ Both Grades and Departments filters failed", departmentsException);
 					ScreenshotHandler.captureFailureScreenshot("all_filters_failed", departmentsException);
 					Assert.fail("Unable to apply any filter: " + departmentsException.getMessage());
 				}
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error("❌ Critical error applying filter - Method: apply_filter_and_verify_profiles_count_in_job_mapping_screen_for_feature39", e);
+			LOGGER.error("âŒ Critical error applying filter - Method: apply_filter_and_verify_profiles_count_in_job_mapping_screen_for_feature39", e);
 			ScreenshotHandler.captureFailureScreenshot("apply_filter_critical_error", e);
 			Assert.fail("Critical error applying filter: " + e.getMessage());
 		}
@@ -281,10 +281,10 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				}
 				
 				if (expectedTotal == 0) {
-					LOGGER.warn("⚠️ Could not parse expected total from: '" + resultsCountText + "'");
+					LOGGER.warn("âš ï¸ Could not parse expected total from: '" + resultsCountText + "'");
 				}
 			} catch (Exception e) {
-				LOGGER.warn("⚠️ Error parsing expected total: " + e.getMessage());
+				LOGGER.warn("âš ï¸ Error parsing expected total: " + e.getMessage());
 			}
 			
 			// Scroll down to view all filtered results
@@ -302,7 +302,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				maxScrollAttempts = Math.max(10, (expectedTotal / 10) + 5);
 				LOGGER.info("Calculated maxScrollAttempts: " + maxScrollAttempts + " (for " + expectedTotal + " profiles)");
 			} else {
-				LOGGER.warn("⚠️ Using default maxScrollAttempts: " + maxScrollAttempts + " (expected total not available)");
+				LOGGER.warn("âš ï¸ Using default maxScrollAttempts: " + maxScrollAttempts + " (expected total not available)");
 			}
 			
 			while (scrollAttempts < maxScrollAttempts && !allResultsLoaded) {
@@ -318,7 +318,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			int newlyLoadedProfiles = currentCount - previousCount;
 				
 				// Debug logging for each scroll attempt
-				LOGGER.debug("Scroll attempt " + scrollAttempts + ": " + previousCount + " → " + 
+				LOGGER.debug("Scroll attempt " + scrollAttempts + ": " + previousCount + " â†’ " + 
 					currentCount + " profiles (+" + newlyLoadedProfiles + " new)");
 				
 				// If we know the expected total, stop as soon as we reach it
@@ -349,7 +349,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			}
 			ExtentCucumberAdapter.addTestStepLog("Loaded " + currentCount + " filtered results");
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue scrolling to view filtered results - Method: user_should_scroll_down_to_view_last_filtered_result_in_job_mapping_screen_for_feature39", e);
+			LOGGER.error("âŒ Issue scrolling to view filtered results - Method: user_should_scroll_down_to_view_last_filtered_result_in_job_mapping_screen_for_feature39", e);
 			ScreenshotHandler.captureFailureScreenshot("scroll_filtered_results", e);
 			Assert.fail("Issue scrolling to view filtered results");
 		}
@@ -391,18 +391,18 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			}
 			
 			if (totalResults == 0) {
-				LOGGER.warn("⚠️ No profile elements found - Filter may have returned 0 results");
-				ExtentCucumberAdapter.addTestStepLog("⚠️ No profile elements found - Filter may have returned 0 results");
+				LOGGER.warn("âš ï¸ No profile elements found - Filter may have returned 0 results");
+				ExtentCucumberAdapter.addTestStepLog("âš ï¸ No profile elements found - Filter may have returned 0 results");
 			} else if (nonMatchingResults == 0) {
-				LOGGER.info("✓ All " + totalResults + " results validated for filter: " + firstFilterType + " = " + firstFilterValue);
-				ExtentCucumberAdapter.addTestStepLog("✓ All " + totalResults + " results validated for filter: " + firstFilterType + " = " + firstFilterValue);
+				LOGGER.info("âœ“ All " + totalResults + " results validated for filter: " + firstFilterType + " = " + firstFilterValue);
+				ExtentCucumberAdapter.addTestStepLog("âœ“ All " + totalResults + " results validated for filter: " + firstFilterType + " = " + firstFilterValue);
 			} else {
-				LOGGER.warn("⚠️ " + nonMatchingResults + " of " + totalResults + " results could NOT be validated for filter: " + firstFilterType + " = " + firstFilterValue);
-				ExtentCucumberAdapter.addTestStepLog("⚠️ " + nonMatchingResults + " results could not be validated");
+				LOGGER.warn("âš ï¸ " + nonMatchingResults + " of " + totalResults + " results could NOT be validated for filter: " + firstFilterType + " = " + firstFilterValue);
+				ExtentCucumberAdapter.addTestStepLog("âš ï¸ " + nonMatchingResults + " results could not be validated");
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue validating filtered results - Method: user_should_validate_all_filtered_results_match_the_applied_filter_in_job_mapping_screen_for_feature39", e);
+			LOGGER.error("âŒ Issue validating filtered results - Method: user_should_validate_all_filtered_results_match_the_applied_filter_in_job_mapping_screen_for_feature39", e);
 			ScreenshotHandler.captureFailureScreenshot("validate_filtered_results", e);
 			Assert.fail("Issue validating filtered results");
 		}
@@ -450,7 +450,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 		ExtentCucumberAdapter.addTestStepLog("Baseline: " + filterResultsCount + " selected profiles (counted by checked checkboxes)");
 		
 		if (filterResultsCount == 0) {
-			LOGGER.error("❌ CRITICAL: filterResultsCount is 0 after 'Select All' - this indicates a timing or detection issue!");
+			LOGGER.error("âŒ CRITICAL: filterResultsCount is 0 after 'Select All' - this indicates a timing or detection issue!");
 			LOGGER.error("   Total checkboxes found: " + totalVisibleProfiles);
 			LOGGER.error("   Checked checkboxes: " + checkedCount);
 			ScreenshotHandler.captureFailureScreenshot("filterResultsCount_is_zero", new Exception("filterResultsCount is 0"));
@@ -476,7 +476,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			ExtentCucumberAdapter.addTestStepLog("Cleared all filters");
 			
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue clearing filter", e);
+			LOGGER.error("âŒ Issue clearing filter", e);
 			ScreenshotHandler.captureFailureScreenshot("clear_filter", e);
 			Assert.fail("Issue clearing filter");
 		}
@@ -487,10 +487,10 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 	 * 
 	 * WHAT filterResultsCount STORES (set in previous step):
 	 *   - Number of profiles selected AFTER applying first filter + "Select All"
-	 *   - Example: Filter "Grades = 1" → 5 profiles match → "Select All" → filterResultsCount = 5
+	 *   - Example: Filter "Grades = 1" â†’ 5 profiles match â†’ "Select All" â†’ filterResultsCount = 5
 	 * 
 	 * WHAT THIS METHOD DOES:
-	 *   1. Filters have been cleared → ALL profiles are now visible (not just the 5)
+	 *   1. Filters have been cleared â†’ ALL profiles are now visible (not just the 5)
 	 *   2. Scroll through ALL profiles to load them (lazy loading requires scrolling)
 	 *   3. Count how many profiles are STILL selected
 	 *   4. VERIFY: Selected count should equal filterResultsCount (only the original 5 should remain selected)
@@ -525,8 +525,8 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			ExtentCucumberAdapter.addTestStepLog("Verifying only " + filterResultsCount + " profiles remain selected after clearing filters...");
 			
 			if (filterResultsCount == 0) {
-				LOGGER.warn("⚠️ Filter results count is 0, skipping verification");
-				ExtentCucumberAdapter.addTestStepLog("⚠️ No filter results to verify");
+				LOGGER.warn("âš ï¸ Filter results count is 0, skipping verification");
+				ExtentCucumberAdapter.addTestStepLog("âš ï¸ No filter results to verify");
 				return;
 			}
 			
@@ -569,7 +569,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			int newlyLoadedProfiles = totalProfilesVisible - previousTotalProfilesVisible;
 			
 			// Debug logging
-			LOGGER.debug("Scroll attempt " + scrollAttempts + ": " + previousTotalProfilesVisible + " → " + 
+			LOGGER.debug("Scroll attempt " + scrollAttempts + ": " + previousTotalProfilesVisible + " â†’ " + 
 				totalProfilesVisible + " profiles (+" + newlyLoadedProfiles + " new)");
 			
 			// Fail-fast: Check if selected count increased beyond baseline
@@ -590,7 +590,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				
 				if (currentSelectedCount > filterResultsCount) {
 					int extra = currentSelectedCount - filterResultsCount;
-					LOGGER.warn("⚠️ FAIL-FAST at scroll " + scrollAttempts + ": Found " + currentSelectedCount + 
+					LOGGER.warn("âš ï¸ FAIL-FAST at scroll " + scrollAttempts + ": Found " + currentSelectedCount + 
 						" selected profiles (expected " + filterResultsCount + "), " + extra + " extra selections detected");
 					allProfilesLoaded = true;  // Break the loop
 					actualSelectedCount = currentSelectedCount;  // Store for final validation
@@ -614,15 +614,15 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			// Check if max scroll limit was reached
 			if (scrollAttempts >= maxScrollAttempts) {
 				maxScrollLimitReached = true;
-				LOGGER.warn("⚠️ Reached max scroll attempts (" + maxScrollAttempts + ")");
+				LOGGER.warn("âš ï¸ Reached max scroll attempts (" + maxScrollAttempts + ")");
 				
 				// Check if we loaded all expected profiles
 				if (expectedTotalProfiles > 0 && totalProfilesVisible < expectedTotalProfiles) {
 					int missingProfiles = expectedTotalProfiles - totalProfilesVisible;
-					LOGGER.warn("⚠️ INCOMPLETE VALIDATION: Only loaded " + totalProfilesVisible + " of " + 
+					LOGGER.warn("âš ï¸ INCOMPLETE VALIDATION: Only loaded " + totalProfilesVisible + " of " + 
 						expectedTotalProfiles + " profiles (" + missingProfiles + " not loaded)");
-					LOGGER.warn("⚠️ Validation will be based on loaded profiles only - results may not be complete!");
-					ExtentCucumberAdapter.addTestStepLog("⚠️ WARNING: Partial validation (" + totalProfilesVisible + 
+					LOGGER.warn("âš ï¸ Validation will be based on loaded profiles only - results may not be complete!");
+					ExtentCucumberAdapter.addTestStepLog("âš ï¸ WARNING: Partial validation (" + totalProfilesVisible + 
 						" of " + expectedTotalProfiles + " profiles loaded)");
 				} else {
 					LOGGER.info("Proceeding with validation of " + totalProfilesVisible + " loaded profiles");
@@ -661,7 +661,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			LOGGER.info("VALIDATION SUMMARY (After Clearing Filters)");
 			LOGGER.info("========================================");
 			if (maxScrollLimitReached && expectedTotalProfiles > 0 && totalProfilesVisible < expectedTotalProfiles) {
-				LOGGER.warn("⚠️ PARTIAL VALIDATION (Max scroll limit reached)");
+				LOGGER.warn("âš ï¸ PARTIAL VALIDATION (Max scroll limit reached)");
 				LOGGER.info("Expected Total Profiles: " + expectedTotalProfiles);
 				LOGGER.info("Profiles Actually Loaded: " + totalProfilesVisible + " (" + 
 					String.format("%.1f", (totalProfilesVisible * 100.0 / expectedTotalProfiles)) + "%)");
@@ -680,7 +680,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				LOGGER.info("Missing/Extra Selections: 0");
 			}
 			if (maxScrollLimitReached && expectedTotalProfiles > 0 && totalProfilesVisible < expectedTotalProfiles) {
-				LOGGER.warn("⚠️ Note: " + (expectedTotalProfiles - totalProfilesVisible) + " profiles were not loaded/validated");
+				LOGGER.warn("âš ï¸ Note: " + (expectedTotalProfiles - totalProfilesVisible) + " profiles were not loaded/validated");
 			}
 			LOGGER.info("========================================");
 			
@@ -689,42 +689,42 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			if (maxScrollLimitReached && expectedTotalProfiles > 0 && totalProfilesVisible < expectedTotalProfiles) {
 				// FEATURE 40 APPROACH: Smart validation for partial data
 				if (actualSelectedCount == 0) {
-					String errorMsg = "❌ FAIL: No selections found in " + totalProfilesVisible + " loaded profiles (expected " + filterResultsCount + ")";
+					String errorMsg = "âŒ FAIL: No selections found in " + totalProfilesVisible + " loaded profiles (expected " + filterResultsCount + ")";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
 				} else if (actualSelectedCount > filterResultsCount) {
-					String errorMsg = "❌ FAIL: Found " + actualSelectedCount + " selected (expected " + filterResultsCount + 
+					String errorMsg = "âŒ FAIL: Found " + actualSelectedCount + " selected (expected " + filterResultsCount + 
 						"), " + extraSelections + " extra profiles incorrectly selected";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
 				} else if (actualSelectedCount < filterResultsCount) {
 					// PASS: Remaining selections likely in unloaded profiles
-					String successMsg = "✓ PASS: Found " + actualSelectedCount + " of " + filterResultsCount + 
+					String successMsg = "âœ“ PASS: Found " + actualSelectedCount + " of " + filterResultsCount + 
 						" selected profiles in loaded data (remaining " + missingSelections + " likely in unloaded profiles)";
 					LOGGER.info(successMsg);
 					ExtentCucumberAdapter.addTestStepLog(successMsg);
 				} else {
 					// actualSelectedCount == filterResultsCount
-					String successMsg = "✓ PASS: All " + filterResultsCount + " filtered profiles found selected in loaded data";
+					String successMsg = "âœ“ PASS: All " + filterResultsCount + " filtered profiles found selected in loaded data";
 					LOGGER.info(successMsg);
 					ExtentCucumberAdapter.addTestStepLog(successMsg);
 				}
 			} else {
 				// Normal validation when all profiles are loaded
 				if (actualSelectedCount == filterResultsCount) {
-					String successMsg = "✓ PASS: All " + filterResultsCount + " filtered profiles remain selected";
+					String successMsg = "âœ“ PASS: All " + filterResultsCount + " filtered profiles remain selected";
 					LOGGER.info(successMsg);
 					ExtentCucumberAdapter.addTestStepLog(successMsg);
 				} else if (actualSelectedCount < filterResultsCount) {
-					String errorMsg = "❌ FAIL: Only " + actualSelectedCount + " selected (expected " + filterResultsCount + 
+					String errorMsg = "âŒ FAIL: Only " + actualSelectedCount + " selected (expected " + filterResultsCount + 
 						"), " + missingSelections + " profiles cannot be selected or lost selection";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
 				} else {
-					String errorMsg = "❌ FAIL: " + actualSelectedCount + " selected (expected " + filterResultsCount + 
+					String errorMsg = "âŒ FAIL: " + actualSelectedCount + " selected (expected " + filterResultsCount + 
 						"), " + extraSelections + " extra profiles incorrectly selected";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
@@ -735,7 +735,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_only_filtered_profiles_are_selected_after_clearing_all_filters_in_job_mapping_screen", e);
 			LOGGER.error("Error verifying filtered profiles selection - Method: verify_only_filtered_profiles_are_selected_after_clearing_all_filters_in_job_mapping_screen", e);
-			ExtentCucumberAdapter.addTestStepLog("❌ Error verifying filtered profiles are selected");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Error verifying filtered profiles are selected");
 			Assert.fail("Error verifying only filtered profiles are selected: " + e.getMessage());
 		}
 	}
@@ -774,7 +774,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 					utils.jsClick(driver, gradesFiltersDropdown);
 					PerformanceUtils.waitForPageReady(driver, 2);
 					Thread.sleep(1500); // Wait longer for options to fully render
-					LOGGER.info("✓ Expanded Grades filter dropdown with fresh options");
+					LOGGER.info("âœ“ Expanded Grades filter dropdown with fresh options");
 					
 					// IMPORTANT: Wait for options to appear in DOM with retry logic
 					List<WebElement> gradesOptions = new ArrayList<>();
@@ -828,7 +828,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 							WebElement label = selectedOption.findElement(By.xpath(".//following-sibling::label | .//parent::*/label | .//parent::label"));
 							secondFilterValue = label.getText().trim();
 							if (!secondFilterValue.isEmpty()) {
-								LOGGER.info("✓ Extracted label using Strategy 1 (label element): " + secondFilterValue);
+								LOGGER.info("âœ“ Extracted label using Strategy 1 (label element): " + secondFilterValue);
 							}
 						} catch (Exception e) {
 							LOGGER.debug("Strategy 1 failed: " + e.getMessage());
@@ -840,7 +840,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 								WebElement checkboxContainer = selectedOption.findElement(By.xpath("./parent::*"));
 								secondFilterValue = checkboxContainer.getText().trim();
 								if (!secondFilterValue.isEmpty()) {
-									LOGGER.info("✓ Extracted label using Strategy 2 (parent container): " + secondFilterValue);
+									LOGGER.info("âœ“ Extracted label using Strategy 2 (parent container): " + secondFilterValue);
 								}
 							} catch (Exception e) {
 								LOGGER.debug("Strategy 2 failed: " + e.getMessage());
@@ -853,7 +853,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 								WebElement textDiv = selectedOption.findElement(By.xpath("./parent::*//div | ./parent::*"));
 								secondFilterValue = textDiv.getText().trim();
 								if (!secondFilterValue.isEmpty()) {
-									LOGGER.info("✓ Extracted label using Strategy 3 (text div): " + secondFilterValue);
+									LOGGER.info("âœ“ Extracted label using Strategy 3 (text div): " + secondFilterValue);
 								}
 							} catch (Exception e) {
 								LOGGER.debug("Strategy 3 failed: " + e.getMessage());
@@ -863,7 +863,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						// Fallback: Use descriptive placeholder
 						if (secondFilterValue.isEmpty()) {
 							secondFilterValue = "Grades_Option_" + (optionIndex + 1);
-							LOGGER.warn("⚠️ All label extraction strategies failed, using fallback: " + secondFilterValue);
+							LOGGER.warn("âš ï¸ All label extraction strategies failed, using fallback: " + secondFilterValue);
 						}
 						
 					LOGGER.info("Found Grades option: '" + secondFilterValue + "' (different from first: '" + firstFilterValue + "')");
@@ -885,7 +885,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 					try {
 						// Strategy 1: Standard click on checkbox input
 						wait.until(ExpectedConditions.elementToBeClickable(checkboxInput)).click();
-						LOGGER.info("✓ Clicked Grades checkbox using standard click");
+						LOGGER.info("âœ“ Clicked Grades checkbox using standard click");
 						clickSucceeded = true;
 					} catch (Exception e) {
 						LOGGER.warn("Standard click on checkbox failed: " + e.getMessage());
@@ -893,7 +893,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						try {
 							// Strategy 2: JS click on checkbox input
 							js.executeScript("arguments[0].click();", checkboxInput);
-							LOGGER.info("✓ Clicked Grades checkbox using JS click");
+							LOGGER.info("âœ“ Clicked Grades checkbox using JS click");
 							clickSucceeded = true;
 						} catch (Exception ex) {
 							LOGGER.error("JS click on checkbox also failed: " + ex.getMessage());
@@ -902,7 +902,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 								// Strategy 3: Try clicking the parent label element
 								WebElement parentLabel = checkboxInput.findElement(By.xpath("./parent::label"));
 								parentLabel.click();
-								LOGGER.info("✓ Clicked parent label using standard click");
+								LOGGER.info("âœ“ Clicked parent label using standard click");
 								clickSucceeded = true;
 							} catch (Exception ex2) {
 								LOGGER.error("All click strategies failed: " + ex2.getMessage());
@@ -926,21 +926,21 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						LOGGER.info("Results after applying second filter: " + resultsAfterFilter);
 						
 						if (resultsAfterFilter.contains("0 of")) {
-							LOGGER.warn("⚠️ Second filter returned 0 results - this is expected if filters are mutually exclusive");
+							LOGGER.warn("âš ï¸ Second filter returned 0 results - this is expected if filters are mutually exclusive");
 						}
 					} catch (Exception e) {
 						LOGGER.debug("Could not verify results count after filter: " + e.getMessage());
 					}
 					
-					LOGGER.info("✓ Applied same filter type with different value: " + secondFilterType + " = " + secondFilterValue + " (first was: " + firstFilterValue + ")");
-					ExtentCucumberAdapter.addTestStepLog("✓ Using: " + secondFilterType + " = " + secondFilterValue + " (ensures unique results)");
+					LOGGER.info("âœ“ Applied same filter type with different value: " + secondFilterType + " = " + secondFilterValue + " (first was: " + firstFilterValue + ")");
+					ExtentCucumberAdapter.addTestStepLog("âœ“ Using: " + secondFilterType + " = " + secondFilterValue + " (ensures unique results)");
 					} else {
-						LOGGER.error("❌ No Grades options found after expanding dropdown - All 4 strategies failed");
+						LOGGER.error("âŒ No Grades options found after expanding dropdown - All 4 strategies failed");
 						ScreenshotHandler.captureFailureScreenshot("no_grades_options_alternative", new Exception("No options found"));
 						throw new Exception("No Grades filter options found for alternative validation");
 					}
 				} catch (Exception gradesException) {
-					LOGGER.error("❌ Failed to apply Grades filter for alternative validation", gradesException);
+					LOGGER.error("âŒ Failed to apply Grades filter for alternative validation", gradesException);
 					ScreenshotHandler.captureFailureScreenshot("grades_filter_failed_alternative", gradesException);
 					Assert.fail("Failed to apply Grades filter for alternative validation: " + gradesException.getMessage());
 				}
@@ -959,7 +959,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				utils.jsClick(driver, departmentsFiltersDropdown);
 				PerformanceUtils.waitForPageReady(driver, 2);
 				Thread.sleep(1500); // Wait longer for options to fully render
-				LOGGER.info("✓ Expanded Departments filter dropdown with fresh options");
+				LOGGER.info("âœ“ Expanded Departments filter dropdown with fresh options");
 					
 					// IMPORTANT: Wait for options to appear in DOM with retry logic
 					List<WebElement> departmentsOptions = new ArrayList<>();
@@ -1013,7 +1013,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 							WebElement label = selectedOption.findElement(By.xpath(".//following-sibling::label | .//parent::*/label | .//parent::label"));
 							secondFilterValue = label.getText().trim();
 							if (!secondFilterValue.isEmpty()) {
-								LOGGER.info("✓ Extracted label using Strategy 1 (label element): " + secondFilterValue);
+								LOGGER.info("âœ“ Extracted label using Strategy 1 (label element): " + secondFilterValue);
 							}
 						} catch (Exception e) {
 							LOGGER.debug("Strategy 1 failed: " + e.getMessage());
@@ -1025,7 +1025,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 								WebElement checkboxContainer = selectedOption.findElement(By.xpath("./parent::*"));
 								secondFilterValue = checkboxContainer.getText().trim();
 								if (!secondFilterValue.isEmpty()) {
-									LOGGER.info("✓ Extracted label using Strategy 2 (parent container): " + secondFilterValue);
+									LOGGER.info("âœ“ Extracted label using Strategy 2 (parent container): " + secondFilterValue);
 								}
 							} catch (Exception e) {
 								LOGGER.debug("Strategy 2 failed: " + e.getMessage());
@@ -1038,7 +1038,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 								WebElement textDiv = selectedOption.findElement(By.xpath("./parent::*//div | ./parent::*"));
 								secondFilterValue = textDiv.getText().trim();
 								if (!secondFilterValue.isEmpty()) {
-									LOGGER.info("✓ Extracted label using Strategy 3 (text div): " + secondFilterValue);
+									LOGGER.info("âœ“ Extracted label using Strategy 3 (text div): " + secondFilterValue);
 								}
 							} catch (Exception e) {
 								LOGGER.debug("Strategy 3 failed: " + e.getMessage());
@@ -1048,7 +1048,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						// Fallback: Use descriptive placeholder
 						if (secondFilterValue.isEmpty()) {
 							secondFilterValue = "Departments_Option_" + (optionIndex + 1);
-							LOGGER.warn("⚠️ All label extraction strategies failed, using fallback: " + secondFilterValue);
+							LOGGER.warn("âš ï¸ All label extraction strategies failed, using fallback: " + secondFilterValue);
 						}
 						
 					LOGGER.info("Found Departments option: '" + secondFilterValue + "' (different from first: '" + firstFilterValue + "')");
@@ -1070,7 +1070,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 					try {
 						// Strategy 1: Standard click on checkbox input
 						wait.until(ExpectedConditions.elementToBeClickable(checkboxInput)).click();
-						LOGGER.info("✓ Clicked Departments checkbox using standard click");
+						LOGGER.info("âœ“ Clicked Departments checkbox using standard click");
 						clickSucceeded = true;
 					} catch (Exception e) {
 						LOGGER.warn("Standard click on checkbox failed: " + e.getMessage());
@@ -1078,7 +1078,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						try {
 							// Strategy 2: JS click on checkbox input
 							js.executeScript("arguments[0].click();", checkboxInput);
-							LOGGER.info("✓ Clicked Departments checkbox using JS click");
+							LOGGER.info("âœ“ Clicked Departments checkbox using JS click");
 							clickSucceeded = true;
 						} catch (Exception ex) {
 							LOGGER.error("JS click on checkbox also failed: " + ex.getMessage());
@@ -1087,7 +1087,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 								// Strategy 3: Try clicking the parent label element
 								WebElement parentLabel = checkboxInput.findElement(By.xpath("./parent::label"));
 								parentLabel.click();
-								LOGGER.info("✓ Clicked parent label using standard click");
+								LOGGER.info("âœ“ Clicked parent label using standard click");
 								clickSucceeded = true;
 							} catch (Exception ex2) {
 								LOGGER.error("All click strategies failed: " + ex2.getMessage());
@@ -1111,28 +1111,28 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						LOGGER.info("Results after applying second filter: " + resultsAfterFilter);
 						
 						if (resultsAfterFilter.contains("0 of")) {
-							LOGGER.warn("⚠️ Second filter returned 0 results - this is expected if filters are mutually exclusive");
+							LOGGER.warn("âš ï¸ Second filter returned 0 results - this is expected if filters are mutually exclusive");
 						}
 					} catch (Exception e) {
 						LOGGER.debug("Could not verify results count after filter: " + e.getMessage());
 					}
 					
-					LOGGER.info("✓ Applied same filter type with different value: " + secondFilterType + " = " + secondFilterValue + " (first was: " + firstFilterValue + ")");
-					ExtentCucumberAdapter.addTestStepLog("✓ Using: " + secondFilterType + " = " + secondFilterValue + " (ensures unique results)");
+					LOGGER.info("âœ“ Applied same filter type with different value: " + secondFilterType + " = " + secondFilterValue + " (first was: " + firstFilterValue + ")");
+					ExtentCucumberAdapter.addTestStepLog("âœ“ Using: " + secondFilterType + " = " + secondFilterValue + " (ensures unique results)");
 					} else {
-						LOGGER.error("❌ No Departments options found after expanding dropdown - All 4 strategies failed");
+						LOGGER.error("âŒ No Departments options found after expanding dropdown - All 4 strategies failed");
 						ScreenshotHandler.captureFailureScreenshot("no_departments_options_alternative", new Exception("No options found"));
 						throw new Exception("No Departments filter options found for alternative validation");
 					}
 				} catch (Exception departmentsException) {
-					LOGGER.error("❌ Failed to apply Departments filter for alternative validation", departmentsException);
+					LOGGER.error("âŒ Failed to apply Departments filter for alternative validation", departmentsException);
 					ScreenshotHandler.captureFailureScreenshot("departments_filter_failed_alternative", departmentsException);
 					Assert.fail("Failed to apply Departments filter for alternative validation: " + departmentsException.getMessage());
 				}
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error("❌ Critical error applying different filter - Method: apply_different_filter_for_alternative_validation_in_job_mapping_screen_for_feature39", e);
+			LOGGER.error("âŒ Critical error applying different filter - Method: apply_different_filter_for_alternative_validation_in_job_mapping_screen_for_feature39", e);
 			ScreenshotHandler.captureFailureScreenshot("apply_different_filter_critical_error", e);
 			Assert.fail("Critical error applying different filter for alternative validation: " + e.getMessage());
 			ExtentCucumberAdapter.addTestStepLog("Failed to apply different filter");
@@ -1183,7 +1183,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 					if (rowIndex < allRows.size()) {
 						selectedRow = allRows.get(rowIndex);
 					} else {
-						LOGGER.warn("⚠️ Skipped checkbox at index " + checkboxIndex + " (row index " + rowIndex + " out of bounds)");
+						LOGGER.warn("âš ï¸ Skipped checkbox at index " + checkboxIndex + " (row index " + rowIndex + " out of bounds)");
 						continue;
 					}
 					
@@ -1204,14 +1204,14 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						}
 						jobName = jobNameElement.getText();
 					} catch (Exception e) {
-						LOGGER.warn("⚠️ Skipped profile at checkbox index " + checkboxIndex + ", row " + (rowIndex + 1) + " (could not extract title)");
+						LOGGER.warn("âš ï¸ Skipped profile at checkbox index " + checkboxIndex + ", row " + (rowIndex + 1) + " (could not extract title)");
 						continue;
 					}
 					
 					// For filters: if ANY selected profile is found in second filter, it's invalid
 					// (because filters are mutually exclusive in this test scenario)
 					invalidCount++;
-					LOGGER.warn("✗ INVALID selection at profile #" + (checkboxIndex + 1) + ": '" + jobName + "' (should NOT be selected in " + secondFilterType + " = " + secondFilterValue + ")");
+					LOGGER.warn("âœ— INVALID selection at profile #" + (checkboxIndex + 1) + ": '" + jobName + "' (should NOT be selected in " + secondFilterType + " = " + secondFilterValue + ")");
 					
 				} catch (Exception e) {
 					continue;
@@ -1230,8 +1230,8 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 	 * 
 	 * Checks ONLY the initial visible profiles from the second filter.
 	 * This is sufficient because:
-	 * - If ANY profile from second filter is incorrectly selected → FAIL immediately
-	 * - If ALL visible profiles are unselected → PASS
+	 * - If ANY profile from second filter is incorrectly selected â†’ FAIL immediately
+	 * - If ALL visible profiles are unselected â†’ PASS
 	 * 
 	 * Benefits:
 	 * - 10x faster (no scrolling needed)
@@ -1253,8 +1253,8 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			LOGGER.info("Verifying second filter (first was: " + firstFilterType + " = " + firstFilterValue + ", second is: " + secondFilterType + " = " + secondFilterValue + ")");
 			
 			if (resultsCountText.matches(".*Showing\\s+0\\s+of.*")) {
-				LOGGER.warn("⚠️ Second filter returned 0 results, skipping");
-				ExtentCucumberAdapter.addTestStepLog("⚠️ Second filter returned 0 results");
+				LOGGER.warn("âš ï¸ Second filter returned 0 results, skipping");
+				ExtentCucumberAdapter.addTestStepLog("âš ï¸ Second filter returned 0 results");
 				totalSecondFilterResults = 0;
 				return;
 			}
@@ -1311,20 +1311,20 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			secondFilterType, secondFilterValue);
 		
 		if (invalidCount > 0) {
-			String errorMsg = "❌ FAIL: Found " + invalidCount + " invalid selection(s) in second filter results (filters are mutually exclusive)";
+			String errorMsg = "âŒ FAIL: Found " + invalidCount + " invalid selection(s) in second filter results (filters are mutually exclusive)";
 			LOGGER.error(errorMsg);
 			ExtentCucumberAdapter.addTestStepLog(errorMsg);
 			Assert.fail(errorMsg);
 			return;
 		}
 		
-		LOGGER.info("✓ Validation complete: " + initialCount + " visible profiles checked, 0 invalid selections (as expected)");
-			ExtentCucumberAdapter.addTestStepLog("✓ All visible profiles validated successfully (no scrolling needed)");
+		LOGGER.info("âœ“ Validation complete: " + initialCount + " visible profiles checked, 0 invalid selections (as expected)");
+			ExtentCucumberAdapter.addTestStepLog("âœ“ All visible profiles validated successfully (no scrolling needed)");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("scroll_second_filter_results", e);
 			LOGGER.error("Error scrolling to load second filter results", e);
-			ExtentCucumberAdapter.addTestStepLog("❌ Error scrolling to load second filter results");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Error scrolling to load second filter results");
 			Assert.fail("Error scrolling to load all second filter results: " + e.getMessage());
 		}
 	}
@@ -1336,8 +1336,8 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 	 * so this final validation is no longer needed and would be redundant.
 	 */
 	public void verify_all_loaded_profiles_in_second_filter_are_not_selected_in_job_mapping_screen_for_feature39() {
-		LOGGER.info("✓ Validation already completed in previous step (simplified approach)");
-		ExtentCucumberAdapter.addTestStepLog("✓ Validation already completed");
+		LOGGER.info("âœ“ Validation already completed in previous step (simplified approach)");
+		ExtentCucumberAdapter.addTestStepLog("âœ“ Validation already completed");
 	}
 }
 

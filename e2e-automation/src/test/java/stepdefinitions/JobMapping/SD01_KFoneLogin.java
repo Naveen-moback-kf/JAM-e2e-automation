@@ -124,9 +124,9 @@ public class SD01_KFoneLogin {
 	public void log_current_user_role() {
 		String currentRole = Utilities.getCurrentUserRole();
 		if (currentRole != null) {
-			System.out.println("🔍 Current User Role: " + currentRole);
+			System.out.println("ðŸ” Current User Role: " + currentRole);
 		} else {
-			System.out.println("⚠️ No user role currently stored");
+			System.out.println("âš ï¸ No user role currently stored");
 		}
 	}
 	

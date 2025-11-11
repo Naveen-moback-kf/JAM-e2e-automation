@@ -23,15 +23,15 @@ import java.util.regex.Pattern;
  * POWER SETTINGS BEHAVIOR:
  * 
  * When keepSystemAwake=false:
- *   → Applies Windows Recommended settings:
- *     • Plugged in: Screen 5min, Sleep 5min
- *     • On battery: Screen 3min, Sleep 3min
+ *   â†’ Applies Windows Recommended settings:
+ *     â€¢ Plugged in: Screen 5min, Sleep 5min
+ *     â€¢ On battery: Screen 3min, Sleep 3min
  * 
  * When keepSystemAwake=true:
- *   → Individual Runner execution (initialize()):
- *     • All timeouts: 30 minutes
- *   → Test Suite execution (initializeForSuite()):
- *     • All timeouts: Never (0)
+ *   â†’ Individual Runner execution (initialize()):
+ *     â€¢ All timeouts: 30 minutes
+ *   â†’ Test Suite execution (initializeForSuite()):
+ *     â€¢ All timeouts: Never (0)
  */
 public class KeepAwakeUtil {
     
@@ -83,23 +83,23 @@ public class KeepAwakeUtil {
                 
                 if (isKeepAwakeEnabled()) {
                     String executionType = isSuiteExecution ? "Test Suite" : "Individual Runner";
-                    LOGGER.info("🔄 Initializing Keep System Awake functionality for " + executionType + "...");
+                    LOGGER.info("ðŸ”„ Initializing Keep System Awake functionality for " + executionType + "...");
                     
                     // ENHANCED: Backup current settings before modifying
                     if (backupCurrentPowerSettings()) {
                         enableKeepAwake();
                         createModificationMarker();
                         isInitialized = true;
-                        LOGGER.info("✅ Keep System Awake functionality enabled successfully");
+                        LOGGER.info("âœ… Keep System Awake functionality enabled successfully");
                         
                         if (isSuiteExecution) {
-                            LOGGER.info("📌 System will remain awake indefinitely (Never sleep) throughout test suite execution");
+                            LOGGER.info("ðŸ“Œ System will remain awake indefinitely (Never sleep) throughout test suite execution");
                         } else {
-                            LOGGER.info("📌 System will use 30-minute timeouts throughout individual runner execution");
+                            LOGGER.info("ðŸ“Œ System will use 30-minute timeouts throughout individual runner execution");
                         }
-                        LOGGER.info("💾 Your original power settings have been backed up and will be restored after execution");
+                        LOGGER.info("ðŸ’¾ Your original power settings have been backed up and will be restored after execution");
                     } else {
-                        LOGGER.warn("⚠️ Failed to backup current power settings - Keep Awake feature disabled for safety");
+                        LOGGER.warn("âš ï¸ Failed to backup current power settings - Keep Awake feature disabled for safety");
                     }
                 } else {
                     LOGGER.debug("Keep System Awake functionality is disabled in configuration");
@@ -108,7 +108,7 @@ public class KeepAwakeUtil {
                     applyRecommendedPowerSettings();
                 }
             } catch (Exception e) {
-                LOGGER.error("❌ Failed to initialize Keep System Awake functionality: " + e.getMessage(), e);
+                LOGGER.error("âŒ Failed to initialize Keep System Awake functionality: " + e.getMessage(), e);
             }
         }
     }
@@ -129,13 +129,13 @@ public class KeepAwakeUtil {
                 }
                 
                 if (isKeepAwakeEnabled()) {
-                    LOGGER.info("🔄 Shutting down Keep System Awake functionality...");
+                    LOGGER.info("ðŸ”„ Shutting down Keep System Awake functionality...");
                     
                     // ENHANCED: Restore original settings from backup
                     if (restoreOriginalPowerSettings()) {
-                        LOGGER.info("✅ Your original power settings have been restored successfully");
+                        LOGGER.info("âœ… Your original power settings have been restored successfully");
                     } else {
-                        LOGGER.warn("⚠️ Could not restore from backup - applying safe default values");
+                        LOGGER.warn("âš ï¸ Could not restore from backup - applying safe default values");
                         disableKeepAwake(); // Fallback to safe defaults
                     }
                     
@@ -143,10 +143,10 @@ public class KeepAwakeUtil {
                     cleanupBackupFile();
                     isInitialized = false;
                     isSuiteExecution = false;
-                    LOGGER.info("✅ Keep System Awake functionality disabled successfully");
+                    LOGGER.info("âœ… Keep System Awake functionality disabled successfully");
                 }
             } catch (Exception e) {
-                LOGGER.error("❌ Failed to shutdown Keep System Awake functionality: " + e.getMessage(), e);
+                LOGGER.error("âŒ Failed to shutdown Keep System Awake functionality: " + e.getMessage(), e);
             }
         }
     }
@@ -189,7 +189,7 @@ public class KeepAwakeUtil {
             return true;
             
         } catch (Exception e) {
-            LOGGER.error("❌ Failed to backup power settings: " + e.getMessage(), e);
+            LOGGER.error("âŒ Failed to backup power settings: " + e.getMessage(), e);
             return false;
         }
     }
@@ -299,7 +299,7 @@ public class KeepAwakeUtil {
             File backupFile = new File(BACKUP_FILE);
             
             if (!backupFile.exists()) {
-                LOGGER.warn("⚠️ Backup file not found: " + BACKUP_FILE);
+                LOGGER.warn("âš ï¸ Backup file not found: " + BACKUP_FILE);
                 return false;
             }
             
@@ -331,7 +331,7 @@ public class KeepAwakeUtil {
             return true;
             
         } catch (Exception e) {
-            LOGGER.error("❌ Failed to restore power settings from backup: " + e.getMessage(), e);
+            LOGGER.error("âŒ Failed to restore power settings from backup: " + e.getMessage(), e);
             return false;
         }
     }
@@ -344,19 +344,19 @@ public class KeepAwakeUtil {
             File markerFile = new File(BACKUP_MARKER_FILE);
             
             if (markerFile.exists()) {
-                LOGGER.warn("⚠️ DETECTED: Power settings were left modified from a previous run!");
-                LOGGER.info("🔄 Attempting automatic restoration...");
+                LOGGER.warn("âš ï¸ DETECTED: Power settings were left modified from a previous run!");
+                LOGGER.info("ðŸ”„ Attempting automatic restoration...");
                 
                 if (restoreOriginalPowerSettings()) {
-                    LOGGER.info("✅ Successfully restored your original power settings");
+                    LOGGER.info("âœ… Successfully restored your original power settings");
                     removeModificationMarker();
                     cleanupBackupFile();
                 } else {
-                    LOGGER.warn("⚠️ Could not restore from backup - please check your power settings manually");
+                    LOGGER.warn("âš ï¸ Could not restore from backup - please check your power settings manually");
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Error during safety check: " + e.getMessage());
+            LOGGER.warn("âš ï¸ Error during safety check: " + e.getMessage());
         }
     }
     
@@ -402,7 +402,7 @@ public class KeepAwakeUtil {
                 LOGGER.debug("Created modification marker file");
             }
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Could not create modification marker: " + e.getMessage());
+            LOGGER.warn("âš ï¸ Could not create modification marker: " + e.getMessage());
         }
     }
     
@@ -417,7 +417,7 @@ public class KeepAwakeUtil {
                 LOGGER.debug("Removed modification marker file");
             }
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Could not remove modification marker: " + e.getMessage());
+            LOGGER.warn("âš ï¸ Could not remove modification marker: " + e.getMessage());
         }
     }
     
@@ -432,7 +432,7 @@ public class KeepAwakeUtil {
                 LOGGER.debug("Cleaned up backup file");
             }
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Could not cleanup backup file: " + e.getMessage());
+            LOGGER.warn("âš ï¸ Could not cleanup backup file: " + e.getMessage());
         }
     }
     
@@ -471,8 +471,8 @@ public class KeepAwakeUtil {
             LOGGER.debug("Power settings configured: " + timeoutDescription);
             
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Failed to configure system power settings: " + e.getMessage());
-            LOGGER.warn("⚠️ System may still go to sleep during test runs");
+            LOGGER.warn("âš ï¸ Failed to configure system power settings: " + e.getMessage());
+            LOGGER.warn("âš ï¸ System may still go to sleep during test runs");
         }
     }
     
@@ -495,10 +495,10 @@ public class KeepAwakeUtil {
             executePowerCommand("powercfg /change hibernate-timeout-ac 60");
             executePowerCommand("powercfg /change hibernate-timeout-dc 60");
             
-            LOGGER.info("✅ System power settings restored to safe default values");
+            LOGGER.info("âœ… System power settings restored to safe default values");
             
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Failed to restore system power settings: " + e.getMessage());
+            LOGGER.warn("âš ï¸ Failed to restore system power settings: " + e.getMessage());
         }
     }
     
@@ -527,11 +527,11 @@ public class KeepAwakeUtil {
             
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                LOGGER.warn("⚠️ Power command failed with exit code " + exitCode + ": " + command);
+                LOGGER.warn("âš ï¸ Power command failed with exit code " + exitCode + ": " + command);
             }
             
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Failed to execute power command: " + command + " - " + e.getMessage());
+            LOGGER.warn("âš ï¸ Failed to execute power command: " + command + " - " + e.getMessage());
         }
     }
     

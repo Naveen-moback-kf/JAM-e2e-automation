@@ -41,9 +41,9 @@ public class ProgressBarUtil {
     private static final String ANSI_DARK_GREY = "\u001B[90m";         // Dark grey for empty sections
     
     // Progress bar characters - solid blocks for clean appearance
-    private static final String PROGRESS_FILLED = "█";     // Solid block for filled sections
-    private static final String PROGRESS_EMPTY = "█";      // Solid block for empty sections too
-    private static final String PROGRESS_ARROW = "█";      // Solid block for arrow too (cleaner look)
+    private static final String PROGRESS_FILLED = "â–ˆ";     // Solid block for filled sections
+    private static final String PROGRESS_EMPTY = "â–ˆ";      // Solid block for empty sections too
+    private static final String PROGRESS_ARROW = "â–ˆ";      // Solid block for arrow too (cleaner look)
     
     /**
      * Initialize progress tracking for a new test suite execution
@@ -58,7 +58,7 @@ public class ProgressBarUtil {
         completedRunners = 0;
         
         // Display initial progress bar
-        logWithProgress("🚀 Starting test suite execution with {} runners", totalRunners);
+        logWithProgress("ðŸš€ Starting test suite execution with {} runners", totalRunners);
         displayProgressBar("Initializing...", false);
     }
     
@@ -76,11 +76,11 @@ public class ProgressBarUtil {
         String cleanRunnerName = cleanRunnerName(runnerName);
         
         // Display updated progress bar
-        displayProgressBar("✅ Completed: " + cleanRunnerName, true);
+        displayProgressBar("âœ… Completed: " + cleanRunnerName, true);
         
         // Special message when all runners complete
         if (completedRunners >= totalRunners) {
-            logWithProgress("🎉 All runners completed successfully! ({}/{})", completedRunners, totalRunners);
+            logWithProgress("ðŸŽ‰ All runners completed successfully! ({}/{})", completedRunners, totalRunners);
         }
     }
     
@@ -147,9 +147,9 @@ public class ProgressBarUtil {
         
         // Log the progress bar
         if (statusMessage != null && !statusMessage.isEmpty()) {
-            LOGGER.info("📊 PROGRESS: {} {}", statusMessage, progressBar.toString());
+            LOGGER.info("ðŸ“Š PROGRESS: {} {}", statusMessage, progressBar.toString());
         } else {
-            LOGGER.info("📊 PROGRESS: {}", progressBar.toString());
+            LOGGER.info("ðŸ“Š PROGRESS: {}", progressBar.toString());
         }
     }
     
@@ -187,14 +187,14 @@ public class ProgressBarUtil {
         // Check if colors are explicitly forced on
         boolean forceColors = Boolean.parseBoolean(System.getProperty("progress.colors.force", "false"));
         if (forceColors) {
-            // LOGGER.debug("🎨 ANSI colors FORCE ENABLED via system property");
+            // LOGGER.debug("ðŸŽ¨ ANSI colors FORCE ENABLED via system property");
             return true;
         }
         
         // Check if explicitly disabled
         boolean colorsDisabled = Boolean.parseBoolean(System.getProperty("progress.colors.disabled", "false"));
         if (colorsDisabled) {
-            // LOGGER.debug("🚫 ANSI colors explicitly DISABLED");
+            // LOGGER.debug("ðŸš« ANSI colors explicitly DISABLED");
             return false;
         }
         
@@ -219,7 +219,7 @@ public class ProgressBarUtil {
         boolean colorsSupported = isConsoleLogging && isTerminal;
         
         // DEBUG: Log color support detection details
-        // LOGGER.debug("🎨 ANSI Color Support Detection:");
+        // LOGGER.debug("ðŸŽ¨ ANSI Color Support Detection:");
         // LOGGER.debug("  - Console Logging: {}", isConsoleLogging);
         // LOGGER.debug("  - TERM Variable: '{}'", term != null ? term : "null");
         // LOGGER.debug("  - OS: {}", os);
@@ -234,7 +234,7 @@ public class ProgressBarUtil {
      */
     private static void logWithProgress(String message, Object... args) {
         if (PROGRESS_BAR_ENABLED) {
-            LOGGER.info("📈 " + message, args);
+            LOGGER.info("ðŸ“ˆ " + message, args);
         }
     }
     
@@ -271,11 +271,11 @@ public class ProgressBarUtil {
         double progressPercent = (double) completedRunners / totalRunners;
         
         if (supportsColors()) {
-            LOGGER.info("📊 {} {} {}({}/{} - {:.0f}%){}", 
+            LOGGER.info("ðŸ“Š {} {} {}({}/{} - {:.0f}%){}", 
                        ANSI_GREEN, message, ANSI_CYAN, 
                        completedRunners, totalRunners, progressPercent * 100, ANSI_RESET);
         } else {
-            LOGGER.info("📊 {} ({}/{} - {:.0f}%)", 
+            LOGGER.info("ðŸ“Š {} ({}/{} - {:.0f}%)", 
                        message, completedRunners, totalRunners, progressPercent * 100);
         }
     }

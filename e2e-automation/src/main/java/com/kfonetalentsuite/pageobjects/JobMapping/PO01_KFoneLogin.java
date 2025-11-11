@@ -642,8 +642,8 @@ public class PO01_KFoneLogin {
 	 * Searches for a client using PAMS ID in the KFone Clients page search bar.
 	 * 
 	 * Behavior:
-	 * - If PAMS ID is configured (not blank) in config.properties → Performs search
-	 * - If PAMS ID is blank or not configured → Skips search and continues
+	 * - If PAMS ID is configured (not blank) in config.properties â†’ Performs search
+	 * - If PAMS ID is blank or not configured â†’ Skips search and continues
 	 * 
 	 * This allows flexible test execution where search is optional based on configuration.
 	 */
@@ -653,8 +653,8 @@ public class PO01_KFoneLogin {
 			
 			// If no specific PAMS ID is configured, skip search
 			if (targetPamsId == null || targetPamsId.trim().isEmpty()) {
-				LOGGER.info("⏭️ SKIPPING: No PAMS ID configured in config.properties - search step skipped");
-				ExtentCucumberAdapter.addTestStepLog("⏭️ SKIPPING: No PAMS ID configured - search step skipped");
+				LOGGER.info("â­ï¸ SKIPPING: No PAMS ID configured in config.properties - search step skipped");
+				ExtentCucumberAdapter.addTestStepLog("â­ï¸ SKIPPING: No PAMS ID configured - search step skipped");
 				return; // Continue to next step without search
 			}
 			
@@ -692,8 +692,8 @@ public class PO01_KFoneLogin {
 			LOGGER.info("Filtered client rows count: " + filteredClientRows.size());
 			
 			if (filteredClientRows.size() > 0) {
-				LOGGER.info("✓ Search successful - Found " + filteredClientRows.size() + " matching client(s)");
-				ExtentCucumberAdapter.addTestStepLog("✓ Search successful - Found " + filteredClientRows.size() + " matching client(s) for PAMS ID: " + targetPamsId);
+				LOGGER.info("âœ“ Search successful - Found " + filteredClientRows.size() + " matching client(s)");
+				ExtentCucumberAdapter.addTestStepLog("âœ“ Search successful - Found " + filteredClientRows.size() + " matching client(s) for PAMS ID: " + targetPamsId);
 				
 				// Log details of found clients
 				for (int i = 0; i < filteredClientRows.size(); i++) {
@@ -720,7 +720,7 @@ public class PO01_KFoneLogin {
 				}
 			} else {
 				// FAIL TEST if no clients found with the searched PAMS ID
-				String errorMsg = "❌ No clients found matching PAMS ID: " + targetPamsId;
+				String errorMsg = "âŒ No clients found matching PAMS ID: " + targetPamsId;
 				LOGGER.error(errorMsg);
 				ExtentCucumberAdapter.addTestStepLog(errorMsg);
 				LOGGER.info("========================================");

@@ -1,4 +1,4 @@
-﻿package testrunners.JobMapping;
+package testrunners.JobMapping;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -35,7 +35,7 @@ public class Runner45_ClearProfileSelectionwithNoneButton_JAM extends CustomizeT
 	@Override
 	protected String resolveLoginTag() {
 		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info("🔄 Using KFone login tag: " + loginTag);
+		LOGGER.info("ðŸ”„ Using KFone login tag: " + loginTag);
 		return loginTag;
 	}
 

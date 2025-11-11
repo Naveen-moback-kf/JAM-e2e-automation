@@ -26,7 +26,7 @@ import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
  * SIMPLIFIED: AutoMapped Profile Info Message Validation
  * 
  * CRITICAL FIXES AND ENHANCEMENTS IMPLEMENTED:
- * 1. SIMPLIFIED APPROACH: 3-step process (Scroll → Load → Search)
+ * 1. SIMPLIFIED APPROACH: 3-step process (Scroll â†’ Load â†’ Search)
  * 2. PROFILE TYPE FILTERING: Now correctly identifies and skips Manual Mapping profiles
  * 3. BUTTON DETECTION FIX: Removed dangerous broad XPath that was clicking "Search a different profile" buttons  
  * 4. AUTOMAPPED FOCUS: Only processes profiles with "View Other Matches" buttons
@@ -580,14 +580,14 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 	public void find_profile_with_missing_data_and_info_message() throws IOException {
 		LOGGER.info("====================================");
 		LOGGER.info("Looking for AutoMapped profile with missing data and info message...");
-		ExtentCucumberAdapter.addTestStepLog("🔍 Searching for AutoMapped profile with missing data and info message");
+		ExtentCucumberAdapter.addTestStepLog("ðŸ” Searching for AutoMapped profile with missing data and info message");
 
 		try {
 			safeSleep(2000);
 			
 			// FALLBACK: Search through ALL profiles with lazy loading (no limit)
-			LOGGER.info("🔄 FALLBACK: Searching through ALL profiles with lazy loading to find AutoMapped profile with info message...");
-			ExtentCucumberAdapter.addTestStepLog("🔄 Fallback search: checking all profiles with lazy loading...");
+			LOGGER.info("ðŸ”„ FALLBACK: Searching through ALL profiles with lazy loading to find AutoMapped profile with info message...");
+			ExtentCucumberAdapter.addTestStepLog("ðŸ”„ Fallback search: checking all profiles with lazy loading...");
 
 			int profilesChecked = 0;
 			int scrollAttempts = 0;
@@ -738,9 +738,9 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 						}
 
 						if (hasMissingData) {
-							LOGGER.info("✅ FALLBACK SUCCESS: Found AutoMapped profile with missing data and info message at position " + profilesChecked + ": " + jobName);
+							LOGGER.info("âœ… FALLBACK SUCCESS: Found AutoMapped profile with missing data and info message at position " + profilesChecked + ": " + jobName);
 							LOGGER.info("Profile details - Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction);
-							ExtentCucumberAdapter.addTestStepLog("✅ Found AutoMapped profile: " + jobName + " (Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction + ")");
+							ExtentCucumberAdapter.addTestStepLog("âœ… Found AutoMapped profile: " + jobName + " (Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction + ")");
 
 							// Store in scenario context (using existing variable names)
 							jobNameWithInfoMessage = jobName;
@@ -798,15 +798,15 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			}
 
 			// If we reach here, no suitable profile was found
-			LOGGER.info("❌ Fallback search complete: Checked ALL " + profilesChecked + " profiles, none have missing data with info message");
-			ExtentCucumberAdapter.addTestStepLog("❌ No AutoMapped profiles found with missing data and info message (checked all " + profilesChecked + " profiles)");
+			LOGGER.info("âŒ Fallback search complete: Checked ALL " + profilesChecked + " profiles, none have missing data with info message");
+			ExtentCucumberAdapter.addTestStepLog("âŒ No AutoMapped profiles found with missing data and info message (checked all " + profilesChecked + " profiles)");
 			LOGGER.error("SKIPPING SCENARIO: No AutoMapped profiles with missing data and info message found (checked all " + profilesChecked + " profiles)");
 			Assert.fail("SKIPPING SCENARIO: No AutoMapped profiles with missing data and info message found (checked all " + profilesChecked + " profiles)");
 			
 	} catch (Exception e) {
 		LOGGER.error("Error in find_profile_with_missing_data_and_info_message - Method: find_profile_with_missing_data_and_info_message", e);
 		ScreenshotHandler.captureFailureScreenshot("find_profile_missing_data", e);
-		ExtentCucumberAdapter.addTestStepLog("❌ Error searching for AutoMapped profile: " + e.getMessage());
+		ExtentCucumberAdapter.addTestStepLog("âŒ Error searching for AutoMapped profile: " + e.getMessage());
 		throw e;
 	}
 	}
@@ -814,7 +814,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 	public void find_second_profile_with_missing_data_and_info_message() throws IOException {
 		LOGGER.info("====================================");
 		LOGGER.info("Looking for SECOND AutoMapped profile with missing data and info message...");
-		ExtentCucumberAdapter.addTestStepLog("🔍 Searching for SECOND AutoMapped profile with missing data and info message");
+		ExtentCucumberAdapter.addTestStepLog("ðŸ” Searching for SECOND AutoMapped profile with missing data and info message");
 
 		String firstJobName = jobNameWithInfoMessage;
 		LOGGER.info("First job name to skip: '" + firstJobName + "'");
@@ -827,8 +827,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			safeSleep(2000);
 			
 			// FALLBACK: Search through ALL profiles with lazy loading (no limit)
-			LOGGER.info("🔄 FALLBACK: Searching through ALL profiles with lazy loading to find SECOND AutoMapped profile with info message...");
-			ExtentCucumberAdapter.addTestStepLog("🔄 Fallback search: checking all profiles with lazy loading...");
+			LOGGER.info("ðŸ”„ FALLBACK: Searching through ALL profiles with lazy loading to find SECOND AutoMapped profile with info message...");
+			ExtentCucumberAdapter.addTestStepLog("ðŸ”„ Fallback search: checking all profiles with lazy loading...");
 
 			int profilesChecked = 0;
 			int scrollAttempts = 0;
@@ -992,9 +992,9 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 						}
 
 						if (hasMissingData) {
-							LOGGER.info("✅ FALLBACK SUCCESS: Found SECOND AutoMapped profile with missing data and info message at position " + profilesChecked + ": " + jobName);
+							LOGGER.info("âœ… FALLBACK SUCCESS: Found SECOND AutoMapped profile with missing data and info message at position " + profilesChecked + ": " + jobName);
 							LOGGER.info("Profile details - Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction);
-							ExtentCucumberAdapter.addTestStepLog("✅ Found SECOND AutoMapped profile: " + jobName + " (Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction + ")");
+							ExtentCucumberAdapter.addTestStepLog("âœ… Found SECOND AutoMapped profile: " + jobName + " (Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction + ")");
 
 							// Store in scenario context (using existing variable names)
 							secondJobNameWithInfoMessage = jobName;
@@ -1052,15 +1052,15 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			}
 
 			// If we reach here, no suitable second profile was found
-			LOGGER.info("❌ Fallback search complete: Checked ALL " + profilesChecked + " profiles, no SECOND profile found with missing data and info message");
-			ExtentCucumberAdapter.addTestStepLog("❌ No SECOND AutoMapped profile found with missing data and info message (checked all " + profilesChecked + " profiles)");
+			LOGGER.info("âŒ Fallback search complete: Checked ALL " + profilesChecked + " profiles, no SECOND profile found with missing data and info message");
+			ExtentCucumberAdapter.addTestStepLog("âŒ No SECOND AutoMapped profile found with missing data and info message (checked all " + profilesChecked + " profiles)");
 			LOGGER.error("SKIPPING SCENARIO: No SECOND AutoMapped profile with missing data and info message found (checked all " + profilesChecked + " profiles)");
 			Assert.fail("SKIPPING SCENARIO: No SECOND AutoMapped profile with missing data and info message found (checked all " + profilesChecked + " profiles)");
 				
 		} catch (Exception e) {
 		LOGGER.error("Error in find_second_profile_with_missing_data_and_info_message - Method: find_second_profile_with_missing_data_and_info_message", e);
 		ScreenshotHandler.captureFailureScreenshot("find_second_profile_missing_data", e);
-		ExtentCucumberAdapter.addTestStepLog("❌ Error searching for SECOND AutoMapped profile: " + e.getMessage());
+		ExtentCucumberAdapter.addTestStepLog("âŒ Error searching for SECOND AutoMapped profile: " + e.getMessage());
 		throw e;
 	}
 	}
@@ -1660,11 +1660,11 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			}
 			
 			if (allMatch) {
-				LOGGER.info("✅ SUCCESS: All job details match between Job Mapping and Job Comparison pages");
-				ExtentCucumberAdapter.addTestStepLog("✅ Job details match verified between Job Mapping and Job Comparison pages for: " + jobNameWithInfoMessage);
+				LOGGER.info("âœ… SUCCESS: All job details match between Job Mapping and Job Comparison pages");
+				ExtentCucumberAdapter.addTestStepLog("âœ… Job details match verified between Job Mapping and Job Comparison pages for: " + jobNameWithInfoMessage);
 			} else {
-				LOGGER.error("❌ MISMATCH: Job details do NOT match between pages:" + mismatchDetails.toString());
-				ExtentCucumberAdapter.addTestStepLog("❌ Job details mismatch: " + mismatchDetails.toString());
+				LOGGER.error("âŒ MISMATCH: Job details do NOT match between pages:" + mismatchDetails.toString());
+				ExtentCucumberAdapter.addTestStepLog("âŒ Job details mismatch: " + mismatchDetails.toString());
 				Assert.fail("Job details do NOT match between Job Mapping and Job Comparison pages:" + mismatchDetails.toString());
 			}
 			
@@ -1803,11 +1803,11 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			}
 			
 			if (allMatch) {
-				LOGGER.info("✅ SUCCESS: All job details match between Job Mapping and Job Comparison pages for second profile");
-				ExtentCucumberAdapter.addTestStepLog("✅ Job details match verified between Job Mapping and Job Comparison pages for second profile: " + secondJobNameWithInfoMessage);
+				LOGGER.info("âœ… SUCCESS: All job details match between Job Mapping and Job Comparison pages for second profile");
+				ExtentCucumberAdapter.addTestStepLog("âœ… Job details match verified between Job Mapping and Job Comparison pages for second profile: " + secondJobNameWithInfoMessage);
 			} else {
-				LOGGER.error("❌ MISMATCH: Job details do NOT match between pages for second profile:" + mismatchDetails.toString());
-				ExtentCucumberAdapter.addTestStepLog("❌ Job details mismatch for second profile: " + mismatchDetails.toString());
+				LOGGER.error("âŒ MISMATCH: Job details do NOT match between pages for second profile:" + mismatchDetails.toString());
+				ExtentCucumberAdapter.addTestStepLog("âŒ Job details mismatch for second profile: " + mismatchDetails.toString());
 				Assert.fail("Job details do NOT match between Job Mapping and Job Comparison pages for second profile:" + mismatchDetails.toString());
 			}
 			

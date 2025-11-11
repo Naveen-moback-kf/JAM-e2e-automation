@@ -32,20 +32,20 @@ public class JobCatalogRefresher {
     public static synchronized boolean refreshJobCatalog() {
         // Skip if already refreshed in this session
         if (hasRefreshedThisSession) {
-            LOGGER.info("✓ Job Catalog already refreshed in this session - skipping");
+            LOGGER.info("âœ“ Job Catalog already refreshed in this session - skipping");
             return true;
         }
         
         try {
-            LOGGER.info("═══════════════════════════════════════════════════════");
-            LOGGER.info("   🔄 Refreshing Job Catalog with Unique Identifiers");
-            LOGGER.info("═══════════════════════════════════════════════════════");
+            LOGGER.info("â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
+            LOGGER.info("   ðŸ”„ Refreshing Job Catalog with Unique Identifiers");
+            LOGGER.info("â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
             
             // Read and update CSV
             Path csvPath = Paths.get(CSV_FILE_PATH);
             
             if (!Files.exists(csvPath)) {
-                LOGGER.error("❌ CSV file not found: {}", CSV_FILE_PATH);
+                LOGGER.error("âŒ CSV file not found: {}", CSV_FILE_PATH);
                 return false;
             }
             
@@ -54,12 +54,12 @@ public class JobCatalogRefresher {
             
             // Generate unique suffix based on current timestamp
             String uniqueSuffix = generateUniqueTimestamp();
-            LOGGER.info("📝 Generated unique timestamp: {}", uniqueSuffix);
+            LOGGER.info("ðŸ“ Generated unique timestamp: {}", uniqueSuffix);
             
             List<String> lines = Files.readAllLines(csvPath, StandardCharsets.UTF_8);
             
             if (lines.isEmpty() || lines.size() < 2) {
-                LOGGER.error("❌ CSV file is empty or has no data rows!");
+                LOGGER.error("âŒ CSV file is empty or has no data rows!");
                 return false;
             }
             
@@ -82,15 +82,15 @@ public class JobCatalogRefresher {
             
             hasRefreshedThisSession = true;
             
-            LOGGER.info("✅ Successfully refreshed {} job profiles", updatedCount);
-            LOGGER.info("🎯 Unique Suffix Applied: {}", uniqueSuffix);
-            LOGGER.info("📁 File Location: {}", CSV_FILE_PATH);
-            LOGGER.info("═══════════════════════════════════════════════════════");
+            LOGGER.info("âœ… Successfully refreshed {} job profiles", updatedCount);
+            LOGGER.info("ðŸŽ¯ Unique Suffix Applied: {}", uniqueSuffix);
+            LOGGER.info("ðŸ“ File Location: {}", CSV_FILE_PATH);
+            LOGGER.info("â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
             
             return true;
             
         } catch (Exception e) {
-            LOGGER.error("❌ Failed to refresh Job Catalog: {}", e.getMessage(), e);
+            LOGGER.error("âŒ Failed to refresh Job Catalog: {}", e.getMessage(), e);
             return false;
         }
     }
@@ -113,7 +113,7 @@ public class JobCatalogRefresher {
             String[] fields = line.split(",", -1);
             
             if (fields.length < 2) {
-                LOGGER.warn("⚠️ Line {} has insufficient fields, keeping as-is", lineNumber);
+                LOGGER.warn("âš ï¸ Line {} has insufficient fields, keeping as-is", lineNumber);
                 return line;
             }
             
@@ -134,7 +134,7 @@ public class JobCatalogRefresher {
             return String.join(",", fields);
             
         } catch (Exception e) {
-            LOGGER.error("❌ Error updating line {}: {}", lineNumber, e.getMessage());
+            LOGGER.error("âŒ Error updating line {}: {}", lineNumber, e.getMessage());
             return line;
         }
     }
@@ -188,7 +188,7 @@ public class JobCatalogRefresher {
             Path backupDir = Paths.get(BACKUP_DIR);
             if (!Files.exists(backupDir)) {
                 Files.createDirectories(backupDir);
-                LOGGER.info("📁 Created backup directory: {}", BACKUP_DIR);
+                LOGGER.info("ðŸ“ Created backup directory: {}", BACKUP_DIR);
             }
             
             // Create new backup with full timestamp (including milliseconds for uniqueness)
@@ -199,11 +199,11 @@ public class JobCatalogRefresher {
             // Copy original to backup
             Files.copy(originalFile, backupFile, StandardCopyOption.REPLACE_EXISTING);
             
-            LOGGER.info("💾 Backup created: {}", backupFileName);
-            LOGGER.info("📂 Backup location: {}", backupFile.toAbsolutePath());
+            LOGGER.info("ðŸ’¾ Backup created: {}", backupFileName);
+            LOGGER.info("ðŸ“‚ Backup location: {}", backupFile.toAbsolutePath());
             
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Could not create backup: {}", e.getMessage());
+            LOGGER.warn("âš ï¸ Could not create backup: {}", e.getMessage());
             // Don't fail the main operation if backup fails
         }
     }

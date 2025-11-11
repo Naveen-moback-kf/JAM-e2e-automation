@@ -202,9 +202,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 					
 					if (nothingToSeeElement.isDisplayed()) {
 						ResultsCountBeforeAddingMoreJobs = "0";
-						LOGGER.info("✓ 'Nothing to see here... yet!' message displayed - Setting count to 0");
+						LOGGER.info("âœ“ 'Nothing to see here... yet!' message displayed - Setting count to 0");
 						LOGGER.info("Unpublished Job Profiles Count in AI Auto UI / Job Mapping page before Adding More Jobs : " + ResultsCountBeforeAddingMoreJobs);
-						ExtentCucumberAdapter.addTestStepLog("✓ No unpublished jobs found - Count set to 0 (Empty state message displayed)");
+						ExtentCucumberAdapter.addTestStepLog("âœ“ No unpublished jobs found - Count set to 0 (Empty state message displayed)");
 					} else {
 						throw new Exception("Neither results count nor empty state message found");
 					}
@@ -216,9 +216,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			}
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_unpublished_jobs_count_before_adding_more_jobs", e);
-			LOGGER.error("❌ Issue in verifying Unpublished job profiles count - Method: verify_unpublished_job_profiles_count", e);
+			LOGGER.error("âŒ Issue in verifying Unpublished job profiles count - Method: verify_unpublished_job_profiles_count", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in verifying Unpublished job profiles count in Job Mapping page before adding more jobs...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in verifying Unpublished job profiles count in Job Mapping page before adding more jobs...Please Investigate!!!");
 			Assert.fail("Issue in verifying Unpublished job profiles count in Job Mapping page before adding more jobs...Please Investigate!!!");
 		}
 	}
@@ -716,9 +716,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			}
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_jobs_count_in_kfone_add_job_data_screen_after_adding_more_jobs", e);
-			LOGGER.error("❌ Issue in verifying Jobs count after adding - Method: verify_jobs_count_after_adding", e);
+			LOGGER.error("âŒ Issue in verifying Jobs count after adding - Method: verify_jobs_count_after_adding", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in verifying Jobs count in KFONE Add Job Data screen after Adding More Jobs...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in verifying Jobs count in KFONE Add Job Data screen after Adding More Jobs...Please Investigate!!!");
 			Assert.fail("Issue in verifying Jobs count in KFONE Add Job Data screen after Adding More Jobs...Please Investigate!!!");
 		}
 	}
@@ -739,9 +739,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			}
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_last_synced_info_on_add_job_data_screen_after_adding_more_jobs", e);
-			LOGGER.error("❌ Issue in verifying Last Synced Info after adding - Method: verify_last_synced_info_after_adding", e);
+			LOGGER.error("âŒ Issue in verifying Last Synced Info after adding - Method: verify_last_synced_info_after_adding", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in verifying Last Synced Info on KFONE Add Job Data screen...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in verifying Last Synced Info on KFONE Add Job Data screen...Please Investigate!!!");
 			Assert.fail("Issue in verifying Last Synced Info on KFONE Add Job Data screen...Please Investigate!!!");
 		}
 	}

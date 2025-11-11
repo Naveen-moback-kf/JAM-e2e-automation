@@ -70,7 +70,7 @@ public class PerformanceUtils {
                 Boolean isReady = (Boolean) ((org.openqa.selenium.JavascriptExecutor) driver)
                     .executeScript("return document.readyState === 'complete'");
                 if (Boolean.TRUE.equals(isReady)) {
-                    // LOGGER.debug("✅ Page already ready - immediate return");
+                    // LOGGER.debug("âœ… Page already ready - immediate return");
                     return; // Fast exit!
                 }
             } catch (Exception e) {
@@ -89,7 +89,7 @@ public class PerformanceUtils {
                                 if (spinner.isDisplayed()) {
                                     foundVisibleSpinner = true;
                                     // Only log spinner wait if debugging performance issues
-                                    // LOGGER.debug("⏳ Found visible spinner: {}", selector);
+                                    // LOGGER.debug("â³ Found visible spinner: {}", selector);
                                     // Wait only 0.5 seconds max per spinner
                                     ultraFastWait.until(ExpectedConditions.invisibilityOf(spinner));
                                     break; // Exit inner loop after handling first visible spinner
@@ -153,7 +153,7 @@ public class PerformanceUtils {
         } catch (Exception e) {
             // Only log spinner timeout if it's a significant delay
             if (timeoutSeconds > 3) {
-                LOGGER.warn("⚠️ Spinner wait timeout after {}s: {}", timeoutSeconds, e.getMessage());
+                LOGGER.warn("âš ï¸ Spinner wait timeout after {}s: {}", timeoutSeconds, e.getMessage());
             }
         }
     }
@@ -182,13 +182,13 @@ public class PerformanceUtils {
             
             // Only log if wait time was significant (>1 second)
             if (waitTime > 1000) {
-                LOGGER.debug("⏳ Element ready for interaction after {}ms", waitTime);
+                LOGGER.debug("â³ Element ready for interaction after {}ms", waitTime);
             }
             
             return element;
             
         } catch (Exception e) {
-            LOGGER.warn("❌ Element wait timeout after {} seconds: {}", timeoutSeconds, e.getMessage());
+            LOGGER.warn("âŒ Element wait timeout after {} seconds: {}", timeoutSeconds, e.getMessage());
             return element; // Return element anyway for fallback
         }
     }
@@ -235,7 +235,7 @@ public class PerformanceUtils {
             // Dropdown options loaded - no need to log (expected behavior)
             
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Dropdown options wait timeout: {}", e.getMessage());
+            LOGGER.warn("âš ï¸ Dropdown options wait timeout: {}", e.getMessage());
         }
     }
     
@@ -259,7 +259,7 @@ public class PerformanceUtils {
             // Search results loaded - no need to log (expected behavior)
             
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Search results wait timeout: {}", e.getMessage());
+            LOGGER.warn("âš ï¸ Search results wait timeout: {}", e.getMessage());
         }
     }
     
@@ -300,7 +300,7 @@ public class PerformanceUtils {
             wait.until(ExpectedConditions.attributeToBe(element, attribute, expectedValue));
             // Attribute has expected value - no need to log (expected behavior)
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Attribute value wait timeout: {}", e.getMessage());
+            LOGGER.warn("âš ï¸ Attribute value wait timeout: {}", e.getMessage());
         }
     }
     
@@ -358,7 +358,7 @@ public class PerformanceUtils {
             }
             // All conditions met - no need to log (expected behavior)
         } catch (Exception e) {
-            LOGGER.warn("⚠️ Multiple conditions wait failed: {}", e.getMessage());
+            LOGGER.warn("âš ï¸ Multiple conditions wait failed: {}", e.getMessage());
         }
     }
     

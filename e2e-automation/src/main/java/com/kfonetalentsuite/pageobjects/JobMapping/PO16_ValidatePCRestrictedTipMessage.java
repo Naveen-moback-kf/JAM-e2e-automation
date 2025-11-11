@@ -366,9 +366,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on User Admin Module button....");
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in clicking on User Admin Module button - Method: click_user_admin_module_button", e);
+			LOGGER.error("âŒ Issue in clicking on User Admin Module button - Method: click_user_admin_module_button", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in clicking on User Admin Module button...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in clicking on User Admin Module button...Please Investigate!!!");
 			Assert.fail("Issue in clicking on User Admin Module button...Please Investigate!!!");
 		}
 	}
@@ -413,9 +413,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Teams section in User Admin Module....");
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in clicking on Teams section in User Admin Module - Method: click_teams_section_user_admin", e);
+			LOGGER.error("âŒ Issue in clicking on Teams section in User Admin Module - Method: click_teams_section_user_admin", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in clicking on Teams section in User Admin Module...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in clicking on Teams section in User Admin Module...Please Investigate!!!");
 			Assert.fail("Issue in clicking on Teams section in User Admin Module...Please Investigate!!!");
 		}
 	}
@@ -431,9 +431,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info(text1);
 			ExtentCucumberAdapter.addTestStepLog(text1);
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in landing on Teams page - Method: verify_teams_page_landing", e);
+			LOGGER.error("âŒ Issue in landing on Teams page - Method: verify_teams_page_landing", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in landing on Teams page....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in landing on Teams page....Please Investigate!!!");
 			Assert.fail("Issue in landing on Teams page....Please Investigate!!!");
 		}
 	}
@@ -456,9 +456,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on " + "CREATE TEAMS" +" button in Teams section....");
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in clicking on Create Teams button - Method: click_create_teams_button", e);
+			LOGGER.error("âŒ Issue in clicking on Create Teams button - Method: click_create_teams_button", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in clicking on Create Teams button in Teams section...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in clicking on Create Teams button in Teams section...Please Investigate!!!");
 			Assert.fail("Issue in clicking on Create Teams button in Teams section...Please Investigate!!!");
 		}
 	}
@@ -473,9 +473,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info(text);
 			ExtentCucumberAdapter.addTestStepLog(text);
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in navigating to first step of creating a team - Method: navigate_first_step_creating_team", e);
+			LOGGER.error("âŒ Issue in navigating to first step of creating a team - Method: navigate_first_step_creating_team", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in navigating to first step of creating a team....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in navigating to first step of creating a team....Please Investigate!!!");
 			Assert.fail("Issue in navigating to first step of creating a team....Please Investigate!!!");
 		}
 	}
@@ -502,9 +502,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info("Entered Team Description : " + "Creating a Team through Automation on " + todayDate);
 			ExtentCucumberAdapter.addTestStepLog("Entered Team Description : " + "Creating a Team through Automation on " + todayDate);
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in entering Team name and description - Method: enter_team_name_description", e);
+			LOGGER.error("âŒ Issue in entering Team name and description - Method: enter_team_name_description", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in entering Team name and Team Description in the first step of creating a team....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in entering Team name and Team Description in the first step of creating a team....Please Investigate!!!");
 			Assert.fail("Issue in entering Team name and Team Description in the first step of creating a team....Please Investigate!!!");
 		}
 	}
@@ -527,9 +527,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Next button in Create Teams page....");
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in clicking on Next button in Create Teams page - Method: click_next_button_create_teams", e);
+			LOGGER.error("âŒ Issue in clicking on Next button in Create Teams page - Method: click_next_button_create_teams", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in clicking on Next button in Create Teams page...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in clicking on Next button in Create Teams page...Please Investigate!!!");
 			Assert.fail("Issue in clicking on Next button in Create Teams page...Please Investigate!!!");
 		}
 	}
@@ -544,9 +544,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info(text);
 			ExtentCucumberAdapter.addTestStepLog(text);
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in navigating to second step of creating a team - Method: navigate_second_step_creating_team", e);
+			LOGGER.error("âŒ Issue in navigating to second step of creating a team - Method: navigate_second_step_creating_team", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in navigating to Second step of creating a team....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in navigating to Second step of creating a team....Please Investigate!!!");
 			Assert.fail("Issue in navigating to Second step of creating a team....Please Investigate!!!");
 		}
 	}
@@ -558,9 +558,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info("Entered User name : " + PO01_KFoneLogin.username + " in the search bar to add as Team Member");
 			ExtentCucumberAdapter.addTestStepLog("Entered User name : " + PO01_KFoneLogin.username + " in the search bar to add as Team Member");
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in searching a user to add as Team Member - Method: search_user_add_team_member", e);
+			LOGGER.error("âŒ Issue in searching a user to add as Team Member - Method: search_user_add_team_member", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in Searching a user to add as Team Member....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in Searching a user to add as Team Member....Please Investigate!!!");
 			Assert.fail("Issue in Searching a user to add as Team Member....Please Investigate!!!");
 		}
 	}
@@ -588,9 +588,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			ExtentCucumberAdapter.addTestStepLog("User " + PO01_KFoneLogin.username + " is Selected to add as Team Member");
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in selecting user to add as Team Member - Method: select_user_add_team_member", e);
+			LOGGER.error("âŒ Issue in selecting user to add as Team Member - Method: select_user_add_team_member", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in selecting user to add as Team Member...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in selecting user to add as Team Member...Please Investigate!!!");
 			Assert.fail("Issue in selecting user to add as Team Member...Please Investigate!!!");
 		}
 	}
@@ -614,9 +614,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Team Members header in Create Teams page....");
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in clicking on Team Members header - Method: click_team_members_header", e);
+			LOGGER.error("âŒ Issue in clicking on Team Members header - Method: click_team_members_header", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in clicking on Team Members header...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in clicking on Team Members header...Please Investigate!!!");
 			Assert.fail("Issue in clicking on Team Members header...Please Investigate!!!");
 		}
 		
@@ -628,9 +628,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info("User " + PO01_KFoneLogin.username + " successfully added as Team Member");
 			ExtentCucumberAdapter.addTestStepLog("User " + PO01_KFoneLogin.username + " successfully added as Team Member");
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in verifying user added as Team Member - Method: verify_user_added_team_member", e);
+			LOGGER.error("âŒ Issue in verifying user added as Team Member - Method: verify_user_added_team_member", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in Verifying User added as Team Member....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in Verifying User added as Team Member....Please Investigate!!!");
 			Assert.fail("Issue in Verifying User added as Team Member....Please Investigate!!!");
 		}
 	}
@@ -654,9 +654,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Save button in Create Teams page....");
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in clicking on Save button in Create Teams page - Method: click_save_button_create_teams", e);
+			LOGGER.error("âŒ Issue in clicking on Save button in Create Teams page - Method: click_save_button_create_teams", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in clicking on Save button in Create Teams page...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in clicking on Save button in Create Teams page...Please Investigate!!!");
 			Assert.fail("Issue in clicking on Save button in Create Teams page...Please Investigate!!!");
 		}
 		
@@ -677,9 +677,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				ExtentCucumberAdapter.addTestStepLog(FailureText);
 			}
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in verifying popup after creating team - Method: verify_popup_after_creating_team", e);
+			LOGGER.error("âŒ Issue in verifying popup after creating team - Method: verify_popup_after_creating_team", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in verifying appearing of popup after creating a team....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in verifying appearing of popup after creating a team....Please Investigate!!!");
 			Assert.fail("Issue in verifying appearing of popup after creating a team....Please Investigate!!!");
 		}
 	}
@@ -695,9 +695,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info("Team with name : " + teamName + " is successfully created");
 			ExtentCucumberAdapter.addTestStepLog("Team with name : " + teamName + " is successfully created");
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in searching and verifying team created - Method: search_verify_team_created", e);
+			LOGGER.error("âŒ Issue in searching and verifying team created - Method: search_verify_team_created", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in Searching and Verifying a Team is created successfully....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in Searching and Verifying a Team is created successfully....Please Investigate!!!");
 			Assert.fail("Issue in Searching and Verifying a Team is created successfully....Please Investigate!!!");
 		}
 	}
@@ -721,9 +721,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Profile Collections section in User Admin Module....");
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in clicking on Profile Collections section - Method: click_profile_collections_section", e);
+			LOGGER.error("âŒ Issue in clicking on Profile Collections section - Method: click_profile_collections_section", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in clicking on Profile Collections section in User Admin Module...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in clicking on Profile Collections section in User Admin Module...Please Investigate!!!");
 			Assert.fail("Issue in clicking on Profile Collections section in User Admin Module...Please Investigate!!!");
 		}
 	}
@@ -739,9 +739,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info(text1);
 			ExtentCucumberAdapter.addTestStepLog(text1);
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in landing on Manage Success Profiles page - Method: verify_manage_success_profiles_page", e);
+			LOGGER.error("âŒ Issue in landing on Manage Success Profiles page - Method: verify_manage_success_profiles_page", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in landing on Manage Success Profiles page....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in landing on Manage Success Profiles page....Please Investigate!!!");
 			Assert.fail("Issue in landing on Manage Success Profiles page....Please Investigate!!!");
 		}
 	}
@@ -765,9 +765,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on " + "CREATE PRFOILE COLLECTION" +" button in Teams section....");
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue in clicking on CREATE PROFILE COLLECTION button - Method: click_create_profile_collection_button", e);
+			LOGGER.error("âŒ Issue in clicking on CREATE PROFILE COLLECTION button - Method: click_create_profile_collection_button", e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("❌ Issue in clicking on CREATE PROFILE COLLECTION button in Teams section...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Issue in clicking on CREATE PROFILE COLLECTION button in Teams section...Please Investigate!!!");
 			Assert.fail("Issue in clicking on CREATE PROFILE COLLECTION button in Teams section...Please Investigate!!!");
 		}
 	}

@@ -74,7 +74,7 @@ public class PO45_ClearProfileSelectionwithNoneButton_JAM {
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_none_button_in_job_mapping_screen", e);
 			LOGGER.error("Error clicking on None button - Method: click_on_none_button_in_job_mapping_screen", e);
-			ExtentCucumberAdapter.addTestStepLog("❌ Error clicking on None button in Job Mapping screen");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Error clicking on None button in Job Mapping screen");
 			Assert.fail("Error clicking on None button in Job Mapping screen: " + e.getMessage());
 		}
 	}
@@ -121,7 +121,7 @@ public class PO45_ClearProfileSelectionwithNoneButton_JAM {
 					
 					if (isSelected) {
 						selectedProfilesFound++;
-						LOGGER.warn("⚠️ Profile at position " + (i + 1) + " is SELECTED (should be unselected!)");
+						LOGGER.warn("âš ï¸ Profile at position " + (i + 1) + " is SELECTED (should be unselected!)");
 					}
 					
 				} catch (Exception e) {
@@ -139,18 +139,18 @@ public class PO45_ClearProfileSelectionwithNoneButton_JAM {
 			LOGGER.info("========================================");
 			
 			if (selectedProfilesFound == 0) {
-				LOGGER.info("✓ VALIDATION PASSED: All profiles are correctly unselected");
-				ExtentCucumberAdapter.addTestStepLog("✓ Validation PASSED: All " + totalProfilesChecked + " profiles are unselected");
+				LOGGER.info("âœ“ VALIDATION PASSED: All profiles are correctly unselected");
+				ExtentCucumberAdapter.addTestStepLog("âœ“ Validation PASSED: All " + totalProfilesChecked + " profiles are unselected");
 			} else {
-				LOGGER.error("❌ VALIDATION FAILED: Found " + selectedProfilesFound + " selected profiles (expected 0)");
-				ExtentCucumberAdapter.addTestStepLog("❌ Validation FAILED: " + selectedProfilesFound + " profiles are still selected");
+				LOGGER.error("âŒ VALIDATION FAILED: Found " + selectedProfilesFound + " selected profiles (expected 0)");
+				ExtentCucumberAdapter.addTestStepLog("âŒ Validation FAILED: " + selectedProfilesFound + " profiles are still selected");
 				Assert.fail("Validation FAILED: " + selectedProfilesFound + " profiles are still selected");
 			}
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_all_loaded_profiles_are_unselected_in_job_mapping_screen", e);
 			LOGGER.error("Error verifying all profiles are unselected - Method: verify_all_loaded_profiles_are_unselected_in_job_mapping_screen", e);
-			ExtentCucumberAdapter.addTestStepLog("❌ Error verifying all loaded profiles are unselected");
+			ExtentCucumberAdapter.addTestStepLog("âŒ Error verifying all loaded profiles are unselected");
 			Assert.fail("Error verifying all loaded profiles are unselected: " + e.getMessage());
 		}
 	}

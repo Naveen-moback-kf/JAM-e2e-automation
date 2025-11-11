@@ -106,7 +106,7 @@ public class ScreenshotHandler {
             }
             
         } catch (Exception e) {
-            LOGGER.error("❌ Failed to capture screenshot for method: {}", methodName, e);
+            LOGGER.error("âŒ Failed to capture screenshot for method: {}", methodName, e);
             return null;
         }
     }
@@ -131,7 +131,7 @@ public class ScreenshotHandler {
             FileUtils.copyFile(sourceFile, destFile);
             
             // Log screenshot capture
-            LOGGER.info("📸 SCREENSHOT CAPTURED - Method: {} | Path: {}", methodName, screenshotPath);
+            LOGGER.info("ðŸ“¸ SCREENSHOT CAPTURED - Method: {} | Path: {}", methodName, screenshotPath);
             
             // Add screenshot to ExtentReports
             addScreenshotToExtentReport(screenshotPath, methodName, errorMessage);
@@ -139,7 +139,7 @@ public class ScreenshotHandler {
             return screenshotPath;
             
         } catch (Exception e) {
-            LOGGER.error("❌ Sync screenshot capture failed for method: {}", methodName, e);
+            LOGGER.error("âŒ Sync screenshot capture failed for method: {}", methodName, e);
             return null;
         }
     }
@@ -166,18 +166,18 @@ public class ScreenshotHandler {
                     destFile.getParentFile().mkdirs();
                     FileUtils.copyFile(sourceFile, destFile);
                     
-                    LOGGER.debug("📸 ASYNC SCREENSHOT SAVED - Method: {} | Path: {}", methodName, screenshotPath);
+                    LOGGER.debug("ðŸ“¸ ASYNC SCREENSHOT SAVED - Method: {} | Path: {}", methodName, screenshotPath);
                     
                 } catch (Exception e) {
                     LOGGER.warn("Async screenshot processing failed for method: {}", methodName, e);
                 }
             });
             
-            LOGGER.info("📸 ASYNC SCREENSHOT QUEUED - Method: {}", methodName);
+            LOGGER.info("ðŸ“¸ ASYNC SCREENSHOT QUEUED - Method: {}", methodName);
             return screenshotPath;
             
         } catch (Exception e) {
-            LOGGER.error("❌ Async screenshot capture failed for method: {}", methodName, e);
+            LOGGER.error("âŒ Async screenshot capture failed for method: {}", methodName, e);
             return null;
         }
     }
@@ -218,13 +218,13 @@ public class ScreenshotHandler {
             destFile.getParentFile().mkdirs();
             FileUtils.copyFile(sourceFile, destFile);
             
-            LOGGER.info("📸 Screenshot captured: {}", description);
+            LOGGER.info("ðŸ“¸ Screenshot captured: {}", description);
             LOGGER.info("Saved to: {}", screenshotPath);
             
             return screenshotPath;
             
         } catch (Exception e) {
-            LOGGER.error("❌ Failed to capture screenshot: {}", description, e);
+            LOGGER.error("âŒ Failed to capture screenshot: {}", description, e);
             return null;
         }
     }
@@ -254,9 +254,9 @@ public class ScreenshotHandler {
             
             if (screenshotPath != null) {
                 errorMsg += " | Screenshot captured: " + screenshotPath;
-                LOGGER.error("❌ TEST FAILED - {} | Screenshot saved: {}", methodName, screenshotPath);
+                LOGGER.error("âŒ TEST FAILED - {} | Screenshot saved: {}", methodName, screenshotPath);
             } else {
-                LOGGER.error("❌ TEST FAILED - {} | Screenshot capture failed", methodName);
+                LOGGER.error("âŒ TEST FAILED - {} | Screenshot capture failed", methodName);
             }
             
             // Add to Extent Reports (if enabled)
@@ -303,9 +303,9 @@ public class ScreenshotHandler {
             
             if (screenshotPath != null) {
                 errorMsg += " | Screenshot captured: " + screenshotPath;
-                LOGGER.error("❌ TEST FAILED - {} | Screenshot saved: {}", methodName, screenshotPath);
+                LOGGER.error("âŒ TEST FAILED - {} | Screenshot saved: {}", methodName, screenshotPath);
             } else {
-                LOGGER.error("❌ TEST FAILED - {} | Screenshot capture failed", methodName);
+                LOGGER.error("âŒ TEST FAILED - {} | Screenshot capture failed", methodName);
             }
             
             // Add to Extent Reports (if enabled)
@@ -335,7 +335,7 @@ public class ScreenshotHandler {
             String errorMsg = errorMessage;
             if (screenshotPath != null) {
                 errorMsg += " | Screenshot captured: " + screenshotPath;
-                LOGGER.error("❌ TEST FAILED - {} | Screenshot saved: {}", methodName, screenshotPath);
+                LOGGER.error("âŒ TEST FAILED - {} | Screenshot saved: {}", methodName, screenshotPath);
             }
             
             // Add to Extent Reports (if enabled)
@@ -362,10 +362,10 @@ public class ScreenshotHandler {
             String screenshotPath = captureFailureScreenshot(methodName, logMessage);
             
             if (screenshotPath != null) {
-                LOGGER.warn("⚠️ ISSUE DETECTED - {} | Screenshot saved: {}", methodName, screenshotPath);
+                LOGGER.warn("âš ï¸ ISSUE DETECTED - {} | Screenshot saved: {}", methodName, screenshotPath);
                 TestLogger.logWarning(logMessage + " | Screenshot: " + screenshotPath);
             } else {
-                LOGGER.warn("⚠️ ISSUE DETECTED - {} | Screenshot capture failed", methodName);
+                LOGGER.warn("âš ï¸ ISSUE DETECTED - {} | Screenshot capture failed", methodName);
                 TestLogger.logWarning(logMessage);
             }
             
@@ -467,7 +467,7 @@ public class ScreenshotHandler {
     private static void addScreenshotToExtentReport(String screenshotPath, String methodName, String errorMessage) {
         try {
             // Add to Extent Reports (if enabled)
-            String logMessage = String.format("🔴 FAILURE SCREENSHOT - Method: %s", methodName);
+            String logMessage = String.format("ðŸ”´ FAILURE SCREENSHOT - Method: %s", methodName);
             if (errorMessage != null && !errorMessage.trim().isEmpty()) {
                 logMessage += String.format(" | Error: %s", errorMessage);
             }
