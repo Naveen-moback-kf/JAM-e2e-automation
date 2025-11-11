@@ -342,8 +342,8 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                 details.timestamp = System.currentTimeMillis();
                 details.testStatus = "FAILED";
                 
-                // Create a unique key for this failure
-                String testKey = runnerClassName + "." + result.getMethod().getMethodName();
+                // Create a unique key for this failure (include scenario name for suite execution)
+                String testKey = runnerClassName + "." + result.getMethod().getMethodName() + "." + scenarioInfo;
                 testExceptionDetails.put(testKey, details);
                 
                 LOGGER.debug("Captured failure exception for '{}': '{}'", scenarioInfo, actualExceptionMessage);
@@ -366,7 +366,8 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                 details.timestamp = System.currentTimeMillis();
                 details.testStatus = "FAILED";
                 
-                String testKey = runnerClassName + "." + result.getMethod().getMethodName();
+                // Include scenario name for unique key in suite execution
+                String testKey = runnerClassName + "." + result.getMethod().getMethodName() + "." + scenarioInfo;
                 testExceptionDetails.put(testKey, details);
                 
                 LOGGER.debug("FAIL CAPTURE - No throwable, captured basic failure for '{}'. Total captured: {}", scenarioInfo, testExceptionDetails.size());
@@ -672,8 +673,8 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                 
                 skipReason = details.exceptionMessage;
                 
-                // Create a unique key for this skip
-                String testKey = runnerClassName + "." + result.getMethod().getMethodName();
+                // Create a unique key for this skip (include scenario name for suite execution)
+                String testKey = runnerClassName + "." + result.getMethod().getMethodName() + "." + scenarioInfo;
                 testExceptionDetails.put(testKey, details);
                 
                 LOGGER.debug("Captured skip exception for '{}': '{}'", scenarioInfo, details.exceptionMessage);
@@ -689,7 +690,8 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                 
                 skipReason = details.exceptionMessage;
                 
-                String testKey = runnerClassName + "." + result.getMethod().getMethodName();
+                // Include scenario name for unique key in suite execution
+                String testKey = runnerClassName + "." + result.getMethod().getMethodName() + "." + scenarioInfo;
                 testExceptionDetails.put(testKey, details);
                 
                 LOGGER.debug("SKIP CAPTURE - No throwable, captured basic skip for '{}'. Total captured: {}", scenarioInfo, testExceptionDetails.size());

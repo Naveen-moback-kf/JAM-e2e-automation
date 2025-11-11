@@ -485,7 +485,8 @@ public class DailyExcelTracker {
 
                             // ENHANCED: Capture actual exception details from ExcelReportListener
                             if (scenario.status != null && scenario.status.contains("FAILED")) {
-                                String testKey = className + "." + methodName;
+                                // Include scenario name in testKey for suite execution (matching ExcelReportListener key format)
+                                String testKey = className + "." + methodName + "." + actualScenarioName;
                                 com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails exceptionDetails =
                                     com.kfonetalentsuite.listeners.ExcelReportListener.getExceptionDetails(testKey);
 
