@@ -2,7 +2,7 @@ package com.kfonetalentsuite.manager;
 
 import java.io.IOException;
 
-import com.kfonetalentsuite.pageobjects.*;
+import com.kfonetalentsuite.pageobjects.JobMapping.*;
 
 public class PageObjectManager {
 

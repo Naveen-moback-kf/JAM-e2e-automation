@@ -3,7 +3,7 @@ package stepdefinitions.JobMapping;
 import java.io.IOException;
 
 import com.kfonetalentsuite.manager.PageObjectManager;
-import com.kfonetalentsuite.utils.Utilities;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;

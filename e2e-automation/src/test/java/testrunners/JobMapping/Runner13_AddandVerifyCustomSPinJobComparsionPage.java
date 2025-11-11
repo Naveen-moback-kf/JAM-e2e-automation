@@ -1,4 +1,4 @@
-package testrunners.JobMapping;
+﻿package testrunners.JobMapping;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -16,7 +16,7 @@ import io.cucumber.testng.CucumberOptions;
 })
 
 @CucumberOptions(
-		features = "src/test/resources/features/JobMapping",
+		features = "src/test/resources/features",
 		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Add_and_Verify_CustomSP_In_Job_Comparison_Page",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,

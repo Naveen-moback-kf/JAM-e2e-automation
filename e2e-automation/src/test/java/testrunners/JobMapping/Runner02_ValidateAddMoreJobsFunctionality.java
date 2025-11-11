@@ -7,7 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Listeners;
 
 import com.kfonetalentsuite.listeners.ExcelReportListener;
-import com.kfonetalentsuite.utils.JobCatalogRefresher;
+import com.kfonetalentsuite.utils.JobMapping.JobCatalogRefresher;
 import com.kfonetalentsuite.utils.common.DynamicTagResolver;
 import com.kfonetalentsuite.webdriverManager.CustomizeTestNGCucumberRunner;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
@@ -19,7 +19,7 @@ import io.cucumber.testng.CucumberOptions;
 })
 
 @CucumberOptions(
-		features = "src/test/resources/features/JobMapping",
+		features = "src/test/resources/features",
 		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Add_More_Jobs_Functionality",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,

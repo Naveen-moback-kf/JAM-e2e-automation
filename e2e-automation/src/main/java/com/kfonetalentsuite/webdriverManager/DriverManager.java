@@ -22,7 +22,7 @@ import org.testng.annotations.BeforeTest;
 
 
 import com.kfonetalentsuite.utils.common.CommonVariable;
-import com.kfonetalentsuite.utils.PerformanceUtils;
+import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 
 
 import io.github.bonigarcia.wdm.WebDriverManager;

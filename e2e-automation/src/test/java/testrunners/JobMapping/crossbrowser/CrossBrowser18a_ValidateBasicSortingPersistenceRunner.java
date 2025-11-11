@@ -1,4 +1,4 @@
-package testrunners.JobMapping.crossbrowser;
+﻿package testrunners.JobMapping.crossbrowser;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -26,7 +26,7 @@ import io.cucumber.testng.TestNGCucumberRunner;
     ExcelReportListener.class
 })
 @CucumberOptions(
-    features = "src/test/resources/features/JobMapping",
+    features = "src/test/resources/features",
     tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Basic_Sorting_Persistence",
 	glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
     dryRun = false,

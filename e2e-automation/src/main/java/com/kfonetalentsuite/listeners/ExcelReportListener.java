@@ -14,9 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.HashMap;
 
-import com.kfonetalentsuite.utils.DailyExcelTracker;
-import com.kfonetalentsuite.utils.ProgressBarUtil;
+
+import com.kfonetalentsuite.utils.JobMapping.DailyExcelTracker;
+import com.kfonetalentsuite.utils.JobMapping.ProgressBarUtil;
 import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.JobMapping.KeepAwakeUtil;
+import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 
@@ -162,7 +165,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
         configureExtentReporting();
         
         // SYSTEM POWER MANAGEMENT: Initialize Keep System Awake at suite level (ONCE for entire execution)
-        com.kfonetalentsuite.utils.KeepAwakeUtil.initialize();
+        KeepAwakeUtil.initialize();
         
         if (!isExcelReportingEnabled()) {
             return;
@@ -185,10 +188,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
         completedTestContexts = 0;
         
         // PERFORMANCE OPTIMIZATION: Reset screenshot counters for clean tracking
-        com.kfonetalentsuite.utils.ScreenshotHandler.resetCounters();
+        ScreenshotHandler.resetCounters();
         
         LOGGER.debug("Screenshot performance mode: {}", 
-                   com.kfonetalentsuite.utils.ScreenshotHandler.isPerformanceModeEnabled() ? "ENABLED" : "DISABLED");
+                   ScreenshotHandler.isPerformanceModeEnabled() ? "ENABLED" : "DISABLED");
     }
     
     // ISuiteListener implementation - for suite-level tracking
@@ -266,7 +269,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             LOGGER.debug("Excel reporting is DISABLED - Skipping Excel generation");
             
             // SYSTEM POWER MANAGEMENT: Shutdown Keep System Awake at suite level (ONCE after entire execution)
-            com.kfonetalentsuite.utils.KeepAwakeUtil.shutdown();
+            KeepAwakeUtil.shutdown();
             return;
         }
         
@@ -275,7 +278,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
         
         // PERFORMANCE OPTIMIZATION: Log screenshot performance statistics
         LOGGER.debug("Screenshot performance stats: {}", 
-                   com.kfonetalentsuite.utils.ScreenshotHandler.getPerformanceStats());
+                   ScreenshotHandler.getPerformanceStats());
         
         try {
             DailyExcelTracker.generateDailyReport(false); // Full update with execution history
@@ -295,7 +298,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             LOGGER.error("Excel report generation failed", e);
         } finally {
             // SYSTEM POWER MANAGEMENT: Shutdown Keep System Awake at suite level (ONCE after entire execution)
-            com.kfonetalentsuite.utils.KeepAwakeUtil.shutdown();
+            KeepAwakeUtil.shutdown();
         }
     }
     
