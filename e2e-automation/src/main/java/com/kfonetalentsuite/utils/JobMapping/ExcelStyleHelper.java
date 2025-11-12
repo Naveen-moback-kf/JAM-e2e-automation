@@ -215,6 +215,16 @@ public class ExcelStyleHelper {
     }
     
     /**
+     * Create row status style with text wrapping enabled (for Comments column)
+     */
+    public static CellStyle createRowStatusStyleWithWrapping(Workbook workbook, String status) {
+        CellStyle rowStyle = createRowStatusStyle(workbook, status);
+        rowStyle.setWrapText(true); // Enable text wrapping for multi-line content
+        rowStyle.setVerticalAlignment(VerticalAlignment.TOP); // Align text to top for better readability
+        return rowStyle;
+    }
+    
+    /**
      * Create enhanced status style for the Quality Status column (J)
      * Maintains bold formatting while ensuring consistent coloring with row
      * 

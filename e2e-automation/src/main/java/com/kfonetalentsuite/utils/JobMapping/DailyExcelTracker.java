@@ -487,6 +487,8 @@ public class DailyExcelTracker {
                             if (scenario.status != null && scenario.status.contains("FAILED")) {
                                 // Include scenario name in testKey for suite execution (matching ExcelReportListener key format)
                                 String testKey = className + "." + methodName + "." + actualScenarioName;
+                                LOGGER.debug("SUITE EXECUTION - Attempting to retrieve exception details for failed test. TestKey: '{}', Scenario: '{}'", testKey, actualScenarioName);
+                                
                                 com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails exceptionDetails =
                                     com.kfonetalentsuite.listeners.ExcelReportListener.getExceptionDetails(testKey);
 
@@ -495,8 +497,12 @@ public class DailyExcelTracker {
                                     scenario.failedStepName = "Test Execution";
                                     scenario.failedStepDetails = exceptionDetails.exceptionMessage;
                                     scenario.errorStackTrace = exceptionDetails.stackTrace;
-
-                                    //            scenario.scenarioName, exceptionDetails.exceptionType);
+                                    
+                                    LOGGER.info("SUITE EXECUTION - Successfully captured exception details for scenario '{}': {}", 
+                                               actualScenarioName, scenario.actualFailureReason);
+                                } else {
+                                    LOGGER.warn("SUITE EXECUTION - No exception details found for testKey '{}', scenario '{}'. This may result in generic failure message in Excel.", 
+                                               testKey, actualScenarioName);
                                 }
                             }
 
@@ -3313,8 +3319,13 @@ public class DailyExcelTracker {
                     // FIXED: Apply row-level styling but SKIP browser status columns (2, 3, 4) to preserve bold formatting
                     // Apply to Feature and Scenario columns (0, 1)
                     ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{0, 1});
-                    // Apply to Execution Details and Comments columns (5, 6)
-                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{5, 6});
+                    // Apply to Execution Details column (5) - normal style
+                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{5});
+                    // Apply to Comments column (6) with text wrapping for exception details
+                    Cell commentsCell = dataRow.getCell(6);
+                    if (commentsCell != null) {
+                        commentsCell.setCellStyle(ExcelStyleHelper.createRowStatusStyleWithWrapping(workbook, scenario.status));
+                    }
                 }
             }
         }
@@ -3735,8 +3746,13 @@ public class DailyExcelTracker {
                     // FIXED: Apply row-level styling but SKIP browser status columns (2, 3, 4) to preserve bold formatting
                     // Apply to Feature and Scenario columns (0, 1)
                     ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{0, 1});
-                    // Apply to Execution Details and Comments columns (5, 6)
-                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{5, 6});
+                    // Apply to Execution Details column (5) - normal style
+                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{5});
+                    // Apply to Comments column (6) with text wrapping for exception details
+                    Cell commentsCell = dataRow.getCell(6);
+                    if (commentsCell != null) {
+                        commentsCell.setCellStyle(ExcelStyleHelper.createRowStatusStyleWithWrapping(workbook, scenario.status));
+                    }
 
                 }
             }
@@ -6686,12 +6702,16 @@ public class DailyExcelTracker {
 
         if (status.contains("FAILED")) {
             LOGGER.debug("FAIL COMMENT - Processing failed scenario: '{}'", scenarioName);
+            LOGGER.debug("FAIL COMMENT - Scenario object has actualFailureReason: {}", 
+                        scenario != null && scenario.actualFailureReason != null && !scenario.actualFailureReason.trim().isEmpty());
 
-            // PRIORITY 1: Try to get actual failure exception message
+            // PRIORITY 1: Try to get actual failure exception message (checks scenario.actualFailureReason first)
             String actualFailureReason = getActualFailureExceptionMessage(scenario, scenarioName);
             if (actualFailureReason != null && !actualFailureReason.trim().isEmpty()) {
-                LOGGER.info("FAIL COMMENT - Using actual failure reason: '{}'", actualFailureReason);
+                LOGGER.info("FAIL COMMENT - Using actual failure reason for '{}': '{}'", scenarioName, actualFailureReason);
                 return actualFailureReason;
+            } else {
+                LOGGER.warn("FAIL COMMENT - No actual failure reason retrieved for '{}'", scenarioName);
             }
 
             // PRIORITY 2: Try existing specific failure comment generation
@@ -6715,7 +6735,13 @@ public class DailyExcelTracker {
      */
     private static String getActualFailureExceptionMessage(ScenarioDetail scenario, String scenarioName) {
         try {
-            // Get all captured exception details from ExcelReportListener
+            // PRIORITY 0: Check if scenario already has actualFailureReason populated (most reliable for suite execution)
+            if (scenario != null && scenario.actualFailureReason != null && !scenario.actualFailureReason.trim().isEmpty()) {
+                LOGGER.debug("Found failure reason directly from scenario object for '{}': '{}'", scenarioName, scenario.actualFailureReason);
+                return scenario.actualFailureReason;
+            }
+            
+            // PRIORITY 1: Get all captured exception details from ExcelReportListener
             java.util.Map<String, com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails> allExceptionDetails =
                 getAllCapturedExceptionDetails();
 

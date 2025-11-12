@@ -156,6 +156,12 @@ on:
         default: '23139'
         type: string
       
+      reset_excel_report:
+        description: '🔄 Reset Excel Report (Start Fresh)'
+        required: false
+        default: false
+        type: boolean
+      
       # Note: Username and password inputs removed due to GitHub's 10-input limit
       # All credentials are now sourced from GitHub Secrets (more secure)
       # Configure in: Settings > Secrets and variables > Actions
@@ -246,6 +252,7 @@ env:
   SCHEDULED_HEADLESS: 'true'                         # Options: true, false
   SCHEDULED_LOGIN_TYPE: 'NON_SSO'                    # Options: SSO, NON_SSO
   SCHEDULED_PAMS_ID: '23139'                         # Target PAMS ID for scheduled runs
+  SCHEDULED_RESET_EXCEL: 'false'                     # Options: true (start fresh), false (append to existing)
 
 jobs:
   e2e-tests:
@@ -327,6 +334,66 @@ jobs:
           else
             echo "ℹ️  No existing Excel report found - will create new one"
           fi
+      
+      - name: 🔄 Reset Excel Report (Optional)
+        if: ${{ github.event.inputs.reset_excel_report == 'true' || (github.event_name == 'schedule' && env.SCHEDULED_RESET_EXCEL == 'true') }}
+        run: |
+          echo "════════════════════════════════════════════════════════════════"
+          echo "🔄 RESET EXCEL REPORT - Starting with Fresh Data"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          
+          # Determine trigger type
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "Trigger: Scheduled Run (using SCHEDULED_RESET_EXCEL = ${{ env.SCHEDULED_RESET_EXCEL }})"
+          else
+            echo "Trigger: Manual Run (user selected: Reset Excel Report = TRUE)"
+          fi
+          
+          echo "This will delete any existing Excel report and start fresh."
+          echo ""
+          
+          # Check if Excel report exists
+          if [ -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" ]; then
+            echo "📋 Found existing Excel report:"
+            ls -lh e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx
+            echo ""
+            
+            # Create backup directory for safety
+            BACKUP_DIR="e2e-automation/ExcelReports/Backup"
+            mkdir -p "$BACKUP_DIR"
+            
+            # Create timestamped backup before deletion
+            TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+            BACKUP_FILE="TestResults_PreReset_Backup_${TIMESTAMP}.xlsx"
+            
+            echo "💾 Creating backup before deletion..."
+            cp "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" "$BACKUP_DIR/$BACKUP_FILE"
+            
+            if [ -f "$BACKUP_DIR/$BACKUP_FILE" ]; then
+              echo "✅ Backup created: $BACKUP_DIR/$BACKUP_FILE"
+              ls -lh "$BACKUP_DIR/$BACKUP_FILE"
+            else
+              echo "⚠️  Warning: Backup creation failed"
+            fi
+            
+            echo ""
+            echo "🗑️  Deleting existing Excel report..."
+            rm -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx"
+            
+            if [ ! -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" ]; then
+              echo "✅ Excel report deleted successfully"
+            else
+              echo "❌ Failed to delete Excel report"
+              exit 1
+            fi
+          else
+            echo "ℹ️  No existing Excel report found - nothing to delete"
+          fi
+          
+          echo ""
+          echo "✅ Reset complete - next test run will create a fresh Excel report"
+          echo "════════════════════════════════════════════════════════════════"
       
       - name: ⚙️ Configure Test Environment
         working-directory: e2e-automation
@@ -653,6 +720,7 @@ jobs:
             echo "**Parallel Execution:** ${{ github.event.inputs.parallel_execution || 'false' }}" >> $GITHUB_STEP_SUMMARY
             echo "**Login Type:** ${{ github.event.inputs.login_type || 'NON_SSO' }}" >> $GITHUB_STEP_SUMMARY
             echo "**PAMS ID:** ${{ github.event.inputs.pams_id || '23139' }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Excel Report Reset:** ${{ github.event.inputs.reset_excel_report || 'false' }}" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY

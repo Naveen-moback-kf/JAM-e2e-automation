@@ -346,7 +346,9 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                 String testKey = runnerClassName + "." + result.getMethod().getMethodName() + "." + scenarioInfo;
                 testExceptionDetails.put(testKey, details);
                 
-                LOGGER.debug("Captured failure exception for '{}': '{}'", scenarioInfo, actualExceptionMessage);
+                LOGGER.info("EXCEPTION CAPTURE - Stored failure exception with testKey: '{}', scenario: '{}', message: '{}'", 
+                           testKey, scenarioInfo, actualExceptionMessage);
+                LOGGER.debug("EXCEPTION CAPTURE - Total exception details stored: {}", testExceptionDetails.size());
                 
                 // ENHANCED: Also store failure reason by runner for global lookup
                 if (actualExceptionMessage != null && actualExceptionMessage.length() > 10) {
