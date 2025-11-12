@@ -59,9 +59,9 @@ public class ScenarioHooks {
         
         LOGGER.info("==================================================");
         
-        // Clear scenario information from ExcelReportListener
-        String threadId = Thread.currentThread().getName();
-        ExcelReportListener.clearCurrentScenario(threadId);
+        // DON'T clear scenario information yet - TestNG listener needs it for exception capture
+        // The ExcelReportListener will clear it after capturing exception details
+        // This ensures proper exception-to-scenario mapping in Excel reports
         
         // Clear scenario from ThreadLocal to avoid memory leaks
         currentScenario.remove();

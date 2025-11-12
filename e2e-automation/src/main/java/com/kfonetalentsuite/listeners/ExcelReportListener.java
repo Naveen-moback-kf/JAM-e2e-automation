@@ -316,6 +316,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             
             // ENHANCED: Capture comprehensive failure details with actual exception message
             captureFailureExceptionDetails(result, scenarioInfo);
+            
+            // Clear scenario name from thread after capturing exception (prevent memory leaks)
+            String threadId = Thread.currentThread().getName();
+            clearCurrentScenario(threadId);
         }
     }
     
@@ -346,9 +350,8 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                 String testKey = runnerClassName + "." + result.getMethod().getMethodName() + "." + scenarioInfo;
                 testExceptionDetails.put(testKey, details);
                 
-                LOGGER.info("EXCEPTION CAPTURE - Stored failure exception with testKey: '{}', scenario: '{}', message: '{}'", 
-                           testKey, scenarioInfo, actualExceptionMessage);
-                LOGGER.debug("EXCEPTION CAPTURE - Total exception details stored: {}", testExceptionDetails.size());
+                LOGGER.info("Captured failure exception for scenario: '{}'", scenarioInfo);
+                LOGGER.debug("Total exceptions stored: {} | TestKey: '{}'", testExceptionDetails.size(), testKey);
                 
                 // ENHANCED: Also store failure reason by runner for global lookup
                 if (actualExceptionMessage != null && actualExceptionMessage.length() > 10) {
@@ -457,6 +460,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             
             // Capture and store the actual skip exception details (including role-based skip reasons)
             captureSkipExceptionDetails(result, scenarioInfo);
+            
+            // Clear scenario name from thread after capturing skip details (prevent memory leaks)
+            String threadId = Thread.currentThread().getName();
+            clearCurrentScenario(threadId);
         }
     }
     
@@ -505,6 +512,12 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
      * Extract meaningful scenario information from test result - optimized
      */
     private String extractScenarioInfo(ITestResult result) {
+        // Strategy 0: PRIORITY - Try current scenario name from thread context FIRST (most reliable for Cucumber scenarios)
+        String scenarioName = getCurrentScenarioName();
+        if (scenarioName != null && !scenarioName.equals("Test Scenario") && scenarioName.length() > 5) {
+            return scenarioName;
+        }
+        
         // Strategy 1: Extract from TestNG parameters
         Object[] parameters = result.getParameters();
         if (parameters != null && parameters.length > 0) {
@@ -515,9 +528,9 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                         if (param.getClass().getName().contains("PickleWrapper")) {
                             Object pickle = param.getClass().getMethod("getPickle").invoke(param);
                             if (pickle != null) {
-                                String scenarioName = (String) pickle.getClass().getMethod("getName").invoke(pickle);
-                                if (scenarioName != null && scenarioName.length() > 5) {
-                                    return scenarioName;
+                                String extractedName = (String) pickle.getClass().getMethod("getName").invoke(pickle);
+                                if (extractedName != null && extractedName.length() > 5) {
+                                    return extractedName;
                                 }
                             }
                         }
@@ -537,13 +550,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             }
         }
         
-        // Strategy 2: Try current scenario name from thread context
-        String scenarioName = getCurrentScenarioName();
-        if (!scenarioName.equals("Test Scenario")) {
-            return scenarioName;
-        }
-        
-        // Strategy 3: Fallback - Use method name with class context
+        // Strategy 2: Fallback - Use method name with class context
         String methodName = result.getMethod().getMethodName();
         String className = result.getTestClass().getName();
         

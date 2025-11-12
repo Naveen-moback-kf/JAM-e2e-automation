@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.CacheLookup;
@@ -527,24 +528,86 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 	
 	public void click_on_functions_subfunctions_filters_dropdown_button() {
 		try {
+			LOGGER.info("Attempting to click Functions/Subfunctions dropdown - XPath: //div[@data-testid='dropdown-Functions_SubFunctions']");
 			PerformanceUtils.waitForPageReady(driver, 2);
-			js.executeScript("arguments[0].scrollIntoView();", functionsSubFunctionsFiltersDropdown);
+			
+			// Scroll element into view
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", functionsSubFunctionsFiltersDropdown);
+			Thread.sleep(500); // Brief pause after smooth scroll
+			
+			// Enhanced: Wait for element to be clickable before attempting click
+			wait.until(ExpectedConditions.elementToBeClickable(functionsSubFunctionsFiltersDropdown));
+			LOGGER.info("Functions/Subfunctions dropdown is visible and clickable");
+			
+			// Try multiple click strategies with detailed logging
+			boolean clickSucceeded = false;
+			String clickMethod = "";
+			
+			// Strategy 1: Regular WebDriver click
 			try {
-				wait.until(ExpectedConditions.visibilityOf(functionsSubFunctionsFiltersDropdown)).click();
-			} catch (Exception e) {
+				functionsSubFunctionsFiltersDropdown.click();
+				clickSucceeded = true;
+				clickMethod = "regular click";
+				LOGGER.info("Successfully clicked using regular WebDriver click");
+			} catch (Exception e1) {
+				LOGGER.warn("Regular click failed: {} - {}", e1.getClass().getSimpleName(), e1.getMessage());
+				
+				// Strategy 2: JavaScript click
 				try {
 					js.executeScript("arguments[0].click();", functionsSubFunctionsFiltersDropdown);
-				} catch (Exception s) {
-					utils.jsClick(driver, functionsSubFunctionsFiltersDropdown);
+					clickSucceeded = true;
+					clickMethod = "JavaScript click";
+					LOGGER.info("Successfully clicked using JavaScript click");
+				} catch (Exception e2) {
+					LOGGER.warn("JavaScript click failed: {} - {}", e2.getClass().getSimpleName(), e2.getMessage());
+					
+					// Strategy 3: Utility jsClick method
+					try {
+						utils.jsClick(driver, functionsSubFunctionsFiltersDropdown);
+						clickSucceeded = true;
+						clickMethod = "utility jsClick";
+						LOGGER.info("Successfully clicked using utility jsClick method");
+					} catch (Exception e3) {
+						LOGGER.error("All click methods failed: regular, JavaScript, and utility jsClick");
+						throw new Exception("Failed to click dropdown using all available methods. Last error: " + e3.getMessage());
+					}
 				}
-			}	
-			LOGGER.info("Clicked on Functions / Subfunctions dropdown in Filters...");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Functions / Subfunctions dropdown in Filters...");
+			}
+			
+			if (clickSucceeded) {
+				LOGGER.info("Clicked on Functions / Subfunctions dropdown in Filters using: {}", clickMethod);
+				ExtentCucumberAdapter.addTestStepLog("Clicked on Functions / Subfunctions dropdown in Filters (Method: " + clickMethod + ")");
+			}
+			
 	} catch (Exception e) {
+			// Enhanced error message with element state (safely check if element exists)
+			String elementDisplayed = "unknown";
+			String elementEnabled = "unknown";
+			
+			try {
+				elementDisplayed = String.valueOf(functionsSubFunctionsFiltersDropdown.isDisplayed());
+				elementEnabled = String.valueOf(functionsSubFunctionsFiltersDropdown.isEnabled());
+			} catch (Exception checkException) {
+				// Element doesn't exist, keep as "unknown"
+				elementDisplayed = "Element not found";
+				elementEnabled = "Element not found";
+			}
+			
+			String errorDetails = String.format(
+				"Failed to click Functions/Subfunctions dropdown. " +
+				"XPath: //div[@data-testid='dropdown-Functions_SubFunctions'], " +
+				"Element displayed: %s, Element enabled: %s, " +
+				"Error type: %s, Error message: %s",
+				elementDisplayed,
+				elementEnabled,
+				e.getClass().getSimpleName(),
+				e.getMessage()
+			);
+			
 			ScreenshotHandler.captureFailureScreenshot("click_on_functions_subfunctions_filters_dropdown_button", e);
-			LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
-			Assert.fail("Issue in clicking Functions / Subfunctions dropdown in Filters...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking Functions / Subfunctions dropdown in Filters...Please Investigate!!!");
+			LOGGER.error(errorDetails, e);
+			Assert.fail(errorDetails);
+			ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorDetails);
 		}
 	}
 	
@@ -780,56 +843,346 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 		}
 	}
 	
+	/**
+	 * Helper method to dynamically find and select a Function that has subfunctions
+	 * This makes the test robust by searching for valid test data automatically
+	 * @return true if a function with subfunctions was found and selected, false otherwise
+	 */
+	private boolean findAndSelectFunctionWithSubfunctions() {
+		try {
+		LOGGER.info("Searching for a function with subfunctions...");
+		
+		// CRITICAL: Clear the search bar first to show ALL functions in the dropdown
+		// Without this, the dropdown is filtered to only show the previously searched function
+		boolean searchCleared = false;
+		try {
+			LOGGER.info("Clearing search bar to reveal all functions...");
+			WebElement searchBox = wait.until(ExpectedConditions.visibilityOf(functionsSubFunctionsSearch));
+			
+			// Strategy 1: Try standard clear()
+			searchBox.clear();
+			Thread.sleep(300);
+			
+			// Strategy 2: If clear didn't work, try select all + delete
+			String currentValue = searchBox.getAttribute("value");
+			if (currentValue != null && !currentValue.trim().isEmpty()) {
+				LOGGER.warn("Search bar not cleared by clear(), trying select all + delete");
+				searchBox.sendKeys(Keys.CONTROL + "a");
+				Thread.sleep(100);
+				searchBox.sendKeys(Keys.BACK_SPACE);
+				Thread.sleep(300);
+			}
+			
+			// Strategy 3: Verify it's actually clear, if not try multiple backspaces
+			currentValue = searchBox.getAttribute("value");
+			if (currentValue != null && !currentValue.trim().isEmpty()) {
+				LOGGER.warn("Search bar still contains '{}', sending multiple backspaces", currentValue);
+				for (int i = 0; i < 50; i++) { // Max 50 characters
+					searchBox.sendKeys(Keys.BACK_SPACE);
+				}
+				Thread.sleep(300);
+			}
+			
+			PerformanceUtils.waitForPageReady(driver, 2);
+			
+			// Final verification
+			currentValue = searchBox.getAttribute("value");
+			searchCleared = (currentValue == null || currentValue.trim().isEmpty());
+			
+			if (searchCleared) {
+				LOGGER.info("Search bar successfully cleared");
+			} else {
+				LOGGER.error("Failed to clear search bar. Current value: '{}'", currentValue);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error clearing search bar: {}", e.getMessage());
+		}
+		
+		// Get all available functions in the dropdown (now unfiltered)
+		List<WebElement> FunctionsLabels = driver.findElements(By.xpath("//div[@data-testid='dropdown-Functions_SubFunctions']//input[@type='checkbox'][not(ancestor::button[contains(@data-testid,'suboption')])]//..//label"));
+		List<WebElement> ToggleButtons = driver.findElements(By.xpath("//button[contains(@data-testid,'toggle-suboptions')]"));
+		
+		LOGGER.info("Found {} functions in dropdown after clearing search", FunctionsLabels.size());
+		
+		if (FunctionsLabels.isEmpty() || FunctionsLabels.size() <= 1) {
+			LOGGER.error("Very few functions found ({}). Search bar may not have cleared properly!", FunctionsLabels.size());
+			return false;
+		}
+			
+		// Loop through each function to find one with subfunctions
+			for (int i = 0; i < FunctionsLabels.size(); i++) {
+				try {
+				String functionName = FunctionsLabels.get(i).getText().trim();
+				
+				if (functionName.isEmpty()) {
+					continue;
+				}
+				
+				// Click the toggle button to expand this function
+				if (i < ToggleButtons.size()) {
+					try {
+						js.executeScript("arguments[0].scrollIntoView({block: 'center'});", ToggleButtons.get(i));
+						Thread.sleep(200);
+						ToggleButtons.get(i).click();
+						Thread.sleep(500);
+						PerformanceUtils.waitForPageReady(driver, 1);
+					} catch (Exception e) {
+						continue;
+					}
+				}
+				
+				// Check if this function has subfunctions
+				List<WebElement> subfunctions = driver.findElements(By.xpath("//button[contains(@data-testid,'suboption')]//..//..//div[2]//label"));
+				int subfunctionCount = subfunctions.size() > 0 ? subfunctions.size() - 1 : 0;
+				
+			if (subfunctionCount > 0) {
+				LOGGER.info("Found function '{}' with {} subfunction(s)", functionName, subfunctionCount);
+				FunctionsOption = functionName;
+				ExtentCucumberAdapter.addTestStepLog("Dynamically selected Function '" + functionName + "' (has " + subfunctionCount + " subfunction(s))");
+				
+				// Enter the new function name in the search bar and expand it
+				try {
+					wait.until(ExpectedConditions.visibilityOf(functionsSubFunctionsSearch)).clear();
+					wait.until(ExpectedConditions.visibilityOf(functionsSubFunctionsSearch)).sendKeys(functionName);
+					PerformanceUtils.waitForPageReady(driver, 2);
+					Thread.sleep(500);
+					
+					// Click the dropdown button to expand the function
+					WebElement SearchedFunction_Dropdown = driver.findElement(By.xpath("//div[@data-testid='dropdown-Functions_SubFunctions']//input[@type='checkbox'][contains(@id,'" + functionName +"')][not(ancestor::button[contains(@data-testid,'suboption')])]/ancestor::button//button[contains(@data-testid,'toggle-suboptions')]"));
+					js.executeScript("arguments[0].scrollIntoView({block: 'center'});", SearchedFunction_Dropdown);
+					Thread.sleep(200);
+					wait.until(ExpectedConditions.elementToBeClickable(SearchedFunction_Dropdown)).click();
+					PerformanceUtils.waitForPageReady(driver, 2);
+				} catch (Exception e) {
+					// Ignore - continue
+				}
+				
+				return true;
+			}
+				
+			// Collapse and try next
+			if (i < ToggleButtons.size()) {
+				try {
+					ToggleButtons.get(i).click();
+					Thread.sleep(300);
+				} catch (Exception e) {
+					// Ignore
+				}
+			}
+				
+			} catch (Exception e) {
+				// Continue to next function
+			}
+		}
+		
+		LOGGER.error("No functions with subfunctions found in dropdown");
+		return false;
+		
+	} catch (Exception e) {
+		LOGGER.error("Error searching for function with subfunctions: {}", e.getMessage());
+		return false;
+	}
+}
+	
 	public void select_one_subfunction_option_inside_function_name_dropdown() {
 		PerformanceUtils.waitForPageReady(driver, 3);
+		
+		// IMPORTANT: This XPath specifically targets ONLY subfunctions (nested checkboxes inside suboption buttons)
+		// This avoids confusion when Function and Subfunction have the same name (e.g., both are "a1")
+		// The XPath ensures we only get checkboxes that are INSIDE a button with data-testid containing 'suboption'
 		List<WebElement> SubFunctionsCheckboxes = driver.findElements(By.xpath("//button[contains(@data-testid,'suboption')]//..//..//div[2]//input"));
 		List<WebElement> SubFunctionsValues = driver.findElements(By.xpath("//button[contains(@data-testid,'suboption')]//..//..//div[2]//label"));
+		
 		try {
-			for (int j=1; j<SubFunctionsValues.size(); j++) {
-				if(j==1) {
-					js.executeScript("arguments[0].scrollIntoView();", SubFunctionsValues.get(j));
+		// Note: Index 0 is typically a header/parent element, actual subfunctions start at index 1
+		// If current function has no subfunctions, search for one that does
+		if (SubFunctionsValues.isEmpty() || SubFunctionsValues.size() <= 1) {
+			LOGGER.warn("Function '{}' has no subfunctions. Searching for valid function...", FunctionsOption);
+				
+			// Try to find and select a function that has subfunctions
+			boolean foundFunctionWithSubfunctions = findAndSelectFunctionWithSubfunctions();
+			
+			if (!foundFunctionWithSubfunctions) {
+				String errorMsg = "No functions with subfunctions found in dropdown. Check application data or test environment.";
+				LOGGER.error(errorMsg);
+				ScreenshotHandler.captureFailureScreenshot("no_functions_with_subfunctions", new AssertionError(errorMsg));
+				Assert.fail(errorMsg);
+			}
+			
+			// Re-fetch subfunctions for the newly selected function
+			SubFunctionsCheckboxes = driver.findElements(By.xpath("//button[contains(@data-testid,'suboption')]//..//..//div[2]//input"));
+			SubFunctionsValues = driver.findElements(By.xpath("//button[contains(@data-testid,'suboption')]//..//..//div[2]//label"));
+		}
+			
+			LOGGER.info("Selecting subfunction for Function '{}'", FunctionsOption);
+			
+		for (int j=1; j<SubFunctionsValues.size(); j++) {
+			if(j==1) {
+				String subfunctionText = SubFunctionsValues.get(j).getText();
+				
+				// Scroll subfunction into view
+				js.executeScript("arguments[0].scrollIntoView();", SubFunctionsValues.get(j));
+				Thread.sleep(300);
+				
+				// Try multiple click strategies
+				boolean clickSucceeded = false;
+				try {
+					wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j))).click();
+					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+					PerformanceUtils.waitForPageReady(driver, 3);
+					clickSucceeded = true;
+				} catch (Exception e) {
 					try {
-						wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j))).click();
+						wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j)));
+						js.executeScript("arguments[0].click();", SubFunctionsValues.get(j));
 						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 						PerformanceUtils.waitForPageReady(driver, 3);
-					} catch (Exception e) {
-						try {
-							wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j)));
-							js.executeScript("arguments[0].click();", SubFunctionsValues.get(j));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
-						} catch (Exception s) {
-							wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j)));
-							utils.jsClick(driver, SubFunctionsValues.get(j));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
-						}
+						clickSucceeded = true;
+					} catch (Exception s) {
+						wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j)));
+						utils.jsClick(driver, SubFunctionsValues.get(j));
+						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+						PerformanceUtils.waitForPageReady(driver, 3);
+						clickSucceeded = true;
 					}
-					Assert.assertTrue(SubFunctionsCheckboxes.get(j).isSelected());
-					LOGGER.info("Selected SubFunction Value : " + SubFunctionsValues.get(j).getText() + " from Functions / SubFunctions Filters dropdown of the Function " + FunctionsOption +"....");
-					ExtentCucumberAdapter.addTestStepLog("Selected SubFunction Value : " + SubFunctionsValues.get(j).getText() + " from Functions / SubFunctions Filters dropdown of the Function " + FunctionsOption +"....");
+				}
+				
+				if (!clickSucceeded) {
+					LOGGER.error("Failed to click subfunction '{}'", subfunctionText);
+					Assert.fail("Failed to click subfunction '" + subfunctionText + "'");
+				}
+				
+				// Verify the subfunction checkbox is selected
+				boolean isSubfunctionSelected = SubFunctionsCheckboxes.get(j).isSelected();
+				if (!isSubfunctionSelected) {
+					String errorMsg = "Subfunction '" + subfunctionText + "' not selected after clicking";
+					LOGGER.error(errorMsg);
+					ScreenshotHandler.captureFailureScreenshot("subfunction_not_selected", new AssertionError(errorMsg));
+					Assert.fail(errorMsg);
+				}
+				
+				LOGGER.info("Selected subfunction '{}'", subfunctionText);
+					ExtentCucumberAdapter.addTestStepLog("Selected SubFunction '" + subfunctionText + "' from Functions/SubFunctions dropdown of Function '" + FunctionsOption + "'");
 			}
 			}
 	} catch (Exception e) {
+			String errorDetails = String.format(
+				"Failed to select subfunction inside function '%s' dropdown. " +
+				"Error type: %s, Error message: %s",
+				FunctionsOption,
+				e.getClass().getSimpleName(),
+				e.getMessage()
+			);
+			
 			ScreenshotHandler.captureFailureScreenshot("select_one_subfunction_option_inside_function_name_dropdown", e);
-			LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
-			Assert.fail("Issue in selecting one subfunction option inside function name dropdown...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in selecting one subfunction option inside function name dropdown...Please Investigate!!!");
+			LOGGER.error(errorDetails, e);
+			Assert.fail(errorDetails);
+			ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorDetails);
 		}		
 	}
 	
 	public void user_should_verify_function_name_is_automatically_selected_after_selecting_subfunction_option() {
-		String SearchedFunctionsOptionXpath = "//input[contains(@id,'" + FunctionsOption +"')]";
-		WebElement SearchedFunction_Checkbox = driver.findElement(By.xpath(SearchedFunctionsOptionXpath));
+		// IMPORTANT: Use specific XPath that excludes subfunction checkboxes
+		// This handles cases where Function and Subfunction have the same name (e.g., both are "a1")
+		// The XPath excludes any checkbox that is inside a suboption button (i.e., excludes subfunctions)
+		String SearchedFunctionsOptionXpath = "//div[@data-testid='dropdown-Functions_SubFunctions']//input[@type='checkbox'][contains(@id,'" + FunctionsOption +"')][not(ancestor::button[contains(@data-testid,'suboption')])]";
+		
 		try {
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(SearchedFunction_Checkbox)).isSelected());
-			LOGGER.info(FunctionsOption + " Function checkbox is Automatically selected as expected after selecting subfunction option");
-			ExtentCucumberAdapter.addTestStepLog(FunctionsOption + " Function checkbox is Automatically selected as expected after selecting subfunction option");
+			LOGGER.info("Verifying if '{}' Function checkbox is automatically selected after selecting subfunction...", FunctionsOption);
+			LOGGER.debug("Searching for PARENT function checkbox (excluding subfunctions) with XPath: {}", SearchedFunctionsOptionXpath);
+			
+			// First, check if the checkbox element exists
+			WebElement SearchedFunction_Checkbox;
+			try {
+				SearchedFunction_Checkbox = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(SearchedFunctionsOptionXpath)));
+				LOGGER.debug("Function checkbox element found in DOM");
+			} catch (Exception e) {
+				String errorMsg = String.format(
+					"Function checkbox element with ID containing '%s' not found. " +
+					"XPath: %s. This may indicate the function name is incorrect or the element doesn't exist. " +
+					"Error: %s",
+					FunctionsOption,
+					SearchedFunctionsOptionXpath,
+					e.getMessage()
+				);
+				LOGGER.error(errorMsg);
+				ScreenshotHandler.captureFailureScreenshot("function_checkbox_not_found", e);
+				Assert.fail(errorMsg);
+				return;
+			}
+			
+			// Wait for the checkbox to be visible
+			wait.until(ExpectedConditions.visibilityOf(SearchedFunction_Checkbox));
+			LOGGER.debug("Function checkbox is visible");
+			
+			// Check initial state before waiting
+			boolean initialState = SearchedFunction_Checkbox.isSelected();
+			LOGGER.debug("Function checkbox initial state: {}", initialState ? "already selected" : "not selected");
+			
+			if (initialState) {
+				LOGGER.info("Function checkbox '{}' is already selected (no auto-selection needed)", FunctionsOption);
+				ExtentCucumberAdapter.addTestStepLog(FunctionsOption + " Function checkbox is already selected");
+				return;
+			}
+			
+			// ENHANCED: Wait for the checkbox to actually be selected (auto-selection might take a moment)
+			boolean isFunctionCheckboxSelected = false;
+			
+			try {
+				isFunctionCheckboxSelected = wait.until(driver -> {
+					try {
+						// Re-locate element to avoid stale reference
+						WebElement checkbox = driver.findElement(By.xpath(SearchedFunctionsOptionXpath));
+						boolean isSelected = checkbox.isSelected();
+						if (!isSelected) {
+							LOGGER.debug("Function checkbox not yet auto-selected, waiting...");
+						}
+						return isSelected;
+					} catch (Exception e) {
+						LOGGER.warn("Error checking checkbox selection state: {}", e.getMessage());
+						return false;
+					}
+				});
+			} catch (org.openqa.selenium.TimeoutException te) {
+				// Timeout - checkbox never got selected
+				isFunctionCheckboxSelected = false;
+				LOGGER.error("Timeout: Function checkbox was not auto-selected within the wait period");
+			}
+			
+			// Verify the result
+			if (isFunctionCheckboxSelected) {
+				LOGGER.info("'{}' Function checkbox is Automatically selected as expected after selecting subfunction option", FunctionsOption);
+				ExtentCucumberAdapter.addTestStepLog(FunctionsOption + " Function checkbox is Automatically selected as expected after selecting subfunction option");
+			} else {
+				// Enhanced error message with more context
+				String errorMsg = String.format(
+					"Function checkbox '%s' was NOT automatically selected after selecting subfunction. " +
+					"Expected: checkbox to be selected (checked), Actual: checkbox not selected. " +
+					"This indicates the UI auto-selection feature is not working for this function. " +
+					"XPath: %s. Please check: 1) Is the subfunction correctly selected? 2) Does the UI support auto-selection for this function? 3) Are there JavaScript errors?",
+					FunctionsOption,
+					SearchedFunctionsOptionXpath
+				);
+				ScreenshotHandler.captureFailureScreenshot("function_checkbox_not_auto_selected", new AssertionError(errorMsg));
+				LOGGER.error(errorMsg);
+				Assert.fail(errorMsg);
+			}
+			
 	} catch (Exception e) {
+			// Enhanced error details
+			String errorDetails = String.format(
+				"Failed to verify if Function checkbox '%s' is automatically selected. " +
+				"XPath: %s, Error type: %s, Error message: %s",
+				FunctionsOption,
+				SearchedFunctionsOptionXpath,
+				e.getClass().getSimpleName(),
+				e.getMessage()
+			);
+			
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_function_name_is_automatically_selected_after_selecting_subfunction_option", e);
-			LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
-			Assert.fail("Issue in verifying function name is automatically selected or not after selecting subfunction option...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying function name is automatically selected or not after selecting subfunction option...Please Investigate!!!");
+			LOGGER.error(errorDetails, e);
+			Assert.fail(errorDetails);
+			ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorDetails);
 		}
 	}
 	

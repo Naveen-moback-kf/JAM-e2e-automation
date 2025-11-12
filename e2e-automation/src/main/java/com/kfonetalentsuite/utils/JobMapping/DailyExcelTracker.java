@@ -485,9 +485,8 @@ public class DailyExcelTracker {
 
                             // ENHANCED: Capture actual exception details from ExcelReportListener
                             if (scenario.status != null && scenario.status.contains("FAILED")) {
-                                // Include scenario name in testKey for suite execution (matching ExcelReportListener key format)
+                                // Include scenario name in testKey (matching ExcelReportListener key format)
                                 String testKey = className + "." + methodName + "." + actualScenarioName;
-                                LOGGER.debug("SUITE EXECUTION - Attempting to retrieve exception details for failed test. TestKey: '{}', Scenario: '{}'", testKey, actualScenarioName);
                                 
                                 com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails exceptionDetails =
                                     com.kfonetalentsuite.listeners.ExcelReportListener.getExceptionDetails(testKey);
@@ -498,11 +497,9 @@ public class DailyExcelTracker {
                                     scenario.failedStepDetails = exceptionDetails.exceptionMessage;
                                     scenario.errorStackTrace = exceptionDetails.stackTrace;
                                     
-                                    LOGGER.info("SUITE EXECUTION - Successfully captured exception details for scenario '{}': {}", 
-                                               actualScenarioName, scenario.actualFailureReason);
+                                    LOGGER.debug("Captured exception details for scenario '{}'", actualScenarioName);
                                 } else {
-                                    LOGGER.warn("SUITE EXECUTION - No exception details found for testKey '{}', scenario '{}'. This may result in generic failure message in Excel.", 
-                                               testKey, actualScenarioName);
+                                    LOGGER.warn("No exception details found for testKey '{}', scenario '{}'", testKey, actualScenarioName);
                                 }
                             }
 
@@ -3303,14 +3300,15 @@ public class DailyExcelTracker {
                     dataRow.createCell(5).setCellValue(executionDetails);
 
                     // Comments - Enhanced business-friendly failure reason with step details (shifted to column 6)
-                    // Pass execution context to help with subsequent run comment generation
                     String comments = generateEnhancedBusinessFriendlyComment(scenario, cleanedScenarioName, feature);
+                    
                     if (comments == null || comments.trim().isEmpty()) {
                         // Fallback comment for consistency
                         comments = scenario.status != null && scenario.status.contains("FAILED")
                             ? "Test execution failed - requires investigation"
                             : "Test executed successfully";
                     }
+                    
                     dataRow.createCell(6).setCellValue(comments);
 
                     //            feature.featureName, scenario.scenarioName, scenario.status, comments, feature.failed);
@@ -3736,11 +3734,13 @@ public class DailyExcelTracker {
 
                     // Comments - Ensure consistent comment generation
                     String comments = generateEnhancedBusinessFriendlyComment(scenario, scenario.scenarioName, feature);
+                    
                     if (comments == null || comments.trim().isEmpty()) {
                         comments = scenario.status != null && scenario.status.contains("FAILED")
                             ? "Test execution failed - requires investigation"
                             : "Test executed successfully";
                     }
+                    
                     dataRow.createCell(6).setCellValue(comments);
 
                     // FIXED: Apply row-level styling but SKIP browser status columns (2, 3, 4) to preserve bold formatting
@@ -6668,10 +6668,7 @@ public class DailyExcelTracker {
             
             if (perfMetrics != null) {
                 // Return performance metrics comment for Feature 41 scenarios
-                String performanceComment = perfMetrics.getFormattedMetricsForExcel();
-                LOGGER.debug("PASS COMMENT - Using performance metrics for scenario: '{}' | {}", 
-                            scenarioName, performanceComment);
-                return performanceComment;
+                return perfMetrics.getFormattedMetricsForExcel();
             }
             
             // For non-performance scenarios, return empty (generic "test executed successfully" will be used as fallback)
@@ -6679,51 +6676,38 @@ public class DailyExcelTracker {
         }
 
         if (status.contains("SKIPPED")) {
-            LOGGER.debug("SKIP COMMENT - Processing skipped scenario: '{}'", scenarioName);
-
             // PRIORITY 1: Try direct scenario name lookup
             String actualSkipReason = getActualSkipExceptionMessage(scenario, scenarioName);
             if (actualSkipReason != null && !actualSkipReason.trim().isEmpty()) {
-                LOGGER.info("SKIP COMMENT - Using actual skip reason: '{}'", actualSkipReason);
                 return actualSkipReason;
             }
 
             // PRIORITY 2: Try to get skip reason from exception details directly
             String exceptionBasedSkipReason = getSkipReasonFromExceptionDetails(scenario, scenarioName);
             if (exceptionBasedSkipReason != null && !exceptionBasedSkipReason.trim().isEmpty()) {
-                LOGGER.info("SKIP COMMENT - Using exception-based skip reason: '{}'", exceptionBasedSkipReason);
                 return exceptionBasedSkipReason;
             }
 
-            // LAST RESORT: Generic skip message (avoid this if possible)
-            LOGGER.warn("SKIP COMMENT - No actual skip reason found, using generic message for: '{}'", scenarioName);
+            // LAST RESORT: Generic skip message
             return "Test was skipped - may indicate dependency issues or test configuration";
         }
 
         if (status.contains("FAILED")) {
-            LOGGER.debug("FAIL COMMENT - Processing failed scenario: '{}'", scenarioName);
-            LOGGER.debug("FAIL COMMENT - Scenario object has actualFailureReason: {}", 
-                        scenario != null && scenario.actualFailureReason != null && !scenario.actualFailureReason.trim().isEmpty());
-
             // PRIORITY 1: Try to get actual failure exception message (checks scenario.actualFailureReason first)
             String actualFailureReason = getActualFailureExceptionMessage(scenario, scenarioName);
             if (actualFailureReason != null && !actualFailureReason.trim().isEmpty()) {
-                LOGGER.info("FAIL COMMENT - Using actual failure reason for '{}': '{}'", scenarioName, actualFailureReason);
                 return actualFailureReason;
-            } else {
-                LOGGER.warn("FAIL COMMENT - No actual failure reason retrieved for '{}'", scenarioName);
             }
 
             // PRIORITY 2: Try existing specific failure comment generation
             String specificFailureComment = generateSpecificFailureComment(scenario, scenarioName);
             if (specificFailureComment != null && !specificFailureComment.trim().isEmpty() &&
                 !specificFailureComment.equals("Test execution failed - requires investigation")) {
-                LOGGER.info("FAIL COMMENT - Using specific failure comment: '{}'", specificFailureComment);
                 return specificFailureComment;
             }
 
-            // LAST RESORT: Generic failure message (avoid this if possible)
-            LOGGER.warn("FAIL COMMENT - No actual failure reason found, using generic message for: '{}'", scenarioName);
+            // LAST RESORT: Generic failure message
+            LOGGER.warn("No exception details found for failed scenario '{}', using generic message", scenarioName);
             return "Test execution failed - requires investigation";
         }
 
@@ -6737,23 +6721,24 @@ public class DailyExcelTracker {
         try {
             // PRIORITY 0: Check if scenario already has actualFailureReason populated (most reliable for suite execution)
             if (scenario != null && scenario.actualFailureReason != null && !scenario.actualFailureReason.trim().isEmpty()) {
-                LOGGER.debug("Found failure reason directly from scenario object for '{}': '{}'", scenarioName, scenario.actualFailureReason);
                 return scenario.actualFailureReason;
             }
             
             // PRIORITY 1: Get all captured exception details from ExcelReportListener
             java.util.Map<String, com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails> allExceptionDetails =
                 getAllCapturedExceptionDetails();
-
+            
             if (allExceptionDetails != null && !allExceptionDetails.isEmpty()) {
                 // Look for failure exceptions that match this scenario
-                for (com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails details : allExceptionDetails.values()) {
+                for (java.util.Map.Entry<String, com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails> entry : allExceptionDetails.entrySet()) {
+                    com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails details = entry.getValue();
+                    
                     if (details != null && "FAILED".equals(details.testStatus)) {
                         // Match by scenario name
                         if (isScenarioMatch(details.scenarioName, scenarioName, scenario != null ? scenario.scenarioName : null)) {
                             String failureMessage = details.getFormattedExceptionForExcel();
                             if (failureMessage != null && !failureMessage.trim().isEmpty()) {
-                                LOGGER.debug("Found actual failure reason for scenario '{}': '{}'", scenarioName, failureMessage);
+                                LOGGER.info("Retrieved exception details for scenario '{}'", scenarioName);
                                 return failureMessage;
                             }
                         }
@@ -6763,7 +6748,7 @@ public class DailyExcelTracker {
 
             return null;
         } catch (Exception e) {
-            LOGGER.warn("Error retrieving actual failure exception message for scenario '{}': {}", scenarioName, e.getMessage());
+            LOGGER.error("Error retrieving exception for scenario '{}': {}", scenarioName, e.getMessage());
             return null;
         }
     }
