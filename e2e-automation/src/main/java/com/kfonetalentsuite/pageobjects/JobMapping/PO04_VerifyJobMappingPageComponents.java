@@ -1188,13 +1188,15 @@ public class PO04_VerifyJobMappingPageComponents {
 	 * Page is already loaded, so minimal wait needed
 	 */
 	public void verify_job_profiles_count_is_displaying_on_the_page() {
+		// Declare retry counter outside try block so it's accessible in catch block
+		int retryAttempts = 0;
+		
 		try {
 			// Page already loaded from previous step, just ensure readiness
 			PerformanceUtils.waitForPageReady(driver, 1);
 			
 			// Fix: Use fresh element lookup to avoid stale element reference
 			String resultsCountText = "";
-			int retryAttempts = 0;
 			int maxRetries = 5; // Increased from 3
 			
 			while (retryAttempts < maxRetries) {
@@ -1219,11 +1221,25 @@ public class PO04_VerifyJobMappingPageComponents {
 		    ExtentCucumberAdapter.addTestStepLog("Initially " + resultsCountText + " of job profiles");
 		    LOGGER.info("Initially " + resultsCountText + " of job profiles");
 		} catch (Exception e) {
+			// Enhanced error details
+			String errorDetails = String.format(
+				"Failed to verify job profiles count after %d retry attempts. " +
+				"XPath: //div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')], " +
+				"Max wait time: %d seconds, " +
+				"Error type: %s, " +
+				"Error message: %s. " +
+				"This usually indicates: 1) Results count element not loading, 2) Page stuck loading, or 3) No results to display.",
+				retryAttempts,
+				20,
+				e.getClass().getSimpleName(),
+				e.getMessage()
+			);
+			
 			ScreenshotHandler.captureFailureScreenshot("verify_job_profiles_count_is_displaying_on_the_page", e);
-			LOGGER.error("Issue in verifying job profiles results count - Method: verify_job_profiles_count_is_displaying_on_the_page", e);
+			LOGGER.error(errorDetails, e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying job profiles results count in Job Mapping page...Please Investigate!!!");
-			Assert.fail("Issue in verifying job profiles results count in Job Mapping page...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorDetails);
+			Assert.fail(errorDetails);
 		} 
 	}
 	

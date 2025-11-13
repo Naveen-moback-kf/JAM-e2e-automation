@@ -561,17 +561,54 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void user_should_verify_profile_name_matching_profile_is_displaying_in_organization_jobs_profile_list() {
 	try {
+		LOGGER.info("Verifying if profile name '{}' is displaying in HCM Sync Profiles list", jobProfileName);
+		
 		// PERFORMANCE: Single optimized wait - waitForPageReady already checks spinners
 		PerformanceUtils.waitForPageReady(driver, 2);
-		String job1NameText = wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText();
-			Assert.assertTrue(job1NameText.split("-", 2)[0].trim().toLowerCase().contains(jobProfileName.toLowerCase()));
-			LOGGER.info("Searched String present in Job Profile with name : " + job1NameText.split("-", 2)[0].trim() + " is displaying in HCM Sync Profiles screen in PM as expected");
-			ExtentCucumberAdapter.addTestStepLog("Searched String present in Job Profile with name : " + job1NameText.split("-", 2)[0].trim() + " is displaying in HCM Sync Profiles screen in PM as expected");
+		
+		// ENHANCED: First check if profile is found or "No SP" message is displayed
+		boolean profileFound = false;
+		String job1NameText = "";
+		
+		try {
+			// Try to get the first row profile name with a shorter wait
+			WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
+			job1NameText = shortWait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText();
+			profileFound = true;
+			LOGGER.info("Found profile in first row: '{}'", job1NameText);
 		} catch (Exception e) {
+			LOGGER.debug("No profile found in first row, checking for 'No SP' message...");
+			profileFound = false;
+		}
+		
+		if (profileFound) {
+			// Profile exists - verify it matches search criteria
+			String profileNameFromList = job1NameText.split("-", 2)[0].trim();
+			boolean matchesSearch = profileNameFromList.toLowerCase().contains(jobProfileName.toLowerCase());
+			
+			if (matchesSearch) {
+				LOGGER.info("Searched String present in Job Profile with name: '{}' is displaying in HCM Sync Profiles screen in PM as expected", profileNameFromList);
+				ExtentCucumberAdapter.addTestStepLog("Searched String present in Job Profile with name: " + profileNameFromList + " is displaying in HCM Sync Profiles screen in PM as expected");
+			} else {
+				String errorMsg = String.format(
+					"Profile found but does not match search criteria. " +
+					"Searched for: '%s', Found profile: '%s', " +
+					"Profile does not contain searched text.",
+					jobProfileName,
+					profileNameFromList
+				);
+				LOGGER.error(errorMsg);
+				ScreenshotHandler.captureFailureScreenshot("profile_mismatch", new AssertionError(errorMsg));
+				Assert.fail(errorMsg);
+			}
+		} else {
+			// No profile in first row - check if "No SP" message is displayed
 			try {
 				wait.until(ExpectedConditions.visibilityOf(NoSPMsg)).isDisplayed();
-				LOGGER.info("No Success Profile Found with searched String : " + jobProfileName);
-				ExtentCucumberAdapter.addTestStepLog("No Success Profile Found with searched String : " + jobProfileName);
+				LOGGER.info("No Success Profile Found with searched String: '{}'", jobProfileName);
+				ExtentCucumberAdapter.addTestStepLog("No Success Profile Found with searched String: " + jobProfileName);
+				
+				// Clear the search bar
 				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(hcmSyncProfilesSearchbar)).isDisplayed());
 				Actions actions = new Actions(driver);
 
@@ -582,16 +619,43 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				    .sendKeys(Keys.BACK_SPACE)
 				    .build()
 				    .perform();
-				LOGGER.info("Cleared Search bar in HCM Sync Profiles screen in PM....");
-				ExtentCucumberAdapter.addTestStepLog("Cleared Search bar in HCM Sync Profiles screen in PM....");
+				LOGGER.info("Cleared Search bar in HCM Sync Profiles screen in PM");
+				ExtentCucumberAdapter.addTestStepLog("Cleared Search bar in HCM Sync Profiles screen in PM");
 			} catch(Exception d) {
-			LOGGER.error(" Issue verifying profile name matching - Method: user_should_verify_profile_name_matching_profile_is_displaying_in_organization_jobs_profile_list", d);
-			ScreenshotHandler.captureFailureScreenshot("verify_profile_name_matching", d);
+				// Neither profile nor "No SP" message found
+				String errorMsg = String.format(
+					"Failed to verify profile name matching. " +
+					"Searched for: '%s', " +
+					"Neither matching profile nor 'No Success Profile' message was found. " +
+					"Error type: %s, Error message: %s",
+					jobProfileName,
+					d.getClass().getSimpleName(),
+					d.getMessage()
+				);
+				
+				LOGGER.error(errorMsg, d);
+				ScreenshotHandler.captureFailureScreenshot("verify_profile_name_matching", d);
 				d.printStackTrace();
-				Assert.fail("Issue in verifying Searched Profile name matching profile in My Organization's Job profiles screen in PM...Please Investigate!!!");
-				ExtentCucumberAdapter.addTestStepLog("Issue in verifying Searched Profile name matching profile in My Organization's Job profiles screen in PM...Please Investigate!!!");
+				Assert.fail(errorMsg);
+				ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorMsg);
 			}
 		}	
+	} catch (Exception outerException) {
+		// Outer catch for any unexpected errors
+		String errorDetails = String.format(
+			"Unexpected error while verifying profile name matching. " +
+			"Searched for: '%s', Error type: %s, Error message: %s",
+			jobProfileName,
+			outerException.getClass().getSimpleName(),
+			outerException.getMessage()
+		);
+		
+		LOGGER.error(errorDetails, outerException);
+		ScreenshotHandler.captureFailureScreenshot("verify_profile_unexpected_error", outerException);
+		outerException.printStackTrace();
+		Assert.fail(errorDetails);
+		ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorDetails);
+	}
 	}
 	
 	public void click_on_name_matching_profile_in_hcm_sync_profiles_tab() {

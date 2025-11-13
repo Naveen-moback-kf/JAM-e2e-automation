@@ -56,16 +56,51 @@ public class PO08_PublishJobFromDetailsPopup {
 
 	public void click_on_publish_profile_button_in_profile_details_popup() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(publishProfileBtnInPopup)).click();
-		LOGGER.info("Clicked on Publish Profile button in Profile Details popup");
-		ExtentCucumberAdapter.addTestStepLog("Clicked on Publish Profile button in Profile Details popup");
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			// Enhanced: Log element status before attempting click
+			LOGGER.info("Attempting to locate Publish Profile button in popup - xpath: //button[@id='publish-job-profile']");
+			
+			// Wait for button to be visible and clickable
+			WebElement publishButton = wait.until(ExpectedConditions.elementToBeClickable(publishProfileBtnInPopup));
+			LOGGER.info("Publish Profile button found and clickable");
+			
+			// Try regular click first
+			try {
+				publishButton.click();
+				LOGGER.info("Clicked on Publish Profile button using regular click");
+			} catch (Exception clickException) {
+				// Fallback: Use JavaScript click if regular click fails
+				LOGGER.warn("Regular click failed, attempting JavaScript click. Error: " + clickException.getMessage());
+				js.executeScript("arguments[0].click();", publishButton);
+				LOGGER.info("Clicked on Publish Profile button using JavaScript click");
+			}
+			
+			ExtentCucumberAdapter.addTestStepLog("Clicked on Publish Profile button in Profile Details popup");
+			
+			// Wait for loading spinner to disappear
+			LOGGER.info("Waiting for loading spinner to disappear...");
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			LOGGER.info("Loading spinner disappeared - operation completed successfully");
+			
 		} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("click_on_publish_profile_button_in_profile_details_popup", e);
-		LOGGER.error("Failed to click Publish Profile button in popup - Method: click_on_publish_profile_button_in_profile_details_popup", e);
-		e.printStackTrace();
-		Assert.fail("Issue in clicking Publish Profile button in profile details popup...Please investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in clicking Publish Profile button in profile details popup...Please investigate!!!");
-	}
+			// Enhanced error details
+			String errorDetails = String.format(
+				"Failed to click Publish Profile button in popup. " +
+				"Element ID: 'publish-job-profile', " +
+				"Button displayed: %s, " +
+				"Button enabled: %s, " +
+				"Error type: %s, " +
+				"Error message: %s",
+				publishProfileBtnInPopup.isDisplayed(),
+				publishProfileBtnInPopup.isEnabled(),
+				e.getClass().getSimpleName(),
+				e.getMessage()
+			);
+			
+			ScreenshotHandler.captureFailureScreenshot("click_on_publish_profile_button_in_profile_details_popup", e);
+			LOGGER.error(errorDetails, e);
+			e.printStackTrace();
+			Assert.fail(errorDetails);
+			ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorDetails);
+		}
 	}
 }

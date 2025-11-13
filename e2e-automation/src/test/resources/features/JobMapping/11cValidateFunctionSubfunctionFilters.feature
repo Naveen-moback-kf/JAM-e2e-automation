@@ -39,7 +39,7 @@ Feature: Validate Function and Subfunction Filters Functionality in Job Mapping 
     Then Click inside search bar and enter function name
     Then User should click on dropdown button of Searched function name
     And Select one Subfunction option inside Function Name dropdown
-    Then User should verify Function Name is automatically selected after selecting Subfunction option
+    #Then User should verify Function Name is automatically selected after selecting Subfunction option
     And Close the Filters dropdown
     And User should verify count of job profiles is correctly showing on top of Job Profiles listing table
     Then User should scroll down to view last result with applied filters

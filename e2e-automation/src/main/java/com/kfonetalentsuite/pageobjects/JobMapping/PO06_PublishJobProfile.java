@@ -593,30 +593,95 @@ public class PO06_PublishJobProfile {
 	
 	public void user_should_navigate_to_jobs_page_in_architect() {
 		try {
+			// Wait for page to be ready
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(JobsPageHeaderinArchitect)).isDisplayed());
+			
+			// HEADLESS FIX: Add extra wait for JavaScript to complete in headless mode
+			Thread.sleep(500);
+			
+			// HEADLESS FIX: Use fresh element lookup to avoid stale reference from @CacheLookup
+			WebElement jobsElement = wait.until(ExpectedConditions.presenceOfElementLocated(
+				By.xpath("//span[text()='Jobs']")
+			));
+			
+			// HEADLESS FIX: Ensure element is visible and in viewport
+			wait.until(ExpectedConditions.visibilityOf(jobsElement));
+			
+			// HEADLESS FIX: Scroll element into view (critical for headless)
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'instant', block: 'center'});", jobsElement);
+			Thread.sleep(300); // Brief pause after scroll
+			
+			// Assert element is displayed
+			Assert.assertTrue(jobsElement.isDisplayed(), "Jobs element is not displayed after scrolling into view");
+			
+			// HEADLESS FIX: Multiple click strategies
+			boolean clickSucceeded = false;
+			
+			// Strategy 1: Regular click
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(JobsPageHeaderinArchitect)).click();
-			} catch (Exception e) {
+				wait.until(ExpectedConditions.elementToBeClickable(jobsElement));
+				jobsElement.click();
+				clickSucceeded = true;
+			} catch (Exception e1) {
+				// Strategy 2: JavaScript click (most reliable in headless)
 				try {
-					js.executeScript("arguments[0].click();", JobsPageHeaderinArchitect);
-				} catch (Exception s) {
-					utils.jsClick(driver, JobsPageHeaderinArchitect);
+					js.executeScript("arguments[0].click();", jobsElement);
+					clickSucceeded = true;
+				} catch (Exception e2) {
+					// Strategy 3: Utility jsClick method
+					try {
+						utils.jsClick(driver, jobsElement);
+						clickSucceeded = true;
+					} catch (Exception e3) {
+						LOGGER.error("All click methods failed: {}", e3.getMessage());
+						throw new Exception("Failed to click Jobs element using all available methods. Last error: " + e3.getMessage());
+					}
 				}
 			}
+			
+			if (!clickSucceeded) {
+				throw new Exception("Failed to click Jobs element - all strategies exhausted");
+			}
+			
+			// Wait for page transition
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(JobsPageHeaderinArchitect)).isDisplayed());
-			String JobsHeaderText = wait.until(ExpectedConditions.visibilityOf(JobsPageHeaderinArchitect)).getText();
-			Assert.assertEquals("Jobs",JobsHeaderText);
+			PerformanceUtils.waitForPageReady(driver, 2);
+			
+			// HEADLESS FIX: Re-locate element after click (avoid stale reference)
+			WebElement jobsHeaderAfterClick = wait.until(ExpectedConditions.presenceOfElementLocated(
+				By.xpath("//span[text()='Jobs']")
+			));
+			
+			// Verify navigation succeeded
+			Assert.assertTrue(
+				wait.until(ExpectedConditions.visibilityOf(jobsHeaderAfterClick)).isDisplayed(),
+				"Jobs header not displayed after click"
+			);
+			
+			String JobsHeaderText = jobsHeaderAfterClick.getText();
+			Assert.assertEquals("Jobs", JobsHeaderText, 
+				String.format("Expected Jobs header text to be 'Jobs' but found '%s'", JobsHeaderText));
+			
 			LOGGER.info("User navigated to Jobs page in Architect");
 			ExtentCucumberAdapter.addTestStepLog("User navigated to Jobs page in Architect");
+			
 		} catch (Exception e) {
+			// Enhanced error details for headless debugging
+			String errorDetails = String.format(
+				"Failed to navigate to Jobs page in Architect. " +
+				"XPath: //span[text()='Jobs'], " +
+				"Error type: %s, " +
+				"Error message: %s",
+				e.getClass().getSimpleName(),
+				e.getMessage()
+			);
+			
 			ScreenshotHandler.captureFailureScreenshot("user_should_navigate_to_jobs_page_in_architect", e);
-			LOGGER.error("Issue in Navigating to Jobs page in Architect - Method: user_should_navigate_to_jobs_page_in_architect", e);
+			LOGGER.error(errorDetails, e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in Navigating to Jobs page in Architect...Please Investigate!!!");
-			Assert.fail("Issue in Navigating to Jobs page in Architect...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorDetails);
+			Assert.fail(errorDetails);
 		}
 		
 	}
