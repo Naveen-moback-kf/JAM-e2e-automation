@@ -20,6 +20,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
+import com.kfonetalentsuite.utils.HeadlessCompatibleActions;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
@@ -41,11 +42,14 @@ public class PO24_ValidatePublishCenter_PM {
 		// super();
 		PageFactory.initElements(driver, this);
 		// TODO Auto-generated constructor stub
+		// Initialize headless-compatible actions utility
+		this.headlessActions = new HeadlessCompatibleActions(driver);
 	}
 
 	WebDriverWait wait = DriverManager.getWait();
 	Utilities utils = new Utilities();
 	JavascriptExecutor js = (JavascriptExecutor) driver;
+	HeadlessCompatibleActions headlessActions; // Utility for headless-compatible actions
 	
 	//XAPTHs
 	@FindBy(xpath = "//*[@class='blocking-loader']//img")
@@ -146,7 +150,7 @@ public class PO24_ValidatePublishCenter_PM {
 	
 	public void click_on_publish_center_button() {
 		try {
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(publishCenterBtn)).isEnabled());
 			try {
@@ -529,24 +533,31 @@ public class PO24_ValidatePublishCenter_PM {
 	public void user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles_in_job_profile_history_screen() {
 		try {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).isDisplayed());
-			js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+			
+			// First scroll to bottom (headless-compatible)
+			headlessActions.scrollToBottom();
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 3);
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+			
+			// Second scroll to bottom (headless-compatible)
+			headlessActions.scrollToBottom();
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 3);
+			
 			String resultsCountText_updated = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
 			LOGGER.info("Scrolled down till third page and now "+ resultsCountText_updated + " of Job Profiles as expected");
 			ExtentCucumberAdapter.addTestStepLog("Scrolled down till third page and now "+ resultsCountText_updated + " of Job Profiles as expected");	
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+			
+			// Scroll to top (headless-compatible)
+			js.executeScript("window.scrollTo(0, 0);");
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 2);
 	} catch (Exception e) {
 			e.printStackTrace();
 			Assert.fail("Issue in scrolling page down two times to view first thirty job profiles in Job Profile History screen...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in scrolling page down two times to view first thirty job profiles in Job Profile History screen...Please Investigate!!!");
-		} 	
+	}
 	}
 	
 	public void user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting_in_job_profile_history_screen() {

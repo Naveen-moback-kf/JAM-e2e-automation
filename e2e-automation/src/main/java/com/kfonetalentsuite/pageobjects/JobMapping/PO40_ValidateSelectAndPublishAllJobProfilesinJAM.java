@@ -294,7 +294,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	
 	while (scrollAttempts < maxScrollAttempts) {
 		// Scroll to bottom
-		js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+		js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
 		scrollAttempts++;
 		
 		// Wait for content to load
@@ -797,4 +797,5 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 		}
 	}
 }
+
 

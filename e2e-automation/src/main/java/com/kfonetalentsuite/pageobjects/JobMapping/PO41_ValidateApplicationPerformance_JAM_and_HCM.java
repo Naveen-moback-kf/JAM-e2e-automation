@@ -1648,7 +1648,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			for (int i = 0; i < targetScrolls; i++) {
 				long scrollIterationStart = System.currentTimeMillis();
 				
-				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
 				totalScrolls++;
 				Thread.sleep(300);
 				
@@ -2041,7 +2041,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			int scrollAttempts = 10;
 			for (int i = 0; i < scrollAttempts; i++) {
-				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
 				Thread.sleep(500);
 				
 				try {
@@ -2666,4 +2666,5 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 		}
 	}
 }
+
 

@@ -911,7 +911,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 			if (!jobFound) {
 				// Check if there are more rows to load by scrolling down
 				int currentRowCount = currentJobRows.size();
-				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
 				PerformanceUtils.safeSleep(driver, 2000); // Wait for potential lazy loading
 				
 				List<WebElement> newJobRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
@@ -2064,7 +2064,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 				
 				// Check if there are more jobs to load (scroll to bottom to trigger loading)
 				int currentJobCount = currentJobRows.size();
-				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
 				PerformanceUtils.safeSleep(driver, 2000); // Wait for potential lazy loading
 				
 				List<WebElement> newJobRows = driver.findElements(By.xpath("//tbody//tr[contains(@class,'border')]"));

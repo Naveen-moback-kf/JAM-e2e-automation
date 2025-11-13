@@ -19,19 +19,8 @@ Feature: Validate Function and Subfunction Filters Functionality in Job Mapping 
     Then Validate Job Mapping Profiles are correctly filtered with applied Functions Subfunctions Options
     Then Click on Clear Filters button
 
-  @ValidateFunctionSubfunctionSearchFunctionality
-  Scenario: User validates search bar functionality in Functions Subfunctions filter
-    When User is in Job Mapping page
-    Then Verify job profiles count is displaying on the page
-    Then Click on Filters dropdown button
-    Then Click on Functions Subfunctions Filters dropdown button
-    Then User should verify Search bar is available in Functions Subfunctions Filters dropdown
-    Then Click inside search bar and enter function name
-    Then User should click on dropdown button of Searched function name
-    And Close the Filters dropdown
-
   @ApplySpecificSubfunctionFilters
-  Scenario: User filters by specific subfunctions within a function
+  Scenario: User validates search bar and filters by specific subfunctions within a function
     When User is in Job Mapping page
     Then Verify job profiles count is displaying on the page
     Then Click on Filters dropdown button

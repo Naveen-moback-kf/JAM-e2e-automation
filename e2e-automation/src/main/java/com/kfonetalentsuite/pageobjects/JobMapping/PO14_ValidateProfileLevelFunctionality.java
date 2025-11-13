@@ -174,3 +174,4 @@ public class PO14_ValidateProfileLevelFunctionality {
 		ExtentCucumberAdapter.addTestStepLog("User is in Job Comparison Page after changing profile level");
 	}
 }
+

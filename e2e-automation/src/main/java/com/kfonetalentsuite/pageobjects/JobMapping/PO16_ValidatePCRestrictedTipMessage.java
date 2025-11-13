@@ -1240,3 +1240,4 @@ public void click_on_success_profiles_header() {
 		ExtentCucumberAdapter.addTestStepLog("User is on Profile Collection creation page with profiles added");
 	}
 }
+

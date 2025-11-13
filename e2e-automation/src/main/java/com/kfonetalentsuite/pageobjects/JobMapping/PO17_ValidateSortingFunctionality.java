@@ -71,19 +71,19 @@ public class PO17_ValidateSortingFunctionality {
 	
 	//METHODs
 	public void user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles() {
-		try {
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).isDisplayed());
-			js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			// PERFORMANCE: Replaced 3x Thread.sleep(3000) = 9 seconds with smart page ready wait!
-			PerformanceUtils.waitForPageReady(driver);
-			js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-			PerformanceUtils.waitForElement(driver, showingJobResultsCount);
-			String resultsCountText_updated = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-			LOGGER.info("Scrolled down till third page and now "+ resultsCountText_updated + " of Job Profiles as expected");
-			ExtentCucumberAdapter.addTestStepLog("Scrolled down till third page and now "+ resultsCountText_updated + " of Job Profiles as expected");	
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+	try {
+		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).isDisplayed());
+		js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		// PERFORMANCE: Replaced 3x Thread.sleep(3000) = 9 seconds with smart page ready wait!
+		PerformanceUtils.waitForPageReady(driver);
+		js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
+		PerformanceUtils.waitForElement(driver, showingJobResultsCount);
+		String resultsCountText_updated = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+		LOGGER.info("Scrolled down till third page and now "+ resultsCountText_updated + " of Job Profiles as expected");
+		ExtentCucumberAdapter.addTestStepLog("Scrolled down till third page and now "+ resultsCountText_updated + " of Job Profiles as expected");	
+		js.executeScript("window.scrollTo(0, 0);"); // Scroll UP to top (headless-compatible)
+	wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 		// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 		PerformanceUtils.waitForPageReady(driver);	
 	} catch (Exception e) {

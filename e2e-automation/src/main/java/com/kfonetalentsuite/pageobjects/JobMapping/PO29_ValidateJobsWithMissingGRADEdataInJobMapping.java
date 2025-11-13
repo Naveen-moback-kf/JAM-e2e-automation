@@ -934,9 +934,9 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping {
 				
 				if (!jobFound) {
 					// Check if there are more rows to load by scrolling down
-					int currentRowCount = currentJobRows.size();
-					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-					PerformanceUtils.safeSleep(driver, 2000); // Wait for potential lazy loading
+				int currentRowCount = currentJobRows.size();
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
+				PerformanceUtils.safeSleep(driver, 2000); // Wait for potential lazy loading
 					
 					List<WebElement> newJobRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
 					int newRowCount = newJobRows.size();
@@ -2061,9 +2061,9 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping {
 				}
 				
 				// Check if there are more jobs to load (scroll to bottom to trigger loading)
-				int currentJobCount = currentJobRows.size();
-				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-				PerformanceUtils.safeSleep(driver, 2000); // Wait for potential lazy loading
+			int currentJobCount = currentJobRows.size();
+			js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
+			PerformanceUtils.safeSleep(driver, 2000); // Wait for potential lazy loading
 				
 				List<WebElement> newJobRows = driver.findElements(By.xpath("//tbody//tr[contains(@class,'border')]"));
 				int newJobCount = newJobRows.size();

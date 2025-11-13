@@ -75,7 +75,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 		
 		while (scrollCount < maxScrollAttempts) {
 			// Scroll to bottom
-			js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+			js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
 			scrollCount++;
 			
 			// Wait for content to load
@@ -199,7 +199,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 			while (scrollAttempts < maxScrollAttempts && !allProfilesLoaded) {
 				scrollAttempts++;
 				
-				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
 				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 				PerformanceUtils.waitForPageReady(driver, 2);
 				Thread.sleep(1000);
@@ -687,4 +687,5 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 		ExtentCucumberAdapter.addTestStepLog(" Validation already completed");
 	}
 }
+
 

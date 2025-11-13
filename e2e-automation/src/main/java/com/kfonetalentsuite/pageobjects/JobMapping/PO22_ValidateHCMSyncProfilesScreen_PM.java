@@ -21,12 +21,14 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
+import com.kfonetalentsuite.utils.HeadlessCompatibleActions;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
-	WebDriver driver = DriverManager.getDriver();	
+	WebDriver driver = DriverManager.getDriver();
+	private HeadlessCompatibleActions headlessActions;	
 
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO22_ValidateHCMSyncProfilesScreen_PM validateHCMSyncProfilesTab_PM;
@@ -53,6 +55,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public PO22_ValidateHCMSyncProfilesScreen_PM() throws IOException {
 		// super();
 		PageFactory.initElements(driver, this);
+		this.headlessActions = new HeadlessCompatibleActions(driver);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -748,7 +751,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void scroll_page_to_view_more_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
-			js.executeScript("window.scrollBy(0,document.body.scrollHeight)");
+			headlessActions.scrollToBottom();
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 			PerformanceUtils.waitForPageReady(driver);
@@ -943,7 +946,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			
 			try { 
 							// PERFORMANCE: Removed Thread.sleep(2000) - scrolling doesn't need fixed delay
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 				try {
 					wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesHeader)).click();
 				} catch (Exception e) {
@@ -1091,7 +1094,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			
 			try { 
 							// PERFORMANCE: Removed Thread.sleep(2000) - scrolling doesn't need fixed delay
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 				try {
 					wait.until(ExpectedConditions.visibilityOf(hcmSyncProfilesHeader)).click();
 				}  catch (Exception e) {
@@ -1240,7 +1243,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			
 			try { 
 							// PERFORMANCE: Removed Thread.sleep(2000) - scrolling doesn't need fixed delay
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 				try {
 					wait.until(ExpectedConditions.visibilityOf(hcmSyncProfilesHeader)).click();
 				}  catch (Exception e) {
@@ -1407,7 +1410,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			
 			try { 
 							// PERFORMANCE: Removed Thread.sleep(2000) - scrolling doesn't need fixed delay
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 				try {
 					wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesHeader)).click();
 				} catch (Exception e) {
@@ -1592,7 +1595,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void user_should_verify_download_button_is_enabled_in_hcm_sync_profiles_tab() {
 		try {
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(downloadBtn)).isEnabled());
 		LOGGER.info("Download button is enabled as expected after selecting job profiles in HCM Sync Profiles screen in PM");
@@ -1893,7 +1896,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void click_on_sync_with_hcm_button_in_hcm_sync_profiles_tab() {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(SyncwithHCMBtn)).click();

@@ -23,11 +23,13 @@ import org.testng.SkipException;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.HeadlessCompatibleActions;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO21_MapDifferentSPtoProfileInAutoAI {
-	WebDriver driver = DriverManager.getDriver();	
+	WebDriver driver = DriverManager.getDriver();
+	private HeadlessCompatibleActions headlessActions;	
 
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO21_MapDifferentSPtoProfileInAutoAI mapDifferentSPtoProfileInAutoAI;
@@ -61,6 +63,7 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 	public PO21_MapDifferentSPtoProfileInAutoAI() throws IOException {
 		// super();
 		PageFactory.initElements(driver, this);
+		this.headlessActions = new HeadlessCompatibleActions(driver);
 		// TODO Auto-generated constructor stub
 	}
 
@@ -321,7 +324,7 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 				
 				// Scroll to bottom to load more data
 				LOGGER.debug("Scrolling to load more records...");
-				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+				headlessActions.scrollToBottom();
 				
 				// Wait for spinner and page to stabilize
 				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
@@ -1049,14 +1052,14 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 				// PERFORMANCE: Removed Thread.sleep(2000) - scrollIntoView is immediate
 				js.executeScript("arguments[0].scrollIntoView(true);", manualMappingPageProfileViewMoreResponsibilitiesBtn.get(0));
 				wait.until(ExpectedConditions.elementToBeClickable(manualMappingPageProfileViewMoreResponsibilitiesBtn.get(0))).click();
-				while(true) {
-					try {
-						if(manualMappingPageProfileViewMoreResponsibilitiesBtn.isEmpty()) {
-							js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-					LOGGER.info("Reached end of content in Last Saved Success Profile Responsibilities Section in Manual Mapping screen");
-					ExtentCucumberAdapter.addTestStepLog("Reached end of content in Last Saved Success Profile Responsibilities Section in Manual Mapping screen");
-					break;
-				}
+			while(true) {
+				try {
+					if(manualMappingPageProfileViewMoreResponsibilitiesBtn.isEmpty()) {
+						js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Headless-compatible
+				LOGGER.info("Reached end of content in Last Saved Success Profile Responsibilities Section in Manual Mapping screen");
+				ExtentCucumberAdapter.addTestStepLog("Reached end of content in Last Saved Success Profile Responsibilities Section in Manual Mapping screen");
+				break;
+			}
 				String ViewMoreResponsibilitiesBtnText = wait.until(ExpectedConditions.visibilityOf(manualMappingPageProfileViewMoreResponsibilitiesBtn.get(0))).getText();
 				// Scroll element into view before clicking
 				WebElement element = manualMappingPageProfileViewMoreResponsibilitiesBtn.get(0);
@@ -1074,11 +1077,11 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 					// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
 					PerformanceUtils.waitForUIStability(driver, 2);
 						js.executeScript("arguments[0].scrollIntoView(true);", manualMappingPageProfileViewMoreResponsibilitiesBtn.get(0));
-					} catch(StaleElementReferenceException e) {
-						js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-						LOGGER.info("Reached end of content in Last Saved Success Profile Responsibilities Section in Manual Mapping screen");
-						ExtentCucumberAdapter.addTestStepLog("Reached end of content in Last Saved Success Profile Responsibilities Section in Manual Mapping screen");
-						break;
+			} catch(StaleElementReferenceException e) {
+					js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Headless-compatible
+					LOGGER.info("Reached end of content in Last Saved Success Profile Responsibilities Section in Manual Mapping screen");
+					ExtentCucumberAdapter.addTestStepLog("Reached end of content in Last Saved Success Profile Responsibilities Section in Manual Mapping screen");
+					break;
 					}	
 				}
 				String manualMappingPageProfileResponsibilitiesText = wait.until(ExpectedConditions.visibilityOf(manualMappingPageProfileResponsibilitiesData)).getText();
@@ -1204,7 +1207,7 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 	public void search_for_success_profile_in_manual_mapping_screen() {
 		if(manualMapping) {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)"); //Scroll to Top of the Page
+			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 			try {
 			// PERFORMANCE: Replaced Thread.sleep(2000) with element readiness wait
 			PerformanceUtils.waitForElement(driver, KFSPsearchBar, 2);
@@ -1300,7 +1303,7 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 	public void change_profile_level_in_manual_job_mapping_screen() {
 		if(manualMapping) {
 			if(wait.until(ExpectedConditions.visibilityOf(profileLevelDropdown)).isEnabled()) {
-				js.executeScript("window.scrollTo(document.body.scrollHeight, 0)"); //Scroll to Top of the Page
+				js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 				try {
 					wait.until(ExpectedConditions.elementToBeClickable(profileLevelDropdown)).click();
 					// PERFORMANCE: Replaced Thread.sleep(2000) with dropdown readiness wait
@@ -1401,11 +1404,11 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 //				wait.until(ExpectedConditions.elementToBeClickable(manualMappingPageProfileViewMoreResponsibilitiesBtn.get(0))).click();
 				while(true) {
 					try {
-						if(manualMappingPageProfileViewMoreResponsibilitiesBtn.isEmpty()) {
-							js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-							LOGGER.info("Reached end of content in Success Profile Responsibilities Section in Manual Mapping screen");
-							ExtentCucumberAdapter.addTestStepLog("Reached end of content in Success Profile Responsibilities Section in Manual Mapping screen");
-							break;
+					if(manualMappingPageProfileViewMoreResponsibilitiesBtn.isEmpty()) {
+						js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Headless-compatible
+						LOGGER.info("Reached end of content in Success Profile Responsibilities Section in Manual Mapping screen");
+						ExtentCucumberAdapter.addTestStepLog("Reached end of content in Success Profile Responsibilities Section in Manual Mapping screen");
+						break;
 						}
 					String ViewMoreResponsibilitiesBtnText = wait.until(ExpectedConditions.visibilityOf(manualMappingPageProfileViewMoreResponsibilitiesBtn.get(0))).getText();
 					// Scroll element into view before clicking
@@ -1423,11 +1426,11 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 					ExtentCucumberAdapter.addTestStepLog("Clicked on "+ ViewMoreResponsibilitiesBtnText +" button in Success Profile Responsibilities Section in Manual Mapping screen");
 				// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
 				PerformanceUtils.waitForUIStability(driver, 2);
-						js.executeScript("arguments[0].scrollIntoView(true);", manualMappingPageProfileViewMoreResponsibilitiesBtn.get(0));
-					} catch(StaleElementReferenceException e) {
-						js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-						ExtentCucumberAdapter.addTestStepLog("Reached end of content in Success Profile Responsibilities Section in Manual Mapping screen");
-						break;
+					js.executeScript("arguments[0].scrollIntoView(true);", manualMappingPageProfileViewMoreResponsibilitiesBtn.get(0));
+				} catch(StaleElementReferenceException e) {
+					js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
+					ExtentCucumberAdapter.addTestStepLog("Reached end of content in Success Profile Responsibilities Section in Manual Mapping screen");
+					break;
 					}	
 				}
 				String manualMappingPageProfileResponsibilitiesText = wait.until(ExpectedConditions.visibilityOf(manualMappingPageProfileResponsibilitiesData)).getText();
@@ -1547,7 +1550,7 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 	if(manualMapping) {
 		try {
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)"); // Scroll to Top of Page
+			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 			// Scroll element into view before clicking
 			WebElement element = wait.until(ExpectedConditions.elementToBeClickable(saveSelectionBtn));
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
@@ -1688,14 +1691,14 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
 				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
 				wait.until(ExpectedConditions.elementToBeClickable(viewMoreButtonInResponsibilitiesTab.get(0))).click();
-				while(true) {
-					try {
-						if(viewMoreButtonInResponsibilitiesTab.isEmpty()) {
-							js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-							LOGGER.info("Reached end of content in Profile Responsibilities Section in Details Popup");
-							ExtentCucumberAdapter.addTestStepLog("Reached end of content in Profile Responsibilities Section in Details Popup");
-							break;
-						}
+			while(true) {
+				try {
+					if(viewMoreButtonInResponsibilitiesTab.isEmpty()) {
+						js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
+						LOGGER.info("Reached end of content in Profile Responsibilities Section in Details Popup");
+						ExtentCucumberAdapter.addTestStepLog("Reached end of content in Profile Responsibilities Section in Details Popup");
+						break;
+					}
 					String ViewMoreResponsibilitiesBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreButtonInResponsibilitiesTab.get(0))).getText();
 					// Scroll element into view before clicking
 					WebElement element = viewMoreButtonInResponsibilitiesTab.get(0);
@@ -1712,12 +1715,12 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 					ExtentCucumberAdapter.addTestStepLog("Clicked on "+ ViewMoreResponsibilitiesBtnText +" button in Profile Responsibilities Section in Details Popup");
 				// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
 				PerformanceUtils.waitForUIStability(driver, 2);
-						js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInResponsibilitiesTab.get(0));
-					} catch(StaleElementReferenceException e) {
-						js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-						LOGGER.info("Reached end of content in Profile Responsibilities Section in Details Popup");
-						ExtentCucumberAdapter.addTestStepLog("Reached end of content in Profile Responsibilities Section in Details Popup");
-						break;
+				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInResponsibilitiesTab.get(0));
+				} catch(StaleElementReferenceException e) {
+					js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
+					LOGGER.info("Reached end of content in Profile Responsibilities Section in Details Popup");
+					ExtentCucumberAdapter.addTestStepLog("Reached end of content in Profile Responsibilities Section in Details Popup");
+					break;
 					}	
 				}
 				String ProfileResponsibilitiesText = wait.until(ExpectedConditions.visibilityOf(responisbilitiesData)).getText();

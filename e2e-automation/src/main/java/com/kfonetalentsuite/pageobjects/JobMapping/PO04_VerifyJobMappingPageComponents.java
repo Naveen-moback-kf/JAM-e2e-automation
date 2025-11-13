@@ -752,9 +752,15 @@ public class PO04_VerifyJobMappingPageComponents {
 					utils.jsClick(driver, filtersBtn);
 				}
 			}
-			ExtentCucumberAdapter.addTestStepLog("Clicked on filters dropdown button to open and verify options available...");
-			LOGGER.info("Clicked on filters dropdown button to open and verify options available...");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		ExtentCucumberAdapter.addTestStepLog("Clicked on filters dropdown button to open and verify options available...");
+		LOGGER.info("Clicked on filters dropdown button to open and verify options available...");
+		// PERFORMANCE: Use shorter timeout for spinner (filters dropdown opens fast)
+		try {
+			WebDriverWait spinnerWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(2));
+			spinnerWait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		} catch (Exception e) {
+			// Spinner might not appear for fast operations, continue
+		}
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_filters_dropdown_button", e);
 			LOGGER.error("Issue in clicking filters dropdown button - Method: click_on_filters_dropdown_button", e);
@@ -1272,18 +1278,20 @@ public class PO04_VerifyJobMappingPageComponents {
 			js.executeScript("arguments[0].scrollIntoView(true);", pageTitleHeader);
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			wait.until(ExpectedConditions.invisibilityOfAllElements(driver.findElements(By.xpath("//div[@data-testid='loader']//img"))));
-			PerformanceUtils.waitForPageReady(driver, 5); 
-			Thread.sleep(2000); // Additional wait for results count element to appear after filter application
+			// PERFORMANCE: Reduced from 5s to 1s - results update quickly after filters
+			PerformanceUtils.waitForPageReady(driver, 1); 
+			Thread.sleep(300); // PERFORMANCE: Reduced from 2000ms to 300ms
 			
 			// Fix: Use fresh element lookup to avoid stale element reference
 			String resultsCountText2 = "";
 			int retryAttempts = 0;
-			int maxRetries = 5; // Increased from 3
+			int maxRetries = 3; // PERFORMANCE: Reduced from 5 to 3 retries
 			
 			while (retryAttempts < maxRetries) {
 				try {
-					WebDriverWait longWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20)); // Increased from 10
-					resultsCountText2 = longWait.until(ExpectedConditions.presenceOfElementLocated(
+					// PERFORMANCE: Reduced from 20s to 3s timeout
+					WebDriverWait quickWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(3));
+					resultsCountText2 = quickWait.until(ExpectedConditions.presenceOfElementLocated(
 						By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]")
 					)).getText();
 					break; // Success - exit retry loop
@@ -1293,13 +1301,13 @@ public class PO04_VerifyJobMappingPageComponents {
 						throw e; // Re-throw if max retries reached
 					}
 					LOGGER.warn("Attempt {} failed: {}, retrying...", retryAttempts, e.getClass().getSimpleName());
-					PerformanceUtils.waitForPageReady(driver, 2);
-					Thread.sleep(1000);
+					// PERFORMANCE: Minimal retry wait
+					Thread.sleep(300);
 				}
 			}
 			
 			updatedResultsCount = resultsCountText2;
-			PerformanceUtils.waitForPageReady(driver, 3); 
+			// PERFORMANCE: No additional wait needed after successful read 
 			
 			// CHECK FOR ZERO RESULTS - Set flag for skipping validation steps
 			if (resultsCountText2.contains("Showing 0 of")) {
@@ -1679,3 +1687,4 @@ public class PO04_VerifyJobMappingPageComponents {
 		}
 	}
 }
+

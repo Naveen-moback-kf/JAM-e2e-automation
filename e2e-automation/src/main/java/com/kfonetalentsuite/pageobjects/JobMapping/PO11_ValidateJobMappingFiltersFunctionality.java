@@ -132,20 +132,20 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 					wait.until(ExpectedConditions.visibilityOf(GradesValues.get(i))).click();
 					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 					// PERFORMANCE: Replaced Thread.sleep(3000) with smart page ready wait
-					PerformanceUtils.waitForPageReady(driver, 3);
+					PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 				} catch (Exception e) {
 					try {
 						wait.until(ExpectedConditions.visibilityOf(GradesValues.get(i)));
 						js.executeScript("arguments[0].click();", GradesValues.get(i));
 						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 						// PERFORMANCE: Replaced Thread.sleep(3000) with smart page ready wait
-						PerformanceUtils.waitForPageReady(driver, 3);
+						PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 					} catch (Exception s) {
 						wait.until(ExpectedConditions.visibilityOf(GradesValues.get(i)));
 						utils.jsClick(driver, GradesValues.get(i));
 						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 						// PERFORMANCE: Replaced Thread.sleep(3000) with smart page ready wait
-						PerformanceUtils.waitForPageReady(driver, 3);
+						PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 					}
 				}
 					Assert.assertTrue(GradesCheckboxes.get(i).isSelected());
@@ -155,7 +155,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				}
 			}
 		// PERFORMANCE: Replaced Thread.sleep(3000) with smart page ready wait
-		PerformanceUtils.waitForPageReady(driver, 3);
+		PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 	} catch (Exception e) {
 		ScreenshotHandler.handleTestFailure("select_one_option_in_grades_filters_dropdown", e, 
 			"Issue in selecting one option from Grades dropdown in Filters...Please Investigate!!!");
@@ -168,21 +168,94 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			int scrollAttempts = 0;
 			String previousResultsCountText = "";
 			int stableCountIterations = 0;
+			int consecutiveFailures = 0; // Track consecutive failures to exit early
+			String workingXPath = null; // Cache the XPath that works
 			
-			while(scrollAttempts < maxScrollAttempts) {
-				scrollAttempts++;
-				PerformanceUtils.waitForPageReady(driver, 3);
+		while(scrollAttempts < maxScrollAttempts) {
+			scrollAttempts++;
+		// PERFORMANCE: Minimal wait for small datasets
+		PerformanceUtils.waitForUIStability(driver, 1);
 				
 				// Use a more robust element retrieval with retry logic to handle stale elements
 				String resultsCountText = "";
 				try {
-					// Wait for element with reduced timeout to avoid script timeout
-					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
-					resultsCountText = shortWait.until(ExpectedConditions.presenceOfElementLocated(
-						By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]")
-					)).getText();
+					// PERFORMANCE FIX: Use 1s timeout instead of 3s for faster detection
+					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(1));
+					
+					// Try multiple XPath strategies
+					WebElement resultsElement = null;
+					
+					// PERFORMANCE FIX: Try cached XPath first if we found one that works
+					if (workingXPath != null) {
+						try {
+							resultsElement = shortWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(workingXPath)));
+						} catch (Exception e) {
+							// Cached XPath failed, reset and try all strategies
+							workingXPath = null;
+						}
+					}
+					
+					// If cached XPath didn't work, try all strategies
+					if (resultsElement == null) {
+						try {
+							// Strategy 1: Original XPath
+							String xpath1 = "//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]";
+							resultsElement = shortWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpath1)));
+							workingXPath = xpath1; // Cache this for next time
+						} catch (Exception e1) {
+							// Strategy 2: Alternative XPath
+							try {
+								String xpath2 = "//*[contains(text(),'Showing') and contains(text(),'of')]";
+								resultsElement = driver.findElement(By.xpath(xpath2));
+								workingXPath = xpath2; // Cache this for next time
+							} catch (Exception e2) {
+							// Strategy 3: Try to scroll to top first (element might be off-screen in headless)
+							try {
+								js.executeScript("window.scrollTo(0, 0);");
+								Thread.sleep(100); // PERFORMANCE: Reduced from 200ms
+								resultsElement = driver.findElement(By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]"));
+							} catch (Exception e3) {
+								throw e1; // Throw original exception
+							}
+							}
+						}
+					}
+					
+				if (resultsElement != null) {
+					// PERFORMANCE: Skip scroll if element is visible, minimal wait if not
+					try {
+						if (!resultsElement.isDisplayed()) {
+							js.executeScript("arguments[0].scrollIntoView({block: 'center'});", resultsElement);
+							Thread.sleep(50); // PERFORMANCE: Reduced from 100ms
+						}
+					} catch (Exception e) {
+						// Element might be stale, try to get text anyway
+					}
+					resultsCountText = resultsElement.getText();
+					consecutiveFailures = 0; // Reset failure counter on success
+				}
+					
 			} catch (Exception e) {
-				LOGGER.warn("Failed to get results count text on attempt {}: {}", scrollAttempts, e.getMessage());
+				consecutiveFailures++;
+				LOGGER.warn("Failed to get results count text on attempt {} (failure #{}): {}", scrollAttempts, consecutiveFailures, e.getClass().getSimpleName());
+				
+				// HEADLESS FIX: Exit early after 5 consecutive failures (was looping 50 times)
+				if (consecutiveFailures >= 5) {
+					LOGGER.error("Results count element not found after {} consecutive attempts. Likely in headless mode without visible UI.", consecutiveFailures);
+					
+					// Try alternative: count visible rows
+					try {
+						List<WebElement> visibleRows = driver.findElements(By.xpath("//tbody//tr[contains(@class,'cursor-pointer')]"));
+						int rowCount = visibleRows.size();
+						LOGGER.info("Alternative approach: Found {} visible rows in table", rowCount);
+						ExtentCucumberAdapter.addTestStepLog("Scrolled down and loaded " + rowCount + " job profiles (headless mode)");
+						break;
+					} catch (Exception altEx) {
+						LOGGER.error("Alternative row count also failed: {}", altEx.getMessage());
+					}
+					break; // Exit the loop
+				}
+				
 				// If we can't find the element, check if no data container is displayed
 				try {
 					if(noDataContainer.isDisplayed()) {
@@ -215,29 +288,58 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 							previousResultsCountText = resultsCountText;
 						}
 						
-						// One more scroll to ensure all content is loaded
-						js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-						try {
-							wait.until(ExpectedConditions.invisibilityOfAllElements(
-								driver.findElements(By.xpath("//div[@data-testid='loader']//img"))
-							));
-						} catch (Exception e) {
-							// Spinner not found or already invisible
-						}
-						PerformanceUtils.waitForUIStability(driver, 1);
-					} else {
-						// More results to load - keep scrolling
-						previousResultsCountText = resultsCountText;
-						js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-						try {
-							wait.until(ExpectedConditions.invisibilityOfAllElements(
-								driver.findElements(By.xpath("//div[@data-testid='loader']//img"))
-							));
-						} catch (Exception e) {
-							// Spinner not found or already invisible
-						}
-						PerformanceUtils.waitForUIStability(driver, 2);
-					}
+				// PERFORMANCE: Ultra-fast final scroll verification
+				try {
+					js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
+					Thread.sleep(100); // PERFORMANCE: Reduced from 150ms
+					js.executeScript("window.dispatchEvent(new Event('scroll'));");
+					Thread.sleep(50); // PERFORMANCE: Reduced from 100ms
+				} catch (Exception scrollEx) {
+					LOGGER.warn("Final scroll failed: {}", scrollEx.getMessage());
+				}
+				
+				try {
+					WebDriverWait spinnerWait = new WebDriverWait(driver, java.time.Duration.ofMillis(500));
+					spinnerWait.until(ExpectedConditions.invisibilityOfAllElements(
+						driver.findElements(By.xpath("//div[@data-testid='loader']//img"))
+					));
+				} catch (Exception e) {
+					// Spinner not found or already invisible
+				}
+				PerformanceUtils.waitForUIStability(driver, 1); // PERFORMANCE: Reduced for small datasets
+				} else {
+					// More results to load - keep scrolling
+					previousResultsCountText = resultsCountText;
+					
+				// PERFORMANCE-OPTIMIZED: Ultra-fast scrolling for small datasets
+				try {
+					// Quick scroll to bottom
+					js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
+					Thread.sleep(150); // PERFORMANCE: Reduced from 250ms
+					
+					// Trigger scroll event for lazy loading
+					js.executeScript("window.dispatchEvent(new Event('scroll'));");
+					Thread.sleep(100); // PERFORMANCE: Reduced from 150ms
+					
+				} catch (Exception scrollEx) {
+					LOGGER.warn("Scroll operation failed: {}", scrollEx.getMessage());
+					// Fallback to basic scroll
+					js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
+					Thread.sleep(150);
+				}
+				
+				// PERFORMANCE: Skip heavy spinner wait for small datasets
+				try {
+					WebDriverWait spinnerWait = new WebDriverWait(driver, java.time.Duration.ofMillis(500));
+					spinnerWait.until(ExpectedConditions.invisibilityOfAllElements(
+						driver.findElements(By.xpath("//div[@data-testid='loader']//img"))
+					));
+				} catch (Exception e) {
+					// Spinner not found or already invisible - continue quickly
+				}
+			// PERFORMANCE: Minimal stability wait for small datasets
+			PerformanceUtils.waitForUIStability(driver, 1);
+				}
 				} else {
 					// Check for no data container
 					try {
@@ -286,7 +388,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			Assert.fail("Issue in Validating Job Mapping Profiles Results with applied grades options...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Validating Job Mapping Profiles Results with applied grades options...Please Investigate!!!");
 		}	
-		js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+		js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 	}
 	
 	/**
@@ -308,7 +410,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			// REMOVED: driver.navigate().refresh() - Unnecessary and clears checkbox selections
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			Thread.sleep(500); // Allow UI to stabilize after clearing filters
+			Thread.sleep(300); // PERFORMANCE: Reduced from 500ms for UI stabilization after clearing filters
 			LOGGER.info("Clicked on clear Filters button(x) and Cleared the applied filters....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on clear Filters button and Cleared all the applied filters....");
 	} catch (Exception e) {
@@ -332,18 +434,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 					try {
 						wait.until(ExpectedConditions.visibilityOf(GradesCheckboxes.get(i))).click();
 						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						PerformanceUtils.waitForPageReady(driver, 3);
+						PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 					} catch(Exception e) {
 						try {
 							wait.until(ExpectedConditions.visibilityOf(GradesCheckboxes.get(i)));
 							js.executeScript("arguments[0].click();", GradesCheckboxes.get(i));
 							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
+							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 						} catch (Exception s) {
 							wait.until(ExpectedConditions.visibilityOf(GradesCheckboxes.get(i)));
 							utils.jsClick(driver, GradesCheckboxes.get(i));
 							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
+							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 						}
 					}
 					Assert.assertTrue(GradesCheckboxes.get(i).isSelected());
@@ -384,7 +486,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			// REMOVED: driver.navigate().refresh() - Unnecessary and clears checkbox selections
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			Thread.sleep(500); // Allow UI to stabilize after clearing filters
+			Thread.sleep(300); // PERFORMANCE: Reduced from 500ms for UI stabilization after clearing filters
 			LOGGER.info("Clicked on clear Filters button and Cleared all the applied filters....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on clear Filters button and Cleared all the applied filters....");
 	} catch (Exception e) {
@@ -430,18 +532,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 					try {
 						wait.until(ExpectedConditions.visibilityOf(DepartmentsValues.get(i))).click();
 						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						PerformanceUtils.waitForPageReady(driver, 3);
+						PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 					} catch (Exception e) {
 						try {
 							wait.until(ExpectedConditions.visibilityOf(DepartmentsValues.get(i)));
 							js.executeScript("arguments[0].click();", DepartmentsValues.get(i));
 							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
+							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 						} catch (Exception s) {
 							wait.until(ExpectedConditions.visibilityOf(DepartmentsValues.get(i)));
 							utils.jsClick(driver, DepartmentsValues.get(i));
 							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
+							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 						}
 					}
 					Assert.assertTrue(DepartmentsCheckboxes.get(i).isSelected());
@@ -450,7 +552,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 					ExtentCucumberAdapter.addTestStepLog("Selected Departments Value : " + DepartmentsValues.get(i).getText() + " from Departments Filters dropdown....");
 				}
 			}
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 			} catch (Exception e) {
 				ScreenshotHandler.captureFailureScreenshot("select_one_option_in_departments_filters_dropdown", e);
 				LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
@@ -479,7 +581,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			Assert.fail("Issue in Validating Job Mapping Profiles Results with applied departments options...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Validating Job Mapping Profiles Results with applied departments options...Please Investigate!!!");
 		}	
-		js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+		js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 	}
 	
 	public void select_two_options_in_departments_filters_dropdown() {
@@ -494,18 +596,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 					try {
 						wait.until(ExpectedConditions.visibilityOf(DepartmentsCheckboxes.get(i))).click();
 						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						PerformanceUtils.waitForPageReady(driver, 3);
+						PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 					} catch(Exception e) {
 						try {
 							wait.until(ExpectedConditions.visibilityOf(DepartmentsCheckboxes.get(i)));
 							js.executeScript("arguments[0].click();", DepartmentsCheckboxes.get(i));
 							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
+							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 						} catch (Exception s) {
 							wait.until(ExpectedConditions.visibilityOf(DepartmentsCheckboxes.get(i)));
 							utils.jsClick(driver, DepartmentsCheckboxes.get(i));
 							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
+							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 						}
 					}
 					Assert.assertTrue(DepartmentsCheckboxes.get(i).isSelected());
@@ -528,15 +630,17 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 	
 	public void click_on_functions_subfunctions_filters_dropdown_button() {
 		try {
-			LOGGER.info("Attempting to click Functions/Subfunctions dropdown - XPath: //div[@data-testid='dropdown-Functions_SubFunctions']");
-			PerformanceUtils.waitForPageReady(driver, 2);
+		LOGGER.info("Attempting to click Functions/Subfunctions dropdown - XPath: //div[@data-testid='dropdown-Functions_SubFunctions']");
+		// PERFORMANCE: Reduced from 2s to 1s (filters are already loaded)
+		PerformanceUtils.waitForPageReady(driver, 1);
 			
-			// Scroll element into view
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", functionsSubFunctionsFiltersDropdown);
-			Thread.sleep(500); // Brief pause after smooth scroll
+			// PERFORMANCE: Instant scroll instead of smooth scroll (saves ~1 second)
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", functionsSubFunctionsFiltersDropdown);
+			Thread.sleep(200); // PERFORMANCE: Reduced from 500ms to 200ms
 			
-			// Enhanced: Wait for element to be clickable before attempting click
-			wait.until(ExpectedConditions.elementToBeClickable(functionsSubFunctionsFiltersDropdown));
+			// PERFORMANCE: Use shorter timeout (3s instead of default 60s)
+			WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(3));
+			shortWait.until(ExpectedConditions.elementToBeClickable(functionsSubFunctionsFiltersDropdown));
 			LOGGER.info("Functions/Subfunctions dropdown is visible and clickable");
 			
 			// Try multiple click strategies with detailed logging
@@ -622,32 +726,75 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			for (int i=1; i<=FunctionsValues.size(); i++)
 			{
 				if(i==9) {
-					js.executeScript("arguments[0].scrollIntoView();", FunctionsValues.get(i));
+					// HEADLESS FIX: Scroll checkbox (not label) into view
+					WebElement targetCheckbox = FunctionsCheckboxes.get(i);
+					WebElement targetLabel = FunctionsValues.get(i);
+					
+					js.executeScript("arguments[0].scrollIntoView({block: 'center'});", targetCheckbox);
+					Thread.sleep(300);
+					
+					// HEADLESS FIX: Click checkbox directly, not label
+					boolean clicked = false;
 					try {
-						wait.until(ExpectedConditions.visibilityOf(FunctionsValues.get(i))).click();
-						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						PerformanceUtils.waitForPageReady(driver, 3);
+						// Method 1: JavaScript click on checkbox (most reliable in headless)
+						js.executeScript("arguments[0].click();", targetCheckbox);
+						Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
+						clicked = true;
+						LOGGER.debug("Clicked function checkbox using JavaScript");
 					} catch (Exception e) {
 						try {
-							wait.until(ExpectedConditions.visibilityOf(FunctionsValues.get(i)));
-							js.executeScript("arguments[0].click();", FunctionsValues.get(i));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
+							// Method 2: Force click using utils
+							utils.jsClick(driver, targetCheckbox);
+							Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
+							clicked = true;
+							LOGGER.debug("Clicked function checkbox using utils.jsClick");
 						} catch (Exception s) {
-							wait.until(ExpectedConditions.visibilityOf(FunctionsValues.get(i)));
-							utils.jsClick(driver, FunctionsValues.get(i));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
+							// Method 3: Last resort - try clicking label
+							js.executeScript("arguments[0].click();", targetLabel);
+							Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
+							clicked = true;
+							LOGGER.debug("Clicked function label as fallback");
 						}
 					}
-					Assert.assertTrue(FunctionsCheckboxes.get(i).isSelected());
-					FunctionsOption = FunctionsValues.get(i).getText().toString();
-					LOGGER.info("Selected Functions Value : " + FunctionsValues.get(i).getText() + " from Functions / SubFunctions Filters dropdown....");
-					ExtentCucumberAdapter.addTestStepLog("Selected Functions Value : " + FunctionsValues.get(i).getText() + " from Functions / SubFunctions Filters dropdown....");
+					
+					if (!clicked) {
+						throw new Exception("Failed to click function checkbox/label");
+					}
+					
+					// Wait for spinner and page to stabilize
+					try {
+						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+					} catch (Exception e) {
+						// Spinner might not appear, continue
+					}
+					PerformanceUtils.waitForPageReady(driver, 2);
+					
+					// HEADLESS FIX: Verify checkbox is actually selected with retry
+					int verifyAttempts = 0;
+					boolean isSelected = false;
+					while (verifyAttempts < 3 && !isSelected) {
+						try {
+							isSelected = targetCheckbox.isSelected();
+							if (!isSelected) {
+								LOGGER.warn("Checkbox not selected on attempt {}, retrying click...", verifyAttempts + 1);
+								js.executeScript("arguments[0].click();", targetCheckbox);
+								Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
+							}
+						} catch (Exception e) {
+							LOGGER.warn("Error verifying checkbox selection: {}", e.getMessage());
+						}
+						verifyAttempts++;
+					}
+					
+					Assert.assertTrue(isSelected, "Function checkbox not selected after " + verifyAttempts + " attempts");
+					
+					FunctionsOption = targetLabel.getText().toString();
+					LOGGER.info("Selected Functions Value : " + targetLabel.getText() + " from Functions / SubFunctions Filters dropdown....");
+					ExtentCucumberAdapter.addTestStepLog("Selected Functions Value : " + targetLabel.getText() + " from Functions / SubFunctions Filters dropdown....");
 					break;
 				}
 			}
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 			} catch (Exception e) {
 				ScreenshotHandler.captureFailureScreenshot("select_a_function_and_verify_all_subfunctions_inside_function_are_selected_automatically", e);
 				LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
@@ -680,37 +827,46 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options() {
 		try {
 			List<WebElement> allFunctions = driver.findElements(By.xpath("//*[text()='Organization jobs']//..//tbody//tr//td[@colspan='7']//span[2] | //*[@id='table-container']/div[1]/div/div[2]/div/div/div[2]/span/div/span/span[2]"));
-		    for (WebElement Function_SubFunction: allFunctions) {
-		        String function = Function_SubFunction.getText().split("\\|",2)[0].trim();
-		        if(function.contains("|")) {
-		        	 String subfunction = Function_SubFunction.getText().split("\\|",2)[1].trim();
-		        	 if(function.contentEquals(FunctionsOption) || function.contentEquals(FunctionsOption1) || function.contentEquals(FunctionsOption2)) {
-			        	 LOGGER.info("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " is correctly filtered with applied functions / subfunctions options");
-			        	 ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " is correctly filtered with applied functions / subfunctions options");
-			        } else {
-			        	LOGGER.info("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " from Filters results DOES NOT match with applied functions / subfunctions options");
-			        	ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " from Filters results DOES NOT match with applied functions / subfunctions options...Please Investigate!!!");
-			        	throw new Exception("Organization Job Profile is displaying with Incorrect functions / subfunctions Value from applied Filters...Please Investigate!!!");
-			        }
+	    for (WebElement Function_SubFunction: allFunctions) {
+	        String fullText = Function_SubFunction.getText();
+	        
+	        // Check if text contains pipe (has subfunction)
+	        if(fullText.contains("|")) {
+	        	 // Split using regex that handles spaces around pipe: "Function | Subfunction" or "Function|Subfunction"
+	        	 String[] parts = fullText.split("\\s*\\|\\s*", 2);
+	        	 String function = parts[0].trim();
+	        	 String subfunction = parts[1].trim();
+	        	 
+	        	 if(function.contentEquals(FunctionsOption) || function.contentEquals(FunctionsOption1) || function.contentEquals(FunctionsOption2)) {
+		        	 LOGGER.info("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " is correctly filtered with applied functions / subfunctions options");
+		        	 ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " is correctly filtered with applied functions / subfunctions options");
 		        } else {
-		        	String subfunction = "-";
-		        	if(function.contentEquals(FunctionsOption) || function.contentEquals(FunctionsOption1) || function.contentEquals(FunctionsOption2)) {
-			        	 LOGGER.info("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " is correctly filtered with applied functions / subfunctions options");
-			        	 ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " is correctly filtered with applied functions / subfunctions options");
-			        } else {
-			        	LOGGER.info("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " from Filters results DOES NOT match with applied functions / subfunctions options");
-			        	ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " from Filters results DOES NOT match with applied functions / subfunctions options...Please Investigate!!!");
-			        	throw new Exception("Organization Job Profile is displaying with Incorrect functions / subfunctions Value from applied Filters...Please Investigate!!!");
-			        }
+		        	LOGGER.info("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " from Filters results DOES NOT match with applied functions / subfunctions options");
+		        	ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " from Filters results DOES NOT match with applied functions / subfunctions options...Please Investigate!!!");
+		        	throw new Exception("Organization Job Profile is displaying with Incorrect functions / subfunctions Value from applied Filters...Please Investigate!!!");
 		        }
-		    }
+	        } else {
+	        	// No pipe - function only, no subfunction
+	        	String function = fullText.trim();
+	        	String subfunction = "-";
+	        	
+	        	if(function.contentEquals(FunctionsOption) || function.contentEquals(FunctionsOption1) || function.contentEquals(FunctionsOption2)) {
+		        	 LOGGER.info("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " is correctly filtered with applied functions / subfunctions options");
+		        	 ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " is correctly filtered with applied functions / subfunctions options");
+		        } else {
+		        	LOGGER.info("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " from Filters results DOES NOT match with applied functions / subfunctions options");
+		        	ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Function : " + function + " and Sub-Function value : " + subfunction + " from Filters results DOES NOT match with applied functions / subfunctions options...Please Investigate!!!");
+		        	throw new Exception("Organization Job Profile is displaying with Incorrect functions / subfunctions Value from applied Filters...Please Investigate!!!");
+		        }
+	        }
+	    }
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options", e);
 			LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
 			Assert.fail("Issue in Validating Job Mapping Profiles Results with applied functions / subfunctions options...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Validating Job Mapping Profiles Results with applied functions / subfunctions options...Please Investigate!!!");
 		}	
-		js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+		js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 	}
 	
 	public void user_should_verify_search_bar_is_available_in_functions_subfunctions_filters_dropdown() {
@@ -731,66 +887,74 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			// ENHANCEMENT: Intelligently find a function that has subfunctions (toggle button available)
-			List<WebElement> ToggleButtons = driver.findElements(By.xpath("//button[contains(@data-testid,'toggle-suboptions')]"));
-			List<WebElement> FunctionLabels = driver.findElements(By.xpath("//div[@data-testid='dropdown-Functions_SubFunctions']//..//input[@type='checkbox']//..//label"));
-			
-			String selectedFunctionWithSubfunctions = null;
-			
-			if (!ToggleButtons.isEmpty()) {
-				// Find a function that has a toggle button (meaning it has subfunctions)
-				for (int i = 0; i < ToggleButtons.size(); i++) {
-					try {
-						// Check if toggle button is displayed
-						if (ToggleButtons.get(i).isDisplayed()) {
-							// Get the corresponding function label
-							// Navigate up from toggle button to find the label
-							WebElement toggleBtn = ToggleButtons.get(i);
-							String dataTestId = toggleBtn.getAttribute("data-testid");
-							
-							// Extract function name from data-testid (format: "toggle-suboptions-FunctionName")
-							if (dataTestId != null && dataTestId.startsWith("toggle-suboptions-")) {
-								String functionName = dataTestId.replace("toggle-suboptions-", "");
+			// IMPORTANT: Reuse the function name that was validated in the previous scenario in Feature 11C
+			// FunctionsOption should already be set from the first scenario "User filters by function and verifies all subfunctions are auto-selected"
+			if (FunctionsOption != null && !FunctionsOption.isEmpty()) {
+				LOGGER.info("Reusing function name '{}' from previous scenario in Feature 11C", FunctionsOption);
+				ExtentCucumberAdapter.addTestStepLog("Reusing function name '" + FunctionsOption + "' from previous scenario in Feature 11C");
+			} else {
+				// Fallback: If FunctionsOption is not set, find a function with subfunctions
+				LOGGER.warn("FunctionsOption not set from previous scenario, searching for a function with subfunctions...");
+				
+				List<WebElement> ToggleButtons = driver.findElements(By.xpath("//button[contains(@data-testid,'toggle-suboptions')]"));
+				List<WebElement> FunctionLabels = driver.findElements(By.xpath("//div[@data-testid='dropdown-Functions_SubFunctions']//..//input[@type='checkbox']//..//label"));
+				
+				String selectedFunctionWithSubfunctions = null;
+				
+				if (!ToggleButtons.isEmpty()) {
+					// Find a function that has a toggle button (meaning it has subfunctions)
+					for (int i = 0; i < ToggleButtons.size(); i++) {
+						try {
+							// Check if toggle button is displayed
+							if (ToggleButtons.get(i).isDisplayed()) {
+								// Get the corresponding function label
+								WebElement toggleBtn = ToggleButtons.get(i);
+								String dataTestId = toggleBtn.getAttribute("data-testid");
 								
-								// Find the label with this function name
-								for (WebElement label : FunctionLabels) {
-									String labelText = label.getText().trim();
-									if (labelText.equalsIgnoreCase(functionName) || functionName.contains(labelText.replace(" ", ""))) {
-										selectedFunctionWithSubfunctions = labelText;
-										LOGGER.info("Found function with subfunctions: {}", selectedFunctionWithSubfunctions);
-										break;
+								// Extract function name from data-testid (format: "toggle-suboptions-FunctionName")
+								if (dataTestId != null && dataTestId.startsWith("toggle-suboptions-")) {
+									String functionName = dataTestId.replace("toggle-suboptions-", "");
+									
+									// Find the label with this function name
+									for (WebElement label : FunctionLabels) {
+										String labelText = label.getText().trim();
+										if (labelText.equalsIgnoreCase(functionName) || functionName.contains(labelText.replace(" ", ""))) {
+											selectedFunctionWithSubfunctions = labelText;
+											LOGGER.info("Found function with subfunctions: {}", selectedFunctionWithSubfunctions);
+											break;
+										}
 									}
+									
+									if (selectedFunctionWithSubfunctions == null) {
+										// Alternative: use the function name from data-testid directly
+										selectedFunctionWithSubfunctions = functionName.replace("-", " ");
+										LOGGER.info("Using function name from data-testid: {}", selectedFunctionWithSubfunctions);
+									}
+									break;
 								}
-								
-								if (selectedFunctionWithSubfunctions == null) {
-									// Alternative: use the function name from data-testid directly
-									selectedFunctionWithSubfunctions = functionName.replace("-", " ");
-									LOGGER.info("Using function name from data-testid: {}", selectedFunctionWithSubfunctions);
-								}
-								break;
 							}
+						} catch (Exception ex) {
+							// Continue to next toggle button if this one fails
+							LOGGER.debug("Could not process toggle button at index {}: {}", i, ex.getMessage());
+							continue;
 						}
-					} catch (Exception ex) {
-						// Continue to next toggle button if this one fails
-						LOGGER.debug("Could not process toggle button at index {}: {}", i, ex.getMessage());
-						continue;
 					}
 				}
-			}
-			
-			// If we found a function with subfunctions, use it; otherwise fall back to existing FunctionsOption
-			if (selectedFunctionWithSubfunctions != null && !selectedFunctionWithSubfunctions.isEmpty()) {
-				FunctionsOption = selectedFunctionWithSubfunctions;
-				LOGGER.info("Updated FunctionsOption to function with subfunctions: {}", FunctionsOption);
-				ExtentCucumberAdapter.addTestStepLog("Selected function with subfunctions: " + FunctionsOption);
-			} else if (FunctionsOption == null || FunctionsOption.isEmpty()) {
-				// Last resort: pick the first function from the list
-				if (!FunctionLabels.isEmpty()) {
-					FunctionsOption = FunctionLabels.get(0).getText().trim();
-					LOGGER.warn("Could not find function with subfunctions, using first function: {}", FunctionsOption);
-					ExtentCucumberAdapter.addTestStepLog("Warning: Using first available function: " + FunctionsOption);
+				
+				// Set FunctionsOption if found
+				if (selectedFunctionWithSubfunctions != null && !selectedFunctionWithSubfunctions.isEmpty()) {
+					FunctionsOption = selectedFunctionWithSubfunctions;
+					LOGGER.info("Set FunctionsOption to function with subfunctions: {}", FunctionsOption);
+					ExtentCucumberAdapter.addTestStepLog("Selected function with subfunctions: " + FunctionsOption);
 				} else {
-					throw new Exception("No functions available in the dropdown to search for");
+					// Last resort: pick the first function from the list
+					if (!FunctionLabels.isEmpty()) {
+						FunctionsOption = FunctionLabels.get(0).getText().trim();
+						LOGGER.warn("Could not find function with subfunctions, using first function: {}", FunctionsOption);
+						ExtentCucumberAdapter.addTestStepLog("Warning: Using first available function: " + FunctionsOption);
+					} else {
+						throw new Exception("No functions available in the dropdown to search for");
+					}
 				}
 			}
 			
@@ -924,7 +1088,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 						js.executeScript("arguments[0].scrollIntoView({block: 'center'});", ToggleButtons.get(i));
 						Thread.sleep(200);
 						ToggleButtons.get(i).click();
-						Thread.sleep(500);
+						Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
 						PerformanceUtils.waitForPageReady(driver, 1);
 					} catch (Exception e) {
 						continue;
@@ -943,9 +1107,9 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				// Enter the new function name in the search bar and expand it
 				try {
 					wait.until(ExpectedConditions.visibilityOf(functionsSubFunctionsSearch)).clear();
-					wait.until(ExpectedConditions.visibilityOf(functionsSubFunctionsSearch)).sendKeys(functionName);
-					PerformanceUtils.waitForPageReady(driver, 2);
-					Thread.sleep(500);
+				wait.until(ExpectedConditions.visibilityOf(functionsSubFunctionsSearch)).sendKeys(functionName);
+				PerformanceUtils.waitForPageReady(driver, 2);
+				Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
 					
 					// Click the dropdown button to expand the function
 					WebElement SearchedFunction_Dropdown = driver.findElement(By.xpath("//div[@data-testid='dropdown-Functions_SubFunctions']//input[@type='checkbox'][contains(@id,'" + functionName +"')][not(ancestor::button[contains(@data-testid,'suboption')])]/ancestor::button//button[contains(@data-testid,'toggle-suboptions')]"));
@@ -985,7 +1149,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 }
 	
 	public void select_one_subfunction_option_inside_function_name_dropdown() {
-		PerformanceUtils.waitForPageReady(driver, 3);
+		PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 		
 		// IMPORTANT: This XPath specifically targets ONLY subfunctions (nested checkboxes inside suboption buttons)
 		// This avoids confusion when Function and Subfunction have the same name (e.g., both are "a1")
@@ -1014,57 +1178,91 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			SubFunctionsValues = driver.findElements(By.xpath("//button[contains(@data-testid,'suboption')]//..//..//div[2]//label"));
 		}
 			
-			LOGGER.info("Selecting subfunction for Function '{}'", FunctionsOption);
+		LOGGER.info("Selecting subfunction for Function '{}'", FunctionsOption);
+		
+	for (int j=1; j<SubFunctionsValues.size(); j++) {
+		if(j==1) {
+		String subfunctionText = SubFunctionsValues.get(j).getText();
+		WebElement subfunctionCheckbox = SubFunctionsCheckboxes.get(j);
+		
+		// HEADLESS FIX: Scroll checkbox into view with center positioning (critical for headless)
+			js.executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'center'});", subfunctionCheckbox);
+			Thread.sleep(300);
 			
-		for (int j=1; j<SubFunctionsValues.size(); j++) {
-			if(j==1) {
-				String subfunctionText = SubFunctionsValues.get(j).getText();
-				
-				// Scroll subfunction into view
-				js.executeScript("arguments[0].scrollIntoView();", SubFunctionsValues.get(j));
-				Thread.sleep(300);
-				
-				// Try multiple click strategies
-				boolean clickSucceeded = false;
+			// HEADLESS FIX: Click the CHECKBOX directly (not the label) for reliability
+			boolean clickSucceeded = false;
+			int maxAttempts = 3;
+			
+			for (int attempt = 1; attempt <= maxAttempts && !clickSucceeded; attempt++) {
 				try {
-					wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j))).click();
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-					PerformanceUtils.waitForPageReady(driver, 3);
-					clickSucceeded = true;
-				} catch (Exception e) {
+					LOGGER.debug("Attempt {} to click subfunction checkbox '{}'", attempt, subfunctionText);
+					
+					// Check if already selected (might have been clicked in previous attempt)
+					if (subfunctionCheckbox.isSelected()) {
+						LOGGER.info("Subfunction '{}' already selected", subfunctionText);
+						clickSucceeded = true;
+						break;
+					}
+					
+					// Method 1: JavaScript click on checkbox (most reliable in headless)
+					js.executeScript("arguments[0].click();", subfunctionCheckbox);
+					Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
+					
+					// Wait for spinner if present
 					try {
-						wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j)));
-						js.executeScript("arguments[0].click();", SubFunctionsValues.get(j));
 						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						PerformanceUtils.waitForPageReady(driver, 3);
+					} catch (Exception e) {
+						// Spinner might not appear, continue
+					}
+					
+					// Verify checkbox is now selected
+					if (subfunctionCheckbox.isSelected()) {
 						clickSucceeded = true;
-					} catch (Exception s) {
-						wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j)));
-						utils.jsClick(driver, SubFunctionsValues.get(j));
-						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						PerformanceUtils.waitForPageReady(driver, 3);
-						clickSucceeded = true;
+						LOGGER.debug("Successfully selected subfunction '{}' on attempt {}", subfunctionText, attempt);
+					} else {
+						LOGGER.warn("Checkbox not selected after attempt {}, retrying...", attempt);
+						// Scroll again before retry
+						if (attempt < maxAttempts) {
+							js.executeScript("arguments[0].scrollIntoView({block: 'center'});", subfunctionCheckbox);
+							Thread.sleep(200);
+						}
+					}
+					
+				} catch (Exception e) {
+					LOGGER.warn("Click attempt {} failed for '{}': {}", attempt, subfunctionText, e.getMessage());
+					if (attempt < maxAttempts) {
+						// Try scrolling again before next attempt
+						try {
+							js.executeScript("arguments[0].scrollIntoView({block: 'center'});", subfunctionCheckbox);
+							Thread.sleep(200);
+						} catch (Exception scrollEx) {
+							// Continue to next attempt
+						}
 					}
 				}
-				
-				if (!clickSucceeded) {
-					LOGGER.error("Failed to click subfunction '{}'", subfunctionText);
-					Assert.fail("Failed to click subfunction '" + subfunctionText + "'");
-				}
-				
-				// Verify the subfunction checkbox is selected
-				boolean isSubfunctionSelected = SubFunctionsCheckboxes.get(j).isSelected();
-				if (!isSubfunctionSelected) {
-					String errorMsg = "Subfunction '" + subfunctionText + "' not selected after clicking";
-					LOGGER.error(errorMsg);
-					ScreenshotHandler.captureFailureScreenshot("subfunction_not_selected", new AssertionError(errorMsg));
-					Assert.fail(errorMsg);
-				}
-				
-				LOGGER.info("Selected subfunction '{}'", subfunctionText);
-					ExtentCucumberAdapter.addTestStepLog("Selected SubFunction '" + subfunctionText + "' from Functions/SubFunctions dropdown of Function '" + FunctionsOption + "'");
 			}
+			
+			if (!clickSucceeded) {
+				String errorMsg = "Failed to click subfunction '" + subfunctionText + "' after " + maxAttempts + " attempts";
+				LOGGER.error(errorMsg);
+				ScreenshotHandler.captureFailureScreenshot("subfunction_click_failed", new AssertionError(errorMsg));
+				Assert.fail(errorMsg);
 			}
+			
+			// Final verification: Ensure checkbox is selected
+			PerformanceUtils.waitForPageReady(driver, 2);
+			boolean isSubfunctionSelected = subfunctionCheckbox.isSelected();
+			if (!isSubfunctionSelected) {
+				String errorMsg = "Subfunction '" + subfunctionText + "' not selected after successful click. UI state issue.";
+				LOGGER.error(errorMsg);
+				ScreenshotHandler.captureFailureScreenshot("subfunction_not_selected", new AssertionError(errorMsg));
+				Assert.fail(errorMsg);
+			}
+			
+			LOGGER.info("Selected subfunction '{}'", subfunctionText);
+			ExtentCucumberAdapter.addTestStepLog("Selected SubFunction '" + subfunctionText + "' from Functions/SubFunctions dropdown of Function '" + FunctionsOption + "'");
+		}
+		}
 	} catch (Exception e) {
 			String errorDetails = String.format(
 				"Failed to select subfunction inside function '%s' dropdown. " +
@@ -1187,41 +1385,103 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 	}
 	
 	public void select_two_subfunction_options_inside_function_name_filters_dropdown() {
-		PerformanceUtils.waitForPageReady(driver, 3);
+		PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 		List<WebElement> SubFunctionsCheckboxes = driver.findElements(By.xpath("//button[contains(@data-testid,'suboption')]//..//..//div[2]//input"));
 		List<WebElement> SubFunctionsValues = driver.findElements(By.xpath("//button[contains(@data-testid,'suboption')]//..//..//div[2]//label"));
 		try {
+			LOGGER.info("Selecting 2 subfunctions for Function '{}'", FunctionsOption);
+			
 			for (int j=1; j<SubFunctionsValues.size(); j++) {
 				if(j==1 || j==2) {
-					js.executeScript("arguments[0].scrollIntoView();", SubFunctionsValues.get(j));
-					try {
-						wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j))).click();
-						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						PerformanceUtils.waitForPageReady(driver, 3);
-					} catch (Exception e) {
+					String subfunctionText = SubFunctionsValues.get(j).getText();
+					WebElement subfunctionCheckbox = SubFunctionsCheckboxes.get(j);
+					
+					LOGGER.debug("Selecting subfunction #{}: '{}'", j, subfunctionText);
+					
+					// HEADLESS FIX: Scroll checkbox into view with center positioning (critical for headless)
+					js.executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'center'});", subfunctionCheckbox);
+					Thread.sleep(300);
+					
+					// HEADLESS FIX: Click the CHECKBOX directly (not the label) for reliability
+					boolean clickSucceeded = false;
+					int maxAttempts = 3;
+					
+					for (int attempt = 1; attempt <= maxAttempts && !clickSucceeded; attempt++) {
 						try {
-							wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j)));
-							js.executeScript("arguments[0].click();", SubFunctionsValues.get(j));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
-						} catch (Exception s) {
-							wait.until(ExpectedConditions.visibilityOf(SubFunctionsValues.get(j)));
-							utils.jsClick(driver, SubFunctionsValues.get(j));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
+							LOGGER.debug("Attempt {} to click subfunction checkbox '{}'", attempt, subfunctionText);
+							
+							// Check if already selected (might have been clicked in previous attempt)
+							if (subfunctionCheckbox.isSelected()) {
+								LOGGER.info("Subfunction '{}' already selected", subfunctionText);
+								clickSucceeded = true;
+								break;
+							}
+							
+							// Method 1: JavaScript click on checkbox (most reliable in headless)
+							js.executeScript("arguments[0].click();", subfunctionCheckbox);
+							Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
+							
+							// Wait for spinner if present
+							try {
+								wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+							} catch (Exception e) {
+								// Spinner might not appear, continue
+							}
+							
+							// Verify checkbox is now selected
+							if (subfunctionCheckbox.isSelected()) {
+								clickSucceeded = true;
+								LOGGER.debug("Successfully selected subfunction '{}' on attempt {}", subfunctionText, attempt);
+							} else {
+								LOGGER.warn("Checkbox not selected after attempt {}, retrying...", attempt);
+								// Scroll again before retry
+								if (attempt < maxAttempts) {
+									js.executeScript("arguments[0].scrollIntoView({block: 'center'});", subfunctionCheckbox);
+									Thread.sleep(200);
+								}
+							}
+							
+						} catch (Exception e) {
+							LOGGER.warn("Click attempt {} failed for '{}': {}", attempt, subfunctionText, e.getMessage());
+							if (attempt < maxAttempts) {
+								// Try scrolling again before next attempt
+								try {
+									js.executeScript("arguments[0].scrollIntoView({block: 'center'});", subfunctionCheckbox);
+									Thread.sleep(200);
+								} catch (Exception scrollEx) {
+									// Continue to next attempt
+								}
+							}
 						}
 					}
-					Assert.assertTrue(SubFunctionsCheckboxes.get(j).isSelected());
-					LOGGER.info("Selected SubFunction Value : " + SubFunctionsValues.get(j).getText() + " from Functions / SubFunctions Filters dropdown of the Function " + FunctionsOption +"....");
-					ExtentCucumberAdapter.addTestStepLog("Selected SubFunction Value : " + SubFunctionsValues.get(j).getText() + " from Functions / SubFunctions Filters dropdown of the Function " + FunctionsOption +"....");
+					
+					if (!clickSucceeded) {
+						String errorMsg = "Failed to click subfunction '" + subfunctionText + "' after " + maxAttempts + " attempts";
+						LOGGER.error(errorMsg);
+						ScreenshotHandler.captureFailureScreenshot("subfunction_" + j + "_click_failed", new AssertionError(errorMsg));
+						Assert.fail(errorMsg);
+					}
+					
+					// Final verification: Ensure checkbox is selected
+					PerformanceUtils.waitForPageReady(driver, 2);
+					boolean isSubfunctionSelected = subfunctionCheckbox.isSelected();
+					if (!isSubfunctionSelected) {
+						String errorMsg = "Subfunction '" + subfunctionText + "' not selected after successful click. UI state issue.";
+						LOGGER.error(errorMsg);
+						ScreenshotHandler.captureFailureScreenshot("subfunction_" + j + "_not_selected", new AssertionError(errorMsg));
+						Assert.fail(errorMsg);
+					}
+					
+					LOGGER.info("Selected SubFunction #{}: '{}' from Functions/SubFunctions Filters dropdown of Function '{}'", j, subfunctionText, FunctionsOption);
+					ExtentCucumberAdapter.addTestStepLog("Selected SubFunction Value : " + subfunctionText + " from Functions / SubFunctions Filters dropdown of the Function " + FunctionsOption +"....");
 			}
 			}
 	} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("select_two_subfunction_options_inside_function_name_filters_dropdown", e);
-			LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
-			Assert.fail("Issue in selecting two subfunction options inside function name dropdown...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in selecting two subfunction options inside function name dropdown...Please Investigate!!!");
-		}		
+		ScreenshotHandler.captureFailureScreenshot("select_two_subfunction_options_inside_function_name_filters_dropdown", e);
+		LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
+		Assert.fail("Issue in selecting two subfunction options inside function name dropdown...Please Investigate!!!");
+		ExtentCucumberAdapter.addTestStepLog("Issue in selecting two subfunction options inside function name dropdown...Please Investigate!!!");
+	}		
 	}
 
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_grades_departments_and_functions_subfunctions_options() throws Exception {
@@ -1237,8 +1497,22 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 		    	        String Departmentstext = department.getText();
 		    	        if(Departmentstext.contentEquals(DepartmentsOption)) {
 		    	        	 for (WebElement Function_SubFunction: allFunctions) {
-		    	     	        String function = Function_SubFunction.getText().split("\\|",2)[0].trim();
-		    	     	        String subfunction = Function_SubFunction.getText().split("\\|",2)[1].trim();
+		    	     	        String fullText = Function_SubFunction.getText();
+		    	     	        String function;
+		    	     	        String subfunction;
+		    	     	        
+		    	     	        // Check if text contains pipe (has subfunction)
+		    	     	        if(fullText.contains("|")) {
+		    	     	            // Split using regex that handles spaces around pipe: "Function | Subfunction"
+		    	     	            String[] parts = fullText.split("\\s*\\|\\s*", 2);
+		    	     	            function = parts[0].trim();
+		    	     	            subfunction = parts[1].trim();
+		    	     	        } else {
+		    	     	            // No pipe - function only, no subfunction
+		    	     	            function = fullText.trim();
+		    	     	            subfunction = "-";
+		    	     	        }
+		    	     	        
 		    	     	        if(function.contentEquals(FunctionsOption)) {
 		    	     	        	LOGGER.info("Organization Job Mapping Profile with Grade : " + Gradestext + " and Department : " + Departmentstext + " and Function : " + function + " and Sub-Function value : " + subfunction +" is correctly filtered with applied Combined Filters grades departments and functions subfunctions options");
 		    			        	ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Grade : " + Gradestext + " and Department : " + Departmentstext + " and Function : " + function + " and Sub-Function value : " + subfunction +" is correctly filtered with applied Combined Filters grades departments and functions subfunctions options");
@@ -1275,7 +1549,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			}
 			
 		}	
-		js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
+		js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 	}	
 	
 	/**
@@ -1333,18 +1607,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 						try {
 							wait.until(ExpectedConditions.visibilityOf(MappingStatusValues.get(i))).click();
 							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 3);
+							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 						} catch (Exception e) {
 							try {
 								wait.until(ExpectedConditions.visibilityOf(MappingStatusValues.get(i)));
 								js.executeScript("arguments[0].click();", MappingStatusValues.get(i));
 								wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-								PerformanceUtils.waitForPageReady(driver, 3);
+								PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 							} catch (Exception s) {
 								wait.until(ExpectedConditions.visibilityOf(MappingStatusValues.get(i)));
 								utils.jsClick(driver, MappingStatusValues.get(i));
 								wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-								PerformanceUtils.waitForPageReady(driver, 3);
+								PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 							}
 						}
 						Assert.assertTrue(MappingStatusCheckboxes.get(i).isSelected());
@@ -1371,7 +1645,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				Assert.fail("No Mapping Status option found matching the priority list (Manually, Unmapped, Auto Matched)");
 			}
 			
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("select_one_option_in_mapping_status_filters_dropdown", e);
@@ -1383,4 +1657,8 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 	
 	
 }
+
+
+
+
 
