@@ -3319,11 +3319,8 @@ public class DailyExcelTracker {
                     ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{0, 1});
                     // Apply to Execution Details column (5) - normal style
                     ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{5});
-                    // Apply to Comments column (6) with text wrapping for exception details
-                    Cell commentsCell = dataRow.getCell(6);
-                    if (commentsCell != null) {
-                        commentsCell.setCellStyle(ExcelStyleHelper.createRowStatusStyleWithWrapping(workbook, scenario.status));
-                    }
+                    // Apply to Comments column (6) without text wrapping
+                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{6});
                 }
             }
         }
@@ -3748,11 +3745,8 @@ public class DailyExcelTracker {
                     ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{0, 1});
                     // Apply to Execution Details column (5) - normal style
                     ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{5});
-                    // Apply to Comments column (6) with text wrapping for exception details
-                    Cell commentsCell = dataRow.getCell(6);
-                    if (commentsCell != null) {
-                        commentsCell.setCellStyle(ExcelStyleHelper.createRowStatusStyleWithWrapping(workbook, scenario.status));
-                    }
+                    // Apply to Comments column (6) without text wrapping
+                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{6});
 
                 }
             }

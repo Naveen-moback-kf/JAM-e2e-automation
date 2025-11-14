@@ -10,6 +10,7 @@ import org.apache.logging.log4j.core.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.CacheLookup;
@@ -425,13 +426,62 @@ public class PO06_PublishJobProfile {
 	
 	public void user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm() {
 		try {
+			// Wait for spinner and page ready
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-			PerformanceUtils.waitForPageReady(driver, 2); // Smart wait instead of fixed 2000ms
+			PerformanceUtils.waitForPageReady(driver, 2);
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-			String job1NameText = wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText();
-			Assert.assertEquals(job1OrgName, job1NameText.split("-", 2)[0].trim());
-			LOGGER.info("Published Job with name : " + job1NameText.split("-", 2)[0].trim() +" is displayed in HCM Sync Profiles screen in PM as expected");
-			ExtentCucumberAdapter.addTestStepLog("Published Job with name : " + job1NameText.split("-", 2)[0].trim() + " is displayed in HCM Sync Profiles screen in PM as expected");
+			
+			// Check if results are actually present or if "no results" scenario
+			boolean resultsFound = false;
+			String job1NameText = "";
+			
+			try {
+				// Try to get first row with shorter wait (10 seconds)
+				WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
+				job1NameText = shortWait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText();
+				resultsFound = true;
+			} catch (TimeoutException e) {
+				// No results found - check results count or "no results" message
+				LOGGER.warn("Published job profile not found in search results after 10 seconds");
+				
+				// Try to get results count to verify search returned 0 results
+				try {
+					WebElement resultsCount = driver.findElement(By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]"));
+					String countText = resultsCount.getText();
+					LOGGER.warn("Results count text: {}", countText);
+					
+					if (countText.contains("Showing 0")) {
+						Assert.fail("Search returned 0 results - Published job profile '" + job1OrgName + "' not found in HCM Sync Profiles. " +
+								   "Verify the job was actually published and synchronized to HCM.");
+					}
+				} catch (Exception countEx) {
+					LOGGER.warn("Could not get results count element");
+				}
+				
+				// Check for "no profiles" message
+				try {
+					WebElement noProfilesMsg = driver.findElement(By.xpath("//div[contains(text(),'no Success Profiles') or contains(text(),'No profiles found')]"));
+					if (noProfilesMsg.isDisplayed()) {
+						Assert.fail("No profiles message displayed - Published job profile '" + job1OrgName + "' not found in HCM Sync Profiles. " +
+								   "Verify the job was actually published and synchronized to HCM.");
+					}
+				} catch (Exception noMsgEx) {
+					LOGGER.warn("Could not find 'no profiles' message element");
+				}
+				
+				// If we got here, unclear why no results - fail with timeout info
+				Assert.fail("Published job profile '" + job1OrgName + "' not found in HCM Sync Profiles after 10 seconds. " +
+						   "The first row element did not appear. Verify the job was published and synchronized properly.");
+			}
+			
+			// Verify the job name matches
+			if (resultsFound) {
+				String actualJobName = job1NameText.split("-", 2)[0].trim();
+				Assert.assertEquals(job1OrgName, actualJobName);
+				LOGGER.info("Published Job with name : {} is displayed in HCM Sync Profiles screen in PM as expected", actualJobName);
+				ExtentCucumberAdapter.addTestStepLog("Published Job with name : " + actualJobName + " is displayed in HCM Sync Profiles screen in PM as expected");
+			}
+			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", e);
 			LOGGER.error("Issue in verifying published job in HCM Sync Profiles screen in PM - Method: user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", e);
