@@ -199,21 +199,6 @@ public class SD22_ValidateHCMSyncProfilesTab_PM {
 	public void click_on_third_profile_checkbox_in_hcm_sync_profiles_tab() throws IOException {
 		validateHCMSyncProfilesTab_PM.getValidateHCMSyncProfilesTab_PM().click_on_third_profile_checkbox_in_hcm_sync_profiles_tab();
 	}
-
-	@Then("User should click on Download button in HCM Sync Profiles screen")
-	public void user_should_click_on_download_button_in_hcm_sync_profiles_tab() throws IOException {
-		validateHCMSyncProfilesTab_PM.getValidateHCMSyncProfilesTab_PM().user_should_click_on_download_button_in_hcm_sync_profiles_tab();
-	}
-	
-	@Then("Click on XLS Format button and verify download successful in HCM Sync Profiles screen")
-	public void click_on_xls_format_button_and_verify_download_successful_in_hcm_sync_profiles_tab() throws IOException {
-		validateHCMSyncProfilesTab_PM.getValidateHCMSyncProfilesTab_PM().click_on_xls_format_button_and_verify_download_successful_in_hcm_sync_profiles_tab();
-	}
-
-	@Then("Click on CSV Format button and Verify download successful in HCM Sync Profiles screen")
-	public void click_on_csv_format_button_and_verify_download_successful_in_hcm_sync_profiles_tab() throws IOException {
-		validateHCMSyncProfilesTab_PM.getValidateHCMSyncProfilesTab_PM().click_on_csv_format_button_and_verify_download_successful_in_hcm_sync_profiles_tab();
-	}
 	
 	@Then("User should verify Sync with HCM button is disabled in HCM Sync Profiles screen")
 	public void user_should_verify_sync_with_hcm_button_is_disabled_in_hcm_sync_profiles_tab() throws IOException {

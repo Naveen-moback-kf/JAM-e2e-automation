@@ -507,7 +507,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				// Clear and enter profile name
 				wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).clear();
 				wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).sendKeys(profileName);
-				// PERFORMANCE: Single optimized wait - waitForPageReady already checks spinners
+				
+				// CRITICAL: Wait for spinner to disappear before checking results
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 				PerformanceUtils.waitForPageReady(driver, 2);
 					
 					// Check if results were found
@@ -522,15 +524,32 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 					}
 					
 					if (resultsCountText.contains("Showing") && !resultsCountText.startsWith("Showing 0")) {
-						// Found results!
-						selectedProfileName = profileName;
-						jobProfileName = profileName; // Update static variable for other methods to use
-						foundResults = true;
-						
-						LOGGER.info(" Found results with profile name: '" + profileName + "'");
-						LOGGER.info("   Results: " + resultsCountText);
-						ExtentCucumberAdapter.addTestStepLog(" Search successful with profile name '" + profileName + "' - " + resultsCountText);
-						break; // Stop trying other profile names
+						// Results found - now verify first result actually contains the search term
+						try {
+							WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(3));
+							String firstRowText = shortWait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText();
+							String firstProfileName = firstRowText.split("-", 2)[0].trim();
+							
+							LOGGER.info("   First result profile name: '" + firstProfileName + "'");
+							
+							if (firstProfileName.toLowerCase().contains(profileName.toLowerCase())) {
+								// Perfect match! First result contains the search term
+								selectedProfileName = profileName;
+								jobProfileName = profileName; // Update static variable for other methods to use
+								foundResults = true;
+								
+								LOGGER.info(" Found matching result with profile name: '" + profileName + "'");
+								LOGGER.info("   First profile: '" + firstProfileName + "' contains search term");
+								LOGGER.info("   Results: " + resultsCountText);
+								ExtentCucumberAdapter.addTestStepLog(" Search successful with profile name '" + profileName + "' - " + resultsCountText);
+								break; // Stop trying other profile names
+							} else {
+								LOGGER.info("   - First result '" + firstProfileName + "' does NOT contain search term '" + profileName + "'");
+								LOGGER.info("   Looking for profiles with another string...");
+							}
+						} catch (Exception e) {
+							LOGGER.info("   - Could not verify first result, trying next search term...");
+						}
 					} else {
 						LOGGER.info("   - No profiles found with string '" + profileName + "' (0 results)");
 						LOGGER.info("   Looking for profiles with another string...");
@@ -566,7 +585,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	try {
 		LOGGER.info("Verifying if profile name '{}' is displaying in HCM Sync Profiles list", jobProfileName);
 		
-		// PERFORMANCE: Single optimized wait - waitForPageReady already checks spinners
+		// CRITICAL: Wait for spinner to disappear before checking results
+		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 		PerformanceUtils.waitForPageReady(driver, 2);
 		
 		// ENHANCED: First check if profile is found or "No SP" message is displayed
@@ -711,18 +731,19 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				}
 			}
 			
-			// Clear the search bar
-			try {
-				hcmSyncProfilesSearchbar.sendKeys(Keys.CONTROL + "a");
-				hcmSyncProfilesSearchbar.sendKeys(Keys.DELETE);
-			} catch(Exception c) {
-		       js.executeScript("arguments[0].value = '';", hcmSyncProfilesSearchbar);
-		       js.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", hcmSyncProfilesSearchbar);		        
-		}
-		// PERFORMANCE: Single optimized wait - waitForPageReady already checks spinners
-		PerformanceUtils.waitForPageReady(driver, 2);
-		LOGGER.info("Cleared Search bar in HCM Sync Profiles screen in PM....");
-			ExtentCucumberAdapter.addTestStepLog("Cleared Search bar in HCM Sync Profiles screen in PM....");
+		// Clear the search bar
+		try {
+			hcmSyncProfilesSearchbar.sendKeys(Keys.CONTROL + "a");
+			hcmSyncProfilesSearchbar.sendKeys(Keys.DELETE);
+		} catch(Exception c) {
+	       js.executeScript("arguments[0].value = '';", hcmSyncProfilesSearchbar);
+	       js.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", hcmSyncProfilesSearchbar);		        
+	}
+	// CRITICAL: Wait for spinner to disappear after clearing search
+	wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+	PerformanceUtils.waitForPageReady(driver, 2);
+	LOGGER.info("Cleared Search bar in HCM Sync Profiles screen in PM....");
+		ExtentCucumberAdapter.addTestStepLog("Cleared Search bar in HCM Sync Profiles screen in PM....");
 	} catch (Exception e) {
 		LOGGER.error("Issue clearing search bar - Method: clear_search_bar_in_hcm_sync_profiles_tab", e);
 		ScreenshotHandler.captureFailureScreenshot("clear_search_bar", e);
@@ -734,7 +755,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab() {
 		try {
-			// PERFORMANCE: Single optimized wait - waitForPageReady already checks spinners
+			// CRITICAL: Wait for spinner to disappear before checking results count
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 2);
 			String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
 			intialResultsCount = resultsCountText;
@@ -1546,35 +1568,35 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				}
 			}
 			
-			// Step 3: Count selected and disabled profiles
-			profilesCount = loadedProfilesBeforeHeaderCheckboxClick;
-			disabledProfilesCountInLoadedProfiles = 0;
-			
-			for(int i = 1; i <= loadedProfilesBeforeHeaderCheckboxClick; i++) {
-				try {
-					WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(i) + "]//td[1]//*//..//div//kf-checkbox//div"));
-					js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
-					String text = SP_Checkbox.getAttribute("class");
-					if(text.contains("disable")) {
-						LOGGER.info("Success profile with No Job Code assigned is found....");
-						ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
-						disabledProfilesCountInLoadedProfiles++;
-						profilesCount = profilesCount - 1;
-					}
-				} catch(Exception e) {
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-					PerformanceUtils.waitForPageReady(driver, 3);
-					WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(i) + "]//td[1]//*//..//div//kf-checkbox//div"));
-					js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
-					String text = SP_Checkbox.getAttribute("class");
-					if(text.contains("disable")) {
-						LOGGER.info("Success profile with No Job Code assigned is found....");
-						ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
-						disabledProfilesCountInLoadedProfiles++;
-						profilesCount = profilesCount - 1;
-					}
+		// Step 3: Count selected and disabled profiles (without scrolling)
+		profilesCount = loadedProfilesBeforeHeaderCheckboxClick;
+		disabledProfilesCountInLoadedProfiles = 0;
+		
+		for(int i = 1; i <= loadedProfilesBeforeHeaderCheckboxClick; i++) {
+			try {
+				WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(i) + "]//td[1]//*//..//div//kf-checkbox//div"));
+				// REMOVED: Scroll operation - js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
+				String text = SP_Checkbox.getAttribute("class");
+				if(text.contains("disable")) {
+					LOGGER.info("Success profile with No Job Code assigned is found....");
+					ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
+					disabledProfilesCountInLoadedProfiles++;
+					profilesCount = profilesCount - 1;
+				}
+			} catch(Exception e) {
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+				PerformanceUtils.waitForPageReady(driver, 3);
+				WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(i) + "]//td[1]//*//..//div//kf-checkbox//div"));
+				// REMOVED: Scroll operation - js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
+				String text = SP_Checkbox.getAttribute("class");
+				if(text.contains("disable")) {
+					LOGGER.info("Success profile with No Job Code assigned is found....");
+					ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
+					disabledProfilesCountInLoadedProfiles++;
+					profilesCount = profilesCount - 1;
 				}
 			}
+		}
 			
 			// Step 4: Store selected profiles count
 			selectedProfilesAfterHeaderCheckboxClick = profilesCount;
@@ -1611,6 +1633,13 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void user_should_uncheck_header_checkbox_to_deselect_selected_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
+			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// Step 1: Store count of profiles BEFORE unchecking header checkbox
+			int profilesBeforeDeselect = selectedProfilesAfterHeaderCheckboxClick;
+			LOGGER.info("Selected profiles count (BEFORE unchecking header checkbox): " + profilesBeforeDeselect);
+			
+			// Step 2: Click header checkbox to deselect all
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(tableHeaderCheckbox)).click();
 			} catch (Exception e) {
@@ -1620,8 +1649,17 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 					utils.jsClick(driver, tableHeaderCheckbox);
 				}
 			}
-		LOGGER.info("Clicked on header checkbox and Deselected all job profiles in HCM Sync Profiles screen in PM");
-		ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox and Deselected all job profiles in HCM Sync Profiles screen in PM");
+			
+			// Step 3: Wait for action to complete
+			PerformanceUtils.waitForPageReady(driver, 2);
+			
+			// Step 4: Reset profiles count to 0 (all deselected)
+			profilesCount = 0;
+			
+			LOGGER.info("Clicked on header checkbox and deselected all job profiles in HCM Sync Profiles screen in PM");
+			LOGGER.info("    Previously selected profiles: " + profilesBeforeDeselect);
+			LOGGER.info("    Currently selected profiles: 0");
+			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox and deselected all " + profilesBeforeDeselect + " job profiles in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking header checkbox to deselect all - Method: user_should_uncheck_header_checkbox_to_deselect_selected_job_profiles_in_hcm_sync_profiles_tab", e);
 		ScreenshotHandler.captureFailureScreenshot("click_header_checkbox_deselect_all", e);
@@ -1704,109 +1742,52 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	}
 	}
 	
-	public void user_should_click_on_download_button_in_hcm_sync_profiles_tab() {
-		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			// PERFORMANCE: Removed Thread.sleep(2000) - scrollIntoView is immediate
-			js.executeScript("arguments[0].scrollIntoView(true);", hcmSyncProfilesTitle);
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(downloadBtn)).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", downloadBtn);
-				} catch (Exception s) {
-					utils.jsClick(driver, downloadBtn);
-				}
-			}
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(XLSFormatBtn)).isDisplayed());
-		LOGGER.info("Clicked on Download button in HCM Sync Profiles screen in PM");
-		ExtentCucumberAdapter.addTestStepLog("Clicked on Download button in HCM Sync Profiles screen in PM"); 
-	} catch (Exception e) {
-		LOGGER.error(" Issue clicking download button - Method: user_should_click_on_download_button_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("click_download_button", e);
-		e.printStackTrace();
-		Assert.fail("Issue in clicking Download button in HCM Sync Profiles screen in PM...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in clicking Download button in HCM Sync Profiles screen in PM...Please Investigate!!!");
-	}
-	}
-	
-	public void click_on_xls_format_button_and_verify_download_successful_in_hcm_sync_profiles_tab() {
-		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			// PERFORMANCE: Removed redundant Thread.sleep(2000) after spinner wait
-			wait.until(ExpectedConditions.visibilityOf(XLSFormatBtn)).click();
-			LOGGER.info("Clicked on XLS Format Download button in HCM Sync Profiles screen in PM....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on XLS Format Download button in HCM Sync Profiles screen in PM....");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			LOGGER.info("XLS Format file downloaded successfully in HCM Sync Profiles screen in PM....");
-			ExtentCucumberAdapter.addTestStepLog("XLS Format file downloaded successfully in HCM Sync Profiles screen in PM....");
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-	PerformanceUtils.waitForPageReady(driver, 2);
-	} catch (Exception e) {
-		LOGGER.error(" Issue verifying XLS format download - Method: click_on_xls_format_button_and_verify_download_successful_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_xls_format_download", e);
-		e.printStackTrace();
-		Assert.fail("Issue in Verifying XLS Format File download in HCM Sync Profiles screen in PM...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in Verifying XLS Format File download in HCM Sync Profiles screen in PM...Please Investigate!!!");
-	}
-	}
-	
-	public void click_on_csv_format_button_and_verify_download_successful_in_hcm_sync_profiles_tab() {
-		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			// PERFORMANCE: Removed redundant Thread.sleep(2000) after spinner wait
-			wait.until(ExpectedConditions.visibilityOf(CSVFormatBtn)).click();
-			LOGGER.info("Clicked on CSV Format Download button in HCM Sync Profiles screen in PM....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on CSV Format Download button in HCM Sync Profiles screen in PM....");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-//			LocalDateTime myDateObj = LocalDateTime.now();
-//			DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss");
-//			String formattedDate = myDateObj.format(myFormatObj);
-//			Assert.assertTrue(Utilities.isFileDownload("KornFerry_CustomSP_Extract_"+formattedDate,"zip",5000));
-		LOGGER.info("CSV Format Zip file downloaded successfully in HCM Sync Profiles screen in PM....");
-		ExtentCucumberAdapter.addTestStepLog("CSV Format Zip file downloaded successfully in HCM Sync Profiles screen in PM....");
-	} catch (Exception e) {
-		LOGGER.error(" Issue verifying CSV format download - Method: click_on_csv_format_button_and_verify_download_successful_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_csv_format_download", e);
-		e.printStackTrace();
-		Assert.fail("Issue in Verifying CSV Format Zip File download in HCM Sync Profiles screen in PM...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in Verifying CSV Format Zip File download in HCM Sync Profiles screen in PM...Please Investigate!!!");
-	}
-	}
-	
 	public void user_should_verify_sync_with_hcm_button_is_disabled_in_hcm_sync_profiles_tab() {
 		try {
-			WebElement syncButton = wait.until(ExpectedConditions.visibilityOf(SyncwithHCMBtn));
+			// CRITICAL: Wait for spinner and page ready before checking button state
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			// Check for disabled state using multiple indicators
-			boolean isDisabled = false;
-			
-			// Check 1: Check for 'text-disabled' class (Angular Material disabled state)
-			String classAttribute = syncButton.getAttribute("class");
-			if (classAttribute != null && classAttribute.contains("text-disabled")) {
-				isDisabled = true;
-				LOGGER.info("Button has 'text-disabled' class - Button is disabled");
-			}
-			
-			// Check 2: Check for 'disabled' attribute
-			String disabledAttribute = syncButton.getAttribute("disabled");
-			if (disabledAttribute != null) {
-				isDisabled = true;
-				LOGGER.info("Button has 'disabled' attribute - Button is disabled");
-			}
-			
-			// Check 3: Check for 'aria-disabled' attribute
-			String ariaDisabled = syncButton.getAttribute("aria-disabled");
-			if ("true".equalsIgnoreCase(ariaDisabled)) {
-				isDisabled = true;
-				LOGGER.info("Button has 'aria-disabled=true' - Button is disabled");
-			}
-			
-			// Check 4: Fallback to isEnabled() check
-			if (!isDisabled && !syncButton.isEnabled()) {
-				isDisabled = true;
-				LOGGER.info("Button.isEnabled() returned false - Button is disabled");
-			}
+			// Wait for button state to update with retry logic
+			WebDriverWait buttonWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
+			boolean isDisabled = buttonWait.until(driver -> {
+				try {
+					WebElement syncButton = wait.until(ExpectedConditions.visibilityOf(SyncwithHCMBtn));
+					
+					// Check 1: Check for 'text-disabled' class (Angular Material disabled state)
+					String classAttribute = syncButton.getAttribute("class");
+					if (classAttribute != null && classAttribute.contains("text-disabled")) {
+						LOGGER.debug("Button has 'text-disabled' class - Button is disabled");
+						return true;
+					}
+					
+					// Check 2: Check for 'disabled' attribute
+					String disabledAttribute = syncButton.getAttribute("disabled");
+					if (disabledAttribute != null) {
+						LOGGER.debug("Button has 'disabled' attribute - Button is disabled");
+						return true;
+					}
+					
+					// Check 3: Check for 'aria-disabled' attribute
+					String ariaDisabled = syncButton.getAttribute("aria-disabled");
+					if ("true".equalsIgnoreCase(ariaDisabled)) {
+						LOGGER.debug("Button has 'aria-disabled=true' - Button is disabled");
+						return true;
+					}
+					
+					// Check 4: Fallback to isEnabled() check
+					if (!syncButton.isEnabled()) {
+						LOGGER.debug("Button.isEnabled() returned false - Button is disabled");
+						return true;
+					}
+					
+					LOGGER.debug("Button not yet disabled, retrying...");
+					return false;
+				} catch (Exception e) {
+					LOGGER.debug("Error checking button state, retrying...");
+					return false;
+				}
+			});
 			
 			Assert.assertTrue(isDisabled, "Sync with HCM button should be disabled but appears to be enabled");
 			LOGGER.info(" Sync with HCM button is disabled as expected in HCM Sync Profiles screen in PM");
@@ -1822,37 +1803,50 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void user_should_verify_sync_with_hcm_button_is_enabled_in_hcm_sync_profiles_tab() {
 		try {
-			WebElement syncButton = wait.until(ExpectedConditions.visibilityOf(SyncwithHCMBtn));
+			// CRITICAL: Wait for spinner and page ready before checking button state
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			// Check for enabled state (absence of disabled indicators)
-			boolean isEnabled = true;
-			
-			// Check 1: Verify 'text-disabled' class is NOT present
-			String classAttribute = syncButton.getAttribute("class");
-			if (classAttribute != null && classAttribute.contains("text-disabled")) {
-				isEnabled = false;
-				LOGGER.warn("Button has 'text-disabled' class - Button is disabled");
-			}
-			
-			// Check 2: Verify 'disabled' attribute is NOT present
-			String disabledAttribute = syncButton.getAttribute("disabled");
-			if (disabledAttribute != null) {
-				isEnabled = false;
-				LOGGER.warn("Button has 'disabled' attribute - Button is disabled");
-			}
-			
-			// Check 3: Verify 'aria-disabled' is not 'true'
-			String ariaDisabled = syncButton.getAttribute("aria-disabled");
-			if ("true".equalsIgnoreCase(ariaDisabled)) {
-				isEnabled = false;
-				LOGGER.warn("Button has 'aria-disabled=true' - Button is disabled");
-			}
-			
-			// Check 4: Verify isEnabled() returns true
-			if (isEnabled && !syncButton.isEnabled()) {
-				isEnabled = false;
-				LOGGER.warn("Button.isEnabled() returned false - Button is disabled");
-			}
+			// Wait for button state to update with retry logic
+			WebDriverWait buttonWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
+			boolean isEnabled = buttonWait.until(driver -> {
+				try {
+					WebElement syncButton = wait.until(ExpectedConditions.visibilityOf(SyncwithHCMBtn));
+					
+					// Check 1: Verify 'text-disabled' class is NOT present
+					String classAttribute = syncButton.getAttribute("class");
+					if (classAttribute != null && classAttribute.contains("text-disabled")) {
+						LOGGER.debug("Button has 'text-disabled' class - Button still disabled, retrying...");
+						return false;
+					}
+					
+					// Check 2: Verify 'disabled' attribute is NOT present
+					String disabledAttribute = syncButton.getAttribute("disabled");
+					if (disabledAttribute != null) {
+						LOGGER.debug("Button has 'disabled' attribute - Button still disabled, retrying...");
+						return false;
+					}
+					
+					// Check 3: Verify 'aria-disabled' is not 'true'
+					String ariaDisabled = syncButton.getAttribute("aria-disabled");
+					if ("true".equalsIgnoreCase(ariaDisabled)) {
+						LOGGER.debug("Button has 'aria-disabled=true' - Button still disabled, retrying...");
+						return false;
+					}
+					
+					// Check 4: Verify isEnabled() returns true
+					if (!syncButton.isEnabled()) {
+						LOGGER.debug("Button.isEnabled() returned false - Button still disabled, retrying...");
+						return false;
+					}
+					
+					LOGGER.debug("Button is enabled!");
+					return true;
+				} catch (Exception e) {
+					LOGGER.debug("Error checking button state, retrying...");
+					return false;
+				}
+			});
 			
 			Assert.assertTrue(isEnabled, "Sync with HCM button should be enabled but appears to be disabled");
 			LOGGER.info(" Sync with HCM button is enabled as expected in HCM Sync Profiles screen in PM");

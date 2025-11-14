@@ -50,10 +50,29 @@ public class ScreenshotHandler {
     private static final Logger LOGGER = LogManager.getLogger(ScreenshotHandler.class);
     
     // Configuration
-    private static final String SCREENSHOTS_DIR = "Screenshots";
+    private static final String SCREENSHOTS_BASE_DIR;
     private static final String FAILURE_SCREENSHOTS_DIR = "FailureScreenshots";
     private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    
+    // Initialize screenshots directory
+    static {
+        String userDir = System.getProperty("user.dir");
+        String projectRoot;
+        
+        // If running from e2e-automation folder, use it directly
+        if (userDir.endsWith("e2e-automation")) {
+            projectRoot = userDir;
+        } else {
+            // If running from root, append e2e-automation
+            projectRoot = userDir + File.separator + "e2e-automation";
+        }
+        
+        SCREENSHOTS_BASE_DIR = projectRoot + File.separator + "Screenshots";
+        
+        // Log the screenshots directory for debugging
+        System.out.println("ScreenshotHandler initialized - Screenshots directory: " + SCREENSHOTS_BASE_DIR);
+    }
     
     // PERFORMANCE OPTIMIZATION: Screenshot throttling and smart capture
     private static final long SCREENSHOT_THROTTLE_MS = 2000; // Minimum 2 seconds between screenshots
@@ -397,7 +416,7 @@ public class ScreenshotHandler {
         String fileName = String.format("FAILURE_%s_%s.png", timestamp, cleanMethodName);
         
         return String.format("%s%s%s%s%s%s%s", 
-            SCREENSHOTS_DIR, File.separator,
+            SCREENSHOTS_BASE_DIR, File.separator,
             FAILURE_SCREENSHOTS_DIR, File.separator,
             date, File.separator,
             fileName);
@@ -414,7 +433,7 @@ public class ScreenshotHandler {
         String fileName = String.format("%s_%s.png", cleanDescription, timestamp);
         
         return String.format("%s%s%s%s%s%s%s", 
-            SCREENSHOTS_DIR, File.separator,
+            SCREENSHOTS_BASE_DIR, File.separator,
             "CustomScreenshots", File.separator,
             date, File.separator,
             fileName);
@@ -660,7 +679,7 @@ public class ScreenshotHandler {
      * Get screenshots directory path
      */
     public static String getScreenshotsDirectory() {
-        return SCREENSHOTS_DIR;
+        return SCREENSHOTS_BASE_DIR;
     }
     
     /**
@@ -668,7 +687,7 @@ public class ScreenshotHandler {
      */
     public static void cleanupOldScreenshots(int daysToKeep) {
         try {
-            File screenshotsDir = new File(SCREENSHOTS_DIR);
+            File screenshotsDir = new File(SCREENSHOTS_BASE_DIR);
             if (!screenshotsDir.exists()) {
                 return;
             }
@@ -749,7 +768,7 @@ public class ScreenshotHandler {
      */
     public static java.util.List<File> getFailureScreenshotsAscending(String date) {
         try {
-            File dateDir = new File(SCREENSHOTS_DIR + File.separator + 
+            File dateDir = new File(SCREENSHOTS_BASE_DIR + File.separator + 
                                    FAILURE_SCREENSHOTS_DIR + File.separator + date);
             
             if (!dateDir.exists() || !dateDir.isDirectory()) {
