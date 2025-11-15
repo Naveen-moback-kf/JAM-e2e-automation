@@ -60,11 +60,10 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 				element.click();
 				// PERFORMANCE: Replaced Thread.sleep(1000) with UI stability wait
 				PerformanceUtils.waitForUIStability(driver, 2);
-				LOGGER.debug("Successfully clicked " + elementName + " using regular click");
 				return true;
 			}
 		} catch (Exception e) {
-			LOGGER.debug("Regular click failed for " + elementName + ": " + e.getMessage());
+			// Strategy failed, try next
 		}
 		
 		try {
@@ -72,10 +71,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			js.executeScript("arguments[0].click();", element);
 			// PERFORMANCE: Replaced Thread.sleep(1000) with UI stability wait
 			PerformanceUtils.waitForUIStability(driver, 2);
-			LOGGER.debug("Successfully clicked " + elementName + " using JavaScript click");
 			return true;
 		} catch (Exception e) {
-			LOGGER.debug("JavaScript click failed for " + elementName + ": " + e.getMessage());
+			// Strategy failed, try next
 		}
 		
 		try {
@@ -83,10 +81,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			new Actions(driver).moveToElement(element).click().perform();
 			// PERFORMANCE: Replaced Thread.sleep(1000) with UI stability wait
 			PerformanceUtils.waitForUIStability(driver, 2);
-			LOGGER.debug("Successfully clicked " + elementName + " using Actions click");
 			return true;
 		} catch (Exception e) {
-			LOGGER.debug("Actions click failed for " + elementName + ": " + e.getMessage());
+			// All strategies failed
 		}
 		
 		return false;

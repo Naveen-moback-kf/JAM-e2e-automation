@@ -188,16 +188,11 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(chevronBtninJAM)).click();
-				LOGGER.info(" Clicked on Chevron Button using standard click");
 			} catch (Exception e) {
-				LOGGER.warn("Standard click failed, trying JS click...");
 				try {
 					js.executeScript("arguments[0].click();", chevronBtninJAM);
-					LOGGER.info(" Clicked on Chevron Button using JS click");
 				} catch (Exception s) {
-					LOGGER.warn("JS click failed, trying utils.jsClick...");
 					utils.jsClick(driver, chevronBtninJAM);
-					LOGGER.info(" Clicked on Chevron Button using utils.jsClick");
 				}
 			}
 			LOGGER.info("Clicked on Chevron Button beside Header Checkbox in Job Mapping Screen");
@@ -355,7 +350,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			loadedSelectedCount = ((Long) result).intValue();
 		} catch (Exception jsException) {
 			// Fallback: Use XPath to directly get checked checkboxes
-			LOGGER.warn("JavaScript counting failed, using XPath fallback");
+			LOGGER.warn("JavaScript counting failed, using fallback method");
 			try {
 				loadedSelectedCount = driver.findElements(
 					By.xpath("//tbody//tr//td[1]//input[@type='checkbox' and @checked]")
@@ -375,7 +370,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 					}
 				}
 			} catch (Exception xpathException) {
-				LOGGER.error("Checkbox counting failed: " + xpathException.getMessage());
+				LOGGER.error("Checkbox counting failed: " + xpathException.getClass().getSimpleName());
 			}
 		}
 		

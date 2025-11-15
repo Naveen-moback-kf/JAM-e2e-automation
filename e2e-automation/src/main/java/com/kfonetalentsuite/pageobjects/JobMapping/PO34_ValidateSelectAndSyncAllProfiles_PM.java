@@ -213,25 +213,25 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 				
 				LOGGER.info(" Counted using JavaScript - Total: " + totalCheckboxes + ", Disabled: " + disabledCount + ", Selected: " + selectedCount);
 				
-			} catch (Exception jsException) {
-				// Fallback: Use XPath counting (still faster than looping)
-				LOGGER.warn("JavaScript counting failed, using XPath fallback...");
-				
-				// Count disabled checkboxes directly via XPath
-				disabledCount = driver.findElements(
-					By.xpath("//tbody//tr//td[1]//*//..//div//kf-checkbox//div[contains(@class, 'disable')]")
-				).size();
-				
-				// Count all checkboxes
-				int totalCheckboxes = driver.findElements(
-					By.xpath("//tbody//tr//td[1]//*//..//div//kf-checkbox//div")
-				).size();
-				
-				// Calculate enabled checkboxes (all - disabled = enabled)
-				selectedCount = totalCheckboxes - disabledCount;
-				
-				LOGGER.info(" Counted using XPath - Total: " + totalCheckboxes + ", Disabled: " + disabledCount + ", Selected: " + selectedCount);
-			}
+		} catch (Exception jsException) {
+			// Fallback: Use XPath counting (still faster than looping)
+			LOGGER.warn("JavaScript counting failed, using fallback method...");
+			
+			// Count disabled checkboxes directly via XPath
+			disabledCount = driver.findElements(
+				By.xpath("//tbody//tr//td[1]//*//..//div//kf-checkbox//div[contains(@class, 'disable')]")
+			).size();
+			
+			// Count all checkboxes
+			int totalCheckboxes = driver.findElements(
+				By.xpath("//tbody//tr//td[1]//*//..//div//kf-checkbox//div")
+			).size();
+			
+			// Calculate enabled checkboxes (all - disabled = enabled)
+			selectedCount = totalCheckboxes - disabledCount;
+			
+			LOGGER.info(" Counted using fallback method - Total: " + totalCheckboxes + ", Disabled: " + disabledCount + ", Selected: " + selectedCount);
+		}
 			
 			LOGGER.info("Found " + (selectedCount + disabledCount) + " total checkbox elements");
 			LOGGER.info("Disabled checkboxes: " + disabledCount);

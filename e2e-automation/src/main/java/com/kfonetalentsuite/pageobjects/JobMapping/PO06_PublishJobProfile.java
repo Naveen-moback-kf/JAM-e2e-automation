@@ -427,9 +427,9 @@ public class PO06_PublishJobProfile {
 	public void user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm() {
 		try {
 			// Wait for spinner and page ready
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner1));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
+
 			
 			// Check if results are actually present or if "no results" scenario
 			boolean resultsFound = false;

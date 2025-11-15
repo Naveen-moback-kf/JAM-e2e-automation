@@ -67,33 +67,119 @@ public class PO12_ValidatePersistanceOfFilters {
 			driver.navigate().refresh();
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 2);
-		LOGGER.info("Refreshed Job Mapping page...");
-		ExtentCucumberAdapter.addTestStepLog("Refreshed Job Mapping page...");
-	} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("refresh_job_mapping_page", e);
-		LOGGER.error("Issue in Refreshing Job Mapping page - Method: refresh_job_mapping_page", e);
-		e.printStackTrace();
-		ExtentCucumberAdapter.addTestStepLog("Issue in Refreshing Job Mapping page...Please Investigate!!!");
-		Assert.fail("Issue in Refreshing Job Mapping page...Please Investigate!!!");
-	}
+			
+			// CRITICAL: Scroll to top immediately to prevent lazy loading in headless mode
+			js.executeScript("window.scrollTo(0, 0);");
+			
+			// Additional wait for headless mode to ensure page stabilizes at initial state
+			try {
+				Thread.sleep(800);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			
+			LOGGER.info("Refreshed Job Mapping page...");
+			ExtentCucumberAdapter.addTestStepLog("Refreshed Job Mapping page...");
+		} catch (Exception e) {
+			ScreenshotHandler.captureFailureScreenshot("refresh_job_mapping_page", e);
+			LOGGER.error("Issue in Refreshing Job Mapping page - Method: refresh_job_mapping_page", e);
+			e.printStackTrace();
+			ExtentCucumberAdapter.addTestStepLog("Issue in Refreshing Job Mapping page...Please Investigate!!!");
+			Assert.fail("Issue in Refreshing Job Mapping page...Please Investigate!!!");
+		}
 	}
 	
 	public void verify_applied_filters_persist_on_job_mapping_ui() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 2);
-			wait.until(ExpectedConditions.visibilityOf(clearFiltersBtn)).isDisplayed();
-			String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-		Assert.assertEquals(PO04_VerifyJobMappingPageComponents.updatedResultsCount,resultsCountText2);
-		LOGGER.info("Applied Filters Persisted on Job Mapping page as expected");
-		ExtentCucumberAdapter.addTestStepLog("Applied Filters Persisted on Job Mapping page as expected");
-	} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("verify_applied_filters_persist_on_job_mapping_ui", e);
-		LOGGER.error("Applied Filters Not Persisted on Job Mapping page - Method: verify_applied_filters_persist_on_job_mapping_ui", e);
-		e.printStackTrace();
-		ExtentCucumberAdapter.addTestStepLog("Applied Filters Not Persisted on Job Mapping page....Please Investigate!!!");
-		Assert.fail("Applied Filters Not Persisted on Job Mapping page....Please Investigate!!!");
-	}
+			// CRITICAL: Immediately capture the results count before any potential scrolling
+			// In headless mode, the page might auto-scroll/load more results quickly
+			String actualResultsCount = "";
+			
+			// Quick capture - don't wait too long
+			try {
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				actualResultsCount = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+			} catch (Exception e) {
+				// Retry once if stale
+				Thread.sleep(200);
+				actualResultsCount = showingJobResultsCount.getText();
+			}
+			
+			// CRITICAL: Verify Clear Filters button is visible (confirms filters are applied)
+			wait.until(ExpectedConditions.visibilityOf(clearFiltersBtn));
+			
+			// Use initialFilteredResultsCount (before scrolling) for persistence check
+			String expectedResultsCount = PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount;
+			
+			// Fallback to updatedResultsCount if initialFilteredResultsCount not set
+			if (expectedResultsCount == null || expectedResultsCount.isEmpty()) {
+				expectedResultsCount = PO04_VerifyJobMappingPageComponents.updatedResultsCount;
+				LOGGER.warn("Using updatedResultsCount as fallback (initialFilteredResultsCount not set)");
+			}
+			
+			// If the counts don't match, it might be because the page is still loading
+			// Try smart polling to see if it stabilizes to the expected value
+			if (!actualResultsCount.equals(expectedResultsCount)) {
+				int maxAttempts = 5; // Short retry window
+				int attempt = 0;
+				boolean countMatches = false;
+				
+				while (attempt < maxAttempts && !countMatches) {
+					try {
+						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+						actualResultsCount = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+						
+						if (actualResultsCount.equals(expectedResultsCount)) {
+							countMatches = true;
+							break;
+						}
+						
+						Thread.sleep(300);
+						attempt++;
+						
+					} catch (org.openqa.selenium.StaleElementReferenceException e) {
+						Thread.sleep(200);
+						attempt++;
+					}
+				}
+			}
+			
+			// Verify counts match
+			Assert.assertEquals(expectedResultsCount, actualResultsCount, 
+				"Filters should persist after navigation - results count should match initial filtered count (before scrolling)");
+			
+			LOGGER.info("✓ Applied Filters Persisted correctly - Results: {}", actualResultsCount);
+			ExtentCucumberAdapter.addTestStepLog("✓ Applied Filters Persisted on Job Mapping page as expected - Results: " + actualResultsCount);
+			
+		} catch (AssertionError e) {
+			// Assertion failed - log detailed error
+			String actualCount = "";
+			try {
+				actualCount = showingJobResultsCount.getText();
+			} catch (Exception ex) {
+				actualCount = "Unable to read";
+			}
+			
+			String errorMsg = String.format(
+				"Filter Persistence Check Failed:%n" +
+				"  Expected (initial filtered): %s%n" +
+				"  Actual:   %s%n" +
+				"This indicates filters did not persist correctly after navigation.",
+				PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount, actualCount
+			);
+			
+			LOGGER.error(errorMsg);
+			ExtentCucumberAdapter.addTestStepLog(errorMsg.replace("%n", "<br>"));
+			ScreenshotHandler.captureFailureScreenshot("verify_applied_filters_persist_on_job_mapping_ui", e);
+			throw e;
+			
+		} catch (Exception e) {
+			ScreenshotHandler.captureFailureScreenshot("verify_applied_filters_persist_on_job_mapping_ui", e);
+			LOGGER.error("Applied Filters Not Persisted on Job Mapping page - Method: verify_applied_filters_persist_on_job_mapping_ui", e);
+			e.printStackTrace();
+			ExtentCucumberAdapter.addTestStepLog("Applied Filters Not Persisted on Job Mapping page....Please Investigate!!!");
+			Assert.fail("Applied Filters Not Persisted on Job Mapping page....Please Investigate!!!");
+		}
 	}
 	
 	public void click_on_browser_back_button() {
@@ -154,25 +240,131 @@ public class PO12_ValidatePersistanceOfFilters {
 	}
 	
 	public void user_is_in_job_mapping_page_with_grades_filters_applied() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		// Wait for page to be fully ready (critical for headless mode)
+		try {
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		} catch (Exception e) {
+			// Spinner might not be present, continue
+		}
+		PerformanceUtils.waitForPageReady(driver, 2);
+		
+		// Additional wait for headless mode
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		
+		// Capture current filtered count as baseline (if not already set)
+		try {
+			WebElement resultsElement = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
+			String currentCount = resultsElement.getText();
+			
+			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
+				PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount = currentCount;
+			}
+		} catch (Exception e) {
+			// Will retry in verify method if needed
+		}
+		
 		ExtentCucumberAdapter.addTestStepLog("User is in Job Mapping page with Grades Filters applied");
 		LOGGER.info("User is in Job Mapping page with Grades Filters applied");
 	}
 	
 	public void user_is_in_job_mapping_page_with_mapping_status_filters_applied() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		// Wait for page to be fully ready (critical for headless mode)
+		try {
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		} catch (Exception e) {
+			// Spinner might not be present, continue
+		}
+		PerformanceUtils.waitForPageReady(driver, 2);
+		
+		// Additional wait for headless mode
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		
+		// Capture current filtered count as baseline (if not already set)
+		try {
+			WebElement resultsElement = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
+			String currentCount = resultsElement.getText();
+			
+			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
+				PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount = currentCount;
+			}
+		} catch (Exception e) {
+			// Will retry in verify method if needed
+		}
+		
 		ExtentCucumberAdapter.addTestStepLog("User is in Job Mapping page with Mapping Status Filters applied");
 		LOGGER.info("User is in Job Mapping page with Mapping Status Filters applied");
 	}
 	
 	public void user_is_in_view_published_screen_with_grades_filters_applied() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		// Wait for page to be fully ready (critical for headless mode)
+		try {
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		} catch (Exception e) {
+			// Spinner might not be present, continue
+		}
+		PerformanceUtils.waitForPageReady(driver, 2);
+		
+		// Additional wait for headless mode
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		
+		// ALWAYS capture current count at scenario start (don't preserve from previous scenario)
+		// This ensures we use the actual displayed count as the baseline
+		try {
+			WebElement resultsElement = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
+			String currentCount = resultsElement.getText();
+			
+			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
+				PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount = currentCount;
+			}
+		} catch (Exception e) {
+			// Will retry in verify method if needed
+		}
+		
 		ExtentCucumberAdapter.addTestStepLog("User is in View Published screen with Grades filters applied");
 		LOGGER.info("User is in View Published screen with Grades filters applied");
 	}
 	
 	public void user_is_in_view_published_screen_with_multiple_filters_applied() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		// Wait for page to be fully ready (critical for headless mode)
+		try {
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		} catch (Exception e) {
+			// Spinner might not be present, continue
+		}
+		PerformanceUtils.waitForPageReady(driver, 2);
+		
+		// Additional wait for headless mode
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+		
+		// ALWAYS capture current count at scenario start (don't preserve from previous scenario)
+		// This ensures we use the actual displayed count as the baseline
+		try {
+			WebElement resultsElement = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
+			String currentCount = resultsElement.getText();
+			
+			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
+				PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount = currentCount;
+			}
+		} catch (Exception e) {
+			// Will retry in verify method if needed
+		}
+		
 		ExtentCucumberAdapter.addTestStepLog("User is in View Published screen with multiple filters applied");
 		LOGGER.info("User is in View Published screen with multiple filters applied");
 	}

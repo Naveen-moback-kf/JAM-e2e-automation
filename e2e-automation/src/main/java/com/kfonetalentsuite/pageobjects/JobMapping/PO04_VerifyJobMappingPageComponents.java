@@ -44,6 +44,7 @@ public class PO04_VerifyJobMappingPageComponents {
 	public static String orgJobDepartmentInRow1;
 	public static String intialResultsCount;
 	public static String updatedResultsCount;
+	public static String initialFilteredResultsCount; // Count immediately after filters applied (before scrolling)
 	public static String orgJobNameInRow2;
 	public static String matchedSuccessPrflName;
 	
@@ -823,14 +824,13 @@ public class PO04_VerifyJobMappingPageComponents {
 	
 	/**
 	 * Closes the Filters dropdown by clicking the Filters button to toggle it
-	 * Dropdown closes instantly without page reload, so no wait needed
+	 * Dropdown closes instantly without page reload
 	 */
 	public void close_the_filters_dropdown() {
 		try {
 			LOGGER.info("Attempting to close Filters dropdown...");
 			
 			// Use JS click directly (most reliable method for this element)
-			// Dropdown closes instantly, no page reload occurs
 			js.executeScript("arguments[0].click();", filtersBtn);
 			
 			// Verify dropdown is closed (the wait is only for invisibility check)
@@ -838,6 +838,14 @@ public class PO04_VerifyJobMappingPageComponents {
 			
 			LOGGER.info(" Filters dropdown closed successfully");
 			ExtentCucumberAdapter.addTestStepLog("Closed Filters dropdown");
+			
+			// MINIMAL WAIT: Just enough for dropdown close animation
+			// Don't wait for page updates here - let the next step handle it
+			try {
+				Thread.sleep(300); // Just for dropdown close animation
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("close_filters_dropdown", e);
@@ -1223,9 +1231,15 @@ public class PO04_VerifyJobMappingPageComponents {
 				}
 			}
 			
-			intialResultsCount = resultsCountText;
-		    ExtentCucumberAdapter.addTestStepLog("Initially " + resultsCountText + " of job profiles");
-		    LOGGER.info("Initially " + resultsCountText + " of job profiles");
+		intialResultsCount = resultsCountText;
+		
+		// IMPORTANT: Reset initialFilteredResultsCount for new scenario
+		// This ensures each scenario starts fresh and doesn't use values from previous scenarios
+		initialFilteredResultsCount = null;
+		LOGGER.debug("Reset initialFilteredResultsCount for new scenario - Initial count: {}", intialResultsCount);
+		
+	    ExtentCucumberAdapter.addTestStepLog("Initially " + resultsCountText + " of job profiles");
+	    LOGGER.info("Initially " + resultsCountText + " of job profiles");
 		} catch (Exception e) {
 			// Enhanced error details
 			String errorDetails = String.format(
@@ -1276,38 +1290,75 @@ public class PO04_VerifyJobMappingPageComponents {
 	public void user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table() throws InterruptedException {
 		try {
 			js.executeScript("arguments[0].scrollIntoView(true);", pageTitleHeader);
+			
+			// CRITICAL: Wait for ALL spinners to disappear (filters can trigger multiple spinners)
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			wait.until(ExpectedConditions.invisibilityOfAllElements(driver.findElements(By.xpath("//div[@data-testid='loader']//img"))));
-			// PERFORMANCE: Reduced from 5s to 1s - results update quickly after filters
-			PerformanceUtils.waitForPageReady(driver, 1); 
-			Thread.sleep(300); // PERFORMANCE: Reduced from 2000ms to 300ms
 			
-			// Fix: Use fresh element lookup to avoid stale element reference
+			// PERFORMANCE: Wait for page to fully process the filter changes
+			PerformanceUtils.waitForPageReady(driver, 1);
+			
+			// IMPORTANT: Wait for the results count text to actually CHANGE (not just be present)
+			// This prevents reading stale/cached count text
 			String resultsCountText2 = "";
 			int retryAttempts = 0;
-			int maxRetries = 3; // PERFORMANCE: Reduced from 5 to 3 retries
+			int maxRetries = 10; // Increased to handle slow filter updates
+			long startTime = System.currentTimeMillis();
 			
 			while (retryAttempts < maxRetries) {
 				try {
-					// PERFORMANCE: Reduced from 20s to 3s timeout
-					WebDriverWait quickWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(3));
-					resultsCountText2 = quickWait.until(ExpectedConditions.presenceOfElementLocated(
-						By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]")
-					)).getText();
-					break; // Success - exit retry loop
-				} catch (org.openqa.selenium.StaleElementReferenceException | org.openqa.selenium.TimeoutException e) {
-					retryAttempts++;
-					if (retryAttempts >= maxRetries) {
-						throw e; // Re-throw if max retries reached
+					// Get fresh element and text
+					WebElement resultsElement = driver.findElement(By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]"));
+					String currentText = resultsElement.getText().trim();
+					
+					// Check if text has changed from initial count (filter was applied)
+					if (!currentText.isEmpty() && !currentText.equals(intialResultsCount)) {
+						resultsCountText2 = currentText;
+						break; // Success - count has updated
 					}
-					LOGGER.warn("Attempt {} failed: {}, retrying...", retryAttempts, e.getClass().getSimpleName());
-					// PERFORMANCE: Minimal retry wait
-					Thread.sleep(300);
+					
+					// If first attempt and text equals initial, wait a bit longer
+					if (retryAttempts == 0) {
+						Thread.sleep(500); // Give page time to start updating
+					} else {
+						Thread.sleep(200); // Shorter wait for subsequent attempts
+					}
+					
+					retryAttempts++;
+					
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					retryAttempts++;
+					Thread.sleep(200);
 				}
 			}
 			
+			long elapsedTime = System.currentTimeMillis() - startTime;
+			
+			// If we couldn't read updated text after retries
+			if (resultsCountText2.isEmpty()) {
+				// Try one final time with explicit wait
+				WebDriverWait finalWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
+				resultsCountText2 = finalWait.until(ExpectedConditions.presenceOfElementLocated(
+					By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]")
+				)).getText();
+			}
+			
 			updatedResultsCount = resultsCountText2;
-			// PERFORMANCE: No additional wait needed after successful read 
+			
+			// Store this as initial filtered count ONLY if not already set
+			// This captures the count immediately after filters are applied (before any scrolling)
+			if (initialFilteredResultsCount == null || initialFilteredResultsCount.isEmpty()) {
+				// Only set if it's different from initial (filters were applied)
+				if (!resultsCountText2.equals(intialResultsCount)) {
+					initialFilteredResultsCount = resultsCountText2;
+					LOGGER.debug("Stored initial filtered results count (before scrolling): {}", initialFilteredResultsCount);
+				}
+			} else {
+				LOGGER.debug("Initial filtered count already set: {} (current count: {})", 
+					initialFilteredResultsCount, resultsCountText2);
+			}
+			
+			LOGGER.debug("Results count verification completed in {}ms", elapsedTime);
 			
 			// CHECK FOR ZERO RESULTS - Set flag for skipping validation steps
 			if (resultsCountText2.contains("Showing 0 of")) {
@@ -1321,7 +1372,7 @@ public class PO04_VerifyJobMappingPageComponents {
 			
 			if (!resultsCountText2.equals(intialResultsCount)) {
 				ExtentCucumberAdapter.addTestStepLog("Profile Results count updated and Now " + resultsCountText2 + " of job profiles as expected");
-				LOGGER.info("Profile Results count updated and Now " + resultsCountText2 + " of job profiles as expected");
+				LOGGER.info("Profile Results count updated and Now " + resultsCountText2 + " of job profiles as expected (took {}ms)", elapsedTime);
 			} else {
 				ExtentCucumberAdapter.addTestStepLog("Issue in updating profile results count, Still " + resultsCountText2 + " ....Please Investigate!!!");
 				LOGGER.error("Issue in updating profile results count, Still " + resultsCountText2 + " ....Please Investigate!!!");

@@ -74,26 +74,66 @@ public class PO10_ValidateScreen1SearchResults {
 		try {
 			LOGGER.info("Scrolling down till Last Search Result...Please wait!!!");
 			ExtentCucumberAdapter.addTestStepLog("Scrolling down till Last Search Result...Please wait!!!");
-		while(true) {
-			String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-		String[] resultsCountText_split = resultsCountText.split(" ");
-		js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-		PerformanceUtils.waitForUIStability(driver, 1);
-		if(resultsCountText_split[1].contentEquals(resultsCountText_split[3])) {
-				String resultsCountText_updated = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-				LOGGER.info("Scrolled down till last Search Result and now "+ resultsCountText_updated + " of Job Profiles as expected");
-				ExtentCucumberAdapter.addTestStepLog("Scrolled down till last Search Result and now "+ resultsCountText_updated + " of Job Profiles as expected");
-				break;
-		} else {
-			js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForUIStability(driver, 1);
-		}
-		}
+			
+			int maxScrollAttempts = 50;
+			int scrollCount = 0;
+			int previousShowing = -1;
+			int stableCount = 0;
+			
+			while(scrollCount < maxScrollAttempts) {
+				// Read the current count at the START of each iteration
+				String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+				String[] resultsCountText_split = resultsCountText.split(" ");
+				
+				// Parse: "Showing X of Y results" -> resultsCountText_split[1] = X, resultsCountText_split[3] = Y
+				int currentShowing = Integer.parseInt(resultsCountText_split[1]);
+				int totalResults = Integer.parseInt(resultsCountText_split[3]);
+				
+				LOGGER.debug("Scroll attempt {}: Showing {} of {} results", scrollCount + 1, currentShowing, totalResults);
+				
+				// Check if we've loaded all results
+				if(currentShowing == totalResults) {
+					String resultsCountText_updated = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+					LOGGER.info("Scrolled down till last Search Result and now "+ resultsCountText_updated + " of Job Profiles as expected");
+					ExtentCucumberAdapter.addTestStepLog("Scrolled down till last Search Result and now "+ resultsCountText_updated + " of Job Profiles as expected");
+					break;
+				}
+				
+				// Check if count hasn't changed (page might be stuck)
+				if(currentShowing == previousShowing) {
+					stableCount++;
+					if(stableCount >= 5) {
+						LOGGER.warn("Count hasn't changed after {} scroll attempts. Current: {} of {}", stableCount, currentShowing, totalResults);
+						break;
+					}
+				} else {
+					stableCount = 0;
+				}
+				
+				// Scroll down and wait for content to load
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
+				
+				// Wait a moment for the page to start loading new content
+				Thread.sleep(500);
+				
+				// Wait for spinner to disappear (if it appears)
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				
+				// Additional wait for page to stabilize and render new content
+				Thread.sleep(1500);
+				PerformanceUtils.waitForUIStability(driver, 1);
+				
+				previousShowing = currentShowing;
+				scrollCount++;
+			}
+			
+			if(scrollCount >= maxScrollAttempts) {
+				LOGGER.warn("Reached maximum scroll attempts ({}). Check if more results need loading.", maxScrollAttempts);
+			}
+			
 //			js.executeScript("arguments[0].scrollIntoView();", showingJobResultsCount);
-		js.executeScript("window.scrollTo(0, 0);"); // Scroll UP to TOP of the Page (headless-compatible)
-	} catch (Exception e) {
+			js.executeScript("window.scrollTo(0, 0);"); // Scroll UP to TOP of the Page (headless-compatible)
+		} catch (Exception e) {
 			ScreenshotHandler.handleTestFailure("scroll_page_view_last_search_result", e, 
 				"Issue in scrolling page down to view last search result...Please Investigate!!!");
 		} 	

@@ -510,19 +510,16 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 		// Try normal click first
 		try {
 			element.click();
-			ExtentCucumberAdapter.addTestStepLog(" Successfully clicked " + elementName + " using normal click");
-			LOGGER.info("Successfully clicked " + elementName + " using normal click");
+			ExtentCucumberAdapter.addTestStepLog(" Clicked " + elementName + " using normal click");
 		} catch (Exception clickEx1) {
 			// Try JavaScript click if normal click fails
 			try {
 				js.executeScript("arguments[0].click();", element);
-				ExtentCucumberAdapter.addTestStepLog(" Successfully clicked " + elementName + " using JavaScript click");
-				LOGGER.info("Successfully clicked " + elementName + " using JavaScript click");
+				ExtentCucumberAdapter.addTestStepLog(" Clicked " + elementName + " using JavaScript click");
 			} catch (Exception clickEx2) {
 				// Try dispatch event as last resort
 				js.executeScript("arguments[0].dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));", element);
-				ExtentCucumberAdapter.addTestStepLog(" Successfully clicked " + elementName + " using dispatch event");
-				LOGGER.info("Successfully clicked " + elementName + " using dispatch event");
+				ExtentCucumberAdapter.addTestStepLog(" Clicked " + elementName + " using dispatch event");
 			}
 		}
 	}

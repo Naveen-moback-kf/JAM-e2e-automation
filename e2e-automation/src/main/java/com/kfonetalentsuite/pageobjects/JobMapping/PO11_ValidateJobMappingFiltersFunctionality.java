@@ -124,38 +124,77 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']")));
 			List<WebElement> GradesCheckboxes = driver.findElements(By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']"));
 			List<WebElement> GradesValues = driver.findElements(By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']//..//label"));
-			for (int i=1; i<=GradesValues.size(); i++)
-			{
-				if(i==7) {
-					js.executeScript("arguments[0].scrollIntoView();", GradesValues.get(i));
-					try {
-					wait.until(ExpectedConditions.visibilityOf(GradesValues.get(i))).click();
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-					// PERFORMANCE: Replaced Thread.sleep(3000) with smart page ready wait
-					PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
-				} catch (Exception e) {
-					try {
-						wait.until(ExpectedConditions.visibilityOf(GradesValues.get(i)));
-						js.executeScript("arguments[0].click();", GradesValues.get(i));
-						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						// PERFORMANCE: Replaced Thread.sleep(3000) with smart page ready wait
-						PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
-					} catch (Exception s) {
-						wait.until(ExpectedConditions.visibilityOf(GradesValues.get(i)));
-						utils.jsClick(driver, GradesValues.get(i));
-						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						// PERFORMANCE: Replaced Thread.sleep(3000) with smart page ready wait
-						PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
-					}
-				}
-					Assert.assertTrue(GradesCheckboxes.get(i).isSelected());
-					GradesOption = GradesValues.get(i).getText().toString();
-					LOGGER.info("Selected Grades Value : " + GradesValues.get(i).getText() + " from Grades Filters dropdown....");
-					ExtentCucumberAdapter.addTestStepLog("Selected Grades Value : " + GradesValues.get(i).getText() + " from Grades Filters dropdown....");
+			
+			LOGGER.info("Found {} grade options in dropdown", GradesValues.size());
+			
+			if (GradesValues.isEmpty()) {
+				throw new Exception("No grade options found in dropdown");
+			}
+			
+			// Dynamically select the first available option (safer than hardcoded index)
+			int selectedIndex = 0;
+			
+			// Try to select index 7 if available (for consistency with old tests), otherwise use first
+			if (GradesValues.size() > 7) {
+				selectedIndex = 7;
+				LOGGER.info("Using preferred index 7 for grade selection");
+			} else {
+				selectedIndex = 0;
+				LOGGER.info("Using first available grade (index 0) as there are fewer than 8 options");
+			}
+			
+			WebElement targetCheckbox = GradesCheckboxes.get(selectedIndex);
+			WebElement targetLabel = GradesValues.get(selectedIndex);
+			String gradeValue = targetLabel.getText().trim();
+			
+			LOGGER.info("Attempting to select grade: '{}'", gradeValue);
+			
+			// Scroll into view
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", targetCheckbox);
+			Thread.sleep(300);
+			
+			// Click the checkbox (more reliable than clicking label)
+			boolean clicked = false;
+			try {
+				// Method 1: JavaScript click on checkbox
+				js.executeScript("arguments[0].click();", targetCheckbox);
+				clicked = true;
+			} catch (Exception e) {
+				try {
+					// Method 2: Regular click on checkbox
+					wait.until(ExpectedConditions.elementToBeClickable(targetCheckbox)).click();
+					clicked = true;
+				} catch (Exception s) {
+					// Method 3: Fallback to clicking label
+					wait.until(ExpectedConditions.elementToBeClickable(targetLabel)).click();
+					clicked = true;
 				}
 			}
-		// PERFORMANCE: Replaced Thread.sleep(3000) with smart page ready wait
-		PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
+			
+			if (!clicked) {
+				throw new Exception("Failed to click grade checkbox/label");
+			}
+			
+			// Wait for page to update
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForPageReady(driver, 1);
+			
+			// Verify selection
+			if (!targetCheckbox.isSelected()) {
+				LOGGER.warn("Checkbox not selected after click, retrying...");
+				js.executeScript("arguments[0].click();", targetCheckbox);
+				Thread.sleep(300);
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForPageReady(driver, 1);
+			}
+			
+			Assert.assertTrue(targetCheckbox.isSelected(), "Grade checkbox not selected: " + gradeValue);
+			GradesOption = gradeValue;
+			
+			LOGGER.info("Selected Grades Value: '{}' from Grades Filters dropdown", gradeValue);
+			ExtentCucumberAdapter.addTestStepLog("Selected Grades Value: " + gradeValue + " from Grades Filters dropdown");
+			
+		PerformanceUtils.waitForPageReady(driver, 1);
 	} catch (Exception e) {
 		ScreenshotHandler.handleTestFailure("select_one_option_in_grades_filters_dropdown", e, 
 			"Issue in selecting one option from Grades dropdown in Filters...Please Investigate!!!");
@@ -427,42 +466,110 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			PerformanceUtils.waitForPageReady(driver, 2);
 			List<WebElement> GradesCheckboxes = driver.findElements(By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']"));
 			List<WebElement> GradesValues = driver.findElements(By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']//..//label"));
-			for (int i=1; i<=GradesCheckboxes.size(); i++)
-			{
-				if(i==10 || i==12) {
-					js.executeScript("arguments[0].scrollIntoView();", GradesValues.get(i));
-					try {
-						wait.until(ExpectedConditions.visibilityOf(GradesCheckboxes.get(i))).click();
-						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
-					} catch(Exception e) {
-						try {
-							wait.until(ExpectedConditions.visibilityOf(GradesCheckboxes.get(i)));
-							js.executeScript("arguments[0].click();", GradesCheckboxes.get(i));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
-						} catch (Exception s) {
-							wait.until(ExpectedConditions.visibilityOf(GradesCheckboxes.get(i)));
-							utils.jsClick(driver, GradesCheckboxes.get(i));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
-						}
-					}
-					Assert.assertTrue(GradesCheckboxes.get(i).isSelected());
-					if(i==10) {
-						GradesOption1 = GradesValues.get(i).getText().toString();
-					} else {
-						GradesOption2 = GradesValues.get(i).getText().toString();
-					}
-					LOGGER.info("Selected Grades Value : " + GradesValues.get(i).getText() + " from Grades Filters dropdown....");
-					ExtentCucumberAdapter.addTestStepLog("Selected Grades Value : " + GradesValues.get(i).getText() + " from Grades Filters dropdown....");
+			
+			LOGGER.info("Found {} grade options for multiple selection", GradesValues.size());
+			
+			if (GradesValues.size() < 2) {
+				throw new Exception("Not enough grade options available. Need at least 2, found: " + GradesValues.size());
+			}
+			
+			// Dynamically select two indices based on available options
+			int firstIndex, secondIndex;
+			
+			if (GradesValues.size() > 12) {
+				// Prefer indices 10 and 12 for consistency with old tests
+				firstIndex = 10;
+				secondIndex = 12;
+				LOGGER.info("Using preferred indices 10 and 12 for multiple grade selection");
+			} else if (GradesValues.size() > 7) {
+				// Use middle indices if fewer options
+				firstIndex = GradesValues.size() / 3;
+				secondIndex = (GradesValues.size() * 2) / 3;
+				LOGGER.info("Using dynamic indices {} and {} based on available options", firstIndex, secondIndex);
+			} else {
+				// Use first two if very few options
+				firstIndex = 0;
+				secondIndex = 1;
+				LOGGER.info("Using first two indices (0 and 1) as there are fewer options");
+			}
+			
+			// Select first grade
+			WebElement firstCheckbox = GradesCheckboxes.get(firstIndex);
+			WebElement firstLabel = GradesValues.get(firstIndex);
+			String firstGradeValue = firstLabel.getText().trim();
+			
+			LOGGER.info("Selecting first grade: '{}'", firstGradeValue);
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", firstCheckbox);
+			Thread.sleep(300);
+			
+			try {
+				js.executeScript("arguments[0].click();", firstCheckbox);
+			} catch(Exception e) {
+				try {
+					wait.until(ExpectedConditions.elementToBeClickable(firstCheckbox)).click();
+				} catch (Exception s) {
+					wait.until(ExpectedConditions.elementToBeClickable(firstLabel)).click();
 				}
-			} 
-			} catch (Exception e) {
-				ScreenshotHandler.captureFailureScreenshot("select_two_options_in_grades_filters_dropdown", e);
-				LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
-				Assert.fail("Issue in selecting two options from Grades dropdown in Filters...Please Investigate!!!");
-				ExtentCucumberAdapter.addTestStepLog("Issue in selecting two options from Grades dropdown in Filters...Please Investigate!!!");
+			}
+			
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForPageReady(driver, 1);
+			
+			// Verify first selection
+			if (!firstCheckbox.isSelected()) {
+				LOGGER.warn("First checkbox not selected, retrying...");
+				js.executeScript("arguments[0].click();", firstCheckbox);
+				Thread.sleep(300);
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForPageReady(driver, 1);
+			}
+			
+			Assert.assertTrue(firstCheckbox.isSelected(), "First grade checkbox not selected: " + firstGradeValue);
+			GradesOption1 = firstGradeValue;
+			LOGGER.info("Selected first Grades Value: '{}' from Grades Filters dropdown", firstGradeValue);
+			ExtentCucumberAdapter.addTestStepLog("Selected Grades Value: " + firstGradeValue + " from Grades Filters dropdown");
+			
+			// Select second grade
+			WebElement secondCheckbox = GradesCheckboxes.get(secondIndex);
+			WebElement secondLabel = GradesValues.get(secondIndex);
+			String secondGradeValue = secondLabel.getText().trim();
+			
+			LOGGER.info("Selecting second grade: '{}'", secondGradeValue);
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", secondCheckbox);
+			Thread.sleep(300);
+			
+			try {
+				js.executeScript("arguments[0].click();", secondCheckbox);
+			} catch(Exception e) {
+				try {
+					wait.until(ExpectedConditions.elementToBeClickable(secondCheckbox)).click();
+				} catch (Exception s) {
+					wait.until(ExpectedConditions.elementToBeClickable(secondLabel)).click();
+				}
+			}
+			
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForPageReady(driver, 1);
+			
+			// Verify second selection
+			if (!secondCheckbox.isSelected()) {
+				LOGGER.warn("Second checkbox not selected, retrying...");
+				js.executeScript("arguments[0].click();", secondCheckbox);
+				Thread.sleep(300);
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForPageReady(driver, 1);
+			}
+			
+			Assert.assertTrue(secondCheckbox.isSelected(), "Second grade checkbox not selected: " + secondGradeValue);
+			GradesOption2 = secondGradeValue;
+			LOGGER.info("Selected second Grades Value: '{}' from Grades Filters dropdown", secondGradeValue);
+			ExtentCucumberAdapter.addTestStepLog("Selected Grades Value: " + secondGradeValue + " from Grades Filters dropdown");
+			
+		} catch (Exception e) {
+			ScreenshotHandler.captureFailureScreenshot("select_two_options_in_grades_filters_dropdown", e);
+			LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
+			Assert.fail("Issue in selecting two options from Grades dropdown in Filters...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("Issue in selecting two options from Grades dropdown in Filters...Please Investigate!!!");
 		}
 		
 	}
@@ -483,12 +590,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 					utils.jsClick(driver, clearFiltersBtn);
 				}
 			}	
-			// REMOVED: driver.navigate().refresh() - Unnecessary and clears checkbox selections
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 2);
-			Thread.sleep(300); // PERFORMANCE: Reduced from 500ms for UI stabilization after clearing filters
-			LOGGER.info("Clicked on clear Filters button and Cleared all the applied filters....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on clear Filters button and Cleared all the applied filters....");
+		// REMOVED: driver.navigate().refresh() - Unnecessary and clears checkbox selections
+		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		PerformanceUtils.waitForPageReady(driver, 2);
+		Thread.sleep(300); // PERFORMANCE: Reduced from 500ms for UI stabilization after clearing filters
+		
+		// IMPORTANT: Reset initialFilteredResultsCount when filters are cleared
+		// This ensures the next filter application starts fresh
+		PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount = null;
+		LOGGER.debug("Reset initialFilteredResultsCount after clearing filters");
+		
+		LOGGER.info("Clicked on clear Filters button and Cleared all the applied filters....");
+		ExtentCucumberAdapter.addTestStepLog("Clicked on clear Filters button and Cleared all the applied filters....");
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_clear_filters_button", e);
 			LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
@@ -499,19 +612,45 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 	
 	public void click_on_departments_filters_dropdown_button() {
 		try {
+			LOGGER.info("Attempting to click Departments dropdown...");
 			PerformanceUtils.waitForPageReady(driver, 2);
-			js.executeScript("arguments[0].scrollIntoView();", departmentsFiltersDropdown);
+			
+			// Scroll into view with center positioning
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", departmentsFiltersDropdown);
+			Thread.sleep(300); // Wait for scroll to complete
+			
+			// Wait for element to be clickable
+			wait.until(ExpectedConditions.elementToBeClickable(departmentsFiltersDropdown));
+			
+			// Try multiple click strategies
+			boolean clicked = false;
 			try {
-				wait.until(ExpectedConditions.visibilityOf(departmentsFiltersDropdown)).click();
+				// Method 1: Standard click
+				departmentsFiltersDropdown.click();
+				clicked = true;
 			} catch (Exception e) {
 				try {
+					// Method 2: JavaScript click
 					js.executeScript("arguments[0].click();", departmentsFiltersDropdown);
+					clicked = true;
 				} catch (Exception s) {
+					// Method 3: Utils jsClick
 					utils.jsClick(driver, departmentsFiltersDropdown);
+					clicked = true;
 				}
-			}	
-			LOGGER.info("Clicked on Departments dropdown in Filters...");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Departments dropdown in Filters...");
+			}
+			
+			if (!clicked) {
+				throw new Exception("Failed to click Departments dropdown after all attempts");
+			}
+			
+			// Wait for dropdown to expand
+			Thread.sleep(300);
+			PerformanceUtils.waitForPageReady(driver, 1);
+			
+			LOGGER.info(" Clicked on Departments dropdown in Filters");
+			ExtentCucumberAdapter.addTestStepLog("Clicked on Departments dropdown in Filters");
+			
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_departments_filters_dropdown_button", e);
 			LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
@@ -525,34 +664,77 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			PerformanceUtils.waitForPageReady(driver, 2);
 			List<WebElement> DepartmentsCheckboxes = driver.findElements(By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']"));
 			List<WebElement> DepartmentsValues = driver.findElements(By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']//..//label"));
-			for (int i=1; i<=DepartmentsValues.size(); i++)
-			{
-				if(i==7) {
-					js.executeScript("arguments[0].scrollIntoView();", DepartmentsValues.get(i));
-					try {
-						wait.until(ExpectedConditions.visibilityOf(DepartmentsValues.get(i))).click();
-						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
+			
+			LOGGER.info("Found {} department options in dropdown", DepartmentsValues.size());
+			
+			if (DepartmentsValues.isEmpty()) {
+				throw new Exception("No department options found in dropdown");
+			}
+			
+			// Dynamically select the first available option (safer than hardcoded index)
+			int selectedIndex = 0;
+			
+			// Try to select index 7 if available (for consistency with old tests), otherwise use first
+			if (DepartmentsValues.size() > 7) {
+				selectedIndex = 7;
+				LOGGER.info("Using preferred index 7 for department selection");
+			} else {
+				selectedIndex = 0;
+				LOGGER.info("Using first available department (index 0) as there are fewer than 8 options");
+			}
+			
+			WebElement targetCheckbox = DepartmentsCheckboxes.get(selectedIndex);
+			WebElement targetLabel = DepartmentsValues.get(selectedIndex);
+			String departmentValue = targetLabel.getText().trim();
+			
+			LOGGER.info("Attempting to select department: '{}'", departmentValue);
+			
+			// Scroll into view
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", targetCheckbox);
+			Thread.sleep(300);
+			
+			// Click the checkbox (more reliable than clicking label)
+			boolean clicked = false;
+			try {
+				// Method 1: JavaScript click on checkbox
+				js.executeScript("arguments[0].click();", targetCheckbox);
+				clicked = true;
 					} catch (Exception e) {
 						try {
-							wait.until(ExpectedConditions.visibilityOf(DepartmentsValues.get(i)));
-							js.executeScript("arguments[0].click();", DepartmentsValues.get(i));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
+					// Method 2: Regular click on label (departments might need label click)
+					wait.until(ExpectedConditions.elementToBeClickable(targetLabel)).click();
+					clicked = true;
 						} catch (Exception s) {
-							wait.until(ExpectedConditions.visibilityOf(DepartmentsValues.get(i)));
-							utils.jsClick(driver, DepartmentsValues.get(i));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
-						}
-					}
-					Assert.assertTrue(DepartmentsCheckboxes.get(i).isSelected());
-					DepartmentsOption = DepartmentsValues.get(i).getText().toString();
-					LOGGER.info("Selected Departments Value : " + DepartmentsValues.get(i).getText() + " from Departments Filters dropdown....");
-					ExtentCucumberAdapter.addTestStepLog("Selected Departments Value : " + DepartmentsValues.get(i).getText() + " from Departments Filters dropdown....");
+					// Method 3: Fallback to utils.jsClick
+					utils.jsClick(driver, targetLabel);
+					clicked = true;
 				}
 			}
-			PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
+			
+			if (!clicked) {
+				throw new Exception("Failed to click department checkbox/label");
+			}
+			
+			// Wait for page to update
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForPageReady(driver, 1);
+			
+			// Verify selection
+			if (!targetCheckbox.isSelected()) {
+				LOGGER.warn("Checkbox not selected after click, retrying...");
+				js.executeScript("arguments[0].click();", targetCheckbox);
+				Thread.sleep(300);
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForPageReady(driver, 1);
+			}
+			
+			Assert.assertTrue(targetCheckbox.isSelected(), "Department checkbox not selected: " + departmentValue);
+			DepartmentsOption = departmentValue;
+			
+			LOGGER.info("Selected Departments Value: '{}' from Departments Filters dropdown", departmentValue);
+			ExtentCucumberAdapter.addTestStepLog("Selected Departments Value: " + departmentValue + " from Departments Filters dropdown");
+			
+			PerformanceUtils.waitForPageReady(driver, 1);
 			} catch (Exception e) {
 				ScreenshotHandler.captureFailureScreenshot("select_one_option_in_departments_filters_dropdown", e);
 				LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
@@ -589,37 +771,105 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			PerformanceUtils.waitForPageReady(driver, 2);
 			List<WebElement> DepartmentsCheckboxes = driver.findElements(By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']"));
 			List<WebElement> DepartmentsValues = driver.findElements(By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']//..//label"));
-			for (int i=1; i<=DepartmentsCheckboxes.size(); i++)
-			{
-				if(i==10 || i==12) {
-					js.executeScript("arguments[0].scrollIntoView();", DepartmentsValues.get(i));
-					try {
-						wait.until(ExpectedConditions.visibilityOf(DepartmentsCheckboxes.get(i))).click();
-						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-						PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
+			
+			LOGGER.info("Found {} department options for multiple selection", DepartmentsValues.size());
+			
+			if (DepartmentsValues.size() < 2) {
+				throw new Exception("Not enough department options available. Need at least 2, found: " + DepartmentsValues.size());
+			}
+			
+			// Dynamically select two indices based on available options
+			int firstIndex, secondIndex;
+			
+			if (DepartmentsValues.size() > 12) {
+				// Prefer indices 10 and 12 for consistency with old tests
+				firstIndex = 10;
+				secondIndex = 12;
+				LOGGER.info("Using preferred indices 10 and 12 for multiple department selection");
+			} else if (DepartmentsValues.size() > 7) {
+				// Use middle indices if fewer options
+				firstIndex = DepartmentsValues.size() / 3;
+				secondIndex = (DepartmentsValues.size() * 2) / 3;
+				LOGGER.info("Using dynamic indices {} and {} based on available options", firstIndex, secondIndex);
+			} else {
+				// Use first two if very few options
+				firstIndex = 0;
+				secondIndex = 1;
+				LOGGER.info("Using first two indices (0 and 1) as there are fewer options");
+			}
+			
+			// Select first department
+			WebElement firstCheckbox = DepartmentsCheckboxes.get(firstIndex);
+			WebElement firstLabel = DepartmentsValues.get(firstIndex);
+			String firstDepartmentValue = firstLabel.getText().trim();
+			
+			LOGGER.info("Selecting first department: '{}'", firstDepartmentValue);
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", firstCheckbox);
+			Thread.sleep(300);
+			
+			try {
+				js.executeScript("arguments[0].click();", firstCheckbox);
 					} catch(Exception e) {
 						try {
-							wait.until(ExpectedConditions.visibilityOf(DepartmentsCheckboxes.get(i)));
-							js.executeScript("arguments[0].click();", DepartmentsCheckboxes.get(i));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
+					wait.until(ExpectedConditions.elementToBeClickable(firstCheckbox)).click();
 						} catch (Exception s) {
-							wait.until(ExpectedConditions.visibilityOf(DepartmentsCheckboxes.get(i)));
-							utils.jsClick(driver, DepartmentsCheckboxes.get(i));
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-							PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
-						}
-					}
-					Assert.assertTrue(DepartmentsCheckboxes.get(i).isSelected());
-					if(i==10) {
-						DepartmentsOption1 = DepartmentsValues.get(i).getText().toString();
-					} else {
-						DepartmentsOption2 = DepartmentsValues.get(i).getText().toString();
-					}
-					LOGGER.info("Selected Departments Value : " + DepartmentsValues.get(i).getText() + " from Departments Filters dropdown....");
-					ExtentCucumberAdapter.addTestStepLog("Selected Departments Value : " + DepartmentsValues.get(i).getText() + " from Departments Filters dropdown....");
+					utils.jsClick(driver, firstCheckbox);
 				}
-			} 
+			}
+			
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForPageReady(driver, 1);
+			
+			// Verify first selection
+			if (!firstCheckbox.isSelected()) {
+				LOGGER.warn("First checkbox not selected, retrying...");
+				js.executeScript("arguments[0].click();", firstCheckbox);
+				Thread.sleep(300);
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForPageReady(driver, 1);
+			}
+			
+			Assert.assertTrue(firstCheckbox.isSelected(), "First department checkbox not selected: " + firstDepartmentValue);
+			DepartmentsOption1 = firstDepartmentValue;
+			LOGGER.info("Selected first Departments Value: '{}' from Departments Filters dropdown", firstDepartmentValue);
+			ExtentCucumberAdapter.addTestStepLog("Selected Departments Value: " + firstDepartmentValue + " from Departments Filters dropdown");
+			
+			// Select second department
+			WebElement secondCheckbox = DepartmentsCheckboxes.get(secondIndex);
+			WebElement secondLabel = DepartmentsValues.get(secondIndex);
+			String secondDepartmentValue = secondLabel.getText().trim();
+			
+			LOGGER.info("Selecting second department: '{}'", secondDepartmentValue);
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", secondCheckbox);
+			Thread.sleep(300);
+			
+			try {
+				js.executeScript("arguments[0].click();", secondCheckbox);
+			} catch(Exception e) {
+				try {
+					wait.until(ExpectedConditions.elementToBeClickable(secondCheckbox)).click();
+				} catch (Exception s) {
+					utils.jsClick(driver, secondCheckbox);
+				}
+			}
+			
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForPageReady(driver, 1);
+			
+			// Verify second selection
+			if (!secondCheckbox.isSelected()) {
+				LOGGER.warn("Second checkbox not selected, retrying...");
+				js.executeScript("arguments[0].click();", secondCheckbox);
+				Thread.sleep(300);
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForPageReady(driver, 1);
+			}
+			
+			Assert.assertTrue(secondCheckbox.isSelected(), "Second department checkbox not selected: " + secondDepartmentValue);
+			DepartmentsOption2 = secondDepartmentValue;
+			LOGGER.info("Selected second Departments Value: '{}' from Departments Filters dropdown", secondDepartmentValue);
+			ExtentCucumberAdapter.addTestStepLog("Selected Departments Value: " + secondDepartmentValue + " from Departments Filters dropdown");
+			
 			} catch (Exception e) {
 				ScreenshotHandler.captureFailureScreenshot("select_two_options_in_departments_filters_dropdown", e);
 				LOGGER.error("Exception occurred in ValidateJobMappingFiltersFunctionality: {}", e.getMessage(), e);
@@ -630,7 +880,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 	
 	public void click_on_functions_subfunctions_filters_dropdown_button() {
 		try {
-		LOGGER.info("Attempting to click Functions/Subfunctions dropdown - XPath: //div[@data-testid='dropdown-Functions_SubFunctions']");
+		LOGGER.info("Attempting to click Functions/Subfunctions dropdown");
 		// PERFORMANCE: Reduced from 2s to 1s (filters are already loaded)
 		PerformanceUtils.waitForPageReady(driver, 1);
 			
@@ -652,7 +902,6 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				functionsSubFunctionsFiltersDropdown.click();
 				clickSucceeded = true;
 				clickMethod = "regular click";
-				LOGGER.info("Successfully clicked using regular WebDriver click");
 			} catch (Exception e1) {
 				LOGGER.warn("Regular click failed: {} - {}", e1.getClass().getSimpleName(), e1.getMessage());
 				
@@ -661,7 +910,6 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 					js.executeScript("arguments[0].click();", functionsSubFunctionsFiltersDropdown);
 					clickSucceeded = true;
 					clickMethod = "JavaScript click";
-					LOGGER.info("Successfully clicked using JavaScript click");
 				} catch (Exception e2) {
 					LOGGER.warn("JavaScript click failed: {} - {}", e2.getClass().getSimpleName(), e2.getMessage());
 					
@@ -670,7 +918,6 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 						utils.jsClick(driver, functionsSubFunctionsFiltersDropdown);
 						clickSucceeded = true;
 						clickMethod = "utility jsClick";
-						LOGGER.info("Successfully clicked using utility jsClick method");
 					} catch (Exception e3) {
 						LOGGER.error("All click methods failed: regular, JavaScript, and utility jsClick");
 						throw new Exception("Failed to click dropdown using all available methods. Last error: " + e3.getMessage());
@@ -740,20 +987,17 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 						js.executeScript("arguments[0].click();", targetCheckbox);
 						Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
 						clicked = true;
-						LOGGER.debug("Clicked function checkbox using JavaScript");
 					} catch (Exception e) {
 						try {
 							// Method 2: Force click using utils
 							utils.jsClick(driver, targetCheckbox);
 							Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
 							clicked = true;
-							LOGGER.debug("Clicked function checkbox using utils.jsClick");
 						} catch (Exception s) {
 							// Method 3: Last resort - try clicking label
 							js.executeScript("arguments[0].click();", targetLabel);
 							Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
 							clicked = true;
-							LOGGER.debug("Clicked function label as fallback");
 						}
 					}
 					
@@ -1053,9 +1297,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			currentValue = searchBox.getAttribute("value");
 			searchCleared = (currentValue == null || currentValue.trim().isEmpty());
 			
-			if (searchCleared) {
-				LOGGER.info("Search bar successfully cleared");
-			} else {
+			if (!searchCleared) {
 				LOGGER.error("Failed to clear search bar. Current value: '{}'", currentValue);
 			}
 		} catch (Exception e) {
@@ -1195,8 +1437,6 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			
 			for (int attempt = 1; attempt <= maxAttempts && !clickSucceeded; attempt++) {
 				try {
-					LOGGER.debug("Attempt {} to click subfunction checkbox '{}'", attempt, subfunctionText);
-					
 					// Check if already selected (might have been clicked in previous attempt)
 					if (subfunctionCheckbox.isSelected()) {
 						LOGGER.info("Subfunction '{}' already selected", subfunctionText);
@@ -1218,7 +1458,6 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 					// Verify checkbox is now selected
 					if (subfunctionCheckbox.isSelected()) {
 						clickSucceeded = true;
-						LOGGER.debug("Successfully selected subfunction '{}' on attempt {}", subfunctionText, attempt);
 					} else {
 						LOGGER.warn("Checkbox not selected after attempt {}, retrying...", attempt);
 						// Scroll again before retry
@@ -1287,7 +1526,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 		
 		try {
 			LOGGER.info("Verifying if '{}' Function checkbox is automatically selected after selecting subfunction...", FunctionsOption);
-			LOGGER.debug("Searching for PARENT function checkbox (excluding subfunctions) with XPath: {}", SearchedFunctionsOptionXpath);
+			LOGGER.debug("Searching for parent function checkbox (excluding subfunctions)");
 			
 			// First, check if the checkbox element exists
 			WebElement SearchedFunction_Checkbox;
@@ -1408,8 +1647,6 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 					
 					for (int attempt = 1; attempt <= maxAttempts && !clickSucceeded; attempt++) {
 						try {
-							LOGGER.debug("Attempt {} to click subfunction checkbox '{}'", attempt, subfunctionText);
-							
 							// Check if already selected (might have been clicked in previous attempt)
 							if (subfunctionCheckbox.isSelected()) {
 								LOGGER.info("Subfunction '{}' already selected", subfunctionText);
@@ -1431,7 +1668,6 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 							// Verify checkbox is now selected
 							if (subfunctionCheckbox.isSelected()) {
 								clickSucceeded = true;
-								LOGGER.debug("Successfully selected subfunction '{}' on attempt {}", subfunctionText, attempt);
 							} else {
 								LOGGER.warn("Checkbox not selected after attempt {}, retrying...", attempt);
 								// Scroll again before retry

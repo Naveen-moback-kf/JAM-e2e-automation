@@ -1402,11 +1402,11 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 				throw new IOException("Could not find '" + buttonText + "' button for AutoMapped profile at row " + currentRowIndex);
 			}
 			
-			// Perform robust click
-			performRobustClick(targetButton, buttonText + " button");
-			
-			ExtentCucumberAdapter.addTestStepLog("Successfully clicked '" + buttonText + "' button for profile with Info Message");
-			LOGGER.info("Successfully clicked '{}' button", buttonText);
+		// Perform robust click
+		performRobustClick(targetButton, buttonText + " button");
+		
+		ExtentCucumberAdapter.addTestStepLog("Clicked '" + buttonText + "' button for profile with Info Message");
+		LOGGER.info("Clicked '{}' button", buttonText);
 			
 		} catch (Exception e) {
 			LOGGER.error("Error clicking button for profile with Info Message: " + e.getMessage());
@@ -1423,14 +1423,12 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			// Try standard click first
 			wait.until(ExpectedConditions.elementToBeClickable(element));
 			element.click();
-			LOGGER.info("Successfully clicked " + elementName + " using standard click");
 			
 		} catch (Exception e) {
 			LOGGER.warn("Standard click failed for " + elementName + ", trying JavaScript click: " + e.getMessage());
 			try {
 				// Fallback to JavaScript click
 				jsExecutor.executeScript("arguments[0].click();", element);
-				LOGGER.info("Successfully clicked " + elementName + " using JavaScript click");
 			} catch (Exception jsException) {
 				LOGGER.error("Both click methods failed for " + elementName + ": " + jsException.getMessage());
 				throw new IOException("Failed to click " + elementName + " after trying multiple methods");
@@ -1491,11 +1489,11 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 				throw new IOException("Could not find '" + buttonText + "' button for second AutoMapped profile at row " + secondCurrentRowIndex);
 			}
 			
-			// Perform robust click
-			performRobustClick(targetButton, buttonText + " button for second profile");
-			
-			ExtentCucumberAdapter.addTestStepLog("Successfully clicked '" + buttonText + "' button for second profile with Info Message");
-			LOGGER.info("Successfully clicked '{}' button for second profile", buttonText);
+		// Perform robust click
+		performRobustClick(targetButton, buttonText + " button for second profile");
+		
+		ExtentCucumberAdapter.addTestStepLog("Clicked '" + buttonText + "' button for second profile with Info Message");
+		LOGGER.info("Clicked '{}' button for second profile", buttonText);
 			
 		} catch (Exception e) {
 			LOGGER.error("Error clicking button for second profile with Info Message: " + e.getMessage());

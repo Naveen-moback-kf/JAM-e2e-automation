@@ -126,54 +126,50 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 			// Check for page title description (most important indicator)
 			try {
 				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(15));
-				shortWait.until(ExpectedConditions.visibilityOf(reuploadPageTitleDesc));
-				if (reuploadPageTitleDesc.isDisplayed()) {
-					String pageTitle = reuploadPageTitleDesc.getText();
-					verificationResults += " Page title description found: " + pageTitle + "; ";
-					pageVerified = true;
-					LOGGER.info("Successfully found page title : Organization Jobs With Missing Data");
-				}
-			} catch (Exception e) {
-				verificationResults += "- Page title description not found; ";
+			shortWait.until(ExpectedConditions.visibilityOf(reuploadPageTitleDesc));
+			if (reuploadPageTitleDesc.isDisplayed()) {
+				String pageTitle = reuploadPageTitleDesc.getText();
+				verificationResults += " Page title description found: " + pageTitle + "; ";
+				pageVerified = true;
 			}
+		} catch (Exception e) {
+			verificationResults += "- Page title description not found; ";
+		}
 			
 			// Check for Close button (essential for closing modal)
 			try {
 				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
 				shortWait.until(ExpectedConditions.visibilityOf(closeReuploadJobsPageButton));
-				if (closeReuploadJobsPageButton.isDisplayed()) {
-					verificationResults += " Close button found; ";
-					pageVerified = true;
-					LOGGER.info("Successfully found Close button");
-				}
-		} catch (Exception e) {
-			verificationResults += "- Close button not found; ";
-		}
+			if (closeReuploadJobsPageButton.isDisplayed()) {
+				verificationResults += " Close button found; ";
+				pageVerified = true;
+			}
+	} catch (Exception e) {
+		verificationResults += "- Close button not found; ";
+	}
 			
 			// Check for Re-upload button (confirms this is the upload screen)
 			try {
 				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(8));
-				shortWait.until(ExpectedConditions.visibilityOf(reuploadButton));
-				if (reuploadButton.isDisplayed()) {
-					verificationResults += " Re-upload button found; ";
-					LOGGER.info("Successfully found Re-upload button");
-				}
-		} catch (Exception e) {
-				verificationResults += "- Re-upload button not found; ";
+			shortWait.until(ExpectedConditions.visibilityOf(reuploadButton));
+			if (reuploadButton.isDisplayed()) {
+				verificationResults += " Re-upload button found; ";
 			}
+	} catch (Exception e) {
+			verificationResults += "- Re-upload button not found; ";
+		}
 			
 			// Check for job table/rows (confirms data is loaded)
 			try {
-				List<WebElement> jobRows = driver.findElements(By.xpath("//table//tr[contains(@class, 'border-b')]"));
-				if (!jobRows.isEmpty()) {
-					verificationResults += " Job data table found (" + jobRows.size() + " rows); ";
-					LOGGER.info("Successfully found job data table with " + jobRows.size() + " rows");
-				} else {
-					verificationResults += "- No job data rows found; ";
-				}
-			} catch (Exception e) {
-				verificationResults += "- Job data table check failed; ";
+			List<WebElement> jobRows = driver.findElements(By.xpath("//table//tr[contains(@class, 'border-b')]"));
+			if (!jobRows.isEmpty()) {
+				verificationResults += " Job data table found (" + jobRows.size() + " rows); ";
+			} else {
+				verificationResults += "- No job data rows found; ";
 			}
+		} catch (Exception e) {
+			verificationResults += "- Job data table check failed; ";
+		}
 			
 			// Alternative verification: Check page source for key text (fallback)
 			if (!pageVerified) {

@@ -145,26 +145,24 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 	private void performRobustClick(WebElement element, String elementName) throws IOException {
 		try {
 			// Scroll element into view with auto behavior for performance
-			jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", element);
-			safeSleep(200);
-			
-			// Try standard click first
-			wait.until(ExpectedConditions.elementToBeClickable(element));
-			element.click();
-			LOGGER.info("Successfully clicked " + elementName + " using standard click");
-			
-		} catch (Exception e) {
-			LOGGER.warn("Standard click failed for " + elementName + ", trying JavaScript click: " + e.getMessage());
-			try {
-				// Fallback to JavaScript click
-				jsExecutor.executeScript("arguments[0].click();", element);
-				LOGGER.info("Successfully clicked " + elementName + " using JavaScript click");
-			} catch (Exception jsException) {
-				LOGGER.error("Both click methods failed for " + elementName + ": " + jsException.getMessage());
-				throw new IOException("Failed to click " + elementName + " after trying multiple methods");
-			}
+		jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", element);
+		safeSleep(200);
+		
+		// Try standard click first
+		wait.until(ExpectedConditions.elementToBeClickable(element));
+		element.click();
+		
+	} catch (Exception e) {
+		LOGGER.warn("Standard click failed for " + elementName + ", trying JavaScript click: " + e.getMessage());
+		try {
+			// Fallback to JavaScript click
+			jsExecutor.executeScript("arguments[0].click();", element);
+		} catch (Exception jsException) {
+			LOGGER.error("Both click methods failed for " + elementName + ": " + jsException.getMessage());
+			throw new IOException("Failed to click " + elementName + " after trying multiple methods");
 		}
 	}
+}
 
 	/**
 	 * Get the row index (1-based) of a table row element within its tbody
@@ -886,12 +884,12 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			} catch (Exception e) {
 				LOGGER.debug("Button clickability wait timed out for manually mapped profile, proceeding with click");
 			}
-			
-			performRobustClick(searchButton, buttonText + " button");
-			safeSleep(1500);
-			
-			LOGGER.info("Successfully clicked '{}' button for Manually Mapped Profile {}", buttonText, profileNumber);
-			ExtentCucumberAdapter.addTestStepLog("Clicked '" + buttonText + "' button for Manually Mapped Profile " + profileNumber + " - " + manualJobNameWithInfoMessage);
+		
+		performRobustClick(searchButton, buttonText + " button");
+		safeSleep(1500);
+		
+		LOGGER.info("Clicked '{}' button for Manually Mapped Profile {}", buttonText, profileNumber);
+		ExtentCucumberAdapter.addTestStepLog("Clicked '" + buttonText + "' button for Manually Mapped Profile " + profileNumber + " - " + manualJobNameWithInfoMessage);
 			
 		} catch (Exception e) {
 			LOGGER.error("Failed to click '{}' button for manually mapped profile: {}", buttonText, e.getMessage());
@@ -1528,12 +1526,12 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			}
 			
 			Assert.assertNotNull(targetButton, "Could not find '" + buttonText + "' button for second manually mapped profile in row " + secondCurrentManualRowIndex);
-			
-			// Perform robust click
-			performRobustClick(targetButton, buttonText + " button for second manually mapped profile " + profileNumber);
-			
-			LOGGER.info("Successfully clicked '{}' button for second manually mapped profile {}", buttonText, profileNumber);
-			ExtentCucumberAdapter.addTestStepLog("Successfully clicked '" + buttonText + "' button for second manually mapped profile " + profileNumber);
+		
+		// Perform robust click
+		performRobustClick(targetButton, buttonText + " button for second manually mapped profile " + profileNumber);
+		
+		LOGGER.info("Clicked '{}' button for second manually mapped profile {}", buttonText, profileNumber);
+		ExtentCucumberAdapter.addTestStepLog("Clicked '" + buttonText + "' button for second manually mapped profile " + profileNumber);
 			
 		} catch (Exception e) {
 			LOGGER.error("Failed to click '{}' button for second manually mapped profile: {}", buttonText, e.getMessage());
