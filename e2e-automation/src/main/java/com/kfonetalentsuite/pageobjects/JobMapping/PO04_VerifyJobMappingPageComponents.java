@@ -1346,15 +1346,15 @@ public class PO04_VerifyJobMappingPageComponents {
 			updatedResultsCount = resultsCountText2;
 			
 			// Store this as initial filtered count ONLY if not already set
-			// This captures the count immediately after filters are applied (before any scrolling)
+			// Captures whatever count is showing at this moment (may be scrolled or not, depending on scenario flow)
 			if (initialFilteredResultsCount == null || initialFilteredResultsCount.isEmpty()) {
 				// Only set if it's different from initial (filters were applied)
 				if (!resultsCountText2.equals(intialResultsCount)) {
 					initialFilteredResultsCount = resultsCountText2;
-					LOGGER.debug("Stored initial filtered results count (before scrolling): {}", initialFilteredResultsCount);
+					LOGGER.debug("Stored initial filtered results count: {}", initialFilteredResultsCount);
 				}
 			} else {
-				LOGGER.debug("Initial filtered count already set: {} (current count: {})", 
+				LOGGER.debug("Initial filtered count already captured: {} (current count: {})", 
 					initialFilteredResultsCount, resultsCountText2);
 			}
 			

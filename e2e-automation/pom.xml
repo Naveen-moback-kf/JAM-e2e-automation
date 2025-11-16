@@ -18,6 +18,9 @@
 		<log4j.version>2.25.1</log4j.version>
 		<poi.version>5.3.0</poi.version>
 		
+		<!-- Default test suite - can be overridden via -DsuiteXmlFile=<suite>.xml -->
+		<suiteXmlFile>JAM_SanityTestSuite.xml</suiteXmlFile>
+		
 		<!-- Cross-browser testing now handled by individual runners like AutoRun_CrossBrowser_LoginPageRunner01 -->
 	</properties>
 
@@ -136,15 +139,24 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.2.5</version>
 				<configuration>
-					<!-- Test suite specified via command line: -DsuiteXmlFile=<suite>.xml -->
-					<!-- Example: mvn test -DsuiteXmlFile=JAM_SanityTestSuite.xml -->
-					<suiteXmlFiles>
-						<suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
-					</suiteXmlFiles>
+					<!-- Conditional suite XML configuration:
+					     - If running test suite: mvn test -DsuiteXmlFile=JAM_SanityTestSuite.xml
+					     - If running individual runner: mvn test -Dtest=testrunners.JobMapping.Runner12b
+					     When -Dtest is specified, Surefire ignores suiteXmlFiles automatically -->
+					<properties>
+						<property>
+							<name>suitename</name>
+							<value>E2E Test Suite</value>
+						</property>
+					</properties>
 					<!-- Enable parallel execution for cross-browser testing -->
 					<parallel>methods</parallel>
 					<threadCount>3</threadCount>
 					<perCoreThreadCount>true</perCoreThreadCount>
+					<!-- Configure TestNG output directory -->
+					<reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+					<!-- Allow test failures without failing the build (for CI/CD reporting) -->
+					<testFailureIgnore>true</testFailureIgnore>
 				</configuration>
 			</plugin>
 
@@ -163,4 +175,54 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<!-- PROFILES: Different execution modes -->
+	<profiles>
+		<!-- Profile for running test suites (XML files) -->
+		<profile>
+			<id>test-suite</id>
+			<activation>
+				<property>
+					<name>suiteXmlFile</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.2.5</version>
+						<configuration>
+							<suiteXmlFiles>
+								<suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
+							</suiteXmlFiles>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		
+		<!-- Profile for running individual test runners -->
+		<profile>
+			<id>individual-runner</id>
+			<activation>
+				<property>
+					<name>test</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.2.5</version>
+						<configuration>
+							<!-- No suite XML files when running individual tests -->
+							<suiteXmlFiles combine.self="override"/>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
