@@ -877,6 +877,7 @@ public class PO01_KFoneLogin {
 			
 			// Wait for Profile Manager application to be visible and clickable
 			wait.until(ExpectedConditions.elementToBeClickable(profileManagerInProductsSection)).isDisplayed();
+			PerformanceUtils.waitForPageReady(driver, 3);
 			LOGGER.info("Profile Manager application tile is visible in Your Products section");
 			ExtentCucumberAdapter.addTestStepLog("Profile Manager application tile is visible in Your Products section");
 			
