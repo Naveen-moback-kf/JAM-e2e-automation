@@ -44,9 +44,10 @@ public class PO16_ValidatePCRestrictedTipMessage {
 	LocalDate currentdate = LocalDate.now();
 	Month currentMonth = currentdate.getMonth();
 	
-	public static String teamName;
-	public static String pcName;
-	public static String spNameString = "Account Manager";
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> teamName = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> pcName = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> spNameString = ThreadLocal.withInitial(() -> "Account Manager");
 	
 	//XAPTHs
 	@FindBy(xpath = "//*[@class='blocking-loader']//img")
@@ -493,10 +494,10 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			} else {
 				todayDate = currentMonth.toString().substring(0,1) + currentMonth.toString().substring(1,3).toLowerCase() + " " + Integer.toString(currentDay) + ", " + Integer.toString(currentYear);
 			}
-			teamName = "Team_" + todayDate;
-			wait.until(ExpectedConditions.visibilityOf(teamNameTextbox)).sendKeys(teamName);
-			LOGGER.info("Entered Team Name : " + teamName);
-			ExtentCucumberAdapter.addTestStepLog("Entered Team Name : " + teamName);
+		teamName.set("Team_" + todayDate);
+		wait.until(ExpectedConditions.visibilityOf(teamNameTextbox)).sendKeys(teamName.get());
+		LOGGER.info("Entered Team Name : " + teamName.get());
+		ExtentCucumberAdapter.addTestStepLog("Entered Team Name : " + teamName.get());
 			js.executeScript("arguments[0].scrollIntoView(true);", teamDescTextbox);
 			wait.until(ExpectedConditions.visibilityOf(teamDescTextbox)).sendKeys("Creating a Team through Automation on " + todayDate);
 			LOGGER.info("Entered Team Description : " + "Creating a Team through Automation on " + todayDate);
@@ -553,10 +554,10 @@ public class PO16_ValidatePCRestrictedTipMessage {
 	
 	public void search_user_to_add_as_team_member() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(createTeamsSecondStepSearchbar)).sendKeys(PO01_KFoneLogin.username);
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
-			LOGGER.info("Entered User name : " + PO01_KFoneLogin.username + " in the search bar to add as Team Member");
-			ExtentCucumberAdapter.addTestStepLog("Entered User name : " + PO01_KFoneLogin.username + " in the search bar to add as Team Member");
+		wait.until(ExpectedConditions.visibilityOf(createTeamsSecondStepSearchbar)).sendKeys(PO01_KFoneLogin.username.get());
+		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		LOGGER.info("Entered User name : " + PO01_KFoneLogin.username.get() + " in the search bar to add as Team Member");
+		ExtentCucumberAdapter.addTestStepLog("Entered User name : " + PO01_KFoneLogin.username.get() + " in the search bar to add as Team Member");
 		} catch (Exception e) {
 			LOGGER.error(" Issue in searching a user to add as Team Member - Method: search_user_add_team_member", e);
 			e.printStackTrace();
@@ -583,10 +584,10 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				} catch (Exception s) {
 					utils.jsClick(driver, createTeamsTopRowCheckbox);
 				}
-			}
-			LOGGER.info("User " + PO01_KFoneLogin.username + " is Selected to add as Team Member");
-			ExtentCucumberAdapter.addTestStepLog("User " + PO01_KFoneLogin.username + " is Selected to add as Team Member");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		}
+		LOGGER.info("User " + PO01_KFoneLogin.username.get() + " is Selected to add as Team Member");
+		ExtentCucumberAdapter.addTestStepLog("User " + PO01_KFoneLogin.username.get() + " is Selected to add as Team Member");
+		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		} catch (Exception e) {
 			LOGGER.error(" Issue in selecting user to add as Team Member - Method: select_user_add_team_member", e);
 			e.printStackTrace();
@@ -624,9 +625,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 			wait.until(ExpectedConditions.visibilityOf(userCount)).isDisplayed();
 			String text = wait.until(ExpectedConditions.visibilityOf(userCount)).getText();
-			Assert.assertEquals(text,"Showing 1 of 1 Users");
-			LOGGER.info("User " + PO01_KFoneLogin.username + " successfully added as Team Member");
-			ExtentCucumberAdapter.addTestStepLog("User " + PO01_KFoneLogin.username + " successfully added as Team Member");
+		Assert.assertEquals(text,"Showing 1 of 1 Users");
+		LOGGER.info("User " + PO01_KFoneLogin.username.get() + " successfully added as Team Member");
+		ExtentCucumberAdapter.addTestStepLog("User " + PO01_KFoneLogin.username.get() + " successfully added as Team Member");
 		} catch (Exception e) {
 			LOGGER.error(" Issue in verifying user added as Team Member - Method: verify_user_added_team_member", e);
 			e.printStackTrace();
@@ -686,14 +687,14 @@ public class PO16_ValidatePCRestrictedTipMessage {
 	
 	public void search_for_team_name_in_teams_page_and_verify_team_is_created_successfully() {
 		try {
-	wait.until(ExpectedConditions.visibilityOf(teamsPageSearchbar)).sendKeys(teamName);
+	wait.until(ExpectedConditions.visibilityOf(teamsPageSearchbar)).sendKeys(teamName.get());
 	wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 	// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
 	PerformanceUtils.waitForElement(driver, teamNameinTopRow, 2);
 	String text = wait.until(ExpectedConditions.visibilityOf(teamNameinTopRow)).getText();
-			Assert.assertEquals(text,teamName);
-			LOGGER.info("Team with name : " + teamName + " is successfully created");
-			ExtentCucumberAdapter.addTestStepLog("Team with name : " + teamName + " is successfully created");
+		Assert.assertEquals(text,teamName.get());
+		LOGGER.info("Team with name : " + teamName.get() + " is successfully created");
+		ExtentCucumberAdapter.addTestStepLog("Team with name : " + teamName.get() + " is successfully created");
 		} catch (Exception e) {
 			LOGGER.error(" Issue in searching and verifying team created - Method: search_verify_team_created", e);
 			e.printStackTrace();
@@ -801,7 +802,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			} else {
 				todayDate = currentMonth.toString().substring(0,1) + currentMonth.toString().substring(1,3).toLowerCase() + " " + Integer.toString(currentDay) + ", " + Integer.toString(currentYear);
 			}
-			pcName = "PC_" + todayDate;
+			pcName.set("PC_" + todayDate);
 			// Scroll element into view before clicking
 			WebElement nameElement = wait.until(ExpectedConditions.elementToBeClickable(pcNameTextbox));
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", nameElement);
@@ -815,7 +816,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 					utils.jsClick(driver, pcNameTextbox);
 				}
 			}
-			wait.until(ExpectedConditions.visibilityOf(pcNameTextbox)).sendKeys(pcName);
+			wait.until(ExpectedConditions.visibilityOf(pcNameTextbox)).sendKeys(pcName.get());
 			LOGGER.info("Entered Profile Collection Name : " + pcName);
 			ExtentCucumberAdapter.addTestStepLog("Entered Profile Collection Name : " + pcName);
 			// Scroll element into view before clicking
@@ -931,8 +932,8 @@ public class PO16_ValidatePCRestrictedTipMessage {
 					utils.jsClick(driver, selectTeamTopRowCheckbox);
 				}
 			}
-			LOGGER.info("Recently Created Team with name " + teamName + " is Selected for Profile Collection");
-			ExtentCucumberAdapter.addTestStepLog("Recently Created Team with name " + teamName + " is Selected for Profile Collection");
+		LOGGER.info("Recently Created Team with name " + teamName.get() + " is Selected for Profile Collection");
+		ExtentCucumberAdapter.addTestStepLog("Recently Created Team with name " + teamName.get() + " is Selected for Profile Collection");
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1029,7 +1030,7 @@ public void click_on_add_additional_success_profiles_header() {
 	
 	public void search_and_add_success_profiles_to_profile_collection() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(pcThirdStepSearchbar)).sendKeys(spNameString);
+			wait.until(ExpectedConditions.visibilityOf(pcThirdStepSearchbar)).sendKeys(spNameString.get());
 		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		PerformanceUtils.waitForPageReady(driver, 2);
 		// Scroll element into view before clicking
@@ -1138,7 +1139,7 @@ public void click_on_success_profiles_header() {
 	
 	public void search_and_delete_profile_collection() {
 		try {
-		wait.until(ExpectedConditions.visibilityOf(pcSearchbar)).sendKeys(pcName);
+		wait.until(ExpectedConditions.visibilityOf(pcSearchbar)).sendKeys(pcName.get());
 		PerformanceUtils.waitForUIStability(driver, 1);			
 		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
@@ -1162,7 +1163,7 @@ public void click_on_success_profiles_header() {
 	
 	public void search_for_team_name_in_teams_page_and_delete_team() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(teamsPageSearchbar)).sendKeys(teamName);
+			wait.until(ExpectedConditions.visibilityOf(teamsPageSearchbar)).sendKeys(teamName.get());
 		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 		PerformanceUtils.waitForPageReady(driver, 3);
 		wait.until(ExpectedConditions.elementToBeClickable(topRowThreeDots)).click();

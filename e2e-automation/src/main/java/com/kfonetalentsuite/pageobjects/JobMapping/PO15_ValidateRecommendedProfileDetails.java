@@ -39,13 +39,14 @@ public class PO15_ValidateRecommendedProfileDetails {
 	Utilities utils = new Utilities();
 	JavascriptExecutor js = (JavascriptExecutor) driver;
 	
-	public static int rowNumber=0; 
-	public static String orgJobName;
-	public static String orgJobCode;
-	public static String orgJobGrade;
-	public static String orgJobFunction;
-	public static String orgJobDepartment;
-	public static String matchedSuccessPrflName;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<Integer> rowNumber = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<String> orgJobName = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> orgJobCode = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> orgJobGrade = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> orgJobFunction = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> orgJobDepartment = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> matchedSuccessPrflName = ThreadLocal.withInitial(() -> null);
 	
 	//XPATHs
 	@FindBy(xpath = "//div[@data-testid='loader']//img")
@@ -161,16 +162,16 @@ public class PO15_ValidateRecommendedProfileDetails {
 					String text = button.getText();
 					
 					if(text.contains("Other Matches")) {
-						rowNumber = i;
-						WebElement	jobName = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber-1)+"]//td[2]//div[contains(text(),'(')]"));
+						rowNumber.set(i);
+						WebElement	jobName = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber.get()-1)+"]//td[2]//div[contains(text(),'(')]"));
 						Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobName)).isDisplayed());
 						String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText(); 
-						orgJobName = jobname1.split("-", 2)[0].trim();
+						orgJobName.set(jobname1.split("-", 2)[0].trim());
 						LOGGER.info("View Other Matches button is found for Job Profile with Name : " + orgJobName);
 						ExtentCucumberAdapter.addTestStepLog("View Other Matches button is found for Job Profile with Name : " + orgJobName);;
 						break;
 					} else {
-						rowNumber = i;
+						rowNumber.set(i);
 					}
 				} catch (Exception rowException) {
 					LOGGER.debug("Row " + i + " doesn't have the expected button, continuing search...");
@@ -190,11 +191,11 @@ public class PO15_ValidateRecommendedProfileDetails {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			WebElement	jobName = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber-1)+"]//td[2]//div[contains(text(),'(')]"));
+			WebElement	jobName = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber.get()-1)+"]//td[2]//div[contains(text(),'(')]"));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobName)).isDisplayed());
 			String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText(); 
-			orgJobName = jobname1.split("-", 2)[0].trim();
-			orgJobCode = jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length()-2);
+			orgJobName.set(jobname1.split("-", 2)[0].trim());
+			orgJobCode.set(jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length()-2));
 			ExtentCucumberAdapter.addTestStepLog("Job name of Profile with View Other Matches button in the organization table : " + orgJobName);
 			LOGGER.info("Job name of Profile with View Other Matches button in the organization table : " + orgJobName);
 		ExtentCucumberAdapter.addTestStepLog("Job code of Profile with View Other Matches button in the organization table : " + orgJobCode);
@@ -210,14 +211,14 @@ public class PO15_ValidateRecommendedProfileDetails {
 	
 	public void user_should_verify_organization_job_grade_and_department_values_of_job_profile_with_view_other_matches_button() {
 		try {
-			WebElement	jobGrade = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber-1)+"]//td[3]//div[1]"));
+			WebElement	jobGrade = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber.get()-1)+"]//td[3]//div[1]"));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobGrade)).isDisplayed());
 			String jobGradeText = wait.until(ExpectedConditions.visibilityOf(jobGrade)).getText(); 
 			if(jobGradeText.contentEquals("-") || jobGradeText.isEmpty() || jobGradeText.isBlank()) {
 				jobGradeText = "NULL";
-				orgJobGrade = jobGradeText;
+				orgJobGrade.set(jobGradeText);
 			}
-			orgJobGrade = jobGradeText;
+			orgJobGrade.set(jobGradeText);
 			ExtentCucumberAdapter.addTestStepLog("Grade value of Organization Job of Profile with View Other Matches button : " + orgJobGrade);
 			LOGGER.info("Grade value of Organization Job of Profile with View Other Matches button : " + orgJobGrade);
 	} catch (Exception e) {
@@ -229,14 +230,14 @@ public class PO15_ValidateRecommendedProfileDetails {
 		}
 		
 		try {
-			WebElement	jobDepartment = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber-1)+"]//td[4]//div[1]"));
+			WebElement	jobDepartment = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber.get()-1)+"]//td[4]//div[1]"));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobDepartment)).isDisplayed());
 			String jobDepartmentText = wait.until(ExpectedConditions.visibilityOf(jobDepartment)).getText(); 
 			if(jobDepartmentText.contentEquals("-") || jobDepartmentText.isEmpty() || jobDepartmentText.isBlank()) {
 				jobDepartmentText = "NULL";
-				orgJobDepartment = jobDepartmentText;
+				orgJobDepartment.set(jobDepartmentText);
 			}
-			orgJobDepartment = jobDepartmentText;
+			orgJobDepartment.set(jobDepartmentText);
 			ExtentCucumberAdapter.addTestStepLog("Department value of Organization Job of Profile with View Other Matches button : " + orgJobDepartment);
 			LOGGER.info("Department value of Organization Job of Profile with View Other Matches button : " + orgJobDepartment);
 	} catch (Exception e) {
@@ -250,18 +251,18 @@ public class PO15_ValidateRecommendedProfileDetails {
 	
 	public void user_should_verify_organization_job_function_or_sub_function_of_job_profile_with_view_other_matches_button() {
 		try {
-			WebElement	jobFunction = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber)+"]//div//span[2]"));
+			WebElement	jobFunction = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber.get())+"]//div//span[2]"));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobFunction)).isDisplayed());
 			String jobFunctionText = wait.until(ExpectedConditions.visibilityOf(jobFunction)).getText(); 
 			if(jobFunctionText.contentEquals("-") || jobFunctionText.isEmpty() || jobFunctionText.isBlank()) {
 				jobFunctionText = "NULL | NULL";
-				orgJobFunction = jobFunctionText;
+				orgJobFunction.set(jobFunctionText);
 			} else if (jobFunctionText.endsWith("-") || jobFunctionText.endsWith("| -") || jobFunctionText.endsWith("|") || (!(jobFunctionText.contains("|")) && (jobFunctionText.length() > 1))) {
 				jobFunctionText = jobFunctionText + " | NULL";
-				orgJobFunction = jobFunctionText;
+				orgJobFunction.set(jobFunctionText);
 			}
 			
-			orgJobFunction = jobFunctionText;
+			orgJobFunction.set(jobFunctionText);
 			ExtentCucumberAdapter.addTestStepLog("Function / Sub-function values of Organization Job of Profile with View Other Matches button : " + orgJobFunction);
 			LOGGER.info("Function / Sub-function values of Organization Job of Profile with View Other Matches button : " + orgJobFunction);
 	} catch (Exception e) {
@@ -273,12 +274,23 @@ public class PO15_ValidateRecommendedProfileDetails {
 		}
 	}
 	
+	/**
+	 * Clicks on matched profile of job profile with view other matches button
+	 * ENHANCED FOR HEADLESS MODE: Scrolls element into view before clicking
+	 */
 	public void click_on_matched_profile_of_job_profile_with_view_other_matches_button() {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			WebElement	linkedMatchedProfile = driver.findElement(By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr["+Integer.toString(rowNumber-1)+"]//td[1]//div"));
+			WebElement	linkedMatchedProfile = driver.findElement(By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr["+Integer.toString(rowNumber.get()-1)+"]//td[1]//div"));
 			String MatchedProfileNameText = wait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile)).getText();
-			matchedSuccessPrflName = MatchedProfileNameText;
+			matchedSuccessPrflName.set(MatchedProfileNameText);
+			
+			// CRITICAL FOR HEADLESS MODE: Scroll element into view before clicking
+			LOGGER.debug("Scrolling matched profile '{}' into view before clicking...", MatchedProfileNameText);
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});", linkedMatchedProfile);
+			Thread.sleep(500); // Wait for smooth scroll to complete
+			
+			// Attempt to click with fallback strategies
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile)).click();
 			} catch (Exception e) {
@@ -288,15 +300,15 @@ public class PO15_ValidateRecommendedProfileDetails {
 					utils.jsClick(driver, linkedMatchedProfile);
 				}
 			}
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Matched Profile with name "+ MatchedProfileNameText +" of Organization Job "+ orgJobName);
-			LOGGER.info("Clicked on Matched Profile with name "+ MatchedProfileNameText +" of Organization Job "+ orgJobName);
+		ExtentCucumberAdapter.addTestStepLog("Clicked on Matched Profile with name "+ MatchedProfileNameText +" of Organization Job "+ orgJobName.get());
+		LOGGER.info("Clicked on Matched Profile with name "+ MatchedProfileNameText +" of Organization Job "+ orgJobName.get());
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-	} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_matched_profile_of_job_profile_with_view_other_matches_button", e);
-			LOGGER.error("Issue in clicking Matched Profile linked with job name "+ orgJobName + " - Method: click_on_matched_profile_of_job_profile_with_view_other_matches_button", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking Matched Profile linked with job name "+ orgJobName + "...Please Investigate!!!");
-			Assert.fail("Issue in clicking Matched Profile linked with job name "+ orgJobName + "...Please Investigate!!!");
+} catch (Exception e) {
+		ScreenshotHandler.captureFailureScreenshot("click_on_matched_profile_of_job_profile_with_view_other_matches_button", e);
+		LOGGER.error("Issue in clicking Matched Profile linked with job name "+ orgJobName.get() + " - Method: click_on_matched_profile_of_job_profile_with_view_other_matches_button", e);
+		e.printStackTrace();
+		ExtentCucumberAdapter.addTestStepLog("Issue in clicking Matched Profile linked with job name "+ orgJobName.get() + "...Please Investigate!!!");
+		Assert.fail("Issue in clicking Matched Profile linked with job name "+ orgJobName.get() + "...Please Investigate!!!");
 		}
 	}
 	public void verify_user_navigated_to_job_comparison_page() {
@@ -324,8 +336,8 @@ public class PO15_ValidateRecommendedProfileDetails {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			String JCpageOrgJobTitleHeaderText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobTitleHeader)).getText();
-			Assert.assertTrue(JCpageOrgJobTitleHeaderText.contains(PO15_ValidateRecommendedProfileDetails.orgJobName));
-			Assert.assertTrue(JCpageOrgJobTitleHeaderText.contains(PO15_ValidateRecommendedProfileDetails.orgJobCode));
+			Assert.assertTrue(JCpageOrgJobTitleHeaderText.contains(PO15_ValidateRecommendedProfileDetails.orgJobName.get()));
+			Assert.assertTrue(JCpageOrgJobTitleHeaderText.contains(PO15_ValidateRecommendedProfileDetails.orgJobCode.get()));
 			LOGGER.info("Organization Job Name and Job code validated successfully in the Job Compare page");
 			ExtentCucumberAdapter.addTestStepLog("Organization Job Name and Job code validated successfully in the Job Compare page");
 	} catch (Exception e) {
@@ -342,9 +354,9 @@ public class PO15_ValidateRecommendedProfileDetails {
 			String JCpageOrgJobGradeValueText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobGradeValue)).getText();
 			if(JCpageOrgJobGradeValueText.contentEquals("-") || JCpageOrgJobGradeValueText.isEmpty() || JCpageOrgJobGradeValueText.isBlank()) {
 				JCpageOrgJobGradeValueText = "NULL";
-				Assert.assertTrue(JCpageOrgJobGradeValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobGrade));
+				Assert.assertTrue(JCpageOrgJobGradeValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobGrade.get()));
 			} else {
-				Assert.assertTrue(JCpageOrgJobGradeValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobGrade));
+				Assert.assertTrue(JCpageOrgJobGradeValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobGrade.get()));
 			}
 			LOGGER.info("Organization Job Grade value validated successfully in the Job Compare page");
 			ExtentCucumberAdapter.addTestStepLog("Organization Job Grade value validated successfully in the Job Compare page");
@@ -360,9 +372,9 @@ public class PO15_ValidateRecommendedProfileDetails {
 			String JCpageOrgJobDepartmentValueText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobDepartmentValue)).getText();
 			if(JCpageOrgJobDepartmentValueText.contentEquals("-") || JCpageOrgJobDepartmentValueText.isEmpty() || JCpageOrgJobDepartmentValueText.isBlank()) {
 				JCpageOrgJobDepartmentValueText = "NULL";
-				Assert.assertTrue(JCpageOrgJobDepartmentValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobDepartment));
+				Assert.assertTrue(JCpageOrgJobDepartmentValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobDepartment.get()));
 			} else {
-				Assert.assertTrue(JCpageOrgJobDepartmentValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobDepartment));
+				Assert.assertTrue(JCpageOrgJobDepartmentValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobDepartment.get()));
 			}
 			LOGGER.info("Organization Job Department value validated successfully in the Job Compare page");
 			ExtentCucumberAdapter.addTestStepLog("Organization Job Department value validated successfully in the Job Compare page");
@@ -378,11 +390,11 @@ public class PO15_ValidateRecommendedProfileDetails {
 			String JCpageOrgJobFunctionValueText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobFunctionValue)).getText();
 			if(JCpageOrgJobFunctionValueText.contentEquals("-") || JCpageOrgJobFunctionValueText.isEmpty() || JCpageOrgJobFunctionValueText.isBlank()) {
 				JCpageOrgJobFunctionValueText = "NULL | NULL";
-				Assert.assertTrue(JCpageOrgJobFunctionValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobFunction));
+				Assert.assertTrue(JCpageOrgJobFunctionValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobFunction.get()));
 			} else if (JCpageOrgJobFunctionValueText.endsWith("-") || JCpageOrgJobFunctionValueText.endsWith("| -") || JCpageOrgJobFunctionValueText.endsWith("|") || (!(JCpageOrgJobFunctionValueText.contains("|")) && (JCpageOrgJobFunctionValueText.length() > 1))) {
 				JCpageOrgJobFunctionValueText = JCpageOrgJobFunctionValueText + " | NULL";
 			} else {
-				Assert.assertTrue(JCpageOrgJobFunctionValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobFunction));
+				Assert.assertTrue(JCpageOrgJobFunctionValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobFunction.get()));
 			}
 			LOGGER.info("Organization Job Function / Sub-function values validated successfully in the Job Compare page");
 			ExtentCucumberAdapter.addTestStepLog("Organization Job Function / Sub-function values validated successfully in the Job Compare page");
@@ -398,7 +410,7 @@ public class PO15_ValidateRecommendedProfileDetails {
 	public void user_should_verify_recommended_profile_name_matches_with_matched_success_profile_name() {
 		try {
 			String JCpageProfile1TitleText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Title)).getText();
-			Assert.assertTrue(JCpageProfile1TitleText.contains(PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName));
+			Assert.assertTrue(JCpageProfile1TitleText.contains(PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName.get()));
 			LOGGER.info("Recommended Profile Name in the Job Compare page matches with Matched Success Profile Name");
 			ExtentCucumberAdapter.addTestStepLog("Recommended Profile Name in the Job Compare page matches with Matched Success Profile Name");
 	} catch (Exception e) {

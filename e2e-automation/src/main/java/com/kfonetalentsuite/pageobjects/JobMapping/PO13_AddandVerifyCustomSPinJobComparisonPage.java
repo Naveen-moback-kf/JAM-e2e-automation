@@ -28,8 +28,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO13_AddandVerifyCustomSPinJobComparisonPage addandVerifyCustomSPinJobComparisonPage;
 	
-	public static String customSPSearchString = "Engineer";
-	public static String customSPNameinSearchResults;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> customSPSearchString = ThreadLocal.withInitial(() -> "Engineer");
+	public static ThreadLocal<String> customSPNameinSearchResults = ThreadLocal.withInitial(() -> null);
 	
 	public PO13_AddandVerifyCustomSPinJobComparisonPage() throws IOException {
 		// super();
@@ -175,9 +176,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 	public void user_should_enter_custom_sp_search_string_in_the_search_bar() {
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 		try {
-			wait.until(ExpectedConditions.visibilityOf(searchBarinJCPage)).sendKeys(customSPSearchString);
-		LOGGER.info("Entered " + customSPSearchString + " as Custom SP Search String in the search bar in Job Comparison page");
-		ExtentCucumberAdapter.addTestStepLog("Entered " + customSPSearchString + " as Custom SP Search String in the search bar in Job Comparison page");
+			wait.until(ExpectedConditions.visibilityOf(searchBarinJCPage)).sendKeys(customSPSearchString.get());
+		LOGGER.info("Entered " + customSPSearchString.get() + " as Custom SP Search String in the search bar in Job Comparison page");
+		ExtentCucumberAdapter.addTestStepLog("Entered " + customSPSearchString.get() + " as Custom SP Search String in the search bar in Job Comparison page");
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("user_should_enter_custom_sp_search_string_in_the_search_bar", e);
 		LOGGER.error(" Failed to enter Custom SP Search String - Method: user_should_enter_custom_sp_search_string_in_the_search_bar", e);
@@ -190,11 +191,11 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 	public void select_first_custom_sp_from_search_results() {
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 		try {
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(firstSearchResultBtninJCPage)).isDisplayed());
-			wait.until(ExpectedConditions.elementToBeClickable(firstSearchResultBtninJCPage)).click();
-		customSPNameinSearchResults = firstSearchResultTextinJCPage.getText();
-		LOGGER.info("First Custom SP with Name : "+ customSPNameinSearchResults + " from search results is selected in Job Comparison page");
-		ExtentCucumberAdapter.addTestStepLog("First Custom SP with Name : "+ customSPNameinSearchResults + " from search results is selected in Job Comparison page");
+		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(firstSearchResultBtninJCPage)).isDisplayed());
+		wait.until(ExpectedConditions.elementToBeClickable(firstSearchResultBtninJCPage)).click();
+	customSPNameinSearchResults.set(firstSearchResultTextinJCPage.getText());
+	LOGGER.info("First Custom SP with Name : "+ customSPNameinSearchResults.get() + " from search results is selected in Job Comparison page");
+	ExtentCucumberAdapter.addTestStepLog("First Custom SP with Name : "+ customSPNameinSearchResults.get() + " from search results is selected in Job Comparison page");
 		wait.until(ExpectedConditions.invisibilityOf(firstSearchResultBtninJCPage));
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("select_first_custom_sp_from_search_results", e);
@@ -224,7 +225,7 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 	public void user_should_verify_custom_sp_name_and_close_button_are_displaying_in_search_bar_after_adding_custom_sp() {
 		try {
 			String customSPNameTextinSearchBar = wait.until(ExpectedConditions.visibilityOf(searchBarinJCPage)).getAttribute("value");
-			Assert.assertEquals(customSPNameTextinSearchBar, customSPNameinSearchResults);
+			Assert.assertEquals(customSPNameTextinSearchBar, customSPNameinSearchResults.get());
 			LOGGER.info("Custom SP Name is displaying in the search bar after adding Custom SP to Profiles List in Job Comparison page....");
 			ExtentCucumberAdapter.addTestStepLog("Custom SP Name is displaying in the search bar after adding Custom SP to Profiles List in Job Comparison page....");
 			Assert.assertTrue(wait.until(ExpectedConditions.elementToBeClickable(searchBarCancelBtninJCPage)).isDisplayed());
@@ -247,9 +248,9 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 	public void validate_custom_sp_profile_name_matches_with_selected_custom_sp_name_from_search_results() {
 		try {
 			String JCpageProfile1TitleText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Title)).getText();
-			Assert.assertEquals(JCpageProfile1TitleText,customSPNameinSearchResults);
-			LOGGER.info("Custom SP Profile Name :  " + JCpageProfile1TitleText + " matches with Selected Custom SP Name : " + customSPNameinSearchResults + " from Search Results in Job Comparison page...");
-			ExtentCucumberAdapter.addTestStepLog("Custom SP Profile Name :  " + JCpageProfile1TitleText + " matches with Selected Custom SP Name : " + customSPNameinSearchResults + " from Search Results in Job Comparison page...");
+		Assert.assertEquals(JCpageProfile1TitleText,customSPNameinSearchResults.get());
+		LOGGER.info("Custom SP Profile Name :  " + JCpageProfile1TitleText + " matches with Selected Custom SP Name : " + customSPNameinSearchResults.get() + " from Search Results in Job Comparison page...");
+		ExtentCucumberAdapter.addTestStepLog("Custom SP Profile Name :  " + JCpageProfile1TitleText + " matches with Selected Custom SP Name : " + customSPNameinSearchResults.get() + " from Search Results in Job Comparison page...");
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_custom_sp_profile_name_matches_with_selected_custom_sp_name_from_search_results", e);
 			LOGGER.error("Issue in Validating Custom SP Profile Name with Selected Custom SP Name - Method: validate_custom_sp_profile_name_matches_with_selected_custom_sp_name_from_search_results", e);
@@ -538,11 +539,11 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 	public void select_third_custom_sp_from_search_results() {
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 		try {
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(thirdSearchResultBtninJCPage)).isDisplayed());
-			wait.until(ExpectedConditions.elementToBeClickable(thirdSearchResultBtninJCPage)).click();
-			customSPNameinSearchResults = thirdSearchResultTextinJCPage.getText();
-			LOGGER.info("Third Custom SP with Name : "+ customSPNameinSearchResults + " from search results is selected in Job Comparison page");
-			ExtentCucumberAdapter.addTestStepLog("Third Custom SP with Name : "+ customSPNameinSearchResults + " from search results is selected in Job Comparison page");
+		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(thirdSearchResultBtninJCPage)).isDisplayed());
+		wait.until(ExpectedConditions.elementToBeClickable(thirdSearchResultBtninJCPage)).click();
+		customSPNameinSearchResults.set(thirdSearchResultTextinJCPage.getText());
+		LOGGER.info("Third Custom SP with Name : "+ customSPNameinSearchResults.get() + " from search results is selected in Job Comparison page");
+		ExtentCucumberAdapter.addTestStepLog("Third Custom SP with Name : "+ customSPNameinSearchResults.get() + " from search results is selected in Job Comparison page");
 			wait.until(ExpectedConditions.invisibilityOf(thirdSearchResultBtninJCPage));
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("select_third_custom_sp_from_search_results", e);
@@ -559,7 +560,7 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage {
 			js.executeScript("arguments[0].scrollIntoView(true);", customSPCloseBtninJCPage);
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(customSPCloseBtninJCPage)).isDisplayed());
 			String JCpageProfile1TitleText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Title)).getText();
-			Assert.assertEquals(JCpageProfile1TitleText, customSPNameinSearchResults);
+			Assert.assertEquals(JCpageProfile1TitleText, customSPNameinSearchResults.get());
 			LOGGER.info("New Custom SP with Name : "+ JCpageProfile1TitleText + " successfully replaced with existing Custom SP in Profiles List in Job Comparison page");
 			ExtentCucumberAdapter.addTestStepLog("New Custom SP with Name : "+ JCpageProfile1TitleText + " successfully replaced with existing Custom SP in Profiles List in Job Comparison page");
 	} catch (Exception e) {

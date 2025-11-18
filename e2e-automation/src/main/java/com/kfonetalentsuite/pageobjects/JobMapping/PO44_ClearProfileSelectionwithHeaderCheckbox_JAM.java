@@ -35,9 +35,9 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 	Utilities utils = new Utilities();
 	JavascriptExecutor js = (JavascriptExecutor) driver;
 	
-	// Static variables to store counts for validation
-	public static int loadedProfilesBeforeUncheck = 0;
-	public static int selectedProfilesBeforeUncheck = 0;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<Integer> loadedProfilesBeforeUncheck = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<Integer> selectedProfilesBeforeUncheck = ThreadLocal.withInitial(() -> 0);
 	
 	//XPATHs
 	@FindBy(xpath = "//div[@data-testid='loader']//img")
@@ -58,17 +58,17 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			// Store counts before unchecking
-			loadedProfilesBeforeUncheck = driver.findElements(
-				By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input")
-			).size();
-			
-			selectedProfilesBeforeUncheck = driver.findElements(
-				By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input[@checked]")
-			).size();
-			
-			LOGGER.info("Loaded Profiles on screen (BEFORE unchecking header checkbox): " + loadedProfilesBeforeUncheck);
-			LOGGER.info("Selected Profiles (BEFORE unchecking header checkbox): " + selectedProfilesBeforeUncheck);
+		// Store counts before unchecking
+		loadedProfilesBeforeUncheck.set(driver.findElements(
+			By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input")
+		).size());
+		
+		selectedProfilesBeforeUncheck.set(driver.findElements(
+			By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input[@checked]")
+		).size());
+		
+		LOGGER.info("Loaded Profiles on screen (BEFORE unchecking header checkbox): " + loadedProfilesBeforeUncheck.get());
+		LOGGER.info("Selected Profiles (BEFORE unchecking header checkbox): " + selectedProfilesBeforeUncheck.get());
 			
 			// Click on header checkbox to unselect
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", headerCheckbox);
@@ -118,7 +118,7 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 				By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input")
 			);
 			
-			int checkboxesToCheck = Math.min(allCheckboxes.size(), loadedProfilesBeforeUncheck);
+			int checkboxesToCheck = Math.min(allCheckboxes.size(), loadedProfilesBeforeUncheck.get());
 			
 			// Verify loaded profiles are now unselected
 			for (int i = 0; i < checkboxesToCheck; i++) {
@@ -147,12 +147,12 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 				}
 			}
 			
-			int expectedUnselected = loadedProfilesBeforeUncheck - disabledProfilesCount;
-			
-			LOGGER.info("========================================");
-			LOGGER.info("VALIDATION RESULTS");
-			LOGGER.info("========================================");
-			LOGGER.info("Loaded Profiles: " + loadedProfilesBeforeUncheck);
+		int expectedUnselected = loadedProfilesBeforeUncheck.get() - disabledProfilesCount;
+		
+		LOGGER.info("========================================");
+		LOGGER.info("VALIDATION RESULTS");
+		LOGGER.info("========================================");
+		LOGGER.info("Loaded Profiles: " + loadedProfilesBeforeUncheck.get());
 			LOGGER.info("Disabled Profiles: " + disabledProfilesCount);
 			LOGGER.info("Unselected Profiles: " + unselectedProfilesCount);
 			LOGGER.info("Expected Unselected: " + expectedUnselected);
@@ -195,8 +195,8 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 				By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input")
 			);
 			
-			totalProfilesNow = allCheckboxes.size();
-			newlyLoadedProfiles = totalProfilesNow - loadedProfilesBeforeUncheck;
+		totalProfilesNow = allCheckboxes.size();
+		newlyLoadedProfiles = totalProfilesNow - loadedProfilesBeforeUncheck.get();
 			
 			if (newlyLoadedProfiles <= 0) {
 				LOGGER.warn(" No newly loaded profiles detected after scrolling");
@@ -210,8 +210,8 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 			LOGGER.info("Total Profiles Now: " + totalProfilesNow);
 			LOGGER.info("Newly Loaded Profiles: " + newlyLoadedProfiles);
 			
-			// Verify newly loaded profiles are still selected (from index loadedProfilesBeforeUncheck onwards)
-			for (int i = loadedProfilesBeforeUncheck; i < allCheckboxes.size(); i++) {
+		// Verify newly loaded profiles are still selected (from index loadedProfilesBeforeUncheck onwards)
+		for (int i = loadedProfilesBeforeUncheck.get(); i < allCheckboxes.size(); i++) {
 				try {
 					WebElement checkbox = allCheckboxes.get(i);
 					

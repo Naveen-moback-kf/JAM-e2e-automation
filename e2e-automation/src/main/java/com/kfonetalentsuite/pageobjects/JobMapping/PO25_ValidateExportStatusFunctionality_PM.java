@@ -34,8 +34,9 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO25_ValidateExportStatusFunctionality_PM validateExportStatusFunctionality_PM;
-	public static int rowNumber;
-	public static String SPJobName;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<Integer> rowNumber = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<String> SPJobName = ThreadLocal.withInitial(() -> null);
 
 
 	public PO25_ValidateExportStatusFunctionality_PM() throws IOException {
@@ -349,8 +350,8 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 		try {
 			waitForPageReady();
 			
-			for(int i = 1; i <= 1000; i++) {
-				rowNumber = i;
+		for(int i = 1; i <= 1000; i++) {
+			rowNumber.set(i);
 				
 				try {
 					// Find export status element with simple retry logic
@@ -430,10 +431,10 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	
 	public void verify_details_of_the_not_exported_success_profile_in_hcm_sync_profiles_tab() {
 		try {
-			// Get all profile details using helper method
-			WebElement jobNameElement = findTableElement(rowNumber, 1);
-			scrollToElement(jobNameElement);
-			SPJobName = jobNameElement.getText();
+		// Get all profile details using helper method
+		WebElement jobNameElement = findTableElement(rowNumber.get(), 1);
+		scrollToElement(jobNameElement);
+		SPJobName.set(jobNameElement.getText());
 			
 			// Build profile details string
 			StringBuilder profileDetails = buildProfileDetailsString();
@@ -461,8 +462,8 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 		WebElement[] headers = {tableHeader1, tableHeader2, tableHeader3, tableHeader4, 
 		                       tableHeader5, tableHeader6, tableHeader7, tableHeader8};
 		
-		for (int col = 1; col <= 8; col++) {
-			WebElement dataElement = findTableElement(rowNumber, col);
+	for (int col = 1; col <= 8; col++) {
+		WebElement dataElement = findTableElement(rowNumber.get(), col);
 			String headerText = headers[col-1].getText().replaceAll("\\s+[^\\w\\s]+$", "");
 			details.append(headerText).append(" : ").append(dataElement.getText()).append("   ");
 		}
@@ -472,23 +473,23 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	
 	public void verify_success_profile_checkbox_is_enabled_and_able_to_perform_export_operation() {
 		try {
-			String checkboxXpath = String.format("//tbody//tr[%d]//td[1]//*//..//div//kf-checkbox", rowNumber);
+			String checkboxXpath = String.format("//tbody//tr[%d]//td[1]//*//..//div//kf-checkbox", rowNumber.get());
 			WebElement checkbox = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(checkboxXpath)));
 			scrollToElement(checkbox);
 			
 			// Verify checkbox is displayed and enabled
 			if (!checkbox.isDisplayed()) {
-				throw new AssertionError("Checkbox is not displayed for profile: " + SPJobName);
+				throw new AssertionError("Checkbox is not displayed for profile: " + SPJobName.get());
 			}
 			
 			if (!checkbox.isEnabled()) {
-				throw new AssertionError("Checkbox is disabled for profile: " + SPJobName + ". This profile cannot be exported.");
+				throw new AssertionError("Checkbox is disabled for profile: " + SPJobName.get() + ". This profile cannot be exported.");
 			}
 			
 			// Verify clickability
 			Assert.assertTrue(wait.until(ExpectedConditions.elementToBeClickable(checkbox)).isEnabled());
 			
-			logAndReport("Checkbox of the SP with Name " + SPJobName + " is Enabled and able to Perform Export Operation");
+			logAndReport("Checkbox of the SP with Name " + SPJobName.get() + " is Enabled and able to Perform Export Operation");
 			
 		} catch (TimeoutException e) {
 			SimpleErrorHandler.handleWithContext(
@@ -507,18 +508,18 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	
 	public void click_on_checkbox_of_success_profile_with_export_status_as_not_exported() {
 		try {
-			String checkboxXpath = String.format("//tbody//tr[%d]//td[1]//*//..//div//kf-checkbox", rowNumber);
+			String checkboxXpath = String.format("//tbody//tr[%d]//td[1]//*//..//div//kf-checkbox", rowNumber.get());
 			WebElement checkbox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(checkboxXpath)));
 			
 			// Simple validation before clicking
 			if (!checkbox.isEnabled()) {
-				LOGGER.warn(" Checkbox is disabled for profile: {}", SPJobName);
-				throw new IllegalStateException("Checkbox is disabled for profile: " + SPJobName);
+				LOGGER.warn(" Checkbox is disabled for profile: {}", SPJobName.get());
+				throw new IllegalStateException("Checkbox is disabled for profile: " + SPJobName.get());
 			}
 			
-			performEnhancedClick(checkbox, "checkbox of Success profile with name: " + SPJobName);
-			logAndReport("Clicked on checkbox of Success profile with name : " + SPJobName +" in HCM Sync Profiles screen in PM");
-			PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount = 1;
+	performEnhancedClick(checkbox, "checkbox of Success profile with name: " + SPJobName.get());
+	logAndReport("Clicked on checkbox of Success profile with name : " + SPJobName.get() +" in HCM Sync Profiles screen in PM");
+		PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(1);
 			
 		} catch (TimeoutException e) {
 			SimpleErrorHandler.handleWithContext(
@@ -551,50 +552,50 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	
 	public void user_should_verify_export_status_of_sp_updated_as_exported() {
 		try {
-			waitForPageReady();
-			
-			// Scroll through rows to ensure table is loaded
-			scrollThroughTableRows(rowNumber + 2);
-			
-			// Verify job name and export status
-			WebElement jobNameElement = findTableElement(rowNumber, 1);
-			scrollToElement(jobNameElement);
-			
-			String actualJobName = jobNameElement.getText();
-			if (!actualJobName.equals(SPJobName)) {
-				LOGGER.warn("Job name mismatch at row {}. Expected: '{}', Actual: '{}'", 
-						rowNumber, SPJobName, actualJobName);
-			}
-			SPJobName = actualJobName;
-			
-			WebElement exportStatusElement = findTableElement(rowNumber, 8);
+		waitForPageReady();
+		
+		// Scroll through rows to ensure table is loaded
+		scrollThroughTableRows(rowNumber.get() + 2);
+		
+		// Verify job name and export status
+		WebElement jobNameElement = findTableElement(rowNumber.get(), 1);
+		scrollToElement(jobNameElement);
+		
+		String actualJobName = jobNameElement.getText();
+		if (!actualJobName.equals(SPJobName.get())) {
+			LOGGER.warn("Job name mismatch at row {}. Expected: '{}', Actual: '{}'", 
+					rowNumber.get(), SPJobName.get(), actualJobName);
+		}
+		SPJobName.set(actualJobName);
+		
+		WebElement exportStatusElement = findTableElement(rowNumber.get(), 8);
 			String actualStatus = exportStatusElement.getText();
 			
 			if (!"Exported".equals(actualStatus)) {
-				throw new AssertionError(
-					String.format("Export status verification failed for profile '%s' at row %d. Expected: 'Exported', Actual: '%s'", 
-						SPJobName, rowNumber, actualStatus)
+			throw new AssertionError(
+				String.format("Export status verification failed for profile '%s' at row %d. Expected: 'Exported', Actual: '%s'", 
+					SPJobName.get(), rowNumber.get(), actualStatus)
 				);
 			}
 			
-			logAndReport("Export Status of SP with name " + SPJobName + " updated as " + actualStatus + " as expected");
-			
-		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext(
-				"user_should_verify_export_status_of_sp_updated_as_exported", e,
-				"Table elements for profile: " + SPJobName);
-		} catch (NoSuchElementException e) {
-			SimpleErrorHandler.handleWithContext(
-				"user_should_verify_export_status_of_sp_updated_as_exported", e,
-				"Table row " + rowNumber);
+		logAndReport("Export Status of SP with name " + SPJobName.get() + " updated as " + actualStatus + " as expected");
+		
+	} catch (TimeoutException e) {
+		SimpleErrorHandler.handleWithContext(
+			"user_should_verify_export_status_of_sp_updated_as_exported", e,
+			"Table elements for profile: " + SPJobName.get());
+	} catch (NoSuchElementException e) {
+		SimpleErrorHandler.handleWithContext(
+			"user_should_verify_export_status_of_sp_updated_as_exported", e,
+			"Table row " + rowNumber.get());
 		} catch (AssertionError e) {
 			SimpleErrorHandler.handleWithContext(
 				"user_should_verify_export_status_of_sp_updated_as_exported", e,
-				"Export status assertion for profile: " + SPJobName);
-		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext(
-				"user_should_verify_export_status_of_sp_updated_as_exported", e,
-				"Export status verification for profile: " + SPJobName);
+			"Export status assertion for profile: " + SPJobName.get());
+	} catch (Exception e) {
+		SimpleErrorHandler.handleWithContext(
+			"user_should_verify_export_status_of_sp_updated_as_exported", e,
+			"Export status verification for profile: " + SPJobName.get());
 		}
 	}
 	
@@ -619,26 +620,26 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 		PerformanceUtils.waitForUIStability(driver, 1);
 		
-			// Enhanced scrolling logic with better element targeting
-			if (rowNumber == 1) {
-				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", showingJobResultsCount);
-			} else if(rowNumber < 5) {
-				WebElement SP_JobName = wait.until(ExpectedConditions.presenceOfElementLocated(
-					By.xpath("//tbody//tr[1]//td[1]//*")));
-				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", SP_JobName);
-			} else if(rowNumber > 5) {
-				WebElement SP_JobName = wait.until(ExpectedConditions.presenceOfElementLocated(
-					By.xpath("//tbody//tr[" + Integer.toString(rowNumber-5) + "]//td[1]//*")));
-				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", SP_JobName);
-			}
-			
-		PerformanceUtils.waitForUIStability(driver, 1);
-		
-			// Enhanced element location with multiple fallback strategies
-			WebElement E_SP_JobName = null;
-			String primaryXpath = "//tbody//tr[" + Integer.toString(rowNumber) + "]//td[1]//*";
-			String fallbackXpath = "//tbody//tr[" + Integer.toString(rowNumber) + "]//td[1]//a";
-			String fallbackXpath2 = "//tbody//tr[" + Integer.toString(rowNumber) + "]//td[1]//span";
+	// Enhanced scrolling logic with better element targeting
+	if (rowNumber.get() == 1) {
+		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", showingJobResultsCount);
+	} else if(rowNumber.get() < 5) {
+		WebElement SP_JobName = wait.until(ExpectedConditions.presenceOfElementLocated(
+			By.xpath("//tbody//tr[1]//td[1]//*")));
+		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", SP_JobName);
+	} else if(rowNumber.get() > 5) {
+		WebElement SP_JobName = wait.until(ExpectedConditions.presenceOfElementLocated(
+			By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()-5) + "]//td[1]//*")));
+		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", SP_JobName);
+	}
+	
+PerformanceUtils.waitForUIStability(driver, 1);
+
+	// Enhanced element location with multiple fallback strategies
+	WebElement E_SP_JobName = null;
+	String primaryXpath = "//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*";
+	String fallbackXpath = "//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//a";
+	String fallbackXpath2 = "//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//span";
 			
 			try {
 				E_SP_JobName = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(primaryXpath)));
@@ -650,8 +651,8 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 				}
 			}
 			
-			// Verify element text matches expected
-			Assert.assertEquals(E_SP_JobName.getText(), SPJobName);
+		// Verify element text matches expected
+		Assert.assertEquals(E_SP_JobName.getText(), SPJobName.get());
 			
 			// Scroll element into view and ensure it's visible
 		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", E_SP_JobName);
@@ -676,8 +677,8 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			}
 			
 			if (clickSuccessful) {
-				LOGGER.info("Clicked on Recently Exported Success Profile with name : " + SPJobName +" in HCM Sync Profiles screen in PM");
-				ExtentCucumberAdapter.addTestStepLog("Clicked on Recently Exported Success Profile with name : " + SPJobName +" in HCM Sync Profiles screen in PM");
+			LOGGER.info("Clicked on Recently Exported Success Profile with name : " + SPJobName.get() +" in HCM Sync Profiles screen in PM");
+			ExtentCucumberAdapter.addTestStepLog("Clicked on Recently Exported Success Profile with name : " + SPJobName.get() +" in HCM Sync Profiles screen in PM");
 				
 				// Enhanced post-click navigation handling
 				boolean navigationSuccessful = waitForPageNavigation();
@@ -885,9 +886,9 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	public void user_should_verify_recently_modified_success_profile_is_displaying_on_top_of_the_job_proifles_list() {
 		try {
 			waitForPageReady();
-			WebElement topJobName = findTableElement(1, 1);
-			Assert.assertEquals(topJobName.getText(), SPJobName);
-			logAndReport("Recently Modified SP with name " + topJobName.getText() +" is displaying on the Top of the Profiles List as Expected in HCM Sync Profiles screen");
+		WebElement topJobName = findTableElement(1, 1);
+		Assert.assertEquals(topJobName.getText(), SPJobName.get());
+		logAndReport("Recently Modified SP with name " + topJobName.getText() +" is displaying on the Top of the Profiles List as Expected in HCM Sync Profiles screen");
 		} catch(TimeoutException e) {
 			SimpleErrorHandler.handleWithContext("user_should_verify_recently_modified_success_profile_is_displaying_on_top_of_the_job_proifles_list", e, "Top profile verification");
 		} catch(AssertionError e) {
@@ -900,13 +901,13 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	public void user_should_verify_recently_exported_and_modified_success_profile_export_status_updated_as_exported_modfied() {
 		try {
 			waitForPageReady();
-			WebElement topJobName = findTableElement(1, 1);
-			Assert.assertEquals(topJobName.getText(), SPJobName);
-			SPJobName = topJobName.getText();
+		WebElement topJobName = findTableElement(1, 1);
+		Assert.assertEquals(topJobName.getText(), SPJobName.get());
+		SPJobName.set(topJobName.getText());
 			
 			WebElement exportStatus = findTableElement(1, 8);
 			Assert.assertEquals(exportStatus.getText(), "Exported - Modified");
-			logAndReport("Export Status of recently Exported and Modfied SP with name " + SPJobName + " updated as " + exportStatus.getText() + " as expected...");
+			logAndReport("Export Status of recently Exported and Modfied SP with name " + SPJobName.get() + " updated as " + exportStatus.getText() + " as expected...");
 		} catch(TimeoutException e) {
 			SimpleErrorHandler.handleWithContext("user_should_verify_recently_exported_and_modified_success_profile_export_status_updated_as_exported_modfied", e, "Export status verification after modification");
 		} catch(AssertionError e) {

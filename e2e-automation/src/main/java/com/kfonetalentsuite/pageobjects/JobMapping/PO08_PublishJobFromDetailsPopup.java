@@ -27,7 +27,8 @@ public class PO08_PublishJobFromDetailsPopup {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO08_PublishJobFromDetailsPopup publishJobFromDetailsPopup;
 	
-	public static String job1OrgName;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> job1OrgName = ThreadLocal.withInitial(() -> null);
 
 	public PO08_PublishJobFromDetailsPopup() throws IOException {
 		// super();

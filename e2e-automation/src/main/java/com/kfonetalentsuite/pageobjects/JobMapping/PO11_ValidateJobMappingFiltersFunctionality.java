@@ -596,9 +596,9 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 		Thread.sleep(300); // PERFORMANCE: Reduced from 500ms for UI stabilization after clearing filters
 		
 		// IMPORTANT: Reset initialFilteredResultsCount when filters are cleared
-		// This ensures the next filter application starts fresh
-		PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount = null;
-		LOGGER.debug("Reset initialFilteredResultsCount after clearing filters");
+	// This ensures the next filter application starts fresh
+	PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount.set(null);
+	LOGGER.debug("Reset initialFilteredResultsCount after clearing filters");
 		
 		LOGGER.info("Clicked on clear Filters button and Cleared all the applied filters....");
 		ExtentCucumberAdapter.addTestStepLog("Clicked on clear Filters button and Cleared all the applied filters....");

@@ -22,7 +22,7 @@ public class PageObjectManager {
 	public PO14_ValidateProfileLevelFunctionality validateProfileLevelFunctionality;
 	public PO15_ValidateRecommendedProfileDetails validateRecommendedProfileDetails;
 	public PO16_ValidatePCRestrictedTipMessage validatePCRestrictedTipMessage;
-	public PO17_ValidateSortingFunctionality validateSortingFunctionality;
+	public PO17_ValidateSortingFunctionality_JAM validateSortingFunctionality_JAM;
 	public PO20_ManualMappingofSPinAutoAI manualMappingofSPinAutoAI;
 	public PO21_MapDifferentSPtoProfileInAutoAI mapDifferentSPtoProfileInAutoAI;
 	public PO22_ValidateHCMSyncProfilesScreen_PM validateHCMSyncProfilesTab_PM;
@@ -152,10 +152,10 @@ public class PageObjectManager {
 		return validatePCRestrictedTipMessage;
 	}
 	
-	public PO17_ValidateSortingFunctionality getValidateSortingFunctionality() throws IOException {
+	public PO17_ValidateSortingFunctionality_JAM getValidateSortingFunctionality_JAM() throws IOException {
 		
-		validateSortingFunctionality = new PO17_ValidateSortingFunctionality();
-		return validateSortingFunctionality;
+		validateSortingFunctionality_JAM = new PO17_ValidateSortingFunctionality_JAM();
+		return validateSortingFunctionality_JAM;
 	}
 	
 	public PO20_ManualMappingofSPinAutoAI getManualMappingofSPinAutoAI() throws IOException {
@@ -385,7 +385,7 @@ public class PageObjectManager {
 		validateProfileLevelFunctionality = null;
 		validateRecommendedProfileDetails = null;
 		validatePCRestrictedTipMessage = null;
-		validateSortingFunctionality = null;
+		validateSortingFunctionality_JAM = null;
 		manualMappingofSPinAutoAI = null;
 		mapDifferentSPtoProfileInAutoAI = null;
 		validateHCMSyncProfilesTab_PM = null;

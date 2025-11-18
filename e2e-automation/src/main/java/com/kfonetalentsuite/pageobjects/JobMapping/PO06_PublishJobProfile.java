@@ -34,7 +34,8 @@ public class PO06_PublishJobProfile {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO06_PublishJobProfile publishJobProfile;
 	
-	public static String job1OrgName;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> job1OrgName = ThreadLocal.withInitial(() -> null);
 
 	public PO06_PublishJobProfile() throws IOException {
 		// super();
@@ -170,10 +171,10 @@ public class PO06_PublishJobProfile {
 	//METHODs
 	public void user_should_verify_publish_button_is_displaying_on_first_job_profile() {
 		try { 
-			String job1NameText = wait.until(ExpectedConditions.visibilityOf(jobNameinRow1)).getText();
-			job1OrgName = job1NameText.split("-", 2)[0].trim();
-			PO15_ValidateRecommendedProfileDetails.orgJobName = job1OrgName;
-			wait.until(ExpectedConditions.visibilityOf(job1PublishBtn)).isDisplayed();
+	String job1NameText = wait.until(ExpectedConditions.visibilityOf(jobNameinRow1)).getText();
+	job1OrgName.set(job1NameText.split("-", 2)[0].trim());
+	PO15_ValidateRecommendedProfileDetails.orgJobName.set(job1OrgName.get());
+		wait.until(ExpectedConditions.visibilityOf(job1PublishBtn)).isDisplayed();
 			Assert.assertEquals(true, job1PublishBtn.isDisplayed());
 			LOGGER.info("Publish button on first job profile with Organization Name: " + job1NameText.split("-", 2)[0].trim() +" is displaying as expected");
 			ExtentCucumberAdapter.addTestStepLog("Publish button on first job profile with Organization Name: " + job1NameText.split("-", 2)[0].trim() + " is displaying as expected");		
@@ -185,9 +186,9 @@ public class PO06_PublishJobProfile {
 	
 	public void click_on_publish_button_on_first_job_profile() {
 		try { 
-			wait.until(ExpectedConditions.elementToBeClickable(job1PublishBtn)).click();
-			LOGGER.info("Clicked on Publish button on first job profile with Organization Name: " + job1OrgName);
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Publish button on first job profile with Organization Name: " + job1OrgName);	
+		wait.until(ExpectedConditions.elementToBeClickable(job1PublishBtn)).click();
+		LOGGER.info("Clicked on Publish button on first job profile with Organization Name: " + job1OrgName.get());
+		ExtentCucumberAdapter.addTestStepLog("Clicked on Publish button on first job profile with Organization Name: " + job1OrgName.get());
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_publish_button_on_first_job_profile", e);
@@ -314,7 +315,7 @@ public class PO06_PublishJobProfile {
 				PerformanceUtils.waitForPageReady(driver, 2); // Smart wait instead of fixed 2000ms
 				LOGGER.info("View published toggle button is turned ON");
 				ExtentCucumberAdapter.addTestStepLog("View published toggle button is turned ON");
-				PO17_ValidateSortingFunctionality.jobNamesTextInDefaultOrder.clear();
+				PO17_ValidateSortingFunctionality_JAM.jobNamesTextInDefaultOrder.clear();
 			}
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 3); // Smart wait instead of fixed 3000ms
@@ -338,14 +339,14 @@ public class PO06_PublishJobProfile {
 				} catch (Exception s) {
 					utils.jsClick(driver, searchBar);
 				}
-			}
-			
-			wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(PO15_ValidateRecommendedProfileDetails.orgJobName);
+		}
+		
+		wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(PO15_ValidateRecommendedProfileDetails.orgJobName.get());
 			wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(Keys.ENTER);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 2); 
-			LOGGER.info("Entered job name as " + PO15_ValidateRecommendedProfileDetails.orgJobName + " in the search bar in View Published screen");
-			ExtentCucumberAdapter.addTestStepLog("Entered job name as " + PO15_ValidateRecommendedProfileDetails.orgJobName  + " in the search bar in View Published screen");
+		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		PerformanceUtils.waitForPageReady(driver, 2); 
+		LOGGER.info("Entered job name as " + PO15_ValidateRecommendedProfileDetails.orgJobName.get() + " in the search bar in View Published screen");
+		ExtentCucumberAdapter.addTestStepLog("Entered job name as " + PO15_ValidateRecommendedProfileDetails.orgJobName.get()  + " in the search bar in View Published screen");
 			PerformanceUtils.waitForPageReady(driver, 2); 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("search_for_published_job_name_in_view_published_screen", e);
@@ -360,18 +361,18 @@ public class PO06_PublishJobProfile {
 	public void user_should_verify_published_job_is_displayed_in_view_published_screen() {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			String job1NameText = wait.until(ExpectedConditions.visibilityOf(jobNameinRow1)).getText();
-			job1OrgName = job1NameText.split("-", 2)[0].trim();
-			Assert.assertEquals(PO15_ValidateRecommendedProfileDetails.orgJobName, job1NameText.split("-", 2)[0].trim());
+	String job1NameText = wait.until(ExpectedConditions.visibilityOf(jobNameinRow1)).getText();
+	job1OrgName.set(job1NameText.split("-", 2)[0].trim());
+	Assert.assertEquals(PO15_ValidateRecommendedProfileDetails.orgJobName.get(), job1NameText.split("-", 2)[0].trim());
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(job1PublishedBtn)).isDisplayed());
 			LOGGER.info("Published Job with name : " + job1NameText.split("-", 2)[0].trim() +" is displayed in view published screen as expected");
 			ExtentCucumberAdapter.addTestStepLog("Published Job with name : " + job1NameText.split("-", 2)[0].trim() + " is displayed in view published screen as expected");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_view_published_screen", e);
 			LOGGER.error("Issue in verifying Published Job in view published screen - Method: user_should_verify_published_job_is_displayed_in_view_published_screen", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Published Job with name : " + PO15_ValidateRecommendedProfileDetails.orgJobName + " in view published screen...Please Investigate!!!");
-			Assert.fail("Issue in verifying Published Job with name : " + PO15_ValidateRecommendedProfileDetails.orgJobName + " in view published screen...Please Investigate!!!");
+		e.printStackTrace();
+		ExtentCucumberAdapter.addTestStepLog("Issue in verifying Published Job with name : " + PO15_ValidateRecommendedProfileDetails.orgJobName.get() + " in view published screen...Please Investigate!!!");
+		Assert.fail("Issue in verifying Published Job with name : " + PO15_ValidateRecommendedProfileDetails.orgJobName.get() + " in view published screen...Please Investigate!!!");
 		}
 	}
 	
@@ -409,12 +410,12 @@ public class PO06_PublishJobProfile {
 		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
 		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).isDisplayed());
 		try {
-			wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).clear();
-			wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(job1OrgName.split("-", 2)[0].trim());
-			wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(Keys.ENTER);
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-			LOGGER.info("Entered job name as " + job1OrgName.split("-", 2)[0].trim() +" in the search bar in HCM Sync Profiles screen in PM");
-			ExtentCucumberAdapter.addTestStepLog("Entered job name as " + job1OrgName.split("-", 2)[0].trim() + " in the search bar in  HCM Sync Profiles screen in PM");			
+		wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).clear();
+		wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(job1OrgName.get().split("-", 2)[0].trim());
+		wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(Keys.ENTER);
+		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
+		LOGGER.info("Entered job name as " + job1OrgName.get().split("-", 2)[0].trim() +" in the search bar in HCM Sync Profiles screen in PM");
+		ExtentCucumberAdapter.addTestStepLog("Entered job name as " + job1OrgName.get().split("-", 2)[0].trim() + " in the search bar in  HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("search_for_published_job_name_in_hcm_sync_profiles_tab_in_pm", e);
 			LOGGER.error("Failed to enter Organization job name text in search bar in HCM Sync Profiles screen in PM - Method: search_for_published_job_name_in_hcm_sync_profiles_tab_in_pm", e);
@@ -450,9 +451,9 @@ public class PO06_PublishJobProfile {
 					String countText = resultsCount.getText();
 					LOGGER.warn("Results count text: {}", countText);
 					
-					if (countText.contains("Showing 0")) {
-						Assert.fail("Search returned 0 results - Published job profile '" + job1OrgName + "' not found in HCM Sync Profiles. " +
-								   "Verify the job was actually published and synchronized to HCM.");
+				if (countText.contains("Showing 0")) {
+					Assert.fail("Search returned 0 results - Published job profile '" + job1OrgName.get() + "' not found in HCM Sync Profiles. " +
+							   "Verify the job was actually published and synchronized to HCM.");
 					}
 				} catch (Exception countEx) {
 					LOGGER.warn("Could not get results count element");
@@ -461,24 +462,24 @@ public class PO06_PublishJobProfile {
 				// Check for "no profiles" message
 				try {
 					WebElement noProfilesMsg = driver.findElement(By.xpath("//div[contains(text(),'no Success Profiles') or contains(text(),'No profiles found')]"));
-					if (noProfilesMsg.isDisplayed()) {
-						Assert.fail("No profiles message displayed - Published job profile '" + job1OrgName + "' not found in HCM Sync Profiles. " +
-								   "Verify the job was actually published and synchronized to HCM.");
+				if (noProfilesMsg.isDisplayed()) {
+					Assert.fail("No profiles message displayed - Published job profile '" + job1OrgName.get() + "' not found in HCM Sync Profiles. " +
+							   "Verify the job was actually published and synchronized to HCM.");
 					}
 				} catch (Exception noMsgEx) {
 					LOGGER.warn("Could not find 'no profiles' message element");
 				}
 				
-				// If we got here, unclear why no results - fail with timeout info
-				Assert.fail("Published job profile '" + job1OrgName + "' not found in HCM Sync Profiles after 10 seconds. " +
-						   "The first row element did not appear. Verify the job was published and synchronized properly.");
+			// If we got here, unclear why no results - fail with timeout info
+			Assert.fail("Published job profile '" + job1OrgName.get() + "' not found in HCM Sync Profiles after 10 seconds. " +
+					   "The first row element did not appear. Verify the job was published and synchronized properly.");
 			}
 			
 			// Verify the job name matches
 			if (resultsFound) {
-				String actualJobName = job1NameText.split("-", 2)[0].trim();
-				Assert.assertEquals(job1OrgName, actualJobName);
-				LOGGER.info("Published Job with name : {} is displayed in HCM Sync Profiles screen in PM as expected", actualJobName);
+			String actualJobName = job1NameText.split("-", 2)[0].trim();
+			Assert.assertEquals(job1OrgName.get(), actualJobName);
+			LOGGER.info("Published Job with name : {} is displayed in HCM Sync Profiles screen in PM as expected", actualJobName);
 				ExtentCucumberAdapter.addTestStepLog("Published Job with name : " + actualJobName + " is displayed in HCM Sync Profiles screen in PM as expected");
 			}
 			
@@ -505,9 +506,9 @@ public class PO06_PublishJobProfile {
 				todayDate = currentMonth.toString().substring(0,1) + currentMonth.toString().substring(1,3).toLowerCase() + " " + Integer.toString(currentDay) + ", " + Integer.toString(currentYear);
 			}
 			String jobPublishedDate = wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesDateinRow1)).getText();
-			Assert.assertEquals(jobPublishedDate, todayDate);
-			LOGGER.info("Last Modified date is verified successfully on Published Job with name : " + job1OrgName );
-			ExtentCucumberAdapter.addTestStepLog("Last Modified Date is verified successfully on Published Job with name : " + job1OrgName );
+		Assert.assertEquals(jobPublishedDate, todayDate);
+		LOGGER.info("Last Modified date is verified successfully on Published Job with name : " + job1OrgName.get() );
+		ExtentCucumberAdapter.addTestStepLog("Last Modified Date is verified successfully on Published Job with name : " + job1OrgName.get() );
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_date_on_published_job_matches_with_current_date", e);
 			LOGGER.error("Issue in verifying date on published job that matches with Last Modified date - Method: user_should_verify_date_on_published_job_matches_with_current_date", e);
@@ -529,10 +530,10 @@ public class PO06_PublishJobProfile {
 				} catch (Exception s) {
 					utils.jsClick(driver, HCMSyncProfilesJobinRow1);
 				}
-			}
-			LOGGER.info("Clicked on Published Job with name : " + job1OrgName + " in HCM Sync Profiles screen in PM");
-			ExtentCucumberAdapter.addTestStepLog("Published Job with name : " + job1OrgName + " in HCM Sync Profiles screen in PM");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
+		}
+		LOGGER.info("Clicked on Published Job with name : " + job1OrgName.get() + " in HCM Sync Profiles screen in PM");
+		ExtentCucumberAdapter.addTestStepLog("Published Job with name : " + job1OrgName.get() + " in HCM Sync Profiles screen in PM");
+		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(SPdetailsPageText)).isDisplayed());
 			LOGGER.info("SP details page opens as expected on click of Published Job name in HCM Sync Profiles screen in PM....");
 			ExtentCucumberAdapter.addTestStepLog( "SP details page opens as expected on click of Published Job name in HCM Sync Profiles screen in PM....");
@@ -740,12 +741,12 @@ public class PO06_PublishJobProfile {
 		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
 		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).isDisplayed());
 		try {
-			wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).clear();
-			wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(job1OrgName.split("-", 2)[0].trim());
-			wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(Keys.ENTER);
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-			LOGGER.info("Entered job name as " + job1OrgName.split("-", 2)[0].trim() +" in the search bar in Jobs page in Architect");
-			ExtentCucumberAdapter.addTestStepLog("Entered job name as " + job1OrgName.split("-", 2)[0].trim() + " in the search bar in Jobs page in Architect");			
+		wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).clear();
+		wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(job1OrgName.get().split("-", 2)[0].trim());
+		wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(Keys.ENTER);
+		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
+		LOGGER.info("Entered job name as " + job1OrgName.get().split("-", 2)[0].trim() +" in the search bar in Jobs page in Architect");
+		ExtentCucumberAdapter.addTestStepLog("Entered job name as " + job1OrgName.get().split("-", 2)[0].trim() + " in the search bar in Jobs page in Architect");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("search_for_published_job_name_in_jobs_page_in_architect", e);
 			LOGGER.error("Failed to enter Organization job name text in search bar in Jobs page in Architect - Method: search_for_published_job_name_in_jobs_page_in_architect", e);
@@ -760,9 +761,9 @@ public class PO06_PublishJobProfile {
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
 			PerformanceUtils.waitForPageReady(driver, 2); // Smart wait instead of fixed 2000ms
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-			String job1NameText = wait.until(ExpectedConditions.visibilityOf(ArchitectJobinRow1)).getText();
-			Assert.assertEquals(job1OrgName, job1NameText.split("-", 2)[0].trim());
-			LOGGER.info("Published Job with name : " + job1NameText.split("-", 2)[0].trim() +" is displayed in Jobs page in Architect as expected");
+		String job1NameText = wait.until(ExpectedConditions.visibilityOf(ArchitectJobinRow1)).getText();
+		Assert.assertEquals(job1OrgName.get(), job1NameText.split("-", 2)[0].trim());
+		LOGGER.info("Published Job with name : " + job1NameText.split("-", 2)[0].trim() +" is displayed in Jobs page in Architect as expected");
 			ExtentCucumberAdapter.addTestStepLog("Published Job with name : " + job1NameText.split("-", 2)[0].trim() + " is displayed in Jobs page in Architect as expected");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", e);
@@ -787,9 +788,9 @@ public class PO06_PublishJobProfile {
 				todayDate = currentMonth.toString().substring(0,1) + currentMonth.toString().substring(1,3).toLowerCase() + " " + Integer.toString(currentDay) + ", " + Integer.toString(currentYear);
 			}
 			String jobPublishedDate = wait.until(ExpectedConditions.visibilityOf(ArchitectDateinRow1)).getText();
-			Assert.assertEquals(jobPublishedDate, todayDate);
-			LOGGER.info("Updated date is verified successfully on Published Job with name : " + job1OrgName + " in Architect Application");
-			ExtentCucumberAdapter.addTestStepLog("Last Modified Date is verified successfully on Published Job with name : " + job1OrgName + job1OrgName + " in Architect Application");
+		Assert.assertEquals(jobPublishedDate, todayDate);
+		LOGGER.info("Updated date is verified successfully on Published Job with name : " + job1OrgName.get() + " in Architect Application");
+		ExtentCucumberAdapter.addTestStepLog("Last Modified Date is verified successfully on Published Job with name : " + job1OrgName.get() + " in Architect Application");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify__updated_date_on_published_job_matches_with_current_date_in_architect", e);
 			LOGGER.error("Issue in verifying date on published job that matches with Updated date in Architect Application - Method: user_should_verify__updated_date_on_published_job_matches_with_current_date_in_architect", e);

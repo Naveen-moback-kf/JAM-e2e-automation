@@ -35,9 +35,9 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 	Utilities utils = new Utilities();
 	JavascriptExecutor js = (JavascriptExecutor) driver;
 	
-	// Static variables to store counts for validation
-	public static int loadedProfilesBeforeUncheck = 0;
-	public static int selectedProfilesBeforeUncheck = 0;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<Integer> loadedProfilesBeforeUncheck = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<Integer> selectedProfilesBeforeUncheck = ThreadLocal.withInitial(() -> 0);
 	
 	//XPATHs
 	@FindBy(xpath = "//*[@class='blocking-loader']//img")
@@ -58,17 +58,17 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			// Store counts before unchecking
-			loadedProfilesBeforeUncheck = driver.findElements(
-				By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox")
-			).size();
+		// Store counts before unchecking
+		loadedProfilesBeforeUncheck.set(driver.findElements(
+			By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox")
+		).size());
+		
+		selectedProfilesBeforeUncheck.set(driver.findElements(
+			By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox//div[contains(@class,'selected')]")
+		).size());
 			
-			selectedProfilesBeforeUncheck = driver.findElements(
-				By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox//div[contains(@class,'selected')]")
-			).size();
-			
-			LOGGER.info("Loaded Profiles on screen (BEFORE unchecking header checkbox): " + loadedProfilesBeforeUncheck);
-			LOGGER.info("Selected Profiles (BEFORE unchecking header checkbox): " + selectedProfilesBeforeUncheck);
+		LOGGER.info("Loaded Profiles on screen (BEFORE unchecking header checkbox): " + loadedProfilesBeforeUncheck.get());
+		LOGGER.info("Selected Profiles (BEFORE unchecking header checkbox): " + selectedProfilesBeforeUncheck.get());
 			
 			// Scroll page to top first to avoid header overlap
 			js.executeScript("window.scrollTo(0, 0);");
@@ -119,7 +119,7 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 			LOGGER.info("========================================");
 			
 			// Verify loaded profiles are now unselected
-			for (int i = 1; i <= loadedProfilesBeforeUncheck; i++) {
+			for (int i = 1; i <= loadedProfilesBeforeUncheck.get(); i++) {
 				try {
 					WebElement checkbox = driver.findElement(
 						By.xpath("//tbody//tr[" + i + "]//td[1]//div[1]//kf-checkbox//div")
@@ -149,12 +149,12 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 				}
 			}
 			
-			int expectedUnselected = loadedProfilesBeforeUncheck - disabledProfilesCount;
+			int expectedUnselected = loadedProfilesBeforeUncheck.get() - disabledProfilesCount;
 			
 			LOGGER.info("========================================");
 			LOGGER.info("VALIDATION RESULTS");
 			LOGGER.info("========================================");
-			LOGGER.info("Loaded Profiles: " + loadedProfilesBeforeUncheck);
+			LOGGER.info("Loaded Profiles: " + loadedProfilesBeforeUncheck.get());
 			LOGGER.info("Disabled Profiles: " + disabledProfilesCount);
 			LOGGER.info("Unselected Profiles: " + unselectedProfilesCount);
 			LOGGER.info("Expected Unselected: " + expectedUnselected);
@@ -197,7 +197,7 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 				By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox")
 			).size();
 			
-			newlyLoadedProfiles = totalProfilesNow - loadedProfilesBeforeUncheck;
+			newlyLoadedProfiles = totalProfilesNow - loadedProfilesBeforeUncheck.get();
 			
 			if (newlyLoadedProfiles <= 0) {
 				LOGGER.warn(" No newly loaded profiles detected after scrolling");
@@ -212,7 +212,7 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 			LOGGER.info("Newly Loaded Profiles: " + newlyLoadedProfiles);
 			
 			// Verify newly loaded profiles are still selected
-			for (int i = loadedProfilesBeforeUncheck + 1; i <= totalProfilesNow; i++) {
+			for (int i = loadedProfilesBeforeUncheck.get() + 1; i <= totalProfilesNow; i++) {
 				try {
 					WebElement checkbox = driver.findElement(
 						By.xpath("//tbody//tr[" + i + "]//td[1]//div[1]//kf-checkbox//div")

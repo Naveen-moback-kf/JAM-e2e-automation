@@ -112,9 +112,9 @@ public class PO12_ValidatePersistanceOfFilters {
 			LOGGER.info("✓ Filters persisted - Displayed count after navigation: {}", displayedCount);
 			
 			// Verify that filters are still applied by checking if count is different from initial unfiltered count
-			// This is the real persistence check - filters should still be active
-			if (displayedCount.equals(PO04_VerifyJobMappingPageComponents.intialResultsCount)) {
-				throw new AssertionError("Filters NOT persisted - count reverted to unfiltered state: " + displayedCount);
+		// This is the real persistence check - filters should still be active
+		if (displayedCount.equals(PO04_VerifyJobMappingPageComponents.intialResultsCount.get())) {
+			throw new AssertionError("Filters NOT persisted - count reverted to unfiltered state: " + displayedCount);
 			}
 			
 			LOGGER.info("✓ Applied Filters Persisted correctly - Results: {}", displayedCount);
@@ -133,9 +133,9 @@ public class PO12_ValidatePersistanceOfFilters {
 				"Filter Persistence Check Failed:%n" +
 				"  Actual displayed count: %s%n" +
 				"  Initial unfiltered count: %s%n" +
-				"This indicates filters did not persist correctly after navigation.",
-				actualCount, PO04_VerifyJobMappingPageComponents.intialResultsCount
-			);
+			"This indicates filters did not persist correctly after navigation.",
+			actualCount, PO04_VerifyJobMappingPageComponents.intialResultsCount.get()
+		);
 			
 			LOGGER.error(errorMsg);
 			ExtentCucumberAdapter.addTestStepLog(errorMsg.replace("%n", "<br>"));
@@ -229,9 +229,9 @@ public class PO12_ValidatePersistanceOfFilters {
 			WebElement resultsElement = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
 			String currentCount = resultsElement.getText();
 			
-			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
-				PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount = currentCount;
-			}
+		if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
+			PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount.set(currentCount);
+		}
 		} catch (Exception e) {
 			// Will retry in verify method if needed
 		}
@@ -261,9 +261,9 @@ public class PO12_ValidatePersistanceOfFilters {
 			WebElement resultsElement = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
 			String currentCount = resultsElement.getText();
 			
-			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
-				PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount = currentCount;
-			}
+		if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
+			PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount.set(currentCount);
+		}
 		} catch (Exception e) {
 			// Will retry in verify method if needed
 		}
@@ -292,9 +292,9 @@ public class PO12_ValidatePersistanceOfFilters {
 		// If we capture now after scrolling from previous scenario, we'll get the wrong (scrolled) count
 		// The initialFilteredResultsCount should remain as it was when filters were first applied
 		
-		LOGGER.info("User is in View Published screen with Grades filters applied - Using initial count: {}", 
-			PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount);
-		
+	LOGGER.info("User is in View Published screen with Grades filters applied - Using initial count: {}", 
+		PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount.get());
+	
 		ExtentCucumberAdapter.addTestStepLog("User is in View Published screen with Grades filters applied");
 	}
 	
@@ -318,8 +318,8 @@ public class PO12_ValidatePersistanceOfFilters {
 		// If we capture now after scrolling from previous scenario, we'll get the wrong (scrolled) count
 		// The initialFilteredResultsCount should remain as it was when filters were first applied
 		
-		LOGGER.info("User is in View Published screen with multiple filters applied - Using initial count: {}", 
-			PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount);
+	LOGGER.info("User is in View Published screen with multiple filters applied - Using initial count: {}", 
+		PO04_VerifyJobMappingPageComponents.initialFilteredResultsCount.get());
 		
 		ExtentCucumberAdapter.addTestStepLog("User is in View Published screen with multiple filters applied");
 	}

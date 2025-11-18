@@ -32,8 +32,9 @@ public class PO01_KFoneLogin {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO01_KFoneLogin kfoneLogin;
     
-    public static String username;
-    public static String clientName = "";
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+    public static ThreadLocal<String> username = ThreadLocal.withInitial(() -> null);
+    public static ThreadLocal<String> clientName = ThreadLocal.withInitial(() -> "");
 
 	
 	public PO01_KFoneLogin() throws IOException {
@@ -241,7 +242,7 @@ public class PO01_KFoneLogin {
 			wait.until(ExpectedConditions.elementToBeClickable(userNameTxt)).sendKeys(CommonVariable.SSO_USERNAME);
 			ExtentCucumberAdapter.addTestStepLog("Provided SSO Login Username as : " + CommonVariable.SSO_USERNAME + " in KFONE Login Page");
 			LOGGER.info("Provided SSO Username as : " + CommonVariable.SSO_USERNAME + " in KFONE Login Page");
-			username = CommonVariable.SSO_USERNAME;
+			username.set(CommonVariable.SSO_USERNAME);
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			utils.jsClick(driver, kfoneSigninBtn);
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
@@ -297,7 +298,7 @@ public class PO01_KFoneLogin {
 		wait.until(ExpectedConditions.elementToBeClickable(userNameTxt)).sendKeys(CommonVariable.NON_SSO_USERNAME);
 		ExtentCucumberAdapter.addTestStepLog("Provided NON-SSO Login Username as : " + CommonVariable.NON_SSO_USERNAME + " in KFONE Login Page");
 		LOGGER.info("Provided NON-SSO Username as : " + CommonVariable.NON_SSO_USERNAME + " in KFONE Login Page");
-		username = CommonVariable.NON_SSO_USERNAME;
+		username.set(CommonVariable.NON_SSO_USERNAME);
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 		utils.jsClick(driver, kfoneSigninBtn);
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
@@ -593,25 +594,25 @@ public class PO01_KFoneLogin {
 					try {
 						// First try to find clickable client link
 						WebElement clientNameElement = clientRows.get(i).findElement(By.xpath(".//a[contains(@data-testid,'client-')]"));
-						clientName = clientNameElement.getText();
+						clientName.set(clientNameElement.getText());
 					} catch (Exception e) {
 						// If no clickable link, try to find non-clickable client name div
 						WebElement clientNameElement = clientRows.get(i).findElement(By.xpath(".//div[contains(@class,'data-content-container')]//div[contains(@title, '')]"));
-						clientName = clientNameElement.getAttribute("title");
+						clientName.set(clientNameElement.getAttribute("title"));
 					}
 					
 					// Get PAMS ID for this client
 					WebElement pamsIdElement = clientRows.get(i).findElement(By.xpath(".//td[contains(@data-testid,'iam-clients-list-pams_id-table-data-cell-')]"));
 					String pamsId = pamsIdElement.getText().trim();
 					
-					LOGGER.info("Checking client: " + clientName + " | PAMS ID: " + pamsId);
+					LOGGER.info("Checking client: " + clientName.get() + " | PAMS ID: " + pamsId);
 					
 					// Check if this is the target client
 					if (pamsId.equals(targetPamsId)) {
 						targetClientFound = true;
-						foundClientName = clientName;
-						LOGGER.info("Found target client with PAMS ID " + targetPamsId + ": " + clientName);
-						ExtentCucumberAdapter.addTestStepLog("Found target client with PAMS ID " + targetPamsId + ": " + clientName);
+						foundClientName = clientName.get();
+						LOGGER.info("Found target client with PAMS ID " + targetPamsId + ": " + clientName.get());
+						ExtentCucumberAdapter.addTestStepLog("Found target client with PAMS ID " + targetPamsId + ": " + clientName.get());
 						break; // Exit loop once we find the target client
 					}
 					

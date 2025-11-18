@@ -32,8 +32,8 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO26_VerifyJobsMissingDataTipMessage verifyJobsMissingDataTipMessage;
 	
-	// Static variables for storing extracted values
-	public static String initialJobCount;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> initialJobCount = ThreadLocal.withInitial(() -> null);
 	
 	public PO26_VerifyJobsMissingDataTipMessage() throws IOException {
 		// super();

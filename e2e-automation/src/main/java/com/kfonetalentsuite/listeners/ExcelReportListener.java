@@ -11,6 +11,7 @@ import org.testng.IInvokedMethod;
 import org.testng.IInvokedMethodListener;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -59,11 +60,11 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
         }
     }
     
-    // Execution statistics
-    private static int totalTestMethods = 0;
-    private static int passedTestMethods = 0;
-    private static int failedTestMethods = 0;
-    private static int skippedTestMethods = 0;
+    // Execution statistics - Thread-safe counters for parallel execution
+    private static final AtomicInteger totalTestMethods = new AtomicInteger(0);
+    private static final AtomicInteger passedTestMethods = new AtomicInteger(0);
+    private static final AtomicInteger failedTestMethods = new AtomicInteger(0);
+    private static final AtomicInteger skippedTestMethods = new AtomicInteger(0);
     
     // Thread-safe storage for current scenario information
     private static final Map<String, String> currentScenarios = new ConcurrentHashMap<>();
@@ -87,9 +88,9 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
     private static final Map<String, Integer> completedMethodsPerClass = new ConcurrentHashMap<>();
     private static final Map<String, Integer> totalMethodsPerClass = new ConcurrentHashMap<>();
     
-    // ENHANCED: Progress tracking for test suite execution
-    private static int totalTestContexts = 0;
-    private static int completedTestContexts = 0;
+    // ENHANCED: Progress tracking for test suite execution - Thread-safe for parallel execution
+    private static final AtomicInteger totalTestContexts = new AtomicInteger(0);
+    private static final AtomicInteger completedTestContexts = new AtomicInteger(0);
     
     /**
      * Store current scenario name for a thread (called from ScenarioHooks)
@@ -172,18 +173,18 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
         }
         
         // Reset counters and add logging for debugging
-        totalTestMethods = 0;
-        passedTestMethods = 0;
-        failedTestMethods = 0;
-        skippedTestMethods = 0;
+        totalTestMethods.set(0);
+        passedTestMethods.set(0);
+        failedTestMethods.set(0);
+        skippedTestMethods.set(0);
         
         // Reset class tracking for incremental updates
         completedMethodsPerClass.clear();
         totalMethodsPerClass.clear();
         
         // ENHANCED: Reset progress tracking
-        totalTestContexts = 0;
-        completedTestContexts = 0;
+        totalTestContexts.set(0);
+        completedTestContexts.set(0);
         
         // PERFORMANCE OPTIMIZATION: Reset screenshot counters for clean tracking
         ScreenshotHandler.resetCounters();
@@ -203,17 +204,17 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                             org.testng.xml.XmlTest::getName, 
                             test -> test));
             
-            totalTestContexts = allTests.size();
+            totalTestContexts.set(allTests.size());
             
-            if (totalTestContexts > 0) {
+            if (totalTestContexts.get() > 0) {
                 LOGGER.info(" Test Suite Started: '{}' with {} runners", 
-                           suite.getName(), totalTestContexts);
-                ProgressBarUtil.initializeProgress(totalTestContexts);
+                           suite.getName(), totalTestContexts.get());
+                ProgressBarUtil.initializeProgress(totalTestContexts.get());
             }
         } catch (Exception e) {
             LOGGER.warn("Could not initialize progress tracking: {}", e.getMessage());
             // Fallback - disable progress bar for this execution
-            totalTestContexts = 0;
+            totalTestContexts.set(0);
         }
     }
     
@@ -243,13 +244,13 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
         }
         
         // ENHANCED: Update progress bar when runner completes
-        if (totalTestContexts > 0) {
-            completedTestContexts++;
+        if (totalTestContexts.get() > 0) {
+            completedTestContexts.incrementAndGet();
             String testName = context.getName();
             ProgressBarUtil.updateProgress(testName);
             
             LOGGER.debug("Runner completed: '{}' ({}/{})", 
-                        testName, completedTestContexts, totalTestContexts);
+                        testName, completedTestContexts.get(), totalTestContexts.get());
         }
         
         // Individual test completed - Excel update deferred to execution completion
@@ -258,7 +259,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
     @Override
     public void onExecutionFinish() {
         LOGGER.info("Execution finished - Total: {}, Passed: {}, Failed: {}, Skipped: {}", 
-                   totalTestMethods, passedTestMethods, failedTestMethods, skippedTestMethods);
+                   totalTestMethods.get(), passedTestMethods.get(), failedTestMethods.get(), skippedTestMethods.get());
         
         if (!isExcelReportingEnabled()) {
             LOGGER.debug("Excel reporting is DISABLED - Skipping Excel generation");
@@ -289,6 +290,11 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             // ENHANCED: Reset progress tracking after execution completes
             ProgressBarUtil.resetProgress();
             
+            // PERFORMANCE OPTIMIZATION: Trigger garbage collection to free memory before next run
+            // This helps prevent memory accumulation when running suites multiple times
+            System.gc();
+            LOGGER.debug("Triggered garbage collection after test execution (memory cleanup)");
+            
         } catch (Exception e) {
             LOGGER.error("Excel report generation failed", e);
         } finally {
@@ -299,15 +305,15 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
     
     @Override
     public void onTestSuccess(ITestResult result) {
-        passedTestMethods++;
-        totalTestMethods++;
+        passedTestMethods.incrementAndGet();
+        totalTestMethods.incrementAndGet();
         // No logging needed for individual test success
     }
     
     @Override
     public void onTestFailure(ITestResult result) {
-        failedTestMethods++;
-        totalTestMethods++;
+        failedTestMethods.incrementAndGet();
+        totalTestMethods.incrementAndGet();
         
         // ENHANCED: Capture actual exception details for Excel reporting
         if (isExcelReportingEnabled()) {
@@ -450,8 +456,8 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
     
     @Override
     public void onTestSkipped(ITestResult result) {
-        skippedTestMethods++;
-        totalTestMethods++;
+        skippedTestMethods.incrementAndGet();
+        totalTestMethods.incrementAndGet();
         
         // ENHANCED: Capture actual skip exception details for Excel reporting
         if (isExcelReportingEnabled()) {
@@ -621,10 +627,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
      */
     public static ExecutionStats getExecutionStats() {
         ExecutionStats stats = new ExecutionStats();
-        stats.totalTests = totalTestMethods;
-        stats.passed = passedTestMethods;
-        stats.failed = failedTestMethods;
-        stats.skipped = skippedTestMethods;
+        stats.totalTests = totalTestMethods.get();
+        stats.passed = passedTestMethods.get();
+        stats.failed = failedTestMethods.get();
+        stats.skipped = skippedTestMethods.get();
         return stats;
     }
     
@@ -642,7 +648,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
     public static void generateManualReport() {
         try {
             LOGGER.info("Manual Excel generation triggered - Total: {}, Passed: {}, Failed: {}, Skipped: {}", 
-                       totalTestMethods, passedTestMethods, failedTestMethods, skippedTestMethods);
+                       totalTestMethods.get(), passedTestMethods.get(), failedTestMethods.get(), skippedTestMethods.get());
             
             DailyExcelTracker.generateDailyReport();
             LOGGER.info("Manual Excel report generated successfully");

@@ -28,7 +28,8 @@ public class PO14_ValidateProfileLevelFunctionality {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO14_ValidateProfileLevelFunctionality validateProfileLevelFunctionality;
 	
-	public static String changedlevelvalue;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> changedlevelvalue = ThreadLocal.withInitial(() -> null);
 	
 
 	public PO14_ValidateProfileLevelFunctionality() throws IOException {
@@ -68,13 +69,13 @@ public class PO14_ValidateProfileLevelFunctionality {
 				List<WebElement> allOptions = dropdown.getOptions();
 				for(WebElement option : allOptions){
 					String lastlevelvalue = option.getText();
-					changedlevelvalue = lastlevelvalue;
+					changedlevelvalue.set(lastlevelvalue);
 			        }
-				dropdown.selectByVisibleText(changedlevelvalue);
+				dropdown.selectByVisibleText(changedlevelvalue.get());
 				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 				PerformanceUtils.waitForPageReady(driver, 4);
-				LOGGER.info("Successfully Changed Profile Level to : " + changedlevelvalue);
-				ExtentCucumberAdapter.addTestStepLog("Successfully Changed Profile Level to : " + changedlevelvalue);
+				LOGGER.info("Successfully Changed Profile Level to : " + changedlevelvalue.get());
+				ExtentCucumberAdapter.addTestStepLog("Successfully Changed Profile Level to : " + changedlevelvalue.get());
 				PerformanceUtils.waitForPageReady(driver, 4);
 			} catch (Exception e) {
 				ScreenshotHandler.captureFailureScreenshot("change_profile_level", e);
@@ -116,13 +117,13 @@ public class PO14_ValidateProfileLevelFunctionality {
 				List<WebElement> allOptions = dropdown.getOptions();
 				for(WebElement option : allOptions){
 					String lastlevelvalue = option.getText();
-					changedlevelvalue = lastlevelvalue;
+					changedlevelvalue.set(lastlevelvalue);
 			        }
-				dropdown.selectByVisibleText(changedlevelvalue);
+				dropdown.selectByVisibleText(changedlevelvalue.get());
 				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 				PerformanceUtils.waitForPageReady(driver, 4);
-				LOGGER.info("Successfully Changed Profile Level to : " + changedlevelvalue);
-				ExtentCucumberAdapter.addTestStepLog("Successfully Changed Profile Level to : " + changedlevelvalue);
+				LOGGER.info("Successfully Changed Profile Level to : " + changedlevelvalue.get());
+				ExtentCucumberAdapter.addTestStepLog("Successfully Changed Profile Level to : " + changedlevelvalue.get());
 				PerformanceUtils.waitForPageReady(driver, 4);
 			} catch (Exception e) {
 				ScreenshotHandler.captureFailureScreenshot("change_profile_level_in_job_comparison_page", e);
@@ -136,12 +137,12 @@ public class PO14_ValidateProfileLevelFunctionality {
 	
 	public void user_should_verify_profile_header_matches_with_changed_profile_level_in_job_profile_details_popup() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 2);
-			String profileHeaderName = wait.until(ExpectedConditions.visibilityOf(profileHeader)).getText();
-			Assert.assertEquals(profileHeaderName,changedlevelvalue);
-			LOGGER.info("Profile header on the details popup : " + profileHeaderName + " matches with changed profile level : " + changedlevelvalue);
-			ExtentCucumberAdapter.addTestStepLog("Profile header on the details popup : " + profileHeaderName + " matches with changed profile level : " + changedlevelvalue);
+		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		PerformanceUtils.waitForPageReady(driver, 2);
+		String profileHeaderName = wait.until(ExpectedConditions.visibilityOf(profileHeader)).getText();
+		Assert.assertEquals(profileHeaderName,changedlevelvalue.get());
+		LOGGER.info("Profile header on the details popup : " + profileHeaderName + " matches with changed profile level : " + changedlevelvalue.get());
+		ExtentCucumberAdapter.addTestStepLog("Profile header on the details popup : " + profileHeaderName + " matches with changed profile level : " + changedlevelvalue.get());
 			} catch (Exception e) {
 				ScreenshotHandler.captureFailureScreenshot("user_should_verify_profile_header_matches_with_changed_profile_level_in_job_profile_details_popup", e);
 				LOGGER.error("Issue in verifying profile details popup header matches with changed profile level - Method: user_should_verify_profile_header_matches_with_changed_profile_level_in_job_profile_details_popup", e);
@@ -153,12 +154,12 @@ public class PO14_ValidateProfileLevelFunctionality {
 	
 	public void  user_should_verify_recommended_profile_name_matches_with_changed_profile_level() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 2);
-			String JCpageProfile1TitleText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Title)).getText();
-			Assert.assertEquals(JCpageProfile1TitleText,changedlevelvalue);
-			LOGGER.info("Recommended Profile Name in the Job Compare page matches with Changed Profile Level : " + changedlevelvalue);
-			ExtentCucumberAdapter.addTestStepLog("Recommended Profile Name in the Job Compare page matches with Changed Profile Level : " + changedlevelvalue);
+		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		PerformanceUtils.waitForPageReady(driver, 2);
+		String JCpageProfile1TitleText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Title)).getText();
+		Assert.assertEquals(JCpageProfile1TitleText,changedlevelvalue.get());
+		LOGGER.info("Recommended Profile Name in the Job Compare page matches with Changed Profile Level : " + changedlevelvalue.get());
+		ExtentCucumberAdapter.addTestStepLog("Recommended Profile Name in the Job Compare page matches with Changed Profile Level : " + changedlevelvalue.get());
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_recommended_profile_name_matches_with_changed_profile_level", e);
 			LOGGER.error("Issue in verifying Recommended Profile Name in the Job Compare page matches with changed profile level - Method: user_should_verify_recommended_profile_name_matches_with_changed_profile_level", e);

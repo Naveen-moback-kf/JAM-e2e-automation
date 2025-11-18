@@ -683,7 +683,7 @@ public class Utilities {
 	/**
 	 * Extract user role from session storage and store it globally
 	 * Navigates: Session Storage -> HayGroup.user.roles -> [0] -> name
-	 * Stores the role in CommonVariable.CURRENT_USER_ROLE for use across all feature files
+	 * Stores the role in CommonVariable.CURRENT_USER_ROLE (ThreadLocal) for use across all feature files
 	 * 
 	 * @return User role name (e.g., "KF Super User") or null if not found
 	 */
@@ -732,20 +732,20 @@ public class Utilities {
 				!roleName.equals("SESSION_STORAGE_KEY_NOT_FOUND") && 
 				!roleName.equals("ROLES_ARRAY_EMPTY") && 
 				!roleName.equals("ROLE_NAME_NOT_FOUND")) {
-				
-				// Store the role globally for use across all feature files
-				CommonVariable.CURRENT_USER_ROLE = roleName;
-				LOGGER.info("Current User Role : '{}'", roleName);
-				return roleName;
-			} else {
-				LOGGER.warn("Failed to extract user role. Result: {}", roleName);
-				CommonVariable.CURRENT_USER_ROLE = null;
-				return null;
-			}
 			
-		} catch (Exception e) {
-			LOGGER.error("Exception while extracting user role from session storage: {}", e.getMessage());
-			CommonVariable.CURRENT_USER_ROLE = null;
+			// Store the role globally for use across all feature files
+			CommonVariable.CURRENT_USER_ROLE.set(roleName);
+			LOGGER.info("Current User Role : '{}'", roleName);
+			return roleName;
+		} else {
+			LOGGER.warn("Failed to extract user role. Result: {}", roleName);
+			CommonVariable.CURRENT_USER_ROLE.set(null);
+			return null;
+		}
+		
+	} catch (Exception e) {
+		LOGGER.error("Exception while extracting user role from session storage: {}", e.getMessage());
+		CommonVariable.CURRENT_USER_ROLE.set(null);
 			return null;
 		}
 	}
@@ -756,7 +756,7 @@ public class Utilities {
 	 * @return Current user role from global variable, or null if not set
 	 */
 	public static String getCurrentUserRole() {
-		return CommonVariable.CURRENT_USER_ROLE;
+		return CommonVariable.CURRENT_USER_ROLE.get();
 	}
 	
 	/**
@@ -766,7 +766,7 @@ public class Utilities {
 	 * @return true if current user role matches expected role
 	 */
 	public static boolean hasRole(String expectedRole) {
-		String currentRole = CommonVariable.CURRENT_USER_ROLE;
+		String currentRole = CommonVariable.CURRENT_USER_ROLE.get();
 		if (currentRole == null || expectedRole == null) {
 			return false;
 		}
@@ -788,7 +788,7 @@ public class Utilities {
 	 * Clear the stored user role (useful for cleanup between tests)
 	 */
 	public static void clearCurrentUserRole() {
-		CommonVariable.CURRENT_USER_ROLE = null;
+		CommonVariable.CURRENT_USER_ROLE.set(null);
 		LOGGER.info("Cleared stored user role");
 	}
 	
@@ -802,7 +802,7 @@ public class Utilities {
 	public static boolean verifyUserRole(String expectedRole) {
 		try {
 			// First try to get from global variable
-			String actualRole = CommonVariable.CURRENT_USER_ROLE;
+			String actualRole = CommonVariable.CURRENT_USER_ROLE.get();
 			
 			// If not set globally, fetch from session storage and store it
 			if (actualRole == null) {

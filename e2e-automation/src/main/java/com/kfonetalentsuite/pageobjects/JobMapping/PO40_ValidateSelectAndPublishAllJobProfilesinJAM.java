@@ -33,14 +33,15 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	Utilities utils = new Utilities();
 	JavascriptExecutor js = (JavascriptExecutor) driver;
 	
-	public static int unpublishedProfilesCountBefore;
-	public static int publishedProfilesCountBefore;
-	public static int unpublishedProfilesCountAfter;
-	public static int publishedProfilesCountAfter;
-	public static int totalPublishedCount;
-	public static int expectedTotalMinutes;
-	public static int profilesToBePublished;
-	public static int selectedProfilesCount;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<Integer> unpublishedProfilesCountBefore = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<Integer> publishedProfilesCountBefore = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<Integer> unpublishedProfilesCountAfter = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<Integer> publishedProfilesCountAfter = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<Integer> totalPublishedCount = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<Integer> expectedTotalMinutes = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<Integer> profilesToBePublished = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<Integer> selectedProfilesCount = ThreadLocal.withInitial(() -> 0);
 	public static final int PROFILES_PER_MINUTE = 100;
 	public static final int REFRESH_INTERVAL_SECONDS = 30; // Refresh every 30 seconds for better progress visibility
 	
@@ -103,7 +104,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 				String totalCountStr = afterOf.split("\\s+")[0].replaceAll("[^0-9]", "");
 				
 				if (!totalCountStr.isEmpty()) {
-					unpublishedProfilesCountBefore = Integer.parseInt(totalCountStr);
+					unpublishedProfilesCountBefore.set(Integer.parseInt(totalCountStr));;
 					LOGGER.info("Un-Published Profiles count BEFORE Publishing Selected Profiles: " + unpublishedProfilesCountBefore);
 					ExtentCucumberAdapter.addTestStepLog("Un-Published Profiles count BEFORE Publishing Selected Profiles: " + unpublishedProfilesCountBefore);
 				}
@@ -132,7 +133,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 				String totalCountStr = afterOf.split("\\s+")[0].replaceAll("[^0-9]", "");
 				
 				if (!totalCountStr.isEmpty()) {
-					publishedProfilesCountBefore = Integer.parseInt(totalCountStr);
+					publishedProfilesCountBefore.set(Integer.parseInt(totalCountStr));;
 					LOGGER.info("Published Profiles count BEFORE Publishing Selected Profiles: " + publishedProfilesCountBefore);
 					ExtentCucumberAdapter.addTestStepLog("Published Profiles count BEFORE Publishing Selected Profiles: " + publishedProfilesCountBefore);
 				}
@@ -405,7 +406,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 		
 		// Store selected count for downstream validations
 		selectedCount = loadedSelectedCount;
-		selectedProfilesCount = selectedCount;
+		selectedProfilesCount.set(selectedCount);
 		
 		ExtentCucumberAdapter.addTestStepLog(" Loaded: " + currentRowCount + " | Selected: " + loadedSelectedCount + 
 			" | Disabled: " + loadedDisabledCount + " | Unselected: " + loadedUnselectedCount);
@@ -514,12 +515,12 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 				String totalCountStr = afterOf.split("\\s+")[0].replaceAll("[^0-9]", "");
 				
 				if (!totalCountStr.isEmpty()) {
-					unpublishedProfilesCountAfter = Integer.parseInt(totalCountStr);
+					unpublishedProfilesCountAfter.set(Integer.parseInt(totalCountStr));
 					LOGGER.info(" Un-Published Profiles count AFTER Publishing Selected Profiles in Job Mapping screen: " + unpublishedProfilesCountAfter);
 					ExtentCucumberAdapter.addTestStepLog(" Un-Published Profiles count AFTER Publishing Selected  Profiles in Job Mapping screen: " + unpublishedProfilesCountAfter);
 					
 					// Verify count decreased
-					if (unpublishedProfilesCountAfter < unpublishedProfilesCountBefore) {
+					if (unpublishedProfilesCountAfter.get() < unpublishedProfilesCountBefore.get()) {
 						LOGGER.info(" Unpublished count decreased from " + unpublishedProfilesCountBefore + " to " + unpublishedProfilesCountAfter);
 						ExtentCucumberAdapter.addTestStepLog(" Unpublished count decreased successfully");
 					}
@@ -539,7 +540,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Calculate published count
-			totalPublishedCount = unpublishedProfilesCountBefore - unpublishedProfilesCountAfter + publishedProfilesCountBefore;
+			totalPublishedCount.set(unpublishedProfilesCountBefore.get() - unpublishedProfilesCountAfter.get() + publishedProfilesCountBefore.get());
 			
 			LOGGER.info(" Published Profiles Calculation:");
 			LOGGER.info("   (Before: " + unpublishedProfilesCountBefore + "  After: " + unpublishedProfilesCountAfter + ") + Published Before: " + publishedProfilesCountBefore);
@@ -548,14 +549,14 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			ExtentCucumberAdapter.addTestStepLog(" Total Published: " + totalPublishedCount + " profiles");
 			
 			// Validation: Compare with selected profiles count
-			if (selectedProfilesCount > 0) {
-				int actualPublishedFromSelection = unpublishedProfilesCountBefore - unpublishedProfilesCountAfter;
+			if (selectedProfilesCount.get() > 0) {
+				int actualPublishedFromSelection = unpublishedProfilesCountBefore.get() - unpublishedProfilesCountAfter.get();
 				
-				if (actualPublishedFromSelection == selectedProfilesCount) {
+				if (actualPublishedFromSelection == selectedProfilesCount.get()) {
 					LOGGER.info(" Validation PASSED: " + actualPublishedFromSelection + " published (matches " + selectedProfilesCount + " selected)");
 					ExtentCucumberAdapter.addTestStepLog(" Validation: Count matches expected (" + selectedProfilesCount + " profiles)");
 				} else {
-					int difference = Math.abs(actualPublishedFromSelection - selectedProfilesCount);
+					int difference = Math.abs(actualPublishedFromSelection - selectedProfilesCount.get());
 					LOGGER.warn(" Validation WARNING: Expected " + selectedProfilesCount + ", Actual " + actualPublishedFromSelection + " (" + difference + ")");
 					ExtentCucumberAdapter.addTestStepLog(" Validation: Mismatch - Expected " + selectedProfilesCount + ", Actual " + actualPublishedFromSelection);
 				}
@@ -581,7 +582,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 				String totalCountStr = afterOf.split("\\s+")[0].replaceAll("[^0-9]", "");
 				
 				if (!totalCountStr.isEmpty()) {
-					publishedProfilesCountAfter = Integer.parseInt(totalCountStr);
+					publishedProfilesCountAfter.set(Integer.parseInt(totalCountStr));
 					LOGGER.info(" Published Profiles count AFTER Publishing Selected Profiles: " + publishedProfilesCountAfter);
 					ExtentCucumberAdapter.addTestStepLog(" Published Profiles count AFTER Publishing Selected Profiles: " + publishedProfilesCountAfter);
 				}
@@ -638,7 +639,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	public void calculate_expected_total_time_for_batch_publishing_based_on_profile_count() {
 		try {
 			profilesToBePublished = selectedProfilesCount;
-			expectedTotalMinutes = (int) Math.ceil((double) profilesToBePublished / PROFILES_PER_MINUTE);
+			expectedTotalMinutes.set((int) Math.ceil((double) profilesToBePublished.get() / PROFILES_PER_MINUTE));
 			
 			LOGGER.info(" Batch Publishing: " + profilesToBePublished + " profiles @ " + PROFILES_PER_MINUTE + "/min  ~" + expectedTotalMinutes + " minutes");
 			ExtentCucumberAdapter.addTestStepLog(" Publishing " + profilesToBePublished + " profiles (~" + expectedTotalMinutes + " min expected)");
@@ -655,14 +656,14 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	 * Refreshes page every 30 seconds and checks unpublished count to track progress
 	 */
 	public void monitor_and_validate_progressive_batch_publishing_until_completion() throws InterruptedException {
-		int maxWaitMinutes = expectedTotalMinutes + 5; // Add 5 minutes buffer
+		int maxWaitMinutes = expectedTotalMinutes.get() + 5; // Add 5 minutes buffer
 		int maxWaitSeconds = maxWaitMinutes * 60; // Convert to seconds
 		int elapsedSeconds = 0;
 		int checkNumber = 0;
-		int initialUnpublishedCount = unpublishedProfilesCountBefore;
-		int previousUnpublishedCount = unpublishedProfilesCountBefore;
-		int currentUnpublishedCount = unpublishedProfilesCountBefore;
-		int targetUnpublishedCount = unpublishedProfilesCountBefore - selectedProfilesCount;
+		int initialUnpublishedCount = unpublishedProfilesCountBefore.get();
+		int previousUnpublishedCount = unpublishedProfilesCountBefore.get();
+		int currentUnpublishedCount = unpublishedProfilesCountBefore.get();
+		int targetUnpublishedCount = unpublishedProfilesCountBefore.get() - selectedProfilesCount.get();
 		
 		try {
 			LOGGER.info(" Monitoring: " + initialUnpublishedCount + "  " + targetUnpublishedCount + " (publish " + selectedProfilesCount + ") | Max wait: " + maxWaitMinutes + " min");
@@ -700,7 +701,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 				// Calculate progress metrics
 				int profilesPublishedSinceLastCheck = previousUnpublishedCount - currentUnpublishedCount;
 				int totalPublishedSoFar = initialUnpublishedCount - currentUnpublishedCount;
-				double progressPercentage = ((double) totalPublishedSoFar / selectedProfilesCount) * 100;
+				double progressPercentage = ((double) totalPublishedSoFar / selectedProfilesCount.get()) * 100;
 				double publishingRate = elapsedSeconds > 0 ? (totalPublishedSoFar * 60.0) / elapsedSeconds : 0;
 				
 				LOGGER.info("+/- Check #" + checkNumber + " (" + elapsedMinutes + "m" + (elapsedSeconds % 60) + "s): " + currentUnpublishedCount + " unpublished | +" + profilesPublishedSinceLastCheck + " | " + String.format("%.0f", publishingRate) + "/min | " + String.format("%.1f%%", progressPercentage));
@@ -772,9 +773,9 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			}
 			
 			// Calculate and verify results
-			int initialUnpublishedCount = unpublishedProfilesCountBefore;
+			int initialUnpublishedCount = unpublishedProfilesCountBefore.get();
 			int actualPublished = initialUnpublishedCount - finalUnpublishedCount;
-			int expectedTargetUnpublished = initialUnpublishedCount - selectedProfilesCount;
+			int expectedTargetUnpublished = initialUnpublishedCount - selectedProfilesCount.get();
 			int remainingToPublish = finalUnpublishedCount - expectedTargetUnpublished;
 			
 			if (finalUnpublishedCount <= expectedTargetUnpublished) {

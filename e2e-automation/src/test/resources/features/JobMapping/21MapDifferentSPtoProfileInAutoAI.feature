@@ -5,6 +5,16 @@ Feature: Manually Map different Success Profile for the Organization Profile in 
   Scenario: Navigate to Job Mapping page 
     Then Navigate to Job Mapping page from KFONE Global Menu in PM
     Then User should verify Job Mapping logo is displayed on screen
+    
+  @ApplyMappingStatusFilters
+  Scenario: Apply Mapping Status filters in Job Mapping page
+    When User is in Job Mapping page
+    Then Verify job profiles count is displaying on the page
+    Then Click on Filters dropdown button
+    Then Click on Mapping Status Filters dropdown button
+    And Select one option in Mapping Status Filters dropdown
+    And Close the Filters dropdown
+    And User should verify count of job profiles is correctly showing on top of Job Profiles listing table
 
   @VerifyOrganizationJobDetails
   Scenario: Verify Organization Job details on Profile with Search a Different Profile button in Profiles List

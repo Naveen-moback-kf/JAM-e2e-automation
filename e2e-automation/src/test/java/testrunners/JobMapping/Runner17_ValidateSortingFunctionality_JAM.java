@@ -24,7 +24,7 @@ import io.cucumber.testng.CucumberOptions;
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
 		)
 
-public class Runner17_ValidateSortingFunctionality extends CustomizeTestNGCucumberRunner {
+public class Runner17_ValidateSortingFunctionality_JAM extends CustomizeTestNGCucumberRunner {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 
 	@Override

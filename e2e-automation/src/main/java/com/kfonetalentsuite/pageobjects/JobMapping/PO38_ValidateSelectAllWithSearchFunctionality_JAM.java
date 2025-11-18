@@ -49,10 +49,10 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 	@CacheLookup
 	public WebElement searchBar;
 	
-	// Static variable to store search results count
-	public static int searchResultsCount = 0;
-	public static String alternativeSearchSubstring = "";
-	public static int totalSecondSearchResults = 0;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<Integer> searchResultsCount = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<String> alternativeSearchSubstring = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<Integer> totalSecondSearchResults = ThreadLocal.withInitial(() -> 0);
 	
 	/**
 	 * OLD APPROACH (REVERTED): Simple validation - scroll all, then validate at the end.
@@ -76,7 +76,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 			LOGGER.info("Verifying only searched profiles remain selected (expected: " + searchResultsCount + ")");
 			ExtentCucumberAdapter.addTestStepLog("Verifying only " + searchResultsCount + " profiles remain selected...");
 			
-			if (searchResultsCount == 0) {
+			if (searchResultsCount.get() == 0) {
 				LOGGER.warn(" Search results count is 0, skipping verification");
 				ExtentCucumberAdapter.addTestStepLog(" No search results to verify");
 				return;
@@ -143,10 +143,10 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 	actualSelectedCount = currentSelectedCount;
 	
 	LOGGER.info("... Loaded {} profiles using {} scrolls", totalProfilesVisible, scrollAttempts);
-	LOGGER.info("Selected profiles: {} (baseline: {})", currentSelectedCount, searchResultsCount);
+	LOGGER.info("Selected profiles: {} (baseline: {})", currentSelectedCount, searchResultsCount.get());
 		
-		if (currentSelectedCount > searchResultsCount) {
-			int extra = currentSelectedCount - searchResultsCount;
+		if (currentSelectedCount > searchResultsCount.get()) {
+			int extra = currentSelectedCount - searchResultsCount.get();
 			LOGGER.warn(" Found {} selected profiles (expected {}), {} extra selections", 
 				currentSelectedCount, searchResultsCount, extra);
 		}
@@ -182,10 +182,10 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 			// Calculate missing/extra selections
 			int missingSelections = 0;
 			int extraSelections = 0;
-			if (actualSelectedCount < searchResultsCount) {
-				missingSelections = searchResultsCount - actualSelectedCount;
-			} else if (actualSelectedCount > searchResultsCount) {
-				extraSelections = actualSelectedCount - searchResultsCount;
+			if (actualSelectedCount < searchResultsCount.get()) {
+				missingSelections = searchResultsCount.get() - actualSelectedCount;
+			} else if (actualSelectedCount > searchResultsCount.get()) {
+				extraSelections = actualSelectedCount - searchResultsCount.get();
 			}
 			
 			// Structured summary logging
@@ -203,7 +203,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 			LOGGER.info("Currently Selected Profiles: " + actualSelectedCount);
 			LOGGER.info("Not Selected Profiles (Disabled + Unselected): " + notSelectedProfiles);
 			LOGGER.info("----------------------------------------");
-			LOGGER.info("Baseline (from first search): " + searchResultsCount + " profiles");
+			LOGGER.info("Baseline (from first search): " + searchResultsCount.get() + " profiles");
 			if (missingSelections > 0) {
 				LOGGER.warn("Missing Selections: " + missingSelections + " (disabled or lost selection)");
 			} else if (extraSelections > 0) {
@@ -225,13 +225,13 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
-				} else if (actualSelectedCount > searchResultsCount) {
+				} else if (actualSelectedCount > searchResultsCount.get()) {
 					String errorMsg = " FAIL: Found " + actualSelectedCount + " selected (expected " + searchResultsCount + 
 						"), " + extraSelections + " extra profiles incorrectly selected";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
-				} else if (actualSelectedCount < searchResultsCount) {
+				} else if (actualSelectedCount < searchResultsCount.get()) {
 					// PASS: Remaining selections likely in unloaded profiles
 					String successMsg = " PASS: Found " + actualSelectedCount + " of " + searchResultsCount + 
 						" selected profiles in loaded data (remaining " + missingSelections + " likely in unloaded profiles)";
@@ -245,11 +245,11 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 				}
 			} else {
 				// Normal validation when all profiles are loaded
-				if (actualSelectedCount == searchResultsCount) {
+				if (actualSelectedCount == searchResultsCount.get()) {
 					String successMsg = " PASS: All " + searchResultsCount + " searched profiles remain selected";
 					LOGGER.info(successMsg);
 					ExtentCucumberAdapter.addTestStepLog(successMsg);
-				} else if (actualSelectedCount < searchResultsCount) {
+				} else if (actualSelectedCount < searchResultsCount.get()) {
 					String errorMsg = " FAIL: Only " + actualSelectedCount + " selected (expected " + searchResultsCount + 
 						"), " + missingSelections + " profiles cannot be selected or lost selection";
 					LOGGER.error(errorMsg);
@@ -281,12 +281,12 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 			var selectedRows = driver.findElements(
 				By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]")
 			);
-			searchResultsCount = selectedRows.size();
+			searchResultsCount.set(selectedRows.size());
 			
 			// Get total visible profiles
 			var allProfileRows = driver.findElements(By.xpath("//tbody//tr"));
 			int totalVisibleProfiles = allProfileRows.size();
-			int disabledProfiles = totalVisibleProfiles - searchResultsCount;
+			int disabledProfiles = totalVisibleProfiles - searchResultsCount.get();
 			int unselectedProfiles = 0; // After "Select All", unselected should be 0 (all selectable profiles are selected)
 			
 			// Structured logging
@@ -303,7 +303,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 			
 		} catch (Exception e) {
 			LOGGER.warn("Error capturing selected profiles count: " + e.getMessage());
-			searchResultsCount = 0;
+			searchResultsCount.set(0);
 		}
 	}
 	
@@ -312,9 +312,9 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 	// ========================================================================================
 	
 	public void enter_different_job_name_substring_in_search_bar_for_alternative_validation() {
-		boolean foundResults = false;
-		String firstSearchSubstring = PO04_VerifyJobMappingPageComponents.jobnamesubstring;
-		String selectedSubstring = "";
+	boolean foundResults = false;
+	String firstSearchSubstring = PO04_VerifyJobMappingPageComponents.jobnamesubstring.get();
+	String selectedSubstring = "";
 		
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
@@ -349,7 +349,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 					
 					if (resultsCountText.contains("Showing") && !resultsCountText.startsWith("Showing 0")) {
 						selectedSubstring = substring;
-						alternativeSearchSubstring = substring;
+						alternativeSearchSubstring.set(substring);
 						foundResults = true;
 						LOGGER.info(" Using '" + substring + "': " + resultsCountText);
 						ExtentCucumberAdapter.addTestStepLog(" Second search: '" + substring + "'");
@@ -365,7 +365,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 				for (String substring : PO04_VerifyJobMappingPageComponents.SEARCH_SUBSTRING_OPTIONS) {
 					if (!substring.equalsIgnoreCase(firstSearchSubstring)) {
 						selectedSubstring = substring;
-						alternativeSearchSubstring = substring;
+						alternativeSearchSubstring.set(substring);
 						break;
 					}
 				}
@@ -465,9 +465,9 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 	 * - Immediate failure detection
 	 * - Matches original alternative validation design
 	 */
-	public void scroll_down_to_load_all_second_search_results() throws InterruptedException {
-		String firstSearchSubstring = PO04_VerifyJobMappingPageComponents.jobnamesubstring;
-		String secondSearchSubstring = alternativeSearchSubstring;
+public void scroll_down_to_load_all_second_search_results() throws InterruptedException {
+	String firstSearchSubstring = PO04_VerifyJobMappingPageComponents.jobnamesubstring.get();
+	String secondSearchSubstring = alternativeSearchSubstring.get();
 		
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
@@ -478,7 +478,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 			if (resultsCountText.matches(".*Showing\\s+0\\s+of.*")) {
 				LOGGER.warn(" Second search returned 0 results, skipping");
 				ExtentCucumberAdapter.addTestStepLog(" Second search returned 0 results");
-				totalSecondSearchResults = 0;
+				totalSecondSearchResults.set(0);
 				return;
 			}
 			
@@ -504,7 +504,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 			// Get initial visible profiles
 			var initialProfileRows = driver.findElements(By.xpath("//tbody//tr"));
 			int initialCount = initialProfileRows.size();
-			totalSecondSearchResults = initialCount;
+			totalSecondSearchResults.set(initialCount);
 			
 			var initialSelectedRows = driver.findElements(
 				By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]")

@@ -63,17 +63,18 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 	// Static variables for storing extracted job details
 	public static Map<String, String> jobDetailsFromMissingDataScreen = new HashMap<>();
 	public static Map<String, String> jobDetailsFromJobMappingPage = new HashMap<>();
-	public static String extractedJobName = "";
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> extractedJobName = ThreadLocal.withInitial(() -> "");
 	public static WebElement foundJobRow = null; // Store the actual row element for precise extraction
 	public static WebElement foundProfile = null; // Store the profile row with info message (for DOM structure correction)
 	public static WebElement matchingJobRow = null; // Store the matching job row from search results
 	
 	// Scenario coordination - track if Forward Scenario found a profile to determine Reverse Scenario behavior
-	public static boolean forwardScenarioFoundProfile = false;
+	public static ThreadLocal<Boolean> forwardScenarioFoundProfile = ThreadLocal.withInitial(() -> false);
 	
 	// Track Forward scenario profile details to skip same profile in Reverse scenario
-	public static String forwardScenarioJobName = "";
-	public static String forwardScenarioJobCode = "";
+	public static ThreadLocal<String> forwardScenarioJobName = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> forwardScenarioJobCode = ThreadLocal.withInitial(() -> "");
 	
 	public PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping() throws IOException {
 		PageFactory.initElements(driver, this);
@@ -219,7 +220,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 		// ===== CLEAR STATIC VARIABLES FOR FRESH SCENARIO EXECUTION =====
 		jobDetailsFromJobMappingPage.clear();
 		jobDetailsFromMissingDataScreen.clear();
-		extractedJobName = "";
+		extractedJobName.set("");
 		foundJobRow = null;
 		foundProfile = null;
 		
@@ -237,7 +238,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 		// Search for jobs with missing Subfunction (ignoring Grade and Department data)
 		// If Forward scenario found a profile, skip it to test a different profile
 		LOGGER.info("Searching for jobs with missing Subfunction (ignoring Grade and Department data)");
-		if (forwardScenarioFoundProfile) {
+		if (forwardScenarioFoundProfile.get()) {
 			LOGGER.info("Forward scenario found profile: " + forwardScenarioJobName + " (" + forwardScenarioJobCode + ") - will skip it");
 		} else {
 			LOGGER.info("Forward scenario did not find a profile - Reverse scenario will run independently");
@@ -257,7 +258,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 				// Note: Grade and Department data validation removed as per requirements
 				
 				// If Forward scenario found a profile, check if this is the same one and skip it
-				if (forwardScenarioFoundProfile) {
+				if (forwardScenarioFoundProfile.get()) {
 					String cleanedJobName = cleanJobName(jobName);
 					
 					// Extract job code from the current job name for comparison
@@ -294,7 +295,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 				if (subfunctionIsMissing) {
 					preferredJobRow = row;
 					foundJobRow = row; // Store for precise extraction
-					extractedJobName = cleanJobName(jobName); // Store cleaned job name
+					extractedJobName.set(cleanJobName(jobName)); // Store cleaned job name
 					LOGGER.info("Found DIFFERENT job at position " + (i+1) + ": " + extractedJobName + " (Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction + ")");
 					break; // Found match, stop searching
 					}
@@ -323,7 +324,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 					String functionSubfunction = cells.get(3).getText().trim();
 					
 					// Store the cleaned job name for later use
-					extractedJobName = jobName;
+					extractedJobName.set(jobName);
 					
 					// Log details of the matching profile only
 					LOGGER.info("SUCCESS: Found matching job profile:");
@@ -429,7 +430,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 			for (WebElement row : jobRowsInMissingDataScreen) {
 				List<WebElement> cells = row.findElements(By.xpath(".//td"));
 				
-				if (cells.size() >= 4 && cells.get(0).getText().contains(extractedJobName.split(" ")[0])) {
+				if (cells.size() >= 4 && cells.get(0).getText().contains(extractedJobName.get().split(" ")[0])) {
 						// Extract and clean job name to fix parsing issues
 						String rawJobName = cells.get(0).getText().trim();
 						String cleanedJobName = cleanJobName(rawJobName);
@@ -1563,12 +1564,12 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 			// ===== CLEAR STATIC VARIABLES FOR FRESH SCENARIO EXECUTION =====
 			jobDetailsFromJobMappingPage.clear();
 			jobDetailsFromMissingDataScreen.clear();
-			extractedJobName = "";
+			extractedJobName.set("");
 			foundJobRow = null;
 			foundProfile = null;
-			forwardScenarioFoundProfile = false; // Reset flag at start of Forward scenario
-			forwardScenarioJobName = ""; // Reset Forward scenario tracking
-			forwardScenarioJobCode = ""; // Reset Forward scenario tracking
+			forwardScenarioFoundProfile.set(false); // Reset flag at start of Forward scenario
+			forwardScenarioJobName.set(""); // Reset Forward scenario tracking
+			forwardScenarioJobCode.set(""); // Reset Forward scenario tracking
 			
 		LOGGER.info("========== FORWARD SCENARIO (Scenario 1): Searching for job with MISSING SUBFUNCTION ==========");
 		LOGGER.info("SEARCH CRITERIA: Function Missing = FALSE (Function must be present) AND SubFunction Missing = TRUE");
@@ -1734,10 +1735,10 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 					// Store the found profile
 					foundJobRow = jobDataRow;
 					foundProfile = infoMessageRow;
-					extractedJobName = cleanJobName(jobName);
-					forwardScenarioFoundProfile = true;
-					forwardScenarioJobName = cleanJobName(jobName);
-					forwardScenarioJobCode = jobCode;
+					extractedJobName.set(cleanJobName(jobName));
+					forwardScenarioFoundProfile.set(true);
+					forwardScenarioJobName.set(cleanJobName(jobName));
+					forwardScenarioJobCode.set(jobCode);
 					
 					LOGGER.info("FORWARD SCENARIO (Scenario 1) will validate: " + extractedJobName + " (Code: " + jobCode + ")");
 					matchFound = true;
@@ -1919,7 +1920,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 			jobDetailsFromJobMappingPage.put("functionSubfunction", functionSubfunction);
 				
 			// Update extracted job name for search
-			extractedJobName = jobName;
+			extractedJobName.set(jobName);
 			
 			LOGGER.info("Successfully extracted job details: " + jobName);
 			ExtentCucumberAdapter.addTestStepLog("Extracted job details: " + jobName + " (" + jobCode + ")");
@@ -1941,11 +1942,11 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping {
 			LOGGER.info("Traversing all jobs in Missing Data screen to find: " + extractedJobName);
 			ExtentCucumberAdapter.addTestStepLog("Traversing all jobs in Missing Data screen (no search functionality)...");
 			
-			if (extractedJobName == null || extractedJobName.isEmpty()) {
+			if (extractedJobName.get() == null || extractedJobName.get().isEmpty()) {
 				throw new IOException("No job name available for search");
 			}
 			
-			String searchTerm = extractJobNameForSearch(extractedJobName);
+			String searchTerm = extractJobNameForSearch(extractedJobName.get());
 			LOGGER.info("Using search term: " + searchTerm);
 			
 			// Get the expected job code from Job Mapping page for precise matching

@@ -66,11 +66,11 @@ public class PO37_ValidateSelectAndPublishLoadedProfiles_JAM {
 	 * This validates that the "header checkbox select" only selects currently LOADED profiles,
 	 * not profiles that load later via lazy loading/scrolling.
 	 */
-	public void verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen() {
-		int loadedProfilesBeforeHeaderCheckboxClick = PO04_VerifyJobMappingPageComponents.loadedProfilesBeforeHeaderCheckboxClick;
-		int selectedProfilesAfterHeaderCheckboxClick = PO04_VerifyJobMappingPageComponents.selectedProfilesAfterHeaderCheckboxClick;
-		int disabledProfilesInLoadedProfiles = PO04_VerifyJobMappingPageComponents.disabledProfilesCountInLoadedProfiles;
-		int totalProfilesCurrentlyLoaded = 0;
+public void verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen() {
+	int loadedProfilesBeforeHeaderCheckboxClick = PO04_VerifyJobMappingPageComponents.loadedProfilesBeforeHeaderCheckboxClick.get();
+	int selectedProfilesAfterHeaderCheckboxClick = PO04_VerifyJobMappingPageComponents.selectedProfilesAfterHeaderCheckboxClick.get();
+	int disabledProfilesInLoadedProfiles = PO04_VerifyJobMappingPageComponents.disabledProfilesCountInLoadedProfiles.get();
+	int totalProfilesCurrentlyLoaded = 0;
 		int newlyLoadedProfilesAfterScrolling = 0;
 		int unselectedProfilesCount = 0;
 		int disabledInNewlyLoadedProfiles = 0;

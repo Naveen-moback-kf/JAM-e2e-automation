@@ -31,9 +31,10 @@ public class PO23_VerifyProfileswithNoJobCode_PM {
 	PO23_VerifyProfileswithNoJobCode_PM verifyProfileswithNoJobCode_PM;
 	LocalDate currentdate = LocalDate.now();
 	Month currentMonth = currentdate.getMonth();
-	public static int rowNumber;
-	public static String SPJobName;
-	public static boolean noJobCode=false;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<Integer> rowNumber = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<String> SPJobName = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<Boolean> noJobCode = ThreadLocal.withInitial(() -> false);
 
 	public PO23_VerifyProfileswithNoJobCode_PM() throws IOException {
 		// super();
@@ -103,27 +104,27 @@ public void user_should_search_for_success_profile_with_no_job_code_assigned() {
 		String[] resultsCountText_split = resultsCountText.split(" ");
 		for(int i = 1; i<=Integer.parseInt(resultsCountText_split[3]); i++) {
 			try {
-				rowNumber=i;
-				WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[1]//*//..//div//kf-checkbox//div"));
+				rowNumber.set(i);;
+				WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*//..//div//kf-checkbox//div"));
 				js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
 				String text = SP_Checkbox.getAttribute("class");
 				if(text.contains("disable")) {
 					LOGGER.info("Success profile with No Job Code assigned is found....");
 					ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
-					noJobCode = true;
+					noJobCode.set(true);
 					break;
 				}
 			} catch(Exception e) {
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-				PerformanceUtils.waitForPageReady(driver, 3);
-				rowNumber=i;
-				WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[1]//*//..//div//kf-checkbox//div"));
-				js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
-				String text = SP_Checkbox.getAttribute("class");
-				if(text.contains("disable")) {
-					LOGGER.info("Success profile with No Job Code assigned is found....");
-					ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
-					noJobCode = true;
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForPageReady(driver, 3);
+			rowNumber.set(i);
+			WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*//..//div//kf-checkbox//div"));
+			js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
+			String text = SP_Checkbox.getAttribute("class");
+			if(text.contains("disable")) {
+				LOGGER.info("Success profile with No Job Code assigned is found....");
+				ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
+				noJobCode.set(true);
 					break;
 				}
 			}
@@ -138,19 +139,19 @@ public void user_should_search_for_success_profile_with_no_job_code_assigned() {
 	}
 	
 	public void user_should_verify_tooltip_is_displaying_on_checkbox_of_success_profile_with_no_job_code() {
-		if(noJobCode) {
+		if(noJobCode.get()) {
 			try {
-				if (rowNumber == 1) {
+				if (rowNumber.get()==1) {
 					js.executeScript("arguments[0].scrollIntoView(true);", downloadBtn);
-				} else if(rowNumber<5) {
+				} else if(rowNumber.get()<5) {
 					WebElement	SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(1) + "]//td[1]//*"));
 					js.executeScript("arguments[0].scrollIntoView(true);", SP_JobName);
-				} else if(rowNumber>5) {
-					WebElement	SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber-5) + "]//td[1]//*"));
+				} else if(rowNumber.get()>5) {
+					WebElement	SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()-5) + "]//td[1]//*"));
 					js.executeScript("arguments[0].scrollIntoView(true);", SP_JobName);
 				}
 				Actions action = new Actions(driver);
-				WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[1]//*//..//div//kf-checkbox//div"));
+				WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*//..//div//kf-checkbox//div"));
 				action.moveToElement(SP_Checkbox).build().perform();
 				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(noJobCodeToolTip)).isDisplayed());
 				String TipMessage = noJobCodeToolTip.getText();
@@ -169,24 +170,24 @@ public void user_should_search_for_success_profile_with_no_job_code_assigned() {
 	}
 	
 	public void verify_details_of_the_success_profile_with_no_job_code_assigned_in_hcm_sync_profiles_tab() {
-		if(noJobCode) {
+		if(noJobCode.get()) {
 			try {
-				if(rowNumber>2) {
-					WebElement	SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber-2) + "]//td[1]//*"));
+				if(rowNumber.get()>2) {
+					WebElement	SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()-2) + "]//td[1]//*"));
 					js.executeScript("arguments[0].scrollIntoView(true);", SP_JobName);
-				} else if (rowNumber == 1) {
+				} else if (rowNumber.get()==1) {
 					js.executeScript("arguments[0].scrollIntoView(true);", downloadBtn);
 				}
-				WebElement	SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[1]//*"));
+				WebElement	SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*"));
 				js.executeScript("arguments[0].scrollIntoView(true);", SP_JobName);
-				SPJobName = SP_JobName.getText();
-				WebElement	SP_Status = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[2]//*"));
-				WebElement	SP_KFGrade = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[3]//*"));
-				WebElement	SP_Level = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[4]//*"));
-				WebElement	SP_Function = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[5]//*"));
-				WebElement	SP_CreatedBy = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[6]//*"));
-				WebElement	SP_LastModified = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[7]//*"));
-				WebElement	SP_ExportStatus = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber) + "]//td[8]//*"));
+				SPJobName.set( SP_JobName.getText());
+				WebElement	SP_Status = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[2]//*"));
+				WebElement	SP_KFGrade = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[3]//*"));
+				WebElement	SP_Level = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[4]//*"));
+				WebElement	SP_Function = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[5]//*"));
+				WebElement	SP_CreatedBy = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[6]//*"));
+				WebElement	SP_LastModified = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[7]//*"));
+				WebElement	SP_ExportStatus = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[8]//*"));
 				LOGGER.info("Below are the details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM : \n "
 						+ tableHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobName.getText() + "   "
 						+ tableHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Status.getText() + "   "

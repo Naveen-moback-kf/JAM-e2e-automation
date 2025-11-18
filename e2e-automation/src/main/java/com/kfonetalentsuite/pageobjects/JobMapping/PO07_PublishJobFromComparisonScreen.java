@@ -30,7 +30,8 @@ public class PO07_PublishJobFromComparisonScreen {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO07_PublishJobFromComparisonScreen publishJobFromComparisonScreen;
 	
-	public static String job1OrgName;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> job1OrgName = ThreadLocal.withInitial(() -> null);
 
 	public PO07_PublishJobFromComparisonScreen() throws IOException {
 		// super();
@@ -111,9 +112,9 @@ public void select_second_profile_from_ds_suggestions_of_organization_job() {
 
 	public void click_on_publish_selected_button_in_job_comparison_page() {
 		try {
-			String JCpageOrgJobTitleHeaderText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobTitleHeader)).getText();
-			job1OrgName = JCpageOrgJobTitleHeaderText.split("-", 2)[0].trim();
-			try {
+		String JCpageOrgJobTitleHeaderText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobTitleHeader)).getText();
+		job1OrgName.set(JCpageOrgJobTitleHeaderText.split("-", 2)[0].trim());
+		try {
 				wait.until(ExpectedConditions.elementToBeClickable(JCPagePublishSelectBtn)).click();
 			} catch (Exception e) {
 				try {
@@ -121,9 +122,9 @@ public void select_second_profile_from_ds_suggestions_of_organization_job() {
 				} catch (Exception s) {
 					utils.jsClick(driver, JCPagePublishSelectBtn);
 				}
-			}
-		LOGGER.info("Clicked on Publish Selected button in the Job Comparison Page for job profile with Organization Name: " + job1OrgName);
-		ExtentCucumberAdapter.addTestStepLog("Clicked on Publish Selected button in the Job Comparison Page for job profile with Organization Name: " + job1OrgName);	
+		}
+	LOGGER.info("Clicked on Publish Selected button in the Job Comparison Page for job profile with Organization Name: " + job1OrgName.get());
+	ExtentCucumberAdapter.addTestStepLog("Clicked on Publish Selected button in the Job Comparison Page for job profile with Organization Name: " + job1OrgName.get());
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("click_on_publish_selected_button_in_job_comparison_page", e);
 		LOGGER.error(" Failed to click Publish Selected button - Method: click_on_publish_selected_button_in_job_comparison_page", e);

@@ -267,9 +267,9 @@ public class PO03_ValidateJobmappingHeaderSection {
 	public void user_should_verify_client_name_is_correctly_displaying() {
 		try {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(clientname)).isDisplayed());
-			String clientnameText = wait.until(ExpectedConditions.visibilityOf(clientname)).getText();
-			Assert.assertEquals(PO01_KFoneLogin.clientName,clientnameText);
-			LOGGER.info("Client name correctly displaying on the Job Mapping UI Header: " + clientnameText);
+		String clientnameText = wait.until(ExpectedConditions.visibilityOf(clientname)).getText();
+		Assert.assertEquals(PO01_KFoneLogin.clientName.get(),clientnameText);
+		LOGGER.info("Client name correctly displaying on the Job Mapping UI Header: " + clientnameText);
 			ExtentCucumberAdapter.addTestStepLog("Client name correctly displaying on the Job Mapping UI Header: " + clientnameText);
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_client_name_is_correctly_displaying", e);
@@ -384,10 +384,10 @@ public class PO03_ValidateJobmappingHeaderSection {
 	public void verify_user_email_is_displayed_in_profile_menu() {
 		try {
 			String profileUserEmailText = wait.until(ExpectedConditions.visibilityOf(profileUserEmail)).getText();
-			// Case-insensitive email comparison (emails are not case-sensitive)
-			Assert.assertTrue(PO01_KFoneLogin.username.equalsIgnoreCase(profileUserEmailText),
-					"Expected email: " + PO01_KFoneLogin.username + " but found: " + profileUserEmailText);
-			LOGGER.info("User Email : " + profileUserEmailText + " is displayed in Profile Menu as expected");
+		// Case-insensitive email comparison (emails are not case-sensitive)
+		Assert.assertTrue(PO01_KFoneLogin.username.get().equalsIgnoreCase(profileUserEmailText),
+				"Expected email: " + PO01_KFoneLogin.username.get() + " but found: " + profileUserEmailText);
+		LOGGER.info("User Email : " + profileUserEmailText + " is displayed in Profile Menu as expected");
 			ExtentCucumberAdapter.addTestStepLog("User Email : " + profileUserEmailText + " is displayed in Profile Menu as expected");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_user_email_is_displayed_in_profile_menu", e);

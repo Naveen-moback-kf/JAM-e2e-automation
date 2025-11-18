@@ -150,21 +150,21 @@ public class PO10_ValidateScreen1SearchResults {
 		try {
 			List<WebElement> allElements = driver.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
 		    for (WebElement element: allElements) {
-		        String text = element.getText();
-		        if(text.toLowerCase().contains(PO04_VerifyJobMappingPageComponents.jobnamesubstring.toLowerCase())) {
-		        	 LOGGER.info("Organization Job Profile with Name : " + text + " from search results contains the substring : " + PO04_VerifyJobMappingPageComponents.jobnamesubstring +" used for searching");
-		        	 ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Name : " + text + " from search results contains the substring : " + PO04_VerifyJobMappingPageComponents.jobnamesubstring +" used for searching");
-		        } else {
-		        	LOGGER.info("Organization Job Profile with Name : " + text + " from search results DOES NOT contains the substring : " + PO04_VerifyJobMappingPageComponents.jobnamesubstring +" used for searching");
-		        	ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Name : " + text + " from search results DOES NOT contains the substring : " + PO04_VerifyJobMappingPageComponents.jobnamesubstring +" used for searching");
-		        }
+	        String text = element.getText();
+	        if(text.toLowerCase().contains(PO04_VerifyJobMappingPageComponents.jobnamesubstring.get().toLowerCase())) {
+	        	 LOGGER.info("Organization Job Profile with Name : " + text + " from search results contains the substring : " + PO04_VerifyJobMappingPageComponents.jobnamesubstring.get() +" used for searching");
+	        	 ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Name : " + text + " from search results contains the substring : " + PO04_VerifyJobMappingPageComponents.jobnamesubstring.get() +" used for searching");
+	        } else {
+	        	LOGGER.info("Organization Job Profile with Name : " + text + " from search results DOES NOT contains the substring : " + PO04_VerifyJobMappingPageComponents.jobnamesubstring.get() +" used for searching");
+	        	ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Name : " + text + " from search results DOES NOT contains the substring : " + PO04_VerifyJobMappingPageComponents.jobnamesubstring.get() +" used for searching");
+	        }
 	    }
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_validate_all_search_results_contains_substring_used_for_searching", e);
 			LOGGER.error("Failed to validate search results containing substring - Method: user_should_validate_all_search_results_contains_substring_used_for_searching", e);
-			e.printStackTrace();
-			Assert.fail("Issue in Validating Search Results containing substring : " +  PO04_VerifyJobMappingPageComponents.jobnamesubstring + " used for searching");
-			ExtentCucumberAdapter.addTestStepLog("Issue in Validating Search Results containing substring : " +  PO04_VerifyJobMappingPageComponents.jobnamesubstring + " used for searching");
+		e.printStackTrace();
+		Assert.fail("Issue in Validating Search Results containing substring : " +  PO04_VerifyJobMappingPageComponents.jobnamesubstring.get() + " used for searching");
+		ExtentCucumberAdapter.addTestStepLog("Issue in Validating Search Results containing substring : " +  PO04_VerifyJobMappingPageComponents.jobnamesubstring.get() + " used for searching");
 		}
 	}
 }

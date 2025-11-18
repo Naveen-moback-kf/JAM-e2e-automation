@@ -63,9 +63,9 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 	 * not profiles that load later via lazy loading/scrolling.
 	 */
 	public void verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen() {
-		int loadedProfilesBeforeHeaderCheckboxClick = PO22_ValidateHCMSyncProfilesScreen_PM.loadedProfilesBeforeHeaderCheckboxClick;
-		int selectedProfilesAfterHeaderCheckboxClick = PO22_ValidateHCMSyncProfilesScreen_PM.selectedProfilesAfterHeaderCheckboxClick;
-		int disabledProfilesInLoadedProfiles = PO22_ValidateHCMSyncProfilesScreen_PM.disabledProfilesCountInLoadedProfiles;
+		int loadedProfilesBeforeHeaderCheckboxClick = PO22_ValidateHCMSyncProfilesScreen_PM.loadedProfilesBeforeHeaderCheckboxClick.get();
+		int selectedProfilesAfterHeaderCheckboxClick = PO22_ValidateHCMSyncProfilesScreen_PM.selectedProfilesAfterHeaderCheckboxClick.get();
+		int disabledProfilesInLoadedProfiles = PO22_ValidateHCMSyncProfilesScreen_PM.disabledProfilesCountInLoadedProfiles.get();
 		int totalProfilesCurrentlyLoaded = 0;
 		int newlyLoadedProfilesAfterScrolling = 0;
 		int unselectedProfilesCount = 0;

@@ -57,8 +57,9 @@ public class CommonVariable {
 	public static String KEEP_SYSTEM_AWAKE;
 	public static String TARGET_PAMS_ID;
 	
-	// Global User Role - Set after login and used across all feature files
-	public static String CURRENT_USER_ROLE;
+	// Global User Role - Thread-local to support parallel execution
+	// Set after login and used across all feature files
+	public static ThreadLocal<String> CURRENT_USER_ROLE = ThreadLocal.withInitial(() -> null);
 	static {
 		try {
 			// Use optimized singleton VariableManager

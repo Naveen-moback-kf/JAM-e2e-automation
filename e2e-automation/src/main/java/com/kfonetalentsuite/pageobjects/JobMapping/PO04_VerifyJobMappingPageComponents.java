@@ -34,24 +34,27 @@ public class PO04_VerifyJobMappingPageComponents {
 	// Dynamic search substrings with fallback options
 	// The system will try each substring in order until results are found
 	public static String[] SEARCH_SUBSTRING_OPTIONS = {"Ac", "Ma", "An", "Sa", "En", "Ad", "As", "Co", "Te", "Di"};
-	public static String jobnamesubstring = "Ac"; // Will be set dynamically based on which substring returns results
+	
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> jobnamesubstring = ThreadLocal.withInitial(() -> "Ac"); // Will be set dynamically based on which substring returns results
 	
 	// Static variables to store extracted job data
-	public static String orgJobNameInRow1;
-	public static String orgJobCodeInRow1;
-	public static String orgJobGradeInRow1;
-	public static String orgJobFunctionInRow1;
-	public static String orgJobDepartmentInRow1;
-	public static String intialResultsCount;
-	public static String updatedResultsCount;
-	public static String initialFilteredResultsCount; // Count immediately after filters applied (before scrolling)
-	public static String orgJobNameInRow2;
-	public static String matchedSuccessPrflName;
+	public static ThreadLocal<String> orgJobNameInRow1 = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> orgJobCodeInRow1 = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> orgJobGradeInRow1 = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> orgJobFunctionInRow1 = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> orgJobDepartmentInRow1 = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> intialResultsCount = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> updatedResultsCount = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> initialFilteredResultsCount = ThreadLocal.withInitial(() -> null); // Count immediately after filters applied (before scrolling)
+	public static ThreadLocal<String> orgJobNameInRow2 = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> matchedSuccessPrflName = ThreadLocal.withInitial(() -> null);
 	
 	// Variables for Select Loaded Profiles validation (similar to Feature 33 in HCM Sync)
-	public static int loadedProfilesBeforeHeaderCheckboxClick = 0; // Profiles loaded on screen BEFORE clicking header checkbox
-	public static int selectedProfilesAfterHeaderCheckboxClick = 0; // Profiles actually selected (enabled profiles)
-	public static int disabledProfilesCountInLoadedProfiles = 0; // Disabled profiles (cannot be selected)
+	// THREAD-SAFE: Each thread maintains its own counts
+	public static ThreadLocal<Integer> loadedProfilesBeforeHeaderCheckboxClick = ThreadLocal.withInitial(() -> 0); // Profiles loaded on screen BEFORE clicking header checkbox
+	public static ThreadLocal<Integer> selectedProfilesAfterHeaderCheckboxClick = ThreadLocal.withInitial(() -> 0); // Profiles actually selected (enabled profiles)
+	public static ThreadLocal<Integer> disabledProfilesCountInLoadedProfiles = ThreadLocal.withInitial(() -> 0); // Disabled profiles (cannot be selected)
 
 
 	public PO04_VerifyJobMappingPageComponents() throws IOException {
@@ -520,7 +523,7 @@ public class PO04_VerifyJobMappingPageComponents {
 					if (resultsCountText.contains("Showing") && !resultsCountText.startsWith("Showing 0")) {
 						// Found results!
 						selectedSubstring = substring;
-						jobnamesubstring = substring; // Update static variable for other methods to use
+						jobnamesubstring.set(substring); // Update static variable for other methods to use
 						foundResults = true;
 						
 						LOGGER.info(" Found results with substring: '" + substring + "'");
@@ -585,12 +588,12 @@ public class PO04_VerifyJobMappingPageComponents {
 			PerformanceUtils.waitForPageReady(driver, 2); 
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobNameofProfile1)).isDisplayed());
 			String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobNameofProfile1)).getText(); 
-			orgJobNameInRow1 = jobname1.split("-", 2)[0].trim();
-			orgJobCodeInRow1 = jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length()-2);
-			ExtentCucumberAdapter.addTestStepLog("Job name of the first profile in organization table : " + orgJobNameInRow1);
-			LOGGER.info("Job name of the first profile in organization table : " + orgJobNameInRow1);
-			ExtentCucumberAdapter.addTestStepLog("Job code of the first profile in organization table : " + orgJobCodeInRow1);
-			LOGGER.info("Job code of the first profile in organization table : " + orgJobCodeInRow1);
+			orgJobNameInRow1.set(jobname1.split("-", 2)[0].trim());
+			orgJobCodeInRow1.set(jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length()-2));
+			ExtentCucumberAdapter.addTestStepLog("Job name of the first profile in organization table : " + orgJobNameInRow1.get());
+			LOGGER.info("Job name of the first profile in organization table : " + orgJobNameInRow1.get());
+			ExtentCucumberAdapter.addTestStepLog("Job code of the first profile in organization table : " + orgJobCodeInRow1.get());
+			LOGGER.info("Job code of the first profile in organization table : " + orgJobCodeInRow1.get());
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_organization_job_name_and_job_code_values_of_first_profile", e);
 			LOGGER.error("Issue in verifying job name and job code values in Row1 - Method: user_should_verify_organization_job_name_and_job_code_values_of_first_profile", e);
@@ -606,11 +609,11 @@ public class PO04_VerifyJobMappingPageComponents {
 			String jobGrade = wait.until(ExpectedConditions.visibilityOf(jobGradeofProfile1)).getText(); 
 			if(jobGrade.contentEquals("-") || jobGrade.isEmpty() || jobGrade.isBlank()) {
 				jobGrade = "NULL";
-				orgJobGradeInRow1 = jobGrade;
+				orgJobGradeInRow1.set(jobGrade);
 			}
-			orgJobGradeInRow1 = jobGrade;
-			ExtentCucumberAdapter.addTestStepLog("Grade value of Organization Job first profile : " + orgJobGradeInRow1);
-			LOGGER.info("Grade value of Organization Job first profile : " + orgJobGradeInRow1);
+			orgJobGradeInRow1.set(jobGrade);
+			ExtentCucumberAdapter.addTestStepLog("Grade value of Organization Job first profile : " + orgJobGradeInRow1.get());
+			LOGGER.info("Grade value of Organization Job first profile : " + orgJobGradeInRow1.get());
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_organization_job_grade_and_department_values_of_first_profile", e);
 			LOGGER.error("Issue in Verifying Organization Job Grade value first profile - Method: user_should_verify_organization_job_grade_in_first_row", e);
@@ -624,11 +627,11 @@ public class PO04_VerifyJobMappingPageComponents {
 			String jobDepartment = wait.until(ExpectedConditions.visibilityOf(jobDepartmentofProfile1)).getText(); 
 			if(jobDepartment.contentEquals("-") || jobDepartment.isEmpty() || jobDepartment.isBlank()) {
 				jobDepartment = "NULL";
-				orgJobDepartmentInRow1 = jobDepartment;
+				orgJobDepartmentInRow1.set(jobDepartment);
 			}
-			orgJobDepartmentInRow1 = jobDepartment;
-			ExtentCucumberAdapter.addTestStepLog("Department value of Organization Job first profile : " + orgJobDepartmentInRow1);
-			LOGGER.info("Department value of Organization Job first profile : " + orgJobDepartmentInRow1);
+			orgJobDepartmentInRow1.set(jobDepartment);
+			ExtentCucumberAdapter.addTestStepLog("Department value of Organization Job first profile : " + orgJobDepartmentInRow1.get());
+			LOGGER.info("Department value of Organization Job first profile : " + orgJobDepartmentInRow1.get());
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_organization_job_grade_and_department_values_of_first_profile", e);
 			LOGGER.error("Issue in Verifying Organization Job Department value first profile - Method: user_should_verify_organization_job_department_in_first_row", e);
@@ -645,15 +648,15 @@ public class PO04_VerifyJobMappingPageComponents {
 			String jobFunction = wait.until(ExpectedConditions.visibilityOf(jobFunctionofProfile1)).getText(); 
 			if(jobFunction.contentEquals("- | -") || jobFunction.contentEquals("-") || jobFunction.isEmpty() || jobFunction.isBlank()) {
 				jobFunction = "NULL | NULL";
-				orgJobFunctionInRow1 = jobFunction;
+				orgJobFunctionInRow1.set(jobFunction);
 			} else if (jobFunction.endsWith("-") || jobFunction.endsWith("| -") || jobFunction.endsWith("|") || (!(jobFunction.contains("|")) && (jobFunction.length() > 1))) {
 				jobFunction = jobFunction + " | NULL";
-				orgJobFunctionInRow1 = jobFunction;
+				orgJobFunctionInRow1.set(jobFunction);
 			}
 			
-			orgJobFunctionInRow1 = jobFunction;
-			ExtentCucumberAdapter.addTestStepLog("Function / Sub-function values of Organization Job first profile : " + orgJobFunctionInRow1);
-			LOGGER.info("Function / Sub-function values of Organization Job first profile : " + orgJobFunctionInRow1);
+			orgJobFunctionInRow1.set(jobFunction);
+			ExtentCucumberAdapter.addTestStepLog("Function / Sub-function values of Organization Job first profile : " + orgJobFunctionInRow1.get());
+			LOGGER.info("Function / Sub-function values of Organization Job first profile : " + orgJobFunctionInRow1.get());
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_organization_job_function_or_sub_function_of_first_profile", e);
 			LOGGER.error("Issue in Verifying Organization Job Function/Sub-function values first profile - Method: user_should_verify_organization_job_function_or_sub_function_in_first_row", e);
@@ -668,7 +671,7 @@ public class PO04_VerifyJobMappingPageComponents {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			String MatchedProfileNameText = wait.until(ExpectedConditions.elementToBeClickable(job1LinkedMatchedProfile)).getText();
-			matchedSuccessPrflName = MatchedProfileNameText;
+			matchedSuccessPrflName.set(MatchedProfileNameText);
 			// Scroll element into view before clicking
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", job1LinkedMatchedProfile);
 			Thread.sleep(500); // Brief pause after scroll for smooth rendering
@@ -995,11 +998,11 @@ public class PO04_VerifyJobMappingPageComponents {
 			if (resultsCountText.contains("Showing") && resultsCountText.contains("of")) {
 				String[] parts = resultsCountText.split("\\s+");
 				// parts[0] = "Showing", parts[1] = "100", parts[2] = "of"
-				loadedProfilesBeforeHeaderCheckboxClick = Integer.parseInt(parts[1]);
-				LOGGER.info("Loaded profiles on screen (BEFORE header checkbox click): " + loadedProfilesBeforeHeaderCheckboxClick);
+				loadedProfilesBeforeHeaderCheckboxClick.set(Integer.parseInt(parts[1]));
+				LOGGER.info("Loaded profiles on screen (BEFORE header checkbox click): " + loadedProfilesBeforeHeaderCheckboxClick.get());
 			} else {
 				LOGGER.warn("Could not parse results count text: " + resultsCountText);
-				loadedProfilesBeforeHeaderCheckboxClick = 0;
+				loadedProfilesBeforeHeaderCheckboxClick.set(0);
 			}
 		
 		// Step 2: Scroll element into view and click header checkbox
@@ -1016,8 +1019,8 @@ public class PO04_VerifyJobMappingPageComponents {
 		}
 			
 			// Step 3: Get all checkboxes and count selected and disabled profiles
-			int profilesCount = loadedProfilesBeforeHeaderCheckboxClick;
-			disabledProfilesCountInLoadedProfiles = 0;
+			int profilesCount = loadedProfilesBeforeHeaderCheckboxClick.get();
+			disabledProfilesCountInLoadedProfiles.set(0);
 			
 			// Note: Job Mapping screen doesn't have disabled profiles like HCM Sync Profiles
 			// All profiles can be selected, so disabled count will be 0
@@ -1029,7 +1032,7 @@ public class PO04_VerifyJobMappingPageComponents {
 			);
 			
 			// Only check the first 'loadedProfilesBeforeHeaderCheckboxClick' checkboxes
-			int checkboxesToCheck = Math.min(allCheckboxes.size(), loadedProfilesBeforeHeaderCheckboxClick);
+			int checkboxesToCheck = Math.min(allCheckboxes.size(), loadedProfilesBeforeHeaderCheckboxClick.get());
 			
 			for (int i = 0; i < checkboxesToCheck; i++) {
 				try {
@@ -1038,7 +1041,7 @@ public class PO04_VerifyJobMappingPageComponents {
 					// Check if checkbox is disabled
 					if (!checkbox.isEnabled()) {
 						LOGGER.debug("Profile at index " + (i+1) + " has disabled checkbox");
-						disabledProfilesCountInLoadedProfiles++;
+						disabledProfilesCountInLoadedProfiles.set(disabledProfilesCountInLoadedProfiles.get() + 1);
 						profilesCount--;
 					}
 				} catch (Exception e) {
@@ -1048,13 +1051,13 @@ public class PO04_VerifyJobMappingPageComponents {
 			}
 			
 			// Step 4: Store selected profiles count
-			selectedProfilesAfterHeaderCheckboxClick = profilesCount;
+			selectedProfilesAfterHeaderCheckboxClick.set(profilesCount);
 			
-			LOGGER.info("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick + " job profiles in Job Mapping screen");
-			LOGGER.info("    Loaded profiles (before click): " + loadedProfilesBeforeHeaderCheckboxClick);
-			LOGGER.info("    Selected profiles: " + selectedProfilesAfterHeaderCheckboxClick);
-			LOGGER.info("    Disabled profiles: " + disabledProfilesCountInLoadedProfiles);
-			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick + " job profiles in Job Mapping screen");
+			LOGGER.info("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick.get() + " job profiles in Job Mapping screen");
+			LOGGER.info("    Loaded profiles (before click): " + loadedProfilesBeforeHeaderCheckboxClick.get());
+			LOGGER.info("    Selected profiles: " + selectedProfilesAfterHeaderCheckboxClick.get());
+			LOGGER.info("    Disabled profiles: " + disabledProfilesCountInLoadedProfiles.get());
+			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick.get() + " job profiles in Job Mapping screen");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_header_checkbox_to_select_loaded_job_profiles_in_job_mapping_screen", e);
 			LOGGER.error("Issue in clicking on header checkbox to select loaded job profiles in Job Mapping screen - Method: click_on_header_checkbox_to_select_loaded_job_profiles_in_job_mapping_screen", e);
@@ -1120,7 +1123,7 @@ public class PO04_VerifyJobMappingPageComponents {
 	public void click_on_checkbox_of_first_job_profile() {
 		try {
 			String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobNameofProfile1)).getText(); 
-			orgJobNameInRow1 = jobname1.split("-", 2)[0].trim();
+			orgJobNameInRow1.set(jobname1.split("-", 2)[0].trim());
 			// Scroll element into view before clicking
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", profile1Checkbox);
 			try { Thread.sleep(500); } catch (InterruptedException ie) {}
@@ -1147,7 +1150,7 @@ public class PO04_VerifyJobMappingPageComponents {
 	public void click_on_checkbox_of_second_job_profile() {
 		try {
 			String jobname2 = wait.until(ExpectedConditions.visibilityOf(jobNameofProfile2)).getText(); 
-			orgJobNameInRow2 = jobname2.split("-", 2)[0].trim();
+			orgJobNameInRow2.set(jobname2.split("-", 2)[0].trim());
 			// Scroll element into view before clicking
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", profile2Checkbox);
 			try { Thread.sleep(500); } catch (InterruptedException ie) {}
@@ -1231,11 +1234,11 @@ public class PO04_VerifyJobMappingPageComponents {
 				}
 			}
 			
-		intialResultsCount = resultsCountText;
+		intialResultsCount.set(resultsCountText);
 		
 		// IMPORTANT: Reset initialFilteredResultsCount for new scenario
 		// This ensures each scenario starts fresh and doesn't use values from previous scenarios
-		initialFilteredResultsCount = null;
+		initialFilteredResultsCount.set(null);
 		LOGGER.debug("Reset initialFilteredResultsCount for new scenario - Initial count: {}", intialResultsCount);
 		
 	    ExtentCucumberAdapter.addTestStepLog("Initially " + resultsCountText + " of job profiles");
@@ -1343,19 +1346,19 @@ public class PO04_VerifyJobMappingPageComponents {
 				)).getText();
 			}
 			
-			updatedResultsCount = resultsCountText2;
+			updatedResultsCount.set(resultsCountText2);
 			
 			// Store this as initial filtered count ONLY if not already set
 			// Captures whatever count is showing at this moment (may be scrolled or not, depending on scenario flow)
-			if (initialFilteredResultsCount == null || initialFilteredResultsCount.isEmpty()) {
+			if (initialFilteredResultsCount.get() == null || initialFilteredResultsCount.get().isEmpty()) {
 				// Only set if it's different from initial (filters were applied)
-				if (!resultsCountText2.equals(intialResultsCount)) {
-					initialFilteredResultsCount = resultsCountText2;
-					LOGGER.debug("Stored initial filtered results count: {}", initialFilteredResultsCount);
+				if (!resultsCountText2.equals(intialResultsCount.get())) {
+					initialFilteredResultsCount.set(resultsCountText2);
+					LOGGER.debug("Stored initial filtered results count: {}", initialFilteredResultsCount.get());
 				}
 			} else {
 				LOGGER.debug("Initial filtered count already captured: {} (current count: {})", 
-					initialFilteredResultsCount, resultsCountText2);
+					initialFilteredResultsCount.get(), resultsCountText2);
 			}
 			
 			LOGGER.debug("Results count verification completed in {}ms", elapsedTime);
@@ -1590,9 +1593,9 @@ public class PO04_VerifyJobMappingPageComponents {
 	
 	public void click_on_view_other_matches_button() {
 		try { 
-			// Wait for the button to be present and visible before clicking
-			WebElement	viewOtherMatchesBtn = wait.until(ExpectedConditions.presenceOfElementLocated(
-				By.xpath("//tbody//tr["+Integer.toString(PO15_ValidateRecommendedProfileDetails.rowNumber)+"]//button[not(contains(@id,'publish'))]")));
+		// Wait for the button to be present and visible before clicking
+		WebElement	viewOtherMatchesBtn = wait.until(ExpectedConditions.presenceOfElementLocated(
+			By.xpath("//tbody//tr["+Integer.toString(PO15_ValidateRecommendedProfileDetails.rowNumber.get())+"]//button[not(contains(@id,'publish'))]")));
 		
 	// Scroll element into view before clicking
 	js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", viewOtherMatchesBtn);
@@ -1611,15 +1614,15 @@ public class PO04_VerifyJobMappingPageComponents {
 				utils.jsClick(driver, viewOtherMatchesBtn);
 			}
 		}
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			ExtentCucumberAdapter.addTestStepLog("Clicked on View Other Matches button on the job profile : " + PO15_ValidateRecommendedProfileDetails.orgJobName);
-			LOGGER.info("Clicked on View Other Matches button on the job profile : " + PO15_ValidateRecommendedProfileDetails.orgJobName);
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_view_other_matches_button", e);
-			LOGGER.error("Issue in clicking View Other matches button on the job profile - Method: click_on_view_other_matches_button", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking View Other matches button on the job profile : " + PO15_ValidateRecommendedProfileDetails.orgJobName + "...Please Investigate!!!");
-			Assert.fail("Issue in clicking View Other matches button on the job profile : " + PO15_ValidateRecommendedProfileDetails.orgJobName + "...Please Investigate!!!");
+		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+		ExtentCucumberAdapter.addTestStepLog("Clicked on View Other Matches button on the job profile : " + PO15_ValidateRecommendedProfileDetails.orgJobName.get());
+		LOGGER.info("Clicked on View Other Matches button on the job profile : " + PO15_ValidateRecommendedProfileDetails.orgJobName.get());
+	} catch (Exception e) {
+		ScreenshotHandler.captureFailureScreenshot("click_on_view_other_matches_button", e);
+		LOGGER.error("Issue in clicking View Other matches button on the job profile - Method: click_on_view_other_matches_button", e);
+		e.printStackTrace();
+		ExtentCucumberAdapter.addTestStepLog("Issue in clicking View Other matches button on the job profile : " + PO15_ValidateRecommendedProfileDetails.orgJobName.get() + "...Please Investigate!!!");
+		Assert.fail("Issue in clicking View Other matches button on the job profile : " + PO15_ValidateRecommendedProfileDetails.orgJobName.get() + "...Please Investigate!!!");
 		}
 	}
 
@@ -1663,21 +1666,51 @@ public class PO04_VerifyJobMappingPageComponents {
 	
 	public void user_should_get_success_profile_published_popup() {
 		try { 
-			wait.until(ExpectedConditions.visibilityOf(publishedSuccessHeader)).isDisplayed();
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(publishedSuccessHeader)).isDisplayed());
-			String successHeaderText = wait.until(ExpectedConditions.visibilityOf(publishedSuccessHeader)).getText();
-			Assert.assertEquals(successHeaderText, "Success Profiles Published");
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(publishedSuccessMsg)).isDisplayed());
-			String successMsgText = wait.until(ExpectedConditions.visibilityOf(publishedSuccessMsg)).getText();
-			Assert.assertEquals(successMsgText, "Your job profiles have been published.");
-			ExtentCucumberAdapter.addTestStepLog("Popup with Header " + successHeaderText + " and with message " + successMsgText + " is displaying as expected");
-			LOGGER.info("Popup with Header " + successHeaderText + " and with message " + successMsgText + " is displaying as expected");
+			// STEP 1: Ensure all loading spinners have disappeared (CRITICAL for stability)
+			LOGGER.debug("Waiting for page spinners to disappear before checking for success popup...");
+			try {
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			} catch (Exception spinnerEx) {
+				LOGGER.debug("Spinner wait timed out or no spinners found, continuing...");
+			}
+			
+			// STEP 2: Wait for page to be fully ready after publish action (critical for headless)
+			PerformanceUtils.waitForPageReady(driver, 3);
+			
+			// STEP 3: Additional buffer for DOM to settle and popup to render (especially for headless mode)
+			try { 
+				Thread.sleep(1000); 
+			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+			}
+			
+			// STEP 4: Wait for and verify the success popup header
+			LOGGER.debug("Waiting for success popup header to be visible...");
+			WebElement headerElement = wait.until(ExpectedConditions.visibilityOf(publishedSuccessHeader));
+			Assert.assertTrue(headerElement.isDisplayed(), "Success popup header is not displayed");
+			String successHeaderText = headerElement.getText();
+			LOGGER.info("Success popup header found with text: " + successHeaderText);
+			Assert.assertEquals(successHeaderText, "Success Profiles Published", 
+				"Header text mismatch. Expected: 'Success Profiles Published', Actual: '" + successHeaderText + "'");
+			
+			// STEP 5: Wait for and verify the success popup message
+			LOGGER.debug("Waiting for success popup message to be visible...");
+			WebElement messageElement = wait.until(ExpectedConditions.visibilityOf(publishedSuccessMsg));
+			Assert.assertTrue(messageElement.isDisplayed(), "Success popup message is not displayed");
+			String successMsgText = messageElement.getText();
+			LOGGER.info("Success popup message found with text: " + successMsgText);
+			Assert.assertEquals(successMsgText, "Your job profiles have been published.", 
+				"Message text mismatch. Expected: 'Your job profiles have been published.', Actual: '" + successMsgText + "'");
+			
+			ExtentCucumberAdapter.addTestStepLog("Popup with Header '" + successHeaderText + "' and with message '" + successMsgText + "' is displaying as expected");
+			LOGGER.info("✓ Success profile published popup verified successfully");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_get_success_profile_published_popup", e);
-			LOGGER.error("Issue in appearing success profile published message popup - Method: user_should_get_success_profile_published_popup", e);
+			LOGGER.error("✗ Issue in appearing success profile published message popup - Method: user_should_get_success_profile_published_popup", e);
+			LOGGER.error("Detailed error: " + e.getClass().getName() + " - " + e.getMessage());
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in appearing success profile published message popup....Please Investigate!!!");
-			Assert.fail("Issue in appearing success profile published message popup....Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("Issue in appearing success profile published message popup. Error: " + e.getMessage());
+			Assert.fail("Issue in appearing success profile published message popup. Error: " + e.getMessage());
 		}
 	}
 	

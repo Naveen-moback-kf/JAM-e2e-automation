@@ -63,12 +63,13 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 	public WebElement functionsSubFunctionsFiltersDropdown;
 	
 	// Static variables to store filter results count
-	public static int filterResultsCount = 0;
-	public static String firstFilterType = ""; // e.g., "Grades", "Departments", "Functions"
-	public static String firstFilterValue = ""; // e.g., "M3", "HR", "Finance"
-	public static String secondFilterType = "";
-	public static String secondFilterValue = "";
-	public static int totalSecondFilterResults = 0;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<Integer> filterResultsCount = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<String> firstFilterType = ThreadLocal.withInitial(() -> ""); // e.g., "Grades", "Departments", "Functions"
+	public static ThreadLocal<String> firstFilterValue = ThreadLocal.withInitial(() -> ""); // e.g., "M3", "HR", "Finance"
+	public static ThreadLocal<String> secondFilterType = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> secondFilterValue = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<Integer> totalSecondFilterResults = ThreadLocal.withInitial(() -> 0);
 	
 	public void apply_filter_and_verify_profiles_count_in_job_mapping_screen_for_feature39() {
 		try {
@@ -82,7 +83,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			
 			// Try to apply Grades filter (most common in Job Mapping)
 			LOGGER.info("Applying Grades filter...");
-			firstFilterType = "Grades";
+			firstFilterType.set("Grades");;
 			
 			try {
 				// First, click on Grades dropdown to expand it
@@ -123,14 +124,14 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 					try {
 						// Try to find label as sibling
 						labelElement = firstCheckbox.findElement(By.xpath(".//following-sibling::label | .//parent::*/label | .//parent::label"));
-						firstFilterValue = labelElement.getText().trim();
+						firstFilterValue.set(labelElement.getText().trim());
 					} catch (Exception e) {
 						// Fallback: Try to find any text within the checkbox container
 						try {
-							firstFilterValue = firstCheckbox.findElement(By.xpath(".//parent::*//div | .//parent::*")).getText().trim();
+							firstFilterValue.set(firstCheckbox.findElement(By.xpath(".//parent::*//div | .//parent::*")).getText().trim());
 						} catch (Exception ex) {
 							// Last resort: Get text from parent container
-							firstFilterValue = firstCheckbox.findElement(By.xpath("./parent::*")).getText().trim();
+							firstFilterValue.set(firstCheckbox.findElement(By.xpath("./parent::*")).getText().trim());
 						}
 					}
 					
@@ -165,7 +166,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				// Fallback to Departments filter
 				LOGGER.info("Grades not available, trying Departments filter...");
 				LOGGER.error("Grades filter error: " + gradesException.getMessage());
-				firstFilterType = "Departments";
+				firstFilterType.set("Departments");
 				
 				try {
 					// Click on Departments dropdown to expand it
@@ -206,14 +207,14 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						try {
 							// Try to find label as sibling
 							labelElement = firstCheckbox.findElement(By.xpath(".//following-sibling::label | .//parent::*/label | .//parent::label"));
-							firstFilterValue = labelElement.getText().trim();
+							firstFilterValue.set(labelElement.getText().trim());
 						} catch (Exception e) {
 							// Fallback: Try to find any text within the checkbox container
 							try {
-								firstFilterValue = firstCheckbox.findElement(By.xpath(".//parent::*//div | .//parent::*")).getText().trim();
+								firstFilterValue.set(firstCheckbox.findElement(By.xpath(".//parent::*//div | .//parent::*")).getText().trim());
 							} catch (Exception ex) {
 								// Last resort: Get text from parent container
-								firstFilterValue = firstCheckbox.findElement(By.xpath("./parent::*")).getText().trim();
+								firstFilterValue.set(firstCheckbox.findElement(By.xpath("./parent::*")).getText().trim());
 							}
 						}
 						
@@ -432,9 +433,9 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			}
 		}
 		
-		filterResultsCount = checkedCount; // This is the actual number of selected profiles
+		filterResultsCount.set(checkedCount); // This is the actual number of selected profiles
 		int totalVisibleProfiles = allCheckboxes.size();
-		int unselectedProfiles = totalVisibleProfiles - filterResultsCount; // Profiles that were not selected
+		int unselectedProfiles = totalVisibleProfiles - filterResultsCount.get(); // Profiles that were not selected
 		int disabledProfiles = 0; // Job Mapping doesn't have disabled profiles typically
 		
 		// Structured logging
@@ -449,7 +450,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 		
 		ExtentCucumberAdapter.addTestStepLog("Baseline: " + filterResultsCount + " selected profiles (counted by checked checkboxes)");
 		
-		if (filterResultsCount == 0) {
+		if (filterResultsCount.get() == 0) {
 			LOGGER.error(" CRITICAL: filterResultsCount is 0 after 'Select All' - this indicates a timing or detection issue!");
 			LOGGER.error("   Total checkboxes found: " + totalVisibleProfiles);
 			LOGGER.error("   Checked checkboxes: " + checkedCount);
@@ -459,7 +460,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 		} catch (Exception e) {
 			LOGGER.error("Error capturing selected profiles count: " + e.getMessage(), e);
 			ScreenshotHandler.captureFailureScreenshot("error_capturing_selected_count", e);
-			filterResultsCount = 0;
+			filterResultsCount.set(0);
 		}
 	}
 	
@@ -524,7 +525,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			LOGGER.info("========================================");
 			ExtentCucumberAdapter.addTestStepLog("Verifying only " + filterResultsCount + " profiles remain selected after clearing filters...");
 			
-			if (filterResultsCount == 0) {
+			if (filterResultsCount.get() == 0) {
 				LOGGER.warn(" Filter results count is 0, skipping verification");
 				ExtentCucumberAdapter.addTestStepLog(" No filter results to verify");
 				return;
@@ -588,8 +589,8 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				}
 			}
 				
-				if (currentSelectedCount > filterResultsCount) {
-					int extra = currentSelectedCount - filterResultsCount;
+				if (currentSelectedCount > filterResultsCount.get()) {
+					int extra = currentSelectedCount - filterResultsCount.get();
 					LOGGER.warn(" FAIL-FAST at scroll " + scrollAttempts + ": Found " + currentSelectedCount + 
 						" selected profiles (expected " + filterResultsCount + "), " + extra + " extra selections detected");
 					allProfilesLoaded = true;  // Break the loop
@@ -650,10 +651,10 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			// Calculate missing/extra selections
 			int missingSelections = 0;
 			int extraSelections = 0;
-			if (actualSelectedCount < filterResultsCount) {
-				missingSelections = filterResultsCount - actualSelectedCount;
-			} else if (actualSelectedCount > filterResultsCount) {
-				extraSelections = actualSelectedCount - filterResultsCount;
+			if (actualSelectedCount < filterResultsCount.get()) {
+				missingSelections = filterResultsCount.get() - actualSelectedCount;
+			} else if (actualSelectedCount > filterResultsCount.get()) {
+				extraSelections = actualSelectedCount - filterResultsCount.get();
 			}
 			
 			// Structured summary logging
@@ -693,13 +694,13 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
-				} else if (actualSelectedCount > filterResultsCount) {
+				} else if (actualSelectedCount > filterResultsCount.get()) {
 					String errorMsg = " FAIL: Found " + actualSelectedCount + " selected (expected " + filterResultsCount + 
 						"), " + extraSelections + " extra profiles incorrectly selected";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
-				} else if (actualSelectedCount < filterResultsCount) {
+				} else if (actualSelectedCount < filterResultsCount.get()) {
 					// PASS: Remaining selections likely in unloaded profiles
 					String successMsg = " PASS: Found " + actualSelectedCount + " of " + filterResultsCount + 
 						" selected profiles in loaded data (remaining " + missingSelections + " likely in unloaded profiles)";
@@ -713,11 +714,11 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				}
 			} else {
 				// Normal validation when all profiles are loaded
-				if (actualSelectedCount == filterResultsCount) {
+				if (actualSelectedCount == filterResultsCount.get()) {
 					String successMsg = " PASS: All " + filterResultsCount + " filtered profiles remain selected";
 					LOGGER.info(successMsg);
 					ExtentCucumberAdapter.addTestStepLog(successMsg);
-				} else if (actualSelectedCount < filterResultsCount) {
+				} else if (actualSelectedCount < filterResultsCount.get()) {
 					String errorMsg = " FAIL: Only " + actualSelectedCount + " selected (expected " + filterResultsCount + 
 						"), " + missingSelections + " profiles cannot be selected or lost selection";
 					LOGGER.error(errorMsg);
@@ -761,7 +762,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			// If first was Grades, apply Grades again with different value
 			if (firstFilterType.equals("Grades")) {
 				// Apply Grades with different value
-				secondFilterType = "Grades";
+				secondFilterType.set("Grades");
 				
 				try {
 					// Open Grades dropdown again
@@ -820,14 +821,14 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						LOGGER.info("Selecting Grades option at index " + optionIndex + " (total options: " + gradesOptions.size() + ")");
 						
 						// IMPROVED: Multiple strategies to extract label text
-						secondFilterValue = "";
+						secondFilterValue.set("");
 						WebElement selectedOption = gradesOptions.get(optionIndex);
 						
 						// Strategy 1: Get text from label element (sibling or parent)
 						try {
 							WebElement label = selectedOption.findElement(By.xpath(".//following-sibling::label | .//parent::*/label | .//parent::label"));
-							secondFilterValue = label.getText().trim();
-							if (!secondFilterValue.isEmpty()) {
+							secondFilterValue.set(label.getText().trim());
+							if (!secondFilterValue.get().isEmpty()) {
 								LOGGER.info(" Extracted label using Strategy 1 (label element): " + secondFilterValue);
 							}
 						} catch (Exception e) {
@@ -835,11 +836,11 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						}
 						
 						// Strategy 2: Get text from parent container
-						if (secondFilterValue.isEmpty()) {
+						if (secondFilterValue.get().isEmpty()) {
 							try {
 								WebElement checkboxContainer = selectedOption.findElement(By.xpath("./parent::*"));
-								secondFilterValue = checkboxContainer.getText().trim();
-								if (!secondFilterValue.isEmpty()) {
+								secondFilterValue.set(checkboxContainer.getText().trim());
+								if (!secondFilterValue.get().isEmpty()) {
 									LOGGER.info(" Extracted label using Strategy 2 (parent container): " + secondFilterValue);
 								}
 							} catch (Exception e) {
@@ -848,11 +849,11 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						}
 						
 						// Strategy 3: Get text from any div with class containing 'label' or 'text'
-						if (secondFilterValue.isEmpty()) {
+						if (secondFilterValue.get().isEmpty()) {
 							try {
 								WebElement textDiv = selectedOption.findElement(By.xpath("./parent::*//div | ./parent::*"));
-								secondFilterValue = textDiv.getText().trim();
-								if (!secondFilterValue.isEmpty()) {
+								secondFilterValue.set(textDiv.getText().trim());
+								if (!secondFilterValue.get().isEmpty()) {
 									LOGGER.info(" Extracted label using Strategy 3 (text div): " + secondFilterValue);
 								}
 							} catch (Exception e) {
@@ -861,8 +862,8 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						}
 						
 						// Fallback: Use descriptive placeholder
-						if (secondFilterValue.isEmpty()) {
-							secondFilterValue = "Grades_Option_" + (optionIndex + 1);
+						if (secondFilterValue.get().isEmpty()) {
+							secondFilterValue.set("Grades_Option_" + (optionIndex + 1));
 							LOGGER.warn(" All label extraction strategies failed, using fallback: " + secondFilterValue);
 						}
 						
@@ -946,7 +947,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				}
 			} else {
 				// If first was Departments, apply Departments again with different value
-				secondFilterType = "Departments";
+				secondFilterType.set("Departments");
 				
 				try {
 				// Open Departments dropdown again
@@ -1005,14 +1006,14 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						LOGGER.info("Selecting Departments option at index " + optionIndex + " (total options: " + departmentsOptions.size() + ")");
 						
 						// IMPROVED: Multiple strategies to extract label text
-						secondFilterValue = "";
+						secondFilterValue.set("");
 						WebElement selectedOption = departmentsOptions.get(optionIndex);
 						
 						// Strategy 1: Get text from label element (sibling or parent)
 						try {
 							WebElement label = selectedOption.findElement(By.xpath(".//following-sibling::label | .//parent::*/label | .//parent::label"));
-							secondFilterValue = label.getText().trim();
-							if (!secondFilterValue.isEmpty()) {
+							secondFilterValue.set(label.getText().trim());
+							if (!secondFilterValue.get().isEmpty()) {
 								LOGGER.info(" Extracted label using Strategy 1 (label element): " + secondFilterValue);
 							}
 						} catch (Exception e) {
@@ -1020,11 +1021,11 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						}
 						
 						// Strategy 2: Get text from parent container
-						if (secondFilterValue.isEmpty()) {
+						if (secondFilterValue.get().isEmpty()) {
 							try {
 								WebElement checkboxContainer = selectedOption.findElement(By.xpath("./parent::*"));
-								secondFilterValue = checkboxContainer.getText().trim();
-								if (!secondFilterValue.isEmpty()) {
+								secondFilterValue.set(checkboxContainer.getText().trim());
+								if (!secondFilterValue.get().isEmpty()) {
 									LOGGER.info(" Extracted label using Strategy 2 (parent container): " + secondFilterValue);
 								}
 							} catch (Exception e) {
@@ -1033,11 +1034,11 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						}
 						
 						// Strategy 3: Get text from any div with class containing 'label' or 'text'
-						if (secondFilterValue.isEmpty()) {
+						if (secondFilterValue.get().isEmpty()) {
 							try {
 								WebElement textDiv = selectedOption.findElement(By.xpath("./parent::*//div | ./parent::*"));
-								secondFilterValue = textDiv.getText().trim();
-								if (!secondFilterValue.isEmpty()) {
+								secondFilterValue.set(textDiv.getText().trim());
+								if (!secondFilterValue.get().isEmpty()) {
 									LOGGER.info(" Extracted label using Strategy 3 (text div): " + secondFilterValue);
 								}
 							} catch (Exception e) {
@@ -1046,8 +1047,8 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						}
 						
 						// Fallback: Use descriptive placeholder
-						if (secondFilterValue.isEmpty()) {
-							secondFilterValue = "Departments_Option_" + (optionIndex + 1);
+						if (secondFilterValue.get().isEmpty()) {
+							secondFilterValue.set("Departments_Option_" + (optionIndex + 1));
 							LOGGER.warn(" All label extraction strategies failed, using fallback: " + secondFilterValue);
 						}
 						
@@ -1239,10 +1240,10 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 	 * - Matches original alternative validation design
 	 */
 	public void scroll_down_to_load_all_second_filter_results_in_job_mapping_screen_for_feature39() throws InterruptedException {
-		String firstFilterType = PO39_ValidateSelectAllWithFiltersFunctionality_JAM.firstFilterType;
-		String firstFilterValue = PO39_ValidateSelectAllWithFiltersFunctionality_JAM.firstFilterValue;
-		String secondFilterType = PO39_ValidateSelectAllWithFiltersFunctionality_JAM.secondFilterType;
-		String secondFilterValue = PO39_ValidateSelectAllWithFiltersFunctionality_JAM.secondFilterValue;
+		String firstFilterType = PO39_ValidateSelectAllWithFiltersFunctionality_JAM.firstFilterType.get();
+		String firstFilterValue = PO39_ValidateSelectAllWithFiltersFunctionality_JAM.firstFilterValue.get();
+		String secondFilterType = PO39_ValidateSelectAllWithFiltersFunctionality_JAM.secondFilterType.get();
+		String secondFilterValue = PO39_ValidateSelectAllWithFiltersFunctionality_JAM.secondFilterValue.get();
 		
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
@@ -1255,7 +1256,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			if (resultsCountText.matches(".*Showing\\s+0\\s+of.*")) {
 				LOGGER.warn(" Second filter returned 0 results, skipping");
 				ExtentCucumberAdapter.addTestStepLog(" Second filter returned 0 results");
-				totalSecondFilterResults = 0;
+				totalSecondFilterResults.set(0);
 				return;
 			}
 			
@@ -1285,7 +1286,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			By.xpath("//div[@id='org-job-container']//tbody//tr//td[1][contains(@class,'whitespace')]//input[@type='checkbox']")
 		);
 		int initialCount = initialCheckboxes.size(); // Each checkbox = 1 profile
-		totalSecondFilterResults = initialCount;
+		totalSecondFilterResults.set(initialCount);
 		
 		// Count selected profiles by checking checkbox state
 		int initialSelectedCount = 0;

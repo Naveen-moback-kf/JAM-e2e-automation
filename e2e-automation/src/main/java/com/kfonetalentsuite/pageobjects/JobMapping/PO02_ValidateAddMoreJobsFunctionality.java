@@ -36,9 +36,10 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO02_ValidateAddMoreJobsFunctionality validateAddMoreJobsFunctionality;
 	
-	public static String lastSyncedInfo1;
-	public static String ResultsCountBeforeAddingMoreJobs;
-	public static String KFONEjobsCountBeforeAddingMoreJobs;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> lastSyncedInfo1 = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> ResultsCountBeforeAddingMoreJobs = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> KFONEjobsCountBeforeAddingMoreJobs = ThreadLocal.withInitial(() -> null);
 
 	public PO02_ValidateAddMoreJobsFunctionality() throws IOException {
 		// super();
@@ -186,9 +187,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			// Try to find the results count element first
 			try {
 				String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-				ResultsCountBeforeAddingMoreJobs = resultsCountText.split(" ")[3];
-				LOGGER.info("Unpublished Job Profiles Count in AI Auto UI / Job Mapping page before Adding More Jobs : " + ResultsCountBeforeAddingMoreJobs);
-				ExtentCucumberAdapter.addTestStepLog("Unpublished Job Profiles Count in AI Auto UI / Job Mapping page before Adding More Jobs : " + ResultsCountBeforeAddingMoreJobs);
+				ResultsCountBeforeAddingMoreJobs.set(resultsCountText.split(" ")[3]);
+				LOGGER.info("Unpublished Job Profiles Count in AI Auto UI / Job Mapping page before Adding More Jobs : " + ResultsCountBeforeAddingMoreJobs.get());
+				ExtentCucumberAdapter.addTestStepLog("Unpublished Job Profiles Count in AI Auto UI / Job Mapping page before Adding More Jobs : " + ResultsCountBeforeAddingMoreJobs.get());
 			} catch (Exception e) {
 				// If results count element not found, check for "Nothing to see here... yet!" message
 				LOGGER.debug("Results count element not found, checking for 'Nothing to see here... yet!' message");
@@ -198,9 +199,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 					));
 					
 					if (nothingToSeeElement.isDisplayed()) {
-						ResultsCountBeforeAddingMoreJobs = "0";
+						ResultsCountBeforeAddingMoreJobs.set("0");
 						LOGGER.info(" 'Nothing to see here... yet!' message displayed - Setting count to 0");
-						LOGGER.info("Unpublished Job Profiles Count in AI Auto UI / Job Mapping page before Adding More Jobs : " + ResultsCountBeforeAddingMoreJobs);
+						LOGGER.info("Unpublished Job Profiles Count in AI Auto UI / Job Mapping page before Adding More Jobs : " + ResultsCountBeforeAddingMoreJobs.get());
 						ExtentCucumberAdapter.addTestStepLog(" No unpublished jobs found - Count set to 0 (Empty state message displayed)");
 					} else {
 						throw new Exception("Neither results count nor empty state message found");
@@ -314,9 +315,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 	public void verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
-			KFONEjobsCountBeforeAddingMoreJobs = wait.until(ExpectedConditions.visibilityOf(KFONEjobsCount)).getText();
-			LOGGER.info("Jobs count in KFONE Add Job Data screen before Adding More Jobs : " + KFONEjobsCountBeforeAddingMoreJobs);
-			ExtentCucumberAdapter.addTestStepLog("Jobs count in KFONE Add Job Data screen before Adding More Jobs : " + KFONEjobsCountBeforeAddingMoreJobs);
+			KFONEjobsCountBeforeAddingMoreJobs.set(wait.until(ExpectedConditions.visibilityOf(KFONEjobsCount)).getText());
+			LOGGER.info("Jobs count in KFONE Add Job Data screen before Adding More Jobs : " + KFONEjobsCountBeforeAddingMoreJobs.get());
+			ExtentCucumberAdapter.addTestStepLog("Jobs count in KFONE Add Job Data screen before Adding More Jobs : " + KFONEjobsCountBeforeAddingMoreJobs.get());
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs", e);
 			LOGGER.error("Issue in verifying Jobs count before adding - Method: verify_jobs_count_before_adding", e);
@@ -332,7 +333,7 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			PerformanceUtils.waitForUIStability(driver, 2);
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(lastsyncedInfo)).isDisplayed());
 			String lastSyncedInfoText1 = lastsyncedInfo.getText();
-			lastSyncedInfo1 = lastSyncedInfoText1;
+			lastSyncedInfo1.set(lastSyncedInfoText1);
 			LOGGER.info("Last Synced Info on KFONE Add Job Data screen before adding More Jobs : " + lastSyncedInfoText1);
 			ExtentCucumberAdapter.addTestStepLog("Last Synced Info on KFONE Add Job Data screen before adding More Jobs : " + lastSyncedInfoText1);
 		} catch (Exception e) {
@@ -704,11 +705,11 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			String KFONEjobsCountAfterAddingMoreJobs = wait.until(ExpectedConditions.visibilityOf(KFONEjobsCount)).getText();
 			LOGGER.info("Jobs count in KFONE Add Job Data screen after Adding More Jobs : " + KFONEjobsCountAfterAddingMoreJobs);
 			ExtentCucumberAdapter.addTestStepLog("Jobs count in KFONE Add Job Data screen after Adding More Jobs : " + KFONEjobsCountAfterAddingMoreJobs);
-			if(!(KFONEjobsCountBeforeAddingMoreJobs.equals(KFONEjobsCountAfterAddingMoreJobs))) {
+			if(!(KFONEjobsCountBeforeAddingMoreJobs.get().equals(KFONEjobsCountAfterAddingMoreJobs))) {
 				LOGGER.info("KFONE Jobs count is UPDATED as Expected in KFONE Add Job Data screen after Adding More Jobs....");
 				ExtentCucumberAdapter.addTestStepLog("KFONE Jobs count is UPDATED as Expected in KFONE Add Job Data screen after Adding More Jobs....");
 			} else {
-				Assert.fail("KFONE Jobs count in KFONE Add Job Data screen before Adding More Jobs : " + KFONEjobsCountBeforeAddingMoreJobs);
+				Assert.fail("KFONE Jobs count in KFONE Add Job Data screen before Adding More Jobs : " + KFONEjobsCountBeforeAddingMoreJobs.get());
 				throw new Exception("KFONE Jobs count is NOT UPDATED in KFONE Add Job Data screen after adding More Jobs...Please Investigate!!!");
 			}
 		} catch (Exception e) {
@@ -727,11 +728,11 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			String lastSyncedInfoText2 = lastsyncedInfo.getText();
 			LOGGER.info("Last Synced Info on KFONE Add Job Data screen after adding More Jobs : " + lastSyncedInfoText2);
 			ExtentCucumberAdapter.addTestStepLog("Last Synced Info on KFONE Add Job Data screen before adding More Jobs : " + lastSyncedInfoText2);
-			if(!(lastSyncedInfo1.equals(lastSyncedInfoText2))) {
+			if(!(lastSyncedInfo1.get().equals(lastSyncedInfoText2))) {
 				LOGGER.info("Last Synced Info on KFONE Add Job Data screen is UPDATED as Expected after adding More Jobs....");
 				ExtentCucumberAdapter.addTestStepLog("Last Synced Info on KFONE Add Job Data screen is UPDATED as Expected after adding More Jobs....");
 			} else {
-				Assert.fail("Last Synced Info on KFONE Add Job Data screen before adding More Jobs : " + lastSyncedInfo1);
+				Assert.fail("Last Synced Info on KFONE Add Job Data screen before adding More Jobs : " + lastSyncedInfo1.get());
 				throw new Exception("Last Synced Info on KFONE Add Job Data screen is NOT UPDATED after adding More Jobs...Please Investigate!!!");
 			}
 		} catch (Exception e) {
@@ -771,12 +772,12 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			String ResultsCountAfterAddingMoreJobs = resultsCountText.split(" ")[3];
 			LOGGER.info("Unpublished Job Profiles Count in Job Mapping page after Adding More Jobs : " + ResultsCountAfterAddingMoreJobs);
 			ExtentCucumberAdapter.addTestStepLog("Unpublished Job Profiles Count in Job Mapping page after Adding More Jobs : " + ResultsCountAfterAddingMoreJobs);
-			if(!(ResultsCountBeforeAddingMoreJobs.equals(ResultsCountAfterAddingMoreJobs))) {
+			if(!(ResultsCountBeforeAddingMoreJobs.get().equals(ResultsCountAfterAddingMoreJobs))) {
 				LOGGER.info("Unpublished Jobs count is UPDATED as Expected in Job Mapping page after Adding More Jobs....");
 				ExtentCucumberAdapter.addTestStepLog("Unpublished Jobs count is UPDATED as Expected in Job Mapping page after Adding More Jobs....");
 			} else {
 				throw new Exception("Unpublished Jobs count is NOT UPDATED in Job Mapping page after adding More Jobs...Please Investigate!!!");
-//				Assert.fail("Unpublished Job Profiles Count in Job Mapping page before Adding More Jobs : " + ResultsCountBeforeAddingMoreJobs);
+//				Assert.fail("Unpublished Job Profiles Count in Job Mapping page before Adding More Jobs : " + ResultsCountBeforeAddingMoreJobs.get());
 			}
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_unpublished_jobs_count_after_adding_more_jobs", e);

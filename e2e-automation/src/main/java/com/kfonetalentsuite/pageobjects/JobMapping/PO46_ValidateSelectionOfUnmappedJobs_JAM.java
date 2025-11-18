@@ -31,8 +31,9 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
 	// Flag to track if scenario should be skipped (when Unmapped option is not available)
-	public static boolean skipScenario = false;
+	public static ThreadLocal<Boolean> skipScenario = ThreadLocal.withInitial(() -> false);
 	
 	public PO46_ValidateSelectionOfUnmappedJobs_JAM() throws IOException {
 		PageFactory.initElements(driver, this);
@@ -58,7 +59,7 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 	 */
 	public void select_unmapped_jobs_option_in_mapping_status_filters_dropdown() {
 		// Reset skip flag at the start of scenario
-		skipScenario = false;
+		skipScenario.set(false);
 		
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
@@ -107,9 +108,9 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 				}
 			}
 			
-			if (!unmappedFound) {
-				skipScenario = true;
-				String skipMessage = "Unmapped option not found in Mapping Status Filters dropdown - Skipping Feature 46 validation";
+		if (!unmappedFound) {
+			skipScenario.set(true);
+			String skipMessage = "Unmapped option not found in Mapping Status Filters dropdown - Skipping Feature 46 validation";
 				LOGGER.warn(skipMessage);
 				ExtentCucumberAdapter.addTestStepLog(" " + skipMessage);
 				throw new SkipException(skipMessage);
@@ -133,7 +134,7 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 	 */
 	public void verify_header_checkbox_is_disabled_in_job_mapping_screen() {
 		// Skip if Unmapped option was not found
-		if (skipScenario) {
+		if (skipScenario.get()) {
 			throw new SkipException("Skipping validation - Unmapped Jobs option not available in Mapping Status Filters in Job Mapping");
 		}
 		
@@ -171,7 +172,7 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 	 */
 	public void verify_chevron_button_is_disabled_in_job_mapping_screen() {
 		// Skip if Unmapped option was not found
-		if (skipScenario) {
+		if (skipScenario.get()) {
 			throw new SkipException("Skipping validation - Unmapped option not available in Mapping Status Filters");
 		}
 		
@@ -240,7 +241,7 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 	 */
 	public void verify_checkbox_of_all_unmapped_jobs_is_disabled_with_tooltip() {
 		// Skip if Unmapped option was not found
-		if (skipScenario) {
+		if (skipScenario.get()) {
 			throw new SkipException("Skipping validation - Unmapped option not available in Mapping Status Filters");
 		}
 		

@@ -36,20 +36,24 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	// Dynamic search profile names with fallback options
 	// The system will try each profile name in order until results are found
 	public static String[] SEARCH_PROFILE_NAME_OPTIONS = {"Architect", "Manager", "Analyst", "Senior", "Engineer", "Administrator", "Assistant", "Coordinator", "Technician", "Director"};
-	public static String jobProfileName = "Architect"; // Will be set dynamically based on which name returns results
 	
-	public static String intialResultsCount;
-	public static String updatedResultsCount;
-	public static String orgJobNameInRow1;
-	public static int profilesCount = 0;
-	public static String jobname1;
-	public static String jobname2;
-	public static String jobname3;
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> jobProfileName = ThreadLocal.withInitial(() -> "Architect"); // Will be set dynamically based on which name returns results
+	
+	public static ThreadLocal<String> intialResultsCount = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> updatedResultsCount = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> orgJobNameInRow1 = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<Integer> profilesCount = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<Boolean> isProfilesCountComplete = ThreadLocal.withInitial(() -> true); // Flag: true = all profiles loaded & counted, false = maxScrollAttempts reached (incomplete count)
+	public static ThreadLocal<String> jobname1 = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> jobname2 = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> jobname3 = ThreadLocal.withInitial(() -> null);
 	
 	// Variables for Feature 33 - Select Loaded Profiles validation
-	public static int loadedProfilesBeforeHeaderCheckboxClick = 0; // Profiles loaded on screen BEFORE clicking header checkbox
-	public static int selectedProfilesAfterHeaderCheckboxClick = 0; // Profiles actually selected (enabled profiles)
-	public static int disabledProfilesCountInLoadedProfiles = 0; // Disabled profiles (cannot be selected)
+	// THREAD-SAFE: Each thread maintains its own counts
+	public static ThreadLocal<Integer> loadedProfilesBeforeHeaderCheckboxClick = ThreadLocal.withInitial(() -> 0); // Profiles loaded on screen BEFORE clicking header checkbox
+	public static ThreadLocal<Integer> selectedProfilesAfterHeaderCheckboxClick = ThreadLocal.withInitial(() -> 0); // Profiles actually selected (enabled profiles)
+	public static ThreadLocal<Integer> disabledProfilesCountInLoadedProfiles = ThreadLocal.withInitial(() -> 0); // Disabled profiles (cannot be selected)
 	
 
 	public PO22_ValidateHCMSyncProfilesScreen_PM() throws IOException {
@@ -533,10 +537,10 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 							LOGGER.info("   First result profile name: '" + firstProfileName + "'");
 							
 							if (firstProfileName.toLowerCase().contains(profileName.toLowerCase())) {
-								// Perfect match! First result contains the search term
-								selectedProfileName = profileName;
-								jobProfileName = profileName; // Update static variable for other methods to use
-								foundResults = true;
+							// Perfect match! First result contains the search term
+							selectedProfileName = profileName;
+							jobProfileName.set(profileName); // Update ThreadLocal variable for other methods to use
+							foundResults = true;
 								
 								LOGGER.info(" Found matching result with profile name: '" + profileName + "'");
 								LOGGER.info("   First profile: '" + firstProfileName + "' contains search term");
@@ -605,9 +609,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		}
 		
 		if (profileFound) {
-			// Profile exists - verify it matches search criteria
-			String profileNameFromList = job1NameText.split("-", 2)[0].trim();
-			boolean matchesSearch = profileNameFromList.toLowerCase().contains(jobProfileName.toLowerCase());
+		// Profile exists - verify it matches search criteria
+		String profileNameFromList = job1NameText.split("-", 2)[0].trim();
+		boolean matchesSearch = profileNameFromList.toLowerCase().contains(jobProfileName.get().toLowerCase());
 			
 			if (matchesSearch) {
 				LOGGER.info("Searched String present in Job Profile with name: '{}' is displaying in HCM Sync Profiles screen in PM as expected", profileNameFromList);
@@ -757,11 +761,11 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		try {
 			// CRITICAL: Wait for spinner to disappear before checking results count
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver, 2);
-			String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-			intialResultsCount = resultsCountText;
-		    LOGGER.info("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
-		    ExtentCucumberAdapter.addTestStepLog("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
+		PerformanceUtils.waitForPageReady(driver, 2);
+		String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+		intialResultsCount.set(resultsCountText);
+	    LOGGER.info("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
+	    ExtentCucumberAdapter.addTestStepLog("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying job profiles count - Method: verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab", e);
 		ScreenshotHandler.captureFailureScreenshot("verify_job_profiles_count", e);
@@ -792,16 +796,16 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		try {
 			js.executeScript("arguments[0].scrollIntoView(true);", hcmSyncProfilesTitle);
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			// PERFORMANCE: Replaced Thread.sleep(3000) with smart element wait
-			PerformanceUtils.waitForElement(driver, showingJobResultsCount);
-			String resultsCountText1 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-			updatedResultsCount = resultsCountText1;
-			// PERFORMANCE: Removed Thread.sleep(2000) - element already waited for above
-			Assert.assertNotEquals(intialResultsCount,resultsCountText1);
-			if (resultsCountText1 != intialResultsCount) {
-				LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText1 + " as expected in HCM Sync Profiles screen in PM");
-				ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText1 + " as expected in HCM Sync Profiles screen in PM");	
-			}
+		// PERFORMANCE: Replaced Thread.sleep(3000) with smart element wait
+		PerformanceUtils.waitForElement(driver, showingJobResultsCount);
+		String resultsCountText1 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+		updatedResultsCount.set(resultsCountText1);
+		// PERFORMANCE: Removed Thread.sleep(2000) - element already waited for above
+		Assert.assertNotEquals(intialResultsCount.get(),resultsCountText1);
+		if (!resultsCountText1.equals(intialResultsCount.get())) {
+			LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText1 + " as expected in HCM Sync Profiles screen in PM");
+			ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText1 + " as expected in HCM Sync Profiles screen in PM");	
+		}
 			else {
 				ExtentCucumberAdapter.addTestStepLog("Issue in updating success profiles results count, Still " + resultsCountText1 + " in HCM Sync Profiles screen in PM....Please Investiagte!!!");
 				throw new Exception("Issue in updating success profiles results count, Still " + resultsCountText1 + " in HCM Sync Profiles screen in PM....Please Investiagte!!!");
@@ -1016,12 +1020,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			} else {
 				// There are results, verify count changed
 				PerformanceUtils.waitForElement(driver, showingJobResultsCount);
-				String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-				Assert.assertNotEquals(updatedResultsCount, resultsCountText2);
-				if (resultsCountText2 != updatedResultsCount) {
-					LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying KF Grade Filters in HCM Sync Profiles screen in PM");
-					ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying KF Grade Filters in HCM Sync Profiles screen in PM");	
-				} else {
+			String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+			Assert.assertNotEquals(updatedResultsCount.get(), resultsCountText2);
+			if (!resultsCountText2.equals(updatedResultsCount.get())) {
+				LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying KF Grade Filters in HCM Sync Profiles screen in PM");
+				ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying KF Grade Filters in HCM Sync Profiles screen in PM");	
+			} else {
 					ExtentCucumberAdapter.addTestStepLog("Issue in updating success profiles results count, Still " + resultsCountText2 + " after applying KF Grade Filters in HCM Sync Profiles screen in PM....Please Investiagte!!!");
 					throw new Exception("Issue in updating success profiles results count, Still " + resultsCountText2 + " after applying KF Grade Filters in HCM Sync Profiles screen in PM....Please Investiagte!!!");
 				}
@@ -1164,12 +1168,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			} else {
 				// There are results, verify count changed
 				PerformanceUtils.waitForElement(driver, showingJobResultsCount);
-				String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-				Assert.assertNotEquals(intialResultsCount, resultsCountText2);
-				if (resultsCountText2 != intialResultsCount) {
-					LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Levels Filters in HCM Sync Profiles screen in PM");
-					ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Levels Filters in HCM Sync Profiles screen in PM");	
-				} else {
+			String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+			Assert.assertNotEquals(intialResultsCount.get(), resultsCountText2);
+			if (!resultsCountText2.equals(intialResultsCount.get())) {
+				LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Levels Filters in HCM Sync Profiles screen in PM");
+				ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Levels Filters in HCM Sync Profiles screen in PM");	
+			} else {
 					Assert.fail("Issue in updating success profiles results count, Still " + resultsCountText2 + " after applying Levels Filters in HCM Sync Profiles screen in PM....Please Investiagte!!!");
 					ExtentCucumberAdapter.addTestStepLog("Issue in updating success profiles results count, Still " + resultsCountText2 + " after applying Levels Filters in HCM Sync Profiles screen in PM....Please Investiagte!!!");
 					throw new Exception("Issue in updating success profiles results count, Still " + resultsCountText2 + " after applying Levels Filters in HCM Sync Profiles screen in PM....Please Investiagte!!!");
@@ -1315,12 +1319,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			} else {
 				// There are results, verify count changed
 				PerformanceUtils.waitForElement(driver, showingJobResultsCount);
-				String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-				Assert.assertNotEquals(intialResultsCount, resultsCountText2);
-				if (resultsCountText2 != intialResultsCount) {
-					LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Functions / Subfunctions Filters in HCM Sync Profiles screen in PM");
-					ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Functions / Subfunctions Filters in HCM Sync Profiles screen in PM");	
-				} else {
+			String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+			Assert.assertNotEquals(intialResultsCount.get(), resultsCountText2);
+			if (!resultsCountText2.equals(intialResultsCount.get())) {
+				LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Functions / Subfunctions Filters in HCM Sync Profiles screen in PM");
+				ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Functions / Subfunctions Filters in HCM Sync Profiles screen in PM");	
+			} else {
 					Assert.fail("Issue in updating success profiles results count, Still " + resultsCountText2 + " after applying Functions / Subfunctions Filters in HCM Sync Profiles screen in PM....Please Investiagte!!!");
 					ExtentCucumberAdapter.addTestStepLog("Issue in updating success profiles results count, Still " + resultsCountText2 + " after applying Functions / Subfunctions Filters in HCM Sync Profiles screen in PM....Please Investiagte!!!");
 					throw new Exception("Issue in updating success profiles results count, Still " + resultsCountText2 + " after applying Functions / Subfunctions Filters in HCM Sync Profiles screen in PM....Please Investiagte!!!");
@@ -1479,12 +1483,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				}
 			} else {
 				// There are results, verify count changed
-				PerformanceUtils.waitForElement(driver, showingJobResultsCount);
-				String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-				Assert.assertNotEquals(updatedResultsCount, resultsCountText2);
-				if (resultsCountText2 != updatedResultsCount) {
-					LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Profile Status Filters in HCM Sync Profiles screen in PM");
-					ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Profile Status Filters in HCM Sync Profiles screen in PM");	
+			PerformanceUtils.waitForElement(driver, showingJobResultsCount);
+			String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+			Assert.assertNotEquals(updatedResultsCount.get(), resultsCountText2);
+			if (!resultsCountText2.equals(updatedResultsCount.get())) {
+				LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Profile Status Filters in HCM Sync Profiles screen in PM");
+				ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Profile Status Filters in HCM Sync Profiles screen in PM");
 				} else {
 					ExtentCucumberAdapter.addTestStepLog("Issue in updating success profiles results count, Still " + resultsCountText2 + " after applying Profile Status Filters in HCM Sync Profiles screen in PM....Please Investiagte!!!");
 					throw new Exception("Issue in updating success profiles results count, Still " + resultsCountText2 + " after applying Profile Status Filters in HCM Sync Profiles screen in PM....Please Investiagte!!!");
@@ -1552,60 +1556,60 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void click_on_header_checkbox_to_select_loaded_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
 			// Step 1: Store count of profiles loaded BEFORE clicking header checkbox
-			String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-			String[] resultsCountText_split = resultsCountText.split(" ");
-			loadedProfilesBeforeHeaderCheckboxClick = Integer.parseInt(resultsCountText_split[1]);
-			LOGGER.info("Loaded profiles on screen (BEFORE header checkbox click): " + loadedProfilesBeforeHeaderCheckboxClick);
-			
-			// Step 2: Click header checkbox
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeaderCheckbox)).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", tableHeaderCheckbox);
-				} catch (Exception s) {
-					utils.jsClick(driver, tableHeaderCheckbox);
-				}
-			}
-			
-		// Step 3: Count selected and disabled profiles (without scrolling)
-		profilesCount = loadedProfilesBeforeHeaderCheckboxClick;
-		disabledProfilesCountInLoadedProfiles = 0;
+		String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+		String[] resultsCountText_split = resultsCountText.split(" ");
+		loadedProfilesBeforeHeaderCheckboxClick.set(Integer.parseInt(resultsCountText_split[1]));
+		LOGGER.info("Loaded profiles on screen (BEFORE header checkbox click): " + loadedProfilesBeforeHeaderCheckboxClick.get());
 		
-		for(int i = 1; i <= loadedProfilesBeforeHeaderCheckboxClick; i++) {
+		// Step 2: Click header checkbox
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(tableHeaderCheckbox)).click();
+		} catch (Exception e) {
 			try {
-				WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(i) + "]//td[1]//*//..//div//kf-checkbox//div"));
-				// REMOVED: Scroll operation - js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
-				String text = SP_Checkbox.getAttribute("class");
-				if(text.contains("disable")) {
-					LOGGER.info("Success profile with No Job Code assigned is found....");
-					ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
-					disabledProfilesCountInLoadedProfiles++;
-					profilesCount = profilesCount - 1;
-				}
-			} catch(Exception e) {
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-				PerformanceUtils.waitForPageReady(driver, 3);
-				WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(i) + "]//td[1]//*//..//div//kf-checkbox//div"));
-				// REMOVED: Scroll operation - js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
-				String text = SP_Checkbox.getAttribute("class");
-				if(text.contains("disable")) {
-					LOGGER.info("Success profile with No Job Code assigned is found....");
-					ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
-					disabledProfilesCountInLoadedProfiles++;
-					profilesCount = profilesCount - 1;
-				}
+				js.executeScript("arguments[0].click();", tableHeaderCheckbox);
+			} catch (Exception s) {
+				utils.jsClick(driver, tableHeaderCheckbox);
 			}
 		}
+		
+	// Step 3: Count selected and disabled profiles (without scrolling)
+	profilesCount.set(loadedProfilesBeforeHeaderCheckboxClick.get());
+	disabledProfilesCountInLoadedProfiles.set(0);
+	
+	for(int i = 1; i <= loadedProfilesBeforeHeaderCheckboxClick.get(); i++) {
+		try {
+			WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(i) + "]//td[1]//*//..//div//kf-checkbox//div"));
+			// REMOVED: Scroll operation - js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
+			String text = SP_Checkbox.getAttribute("class");
+			if(text.contains("disable")) {
+				LOGGER.info("Success profile with No Job Code assigned is found....");
+				ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
+				disabledProfilesCountInLoadedProfiles.set(disabledProfilesCountInLoadedProfiles.get() + 1);
+				profilesCount.set(profilesCount.get() - 1);
+			}
+		} catch(Exception e) {
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForPageReady(driver, 3);
+			WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(i) + "]//td[1]//*//..//div//kf-checkbox//div"));
+			// REMOVED: Scroll operation - js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
+			String text = SP_Checkbox.getAttribute("class");
+			if(text.contains("disable")) {
+				LOGGER.info("Success profile with No Job Code assigned is found....");
+				ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
+				disabledProfilesCountInLoadedProfiles.set(disabledProfilesCountInLoadedProfiles.get() + 1);
+				profilesCount.set(profilesCount.get() - 1);
+			}
+		}
+	}
+		
+		// Step 4: Store selected profiles count
+		selectedProfilesAfterHeaderCheckboxClick.set(profilesCount.get());
 			
-			// Step 4: Store selected profiles count
-			selectedProfilesAfterHeaderCheckboxClick = profilesCount;
-			
-			LOGGER.info("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick + " job profiles in HCM Sync Profiles screen in PM");
-			LOGGER.info("    Loaded profiles (before click): " + loadedProfilesBeforeHeaderCheckboxClick);
-			LOGGER.info("    Selected profiles: " + selectedProfilesAfterHeaderCheckboxClick);
-			LOGGER.info("    Disabled profiles: " + disabledProfilesCountInLoadedProfiles);
-			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick + " job profiles in HCM Sync Profiles screen in PM");
+			LOGGER.info("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick.get() + " job profiles in HCM Sync Profiles screen in PM");
+			LOGGER.info("    Loaded profiles (before click): " + loadedProfilesBeforeHeaderCheckboxClick.get());
+			LOGGER.info("    Selected profiles: " + selectedProfilesAfterHeaderCheckboxClick.get());
+			LOGGER.info("    Disabled profiles: " + disabledProfilesCountInLoadedProfiles.get());
+			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick.get() + " job profiles in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking header checkbox to select loaded profiles - Method: click_on_header_checkbox_to_select_loaded_profiles_in_hcm_sync_profiles_tab", e);
 		ScreenshotHandler.captureFailureScreenshot("click_header_checkbox_select_loaded_profiles_in_HCM_Screen", e);
@@ -1634,27 +1638,27 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void user_should_uncheck_header_checkbox_to_deselect_selected_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
 			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			// Step 1: Store count of profiles BEFORE unchecking header checkbox
-			int profilesBeforeDeselect = selectedProfilesAfterHeaderCheckboxClick;
-			LOGGER.info("Selected profiles count (BEFORE unchecking header checkbox): " + profilesBeforeDeselect);
-			
-			// Step 2: Click header checkbox to deselect all
+		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+		// Step 1: Store count of profiles BEFORE unchecking header checkbox
+		int profilesBeforeDeselect = selectedProfilesAfterHeaderCheckboxClick.get();
+		LOGGER.info("Selected profiles count (BEFORE unchecking header checkbox): " + profilesBeforeDeselect);
+		
+		// Step 2: Click header checkbox to deselect all
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(tableHeaderCheckbox)).click();
+		} catch (Exception e) {
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeaderCheckbox)).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", tableHeaderCheckbox);
-				} catch (Exception s) {
-					utils.jsClick(driver, tableHeaderCheckbox);
-				}
+				js.executeScript("arguments[0].click();", tableHeaderCheckbox);
+			} catch (Exception s) {
+				utils.jsClick(driver, tableHeaderCheckbox);
 			}
-			
-			// Step 3: Wait for action to complete
-			PerformanceUtils.waitForPageReady(driver, 2);
-			
-			// Step 4: Reset profiles count to 0 (all deselected)
-			profilesCount = 0;
+		}
+		
+		// Step 3: Wait for action to complete
+		PerformanceUtils.waitForPageReady(driver, 2);
+		
+		// Step 4: Reset profiles count to 0 (all deselected)
+		profilesCount.set(0);
 			
 			LOGGER.info("Clicked on header checkbox and deselected all job profiles in HCM Sync Profiles screen in PM");
 			LOGGER.info("    Previously selected profiles: " + profilesBeforeDeselect);
@@ -1671,7 +1675,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void click_on_first_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
-			jobname1 = wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText();
+			jobname1.set(wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText());
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(profile1Checkbox)).click();
 			} catch (Exception e) {
@@ -1681,9 +1685,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 					utils.jsClick(driver, profile1Checkbox);
 				}
 			}
-		LOGGER.info("Clicked on checkbox of First job profile with name : " + jobname1 +" in HCM Sync Profiles screen in PM");
-		ExtentCucumberAdapter.addTestStepLog("Clicked on checkbox of First job profile with name : " + jobname1 +" in HCM Sync Profiles screen in PM");
-		profilesCount = profilesCount + 1; 
+		LOGGER.info("Clicked on checkbox of First job profile with name : " + jobname1.get() +" in HCM Sync Profiles screen in PM");
+		ExtentCucumberAdapter.addTestStepLog("Clicked on checkbox of First job profile with name : " + jobname1.get() +" in HCM Sync Profiles screen in PM");
+		profilesCount.set(profilesCount.get() + 1); 
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking first profile checkbox - Method: click_on_first_profile_checkbox_in_hcm_sync_profiles_tab", e);
 		ScreenshotHandler.captureFailureScreenshot("click_first_profile_checkbox", e);
@@ -1695,7 +1699,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void click_on_second_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
-			jobname2 = wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow2)).getText();
+			jobname2.set(wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow2)).getText());
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(profile2Checkbox)).click();
 			} catch (Exception e) {
@@ -1705,9 +1709,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 					utils.jsClick(driver, profile2Checkbox);
 				}
 			}
-		LOGGER.info("Clicked on checkbox of Second job profile with name : " + jobname2 +" in HCM Sync Profiles screen in PM");
-		ExtentCucumberAdapter.addTestStepLog("Clicked on checkbox of Second job profile with name : " + jobname2 +" in HCM Sync Profiles screen in PM");
-		profilesCount = profilesCount + 1;
+		LOGGER.info("Clicked on checkbox of Second job profile with name : " + jobname2.get() +" in HCM Sync Profiles screen in PM");
+		ExtentCucumberAdapter.addTestStepLog("Clicked on checkbox of Second job profile with name : " + jobname2.get() +" in HCM Sync Profiles screen in PM");
+		profilesCount.set(profilesCount.get() + 1);
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking second profile checkbox - Method: click_on_second_profile_checkbox_in_hcm_sync_profiles_tab", e);
 		ScreenshotHandler.captureFailureScreenshot("click_second_profile_checkbox", e);
@@ -1720,7 +1724,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void click_on_third_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
 			js.executeScript("arguments[0].scrollIntoView(true);", HCMSyncProfilesJobinRow3);
-			jobname3 = wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow3)).getText();
+			jobname3.set(wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow3)).getText());
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(profile3Checkbox)).click();
 			} catch (Exception e) {
@@ -1730,9 +1734,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 					utils.jsClick(driver, profile3Checkbox);
 				}
 			}
-		LOGGER.info("Clicked on checkbox of Third job profile with name : " + jobname3 +" in HCM Sync Profiles screen in PM");
-		ExtentCucumberAdapter.addTestStepLog("Clicked on checkbox of Third job profile with name : " + jobname3  +" in HCM Sync Profiles screen in PM");
-		profilesCount = profilesCount + 1;
+		LOGGER.info("Clicked on checkbox of Third job profile with name : " + jobname3.get() +" in HCM Sync Profiles screen in PM");
+		ExtentCucumberAdapter.addTestStepLog("Clicked on checkbox of Third job profile with name : " + jobname3.get()  +" in HCM Sync Profiles screen in PM");
+		profilesCount.set(profilesCount.get() + 1);
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking third profile checkbox - Method: click_on_third_profile_checkbox_in_hcm_sync_profiles_tab", e);
 		ScreenshotHandler.captureFailureScreenshot("click_third_profile_checkbox", e);

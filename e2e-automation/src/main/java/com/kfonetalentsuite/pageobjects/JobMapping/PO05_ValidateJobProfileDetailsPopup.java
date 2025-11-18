@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
@@ -314,14 +315,55 @@ public void validate_data_in_skills_tab() {
 	}
 
 	
+	/**
+	 * Verifies Publish Profile button is available on popup screen
+	 * ENHANCED FOR HEADLESS MODE: Scrolls popup to bottom to ensure button is visible
+	 */
 	public void user_should_verify_publish_profile_button_is_available_on_popup_screen() {
 		try {
-		wait.until(ExpectedConditions.elementToBeClickable(publishProfileButton)).isDisplayed();
-		LOGGER.info("Publish button is displaying on the Profile Details Popup and is clickable");
-		ExtentCucumberAdapter.addTestStepLog("Publish button is displaying on the Profile Details Popup and is clickable");
+			LOGGER.debug("Attempting to verify Publish Profile button availability...");
+			
+			// STEP 1: Scroll the popup content to the bottom (CRITICAL for headless mode)
+			// Try multiple scrolling strategies to ensure button comes into view
+			try {
+				// Strategy 1: Scroll to the button element directly
+				LOGGER.debug("Scrolling popup to bring Publish button into view...");
+				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end', inline: 'nearest'});", publishProfileButton);
+				Thread.sleep(1000); // Wait for smooth scroll to complete
+			} catch (Exception scrollEx1) {
+				LOGGER.debug("Direct scroll failed, trying popup container scroll...");
+				try {
+					// Strategy 2: Find and scroll the popup container to bottom
+					WebElement popupContainer = driver.findElement(By.xpath("//div[contains(@class, 'modal-body') or contains(@class, 'popup-content') or contains(@class, 'dialog-content')]"));
+					js.executeScript("arguments[0].scrollTop = arguments[0].scrollHeight;", popupContainer);
+					Thread.sleep(1000);
+				} catch (Exception scrollEx2) {
+					LOGGER.debug("Popup container scroll failed, trying window scroll as fallback...");
+					// Strategy 3: Fallback - scroll the window itself
+					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+					Thread.sleep(500);
+				}
+			}
+			
+			// STEP 2: Wait for page stability after scroll (critical for headless)
+			PerformanceUtils.waitForPageReady(driver, 2);
+			Thread.sleep(500); // Additional buffer for DOM updates in headless mode
+			
+			// STEP 3: Verify the button is now visible and clickable
+			LOGGER.debug("Waiting for Publish button to be clickable after scroll...");
+			boolean isButtonDisplayed = wait.until(ExpectedConditions.elementToBeClickable(publishProfileButton)).isDisplayed();
+			
+			if (isButtonDisplayed) {
+				LOGGER.info("✅ Publish button is displaying on the Profile Details Popup and is clickable");
+				ExtentCucumberAdapter.addTestStepLog("✅ Publish button is displaying on the Profile Details Popup and is clickable");
+			} else {
+				throw new Exception("Publish button found but not displayed");
+			}
+			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_publish_profile_button_is_available_on_popup_screen", e);
-			LOGGER.error(" Failed to verify Publish Profile button on profile details popup - Method: user_should_verify_publish_profile_button_is_available_on_popup_screen", e);
+			LOGGER.error("❌ Failed to verify Publish Profile button on profile details popup - Method: user_should_verify_publish_profile_button_is_available_on_popup_screen", e);
+			LOGGER.error("Possible causes: 1) Button not scrolled into view in headless mode, 2) Popup not fully loaded, 3) Element locator issue");
 			e.printStackTrace();
 			Assert.fail("Issue in verifying Publish Profile button on profile details popup screen in Job Mapping page....Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Publish Profile button on profile details popup screen in Job Mapping page....Please Investigate!!!");
