@@ -92,11 +92,21 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
     private static final AtomicInteger totalTestContexts = new AtomicInteger(0);
     private static final AtomicInteger completedTestContexts = new AtomicInteger(0);
     
+    // ENHANCED: Store current suite name for Excel reporting (Suite vs Individual Runner execution)
+    private static volatile String currentSuiteName = null;
+    
     /**
      * Store current scenario name for a thread (called from ScenarioHooks)
      */
     public static void setCurrentScenario(String threadId, String scenarioName) {
         currentScenarios.put(threadId, scenarioName);
+    }
+    
+    /**
+     * Get the current suite name (returns null if executing individual runner)
+     */
+    public static String getCurrentSuiteName() {
+        return currentSuiteName;
     }
     
     /**
@@ -196,6 +206,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
         if (!isExcelReportingEnabled()) {
             return;
         }
+        
+        // ENHANCED: Store suite name for Excel reporting (distinguishes suite vs individual runner execution)
+        currentSuiteName = suite.getName();
+        LOGGER.info("Suite Name Captured: '{}'", currentSuiteName);
         
         // ENHANCED: Count total test contexts (runners) and initialize progress bar
         try {

@@ -353,13 +353,68 @@ public class PO01_KFoneLogin {
 	
 	public void verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub() {
 		try {
-	        wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-	        PerformanceUtils.waitForPageReady(driver, 3); // Smart wait instead of fixed 3000ms
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(PMHeader)).isDisplayed());
-			String MainHeader = wait.until(ExpectedConditions.visibilityOf(PMHeader)).getText();
-			LOGGER.info("User Successfully landed on the " + MainHeader + " Dashboard Page");
-			ExtentCucumberAdapter.addTestStepLog("User Successfully landed on the " + MainHeader + " Dashboard Page");
+			LOGGER.info("Verifying navigation to Profile Manager page...");
+			LOGGER.info("Current URL: " + driver.getCurrentUrl());
+			
+			// HEADLESS MODE OPTIMIZATION: Use shorter waits with multiple retries instead of one long wait
+			int maxRetries = 3;
+			boolean pmHeaderFound = false;
+			
+			for (int retry = 1; retry <= maxRetries && !pmHeaderFound; retry++) {
+				try {
+					LOGGER.info("Attempt " + retry + "/" + maxRetries + " - Waiting for PM page to load...");
+					
+					// Wait for spinners with shorter timeout (30 seconds max per attempt)
+					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
+					try {
+						shortWait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+						LOGGER.info("Page load spinner disappeared");
+					} catch (Exception spinnerEx) {
+						LOGGER.warn("Spinner wait timed out - continuing anyway (common in headless mode)");
+					}
+					
+					// Wait for page to be ready
+					PerformanceUtils.waitForPageReady(driver, 3);
+					LOGGER.info("Page ready state achieved");
+					
+					// ENHANCED: Additional DOM stability check to prevent downstream stale elements
+					Thread.sleep(800); // Allow JavaScript and AJAX to fully complete
+					
+					// Check if PM Header is visible with shorter wait
+					if (shortWait.until(ExpectedConditions.visibilityOf(PMHeader)).isDisplayed()) {
+						pmHeaderFound = true;
+						String MainHeader = PMHeader.getText();
+						LOGGER.info("✅ User Successfully landed on the " + MainHeader + " Dashboard Page");
+						ExtentCucumberAdapter.addTestStepLog("User Successfully landed on the " + MainHeader + " Dashboard Page");
+						LOGGER.info("Final URL: " + driver.getCurrentUrl());
+						
+						// Final stability check before proceeding to next steps
+						Thread.sleep(500);
+						LOGGER.debug("PM page fully stabilized - ready for next actions");
+						break;
+					}
+					
+				} catch (Exception retryEx) {
+					LOGGER.warn("Attempt " + retry + " failed: " + retryEx.getMessage());
+					
+					if (retry < maxRetries) {
+						LOGGER.info("Refreshing page and retrying...");
+						driver.navigate().refresh();
+						Thread.sleep(2000); // Brief pause before retry
+					} else {
+						// Last attempt failed - throw the exception
+						throw retryEx;
+					}
+				}
+			}
+			
+			if (!pmHeaderFound) {
+				throw new RuntimeException("Profile Manager header not found after " + maxRetries + " attempts");
+			}
+			
 		} catch (Exception e) {
+			LOGGER.error("❌ FINAL FAILURE - Current URL: " + driver.getCurrentUrl());
+			LOGGER.error("Page Source (first 500 chars): " + driver.getPageSource().substring(0, Math.min(500, driver.getPageSource().length())));
 			ScreenshotHandler.captureFailureScreenshot("verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub", e);
 			LOGGER.error("Issue with seamless navigation from KFONE to Profile Manager Application - Method: verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub", e);
 			ExtentCucumberAdapter.addTestStepLog("Issue with seemless navigation from KFONE to Profile Manager Application in KF HUB...Please Investigate!!!");

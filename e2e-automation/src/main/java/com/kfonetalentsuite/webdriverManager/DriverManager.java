@@ -221,19 +221,19 @@ public class DriverManager {
 			
 			// UNATTENDED EXECUTION: Enhanced timeout configuration for headless stability
 			if (Boolean.parseBoolean(CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "true")) {
-				// Longer timeouts for unattended headless execution (prevents session timeouts)
-				driver.get().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(120)); // Increased for stability
-				driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));    // Increased for reliability
-				driver.get().manage().timeouts().scriptTimeout(Duration.ofSeconds(90));     // Added for async operations
-				wait.set(new WebDriverWait(driver.get(), Duration.ofSeconds(180)));        // Extended for complex operations
-				LOGGER.info("[Thread-{}:{}] HEADLESS MODE: Extended timeouts configured for session stability", threadId, threadName);
+				// OPTIMIZED: Reduced timeouts for faster failure detection in headless mode
+				driver.get().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(90));  // Reduced from 120s (enough for most pages)
+				driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));    // Keep at 10s (good balance)
+				driver.get().manage().timeouts().scriptTimeout(Duration.ofSeconds(60));     // Reduced from 90s (still sufficient for AJAX)
+				wait.set(new WebDriverWait(driver.get(), Duration.ofSeconds(60)));         // Reduced from 180s → 60s (1 minute max)
+				LOGGER.info("[Thread-{}:{}] HEADLESS MODE: Optimized timeouts configured (page: 90s, wait: 60s, script: 60s)", threadId, threadName);
 			} else {
 				// Standard timeouts for windowed debugging mode
 				driver.get().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
 				driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
 				driver.get().manage().timeouts().scriptTimeout(Duration.ofSeconds(30));
-				wait.set(new WebDriverWait(driver.get(), Duration.ofSeconds(60)));
-				LOGGER.info("[Thread-{}:{}] WINDOWED MODE: Standard timeouts configured for debugging", threadId, threadName);
+				wait.set(new WebDriverWait(driver.get(), Duration.ofSeconds(45)));         // Reduced from 60s → 45s
+				LOGGER.info("[Thread-{}:{}] WINDOWED MODE: Standard timeouts configured (page: 30s, wait: 45s, script: 30s)", threadId, threadName);
 			}
 
 		} catch (Exception e) {

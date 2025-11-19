@@ -50,6 +50,7 @@ public class PageObjectManager {
 	public PO44_ClearProfileSelectionwithHeaderCheckbox_JAM clearProfileSelectionwithHeaderCheckbox_JAM;
 	public PO45_ClearProfileSelectionwithNoneButton_JAM clearProfileSelectionwithNoneButton_JAM;
 	public PO46_ValidateSelectionOfUnmappedJobs_JAM validateSelectionOfUnmappedJobs_JAM;
+	public PO47_ValidateSortingFunctionalityInHCMScreen_PM validateSortingFunctionalityInHCMScreen_PM;
 	
 	
 	public PO01_KFoneLogin getKFoneLogin() throws IOException {
@@ -365,6 +366,14 @@ public class PageObjectManager {
 		return validateSelectionOfUnmappedJobs_JAM;
 	}
 	
+	public PO47_ValidateSortingFunctionalityInHCMScreen_PM getValidateSortingFunctionalityInHCMScreen_PM() throws IOException {
+		
+		if (validateSortingFunctionalityInHCMScreen_PM == null) {
+			validateSortingFunctionalityInHCMScreen_PM = new PO47_ValidateSortingFunctionalityInHCMScreen_PM();
+		}
+		return validateSortingFunctionalityInHCMScreen_PM;
+	}
+	
 	/**
 	 * Reset all page object instances (useful for cleanup between tests)
 	 */
@@ -411,6 +420,7 @@ public class PageObjectManager {
 		clearProfileSelectionwithHeaderCheckbox_JAM = null;
 		clearProfileSelectionwithNoneButton_JAM = null;
 		validateSelectionOfUnmappedJobs_JAM = null;
+		validateSortingFunctionalityInHCMScreen_PM = null;
 	}
 
 }

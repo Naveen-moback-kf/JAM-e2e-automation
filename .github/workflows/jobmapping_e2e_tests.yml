@@ -71,7 +71,7 @@ on:
           - Runner14_ValidateProfileLevelFunctionality
           - Runner15_ValidateRecommendedProfileDetails
           - Runner16_ValidatePCRestrictedTipMessage
-          - Runner17_ValidateSortingFunctionality
+          - Runner17_ValidateSortingFunctionality_JAM
           - Runner18a_ValidateBasicSortingPersistence
           - Runner18b_ValidateAdvancedSortingPersistence
           - Runner19_VerifyJobsWithNoBICMappings
@@ -106,6 +106,7 @@ on:
           - Runner44_ClearProfileSelectionwithHeaderCheckbox_JAM
           - Runner45_ClearProfileSelectionwithNoneButton_JAM
           - Runner46_ValidateSelectionOfUnmappedJobs_JAM
+          - Runner47_ValidateSortingFunctionalityInHCMScreen_PM
       
       browser:
         description: 'Browser'

@@ -683,16 +683,16 @@ public class PO04_VerifyJobMappingPageComponents {
 				} catch (Exception s) {
 					utils.jsClick(driver, job1LinkedMatchedProfile);
 				}
-			}
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Matched Profile with name "+ MatchedProfileNameText +" of Organization Job "+ orgJobNameInRow1 + " in first row");
-			LOGGER.info("Clicked on Matched Profile with name "+ MatchedProfileNameText +" of Organization Job "+ orgJobNameInRow1 + " in first row");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_matched_profile_of_job_in_first_row", e);
-			LOGGER.error("Issue in clicking Matched Profile linked with job - Method: click_on_matched_profile_of_job_in_first_row", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking Matched Profile linked with job name "+ orgJobNameInRow1 + "  in first row...Please Investigate!!!");
-			Assert.fail("Issue in clicking Matched Profile linked with job name "+ orgJobNameInRow1 + " in first row...Please Investigate!!!");
+		}
+		ExtentCucumberAdapter.addTestStepLog("Clicked on Matched Profile with name "+ MatchedProfileNameText +" of Organization Job "+ orgJobNameInRow1.get() + " in first row");
+		LOGGER.info("Clicked on Matched Profile with name "+ MatchedProfileNameText +" of Organization Job "+ orgJobNameInRow1.get() + " in first row");
+		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+	} catch (Exception e) {
+		ScreenshotHandler.captureFailureScreenshot("click_on_matched_profile_of_job_in_first_row", e);
+		LOGGER.error("Issue in clicking Matched Profile linked with job - Method: click_on_matched_profile_of_job_in_first_row", e);
+		e.printStackTrace();
+		ExtentCucumberAdapter.addTestStepLog("Issue in clicking Matched Profile linked with job name "+ orgJobNameInRow1.get() + "  in first row...Please Investigate!!!");
+		Assert.fail("Issue in clicking Matched Profile linked with job name "+ orgJobNameInRow1.get() + " in first row...Please Investigate!!!");
 		}
 	}
 
@@ -892,6 +892,22 @@ public class PO04_VerifyJobMappingPageComponents {
 			}
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Add more jobs button");
 			LOGGER.info("Clicked on Add more jobs button");
+			
+			// STALE ELEMENT FIX: Enhanced page stability wait after click
+			// Wait for any page load spinners to disappear
+			try {
+				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			} catch (Exception spinnerEx) {
+				LOGGER.debug("Spinner wait skipped (not found or already gone)");
+			}
+			
+			// Wait for page to be fully ready with extended timeout
+			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			// Additional DOM stability check - wait for URL change or modal to appear
+			Thread.sleep(1000); // Allow DOM to settle after page navigation/modal open
+			LOGGER.info("Page stability confirmed after clicking Add More Jobs button");
+			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_add_more_jobs_button_is_clickable", e);
 			LOGGER.error("Issue on clicking Add more jobs button - Method: verify_add_more_jobs_button_is_clickable", e);
@@ -899,8 +915,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			ExtentCucumberAdapter.addTestStepLog("Issue on clicking Add more jobs button in Job Mapping page...Please Investigate!!!");
 			Assert.fail("Issue on clicking Add more jobs button in Job Mapping page...Please Investigate!!!");
 		}
-		PerformanceUtils.waitForPageReady(driver, 5);
-		
 		
 	}
 	
@@ -1135,9 +1149,9 @@ public class PO04_VerifyJobMappingPageComponents {
 				} catch (Exception s) {
 					utils.jsClick(driver, profile1Checkbox);
 				}
-			}
-			ExtentCucumberAdapter.addTestStepLog("Clicked on checkbox of First job profile with name : " + orgJobNameInRow1);
-			LOGGER.info("Clicked on checkbox of First job profile with name : " + orgJobNameInRow1);
+		}
+		ExtentCucumberAdapter.addTestStepLog("Clicked on checkbox of First job profile with name : " + orgJobNameInRow1.get());
+		LOGGER.info("Clicked on checkbox of First job profile with name : " + orgJobNameInRow1.get());
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_checkbox_of_first_job_profile", e);
 			LOGGER.error("Issue in clicking First job profile checkbox - Method: click_on_checkbox_of_first_job_profile", e);
@@ -1162,9 +1176,9 @@ public class PO04_VerifyJobMappingPageComponents {
 				} catch (Exception s) {
 					utils.jsClick(driver, profile2Checkbox);
 				}
-			}
-			ExtentCucumberAdapter.addTestStepLog("Clicked on checkbox of Second job profile with name : " + orgJobNameInRow2);
-			LOGGER.info("Clicked on checkbox of Second job profile with name : " + orgJobNameInRow2);
+		}
+		ExtentCucumberAdapter.addTestStepLog("Clicked on checkbox of Second job profile with name : " + orgJobNameInRow2.get());
+		LOGGER.info("Clicked on checkbox of Second job profile with name : " + orgJobNameInRow2.get());
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_checkbox_of_second_job_profile", e);
 			LOGGER.error("Issue in clicking Second job profile checkbox - Method: click_on_checkbox_of_second_job_profile", e);
@@ -1234,12 +1248,12 @@ public class PO04_VerifyJobMappingPageComponents {
 				}
 			}
 			
-		intialResultsCount.set(resultsCountText);
-		
-		// IMPORTANT: Reset initialFilteredResultsCount for new scenario
-		// This ensures each scenario starts fresh and doesn't use values from previous scenarios
-		initialFilteredResultsCount.set(null);
-		LOGGER.debug("Reset initialFilteredResultsCount for new scenario - Initial count: {}", intialResultsCount);
+	intialResultsCount.set(resultsCountText);
+	
+	// IMPORTANT: Reset initialFilteredResultsCount for new scenario
+	// This ensures each scenario starts fresh and doesn't use values from previous scenarios
+	initialFilteredResultsCount.set(null);
+	LOGGER.debug("Reset initialFilteredResultsCount for new scenario - Initial count: {}", intialResultsCount.get());
 		
 	    ExtentCucumberAdapter.addTestStepLog("Initially " + resultsCountText + " of job profiles");
 	    LOGGER.info("Initially " + resultsCountText + " of job profiles");
@@ -1311,14 +1325,14 @@ public class PO04_VerifyJobMappingPageComponents {
 			while (retryAttempts < maxRetries) {
 				try {
 					// Get fresh element and text
-					WebElement resultsElement = driver.findElement(By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]"));
-					String currentText = resultsElement.getText().trim();
-					
-					// Check if text has changed from initial count (filter was applied)
-					if (!currentText.isEmpty() && !currentText.equals(intialResultsCount)) {
-						resultsCountText2 = currentText;
-						break; // Success - count has updated
-					}
+				WebElement resultsElement = driver.findElement(By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]"));
+				String currentText = resultsElement.getText().trim();
+				
+				// Check if text has changed from initial count (filter was applied)
+				if (!currentText.isEmpty() && !currentText.equals(intialResultsCount.get())) {
+					resultsCountText2 = currentText;
+					break; // Success - count has updated
+				}
 					
 					// If first attempt and text equals initial, wait a bit longer
 					if (retryAttempts == 0) {
@@ -1369,13 +1383,13 @@ public class PO04_VerifyJobMappingPageComponents {
 				ExtentCucumberAdapter.addTestStepLog("Profile Results count updated and Now " + resultsCountText2 + " - No results found, validation steps will be skipped");
 				LOGGER.info("Profile Results count updated and Now " + resultsCountText2 + " - No results found, validation steps will be skipped");
 				return;
-			} else {
-				PO10_ValidateScreen1SearchResults.setHasSearchResults(true);
-			}
-			
-			if (!resultsCountText2.equals(intialResultsCount)) {
-				ExtentCucumberAdapter.addTestStepLog("Profile Results count updated and Now " + resultsCountText2 + " of job profiles as expected");
-				LOGGER.info("Profile Results count updated and Now " + resultsCountText2 + " of job profiles as expected (took {}ms)", elapsedTime);
+		} else {
+			PO10_ValidateScreen1SearchResults.setHasSearchResults(true);
+		}
+		
+		if (!resultsCountText2.equals(intialResultsCount.get())) {
+			ExtentCucumberAdapter.addTestStepLog("Profile Results count updated and Now " + resultsCountText2 + " of job profiles as expected");
+			LOGGER.info("Profile Results count updated and Now " + resultsCountText2 + " of job profiles as expected (took {}ms)", elapsedTime);
 			} else {
 				ExtentCucumberAdapter.addTestStepLog("Issue in updating profile results count, Still " + resultsCountText2 + " ....Please Investigate!!!");
 				LOGGER.error("Issue in updating profile results count, Still " + resultsCountText2 + " ....Please Investigate!!!");

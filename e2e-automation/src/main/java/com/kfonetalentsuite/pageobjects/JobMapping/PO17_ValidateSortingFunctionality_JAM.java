@@ -192,13 +192,13 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				ExtentCucumberAdapter.addTestStepLog("ℹ " + nonAsciiCount + " job(s) contain non-ASCII characters");
 			}
 			
-			// ✅ VALIDATE ASCENDING ORDER (using natural string comparison which handles special chars and non-ASCII correctly)
+			// ✅ VALIDATE ASCENDING ORDER (using case-insensitive comparison to match UI behavior)
 			int sortViolations = 0;
 			for(int i = 0; i < jobNames.size() - 1; i++) {
 				String current = jobNames.get(i);
 				String next = jobNames.get(i + 1);
-				// compareTo handles Unicode ordering: special chars < ASCII letters < non-ASCII
-				if(current.compareTo(next) > 0) {
+				// compareToIgnoreCase handles case-insensitive ordering: special chars < ASCII letters (A/a) < non-ASCII
+				if(current.compareToIgnoreCase(next) > 0) {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + current + "' > '" + next + "' (NOT in Ascending Order!)");
 					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Row " + (i + 1) + " > Row " + (i + 2));
@@ -353,13 +353,13 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				ExtentCucumberAdapter.addTestStepLog("ℹ " + specialCharCount + " job(s) start with special characters");
 			}
 			
-			// ✅ VALIDATE DESCENDING ORDER (using natural string comparison which handles special chars and non-ASCII correctly)
+			// ✅ VALIDATE DESCENDING ORDER (using case-insensitive comparison to match UI behavior)
 			int sortViolations = 0;
 			for(int i = 0; i < jobNames.size() - 1; i++) {
 				String current = jobNames.get(i);
 				String next = jobNames.get(i + 1);
-				// compareTo handles Unicode ordering: non-ASCII > ASCII letters > special chars
-				if(current.compareTo(next) < 0) {
+				// compareToIgnoreCase handles case-insensitive ordering: non-ASCII > ASCII letters (A/a) > special chars
+				if(current.compareToIgnoreCase(next) < 0) {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + current + "' < '" + next + "' (NOT in Descending Order!)");
 					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Row " + (i + 1) + " < Row " + (i + 2));
@@ -481,12 +481,12 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				ExtentCucumberAdapter.addTestStepLog("ℹ " + nonAsciiCount + " SP grade(s) contain non-ASCII characters");
 			}
 			
-			// ✅ VALIDATE ASCENDING ORDER (only for mapped jobs)
+			// ✅ VALIDATE ASCENDING ORDER (only for mapped jobs) - case-insensitive
 			int sortViolations = 0;
 			for(int i = 0; i < spGrades.size() - 1; i++) {
 				String current = spGrades.get(i);
 				String next = spGrades.get(i + 1);
-				if(current.compareTo(next) > 0) {
+				if(current.compareToIgnoreCase(next) > 0) {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION: SP Grade at position " + (i + 1) + " (" + current + ") > position " + (i + 2) + " (" + next + ") - NOT in Ascending Order!");
 					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: SP Grade position " + (i + 1) + " > position " + (i + 2));
@@ -645,12 +645,12 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				ExtentCucumberAdapter.addTestStepLog("ℹ " + specialCharCount + " SP grade(s) start with special characters");
 			}
 			
-			// ✅ VALIDATE DESCENDING ORDER (only for mapped jobs)
+			// ✅ VALIDATE DESCENDING ORDER (only for mapped jobs) - case-insensitive
 			int sortViolations = 0;
 			for(int i = 0; i < spGrades.size() - 1; i++) {
 				String current = spGrades.get(i);
 				String next = spGrades.get(i + 1);
-				if(current.compareTo(next) < 0) {
+				if(current.compareToIgnoreCase(next) < 0) {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION: SP Grade at position " + (i + 1) + " (" + current + ") < position " + (i + 2) + " (" + next + ") - NOT in Descending Order!");
 					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: SP Grade position " + (i + 1) + " < position " + (i + 2));
@@ -774,12 +774,12 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				ExtentCucumberAdapter.addTestStepLog("ℹ " + nonAsciiCount + " SP name(s) contain non-ASCII characters");
 			}
 			
-			// ✅ VALIDATE ASCENDING ORDER (only for mapped jobs)
+			// ✅ VALIDATE ASCENDING ORDER (only for mapped jobs) - case-insensitive
 			int sortViolations = 0;
 			for(int i = 0; i < spNames.size() - 1; i++) {
 				String current = spNames.get(i);
 				String next = spNames.get(i + 1);
-				if(current.compareTo(next) > 0) {
+				if(current.compareToIgnoreCase(next) > 0) {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION: SP Name at position " + (i + 1) + " (" + current + ") > position " + (i + 2) + " (" + next + ") - NOT in Ascending Order!");
 					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: SP Name position " + (i + 1) + " > position " + (i + 2));
@@ -885,12 +885,12 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				ExtentCucumberAdapter.addTestStepLog("ℹ " + nonAsciiCount + " org grade(s) contain non-ASCII characters");
 			}
 			
-			// ✅ VALIDATE ASCENDING ORDER
+			// ✅ VALIDATE ASCENDING ORDER - case-insensitive
 			int sortViolations = 0;
 			for(int i = 0; i < orgGrades.size() - 1; i++) {
 				String current = orgGrades.get(i);
 				String next = orgGrades.get(i + 1);
-				if(current.compareTo(next) > 0) {
+				if(current.compareToIgnoreCase(next) > 0) {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION: Org Grade at position " + (i + 1) + " (" + current + ") > position " + (i + 2) + " (" + next + ") - NOT in Ascending Order!");
 					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Org Grade position " + (i + 1) + " > position " + (i + 2));
@@ -1031,12 +1031,12 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				ExtentCucumberAdapter.addTestStepLog("ℹ " + specialCharCount + " org grade(s) start with special characters");
 			}
 			
-			// ✅ VALIDATE DESCENDING ORDER
+			// ✅ VALIDATE DESCENDING ORDER - case-insensitive
 			int sortViolations = 0;
 			for(int i = 0; i < orgGrades.size() - 1; i++) {
 				String current = orgGrades.get(i);
 				String next = orgGrades.get(i + 1);
-				if(current.compareTo(next) < 0) {
+				if(current.compareToIgnoreCase(next) < 0) {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION: Org Grade at position " + (i + 1) + " (" + current + ") < position " + (i + 2) + " (" + next + ") - NOT in Descending Order!");
 					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Org Grade position " + (i + 1) + " < position " + (i + 2));

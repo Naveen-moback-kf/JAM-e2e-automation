@@ -100,7 +100,7 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 	public WebElement showingJobResultsCount;
 	
 	@FindBy(xpath = "//*[contains(text(),'Add Job Data')]")
-	@CacheLookup
+	// @CacheLookup removed - element becomes stale after page refresh
 	public WebElement addMoreJobsPageHeader;
 	
 	@FindBy(xpath = "//button[@data-testid='manual-upload-btn']")
@@ -222,8 +222,25 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 	}
 	public void user_should_be_landed_on_kfone_add_job_data_page() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(addMoreJobsPageHeader)).isDisplayed();
-			String addMoreJobsPageheaderText = wait.until(ExpectedConditions.visibilityOf(addMoreJobsPageHeader)).getText();
+			// STALE ELEMENT FIX: Single wait call with retry mechanism
+			int maxRetries = 3;
+			String addMoreJobsPageheaderText = null;
+			
+			for (int attempt = 1; attempt <= maxRetries; attempt++) {
+				try {
+					// Re-locate and get text in one operation to minimize staleness window
+					WebElement header = wait.until(ExpectedConditions.visibilityOf(addMoreJobsPageHeader));
+					addMoreJobsPageheaderText = header.getText();
+					break; // Success - exit retry loop
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					if (attempt == maxRetries) {
+						throw e; // Last attempt failed - throw exception
+					}
+					LOGGER.warn("Stale element on attempt {}/{} - retrying...", attempt, maxRetries);
+					Thread.sleep(500); // Brief pause before retry
+				}
+			}
+			
 			Assert.assertEquals(addMoreJobsPageheaderText, "Add Job Data");
 			LOGGER.info("User landed on KFONE Add Job Data page Successfully");
 			ExtentCucumberAdapter.addTestStepLog("User landed on KFONE Add Job Data page Successfully"); 
@@ -238,9 +255,10 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 	
 	public void user_is_in_kfone_add_job_data_page() {
 		try {
-			// First verify we're on the KFONE Add Job Data page
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(addMoreJobsPageHeader)).isDisplayed());
-			String pageHeaderText = addMoreJobsPageHeader.getText();
+			// STALE ELEMENT FIX: Get text immediately after visibility check
+			WebElement header = wait.until(ExpectedConditions.visibilityOf(addMoreJobsPageHeader));
+			Assert.assertTrue(header.isDisplayed());
+			String pageHeaderText = header.getText();
 			Assert.assertEquals(pageHeaderText, "Add Job Data");
 			LOGGER.info("User is in KFONE Add Job Data page - Page header verified: " + pageHeaderText);
 			ExtentCucumberAdapter.addTestStepLog("User is in KFONE Add Job Data page - Page header verified: " + pageHeaderText);

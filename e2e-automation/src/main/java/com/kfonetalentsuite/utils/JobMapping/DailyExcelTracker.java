@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -110,6 +111,19 @@ public class DailyExcelTracker {
         summary.executionDate = LocalDateTime.now().format(DATE_FORMATTER);
         summary.executionDateTime = LocalDateTime.now().format(DATETIME_FORMATTER);
         summary.environment = CommonVariable.ENVIRONMENT != null ? CommonVariable.ENVIRONMENT : "Unknown";
+        
+        // ENHANCED: Retrieve suite name from ExcelReportListener (null if individual runner execution)
+        try {
+            summary.suiteName = com.kfonetalentsuite.listeners.ExcelReportListener.getCurrentSuiteName();
+            if (summary.suiteName != null) {
+                LOGGER.info("Suite Name Retrieved: '{}'", summary.suiteName);
+            } else {
+                LOGGER.debug("No suite name (individual runner execution)");
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Could not retrieve suite name: {}", e.getMessage());
+            summary.suiteName = null;
+        }
 
         // FRESH START DETECTION: Check if Excel was manually deleted (but don't clean yet)
         boolean shouldStartFresh = detectFreshStartRequest();
@@ -889,6 +903,51 @@ public class DailyExcelTracker {
     }
 
     /**
+     * NEW METHOD: Extract feature file name from runner class name
+     * Examples: 
+     *   - "Runner47_ValidateSortingFunctionalityInHCMScreen_PM" → "47ValidateSortingFunctionalityInHCMScreen_PM.feature"
+     *   - "CrossBrowser01_LoginPageRunner" → "01KFoneLogin.feature"
+     *   - "testrunners.JobMapping.Runner02_..." → "02ValidateAddMoreJobsFunctionality.feature"
+     */
+    private static String extractFeatureFileName(String runnerClassName) {
+        if (runnerClassName == null || runnerClassName.isEmpty()) {
+            return "Unknown.feature";
+        }
+        
+        try {
+            // Extract just the class name if full package path is provided
+            String className = runnerClassName;
+            if (className.contains(".")) {
+                className = className.substring(className.lastIndexOf(".") + 1);
+            }
+            
+            // Extract runner number (e.g., "47" from "Runner47_...")
+            String runnerNumber = extractRunnerNumber(className);
+            
+            if (runnerNumber != null) {
+                // Map runner number to actual feature file path
+                String featureFilePath = mapRunnerToFeatureFile(runnerNumber);
+                
+                if (featureFilePath != null) {
+                    // Extract just the filename from the full path
+                    File featureFile = new File(featureFilePath);
+                    return featureFile.getName(); // Returns "47ValidateSorting....feature"
+                } else {
+                    // Fallback: construct feature file name from runner number
+                    return runnerNumber + ".feature";
+                }
+            }
+            
+            // Final fallback: use class name + .feature
+            return className + ".feature";
+            
+        } catch (Exception e) {
+            LOGGER.debug("Failed to extract feature file name from '{}': {}", runnerClassName, e.getMessage());
+            return "Unknown.feature";
+        }
+    }
+
+    /**
      * Extract runner number from class name (01, 04, 05, etc.)
      * Examples: CrossBrowser01_LoginPageRunner "01", CrossBrowser04_JobProfileRunner "04"
      */
@@ -1171,7 +1230,7 @@ public class DailyExcelTracker {
      * Columns: Chrome (2), Firefox (3), Edge (4)
      */
     private static void createBrowserStatusCells(Row dataRow, ScenarioDetail scenario, Workbook workbook) {
-        // Define browser columns: Chrome (2), Firefox (3), Edge (4)
+        // UPDATED: Define browser columns: Chrome (3), Firefox (4), Edge (5) - shifted by +1 due to new Feature File column
         String[] browsers = {"chrome", "firefox", "edge"};
 
         // Create browser status cells for Chrome, Firefox, Edge columns
@@ -1180,7 +1239,7 @@ public class DailyExcelTracker {
 
         for (int i = 0; i < browsers.length; i++) {
             String browser = browsers[i];
-            Cell browserCell = dataRow.createCell(2 + i); // Columns 2, 3, 4
+            Cell browserCell = dataRow.createCell(3 + i); // SHIFTED: Columns 3, 4, 5 (was 2, 3, 4)
 
             String browserStatus = null;
 
@@ -1333,12 +1392,11 @@ public class DailyExcelTracker {
             feature.runnerClassName = className; // Store the actual class name
             summary.featureResults.add(feature);
 
+            LOGGER.debug("Created NEW feature: '{}' for runner: {}", featureName, className);
         } else {
-            // Update feature name if we have a better actual name
-            if (actualFeatureName != null && !actualFeatureName.isEmpty() && !feature.featureName.equals(actualFeatureName)) {
-                feature.featureName = actualFeatureName;
-                feature.businessDescription = generateBusinessDescription(actualFeatureName);
-            }
+            // FIXED: Do NOT update feature name once created - prevents scenarios from showing wrong feature names
+            // Feature name should remain consistent for all scenarios within the same runner
+            LOGGER.debug("Adding scenario to EXISTING feature: '{}' (runner: {})", feature.featureName, className);
         }
 
         feature.scenarios.add(scenario);
@@ -3226,7 +3284,7 @@ public class DailyExcelTracker {
         Cell titleCell = titleRow.createCell(0);
         titleCell.setCellValue("Test Results Summary - " + summary.executionDateTime);
         titleCell.setCellStyle(headerStyle);
-        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 6)); // UPDATED: Span 7 columns (0-6) for new Feature File column
 
         rowNum++; // Empty row
 
@@ -3241,9 +3299,9 @@ public class DailyExcelTracker {
 
         rowNum++; // Empty row
 
-        // Column headers for detailed results - ENHANCED for cross-browser support
+        // Column headers for detailed results - ENHANCED for cross-browser support with Feature File Name
         Row headerRow = sheet.createRow(rowNum++);
-        String[] headers = {"Feature", "Scenario", "Chrome", "Firefox", "Edge", "Execution Details", "Comments"};
+        String[] headers = {"Feature File", "Feature", "Scenario", "Chrome", "Firefox", "Edge", "Execution Details", "Comments"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -3274,32 +3332,36 @@ public class DailyExcelTracker {
 
                     Row dataRow = sheet.createRow(rowNum++);
 
-                    // Feature name (clean, from feature file)
+                    // NEW COLUMN 0: Feature File Name (extracted from runner class name)
+                    String featureFileName = extractFeatureFileName(feature.runnerClassName);
+                    dataRow.createCell(0).setCellValue(featureFileName);
+
+                    // SHIFTED COLUMN 1: Feature name (clean, from feature file)
                     String featureName = feature.featureName != null ? feature.featureName.trim() : "";
                     if (featureName.isEmpty()) {
                         featureName = "KF-ARCHITECT Login"; // Fallback feature name
                     }
 
-                    dataRow.createCell(0).setCellValue(featureName);
+                    dataRow.createCell(1).setCellValue(featureName);
 
-                    // Scenario name (cleaned for Excel display)
+                    // SHIFTED COLUMN 2: Scenario name (cleaned for Excel display)
                     String cleanedScenarioName = cleanScenarioNameForExcelDisplay(scenario.scenarioName);
                     if (cleanedScenarioName == null || cleanedScenarioName.trim().isEmpty()) {
                         cleanedScenarioName = scenario.scenarioName != null ? scenario.scenarioName : "Unknown Scenario";
                     }
 
-                    dataRow.createCell(1).setCellValue(cleanedScenarioName);
+                    dataRow.createCell(2).setCellValue(cleanedScenarioName);
 
-                    // Browser-specific status columns (Chrome, Firefox, Edge)
+                    // SHIFTED COLUMNS 3,4,5: Browser-specific status columns (Chrome, Firefox, Edge)
                     createBrowserStatusCells(dataRow, scenario, workbook);
 
-                    // Execution details - Clear and concise format (shifted to column 5)
+                    // SHIFTED COLUMN 6: Execution details - Clear and concise format
                     String executionDetails = String.format("Time: %s | Total: %d | Pass: %d | Fail: %d",
                         summary.executionDateTime.split(" ")[1], // Just time part
                         feature.totalScenarios, feature.passed, feature.failed);
-                    dataRow.createCell(5).setCellValue(executionDetails);
+                    dataRow.createCell(6).setCellValue(executionDetails);
 
-                    // Comments - Enhanced business-friendly failure reason with step details (shifted to column 6)
+                    // SHIFTED COLUMN 7: Comments - Enhanced business-friendly failure reason with step details
                     String comments = generateEnhancedBusinessFriendlyComment(scenario, cleanedScenarioName, feature);
                     
                     if (comments == null || comments.trim().isEmpty()) {
@@ -3309,40 +3371,209 @@ public class DailyExcelTracker {
                             : "Test executed successfully";
                     }
                     
-                    dataRow.createCell(6).setCellValue(comments);
+                    dataRow.createCell(7).setCellValue(comments); // SHIFTED: Column 7 (was 6)
 
                     //            feature.featureName, scenario.scenarioName, scenario.status, comments, feature.failed);
                     //                scenario.scenarioName, scenario.status, feature.failed);
 
-                    // FIXED: Apply row-level styling but SKIP browser status columns (2, 3, 4) to preserve bold formatting
-                    // Apply to Feature and Scenario columns (0, 1)
-                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{0, 1});
-                    // Apply to Execution Details column (5) - normal style
-                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{5});
-                    // Apply to Comments column (6) without text wrapping
+                    // UPDATED: Apply row-level styling but SKIP browser status columns (3, 4, 5) to preserve bold formatting
+                    // Apply to Feature File, Feature and Scenario columns (0, 1, 2)
+                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{0, 1, 2});
+                    // Apply to Execution Details column (6) - normal style - SHIFTED from 5
                     ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{6});
+                    // Apply to Comments column (7) without text wrapping - SHIFTED from 6
+                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{7});
                 }
             }
         }
 
-        // Auto-size all columns (updated for 7 columns: Feature, Scenario, Chrome, Firefox, Edge, Execution Details, Comments)
-        for (int i = 0; i < 7; i++) {
+        // UPDATED: Auto-size all columns (8 columns total: Feature File, Feature, Scenario, Chrome, Firefox, Edge, Execution Details, Comments)
+        for (int i = 0; i < 8; i++) {
             sheet.autoSizeColumn(i);
 
             // Set minimum widths for specific columns
-            if (i == 5) { // Execution Details column
+            if (i == 6) { // SHIFTED: Execution Details column (was 5)
                 int currentWidth = sheet.getColumnWidth(i);
                 int minWidth = 4000; // Minimum width for execution details
                 if (currentWidth < minWidth) {
                     sheet.setColumnWidth(i, minWidth);
                 }
-            } else if (i == 6) { // Comments column
+            } else if (i == 7) { // SHIFTED: Comments column (was 6)
                 int currentWidth = sheet.getColumnWidth(i);
                 int minWidth = 5000; // Minimum width for comments
                 if (currentWidth < minWidth) {
                     sheet.setColumnWidth(i, minWidth);
                 }
             }
+        }
+        
+        // NEW: Merge consecutive cells with same values for cleaner appearance
+        mergeConsecutiveCellsInColumn(sheet, workbook, 0, "Feature File"); // Feature File column
+        mergeConsecutiveCellsInColumn(sheet, workbook, 1, "Feature");      // Feature column
+    }
+
+    /**
+     * HELPER METHOD: Remove existing merged regions in a specific column
+     * This is necessary before reapplying merge logic to avoid conflicts
+     * 
+     * @param sheet The worksheet to process
+     * @param columnIndex The column index to clear merged regions from
+     */
+    private static void removeMergedRegionsInColumn(Sheet sheet, int columnIndex) {
+        try {
+            // We need to iterate backwards because removing regions changes the indices
+            for (int i = sheet.getNumMergedRegions() - 1; i >= 0; i--) {
+                CellRangeAddress mergedRegion = sheet.getMergedRegion(i);
+                
+                // Check if this merged region is in our target column
+                if (mergedRegion != null && 
+                    mergedRegion.getFirstColumn() == columnIndex && 
+                    mergedRegion.getLastColumn() == columnIndex) {
+                    sheet.removeMergedRegion(i);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to remove merged regions in column {} (non-critical): {}", columnIndex, e.getMessage());
+        }
+    }
+    
+    /**
+     * NEW METHOD: Merge consecutive cells with same value in a specified column
+     * Generic method that works for any column
+     * ENHANCED: Applies green/red background color based on feature status
+     * 
+     * @param sheet The worksheet to process
+     * @param workbook The workbook (for creating styles)
+     * @param columnIndex The column index to merge (0 = Feature File, 1 = Feature, etc.)
+     * @param columnName The column name for logging purposes
+     */
+    private static void mergeConsecutiveCellsInColumn(Sheet sheet, Workbook workbook, int columnIndex, String columnName) {
+        try {
+            int lastRowNum = sheet.getLastRowNum();
+            int dataStartRow = -1;
+            
+            // Find the data start row (skip headers and summary rows)
+            for (int i = 0; i <= lastRowNum; i++) {
+                Row row = sheet.getRow(i);
+                if (row != null) {
+                    Cell cell = row.getCell(0);
+                    // Find header row by looking for "Feature File" in column 0
+                    if (cell != null && "Feature File".equals(cell.getStringCellValue())) {
+                        dataStartRow = i + 1; // Data starts after header row
+                        break;
+                    }
+                }
+            }
+            
+            if (dataStartRow == -1 || dataStartRow > lastRowNum) {
+                LOGGER.debug("No data rows found to merge {} cells", columnName);
+                return;
+            }
+            
+            // CRITICAL FIX: Remove existing merged regions in this column before reapplying
+            // This ensures merging works correctly on subsequent runs when appending data
+            removeMergedRegionsInColumn(sheet, columnIndex);
+            LOGGER.debug("Cleared existing merged regions in column {} ({})", columnIndex, columnName);
+            
+            // Create passed style (green background) for merged cells
+            CellStyle passedStyle = workbook.createCellStyle();
+            passedStyle.setAlignment(HorizontalAlignment.CENTER);
+            passedStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            passedStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+            passedStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            passedStyle.setBorderTop(BorderStyle.THIN);
+            passedStyle.setBorderBottom(BorderStyle.THIN);
+            passedStyle.setBorderLeft(BorderStyle.THIN);
+            passedStyle.setBorderRight(BorderStyle.THIN);
+            
+            // Create failed style (red/rose background) for merged cells
+            CellStyle failedStyle = workbook.createCellStyle();
+            failedStyle.setAlignment(HorizontalAlignment.CENTER);
+            failedStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            failedStyle.setFillForegroundColor(IndexedColors.ROSE.getIndex());
+            failedStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            failedStyle.setBorderTop(BorderStyle.THIN);
+            failedStyle.setBorderBottom(BorderStyle.THIN);
+            failedStyle.setBorderLeft(BorderStyle.THIN);
+            failedStyle.setBorderRight(BorderStyle.THIN);
+            
+            // Track consecutive cells with same value
+            String currentValue = null;
+            int mergeStartRow = dataStartRow;
+            
+            for (int i = dataStartRow; i <= lastRowNum + 1; i++) {
+                String cellValue = null;
+                
+                // Get cell value for current row (if not past last row)
+                if (i <= lastRowNum) {
+                    Row row = sheet.getRow(i);
+                    if (row != null) {
+                        Cell cell = row.getCell(columnIndex);
+                        if (cell != null) {
+                            cellValue = cell.getStringCellValue();
+                        }
+                    }
+                }
+                
+                // Check if we need to merge previous group
+                if (!Objects.equals(cellValue, currentValue)) {
+                    // Process previous group (merge if multiple rows, style if single row)
+                    if (currentValue != null) {
+                        // ENHANCED: Determine feature status (check if any scenario failed in this group)
+                        boolean hasFailure = false;
+                        for (int rowIndex = mergeStartRow; rowIndex < i; rowIndex++) {
+                            Row checkRow = sheet.getRow(rowIndex);
+                            if (checkRow != null) {
+                                // Check browser status columns (3=Chrome, 4=Firefox, 5=Edge)
+                                for (int browserCol = 3; browserCol <= 5; browserCol++) {
+                                    Cell browserCell = checkRow.getCell(browserCol);
+                                    if (browserCell != null) {
+                                        String browserStatus = browserCell.getStringCellValue();
+                                        // Check for failure indicators: ❌ or "FAILED"
+                                        if (browserStatus != null && (browserStatus.contains("❌") || browserStatus.toUpperCase().contains("FAILED"))) {
+                                            hasFailure = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (hasFailure) break;
+                            }
+                        }
+                        
+                        // Apply style based on feature status (green if all passed, red if any failed)
+                        CellStyle styleToApply = hasFailure ? failedStyle : passedStyle;
+                        
+                        if (mergeStartRow < i - 1) {
+                            // Multiple rows - merge cells from mergeStartRow to i-1
+                            sheet.addMergedRegion(new CellRangeAddress(mergeStartRow, i - 1, columnIndex, columnIndex));
+                            LOGGER.debug("Merged {} cells: {} (rows {}-{}) - Status: {}", 
+                                        columnName, currentValue, mergeStartRow, i - 1, hasFailure ? "FAILED (Red)" : "PASSED (Green)");
+                        } else {
+                            // Single row - just apply color (no merge needed)
+                            LOGGER.debug("Single row {} cell: {} (row {}) - Status: {}", 
+                                        columnName, currentValue, mergeStartRow, hasFailure ? "FAILED (Red)" : "PASSED (Green)");
+                        }
+                        
+                        // Apply style to the cell
+                        Row firstRow = sheet.getRow(mergeStartRow);
+                        if (firstRow != null) {
+                            Cell cell = firstRow.getCell(columnIndex);
+                            if (cell != null) {
+                                cell.setCellStyle(styleToApply);
+                            }
+                        }
+                    }
+                    
+                    // Start new group
+                    currentValue = cellValue;
+                    mergeStartRow = i;
+                }
+            }
+            
+            LOGGER.info("Completed merging consecutive {} cells for cleaner appearance", columnName);
+            
+        } catch (Exception e) {
+            LOGGER.warn("Failed to merge {} cells (non-critical): {}", columnName, e.getMessage());
         }
     }
 
@@ -3382,17 +3613,18 @@ public class DailyExcelTracker {
 
         appendCurrentExecutionResults(workbook, sheet, currentExecution);
 
-        for (int i = 0; i < 7; i++) {
+        // UPDATED: Auto-size all 8 columns (Feature File, Feature, Scenario, Chrome, Firefox, Edge, Execution Details, Comments)
+        for (int i = 0; i < 8; i++) {
             sheet.autoSizeColumn(i);
 
             // Set minimum widths for specific columns
-            if (i == 5) { // Execution Details column
+            if (i == 6) { // SHIFTED: Execution Details column (was 5)
                 int currentWidth = sheet.getColumnWidth(i);
                 int minWidth = 4000; // Minimum width for execution details
                 if (currentWidth < minWidth) {
                     sheet.setColumnWidth(i, minWidth);
                 }
-            } else if (i == 6) { // Comments column
+            } else if (i == 7) { // SHIFTED: Comments column (was 6)
                 int currentWidth = sheet.getColumnWidth(i);
                 int minWidth = 5000; // Minimum width for comments
                 if (currentWidth < minWidth) {
@@ -3400,6 +3632,10 @@ public class DailyExcelTracker {
                 }
             }
         }
+        
+        // NEW: Merge consecutive cells with same values for cleaner appearance
+        mergeConsecutiveCellsInColumn(sheet, workbook, 0, "Feature File"); // Feature File column
+        mergeConsecutiveCellsInColumn(sheet, workbook, 1, "Feature");      // Feature column
 
     }
 
@@ -3445,7 +3681,8 @@ public class DailyExcelTracker {
         for (int i = 1; i <= lastRowNum; i++) { // Skip header row
             Row row = sheet.getRow(i);
             if (row != null) {
-                Cell featureCell = row.getCell(0);
+                // UPDATED: Feature name is now in column 1 (was column 0 before Feature File column was added)
+                Cell featureCell = row.getCell(1);
                 if (featureCell != null && !featureCell.getStringCellValue().isEmpty()) {
                     String featureName = featureCell.getStringCellValue();
                     // Skip summary/header rows
@@ -3487,7 +3724,8 @@ public class DailyExcelTracker {
         for (int i = 0; i <= lastRowNum; i++) {
             Row row = sheet.getRow(i);
             if (row != null) {
-                Cell featureCell = row.getCell(0);
+                // UPDATED: Feature name is now in column 1 (was column 0 before Feature File column was added)
+                Cell featureCell = row.getCell(1);
                 if (featureCell != null) {
                     String cellValue = featureCell.getStringCellValue();
 
@@ -3531,7 +3769,8 @@ public class DailyExcelTracker {
             Row row = sheet.getRow(i);
             if (row != null) {
                 Cell cell = row.getCell(0);
-                if (cell != null && "Feature".equals(cell.getStringCellValue())) {
+                // UPDATED: Check for "Feature File" header (was "Feature" before new column was added)
+                if (cell != null && "Feature File".equals(cell.getStringCellValue())) {
                     writeIndex = i + 1; // Start writing after headers
                     break;
                 }
@@ -3702,15 +3941,19 @@ public class DailyExcelTracker {
 
                     Row dataRow = sheet.createRow(nextRowIndex++);
 
-                    // Feature name (clean, from feature file)
+                    // NEW COLUMN 0: Feature File Name (extracted from runner class name)
+                    String featureFileName = extractFeatureFileName(feature.runnerClassName);
+                    dataRow.createCell(0).setCellValue(featureFileName);
+
+                    // SHIFTED COLUMN 1: Feature name (clean, from feature file)
                     String featureName = feature.featureName != null ? feature.featureName.trim() : "";
                     if (featureName.isEmpty()) {
                         featureName = "KF-ARCHITECT Login"; // Fallback feature name
                     }
 
-                    dataRow.createCell(0).setCellValue(featureName);
+                    dataRow.createCell(1).setCellValue(featureName);
 
-                    // Scenario name (cleaned for Excel display)
+                    // SHIFTED COLUMN 2: Scenario name (cleaned for Excel display)
                     String cleanedScenarioName = cleanScenarioNameForExcelDisplay(scenario.scenarioName);
                     if (cleanedScenarioName == null || cleanedScenarioName.trim().isEmpty()) {
                         cleanedScenarioName = scenario.scenarioName != null ? scenario.scenarioName : "Unknown Scenario";
@@ -3718,18 +3961,18 @@ public class DailyExcelTracker {
 
                     // Cleaned scenario name ready for Excel
 
-                    dataRow.createCell(1).setCellValue(cleanedScenarioName);
+                    dataRow.createCell(2).setCellValue(cleanedScenarioName);
 
-                    // Browser-specific status columns (Chrome, Firefox, Edge)
+                    // SHIFTED COLUMNS 3,4,5: Browser-specific status columns (Chrome, Firefox, Edge)
                     createBrowserStatusCells(dataRow, scenario, workbook);
 
-                    // Execution details - Clear and concise format (shifted to column 5)
+                    // SHIFTED COLUMN 6: Execution details - Clear and concise format
                     String executionDetails = String.format("Time: %s | Total: %d | Pass: %d | Fail: %d",
                         currentExecution.executionDateTime.split(" ")[1], // Just time part
                         feature.totalScenarios, feature.passed, feature.failed);
-                    dataRow.createCell(5).setCellValue(executionDetails);
+                    dataRow.createCell(6).setCellValue(executionDetails);
 
-                    // Comments - Ensure consistent comment generation
+                    // SHIFTED COLUMN 7: Comments - Ensure consistent comment generation
                     String comments = generateEnhancedBusinessFriendlyComment(scenario, scenario.scenarioName, feature);
                     
                     if (comments == null || comments.trim().isEmpty()) {
@@ -3738,15 +3981,15 @@ public class DailyExcelTracker {
                             : "Test executed successfully";
                     }
                     
-                    dataRow.createCell(6).setCellValue(comments);
+                    dataRow.createCell(7).setCellValue(comments);
 
-                    // FIXED: Apply row-level styling but SKIP browser status columns (2, 3, 4) to preserve bold formatting
-                    // Apply to Feature and Scenario columns (0, 1)
-                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{0, 1});
-                    // Apply to Execution Details column (5) - normal style
-                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{5});
-                    // Apply to Comments column (6) without text wrapping
+                    // UPDATED: Apply row-level styling but SKIP browser status columns (3, 4, 5) to preserve bold formatting
+                    // Apply to Feature File, Feature and Scenario columns (0, 1, 2)
+                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{0, 1, 2});
+                    // Apply to Execution Details column (6) - normal style - SHIFTED from 5
                     ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{6});
+                    // Apply to Comments column (7) without text wrapping - SHIFTED from 6
+                    ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status, new int[]{7});
 
                 }
             }
@@ -3895,31 +4138,35 @@ public class DailyExcelTracker {
         if (sheet == null) {
             sheet = workbook.createSheet(EXECUTION_HISTORY_SHEET);
 
-            // Create business-friendly headers for new sheet (ENHANCED: Added Execution Type & Browser Results)
-            Row headerRow = sheet.createRow(0);
-            String[] headers = {"Testing Date", "Time", "Environment", "Execution Type", "Browser Results", "Runner File", "Functions Tested", "Working", "Issues Found", "Skipped", "Success Rate", "Duration", "Quality Status"};
-            CellStyle headerStyle = ExcelStyleHelper.createHeaderStyle(workbook);
+        // Create business-friendly headers for new sheet (ENHANCED: Added User Name, Client Name, Execution Type & Browser Results)
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"User Name", "Client Name", "Testing Date", "Time", "Environment", "Execution Type", "Browser Results", "Runner / Suite File", "Functions Tested", "Working", "Issues Found", "Skipped", "Success Rate", "Duration", "Quality Status"};
+        CellStyle headerStyle = ExcelStyleHelper.createHeaderStyle(workbook);
 
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(headers[i]);
                 cell.setCellStyle(headerStyle);
 
-                // Set specific width for columns to ensure full visibility
-                // NOTE: Individual width settings here will be overridden by setExecutionHistoryColumnWidths() below
-                if (i == 2) { // Environment column
-                    sheet.setColumnWidth(i, 3000); // Width for environment names
-                } else if (i == 3) { // Execution Type column
-                    sheet.setColumnWidth(i, 4000); // Width for "Normal" / "Cross-Browser"
-                } else if (i == 4) { // Browser Results column
-                    sheet.setColumnWidth(i, 6000); // Width for browser status details
-                } else if (i == 5) { // Runner File column (shifted from 3 to 5)
-                    sheet.setColumnWidth(i, 6000); // Wider column for runner names
-                }
+            // Set specific width for columns to ensure full visibility
+            // NOTE: Individual width settings here will be overridden by setExecutionHistoryColumnWidths() below
+            if (i == 0) { // User Name column
+                sheet.setColumnWidth(i, 4000); // Width for username
+            } else if (i == 1) { // Client Name column
+                sheet.setColumnWidth(i, 6000); // Width for client name
+            } else if (i == 4) { // Environment column
+                sheet.setColumnWidth(i, 3000); // Width for environment names
+            } else if (i == 5) { // Execution Type column
+                sheet.setColumnWidth(i, 4000); // Width for "Normal" / "Cross-Browser"
+            } else if (i == 6) { // Browser Results column
+                sheet.setColumnWidth(i, 6000); // Width for browser status details
+            } else if (i == 7) { // Runner File column
+                sheet.setColumnWidth(i, 6000); // Wider column for runner names
             }
+        }
 
-            // ENHANCED: Apply comprehensive column width settings for all 13 columns
-            ExcelStyleHelper.setExecutionHistoryColumnWidths(sheet);
+        // ENHANCED: Apply comprehensive column width settings for all 15 columns
+        ExcelStyleHelper.setExecutionHistoryColumnWidths(sheet);
         }
 
         // ENHANCED: Smart insertion - dates in descending order, but times in ascending order for same date
@@ -3931,61 +4178,73 @@ public class DailyExcelTracker {
             sheet.shiftRows(insertRowIndex, lastRowNum, 1, true, false);
         }
 
-        Row dataRow = sheet.createRow(insertRowIndex);
-        // REMOVED: Individual style creation - now using row-level styling
-        // CellStyle dataStyle = ExcelStyleHelper.createDataStyle(workbook);
-        // CellStyle statusStyle = ExcelStyleHelper.createStatusStyle(workbook, summary.overallStatus);
+    Row dataRow = sheet.createRow(insertRowIndex);
+    // REMOVED: Individual style creation - now using row-level styling
+    // CellStyle dataStyle = ExcelStyleHelper.createDataStyle(workbook);
+    // CellStyle statusStyle = ExcelStyleHelper.createStatusStyle(workbook, summary.overallStatus);
 
-        // Add current execution data (ENHANCED: With new Execution Type & Browser Results columns)
-        dataRow.createCell(0).setCellValue(summary.executionDate);
-        dataRow.createCell(1).setCellValue(summary.executionDateTime.split(" ")[1]); // Just time part
-        dataRow.createCell(2).setCellValue(summary.environment); // Environment
-        dataRow.createCell(3).setCellValue(detectExecutionType(summary)); // NEW: Execution Type
-        dataRow.createCell(4).setCellValue(getBrowserResults(summary)); // NEW: Browser Results
-        dataRow.createCell(5).setCellValue(getPrimaryRunnerName(summary)); // Runner File (shifted from 3 to 5)
-        dataRow.createCell(6).setCellValue(summary.totalTests); // Functions Tested (shifted from 4 to 6)
-        dataRow.createCell(7).setCellValue(summary.passedTests); // Working (shifted from 5 to 7)
-        dataRow.createCell(8).setCellValue(summary.failedTests); // Issues Found (shifted from 6 to 8)
-        dataRow.createCell(9).setCellValue(summary.skippedTests); // Skipped (shifted from 7 to 9)
-        dataRow.createCell(10).setCellValue(summary.passRate + "%"); // Success Rate (shifted from 8 to 10)
-        dataRow.createCell(11).setCellValue(summary.totalDuration); // Duration (shifted from 9 to 11)
-        Cell statusCell = dataRow.createCell(12); // Quality Status (shifted from 10 to 12)
-        statusCell.setCellValue(summary.overallStatus);
+    // Get username and client name from PO01_KFoneLogin (ThreadLocal)
+    String testerUsername = getUsernameForExcel();
+    String clientName = getClientNameForExcel();
 
-        //  ENHANCED: Apply row-level styling based on Quality Status
-        // This colors the entire row (A-L) with the same background as the status in column M (index 12)
-        // PASSED rows = Light green background, FAILED rows = Rose/pink background
-        ExcelStyleHelper.applyRowLevelStyling(workbook, dataRow, summary.overallStatus, 12, 12); // Quality Status at index 12, color columns 0-11
+    // Add current execution data (ENHANCED: With User Name, Client Name, Execution Type & Browser Results columns)
+    dataRow.createCell(0).setCellValue(testerUsername); // User Name
+    dataRow.createCell(1).setCellValue(clientName); // NEW: Client Name
+    dataRow.createCell(2).setCellValue(summary.executionDate); // Testing Date
+    dataRow.createCell(3).setCellValue(summary.executionDateTime.split(" ")[1]); // Time (just time part)
+    dataRow.createCell(4).setCellValue(summary.environment); // Environment
+    dataRow.createCell(5).setCellValue(detectExecutionType(summary)); // Execution Type
+    dataRow.createCell(6).setCellValue(getBrowserResults(summary)); // Browser Results
+    dataRow.createCell(7).setCellValue(getPrimaryRunnerName(summary)); // Runner / Suite File
+    dataRow.createCell(8).setCellValue(summary.totalTests); // Functions Tested
+    dataRow.createCell(9).setCellValue(summary.passedTests); // Working
+    dataRow.createCell(10).setCellValue(summary.failedTests); // Issues Found
+    dataRow.createCell(11).setCellValue(summary.skippedTests); // Skipped
+    dataRow.createCell(12).setCellValue(summary.passRate + "%"); // Success Rate
+    dataRow.createCell(13).setCellValue(summary.totalDuration); // Duration
+    Cell statusCell = dataRow.createCell(14); // Quality Status
+    statusCell.setCellValue(summary.overallStatus);
+
+    //  ENHANCED: Apply row-level styling based on Quality Status
+    // This colors the entire row (A-N) with the same background as the status in column O (index 14)
+    // PASSED rows = Light green background, FAILED rows = Rose/pink background
+    ExcelStyleHelper.applyRowLevelStyling(workbook, dataRow, summary.overallStatus, 14, 14); // Quality Status at index 14, color columns 0-13
 
         // ORIGINAL CODE (commented for easy reversion):
         // Apply data style to other cells (exclude Quality Status column which has its own style)
         //         dataRow.getCell(i).setCellStyle(dataStyle);
 
-        // ENHANCED: Apply comprehensive column width settings for all 13 columns
-        ExcelStyleHelper.setExecutionHistoryColumnWidths(sheet);
+    // ENHANCED: Apply comprehensive column width settings for all 15 columns
+    ExcelStyleHelper.setExecutionHistoryColumnWidths(sheet);
 
-        // Additional auto-sizing for dynamic content with enhanced minimum widths
-        for (int i = 0; i < 13; i++) { // All 13 columns including Quality Status (index 12)
-            sheet.autoSizeColumn(i);
+    // Additional auto-sizing for dynamic content with enhanced minimum widths
+    for (int i = 0; i < 15; i++) { // All 15 columns including Quality Status (index 14)
+        sheet.autoSizeColumn(i);
 
-            // Apply minimum widths for key columns
-                int currentWidth = sheet.getColumnWidth(i);
-            int minWidth = 0;
+        // Apply minimum widths for key columns
+            int currentWidth = sheet.getColumnWidth(i);
+        int minWidth = 0;
 
-            switch (i) {
-                case 3: // Execution Type column
-                    minWidth = 4000; // Minimum for "Cross-Browser"
-                    break;
-                case 4: // Browser Results column
-                    minWidth = 6000; // Minimum for "Chrome:Firefox:Edge:"
-                    break;
-                case 5: // Runner File column
-                    minWidth = 6000; // Minimum for runner names
-                    break;
-                default:
-                    minWidth = 3000; // Default minimum width
-                    break;
-            }
+        switch (i) {
+            case 0: // User Name column
+                minWidth = 4000; // Minimum for username
+                break;
+            case 1: // Client Name column
+                minWidth = 6000; // Minimum for client name
+                break;
+            case 5: // Execution Type column
+                minWidth = 4000; // Minimum for "Cross-Browser"
+                break;
+            case 6: // Browser Results column
+                minWidth = 6000; // Minimum for "Chrome:Firefox:Edge:"
+                break;
+            case 7: // Runner / Suite File column
+                minWidth = 6000; // Minimum for runner names
+                break;
+            default:
+                minWidth = 3000; // Default minimum width
+                break;
+        }
 
                 if (currentWidth < minWidth) {
                     sheet.setColumnWidth(i, minWidth);
@@ -4071,6 +4330,57 @@ public class DailyExcelTracker {
     }
 
     /**
+     * Get username from PO01_KFoneLogin for Excel reporting
+     * Uses reflection to access the ThreadLocal variable
+     */
+    private static String getUsernameForExcel() {
+        try {
+            // Use reflection to access PO01_KFoneLogin.username ThreadLocal
+            Class<?> loginClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin");
+            java.lang.reflect.Field usernameField = loginClass.getField("username");
+            @SuppressWarnings("unchecked")
+            ThreadLocal<String> usernameThreadLocal = (ThreadLocal<String>) usernameField.get(null);
+            String username = usernameThreadLocal.get();
+            
+            if (username != null && !username.trim().isEmpty()) {
+                return username.trim();
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Could not retrieve username from PO01_KFoneLogin: {}", e.getMessage());
+        }
+        
+        // Fallback: Try to get from system properties or environment
+        String systemUser = System.getProperty("user.name");
+        if (systemUser != null && !systemUser.trim().isEmpty()) {
+            return systemUser.trim();
+        }
+        
+        return "Unknown User";
+    }
+    
+    /**
+     * Get client name for Excel reporting (from PO01_KFoneLogin.clientName ThreadLocal)
+     */
+    private static String getClientNameForExcel() {
+        try {
+            // Use reflection to access PO01_KFoneLogin.clientName ThreadLocal
+            Class<?> loginClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin");
+            java.lang.reflect.Field clientNameField = loginClass.getField("clientName");
+            @SuppressWarnings("unchecked")
+            ThreadLocal<String> clientNameThreadLocal = (ThreadLocal<String>) clientNameField.get(null);
+            String clientName = clientNameThreadLocal.get();
+            
+            if (clientName != null && !clientName.trim().isEmpty()) {
+                return clientName.trim();
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Could not retrieve client name from PO01_KFoneLogin: {}", e.getMessage());
+        }
+        
+        return "N/A";
+    }
+    
+    /**
      * Get comprehensive runner names from the test execution summary
      * ENHANCED: Shows all runners in test suite executions, not just primary
      * FIXED: Enhanced cross-browser runner detection
@@ -4097,9 +4407,16 @@ public class DailyExcelTracker {
             return runnerName;
         }
 
-        // Strategy 2: Multiple runners (test suite) - show all runners
+        // Strategy 2: Multiple runners (test suite) - show suite name if available
         if (allRunnerNames.size() > 1) {
-            // Sort runners alphabetically for consistent display
+            // ENHANCED: Use suite name from TestNG XML if available
+            if (summary.suiteName != null && !summary.suiteName.trim().isEmpty()) {
+                LOGGER.info("Using suite name for multiple runners: '{}'", summary.suiteName);
+                return summary.suiteName;
+            }
+            
+            // Fallback: Show all individual runner names (legacy behavior)
+            LOGGER.debug("No suite name available, showing {} individual runners", allRunnerNames.size());
             String combinedRunners = allRunnerNames.stream()
                 .sorted()
                 .collect(java.util.stream.Collectors.joining(", "));
@@ -4161,6 +4478,7 @@ public class DailyExcelTracker {
         cumulativeSummary.executionDate = currentSession.executionDate;
         cumulativeSummary.executionDateTime = currentSession.executionDateTime;
         cumulativeSummary.environment = currentSession.environment;
+        cumulativeSummary.suiteName = currentSession.suiteName; // Preserve suite name
         cumulativeSummary.executionMode = currentSession.executionMode;
         cumulativeSummary.browserUsed = currentSession.browserUsed;
         cumulativeSummary.excelReportingStatus = currentSession.excelReportingStatus;
@@ -4306,16 +4624,16 @@ public class DailyExcelTracker {
         int totalRows = executionHistorySheet.getLastRowNum() + 1;
         for (int i = 1; i < totalRows; i++) {
             try {
-                Row row = executionHistorySheet.getRow(i);
-                if (row != null) {
-                    Cell dateCell = row.getCell(0);
-                    Cell executionTypeCell = row.getCell(3); // Execution Type column
-                    Cell runnerCell = row.getCell(5); // Runner File column (FIXED: was 3, should be 5)
-                    Cell totalTestsCell = row.getCell(6); // Functions Tested column (FIXED: was 4, should be 6)
-                    Cell passedTestsCell = row.getCell(7); // Working column (FIXED: was 5, should be 7)
-                    Cell failedTestsCell = row.getCell(8); // Issues Found column (FIXED: was 6, should be 8)
-                    Cell skippedTestsCell = row.getCell(9); // Skipped column (FIXED: was 7, should be 9)
-                    Cell durationCell = row.getCell(11); // Duration column (FIXED: was 9, should be 11)
+            Row row = executionHistorySheet.getRow(i);
+            if (row != null) {
+                Cell dateCell = row.getCell(2); // Testing Date column (shifted from 1 to 2 after adding Client Name)
+                Cell executionTypeCell = row.getCell(5); // Execution Type column (shifted from 4 to 5)
+                Cell runnerCell = row.getCell(7); // Runner / Suite File column (shifted from 6 to 7)
+                Cell totalTestsCell = row.getCell(8); // Functions Tested column (shifted from 7 to 8)
+                Cell passedTestsCell = row.getCell(9); // Working column (shifted from 8 to 9)
+                Cell failedTestsCell = row.getCell(10); // Issues Found column (shifted from 9 to 10)
+                Cell skippedTestsCell = row.getCell(11); // Skipped column (shifted from 10 to 11)
+                Cell durationCell = row.getCell(13); // Duration column (shifted from 12 to 13)
 
                     if (dateCell != null && runnerCell != null) {
                         String executionDate = dateCell.getStringCellValue();
@@ -4535,14 +4853,14 @@ public class DailyExcelTracker {
                 Row row = executionHistorySheet.getRow(i);
                 if (row == null) continue;
 
-                try {
-                    String executionType = getCellValueAsString(row.getCell(3)); // Execution Type column
-                    String browserResults = getCellValueAsString(row.getCell(4)); // Browser Results column
-                    int functionsTeated = getCellValueAsInt(row.getCell(6)); // Functions Tested column
-                    int working = getCellValueAsInt(row.getCell(7)); // Working column
-                    int issues = getCellValueAsInt(row.getCell(8)); // Issues Found column
-                    String duration = getCellValueAsString(row.getCell(11)); // Duration column
-                    String executionDate = getCellValueAsString(row.getCell(0)); // Date column
+            try {
+                String executionType = getCellValueAsString(row.getCell(5)); // Execution Type column (shifted from 4 to 5 after adding Client Name)
+                String browserResults = getCellValueAsString(row.getCell(6)); // Browser Results column (shifted from 5 to 6)
+                int functionsTeated = getCellValueAsInt(row.getCell(8)); // Functions Tested column (shifted from 7 to 8)
+                int working = getCellValueAsInt(row.getCell(9)); // Working column (shifted from 8 to 9)
+                int issues = getCellValueAsInt(row.getCell(10)); // Issues Found column (shifted from 9 to 10)
+                String duration = getCellValueAsString(row.getCell(13)); // Duration column (shifted from 12 to 13)
+                String executionDate = getCellValueAsString(row.getCell(2)); // Testing Date column (shifted from 1 to 2)
 
                     // FIXED: Only process Cross-Browser executions FROM CURRENT DAY ONLY
                     // Extract date from execution date and compare with current session date
@@ -5738,56 +6056,8 @@ public class DailyExcelTracker {
             pageObjectsValue.setCellStyle(visualStyles.goodStyle);
         }
 
-        // === RISK ANALYSIS (if needed) ===
-        if (!summary.highRiskFeatures.isEmpty() || !summary.criticalFailures.isEmpty()) {
-            rowNum++; // Empty row
-            Row riskHeader = sheet.createRow(rowNum++);
-            Cell riskCell = riskHeader.createCell(0);
-            riskCell.setCellValue("RISK ANALYSIS");
-            riskCell.setCellStyle(headerStyle);
-            sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 0, 7));
-
-            if (!summary.criticalFailures.isEmpty()) {
-                Row criticalRow = sheet.createRow(rowNum++);
-
-                // Critical Failures Label with visual styling
-                Cell criticalLabel = criticalRow.createCell(0);
-                criticalLabel.setCellValue("Critical Failures:");
-                // Visual enhancements always enabled
-
-                criticalLabel.setCellStyle(visualStyles.labelStyle);
-
-                // Critical Failures Value with borderless visual styling (B23)
-                Cell criticalValue = criticalRow.createCell(1);
-                criticalValue.setCellValue(String.join(", ", summary.criticalFailures));
-                if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-                    // ENHANCED: Use borderless critical style for clean appearance in Risk Analysis
-                    CellStyle borderlessCriticalStyle = visualStyles.createBorderlessStatusStyle(workbook, IndexedColors.RED, IndexedColors.WHITE);
-                    criticalValue.setCellStyle(borderlessCriticalStyle);
-                }
-                sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 1, 7));
-            }
-
-            if (!summary.highRiskFeatures.isEmpty()) {
-                Row riskRow = sheet.createRow(rowNum++);
-
-                // High Risk Features Label with visual styling
-                Cell riskLabel = riskRow.createCell(0);
-                riskLabel.setCellValue("High Risk Features:");
-                // Visual enhancements always enabled
-
-                riskLabel.setCellStyle(visualStyles.labelStyle);
-
-                // High Risk Features Value with borderless visual styling (B24)
-                Cell riskValue = riskRow.createCell(1);
-                riskValue.setCellValue(String.join(", ", summary.highRiskFeatures));
-                // Visual enhancements always enabled - simplified condition
-                // ENHANCED: Use borderless warning style for clean appearance in Risk Analysis
-                CellStyle borderlessWarningStyle = visualStyles.createBorderlessStatusStyle(workbook, IndexedColors.YELLOW, IndexedColors.BLACK);
-                riskValue.setCellStyle(borderlessWarningStyle);
-                sheet.addMergedRegion(new CellRangeAddress(rowNum-1, rowNum-1, 1, 7));
-            }
-        }
+        // === RISK ANALYSIS SECTION REMOVED ===
+        // Risk Analysis section has been removed from the dashboard
 
         // ENHANCED: Auto-size columns with consistent alignment and margin fixes
         LOGGER.info("Applying enhanced auto-sizing to Project Dashboard columns...");
@@ -5812,10 +6082,10 @@ public class DailyExcelTracker {
                     adjustedWidth = Math.max(currentWidth, 4500); // Slightly wider for labels
                     adjustedWidth = Math.min(adjustedWidth, 8000); // Cap to prevent excessive width
                 } else if (i == 1) {
-                    // Column B: ENHANCED - Allow wider width for Risk Analysis runner names
-                    // This column displays Critical Failures and High Risk Features which can have multiple long runner names
+                    // Column B: ENHANCED - Allow wider width for data values
+                    // This column displays various metric values that may contain long text
                     adjustedWidth = Math.max(currentWidth, 3800); // Uniform minimum for data
-                    adjustedWidth = Math.min(adjustedWidth, 20000); // INCREASED from 10000 to 20000 to prevent truncation of runner names
+                    adjustedWidth = Math.min(adjustedWidth, 20000); // Cap to prevent excessive width
                 } else if (i == 3 || i == 4 || i == 6 || i == 7) {
                     // Other data columns: Standard sizing for alignment
                     adjustedWidth = Math.max(currentWidth, 3800); // Uniform minimum for data
@@ -5943,33 +6213,6 @@ public class DailyExcelTracker {
                 style.setBorderTop(BorderStyle.THIN);
                 style.setBorderRight(BorderStyle.THIN);
                 style.setBorderLeft(BorderStyle.THIN);
-                style.setAlignment(HorizontalAlignment.CENTER);  // Ensure data is centered
-                style.setVerticalAlignment(VerticalAlignment.CENTER);
-            } catch (Exception e) {
-                // Fallback for older POI versions
-            }
-            return style;
-        }
-
-        /**
-         * Create borderless version of status style for specific use cases (Risk Analysis B23/B24)
-         * ENHANCED: Clean borderless design for selected cells
-         */
-        private CellStyle createBorderlessStatusStyle(Workbook workbook, IndexedColors bgColor, IndexedColors fontColor) {
-            CellStyle style = workbook.createCellStyle();
-            Font font = workbook.createFont();
-            font.setColor(fontColor.getIndex());
-            font.setBold(true);
-            font.setFontHeightInPoints((short) 11);  // Consistent font size
-            style.setFont(font);
-            style.setFillForegroundColor(bgColor.getIndex());
-            try {
-                style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-                // REMOVED: All border settings for clean borderless appearance
-                // style.setBorderBottom(BorderStyle.THIN);
-                // style.setBorderTop(BorderStyle.THIN);
-                // style.setBorderRight(BorderStyle.THIN);
-                // style.setBorderLeft(BorderStyle.THIN);
                 style.setAlignment(HorizontalAlignment.CENTER);  // Ensure data is centered
                 style.setVerticalAlignment(VerticalAlignment.CENTER);
             } catch (Exception e) {
@@ -6151,6 +6394,7 @@ public class DailyExcelTracker {
         public String executionDate;
         public String executionDateTime;
         public String environment;
+        public String suiteName; // ENHANCED: Store suite name from TestNG XML (null if individual runner execution)
         public int totalTests = 0;
         public int passedTests = 0;
         public int failedTests = 0;
@@ -6322,19 +6566,19 @@ public class DailyExcelTracker {
             int totalRows = executionHistorySheet.getLastRowNum() + 1;
             for (int i = 1; i < totalRows; i++) { // Start from row 1 (skip headers)
                 Row row = executionHistorySheet.getRow(i);
-                if (row != null && isCurrentDayExecutionRow(row, currentExecution.executionDate)) {
-                    // FIXED: Column indices aligned with addToExecutionHistorySheet method
-                    // Column 6: Functions Tested (total tests) - matches dataRow.createCell(6)
-                    // Column 7: Working (passed tests) - matches dataRow.createCell(7)
-                    // Column 8: Issues Found (failed tests) - matches dataRow.createCell(8)
-                    // Column 9: Skipped tests - matches dataRow.createCell(9)
-                    // Column 11: Duration - matches dataRow.createCell(11)
-                    try {
-                        Cell functionsTestedCell = row.getCell(6);  // FIXED: Changed from 4 to 6
-                        Cell workingCell = row.getCell(7);          // FIXED: Changed from 5 to 7
-                        Cell issuesFoundCell = row.getCell(8);      // FIXED: Changed from 6 to 8
-                        Cell skippedCell = row.getCell(9);          // FIXED: Changed from 7 to 9
-                        Cell durationCell = row.getCell(11);        // FIXED: Changed from 9 to 11
+            if (row != null && isCurrentDayExecutionRow(row, currentExecution.executionDate)) {
+                // SHIFTED: Column indices aligned with addToExecutionHistorySheet method (after adding Client Name column)
+                // Column 8: Functions Tested (total tests) - matches dataRow.createCell(8)
+                // Column 9: Working (passed tests) - matches dataRow.createCell(9)
+                // Column 10: Issues Found (failed tests) - matches dataRow.createCell(10)
+                // Column 11: Skipped tests - matches dataRow.createCell(11)
+                // Column 13: Duration - matches dataRow.createCell(13)
+                try {
+                    Cell functionsTestedCell = row.getCell(8);  // SHIFTED: Changed from 7 to 8
+                    Cell workingCell = row.getCell(9);          // SHIFTED: Changed from 8 to 9
+                    Cell issuesFoundCell = row.getCell(10);     // SHIFTED: Changed from 9 to 10
+                    Cell skippedCell = row.getCell(11);         // SHIFTED: Changed from 10 to 11
+                    Cell durationCell = row.getCell(13);        // SHIFTED: Changed from 12 to 13
 
                         if (functionsTestedCell != null && workingCell != null) {
                             int functionsTested = (int) functionsTestedCell.getNumericCellValue();
@@ -6386,13 +6630,13 @@ public class DailyExcelTracker {
      */
     private static boolean isExecutionHistoryDataRow(Row row) {
         // Execution history rows should have:
-        // Column 0: Testing Date (not empty, not "Testing Date" header)
-        // Column 6: Functions Tested (numeric) - FIXED: Aligned with actual data location
-        // Column 7: Working (numeric) - FIXED: Aligned with actual data location
+        // Column 2: Testing Date (not empty, not "Testing Date" header)
+        // Column 8: Functions Tested (numeric) - FIXED: Aligned with actual data location
+        // Column 9: Working (numeric) - SHIFTED: Aligned with actual data location
 
-        Cell dateCell = row.getCell(0);
-        Cell functionsCell = row.getCell(6);  // FIXED: Changed from 4 to 6
-        Cell workingCell = row.getCell(7);    // FIXED: Changed from 5 to 7
+    Cell dateCell = row.getCell(2);  // Testing Date column (shifted from 1 to 2 after adding Client Name)
+    Cell functionsCell = row.getCell(8);  // Functions Tested column (shifted from 7 to 8)
+    Cell workingCell = row.getCell(9);    // Working column (shifted from 8 to 9)
 
         if (dateCell == null || functionsCell == null || workingCell == null) {
             return false;
@@ -6425,11 +6669,11 @@ public class DailyExcelTracker {
             return false;
         }
 
-        // Extract date from the Testing Date column (Column 0)
-        Cell dateCell = row.getCell(0);
-        if (dateCell == null) {
-            return false;
-        }
+    // Extract date from the Testing Date column (Column 1, shifted from 0)
+    Cell dateCell = row.getCell(1);
+    if (dateCell == null) {
+        return false;
+    }
 
         String dateValue = dateCell.getStringCellValue();
 

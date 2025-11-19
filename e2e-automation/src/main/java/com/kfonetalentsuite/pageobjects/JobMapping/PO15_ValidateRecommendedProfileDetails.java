@@ -165,10 +165,10 @@ public class PO15_ValidateRecommendedProfileDetails {
 						rowNumber.set(i);
 						WebElement	jobName = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber.get()-1)+"]//td[2]//div[contains(text(),'(')]"));
 						Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobName)).isDisplayed());
-						String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText(); 
-						orgJobName.set(jobname1.split("-", 2)[0].trim());
-						LOGGER.info("View Other Matches button is found for Job Profile with Name : " + orgJobName);
-						ExtentCucumberAdapter.addTestStepLog("View Other Matches button is found for Job Profile with Name : " + orgJobName);;
+					String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText(); 
+					orgJobName.set(jobname1.split("-", 2)[0].trim());
+					LOGGER.info("View Other Matches button is found for Job Profile with Name : " + orgJobName.get());
+					ExtentCucumberAdapter.addTestStepLog("View Other Matches button is found for Job Profile with Name : " + orgJobName.get());;
 						break;
 					} else {
 						rowNumber.set(i);
@@ -194,12 +194,12 @@ public class PO15_ValidateRecommendedProfileDetails {
 			WebElement	jobName = driver.findElement(By.xpath("//tbody//tr["+Integer.toString(rowNumber.get()-1)+"]//td[2]//div[contains(text(),'(')]"));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobName)).isDisplayed());
 			String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText(); 
-			orgJobName.set(jobname1.split("-", 2)[0].trim());
-			orgJobCode.set(jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length()-2));
-			ExtentCucumberAdapter.addTestStepLog("Job name of Profile with View Other Matches button in the organization table : " + orgJobName);
-			LOGGER.info("Job name of Profile with View Other Matches button in the organization table : " + orgJobName);
-		ExtentCucumberAdapter.addTestStepLog("Job code of Profile with View Other Matches button in the organization table : " + orgJobCode);
-		LOGGER.info("Job code of Profile with View Other Matches button in the organization table : " + orgJobCode);
+		orgJobName.set(jobname1.split("-", 2)[0].trim());
+		orgJobCode.set(jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length()-2));
+		ExtentCucumberAdapter.addTestStepLog("Job name of Profile with View Other Matches button in the organization table : " + orgJobName.get());
+		LOGGER.info("Job name of Profile with View Other Matches button in the organization table : " + orgJobName.get());
+	ExtentCucumberAdapter.addTestStepLog("Job code of Profile with View Other Matches button in the organization table : " + orgJobCode.get());
+	LOGGER.info("Job code of Profile with View Other Matches button in the organization table : " + orgJobCode.get());
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("user_should_verify_organization_job_name_and_job_code_values_of_job_profile_with_view_other_matches_button", e);
 		LOGGER.error("Issue in verifying job name of Profile with View Other Matches button - Method: user_should_verify_organization_job_name_and_job_code_values_of_job_profile_with_view_other_matches_button", e);
@@ -217,10 +217,10 @@ public class PO15_ValidateRecommendedProfileDetails {
 			if(jobGradeText.contentEquals("-") || jobGradeText.isEmpty() || jobGradeText.isBlank()) {
 				jobGradeText = "NULL";
 				orgJobGrade.set(jobGradeText);
-			}
-			orgJobGrade.set(jobGradeText);
-			ExtentCucumberAdapter.addTestStepLog("Grade value of Organization Job of Profile with View Other Matches button : " + orgJobGrade);
-			LOGGER.info("Grade value of Organization Job of Profile with View Other Matches button : " + orgJobGrade);
+		}
+		orgJobGrade.set(jobGradeText);
+		ExtentCucumberAdapter.addTestStepLog("Grade value of Organization Job of Profile with View Other Matches button : " + orgJobGrade.get());
+		LOGGER.info("Grade value of Organization Job of Profile with View Other Matches button : " + orgJobGrade.get());
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_organization_job_grade_value", e);
 			LOGGER.error("Issue in Verifying Organization Job Grade value - Method: user_should_verify_organization_job_grade_and_department_values_of_job_profile_with_view_other_matches_button", e);
@@ -236,10 +236,10 @@ public class PO15_ValidateRecommendedProfileDetails {
 			if(jobDepartmentText.contentEquals("-") || jobDepartmentText.isEmpty() || jobDepartmentText.isBlank()) {
 				jobDepartmentText = "NULL";
 				orgJobDepartment.set(jobDepartmentText);
-			}
-			orgJobDepartment.set(jobDepartmentText);
-			ExtentCucumberAdapter.addTestStepLog("Department value of Organization Job of Profile with View Other Matches button : " + orgJobDepartment);
-			LOGGER.info("Department value of Organization Job of Profile with View Other Matches button : " + orgJobDepartment);
+		}
+		orgJobDepartment.set(jobDepartmentText);
+		ExtentCucumberAdapter.addTestStepLog("Department value of Organization Job of Profile with View Other Matches button : " + orgJobDepartment.get());
+		LOGGER.info("Department value of Organization Job of Profile with View Other Matches button : " + orgJobDepartment.get());
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_organization_job_department_value", e);
 			LOGGER.error("Issue in Verifying Organization Job Department value - Method: user_should_verify_organization_job_grade_and_department_values_of_job_profile_with_view_other_matches_button", e);
@@ -261,10 +261,10 @@ public class PO15_ValidateRecommendedProfileDetails {
 				jobFunctionText = jobFunctionText + " | NULL";
 				orgJobFunction.set(jobFunctionText);
 			}
-			
-			orgJobFunction.set(jobFunctionText);
-			ExtentCucumberAdapter.addTestStepLog("Function / Sub-function values of Organization Job of Profile with View Other Matches button : " + orgJobFunction);
-			LOGGER.info("Function / Sub-function values of Organization Job of Profile with View Other Matches button : " + orgJobFunction);
+		
+		orgJobFunction.set(jobFunctionText);
+		ExtentCucumberAdapter.addTestStepLog("Function / Sub-function values of Organization Job of Profile with View Other Matches button : " + orgJobFunction.get());
+		LOGGER.info("Function / Sub-function values of Organization Job of Profile with View Other Matches button : " + orgJobFunction.get());
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_organization_job_function_or_sub_function_of_job_profile_with_view_other_matches_button", e);
 			LOGGER.error("Issue in Verifying Organization Job Function / Sub-function values - Method: user_should_verify_organization_job_function_or_sub_function_of_job_profile_with_view_other_matches_button", e);

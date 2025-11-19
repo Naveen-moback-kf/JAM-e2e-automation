@@ -152,15 +152,15 @@ public class ExcelStyleHelper {
     }
     
     /**
-     * Set column widths for ENHANCED execution history layout (13 columns)
-     * UPDATED: Added Execution Type & Browser Results columns
+     * Set column widths for ENHANCED execution history layout (15 columns)
+     * UPDATED: Added User Name, Client Name, Execution Type & Browser Results columns
      */
     public static void setExecutionHistoryColumnWidths(Sheet sheet) {
-        String[] columnNames = {"Testing Date", "Time", "Environment", "Execution Type", "Browser Results", 
-                               "Runner File", "Functions Tested", "Working", "Issues Found", "Skipped", 
+        String[] columnNames = {"User Name", "Client Name", "Testing Date", "Time", "Environment", "Execution Type", "Browser Results", 
+                               "Runner / Suite File", "Functions Tested", "Working", "Issues Found", "Skipped", 
                                "Success Rate", "Duration", "Quality Status"};
         
-        int[] widths = {4000, 3000, 3000, 4000, 6000, 6000, 4000, 3000, 3000, 3000, 4000, 3000, 4000};
+        int[] widths = {4000, 6000, 4000, 3000, 3000, 4000, 6000, 6000, 4000, 3000, 3000, 3000, 4000, 3000, 4000};
         
         for (int i = 0; i < columnNames.length && i < widths.length; i++) {
             sheet.setColumnWidth(i, widths[i]);

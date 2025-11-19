@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 
-<suite name="Job Mapping - Sanity Test Suite" parallel="tests" thread-count="3" verbose="2">
+<suite name="Job Mapping - Sanity Test Suite" parallel="tests" thread-count="3" preserve-order="true" verbose="2">
     
     <listeners> 
         <listener class-name="com.kfonetalentsuite.listeners.ExcelReportListener" />
@@ -10,7 +10,7 @@
     
     <!-- SANITY TESTS - Critical Path Tests (7 tests) -->
     <!-- Purpose: Verify the application is minimally functional. If these fail, build is broken. -->
-    <!-- Estimated Time: 5-10 minutes -->
+    <!-- Estimated Time: 15-20 minutes -->
     
     <!-- 1. Login - Must be able to login -->
     <test name="KFone Login">

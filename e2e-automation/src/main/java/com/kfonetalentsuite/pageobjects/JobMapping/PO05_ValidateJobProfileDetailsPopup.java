@@ -110,7 +110,7 @@ public class PO05_ValidateJobProfileDetailsPopup {
 	public void verify_profile_header_matches_with_matched_profile_name() {
 		try {
 		String profileHeaderName = wait.until(ExpectedConditions.visibilityOf(profileHeader)).getText();
-		Assert.assertEquals(PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName,profileHeaderName);
+		Assert.assertEquals(PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName.get(),profileHeaderName);
 		LOGGER.info("Profile header on the details popup : " + profileHeaderName);
 		ExtentCucumberAdapter.addTestStepLog("Profile header on the details popup : " + profileHeaderName);
 		} catch (Exception e) {
