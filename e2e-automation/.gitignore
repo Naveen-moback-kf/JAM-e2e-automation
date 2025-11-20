@@ -28,6 +28,9 @@
 *.tmp
 *.temp
 
+# Chrome profile directories (parallel execution)
+chrome-profile-*/
+
 # IDE specific
 .vscode/
 .settings/
