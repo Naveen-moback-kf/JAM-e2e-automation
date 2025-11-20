@@ -64,41 +64,106 @@ public class DriverManager {
 			driver.set(null);
 		}
 		
-		try {
-		boolean isHeadless = Boolean.parseBoolean(
-			CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "true"
-		);
-		
-		// Launch browser based on configuration
-	switch (CommonVariable.BROWSER) {
-			case "chrome":
-				WebDriverManager.chromedriver().setup();
-			driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
-			break;
-		case "firefox":
-			WebDriverManager.firefoxdriver().setup();
-			driver.set(new FirefoxDriver(configureFirefoxOptions(isHeadless)));
-			break;
-		case "edge":
-			WebDriverManager.edgedriver().setup();
-			driver.set(new EdgeDriver());
-			break;
-		default:
-			WebDriverManager.chromedriver().setup();
-			driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
-			break;
-		}
-		
-		LOGGER.info("✓ Browser launched: {} ({})", 
-			CommonVariable.BROWSER, isHeadless ? "headless" : "windowed");
-		
-		// Configure timeouts and browser
-		configureTimeoutsAndBrowser(isHeadless);
-		
-	} catch (Exception e) {
-		LOGGER.error("✗ Browser launch failed: {}", e.getMessage());
-		throw new RuntimeException("Browser initialization failed", e);
+	try {
+	boolean isHeadless = Boolean.parseBoolean(
+		CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "true"
+	);
+	
+	// Launch browser based on configuration
+switch (CommonVariable.BROWSER) {
+		case "chrome":
+			setupChromeDriver();
+		driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
+		break;
+	case "firefox":
+		setupFirefoxDriver();
+		driver.set(new FirefoxDriver(configureFirefoxOptions(isHeadless)));
+		break;
+	case "edge":
+		setupEdgeDriver();
+		driver.set(new EdgeDriver());
+		break;
+	default:
+		setupChromeDriver();
+		driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
+		break;
 	}
+	
+	LOGGER.info("✓ Browser launched: {} ({})", 
+		CommonVariable.BROWSER, isHeadless ? "headless" : "windowed");
+	
+	// Configure timeouts and browser
+	configureTimeoutsAndBrowser(isHeadless);
+	
+} catch (Exception e) {
+	LOGGER.error("✗ Browser launch failed: {}", e.getMessage());
+	throw new RuntimeException("Browser initialization failed", e);
+}
+	}
+	
+	/**
+	 * Setup ChromeDriver with parallel execution optimization
+	 * Synchronized to prevent race conditions during parallel test execution
+	 */
+	private static synchronized void setupChromeDriver() {
+		try {
+			WebDriverManager.chromedriver()
+				.cachePath("~/.cache/selenium")  // Use cache to avoid repeated downloads
+				.timeout(120)                      // Increase timeout for CI/CD environments
+				.avoidShutdownHook()              // Prevent shutdown conflicts in parallel execution
+				.clearDriverCache()               // Clear any corrupted cache
+				.clearResolutionCache()           // Clear resolution cache
+				.setup();
+			LOGGER.info("ChromeDriver setup completed successfully");
+		} catch (Exception e) {
+			LOGGER.warn("ChromeDriver setup failed, retrying with fallback: {}", e.getMessage());
+			// Fallback: Try without cache clearing
+			try {
+				WebDriverManager.chromedriver()
+					.cachePath("~/.cache/selenium")
+					.timeout(120)
+					.avoidShutdownHook()
+					.setup();
+				LOGGER.info("ChromeDriver setup completed with fallback");
+			} catch (Exception fallbackException) {
+				LOGGER.error("ChromeDriver setup failed completely: {}", fallbackException.getMessage());
+				throw new RuntimeException("Failed to setup ChromeDriver", fallbackException);
+			}
+		}
+	}
+	
+	/**
+	 * Setup FirefoxDriver with parallel execution optimization
+	 */
+	private static synchronized void setupFirefoxDriver() {
+		try {
+			WebDriverManager.firefoxdriver()
+				.cachePath("~/.cache/selenium")
+				.timeout(120)
+				.avoidShutdownHook()
+				.setup();
+			LOGGER.info("FirefoxDriver setup completed successfully");
+		} catch (Exception e) {
+			LOGGER.error("FirefoxDriver setup failed: {}", e.getMessage());
+			throw new RuntimeException("Failed to setup FirefoxDriver", e);
+		}
+	}
+	
+	/**
+	 * Setup EdgeDriver with parallel execution optimization
+	 */
+	private static synchronized void setupEdgeDriver() {
+		try {
+			WebDriverManager.edgedriver()
+				.cachePath("~/.cache/selenium")
+				.timeout(120)
+				.avoidShutdownHook()
+				.setup();
+			LOGGER.info("EdgeDriver setup completed successfully");
+		} catch (Exception e) {
+			LOGGER.error("EdgeDriver setup failed: {}", e.getMessage());
+			throw new RuntimeException("Failed to setup EdgeDriver", e);
+		}
 	}
 	
 	/**

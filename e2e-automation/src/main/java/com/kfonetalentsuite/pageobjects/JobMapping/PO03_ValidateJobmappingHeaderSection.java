@@ -21,8 +21,8 @@ import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.SmartWaits;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO03_ValidateJobmappingHeaderSection {
 	WebDriver driver = DriverManager.getDriver();	
@@ -177,15 +177,11 @@ public class PO03_ValidateJobmappingHeaderSection {
 	public void verify_kf_talent_suite_logo_is_displaying() {
 		try {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(KFTalentSuitelogo)).isDisplayed());
-			LOGGER.info("KORN FERRY TALENT SUITE Logo is displaying as Expected on Job Mapping UI Header");
-			ExtentCucumberAdapter.addTestStepLog("KORN FERRY TALENT SUITE Logo is displaying as Expected on Job Mapping UI Header");
-		}
-		catch (Exception e) {
+			PageObjectHelper.log(LOGGER, "KORN FERRY TALENT SUITE Logo is displaying as Expected on Job Mapping UI Header");
+		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_kf_talent_suite_logo_is_displaying", e);
-			LOGGER.error("Issue in displaying KF Talent Suite logo in Job Mapping UI Header - Method: verify_kf_talent_suite_logo_is_displaying", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in displaying KF Talent Suite logo in Job Mapping UI Header...Please Investigate!!!");
-			Assert.fail("Issue in displaying KF Talent Suite logo in Job Mapping UI Header...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_kf_talent_suite_logo_is_displaying", 
+					"Issue in displaying KF Talent Suite logo in Job Mapping UI Header", e);
 		}
 	}
 	
@@ -200,25 +196,17 @@ public class PO03_ValidateJobmappingHeaderSection {
 					utils.jsClick(driver, KFTalentSuitelogo);
 				}
 			}
-			LOGGER.info("Clicked on KORN FERRY TALENT SUITE Logo in Job Mapping UI Header");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on KORN FERRY TALENT SUITE Logo in Job Mapping UI Header");
-		}
-		catch (Exception e) {
+			PageObjectHelper.log(LOGGER, "Clicked on KORN FERRY TALENT SUITE Logo in Job Mapping UI Header");
+		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_kf_talent_suite_logo", e);
-			LOGGER.error("Issue in clicking on KORN FERRY TALENT SUITE Logo in Job Mapping UI Header - Method: click_on_kf_talent_suite_logo", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on KORN FERRY TALENT SUITE Logo in Job Mapping UI Header...Please Investigate!!!");
-			Assert.fail("Issue in clicking on KORN FERRY TALENT SUITE Logo in Job Mapping UI Header...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_kf_talent_suite_logo", 
+					"Issue in clicking on KORN FERRY TALENT SUITE Logo in Job Mapping UI Header", e);
 		}
 	}
 	
 	public void navigate_to_job_mapping_page_from_kfone_global_menu() {
 		try {
-			// Wait for page load spinner to disappear
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-			
-			LOGGER.info("Clicking KFONE Global Menu...");
-			ExtentCucumberAdapter.addTestStepLog("Clicking KFONE Global Menu...");
 			
 			// Click on KFONE Global Menu button
 			try {
@@ -231,13 +219,7 @@ public class PO03_ValidateJobmappingHeaderSection {
 				}
 			}
 			
-			LOGGER.info("Successfully clicked KFONE Global Menu");
-			ExtentCucumberAdapter.addTestStepLog("Successfully clicked KFONE Global Menu");
-			
 			PerformanceUtils.waitForPageReady(driver, 1);
-			
-			LOGGER.info("Clicking Job Mapping button in KFONE menu...");
-			ExtentCucumberAdapter.addTestStepLog("Clicking Job Mapping button in KFONE menu...");
 			
 			// Click on Job Mapping button in the menu
 			try {
@@ -250,37 +232,28 @@ public class PO03_ValidateJobmappingHeaderSection {
 				}
 			}
 			
-			LOGGER.info("Successfully clicked Job Mapping button in KFONE menu");
-			ExtentCucumberAdapter.addTestStepLog("Successfully clicked Job Mapping button in KFONE menu");
-			
 			// Wait for navigation to complete
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			LOGGER.info("Successfully Navigated to Job Mapping screen");
-			
+			PageObjectHelper.log(LOGGER, "Successfully Navigated to Job Mapping screen");
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("navigate_to_job_mapping_page_from_kfone_global_menu", e);
-			LOGGER.error("Error navigating to Job Mapping page from KFONE Global Menu: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Error navigating to Job Mapping page from KFONE Global Menu: " + e.getMessage());
-			throw new RuntimeException("Failed to navigate to Job Mapping page from KFONE Global Menu", e);
+			PageObjectHelper.handleError(LOGGER, "navigate_to_job_mapping_page_from_kfone_global_menu", 
+					"Failed to navigate to Job Mapping page from KFONE Global Menu", e);
 		}
 	}
 
 	public void user_should_verify_client_name_is_correctly_displaying() {
 		try {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(clientname)).isDisplayed());
-		String clientnameText = wait.until(ExpectedConditions.visibilityOf(clientname)).getText();
-		Assert.assertEquals(PO01_KFoneLogin.clientName.get(),clientnameText);
-		LOGGER.info("Client name correctly displaying on the Job Mapping UI Header: " + clientnameText);
-			ExtentCucumberAdapter.addTestStepLog("Client name correctly displaying on the Job Mapping UI Header: " + clientnameText);
+			String clientnameText = wait.until(ExpectedConditions.visibilityOf(clientname)).getText();
+			Assert.assertEquals(PO01_KFoneLogin.clientName.get(), clientnameText);
+			PageObjectHelper.log(LOGGER, "Client name correctly displaying on the Job Mapping UI Header: " + clientnameText);
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_client_name_is_correctly_displaying", e);
-			LOGGER.error("Issue in displaying correct client name in Job Mapping UI Header - Method: verify_username_displayed", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in displaying correct client name in Job Mapping UI Header...Please Investigate!!!");
-			Assert.fail("Issue in displaying correct client name in Job Mapping UI Header...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_client_name_is_correctly_displaying", 
+					"Issue in displaying correct client name in Job Mapping UI Header", e);
 		}
-		
 	}
 	
 	public void click_on_client_name_in_job_mapping_ui_header() {
@@ -294,21 +267,16 @@ public class PO03_ValidateJobmappingHeaderSection {
 					utils.jsClick(driver, clientname);
 				}
 			}
-			LOGGER.info("Clicked on client name in Job Mapping UI Header");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on client name in Job Mapping UI Header");
-		}
-		catch (Exception e) {
+			PageObjectHelper.log(LOGGER, "Clicked on client name in Job Mapping UI Header");
+		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_client_name_in_job_mapping_ui_header", e);
-			LOGGER.error("Issue in clicking on client name in Job Mapping UI Header - Method: click_on_client_name_in_job_mapping_ui_header", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on client name in Job Mapping UI Header...Please Investigate!!!");
-			Assert.fail("Issue in clicking on client name in Job Mapping UI Header...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_client_name_in_job_mapping_ui_header", 
+					"Issue in clicking on client name in Job Mapping UI Header", e);
 		}
 	}
 	
 	public void verify_user_navigated_to_kfone_clients_page() {
 		try {
-			
 			// Wait for spinner to disappear and page to load
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
 			SmartWaits.waitForPageLoad(driver);
@@ -319,15 +287,12 @@ public class PO03_ValidateJobmappingHeaderSection {
 			String obj1 = "Clients";
 			Assert.assertEquals(obj1, text1);
 			
-			LOGGER.info("User navigated to KFONE Clients Page as Expected");
-			ExtentCucumberAdapter.addTestStepLog("User navigated to KFONE Clients Page as Expected");
+			PageObjectHelper.log(LOGGER, "User navigated to KFONE Clients Page as Expected");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_user_navigated_to_kfone_clients_page", e);
-			LOGGER.error("Issue in navigating to KFONE clients page - Method: verify_user_navigated_to_kfone_clients_page", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in navigating to KFONE clients page ");
-			Assert.fail("Issue in navigating to KFONE clients page ");
+			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_kfone_clients_page", 
+					"Issue in navigating to KFONE clients page", e);
 		}
-
 	}
 	
 	public void verify_user_profile_logo_is_displaying_and_clickable() {
@@ -342,61 +307,48 @@ public class PO03_ValidateJobmappingHeaderSection {
 					utils.jsClick(driver, profileBtn);
 				}
 			}
-			LOGGER.info("User Profile logo is displaying in Job Mapping Header and clicked on it...");
-			ExtentCucumberAdapter.addTestStepLog("User Profile logo is displaying Job Mapping Header and clicked on it...");
+			PageObjectHelper.log(LOGGER, "User Profile logo is displaying in Job Mapping Header and clicked on it");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_user_profile_logo_is_displaying_and_clickable", e);
-			LOGGER.error("Issue in clicking User Profile logo - Method: click_user_profile_logo", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in displaying or clicking User Profile logo in Job Mapping Header...Please Investigate!!!");
-			Assert.fail("Issue in displaying or clicking User Profile logo in Job Mapping Header...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_user_profile_logo_is_displaying_and_clickable", 
+					"Issue in displaying or clicking User Profile logo in Job Mapping Header", e);
 		}
-		
 	}
 	
 	public void verify_user_profile_menu_is_opened() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(profileUserName)).isDisplayed());;
-			LOGGER.info("User profile menu is opened on click of user profile logo");
-			ExtentCucumberAdapter.addTestStepLog("User profile menu is opened on click of user profile logo");
+			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(profileUserName)).isDisplayed());
+			PageObjectHelper.log(LOGGER, "User profile menu is opened on click of user profile logo");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_user_profile_menu_is_opened", e);
-			LOGGER.error("Issue in opening User Profile Menu - Method: verify_user_profile_menu_is_opened", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in opening User Profile Menu ...Please Investigate!!!");
-			Assert.fail("Issue in opening User Profile Menu ...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_user_profile_menu_is_opened", 
+					"Issue in opening User Profile Menu", e);
 		}
 	}
 	
 	public void verify_user_name_is_displayed_in_profile_menu() {
 		try {
 			String profileUserNameText = wait.until(ExpectedConditions.visibilityOf(profileUserName)).getText();
-			LOGGER.info("User Name : " + profileUserNameText + " is displayed in Profile Menu as expected");
-			ExtentCucumberAdapter.addTestStepLog("User Name : " + profileUserNameText + " is displayed in Profile Menu as expected");
+			PageObjectHelper.log(LOGGER, "User Name: " + profileUserNameText + " is displayed in Profile Menu as expected");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_user_name_is_displayed_in_profile_menu", e);
-			LOGGER.error("Issue in displaying User name in User Profile Menu - Method: verify_user_name_is_displayed_in_profile_menu", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in displaying User name in User Profile Menu ...Please Investigate!!!");
-			Assert.fail("Issue in displaying User name in User Profile Menu ...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_user_name_is_displayed_in_profile_menu", 
+					"Issue in displaying User name in User Profile Menu", e);
 		}
 	}
 	
 	public void verify_user_email_is_displayed_in_profile_menu() {
 		try {
 			String profileUserEmailText = wait.until(ExpectedConditions.visibilityOf(profileUserEmail)).getText();
-		// Case-insensitive email comparison (emails are not case-sensitive)
-		Assert.assertTrue(PO01_KFoneLogin.username.get().equalsIgnoreCase(profileUserEmailText),
-				"Expected email: " + PO01_KFoneLogin.username.get() + " but found: " + profileUserEmailText);
-		LOGGER.info("User Email : " + profileUserEmailText + " is displayed in Profile Menu as expected");
-			ExtentCucumberAdapter.addTestStepLog("User Email : " + profileUserEmailText + " is displayed in Profile Menu as expected");
+			// Case-insensitive email comparison
+			Assert.assertTrue(PO01_KFoneLogin.username.get().equalsIgnoreCase(profileUserEmailText),
+					"Expected email: " + PO01_KFoneLogin.username.get() + " but found: " + profileUserEmailText);
+			PageObjectHelper.log(LOGGER, "User Email: " + profileUserEmailText + " is displayed in Profile Menu as expected");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_user_email_is_displayed_in_profile_menu", e);
-			LOGGER.error("Issue in displaying User email in User Profile Menu - Method: verify_user_email_is_displayed_in_profile_menu", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in displaying User email in User Profile Menu ...Please Investigate!!!");
-			Assert.fail("Issue in displaying User email in User Profile Menu ...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_user_email_is_displayed_in_profile_menu", 
+					"Issue in displaying User email in User Profile Menu", e);
 		}
 	}
 	
@@ -412,16 +364,12 @@ public class PO03_ValidateJobmappingHeaderSection {
 					wait.until(ExpectedConditions.elementToBeClickable(signoutBtn)).click();
 				}
 			}
-			LOGGER.info("Clicked on logout button in User Profile Menu...");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on logout button in User Profile Menu...");
+			PageObjectHelper.log(LOGGER, "Clicked on logout button in User Profile Menu");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_signout_button_in_user_profile_menu", e);
-			LOGGER.error("Issue in clicking logout button in User Profile Menu... - Method: click_on_signout_button_in_user_profile_menu", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking logout button in User Profile Menu...Please Investigate!!!");
-			Assert.fail("Issue in clicking logout button in User Profile Menu...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_signout_button_in_user_profile_menu", 
+					"Issue in clicking logout button in User Profile Menu", e);
 		}
-		
 	}
 	
 	public void user_should_be_signed_out_from_the_application() {
@@ -429,16 +377,12 @@ public class PO03_ValidateJobmappingHeaderSection {
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
 			PerformanceUtils.waitForPageReady(driver, 3);
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(loginPageTextXapth)).isDisplayed());
-			LOGGER.info("User signed out from the application successfully and Navigated Back to Korn Ferry talent Suite Sign In page");
-			ExtentCucumberAdapter.addTestStepLog("User signed out from the application successfully and Navigated Back to Korn Ferry talent Suite Sign In page");
+			PageObjectHelper.log(LOGGER, "User signed out successfully and navigated back to Korn Ferry Talent Suite Sign In page");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_be_signed_out_from_the_application", e);
-			LOGGER.error("Issue in signing out from Application - Method: verify_signout_from_application", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in signing out from Application...Please Investigate!!!");
-			Assert.fail("Issue in signing out from Application...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_be_signed_out_from_the_application", 
+					"Issue in signing out from Application", e);
 		}
-		
 	}
 
 }
