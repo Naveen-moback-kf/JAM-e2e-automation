@@ -1680,8 +1680,8 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 					LOGGER.info("Successfully Verified Profile Level dropdown in  Mapped Profile details Popup and levels present inside it...");
 					ExtentCucumberAdapter.addTestStepLog("Successfully Verified Profile Level dropdown in Mapped Profile details Popup and levels present inside it...");
 				} else {
-					LOGGER.info("No Profile Levels available for Mapped Profile in details Popup : " + manualMappingProfileName); 
-					ExtentCucumberAdapter.addTestStepLog("No Profile Levels available for Mapped Profile in details Popup : " + manualMappingProfileName);
+					LOGGER.info("No Profile Levels available for Mapped Profile in details Popup : " + manualMappingProfileName.get()); 
+					ExtentCucumberAdapter.addTestStepLog("No Profile Levels available for Mapped Profile in details Popup : " + manualMappingProfileName.get());
 				}
 				
 			} catch (Exception e) {
@@ -1913,7 +1913,7 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 		// PERFORMANCE: Replaced Thread.sleep(2000) with search results wait
 		PerformanceUtils.waitForSearchResults(driver, By.xpath("//tbody//tr"), 2);
 			LOGGER.info("Entered job name as " + orgJobName.get() + " in the search bar");
-				ExtentCucumberAdapter.addTestStepLog("Entered job name as " + orgJobName  + " in the search bar");
+				ExtentCucumberAdapter.addTestStepLog("Entered job name as " + orgJobName.get()  + " in the search bar");
 			// PERFORMANCE: Replaced Thread.sleep(2000) with page ready wait
 			PerformanceUtils.waitForPageReady(driver, 2);
 			} catch (Exception e) {

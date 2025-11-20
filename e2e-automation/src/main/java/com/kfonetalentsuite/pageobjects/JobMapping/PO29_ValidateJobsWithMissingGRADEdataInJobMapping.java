@@ -248,7 +248,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping {
 			// Search for jobs with missing Grade (ignoring Department and Function data)
 			// Skip the same profile that was validated in Forward scenario
 			LOGGER.info("Searching for jobs with missing Grade (ignoring Department and Function data)");
-			LOGGER.info("Will skip Forward scenario profile: " + forwardScenarioJobName + " (" + forwardScenarioJobCode + ")");
+			LOGGER.info("Will skip Forward scenario profile: " + forwardScenarioJobName.get() + " (" + forwardScenarioJobCode.get() + ")");
 			
 			for (int i = 0; i < allJobRows.size(); i++) {
 				WebElement row = allJobRows.get(i);
@@ -300,7 +300,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping {
 						preferredJobRow = row;
 					foundJobRow = row; // Store for precise extraction
 					extractedJobName.set(cleanJobName(jobName)); // Store cleaned job name
-					LOGGER.info("Found DIFFERENT job at position " + (i+1) + ": " + extractedJobName + " (Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction + ")");
+					LOGGER.info("Found DIFFERENT job at position " + (i+1) + ": " + extractedJobName.get() + " (Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction + ")");
 					break; // Found match, stop searching
 					}
 				}
@@ -372,7 +372,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping {
 	 */
 	public void extract_all_available_job_details_from_jobs_with_missing_data_screen() throws IOException {
 		try {
-			LOGGER.info("Extracting job details for: " + extractedJobName);
+			LOGGER.info("Extracting job details for: " + extractedJobName.get());
 			
 			// Use the stored row from the search phase for precise extraction
 			if (foundJobRow != null) {
@@ -1738,8 +1738,8 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping {
 						forwardScenarioFoundProfile.set(true);
 						forwardScenarioJobName.set(cleanJobName(jobName));
 						forwardScenarioJobCode.set(jobCode);
-						
-						LOGGER.info("FORWARD SCENARIO (Scenario 1) will validate: " + extractedJobName + " (Code: " + jobCode + ")");
+					
+					LOGGER.info("FORWARD SCENARIO (Scenario 1) will validate: " + extractedJobName.get() + " (Code: " + jobCode + ")");
 						matchFound = true;
 						break; // Exit for loop - match found!
 					}
@@ -1937,7 +1937,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping {
 	 */
 	public void search_for_the_extracted_job_profile_by_name_in_jobs_missing_data_screen() throws IOException {
 		try {
-			LOGGER.info("Traversing all jobs in Missing Data screen to find: " + extractedJobName);
+			LOGGER.info("Traversing all jobs in Missing Data screen to find: " + extractedJobName.get());
 			ExtentCucumberAdapter.addTestStepLog("Traversing all jobs in Missing Data screen (no search functionality)...");
 		
 		if (extractedJobName.get() == null || extractedJobName.get().isEmpty()) {

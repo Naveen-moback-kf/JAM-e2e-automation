@@ -667,7 +667,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 		
 		try {
 			LOGGER.info(" Monitoring: " + initialUnpublishedCount + "  " + targetUnpublishedCount + " (publish " + selectedProfilesCount.get() + ") | Max wait: " + maxWaitMinutes + " min");
-			ExtentCucumberAdapter.addTestStepLog(" Monitoring: Publish " + selectedProfilesCount + " profiles (check every " + REFRESH_INTERVAL_SECONDS + "s)");
+			ExtentCucumberAdapter.addTestStepLog(" Monitoring: Publish " + selectedProfilesCount.get() + " profiles (check every " + REFRESH_INTERVAL_SECONDS + "s)");
 			
 			// Monitor progress every 30 seconds
 			while (elapsedSeconds < maxWaitSeconds) {
@@ -779,10 +779,10 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			int remainingToPublish = finalUnpublishedCount - expectedTargetUnpublished;
 			
 			if (finalUnpublishedCount <= expectedTargetUnpublished) {
-				LOGGER.info(" FINAL VERIFICATION PASSED! All " + selectedProfilesCount + " profiles published (Remaining: " + finalUnpublishedCount + ")");
-				ExtentCucumberAdapter.addTestStepLog(" SUCCESS! All " + selectedProfilesCount + " profiles published");
+				LOGGER.info(" FINAL VERIFICATION PASSED! All " + selectedProfilesCount.get() + " profiles published (Remaining: " + finalUnpublishedCount + ")");
+				ExtentCucumberAdapter.addTestStepLog(" SUCCESS! All " + selectedProfilesCount.get() + " profiles published");
 			} else {
-				LOGGER.warn(" INCOMPLETE: Expected " + selectedProfilesCount + ", Published " + actualPublished + " (Remaining: " + remainingToPublish + ")");
+				LOGGER.warn(" INCOMPLETE: Expected " + selectedProfilesCount.get() + ", Published " + actualPublished + " (Remaining: " + remainingToPublish + ")");
 				ExtentCucumberAdapter.addTestStepLog(" Incomplete! " + remainingToPublish + " profiles still pending");
 			}
 			
