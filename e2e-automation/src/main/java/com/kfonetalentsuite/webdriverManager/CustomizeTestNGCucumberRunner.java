@@ -58,6 +58,27 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
     
     @BeforeClass(alwaysRun = true)
     public void setUpClass() {
+        long threadId = Thread.currentThread().getId();
+        String threadName = Thread.currentThread().getName();
+        String runnerName = this.getClass().getSimpleName();
+        
+        LOGGER.info("╔═══════════════════════════════════════════════════════════════╗");
+        LOGGER.info("║  TEST RUNNER STARTING: {}                                    ", runnerName);
+        LOGGER.info("║  Thread: {} ({})                                             ", threadId, threadName);
+        LOGGER.info("╚═══════════════════════════════════════════════════════════════╝");
+        
+        // CACHE CLEANUP BEFORE RUNNER: Clear all browser data before runner starts (defensive)
+        // This ensures the runner starts with clean state and prevents cross-runner contamination
+        try {
+            DriverManager.clearAllBrowserData();
+        } catch (Exception e) {
+            LOGGER.warn("[Thread-{}:{}] ⚠️  Failed to clear browser data: {}", 
+                threadId, threadName, e.getMessage());
+        }
+        
+        LOGGER.info("[Thread-{}:{}] ▶️  Test runner {} beginning execution...", 
+            threadId, threadName, runnerName);
+        
         testNGCucumberRunner = new TestNGCucumberRunner(this.getClass());
     }
 
@@ -78,6 +99,26 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
 
     @AfterClass(alwaysRun = true)
     public void tearDownClass() {
+        long threadId = Thread.currentThread().getId();
+        String threadName = Thread.currentThread().getName();
+        String runnerName = this.getClass().getSimpleName();
+        
+        LOGGER.info("[Thread-{}:{}] ⏹️  Test runner {} execution completed", 
+            threadId, threadName, runnerName);
+        
+        // CACHE CLEANUP AFTER RUNNER: Clean up browser data for good hygiene
+        try {
+            DriverManager.clearAllBrowserData();
+        } catch (Exception e) {
+            LOGGER.warn("[Thread-{}:{}] ⚠️  Failed to clear browser data: {}", 
+                threadId, threadName, e.getMessage());
+        }
+        
+        LOGGER.info("╔═══════════════════════════════════════════════════════════════╗");
+        LOGGER.info("║  TEST RUNNER COMPLETED: {}                                   ", runnerName);
+        LOGGER.info("║  Thread: {} ({})                                             ", threadId, threadName);
+        LOGGER.info("╚═══════════════════════════════════════════════════════════════╝");
+        
         if (testNGCucumberRunner == null) {
             return;
         }

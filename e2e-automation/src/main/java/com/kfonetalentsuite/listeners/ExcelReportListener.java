@@ -43,20 +43,11 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             boolean extentEnabled = CommonVariable.EXTENT_REPORTING_ENABLED == null || 
                                    !CommonVariable.EXTENT_REPORTING_ENABLED.trim().equalsIgnoreCase("false");
             
-            LOGGER.debug("Extent Reporting Configuration: {}", extentEnabled);
-            
-            // Set system property for Extent to respect
             System.setProperty("extent.reporter.spark.start", String.valueOf(extentEnabled));
-            
-            if (extentEnabled) {
-                LOGGER.info("... Extent HTML reports ENABLED");
-            } else {
-                LOGGER.info(" Extent HTML reports DISABLED");
-            }
+            LOGGER.info("Extent reports: {}", extentEnabled ? "ENABLED" : "DISABLED");
             
         } catch (Exception e) {
-            LOGGER.error("Failed to configure Extent reporting: {}", e.getMessage(), e);
-            LOGGER.warn("Extent reporting will use default configuration (enabled)");
+            LOGGER.error("Failed to configure Extent reporting: {}", e.getMessage());
         }
     }
     
@@ -144,13 +135,11 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                         // Also store for DailyExcelTracker
                         System.setProperty("current.runner.class." + threadId, testClassName);
                         System.setProperty("current.browser.name." + threadId, browserName);
-                        
-                        LOGGER.debug("Cross-browser runner info set: {} for browser: {} on thread: {}", testClassName, browserName, threadId);
                     }
                 }
             }
         } catch (Exception e) {
-            LOGGER.debug("Failed to set cross-browser runner info: {}", e.getMessage());
+            // Silent - not critical for test execution
         }
     }
     
@@ -221,13 +210,11 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             totalTestContexts.set(allTests.size());
             
             if (totalTestContexts.get() > 0) {
-                LOGGER.info(" Test Suite Started: '{}' with {} runners", 
-                           suite.getName(), totalTestContexts.get());
+                LOGGER.info("Test Suite '{}' started with {} runners", suite.getName(), totalTestContexts.get());
                 ProgressBarUtil.initializeProgress(totalTestContexts.get());
             }
         } catch (Exception e) {
-            LOGGER.warn("Could not initialize progress tracking: {}", e.getMessage());
-            // Fallback - disable progress bar for this execution
+            LOGGER.warn("Could not initialize progress tracking");
             totalTestContexts.set(0);
         }
     }
@@ -262,9 +249,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             completedTestContexts.incrementAndGet();
             String testName = context.getName();
             ProgressBarUtil.updateProgress(testName);
-            
-            LOGGER.debug("Runner completed: '{}' ({}/{})", 
-                        testName, completedTestContexts.get(), totalTestContexts.get());
         }
         
         // Individual test completed - Excel update deferred to execution completion
@@ -276,43 +260,22 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                    totalTestMethods.get(), passedTestMethods.get(), failedTestMethods.get(), skippedTestMethods.get());
         
         if (!isExcelReportingEnabled()) {
-            LOGGER.debug("Excel reporting is DISABLED - Skipping Excel generation");
-            
-            // SYSTEM POWER MANAGEMENT: Shutdown Keep System Awake at suite level (ONCE after entire execution)
             KeepAwakeUtil.shutdown();
             return;
         }
         
-        // Generate final Excel report with execution history
-        LOGGER.debug("Excel reporting is ENABLED - Proceeding with report generation");
-        
-        // PERFORMANCE OPTIMIZATION: Log screenshot performance statistics
-        LOGGER.debug("Screenshot performance stats: {}", 
-                   ScreenshotHandler.getPerformanceStats());
-        
         try {
-            DailyExcelTracker.generateDailyReport(false); // Full update with execution history
+            DailyExcelTracker.generateDailyReport(false);
             LOGGER.info("Excel report generated successfully");
             
-            // ENHANCED: Clean up captured exception details after Excel report is generated
             clearExceptionDetails();
-            LOGGER.debug("Cleared captured exception details after Excel report generation");
-            
-            // Clean up cross-browser runner information
             crossBrowserRunnerNames.clear();
-            
-            // ENHANCED: Reset progress tracking after execution completes
             ProgressBarUtil.resetProgress();
-            
-            // PERFORMANCE OPTIMIZATION: Trigger garbage collection to free memory before next run
-            // This helps prevent memory accumulation when running suites multiple times
             System.gc();
-            LOGGER.debug("Triggered garbage collection after test execution (memory cleanup)");
             
         } catch (Exception e) {
             LOGGER.error("Excel report generation failed", e);
         } finally {
-            // SYSTEM POWER MANAGEMENT: Shutdown Keep System Awake at suite level (ONCE after entire execution)
             KeepAwakeUtil.shutdown();
         }
     }
@@ -351,38 +314,24 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             Throwable throwable = result.getThrowable();
             String runnerClassName = result.getTestClass().getName();
             
-            LOGGER.debug("FAIL CAPTURE - Scenario: '{}', Throwable: {}", scenarioInfo, throwable != null ? throwable.getClass().getSimpleName() : "null");
-            
             if (throwable != null) {
-                // Create comprehensive exception details object for failure
                 ExceptionDetails details = new ExceptionDetails();
                 details.scenarioName = scenarioInfo;
-                
-                // ENHANCED: Get the most meaningful exception message
-                String actualExceptionMessage = extractMostMeaningfulExceptionMessage(throwable);
-                details.exceptionMessage = actualExceptionMessage;
+                details.exceptionMessage = extractMostMeaningfulExceptionMessage(throwable);
                 details.exceptionType = throwable.getClass().getSimpleName();
                 details.stackTrace = getStackTraceAsString(throwable);
                 details.timestamp = System.currentTimeMillis();
                 details.testStatus = "FAILED";
                 
-                // Create a unique key for this failure (include scenario name for suite execution)
                 String testKey = runnerClassName + "." + result.getMethod().getMethodName() + "." + scenarioInfo;
                 testExceptionDetails.put(testKey, details);
                 
-                LOGGER.info("Captured failure exception for scenario: '{}'", scenarioInfo);
-                LOGGER.debug("Total exceptions stored: {} | TestKey: '{}'", testExceptionDetails.size(), testKey);
-                
-                // ENHANCED: Also store failure reason by runner for global lookup
-                if (actualExceptionMessage != null && actualExceptionMessage.length() > 10) {
+                if (details.exceptionMessage != null && details.exceptionMessage.length() > 10) {
                     String runnerKey = extractRunnerKey(runnerClassName);
-                    // Store with a different key to avoid conflicts with skip reasons
-                    globalSkipReasonsByRunner.put(runnerKey + "_failure", actualExceptionMessage);
-                    LOGGER.debug("Stored global failure reason for runner '{}': '{}'", runnerKey, actualExceptionMessage);
+                    globalSkipReasonsByRunner.put(runnerKey + "_failure", details.exceptionMessage);
                 }
                 
             } else {
-                // Even if no throwable, create a basic failure details entry
                 ExceptionDetails details = new ExceptionDetails();
                 details.scenarioName = scenarioInfo;
                 details.exceptionMessage = "Test failed - no exception details available";
@@ -391,15 +340,12 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                 details.timestamp = System.currentTimeMillis();
                 details.testStatus = "FAILED";
                 
-                // Include scenario name for unique key in suite execution
                 String testKey = runnerClassName + "." + result.getMethod().getMethodName() + "." + scenarioInfo;
                 testExceptionDetails.put(testKey, details);
-                
-                LOGGER.debug("FAIL CAPTURE - No throwable, captured basic failure for '{}'. Total captured: {}", scenarioInfo, testExceptionDetails.size());
             }
             
         } catch (Exception e) {
-            LOGGER.warn("Failed to capture failure exception details", e);
+            LOGGER.warn("Failed to capture failure exception details");
         }
     }
     
@@ -473,15 +419,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
         skippedTestMethods.incrementAndGet();
         totalTestMethods.incrementAndGet();
         
-        // ENHANCED: Capture actual skip exception details for Excel reporting
         if (isExcelReportingEnabled()) {
             String scenarioInfo = extractScenarioInfo(result);
-            LOGGER.debug("Test skipped: {}", scenarioInfo);
-            
-            // Capture and store the actual skip exception details (including role-based skip reasons)
             captureSkipExceptionDetails(result, scenarioInfo);
             
-            // Clear scenario name from thread after capturing skip details (prevent memory leaks)
             String threadId = Thread.currentThread().getName();
             clearCurrentScenario(threadId);
         }
@@ -579,9 +520,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                                         .replace("Runner", "")
                                         .replaceAll("([A-Z])", " $1")
                                         .trim();
-            String fallbackName = "Scenario from " + runnerName;
-            LOGGER.debug("Using generic scenario name (extraction failed): '{}'", fallbackName);
-            return fallbackName;
+            return "Scenario from " + runnerName;
         }
         
         return methodName;
@@ -685,13 +624,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
     private void captureSkipExceptionDetails(ITestResult result, String scenarioInfo) {
         try {
             Throwable throwable = result.getThrowable();
-            LOGGER.debug("SKIP CAPTURE - Scenario: '{}', Throwable: {}", scenarioInfo, throwable != null ? throwable.getClass().getSimpleName() : "null");
-            
             String skipReason = null;
             String runnerClassName = result.getTestClass().getName();
             
             if (throwable != null) {
-                // Create exception details object for skip
                 ExceptionDetails details = new ExceptionDetails();
                 details.scenarioName = scenarioInfo;
                 details.exceptionMessage = throwable.getMessage() != null ? throwable.getMessage() : "Test was skipped";
@@ -702,13 +638,9 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                 
                 skipReason = details.exceptionMessage;
                 
-                // Create a unique key for this skip (include scenario name for suite execution)
                 String testKey = runnerClassName + "." + result.getMethod().getMethodName() + "." + scenarioInfo;
                 testExceptionDetails.put(testKey, details);
-                
-                LOGGER.debug("Captured skip exception for '{}': '{}'", scenarioInfo, details.exceptionMessage);
             } else {
-                // Even if no throwable, create a basic skip details entry
                 ExceptionDetails details = new ExceptionDetails();
                 details.scenarioName = scenarioInfo;
                 details.exceptionMessage = "Test was skipped - no specific reason provided";
@@ -719,48 +651,35 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
                 
                 skipReason = details.exceptionMessage;
                 
-                // Include scenario name for unique key in suite execution
                 String testKey = runnerClassName + "." + result.getMethod().getMethodName() + "." + scenarioInfo;
                 testExceptionDetails.put(testKey, details);
-                
-                LOGGER.debug("SKIP CAPTURE - No throwable, captured basic skip for '{}'. Total captured: {}", scenarioInfo, testExceptionDetails.size());
             }
             
-            // ENHANCED: Universal skip reason storage for ALL features
+            // Store skip reasons for Excel reporting
             if (skipReason != null && scenarioInfo != null) {
-                // Store by original scenario name (lowercase for case-insensitive lookup)
                 String normalizedScenarioName = scenarioInfo.toLowerCase().trim();
                 skipReasonsByScenario.put(normalizedScenarioName, skipReason);
                 
-                // ENHANCED: Also store with "scenario:" prefix removed for better matching
                 String withoutPrefix = normalizedScenarioName.replaceAll("^scenario:\\s*", "");
                 if (!withoutPrefix.equals(normalizedScenarioName)) {
                     skipReasonsByScenario.put(withoutPrefix, skipReason);
                 }
                 
-                // ENHANCED: Store scenario-specific skip reasons (no global override)
-                // Each scenario should have its own specific skip reason
                 if (!skipReason.equals("Test was skipped - no specific reason provided") &&
                     !skipReason.equals("Test was skipped")) {
                     
-                    // Store scenario-specific skip reason with detailed key
                     String detailedKey = extractRunnerKey(runnerClassName) + "_" + scenarioInfo.toLowerCase().replace(" ", "_");
                     globalSkipReasonsByRunner.put(detailedKey, skipReason);
-                    LOGGER.debug("Stored scenario-specific skip reason for '{}': '{}'", detailedKey, skipReason);
                     
-                    // Also store by runner key for backward compatibility, but only if it's Forward Flow
                     String runnerKey = extractRunnerKey(runnerClassName);
                     if (scenarioInfo.toLowerCase().contains("forward")) {
                         globalSkipReasonsByRunner.put(runnerKey, skipReason);
-                        LOGGER.debug("Stored Forward Flow as global for runner '{}': '{}'", runnerKey, skipReason);
                     }
                 }
-                
-                LOGGER.debug("SKIP CAPTURE - Stored skip reason by scenario name: '{}' -> '{}'", scenarioInfo, skipReason);
             }
             
         } catch (Exception e) {
-            LOGGER.warn("Failed to capture skip exception details for test skip", e);
+            LOGGER.warn("Failed to capture skip exception details");
         }
     }
     
@@ -825,24 +744,18 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             return directMatch;
         }
         
-        // ENHANCED: Check for scenario-specific skip reasons first, then global
-        LOGGER.debug("SKIP LOOKUP - Checking scenario-specific and global skip reasons. Available keys: {}", globalSkipReasonsByRunner.keySet());
-        
-        // First, try to find scenario-specific skip reason
+        // Try scenario-specific skip reason
         String scenarioSpecificKey = null;
         for (Map.Entry<String, String> entry : globalSkipReasonsByRunner.entrySet()) {
             String key = entry.getKey();
             if (key.contains("_") && key.contains(scenarioName.toLowerCase().replace(" ", "_"))) {
                 scenarioSpecificKey = key;
-                LOGGER.debug("SKIP LOOKUP - Found scenario-specific key '{}' for scenario '{}'", key, scenarioName);
                 break;
             }
         }
         
         if (scenarioSpecificKey != null) {
-            String scenarioSpecificReason = globalSkipReasonsByRunner.get(scenarioSpecificKey);
-            LOGGER.debug("SKIP LOOKUP - Using scenario-specific skip reason: '{}'", scenarioSpecificReason);
-            return scenarioSpecificReason;
+            return globalSkipReasonsByRunner.get(scenarioSpecificKey);
         }
         
         // Fallback to global skip reason by runner
@@ -850,15 +763,8 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             String runnerKey = entry.getKey();
             String globalSkipReason = entry.getValue();
             
-            LOGGER.debug("SKIP LOOKUP - Testing runner '{}' against scenario '{}'", runnerKey, scenarioName);
-            
-            // Check if this scenario could belong to this runner
             if (couldScenarioBelongToRunner(scenarioName, runnerKey)) {
-                LOGGER.debug("SKIP LOOKUP - Found global skip for runner '{}' and scenario '{}': '{}'", 
-                           runnerKey, scenarioName, globalSkipReason);
                 return globalSkipReason;
-            } else {
-                LOGGER.debug("SKIP LOOKUP - No match between runner '{}' and scenario '{}'", runnerKey, scenarioName);
             }
         }
         
@@ -1010,8 +916,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             PerformanceMetrics metrics = new PerformanceMetrics(scenarioName, thresholdTimeMs, actualTimeMs, 
                                                                 performanceRating, operationName);
             scenarioPerformanceMetrics.put(scenarioName, metrics);
-            LOGGER.debug("Performance metrics stored for scenario: {} | Threshold: {} ms | Actual: {} ms | Rating: {}",
-                        scenarioName, thresholdTimeMs, actualTimeMs, performanceRating);
         }
     }
     
@@ -1027,7 +931,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
      */
     public static void clearPerformanceMetrics() {
         scenarioPerformanceMetrics.clear();
-        LOGGER.debug("Cleared all performance metrics");
     }
     
     public static class ExceptionDetails {

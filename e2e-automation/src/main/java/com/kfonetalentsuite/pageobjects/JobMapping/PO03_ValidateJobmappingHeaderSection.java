@@ -255,6 +255,8 @@ public class PO03_ValidateJobmappingHeaderSection {
 			
 			// Wait for navigation to complete
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForPageReady(driver, 2);
+			LOGGER.info("Successfully Navigated to Job Mapping screen");
 			
 	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("navigate_to_job_mapping_page_from_kfone_global_menu", e);
@@ -263,7 +265,7 @@ public class PO03_ValidateJobmappingHeaderSection {
 			throw new RuntimeException("Failed to navigate to Job Mapping page from KFONE Global Menu", e);
 		}
 	}
-	
+
 	public void user_should_verify_client_name_is_correctly_displaying() {
 		try {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(clientname)).isDisplayed());

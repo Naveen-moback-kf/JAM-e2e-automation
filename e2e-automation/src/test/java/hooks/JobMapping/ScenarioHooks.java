@@ -41,6 +41,10 @@ public class ScenarioHooks {
         LOGGER.info("SCENARIO STARTED: {} | Feature: {}", scenarioName, featureFileName);
         LOGGER.info("Scenario Tags: {}", scenario.getSourceTagNames());
         LOGGER.info("==================================================");
+        
+        // NOTE: Cache clearing moved to TestRunnerHooks (@BeforeClass/@AfterClass)
+        // Cache is now cleared once per test runner, not per scenario
+        // This allows scenarios within a runner to share state (e.g., login once)
     }
     
     @After
@@ -58,6 +62,10 @@ public class ScenarioHooks {
         }
         
         LOGGER.info("==================================================");
+        
+        // NOTE: Cache clearing moved to TestRunnerHooks (@BeforeClass/@AfterClass)
+        // Cache is now cleared once per test runner, not per scenario
+        // This allows scenarios within a runner to share state (e.g., login once)
         
         // DON'T clear scenario information yet - TestNG listener needs it for exception capture
         // The ExcelReportListener will clear it after capturing exception details

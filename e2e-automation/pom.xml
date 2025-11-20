@@ -149,10 +149,16 @@
 							<value>E2E Test Suite</value>
 						</property>
 					</properties>
-					<!-- Enable parallel execution for cross-browser testing -->
-					<parallel>methods</parallel>
-					<threadCount>3</threadCount>
-					<perCoreThreadCount>true</perCoreThreadCount>
+					<!-- PARALLEL EXECUTION CONFIGURATION:
+					     Parallel execution settings are controlled by TestNG suite XML files, NOT by Surefire plugin.
+					     This allows each test suite to define its own parallel strategy and thread count:
+					     - JAM_SanityTestSuite.xml: parallel="tests" thread-count="3"
+					     - JAM_SmokeTestSuite.xml: parallel="tests" thread-count="4"
+					     - JAM_RegressionTestSuite.xml: parallel="tests" thread-count="5"
+					     
+					     DO NOT set <parallel> or <threadCount> here as it will override TestNG suite XML settings.
+					     If you need to override from command line, use: -DparallelMode=tests -DthreadCount=N
+					-->
 					<!-- Configure TestNG output directory -->
 					<reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
 					<!-- Allow test failures without failing the build (for CI/CD reporting) -->

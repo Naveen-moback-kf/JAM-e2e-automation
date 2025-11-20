@@ -49,195 +49,162 @@ public class DriverManager {
 	
 	@BeforeTest
 	public static void launchBrowser() {
-		// Get thread ID for logging
-		long threadId = Thread.currentThread().getId();
-		String threadName = Thread.currentThread().getName();
-		
 		// Check if driver is already initialized AND session is active
 		if (driver.get() != null && isSessionActive()) {
-			LOGGER.info("[Thread-{}:{}] Driver already initialized with active session, skipping browser launch", threadId, threadName);
-			return;
+			return; // Already initialized, skip
 		}
 		
-		// If driver exists but session is inactive, clean it up
+		// Clean up inactive driver if exists
 		if (driver.get() != null && !isSessionActive()) {
-			LOGGER.warn("[Thread-{}:{}] Driver exists but session is inactive - cleaning up before re-initialization", threadId, threadName);
 			try {
 				driver.get().quit();
 			} catch (Exception e) {
-				LOGGER.debug("[Thread-{}:{}] Error during driver cleanup: {}", threadId, threadName, e.getMessage());
+				// Ignore cleanup errors
 			}
 			driver.set(null);
 		}
 		
 		try {
+		boolean isHeadless = Boolean.parseBoolean(
+			CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "true"
+		);
+		
+		// Launch browser based on configuration
 	switch (CommonVariable.BROWSER) {
 			case "chrome":
 				WebDriverManager.chromedriver().setup();
-				// Setting new download directory path
-				Map<String, Object> prefs = new HashMap<String, Object>();
-				// Use File.separator as it will work on any OS
-				prefs.put("download.default_directory", System.getProperty("user.dir") + File.separator
-						+ "externalFiles" + File.separator + "downloadFiles");
-				// Adding capabilities to ChromeOptions
-				ChromeOptions options = new ChromeOptions();
-				options.setExperimentalOption("prefs", prefs);
-				options.addArguments("--remote-allow-origins=*");
-				
-				// SSL and Security bypass options
-				options.addArguments("--ignore-ssl-errors=yes");
-				options.addArguments("--ignore-certificate-errors");
-				options.addArguments("--ignore-certificate-errors-spki-list");
-				options.addArguments("--disable-web-security");
-				options.addArguments("--allow-running-insecure-content");
-				options.addArguments("--disable-extensions");
-				
-				options.addArguments("--no-sandbox");
-				options.addArguments("--disable-dev-shm-usage");
-				options.addArguments("--disable-background-timer-throttling");
-				options.addArguments("--disable-backgrounding-occluded-windows");
-				options.addArguments("--disable-renderer-backgrounding");
-				options.addArguments("--disable-features=TranslateUI");
-				options.addArguments("--disable-background-media-audio");
-				
-				// Basic Chrome options
-				options.addArguments("--disable-hang-monitor");
-				options.addArguments("--disable-prompt-on-repost");
-				options.addArguments("--disable-default-apps");
-				options.addArguments("--disable-popup-blocking");
-				options.addArguments("--disable-translate");
-				
-				// Basic Chrome options for stability
-				options.addArguments("--disable-infobars");
-				options.addArguments("--disable-web-security");
-				options.addArguments("--disable-features=TranslateUI");
-				
-			// HEADLESS MODE CONFIGURATION - Read from config.properties
-			String headlessMode = CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "true"; // Default to headless
-			boolean isHeadless = Boolean.parseBoolean(headlessMode);
-			
-			// PERFORMANCE OPTIMIZATION: Always use incognito mode for clean state between runs
-			options.addArguments("--incognito");
-			LOGGER.debug("Chrome launched in incognito mode for clean browser state");
-			
+			driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
+			break;
+		case "firefox":
+			WebDriverManager.firefoxdriver().setup();
+			driver.set(new FirefoxDriver(configureFirefoxOptions(isHeadless)));
+			break;
+		case "edge":
+			WebDriverManager.edgedriver().setup();
+			driver.set(new EdgeDriver());
+			break;
+		default:
+			WebDriverManager.chromedriver().setup();
+			driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
+			break;
+		}
+		
+		LOGGER.info("✓ Browser launched: {} ({})", 
+			CommonVariable.BROWSER, isHeadless ? "headless" : "windowed");
+		
+		// Configure timeouts and browser
+		configureTimeoutsAndBrowser(isHeadless);
+		
+	} catch (Exception e) {
+		LOGGER.error("✗ Browser launch failed: {}", e.getMessage());
+		throw new RuntimeException("Browser initialization failed", e);
+	}
+	}
+	
+	/**
+	 * Configure Chrome options with all necessary arguments
+	 */
+	private static ChromeOptions configureChromeOptions(boolean isHeadless) {
+		ChromeOptions options = new ChromeOptions();
+		
+		// Download directory configuration
+		Map<String, Object> prefs = new HashMap<>();
+		prefs.put("download.default_directory", 
+			System.getProperty("user.dir") + File.separator + "externalFiles" + File.separator + "downloadFiles");
+		prefs.put("profile.default_content_settings.popups", 0);
+		prefs.put("profile.default_content_setting_values.automatic_downloads", 1);
+		prefs.put("download.prompt_for_download", false);
+		options.setExperimentalOption("prefs", prefs);
+		
+		// Core Chrome arguments (deduplicated)
+		options.addArguments(
+			"--remote-allow-origins=*",
+			"--incognito",  // Clean state between runs
+			"--no-sandbox",
+			"--disable-dev-shm-usage",
+			"--disable-gpu",
+			"--disable-extensions",
+			"--disable-hang-monitor",
+			"--disable-prompt-on-repost",
+			"--disable-default-apps",
+			"--disable-popup-blocking",
+			"--disable-translate",
+			"--disable-infobars",
+			"--disable-web-security",
+			"--disable-features=TranslateUI",
+			"--disable-background-timer-throttling",
+			"--disable-backgrounding-occluded-windows",
+			"--disable-renderer-backgrounding",
+			"--disable-background-media-audio",
+			"--ignore-ssl-errors=yes",
+			"--ignore-certificate-errors",
+			"--ignore-certificate-errors-spki-list",
+			"--allow-running-insecure-content"
+		);
+		
+		// Headless-specific configuration
 			if (isHeadless) {
-				LOGGER.info("Running Chrome in HEADLESS mode");
-				options.addArguments("--headless=new");
-				options.addArguments("--window-size=1920,1080");
-				// HEADLESS STABILITY FIXES
-				options.addArguments("--disable-gpu"); // GPU issues in headless
-				options.addArguments("--disable-dev-shm-usage"); // Overcome limited resource problems
-				options.addArguments("--no-sandbox"); // Bypass OS security model (CI/CD)
-				options.addArguments("--disable-software-rasterizer"); // Avoid rendering issues
-				options.addArguments("--remote-allow-origins=*"); // CORS issues in headless
+			options.addArguments("--headless=new", "--window-size=1920,1080", "--disable-software-rasterizer");
 			} else {
-				// LOGGER.info("Running Chrome in WINDOWED mode");
 				options.addArguments("--start-maximized");
 			}
 				
-				// Basic session management
-				options.addArguments("--disable-hang-monitor");
-				// To Turns off multiple download warning
-				prefs.put("profile.default_content_settings.popups", 0);
-				//prefs.put("profile.content_settings.pattern_pairs.*.multiple-automatic-downloads", 1);
-				prefs.put("profile.default_content_setting_values.automatic_downloads", 1);
-				// Turns off download prompt
-				prefs.put("download.prompt_for_download", false);
-				// options.setPageLoadStrategy(PageLoadStrategy.EAGER);
-				// Launching browser with desired capabilities
-				driver.set(new ChromeDriver(options));
-				LOGGER.info("[Thread-{}:{}] Chrome launched successfully", threadId, threadName);
-				break;
-
-			case "firefox":
-				WebDriverManager.firefoxdriver().setup();
-				FirefoxOptions fireoptions = new FirefoxOptions(); 
-				
-				String firefoxHeadlessMode = CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "true";
-				boolean isFirefoxHeadless = Boolean.parseBoolean(firefoxHeadlessMode);
-				
-				if (isFirefoxHeadless) {
-					LOGGER.info("[Thread-{}:{}] Running Firefox in HEADLESS mode", threadId, threadName);
-					fireoptions.addArguments("--headless");
-					fireoptions.addArguments("--width=1920");
-					fireoptions.addArguments("--height=1080");
-				} else {
-					LOGGER.info("[Thread-{}:{}] Running Firefox in WINDOWED mode", threadId, threadName);
-				}
-				
-				// Common stability options for Firefox
-				fireoptions.addArguments("--disable-gpu");
-				fireoptions.addArguments("--no-sandbox");
-				
-				// Session stability preferences
-				fireoptions.addPreference("dom.webnotifications.enabled", false);
-				fireoptions.addPreference("media.volume_scale", "0.0");
-				fireoptions.addPreference("browser.sessionstore.resume_from_crash", false);
-				
-				driver.set(new FirefoxDriver(fireoptions));
-				LOGGER.info("[Thread-{}:{}] Firefox launched successfully in {} mode", threadId, threadName, isFirefoxHeadless ? "HEADLESS" : "WINDOWED");
-				break;
-			case "edge":
-				WebDriverManager.edgedriver().setup();
-				driver.set(new EdgeDriver());
-				LOGGER.info("[Thread-{}:{}] Edge launched successfully", threadId, threadName);
-				break;
-
-			default:
-				WebDriverManager.chromedriver().setup();
-				driver.set(new ChromeDriver());
-				LOGGER.info("[Thread-{}:{}] Chrome launched successfully", threadId, threadName);
-				break;
-			}
-			
-			// PERFORMANCE OPTIMIZATION: Configure timeouts based on execution mode
-			String headlessModeCheck = CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "true";
-			boolean isHeadlessModeActive = Boolean.parseBoolean(headlessModeCheck);
-			
-			if (isHeadlessModeActive) {
-				// Increased timeouts for headless mode stability (slower JavaScript execution)
-				driver.get().manage().timeouts().pageLoadTimeout(java.time.Duration.ofSeconds(120)); // Increased from default 60s
-				driver.get().manage().timeouts().scriptTimeout(java.time.Duration.ofSeconds(90)); // Increased for slow AJAX calls
-				driver.get().manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(15)); // Slightly increased for element waits
-				LOGGER.debug("[Thread-{}:{}] Configured extended timeouts for headless mode (page: 120s, script: 90s, implicit: 15s)", threadId, threadName);
+		return options;
+	}
+	
+	/**
+	 * Configure Firefox options
+	 * Extracted to reduce code duplication
+	 */
+	private static FirefoxOptions configureFirefoxOptions(boolean isHeadless) {
+		FirefoxOptions options = new FirefoxOptions();
+		
+		// Core Firefox arguments
+		options.addArguments("--disable-gpu", "--no-sandbox");
+		
+		// Headless configuration
+		if (isHeadless) {
+			options.addArguments("--headless", "--width=1920", "--height=1080");
+		}
+		
+		// Firefox preferences
+		options.addPreference("dom.webnotifications.enabled", false);
+		options.addPreference("media.volume_scale", "0.0");
+		options.addPreference("browser.sessionstore.resume_from_crash", false);
+		
+		return options;
+	}
+	
+	/**
+	 * Configure timeouts and browser window settings
+	 */
+	private static void configureTimeoutsAndBrowser(boolean isHeadless) {
+		WebDriver currentDriver = driver.get();
+		
+		// Set timeouts based on mode
+		if (isHeadless) {
+			currentDriver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(180));
+			currentDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+			currentDriver.manage().timeouts().scriptTimeout(Duration.ofSeconds(120));
+			wait.set(new WebDriverWait(currentDriver, Duration.ofSeconds(90)));
 			} else {
-				// Standard timeouts for windowed mode
-				driver.get().manage().timeouts().pageLoadTimeout(java.time.Duration.ofSeconds(60));
-				driver.get().manage().timeouts().scriptTimeout(java.time.Duration.ofSeconds(45));
-				driver.get().manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(10));
-				LOGGER.debug("[Thread-{}:{}] Configured standard timeouts for windowed mode", threadId, threadName);
-			}
-			
-			driver.get().manage().deleteAllCookies();
+			currentDriver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(60));
+			currentDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+			currentDriver.manage().timeouts().scriptTimeout(Duration.ofSeconds(45));
+			wait.set(new WebDriverWait(currentDriver, Duration.ofSeconds(60)));
+		}
+		
+		LOGGER.info("✓ Timeouts configured: page={}s, implicit={}s", 
+			isHeadless ? 180 : 60, isHeadless ? 20 : 15);
+		
+		// Clean browser state and maximize window
+		currentDriver.manage().deleteAllCookies();
+		if (!isHeadless) {
 			try {
-				// Only maximize if not in headless mode to prevent session issues
-				String browser = CommonVariable.BROWSER;
-				if (!"headless".equalsIgnoreCase(browser)) {
-					driver.get().manage().window().maximize();
-				}
+				currentDriver.manage().window().maximize();
 			} catch (Exception e) {
-				LOGGER.warn("[Thread-{}:{}] Window maximization failed (normal in headless mode): {}", threadId, threadName, e.getMessage());
+				// Ignore maximization errors
 			}
-			
-			// UNATTENDED EXECUTION: Enhanced timeout configuration for headless stability
-			if (Boolean.parseBoolean(CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "true")) {
-				// OPTIMIZED: Reduced timeouts for faster failure detection in headless mode
-				driver.get().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(90));  // Reduced from 120s (enough for most pages)
-				driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));    // Keep at 10s (good balance)
-				driver.get().manage().timeouts().scriptTimeout(Duration.ofSeconds(60));     // Reduced from 90s (still sufficient for AJAX)
-				wait.set(new WebDriverWait(driver.get(), Duration.ofSeconds(60)));         // Reduced from 180s → 60s (1 minute max)
-				LOGGER.info("[Thread-{}:{}] HEADLESS MODE: Optimized timeouts configured (page: 90s, wait: 60s, script: 60s)", threadId, threadName);
-			} else {
-				// Standard timeouts for windowed debugging mode
-				driver.get().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
-				driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
-				driver.get().manage().timeouts().scriptTimeout(Duration.ofSeconds(30));
-				wait.set(new WebDriverWait(driver.get(), Duration.ofSeconds(45)));         // Reduced from 60s → 45s
-				LOGGER.info("[Thread-{}:{}] WINDOWED MODE: Standard timeouts configured (page: 30s, wait: 45s, script: 30s)", threadId, threadName);
-			}
-
-		} catch (Exception e) {
-
 		}
 	}
 
@@ -256,95 +223,128 @@ public class DriverManager {
 	}
 
 	/**
-	 * THREAD-SAFE: Gets the WebDriver instance for the current thread
-	 * Each thread maintains its own isolated WebDriver instance
+	 * Clears all browser data for clean test state
+	 */
+	public static void clearAllBrowserData() {
+		WebDriver currentDriver = driver.get();
+		if (currentDriver == null) {
+			return;
+		}
+		
+		try {
+			org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) currentDriver;
+			
+			// Clear all browser data
+			currentDriver.manage().deleteAllCookies();
+			executeJavaScriptSilently(js, 
+				"try { window.localStorage.clear(); } catch(e) {}" +
+				"try { window.sessionStorage.clear(); } catch(e) {}" +
+				"try { if (window.indexedDB && window.indexedDB.databases) {" +
+				"  window.indexedDB.databases().then(dbs => {" +
+				"    dbs.forEach(db => { window.indexedDB.deleteDatabase(db.name); });" +
+				"  });" +
+				"}} catch(e) {}"
+			);
+			executeActionSilently(() -> currentDriver.get("about:blank"));
+			
+			LOGGER.info("✓ Browser cache cleared");
+			
+		} catch (Exception e) {
+			LOGGER.warn("Cache clear failed: {}", e.getMessage());
+		}
+	}
+	
+	/**
+	 * Helper method to execute JavaScript silently (ignore errors)
+	 */
+	private static void executeJavaScriptSilently(org.openqa.selenium.JavascriptExecutor js, String script) {
+		try {
+			js.executeScript(script);
+		} catch (Exception e) {
+			// Silently ignore - expected for some storage types
+		}
+	}
+	
+	/**
+	 * Helper method to execute actions silently (ignore errors)
+	 */
+	private static void executeActionSilently(Runnable action) {
+		try {
+			action.run();
+		} catch (Exception e) {
+			// Silently ignore
+		}
+	}
+	
+	/**
+	 * Quick cache clear - lightweight version for between test steps
+	 */
+	public static void clearCookiesAndStorage() {
+		if (driver.get() == null) {
+			return;
+		}
+		
+		try {
+			driver.get().manage().deleteAllCookies();
+			((org.openqa.selenium.JavascriptExecutor) driver.get()).executeScript(
+				"window.localStorage.clear(); window.sessionStorage.clear();"
+			);
+		} catch (Exception e) {
+			// Ignore errors
+		}
+	}
+
+	/**
+	 * Gets the WebDriver instance for the current thread
 	 */
 	public static WebDriver getDriver() {
-		// Ensure driver is initialized before returning
 		if (driver.get() == null) {
-			long threadId = Thread.currentThread().getId();
-			String threadName = Thread.currentThread().getName();
-			LOGGER.warn("[Thread-{}:{}] Driver is null in getDriver() - attempting to initialize", threadId, threadName);
 			launchBrowser();
 		}
 		return driver.get();
 	}
 	
 	/**
-	 * THREAD-SAFE: Checks if the WebDriver session is active for the current thread
+	 * Checks if the WebDriver session is active
 	 */
 	public static boolean isSessionActive() {
 		if (driver.get() == null) {
 			return false;
 		}
 		
-		long threadId = Thread.currentThread().getId();
-		String threadName = Thread.currentThread().getName();
-		
 		try {
-			// Check session ID first to avoid accessing an inactive session
 			if (driver.get().toString().contains("null")) {
 				return false;
 			}
-			
-			// Multiple checks to ensure session is truly active
-			String title = driver.get().getTitle();
-			String currentUrl = driver.get().getCurrentUrl();
-			LOGGER.debug("[Thread-{}:{}] Session check passed - Title: {}, URL: {}", threadId, threadName, title, currentUrl != null ? currentUrl.substring(0, Math.min(50, currentUrl.length())) + "..." : "null");
+			driver.get().getTitle(); // Test if session is alive
 			return true;
-		} catch (org.openqa.selenium.NoSuchSessionException e) {
-			// Session was explicitly closed/quit - don't log as warning
-			LOGGER.debug("[Thread-{}:{}] Session no longer exists (expected after quit)", threadId, threadName);
-			return false;
-		} catch (org.openqa.selenium.WebDriverException e) {
-			// Only warn for unexpected WebDriver exceptions
-			if (!e.getMessage().contains("Session ID is null")) {
-				LOGGER.warn("[Thread-{}:{}] Session check failed: {} - Session is inactive", threadId, threadName, e.getMessage());
-			}
-			return false;
 		} catch (Exception e) {
-			LOGGER.debug("[Thread-{}:{}] Session check failed: {}", threadId, threadName, e.getMessage());
 			return false;
 		}
 	}
 	
 	/**
-	 * THREAD-SAFE: Attempts to recover an inactive WebDriver session for the current thread
+	 * Attempts to recover an inactive WebDriver session
 	 */
 	public static boolean recoverSession() {
-		long threadId = Thread.currentThread().getId();
-		String threadName = Thread.currentThread().getName();
-		
 		if (!isSessionActive()) {
-			LOGGER.warn("[Thread-{}:{}] SESSION RECOVERY: Attempting to recover inactive session...", threadId, threadName);
-			
 			try {
-				// Close existing driver if it exists
 				if (driver.get() != null) {
 					try {
 						driver.get().quit();
 					} catch (Exception e) {
-						LOGGER.debug("[Thread-{}:{}] Error closing inactive driver: {}", threadId, threadName, e.getMessage());
+						// Ignore
 					}
 					driver.set(null);
 				}
-				
-				// Reinitialize browser
 				launchBrowser();
-				
-				if (isSessionActive()) {
-					LOGGER.info("[Thread-{}:{}] SESSION RECOVERY: Successfully recovered browser session", threadId, threadName);
-					return true;
-				} else {
-					LOGGER.error("[Thread-{}:{}] SESSION RECOVERY: Failed to recover browser session", threadId, threadName);
-					return false;
-				}
+				return isSessionActive();
 			} catch (Exception e) {
-				LOGGER.error("[Thread-{}:{}] SESSION RECOVERY: Error during session recovery - {}", threadId, threadName, e.getMessage());
+				LOGGER.error("Session recovery failed: {}", e.getMessage());
 				return false;
 			}
 		}
-		return true; // Session is already active
+		return true;
 	}
 	
 	public static <T> T executeWithRecovery(java.util.function.Supplier<T> operation, String operationName) {
@@ -352,55 +352,30 @@ public class DriverManager {
 	}
 	
 	/**
-	 * THREAD-SAFE: Executes an operation with automatic session recovery for the current thread
+	 * Executes an operation with automatic session recovery
 	 */
 	public static <T> T executeWithRecovery(java.util.function.Supplier<T> operation, String operationName, int maxRetries) {
-		long threadId = Thread.currentThread().getId();
-		String threadName = Thread.currentThread().getName();
-		
 		for (int attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
-				// Check if session is active before executing operation
 				if (!isSessionActive() && attempt == 1) {
-					LOGGER.warn("[Thread-{}:{}] Session is inactive before executing: {}, attempting recovery...", threadId, threadName, operationName);
 					recoverSession();
 				}
-				
-				// Execute the operation
-				T result = operation.get();
-				
-				if (attempt > 1) {
-					LOGGER.info("[Thread-{}:{}] Operation '{}' succeeded after {} attempts", threadId, threadName, operationName, attempt);
-				}
-				
-				return result;
-				
+				return operation.get();
 			} catch (org.openqa.selenium.WebDriverException e) {
-				
-				LOGGER.warn("[Thread-{}:{}] Session error during '{}' (attempt {}/{}): {}", 
-					threadId, threadName, operationName, attempt, maxRetries, e.getMessage());
-				
 				if (attempt < maxRetries) {
 					try {
-						LOGGER.info("[Thread-{}:{}] Attempting session recovery for operation: {}", threadId, threadName, operationName);
 						recoverSession();
-						
 						PerformanceUtils.waitForPageReady(driver.get(), 1);
 					} catch (Exception recoveryException) {
-						LOGGER.error("[Thread-{}:{}] Session recovery failed for operation '{}': {}", 
-							threadId, threadName, operationName, recoveryException.getMessage());
-						
 						if (attempt == maxRetries) {
-							throw new RuntimeException("Failed to recover session after " + maxRetries + " attempts for operation: " + operationName, e);
+							throw new RuntimeException("Session recovery failed for: " + operationName, e);
 						}
 					}
 				} else {
-					LOGGER.error("[Thread-{}:{}] Operation '{}' failed after {} attempts, giving up", threadId, threadName, operationName, maxRetries);
-					throw new RuntimeException("Operation failed after session recovery attempts: " + operationName, e);
+					throw new RuntimeException("Operation failed after " + maxRetries + " attempts: " + operationName, e);
 				}
 			}
 		}
-		
 		throw new RuntimeException("Unexpected state in executeWithRecovery for: " + operationName);
 	}
 	
@@ -412,59 +387,39 @@ public class DriverManager {
 	}
 	
 	/**
-	 * THREAD-SAFE: Properly closes the browser and cleans up the driver instance for the current thread
-	 * This method should be called in @AfterTest to ensure clean shutdown
+	 * Closes the browser and cleans up resources
 	 */
 	public static void closeBrowser() {
-		long threadId = Thread.currentThread().getId();
-		String threadName = Thread.currentThread().getName();
-		
 		if (driver.get() != null) {
 			try {
 				driver.get().quit();
-				LOGGER.info("[Thread-{}:{}] Browser closed successfully", threadId, threadName);
 			} catch (Exception e) {
-				LOGGER.debug("[Thread-{}:{}] Error during browser closure (may already be closed): {}", threadId, threadName, e.getMessage());
+				// Ignore errors during close
 			} finally {
-				// CRITICAL: Remove ThreadLocal values to prevent memory leaks when threads are reused
 				driver.remove();
 				wait.remove();
-				LOGGER.debug("[Thread-{}:{}] ThreadLocal variables cleaned up", threadId, threadName);
 			}
 		} else {
-			LOGGER.debug("[Thread-{}:{}] Browser was already closed or never initialized", threadId, threadName);
-			// Still clean up ThreadLocal even if driver was null
 			driver.remove();
 			wait.remove();
 		}
 	}
 	
 	/**
-	 * PERFORMANCE OPTIMIZATION: Force cleanup of all Chrome/ChromeDriver processes
-	 * This ensures clean state between test suite executions and prevents process accumulation
-	 * Call this in @AfterSuite to prevent second run slowdown
-	 * 
-	 * @implNote Windows-specific implementation using taskkill
+	 * Force cleanup of all Chrome/ChromeDriver processes
 	 */
 	public static void forceKillChromeProcesses() {
 		try {
-			LOGGER.info("Force terminating all Chrome and ChromeDriver processes...");
-			
-			// Kill all Chrome processes (forcefully, including children)
 			Process killChrome = Runtime.getRuntime().exec("taskkill /F /IM chrome.exe /T");
 			killChrome.waitFor(2, java.util.concurrent.TimeUnit.SECONDS);
 			
-			// Kill all ChromeDriver processes
 			Process killChromeDriver = Runtime.getRuntime().exec("taskkill /F /IM chromedriver.exe /T");
 			killChromeDriver.waitFor(2, java.util.concurrent.TimeUnit.SECONDS);
 			
-			// Short pause to ensure processes are terminated
 			Thread.sleep(500);
-			
-			LOGGER.info("✓ Chrome process cleanup completed");
+			LOGGER.info("✓ Chrome processes cleaned up");
 		} catch (Exception e) {
-			// This is expected if no Chrome processes are running - don't log as error
-			LOGGER.debug("Chrome process cleanup completed (no processes found or already terminated)");
+			// Ignore - no processes to clean
 		}
 	}
 		

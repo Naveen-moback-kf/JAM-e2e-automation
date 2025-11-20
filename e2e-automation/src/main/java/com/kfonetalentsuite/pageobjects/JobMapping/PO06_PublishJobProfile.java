@@ -148,7 +148,6 @@ public class PO06_PublishJobProfile {
 	WebElement noDataContainer;
 	
 	@FindBy(xpath = "//span[@aria-label='Profile Manager']")
-	@CacheLookup
 	public WebElement KfoneMenuPMBtn;
 	
 	@FindBy(xpath = "//button[@id='global-nav-menu-btn']")
@@ -156,7 +155,6 @@ public class PO06_PublishJobProfile {
 	public WebElement KfoneMenu;
 	
 	@FindBy(xpath = "//span[@aria-label='Architect']")
-	@CacheLookup
 	public WebElement KfoneMenuArchitectBtn;
 	
 	@FindBy(xpath = "//tbody//tr[1]//td//div//div//a")
@@ -561,11 +559,13 @@ public class PO06_PublishJobProfile {
 				}
 			}
 			
-			LOGGER.info("Successfully clicked KFONE Global Menu in Job Mapping UI");
-			ExtentCucumberAdapter.addTestStepLog("Successfully clicked KFONE Global Menu in Job Mapping UI");
-			
-			PerformanceUtils.waitForPageReady(driver, 1);			
-		} catch (Exception e) {
+		LOGGER.info("Successfully clicked KFONE Global Menu in Job Mapping UI");
+		ExtentCucumberAdapter.addTestStepLog("Successfully clicked KFONE Global Menu in Job Mapping UI");
+		
+		PerformanceUtils.waitForPageReady(driver, 1);
+		// PARALLEL EXECUTION FIX: Wait for menu to fully expand
+		Thread.sleep(1000);
+	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_kfone_global_menu_in_job_mapping_ui", e);
 			LOGGER.error("Issue in clicking on KFone Global Menu in Job Mapping UI - Method: click_on_kfone_global_menu_in_job_mapping_ui", e);
 			e.printStackTrace();
@@ -575,14 +575,31 @@ public class PO06_PublishJobProfile {
 	}
 	
 	public void click_on_profile_manager_application_button_in_kfone_global_menu() {
-		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(KfoneMenuPMBtn)).isDisplayed());
-		String applicationNameText = wait.until(ExpectedConditions.visibilityOf(KfoneMenuPMBtn)).getText();
-		LOGGER.info(applicationNameText + " application is displaying as expected in KFONE Global Menu");
-		ExtentCucumberAdapter.addTestStepLog(applicationNameText + " application is displaying as expected in KFONE Global Menu");
 		try {
-			wait.until(ExpectedConditions.elementToBeClickable(KfoneMenuPMBtn)).click();
-			LOGGER.info("Clicked on Profile Manager application button in KFONE Global Menu");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Profile Manager application button in KFONE Global Menu");
+			// PARALLEL EXECUTION FIX: Retry mechanism for stale elements
+			int maxRetries = 3;
+			boolean clicked = false;
+			
+			for (int attempt = 1; attempt <= maxRetries && !clicked; attempt++) {
+				try {
+					WebElement pmBtn = wait.until(ExpectedConditions.visibilityOf(KfoneMenuPMBtn));
+					Assert.assertTrue(pmBtn.isDisplayed(), "Profile Manager button not visible in menu");
+					String applicationNameText = pmBtn.getText();
+					LOGGER.info(applicationNameText + " application is displaying as expected in KFONE Global Menu");
+					ExtentCucumberAdapter.addTestStepLog(applicationNameText + " application is displaying as expected in KFONE Global Menu");
+					
+					wait.until(ExpectedConditions.elementToBeClickable(KfoneMenuPMBtn)).click();
+					LOGGER.info("Clicked on Profile Manager application button in KFONE Global Menu");
+					ExtentCucumberAdapter.addTestStepLog("Clicked on Profile Manager application button in KFONE Global Menu");
+					clicked = true;
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					if (attempt == maxRetries) {
+						throw e;
+					}
+					LOGGER.warn("Stale element on attempt {}/{} - retrying Profile Manager button click", attempt, maxRetries);
+					Thread.sleep(500);
+				}
+			}
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_profile_manager_application_button_in_kfone_global_menu", e);
 			LOGGER.error("Issue in clicking Profile Manager application button in KFONE Global - Method: click_on_profile_manager_application_button_in_kfone_global_menu", e);
@@ -609,14 +626,31 @@ public class PO06_PublishJobProfile {
 	}
 	
 	public void click_on_architect_application_button_in_kfone_global_menu() {
-		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(KfoneMenuArchitectBtn)).isDisplayed());
-		String applicationNameText = wait.until(ExpectedConditions.visibilityOf(KfoneMenuArchitectBtn)).getText();
-		LOGGER.info(applicationNameText + " application is displaying as expected in KFONE Global Menu");
-		ExtentCucumberAdapter.addTestStepLog(applicationNameText + " application is displaying as expected in KFONE Global Menu");
 		try {
-			wait.until(ExpectedConditions.elementToBeClickable(KfoneMenuArchitectBtn)).click();
-			LOGGER.info("Clicked on Architect application button in KFONE Global Menu");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Architect application button in KFONE Global Menu");
+			// PARALLEL EXECUTION FIX: Retry mechanism for stale elements
+			int maxRetries = 3;
+			boolean clicked = false;
+			
+			for (int attempt = 1; attempt <= maxRetries && !clicked; attempt++) {
+				try {
+					WebElement architectBtn = wait.until(ExpectedConditions.visibilityOf(KfoneMenuArchitectBtn));
+					Assert.assertTrue(architectBtn.isDisplayed(), "Architect button not visible in menu");
+					String applicationNameText = architectBtn.getText();
+					LOGGER.info(applicationNameText + " application is displaying as expected in KFONE Global Menu");
+					ExtentCucumberAdapter.addTestStepLog(applicationNameText + " application is displaying as expected in KFONE Global Menu");
+					
+					wait.until(ExpectedConditions.elementToBeClickable(KfoneMenuArchitectBtn)).click();
+					LOGGER.info("Clicked on Architect application button in KFONE Global Menu");
+					ExtentCucumberAdapter.addTestStepLog("Clicked on Architect application button in KFONE Global Menu");
+					clicked = true;
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					if (attempt == maxRetries) {
+						throw e;
+					}
+					LOGGER.warn("Stale element on attempt {}/{} - retrying Architect button click", attempt, maxRetries);
+					Thread.sleep(500);
+				}
+			}
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_architect_application_button_in_kfone_global_menu", e);
 			LOGGER.error("Issue in clicking Architect application button in KFONE Global - Method: click_on_architect_application_button_in_kfone_global_menu", e);

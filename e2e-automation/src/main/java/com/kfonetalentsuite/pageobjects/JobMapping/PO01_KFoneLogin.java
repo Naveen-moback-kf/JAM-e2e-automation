@@ -22,21 +22,20 @@ import com.kfonetalentsuite.utils.JobMapping.SmartWaits;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.utils.common.CommonVariable;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO01_KFoneLogin {
 	WebDriver driver;
-	
+
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO01_KFoneLogin kfoneLogin;
-    
-	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
-    public static ThreadLocal<String> username = ThreadLocal.withInitial(() -> null);
-    public static ThreadLocal<String> clientName = ThreadLocal.withInitial(() -> "");
 
-	
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
+	public static ThreadLocal<String> username = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> clientName = ThreadLocal.withInitial(() -> "");
+
 	public PO01_KFoneLogin() throws IOException {
 		// Initialize driver in constructor to ensure it's available
 		this.driver = DriverManager.getDriver();
@@ -46,13 +45,13 @@ public class PO01_KFoneLogin {
 			DriverManager.launchBrowser();
 			this.driver = DriverManager.getDriver();
 		}
-		
+
 		if (this.driver == null) {
 			throw new RuntimeException("Failed to initialize WebDriver in PO01_KFoneLogin");
 		}
-		
+
 		PageFactory.initElements(driver, this);
-		
+
 		// Initialize other driver-dependent fields
 		this.wait = DriverManager.getWait();
 		this.js = (JavascriptExecutor) driver;
@@ -61,12 +60,12 @@ public class PO01_KFoneLogin {
 	WebDriverWait wait;
 	Utilities utils = new Utilities();
 	JavascriptExecutor js;
-	
+
 	// XPATHs
 	@FindBy(xpath = "//div[@id='kf-loader']//*")
 	@CacheLookup
 	WebElement pageLoadSpinner;
-	
+
 	@FindBy(xpath = "//input[@type='email']")
 	@CacheLookup
 	WebElement userNameTxt;
@@ -74,15 +73,15 @@ public class PO01_KFoneLogin {
 	@FindBy(xpath = "//input[@type='password']")
 	@CacheLookup
 	WebElement passwordTxt;
-	
+
 	@FindBy(xpath = "//button[@id='submit-button']")
 	@CacheLookup
 	WebElement kfoneSigninBtn;
-	
+
 	@FindBy(xpath = "//*[text()='Proceed']")
 	@CacheLookup
 	WebElement proceedBtn;
-	
+
 	@FindBy(xpath = "//img[@alt='Microsoft']")
 	@CacheLookup
 	WebElement MicrosoftLogo;
@@ -90,84 +89,82 @@ public class PO01_KFoneLogin {
 	@FindBy(xpath = "//input[@type='submit']")
 	@CacheLookup
 	WebElement MicrosoftNextBtn;
-	
+
 	@FindBy(xpath = "//div[text()='Enter password']")
 	@CacheLookup
 	WebElement MicrosoftPasswordPageHeader;
-	
+
 	@FindBy(xpath = "//input[@type='password']")
 	@CacheLookup
 	WebElement MicrosoftPasswordTxt;
-	
+
 	@FindBy(xpath = "//input[@type='submit']")
 	@CacheLookup
 	WebElement MicrosoftSignInBtn;
-	
+
 	@FindBy(xpath = "//input[@type='submit']")
 	@CacheLookup
 	WebElement MicrosoftYesBtn;
-	
+
 	@FindBy(xpath = "//button[@id='ensAcceptAll']")
 	@CacheLookup
 	WebElement acceptAllCookies;
-	
+
 	@FindBy(xpath = "//a[@id='Profile Manager']")
 	@CacheLookup
 	WebElement PMappTileInKFONE;
-	
+
 	@FindBy(xpath = "//h1[contains(text(),'Profile Manager')]")
 	@CacheLookup
 	public WebElement PMHeader;
-	
+
 	@FindBy(xpath = "//*[@id='title-svg-icon']")
 	@CacheLookup
 	public WebElement KFONE_landingPage_title;
-	
+
 	@FindBy(xpath = "//*[@data-testid='clients']//h2")
 	@CacheLookup
 	public WebElement KFONE_clientsPage_header;
-	
+
 	By KfoneClientsPageTitle = By.xpath("//h2[text()='Clients']");
-	
+
 	// WebElements for Clients page functionality
 	@FindBy(xpath = "//table[@id='iam-clients-list-table-content']")
 	@CacheLookup
 	WebElement clientsTable;
-	
+
 	@FindBy(xpath = "//tbody[@class='table-body']")
 	@CacheLookup
 	WebElement clientsTableBody;
-	
+
 	@FindBy(xpath = "//td[@data-testid='iam-clients-list-clientProducts-table-data-cell-0']")
 	@CacheLookup
 	WebElement firstClientProducts;
-	
+
 	@FindBy(xpath = "//a[contains(@data-testid,'client-') and contains(text(),'KF_Dev_Test_All_Products')]")
 	@CacheLookup
 	WebElement kfDevTestAllProductsClient;
-	
+
 	@FindBy(xpath = "//a[contains(@data-testid,'client-') and contains(text(),'KF One Assess Select Client 1')]")
 	@CacheLookup
 	WebElement kfOneAssessSelectClient1;
-	
+
 	@FindBy(xpath = "//input[@id='search-client-input-search']")
 	@CacheLookup
 	WebElement clientSearchBar;
-	
+
 	@FindBy(xpath = "//h1[contains(text(),'Hi,')]")
 	@CacheLookup
 	WebElement KFONEHomePageHeader;
-	
+
 	@FindBy(xpath = "//h2[contains(text(),'Your products')]")
 	@CacheLookup
 	WebElement yourProductsSection;
-	
+
 	@FindBy(xpath = "//div[@data-testid='Profile Manager']")
 	@CacheLookup
 	WebElement profileManagerInProductsSection;
-	
-	
-	
+
 	public void launch_the_kfone_application() {
 		try {
 			// Additional safety check
@@ -179,355 +176,312 @@ public class PO01_KFoneLogin {
 					this.driver = DriverManager.getDriver();
 				}
 			}
-			
+
 			if (this.driver == null) {
 				throw new RuntimeException("Cannot launch KFONE application - WebDriver is null");
 			}
-			
+
 			switch (CommonVariable.ENVIRONMENT) {
-			case "Stage":
-				driver.get(CommonVariable.KFONE_STAGEURL);
-				LOGGER.info("Successfully Launched KFONE " + CommonVariable.ENVIRONMENT + " Environment URL " + CommonVariable.KFONE_STAGEURL);
-				ExtentCucumberAdapter.addTestStepLog("Verifying the Smoke Test in the "+CommonVariable.ENVIRONMENT);
-				ExtentCucumberAdapter.addTestStepLog("The URL of the Environment is "+CommonVariable.KFONE_STAGEURL);
-				break;
+		case "Stage":
+			driver.get(CommonVariable.KFONE_STAGEURL);
+			PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
+					+ " Environment URL: " + CommonVariable.KFONE_STAGEURL);
+			break;
 
 			case "ProdEU":
-				driver.get(CommonVariable.KFONE_PRODEUURL);	
-				LOGGER.info("Successfully Launched KFONE "+ CommonVariable.ENVIRONMENT + " Environment URL " + CommonVariable.KFONE_PRODEUURL);
-				ExtentCucumberAdapter.addTestStepLog("Verifying the Smoke Test in the "+CommonVariable.ENVIRONMENT);
-				ExtentCucumberAdapter.addTestStepLog("The URL of the Environment is "+CommonVariable.KFONE_PRODEUURL);
+				driver.get(CommonVariable.KFONE_PRODEUURL);
+				PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
+						+ " Environment URL: " + CommonVariable.KFONE_PRODEUURL);
 				break;
 			case "ProdUS":
 				driver.get(CommonVariable.KFONE_PRODUSURL);
-				LOGGER.info("Successfully Launched KFONE "+ CommonVariable.ENVIRONMENT + " Environment URL " + CommonVariable.KFONE_PRODUSURL);
-				ExtentCucumberAdapter.addTestStepLog("Verifying the Smoke Test in the "+CommonVariable.ENVIRONMENT);
-				ExtentCucumberAdapter.addTestStepLog("The URL of the Environment is "+CommonVariable.KFONE_PRODUSURL);
+				PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
+						+ " Environment URL: " + CommonVariable.KFONE_PRODUSURL);
 				break;
-				
 			case "Test":
-				driver.get(CommonVariable.KFONE_QAURL);	
-				LOGGER.info("Successfully Launched KFONE " + CommonVariable.ENVIRONMENT + " Environment URL " +CommonVariable.KFONE_QAURL);
-				ExtentCucumberAdapter.addTestStepLog("Verifying the Smoke Test in the "+CommonVariable.ENVIRONMENT);
-				ExtentCucumberAdapter.addTestStepLog("The URL of the Environment is "+CommonVariable.KFONE_QAURL);
+				driver.get(CommonVariable.KFONE_QAURL);
+				PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
+						+ " Environment URL: " + CommonVariable.KFONE_QAURL);
 				break;
-				
 			case "Dev":
-				driver.get(CommonVariable.KFONE_DEVURL);	
-				LOGGER.info("Successfully Launched KFONE " + CommonVariable.ENVIRONMENT + " Environment URL " +CommonVariable.KFONE_DEVURL);
-				ExtentCucumberAdapter.addTestStepLog("Verifying the Smoke Test in the "+CommonVariable.ENVIRONMENT);
-				ExtentCucumberAdapter.addTestStepLog("The URL of the Environment is "+CommonVariable.KFONE_DEVURL);
+				driver.get(CommonVariable.KFONE_DEVURL);
+				PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
+						+ " Environment URL: " + CommonVariable.KFONE_DEVURL);
 				break;
-			
-
 			default:
-				driver.get(CommonVariable.KFONE_QAURL);	
-				LOGGER.info("Successfully Launched KFONE " + CommonVariable.ENVIRONMENT + " Environment URL " +CommonVariable.KFONE_QAURL);
-				ExtentCucumberAdapter.addTestStepLog("LANDED IN DEFAULT URL");
-				ExtentCucumberAdapter.addTestStepLog("The URL of the Environment is "+CommonVariable.KFONE_QAURL);
+				driver.get(CommonVariable.KFONE_QAURL);
+				PageObjectHelper.log(LOGGER, "Launched KFONE (DEFAULT) " + CommonVariable.ENVIRONMENT
+						+ " Environment URL: " + CommonVariable.KFONE_QAURL);
 			}
-			
+
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("launch_the_kfone_application", e);
-			LOGGER.error("Issue in launching KFONE application in environment: {} - Method: launch_the_kfone_application", CommonVariable.ENVIRONMENT, e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in launching KFONE application in environment: " + CommonVariable.ENVIRONMENT);
-			Assert.fail("Issue in launching KFONE application in environment: " + CommonVariable.ENVIRONMENT);
+			PageObjectHelper.handleError(LOGGER, "launch_the_kfone_application",
+					"Issue in launching KFONE application in environment: " + CommonVariable.ENVIRONMENT, e);
 		}
 	}
-	
+
 	public void provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page() {
 		try {
-			// OPTIMIZED: Handle cookies banner with short timeout
 			handleCookiesBanner();
 			wait.until(ExpectedConditions.elementToBeClickable(userNameTxt)).sendKeys(CommonVariable.SSO_USERNAME);
-			ExtentCucumberAdapter.addTestStepLog("Provided SSO Login Username as : " + CommonVariable.SSO_USERNAME + " in KFONE Login Page");
-			LOGGER.info("Provided SSO Username as : " + CommonVariable.SSO_USERNAME + " in KFONE Login Page");
+			PageObjectHelper.log(LOGGER, "Provided SSO Login Username: " + CommonVariable.SSO_USERNAME);
 			username.set(CommonVariable.SSO_USERNAME);
+
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			utils.jsClick(driver, kfoneSigninBtn);
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Sign in Button in KFONE Login Page");
-			LOGGER.info("Clicked on Sign in Button in KFONE Login Page");
+			PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page", e);
-			LOGGER.error("Issue in providing SSO login username - Method: provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in providing SSO login username and clicking sign in button");
-			Assert.fail("Issue in providing SSO login username and clicking sign in button");
+			ScreenshotHandler.captureFailureScreenshot(
+					"provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page", e);
+			PageObjectHelper.handleError(LOGGER,
+					"provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page",
+					"Issue in providing SSO login username and clicking sign in button", e);
 		}
 	}
-	
+
 	public void user_should_navigate_to_microsoft_login_page() {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(MicrosoftPasswordPageHeader)).isDisplayed();
-			LOGGER.info("User successfully navigated to Microsoft Login page");
-			ExtentCucumberAdapter.addTestStepLog("User successfully navigated to Microsoft Login page");
+			PageObjectHelper.log(LOGGER, "User successfully navigated to Microsoft Login page");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_navigate_to_microsoft_login_page", e);
-			LOGGER.error("Issue in navigating to Microsoft Login page - Method: user_should_navigate_to_microsoft_login_page", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in navigating to Microsoft Login page...Please Investigate!!!");
-			Assert.fail("Issue in navigating to Microsoft Login page...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_navigate_to_microsoft_login_page",
+					"Issue in navigating to Microsoft Login page", e);
 		}
 	}
-	
+
 	public void provide_sso_login_password_and_click_sign_in() {
 		try {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(MicrosoftPasswordPageHeader)).isDisplayed());
-			wait.until(ExpectedConditions.elementToBeClickable(MicrosoftPasswordTxt)).sendKeys(CommonVariable.SSO_PASSWORD);
-			ExtentCucumberAdapter.addTestStepLog("Provided SSO Login Password in Microsoft Login Page");
-			LOGGER.info("Provided SSO Login Password in Microsoft Login Page");
+			wait.until(ExpectedConditions.elementToBeClickable(MicrosoftPasswordTxt))
+					.sendKeys(CommonVariable.SSO_PASSWORD);
+			PageObjectHelper.log(LOGGER, "Provided SSO Login Password in Microsoft Login Page");
+
 			utils.jsClick(driver, MicrosoftSignInBtn);
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Signin Button in Microsoft Login Page");
-			LOGGER.info("Clicked on Signin Button in Microsoft Login Page");
-			// Click Yes on Stay Signed in? 
+			PageObjectHelper.log(LOGGER, "Clicked on Signin Button in Microsoft Login Page");
+
 			wait.until(ExpectedConditions.elementToBeClickable(MicrosoftYesBtn)).click();
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Yes Button in Microsoft Login Page");
-			LOGGER.info("Clicked on Yes Button in Microsoft Login Page");
+			PageObjectHelper.log(LOGGER, "Clicked on Yes Button in Microsoft Login Page");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("provide_sso_login_password_and_click_sign_in", e);
-			LOGGER.error("Issue in providing SSO login password - Method: provide_sso_login_password_and_click_sign_in", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in providing SSO login password and clicking sign in");
-			Assert.fail("Issue in providing SSO login password and clicking sign in");
+			PageObjectHelper.handleError(LOGGER, "provide_sso_login_password_and_click_sign_in",
+					"Issue in providing SSO login password and clicking sign in", e);
 		}
 	}
-	
+
 	public void provide_non_sso_login_username_and_click_sign_in_button_in_kfone_login_page() {
-		// OPTIMIZED: Handle cookies banner with short timeout
 		handleCookiesBanner();
-		
+
 		wait.until(ExpectedConditions.elementToBeClickable(userNameTxt)).sendKeys(CommonVariable.NON_SSO_USERNAME);
-		ExtentCucumberAdapter.addTestStepLog("Provided NON-SSO Login Username as : " + CommonVariable.NON_SSO_USERNAME + " in KFONE Login Page");
-		LOGGER.info("Provided NON-SSO Username as : " + CommonVariable.NON_SSO_USERNAME + " in KFONE Login Page");
+		PageObjectHelper.log(LOGGER, "Provided NON-SSO Login Username: " + CommonVariable.NON_SSO_USERNAME);
 		username.set(CommonVariable.NON_SSO_USERNAME);
+
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 		utils.jsClick(driver, kfoneSigninBtn);
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		ExtentCucumberAdapter.addTestStepLog("Clicked on Sign in Button in KFONE Login Page");
-		LOGGER.info("Clicked on Sign in Button in KFONE Login Page");
+		PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
 	}
-	
+
 	public void provide_non_sso_login_password_and_click_sign_in_button_in_kfone_login_page() {
 		wait.until(ExpectedConditions.elementToBeClickable(passwordTxt)).sendKeys(CommonVariable.NON_SSO_PASSWORD);
-		ExtentCucumberAdapter.addTestStepLog("Provided NON-SSO Login Password in KFONE Login Page");
-		LOGGER.info("Provided NON-SSO Login Password in KFONE Login Page");
+		PageObjectHelper.log(LOGGER, "Provided NON-SSO Login Password in KFONE Login Page");
+
 		utils.jsClick(driver, kfoneSigninBtn);
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		ExtentCucumberAdapter.addTestStepLog("Clicked on Sign in Button in KFONE Login Page");
-		LOGGER.info("Clicked on Sign in Button in KFONE Login Page");
+		PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
 	}
-	
-	public void verify_the_kfone_landing_page()  {
+
+	public void verify_the_kfone_landing_page() {
 		try {
 			// Check for terms and conditions popup with shorter timeout
 			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-			try {
-				shortWait.until(ExpectedConditions.elementToBeClickable(proceedBtn)).click();
-				LOGGER.info("Accepted KFONE terms and conditions by clicking on Proceed button");
-			} catch(NoSuchElementException | TimeoutException e) {
-				LOGGER.info("User has already accepted KFONE terms and conditions");
-			}
-			
+		try {
+			shortWait.until(ExpectedConditions.elementToBeClickable(proceedBtn)).click();
+			PageObjectHelper.log(LOGGER, "Accepted KFONE terms and conditions");
+		} catch (NoSuchElementException | TimeoutException e) {
+			// Terms already accepted - continue silently
+		}
+
 			// Wait for spinner to disappear and page to load
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			SmartWaits.waitForPageLoad(driver);
-			
+
 			// Verify landing page elements
 			wait.until(ExpectedConditions.visibilityOf(KFONE_landingPage_title)).isDisplayed();
 			wait.until(ExpectedConditions.visibilityOf(KFONE_clientsPage_header)).isDisplayed();
 			String text1 = wait.until(ExpectedConditions.visibilityOf(KFONE_clientsPage_header)).getText();
 			String obj1 = "Clients";
 			Assert.assertEquals(obj1, text1);
-			
-			LOGGER.info("Landed on KFONE Clients Page as Expected");
-			ExtentCucumberAdapter.addTestStepLog("Landed on KFONE Clients Page as Expected");
-			ExtentCucumberAdapter.addTestStepLog("KFONE Landing Page Verification is Successful");
-			LOGGER.info("KFONE Landing Page Verification is Successful");
+
+			PageObjectHelper.log(LOGGER, "Landed on KFONE Clients Page as Expected");
+			PageObjectHelper.log(LOGGER, "KFONE Landing Page Verification is Successful");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_the_kfone_landing_page", e);
-			LOGGER.error("Issue in verifying KFONE landing page after login - Method: verify_the_kfone_landing_page", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying KFONE landing page after login");
-			Assert.fail("Issue in verifying KFONE landing page after login");
+			PageObjectHelper.handleError(LOGGER, "verify_the_kfone_landing_page",
+					"Issue in verifying KFONE landing page after login", e);
 		}
 
 	}
-	
+
 	public void verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub() {
 		try {
-			LOGGER.info("Verifying navigation to Profile Manager page...");
-			LOGGER.info("Current URL: " + driver.getCurrentUrl());
-			
-			// HEADLESS MODE OPTIMIZATION: Use shorter waits with multiple retries instead of one long wait
+			// HEADLESS MODE OPTIMIZATION: Use shorter waits with multiple retries
 			int maxRetries = 3;
 			boolean pmHeaderFound = false;
-			
+
 			for (int retry = 1; retry <= maxRetries && !pmHeaderFound; retry++) {
 				try {
-					LOGGER.info("Attempt " + retry + "/" + maxRetries + " - Waiting for PM page to load...");
-					
-					// Wait for spinners with shorter timeout (30 seconds max per attempt)
 					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
+					
+					// Wait for spinners to disappear
 					try {
 						shortWait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-						LOGGER.info("Page load spinner disappeared");
 					} catch (Exception spinnerEx) {
-						LOGGER.warn("Spinner wait timed out - continuing anyway (common in headless mode)");
+						// Spinner timeout - continue anyway (common in headless mode)
 					}
-					
+
 					// Wait for page to be ready
 					PerformanceUtils.waitForPageReady(driver, 3);
-					LOGGER.info("Page ready state achieved");
-					
-					// ENHANCED: Additional DOM stability check to prevent downstream stale elements
-					Thread.sleep(800); // Allow JavaScript and AJAX to fully complete
-					
-					// Check if PM Header is visible with shorter wait
+					Thread.sleep(800); // Allow DOM to stabilize
+
+					// Check if PM Header is visible
 					if (shortWait.until(ExpectedConditions.visibilityOf(PMHeader)).isDisplayed()) {
 						pmHeaderFound = true;
 						String MainHeader = PMHeader.getText();
-						LOGGER.info("✅ User Successfully landed on the " + MainHeader + " Dashboard Page");
-						ExtentCucumberAdapter.addTestStepLog("User Successfully landed on the " + MainHeader + " Dashboard Page");
-						LOGGER.info("Final URL: " + driver.getCurrentUrl());
-						
-						// Final stability check before proceeding to next steps
-						Thread.sleep(500);
-						LOGGER.debug("PM page fully stabilized - ready for next actions");
+						PageObjectHelper.log(LOGGER, "✅ User Successfully landed on the " + MainHeader + " Dashboard Page");
+						Thread.sleep(500); // Final stability check
 						break;
 					}
-					
+
 				} catch (Exception retryEx) {
-					LOGGER.warn("Attempt " + retry + " failed: " + retryEx.getMessage());
-					
 					if (retry < maxRetries) {
-						LOGGER.info("Refreshing page and retrying...");
+						LOGGER.warn("Attempt {}/{} failed - retrying...", retry, maxRetries);
 						driver.navigate().refresh();
-						Thread.sleep(2000); // Brief pause before retry
+						Thread.sleep(2000);
 					} else {
-						// Last attempt failed - throw the exception
 						throw retryEx;
 					}
 				}
 			}
-			
+
 			if (!pmHeaderFound) {
 				throw new RuntimeException("Profile Manager header not found after " + maxRetries + " attempts");
 			}
-			
+
 		} catch (Exception e) {
-			LOGGER.error("❌ FINAL FAILURE - Current URL: " + driver.getCurrentUrl());
-			LOGGER.error("Page Source (first 500 chars): " + driver.getPageSource().substring(0, Math.min(500, driver.getPageSource().length())));
-			ScreenshotHandler.captureFailureScreenshot("verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub", e);
-			LOGGER.error("Issue with seamless navigation from KFONE to Profile Manager Application - Method: verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue with seemless navigation from KFONE to Profile Manager Application in KF HUB...Please Investigate!!!");
-			Assert.fail("Issue with seemless navigation from KFONE to Profile Manager Application in KF HUB...Please Investigate!!!");
+			ScreenshotHandler.captureFailureScreenshot(
+					"verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub", e);
+			PageObjectHelper.handleError(LOGGER,
+					"verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub",
+					"Issue with seamless navigation from KFONE to Profile Manager Application",
+					e);
 		}
 	}
-	
+
 	/**
-	 * Optimized cookies banner handler with short timeout
-	 * Handles cookies banner immediately after navigation to avoid long waits
+	 * Optimized cookies banner handler with short timeout Handles cookies banner
+	 * immediately after navigation to avoid long waits
 	 */
 	private void handleCookiesBanner() {
 		try {
-			// Use short timeout (5 seconds) for cookies banner - if not present, move on quickly
+			// Use short timeout (5 seconds) for cookies banner - if not present, move on
+			// quickly
 			WebDriverWait cookiesWait = new WebDriverWait(driver, Duration.ofSeconds(5));
 			WebElement cookiesButton = cookiesWait.until(ExpectedConditions.elementToBeClickable(acceptAllCookies));
-			
+
 			// Try standard click first
 			try {
 				cookiesButton.click();
-				LOGGER.info("Closed Cookies Banner by clicking on Accept All button");
-				ExtentCucumberAdapter.addTestStepLog("Closed Cookies Banner by clicking on Accept All button");
+				PageObjectHelper.log(LOGGER, "Closed Cookies Banner by clicking on Accept All button");
 				return;
 			} catch (Exception e) {
 				// If standard click fails, try JS click
 				try {
 					js.executeScript("arguments[0].click();", cookiesButton);
-					LOGGER.info("Closed Cookies Banner using JavaScript click");
-					ExtentCucumberAdapter.addTestStepLog("Closed Cookies Banner using JavaScript click");
+					PageObjectHelper.log(LOGGER, "Closed Cookies Banner using JavaScript click");
 					return;
 				} catch (Exception jsError) {
 					// Last resort: utils.jsClick
 					utils.jsClick(driver, cookiesButton);
-					LOGGER.info("Closed Cookies Banner using utils.jsClick");
-					ExtentCucumberAdapter.addTestStepLog("Closed Cookies Banner using utils.jsClick");
+					PageObjectHelper.log(LOGGER, "Closed Cookies Banner using utils.jsClick");
 				}
 			}
 		} catch (TimeoutException e) {
 			// Cookies banner not present or already accepted - this is normal
-			LOGGER.info("Cookies Banner is already accepted or not present");
-			ExtentCucumberAdapter.addTestStepLog("Cookies Banner is already accepted");
+			PageObjectHelper.log(LOGGER, "Cookies Banner is already accepted or not present");
 		} catch (Exception e) {
 			// Don't fail test if cookies handling fails - just log and continue
 			LOGGER.warn("Could not handle cookies banner: " + e.getMessage());
 		}
 	}
-	
+
 	public void user_is_in_kfone_clients_page() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
 			wait.until(ExpectedConditions.visibilityOf(clientsTable)).isDisplayed();
-			LOGGER.info("User is successfully on KFONE Clients page");
-			ExtentCucumberAdapter.addTestStepLog("User is successfully on KFONE Clients page");
+			PageObjectHelper.log(LOGGER, "User is successfully on KFONE Clients page");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_is_in_kfone_clients_page", e);
-			LOGGER.error("Issue in verifying user is on KFONE Clients page - Method: user_is_in_kfone_clients_page", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying user is on KFONE Clients page");
-			Assert.fail("Issue in verifying user is on KFONE Clients page");
+			PageObjectHelper.handleError(LOGGER, "user_is_in_kfone_clients_page",
+					"Issue in verifying user is on KFONE Clients page", e);
 		}
 	}
-	
+
 	public void verify_products_that_client_can_access() {
 		try {
 			String targetPamsId = CommonVariable.TARGET_PAMS_ID;
-			
+
 			wait.until(ExpectedConditions.visibilityOf(clientsTableBody)).isDisplayed();
-			
+
 			// Verify that the table contains client data
 			Assert.assertTrue(clientsTableBody.isDisplayed(), "Clients table body is not displayed");
-			
+
 			// Get client rows (excluding header)
 			java.util.List<WebElement> clientRows = driver.findElements(By.xpath("//tbody//tr[@class='table-row']"));
 			Assert.assertTrue(clientRows.size() > 0, "No client rows found in the table");
-			
-			LOGGER.info("Found " + clientRows.size() + " client(s) in the table");
-			ExtentCucumberAdapter.addTestStepLog("Found " + clientRows.size() + " client(s) in the table");
-			
+
+			PageObjectHelper.log(LOGGER, "Found " + clientRows.size() + " client(s) in the table");
+
 			// Determine verification scope based on PAMS ID configuration
 			if (targetPamsId != null && !targetPamsId.trim().isEmpty()) {
-				LOGGER.info("Verifying products for specific client with PAMS ID: " + targetPamsId);
-				ExtentCucumberAdapter.addTestStepLog("Verifying products for specific client with PAMS ID: " + targetPamsId);
+				PageObjectHelper.log(LOGGER, "Verifying products for specific client with PAMS ID: " + targetPamsId);
 			} else {
-				LOGGER.info("Verifying products for all available clients");
-				ExtentCucumberAdapter.addTestStepLog("Verifying products for all available clients");
+				PageObjectHelper.log(LOGGER, "Verifying products for all available clients");
 			}
-			
-		boolean targetClientFound = false;
-		int verifiedClientCount = 0;
-			
+
+			boolean targetClientFound = false;
+			int verifiedClientCount = 0;
+
 			// Iterate through each client row and verify products
 			for (int i = 0; i < clientRows.size(); i++) {
 				try {
 					// Get client name - try both clickable link and non-clickable div
 					String clientName = "";
-					
+
 					try {
 						// First try to find clickable client link
-						WebElement clientNameElement = clientRows.get(i).findElement(By.xpath(".//a[contains(@data-testid,'client-')]"));
+						WebElement clientNameElement = clientRows.get(i)
+								.findElement(By.xpath(".//a[contains(@data-testid,'client-')]"));
 						clientName = clientNameElement.getText();
 					} catch (Exception e) {
 						// If no clickable link, try to find non-clickable client name div
-						WebElement clientNameElement = clientRows.get(i).findElement(By.xpath(".//div[contains(@class,'data-content-container')]//div[contains(@title, '')]"));
+						WebElement clientNameElement = clientRows.get(i).findElement(By
+								.xpath(".//div[contains(@class,'data-content-container')]//div[contains(@title, '')]"));
 						clientName = clientNameElement.getAttribute("title");
 					}
-					
+
 					// Get PAMS ID for this client
-					WebElement pamsIdElement = clientRows.get(i).findElement(By.xpath(".//td[contains(@data-testid,'iam-clients-list-pams_id-table-data-cell-')]"));
+					WebElement pamsIdElement = clientRows.get(i).findElement(
+							By.xpath(".//td[contains(@data-testid,'iam-clients-list-pams_id-table-data-cell-')]"));
 					String pamsId = pamsIdElement.getText().trim();
-					
+
 					// Get products for this client
-					WebElement productsElement = clientRows.get(i).findElement(By.xpath(".//td[contains(@data-testid,'iam-clients-list-clientProducts-table-data-cell-')]"));
+					WebElement productsElement = clientRows.get(i).findElement(By
+							.xpath(".//td[contains(@data-testid,'iam-clients-list-clientProducts-table-data-cell-')]"));
 					String productsText = productsElement.getText();
-					
+
 					// Check if we should verify this client based on PAMS ID configuration
 					boolean shouldVerifyThisClient = false;
 					if (targetPamsId != null && !targetPamsId.trim().isEmpty()) {
@@ -540,15 +494,15 @@ public class PO01_KFoneLogin {
 						// Verify all clients
 						shouldVerifyThisClient = true;
 					}
-					
+
 					if (shouldVerifyThisClient) {
 						verifiedClientCount++;
-						
+
 						// Log detailed information for this client
 						LOGGER.info("=== CLIENT PRODUCT ACCESS DETAILS ===");
 						LOGGER.info("Client Name: " + clientName);
 						LOGGER.info("PAMS ID: " + pamsId);
-						
+
 						// Split products by comma and log each product individually
 						if (!productsText.isEmpty()) {
 							String[] products = productsText.split(",");
@@ -557,291 +511,294 @@ public class PO01_KFoneLogin {
 								String product = products[j].trim();
 								LOGGER.info("  " + (j + 1) + ". " + product);
 							}
-							
+
 							// Check if Profile Manager is in the products list
 							boolean clientHasProfileManager = productsText.toLowerCase().contains("profile manager");
 							LOGGER.info("Has Profile Manager Access: " + clientHasProfileManager);
-						
-						ExtentCucumberAdapter.addTestStepLog("Client: " + clientName + " | PAMS ID: " + pamsId + " | Products: " + productsText + " | Has Profile Manager: " + clientHasProfileManager);
+
+							PageObjectHelper.log(LOGGER, "Client: " + clientName + " | PAMS ID: " + pamsId
+									+ " | Products: " + productsText + " | Has PM: " + clientHasProfileManager);
 						} else {
-							LOGGER.info("No products information available for this client");
-							ExtentCucumberAdapter.addTestStepLog("Client: " + clientName + " | PAMS ID: " + pamsId + " | No products information available");
+							PageObjectHelper.log(LOGGER, "Client: " + clientName + " | PAMS ID: " + pamsId
+									+ " | No products information available");
 						}
-						
+
 						LOGGER.info("=== END CLIENT DETAILS ===");
-						
+
 						// If we're looking for a specific PAMS ID, we can break after finding it
 						if (targetPamsId != null && !targetPamsId.trim().isEmpty() && targetClientFound) {
 							break;
 						}
 					}
-					
+
 				} catch (Exception clientException) {
-					LOGGER.warn("Could not retrieve details for client row " + (i + 1) + ": " + clientException.getMessage());
+					LOGGER.warn("Could not retrieve details for client row " + (i + 1) + ": "
+							+ clientException.getMessage());
 				}
 			}
-			
+
 			// Verify results based on configuration
 			if (targetPamsId != null && !targetPamsId.trim().isEmpty()) {
 				if (targetClientFound) {
-					LOGGER.info("Successfully verified products for target client with PAMS ID: " + targetPamsId);
-					ExtentCucumberAdapter.addTestStepLog("Successfully verified products for target client with PAMS ID: " + targetPamsId);
+					PageObjectHelper.log(LOGGER,
+							"Successfully verified products for target client with PAMS ID: " + targetPamsId);
 				} else {
 					LOGGER.error("Target client with PAMS ID " + targetPamsId + " was not found");
-					ExtentCucumberAdapter.addTestStepLog("Target client with PAMS ID " + targetPamsId + " was not found");
 					Assert.fail("Target client with PAMS ID " + targetPamsId + " was not found");
 				}
 			} else {
-				LOGGER.info("Successfully verified products for " + verifiedClientCount + " client(s)");
-				ExtentCucumberAdapter.addTestStepLog("Successfully verified products for " + verifiedClientCount + " client(s)");
+				PageObjectHelper.log(LOGGER,
+						"Successfully verified products for " + verifiedClientCount + " client(s)");
 			}
-			
+
 			// Verify that products are displayed for at least one client
 			wait.until(ExpectedConditions.visibilityOf(firstClientProducts)).isDisplayed();
 			String firstClientProductsText = firstClientProducts.getText();
-			Assert.assertFalse(firstClientProductsText.isEmpty(), "Products information is not displayed for the first client");
-			
+			Assert.assertFalse(firstClientProductsText.isEmpty(),
+					"Products information is not displayed for the first client");
+
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_products_that_client_can_access", e);
-			LOGGER.error("Issue in verifying products that client can access - Method: verify_products_that_client_can_access", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying products that client can access");
-			Assert.fail("Issue in verifying products that client can access");
+			PageObjectHelper.handleError(LOGGER, "verify_products_that_client_can_access",
+					"Issue in verifying products that client can access", e);
 		}
 	}
-	
+
 	/**
-	 * Verify client name based on PAMS ID
-	 * Uses target.pams.id configuration to find and verify specific client name
+	 * Verify client name based on PAMS ID Uses target.pams.id configuration to find
+	 * and verify specific client name
 	 */
 	public void verify_client_name_based_on_pams_id() {
 		try {
 			String targetPamsId = CommonVariable.TARGET_PAMS_ID;
-			
+
 			// If no specific PAMS ID is configured, skip this verification
 			if (targetPamsId == null || targetPamsId.trim().isEmpty()) {
-				LOGGER.info("No specific PAMS ID configured - skipping client name verification");
-				ExtentCucumberAdapter.addTestStepLog("No specific PAMS ID configured - skipping client name verification");
+				PageObjectHelper.log(LOGGER, "No specific PAMS ID configured - skipping client name verification");
 				return;
 			}
-			
-			LOGGER.info("Verifying client name for PAMS ID: " + targetPamsId);
-			ExtentCucumberAdapter.addTestStepLog("Verifying client name for PAMS ID: " + targetPamsId);
-			
+
+			PageObjectHelper.log(LOGGER, "Verifying client name for PAMS ID: " + targetPamsId);
+
 			// Wait for clients table to be visible
 			wait.until(ExpectedConditions.visibilityOf(clientsTableBody)).isDisplayed();
-			
+
 			// Get client rows
 			java.util.List<WebElement> clientRows = driver.findElements(By.xpath("//tbody//tr[@class='table-row']"));
 			Assert.assertTrue(clientRows.size() > 0, "No client rows found in the table");
-			
-			LOGGER.info("Found " + clientRows.size() + " client(s) to search");
-			ExtentCucumberAdapter.addTestStepLog("Found " + clientRows.size() + " client(s) to search");
-			
+
+			PageObjectHelper.log(LOGGER, "Found " + clientRows.size() + " client(s) to search");
+
 			boolean targetClientFound = false;
 			String foundClientName = "";
-			
+
 			// Iterate through each client row to find the target PAMS ID
 			for (int i = 0; i < clientRows.size(); i++) {
 				try {
 					// Get client name - try both clickable link and non-clickable div
-					
-					
+
 					try {
 						// First try to find clickable client link
-						WebElement clientNameElement = clientRows.get(i).findElement(By.xpath(".//a[contains(@data-testid,'client-')]"));
+						WebElement clientNameElement = clientRows.get(i)
+								.findElement(By.xpath(".//a[contains(@data-testid,'client-')]"));
 						clientName.set(clientNameElement.getText());
 					} catch (Exception e) {
 						// If no clickable link, try to find non-clickable client name div
-						WebElement clientNameElement = clientRows.get(i).findElement(By.xpath(".//div[contains(@class,'data-content-container')]//div[contains(@title, '')]"));
+						WebElement clientNameElement = clientRows.get(i).findElement(By
+								.xpath(".//div[contains(@class,'data-content-container')]//div[contains(@title, '')]"));
 						clientName.set(clientNameElement.getAttribute("title"));
 					}
-					
+
 					// Get PAMS ID for this client
-					WebElement pamsIdElement = clientRows.get(i).findElement(By.xpath(".//td[contains(@data-testid,'iam-clients-list-pams_id-table-data-cell-')]"));
+					WebElement pamsIdElement = clientRows.get(i).findElement(
+							By.xpath(".//td[contains(@data-testid,'iam-clients-list-pams_id-table-data-cell-')]"));
 					String pamsId = pamsIdElement.getText().trim();
-					
+
 					LOGGER.info("Checking client: " + clientName.get() + " | PAMS ID: " + pamsId);
-					
+
 					// Check if this is the target client
 					if (pamsId.equals(targetPamsId)) {
 						targetClientFound = true;
 						foundClientName = clientName.get();
-						LOGGER.info("Found target client with PAMS ID " + targetPamsId + ": " + clientName.get());
-						ExtentCucumberAdapter.addTestStepLog("Found target client with PAMS ID " + targetPamsId + ": " + clientName.get());
+						PageObjectHelper.log(LOGGER,
+								"Found target client with PAMS ID " + targetPamsId + ": " + clientName.get());
 						break; // Exit loop once we find the target client
 					}
-					
+
 				} catch (Exception clientException) {
 					LOGGER.warn("Could not check client row " + (i + 1) + ": " + clientException.getMessage());
 				}
 			}
-			
+
 			// Verify that the target client was found
 			if (targetClientFound) {
-				LOGGER.info("Client name verification successful for PAMS ID " + targetPamsId + ": " + foundClientName);
-				ExtentCucumberAdapter.addTestStepLog("Client name verification successful for PAMS ID " + targetPamsId + ": " + foundClientName);
+				PageObjectHelper.log(LOGGER,
+						"Client name verification successful for PAMS ID " + targetPamsId + ": " + foundClientName);
 			} else {
 				LOGGER.error("Client with PAMS ID " + targetPamsId + " was not found");
-				ExtentCucumberAdapter.addTestStepLog("Client with PAMS ID " + targetPamsId + " was not found");
 				Assert.fail("Client with PAMS ID " + targetPamsId + " was not found");
 			}
-			
+
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_client_name_based_on_pams_id", e);
-			LOGGER.error("Issue in verifying client name based on PAMS ID - Method: verify_client_name_based_on_pams_id", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying client name based on PAMS ID");
-			Assert.fail("Issue in verifying client name based on PAMS ID");
+			PageObjectHelper.handleError(LOGGER, "verify_client_name_based_on_pams_id",
+					"Issue in verifying client name based on PAMS ID", e);
 		}
 	}
-	
+
 	/**
 	 * Searches for a client using PAMS ID in the KFone Clients page search bar.
 	 * 
-	 * Behavior:
-	 * - If PAMS ID is configured (not blank) in config.properties  Performs search
-	 * - If PAMS ID is blank or not configured  Skips search and continues
+	 * Behavior: - If PAMS ID is configured (not blank) in config.properties
+	 * Performs search - If PAMS ID is blank or not configured Skips search and
+	 * continues
 	 * 
-	 * This allows flexible test execution where search is optional based on configuration.
+	 * This allows flexible test execution where search is optional based on
+	 * configuration.
 	 */
 	public void search_for_client_with_pams_id() {
 		try {
 			String targetPamsId = CommonVariable.TARGET_PAMS_ID;
-			
+
 			// If no specific PAMS ID is configured, skip search
 			if (targetPamsId == null || targetPamsId.trim().isEmpty()) {
-				LOGGER.info(" SKIPPING: No PAMS ID configured in config.properties - search step skipped");
-				ExtentCucumberAdapter.addTestStepLog(" SKIPPING: No PAMS ID configured - search step skipped");
+				PageObjectHelper.log(LOGGER,
+						" SKIPPING: No PAMS ID configured in config.properties - search step skipped");
 				return; // Continue to next step without search
 			}
-			
+
 			LOGGER.info("========================================");
 			LOGGER.info("SEARCHING FOR CLIENT WITH PAMS ID");
 			LOGGER.info("========================================");
 			LOGGER.info("Target PAMS ID: " + targetPamsId);
-			
+
 			// Wait for clients table and search bar to be visible
 			wait.until(ExpectedConditions.visibilityOf(clientsTable)).isDisplayed();
 			wait.until(ExpectedConditions.elementToBeClickable(clientSearchBar));
-			
+
 			// Clear search bar if it has any text
 			clientSearchBar.clear();
-			
+
 			// Enter PAMS ID in search bar
 			clientSearchBar.sendKeys(targetPamsId);
-			
-			LOGGER.info("Entered PAMS ID '" + targetPamsId + "' in client search bar");
-			ExtentCucumberAdapter.addTestStepLog("Searching for client with PAMS ID: " + targetPamsId);
-			
+
+			PageObjectHelper.log(LOGGER, "Searching for client with PAMS ID: " + targetPamsId);
+
 			// Wait for search results to filter
 			PerformanceUtils.waitForPageReady(driver, 3);
 			Thread.sleep(2000);
-			
+
 			// Verify that search results are displayed
 			wait.until(ExpectedConditions.visibilityOf(clientsTableBody)).isDisplayed();
-			
+
 			// Get filtered client rows
-			java.util.List<WebElement> filteredClientRows = driver.findElements(By.xpath("//tbody//tr[@class='table-row']"));
-			
+			java.util.List<WebElement> filteredClientRows = driver
+					.findElements(By.xpath("//tbody//tr[@class='table-row']"));
+
 			LOGGER.info("========================================");
 			LOGGER.info("SEARCH RESULTS");
 			LOGGER.info("========================================");
 			LOGGER.info("Filtered client rows count: " + filteredClientRows.size());
-			
+
 			if (filteredClientRows.size() > 0) {
-				LOGGER.info(" Search successful - Found " + filteredClientRows.size() + " matching client(s)");
-				ExtentCucumberAdapter.addTestStepLog(" Search successful - Found " + filteredClientRows.size() + " matching client(s) for PAMS ID: " + targetPamsId);
-				
+				PageObjectHelper.log(LOGGER, " Search successful - Found " + filteredClientRows.size()
+						+ " matching client(s) for PAMS ID: " + targetPamsId);
+
 				// Log details of found clients
 				for (int i = 0; i < filteredClientRows.size(); i++) {
 					try {
 						// Get client name
 						String clientName = "";
 						try {
-							WebElement clientNameElement = filteredClientRows.get(i).findElement(By.xpath(".//a[contains(@data-testid,'client-')]"));
+							WebElement clientNameElement = filteredClientRows.get(i)
+									.findElement(By.xpath(".//a[contains(@data-testid,'client-')]"));
 							clientName = clientNameElement.getText();
 						} catch (Exception e) {
-							WebElement clientNameElement = filteredClientRows.get(i).findElement(By.xpath(".//div[contains(@class,'data-content-container')]//div[contains(@title, '')]"));
+							WebElement clientNameElement = filteredClientRows.get(i).findElement(By.xpath(
+									".//div[contains(@class,'data-content-container')]//div[contains(@title, '')]"));
 							clientName = clientNameElement.getAttribute("title");
 						}
-						
+
 						// Get PAMS ID
-						WebElement pamsIdElement = filteredClientRows.get(i).findElement(By.xpath(".//td[contains(@data-testid,'iam-clients-list-pams_id-table-data-cell-')]"));
+						WebElement pamsIdElement = filteredClientRows.get(i).findElement(
+								By.xpath(".//td[contains(@data-testid,'iam-clients-list-pams_id-table-data-cell-')]"));
 						String pamsId = pamsIdElement.getText().trim();
-						
+
 						LOGGER.info("Client " + (i + 1) + ": " + clientName + " | PAMS ID: " + pamsId);
-						
+
 					} catch (Exception e) {
 						LOGGER.debug("Could not retrieve details for filtered client row " + (i + 1));
 					}
 				}
 			} else {
 				// FAIL TEST if no clients found with the searched PAMS ID
-				String errorMsg = " No clients found matching PAMS ID: " + targetPamsId;
-				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				LOGGER.error(" No clients found matching PAMS ID: " + targetPamsId);
 				LOGGER.info("========================================");
-				Assert.fail("No clients found with PAMS ID: " + targetPamsId + ". Please verify the PAMS ID is correct in config.properties");
+				Assert.fail("No clients found with PAMS ID: " + targetPamsId
+						+ ". Please verify the PAMS ID is correct in config.properties");
 			}
-			
+
 			LOGGER.info("========================================");
-			
+
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("search_for_client_with_pams_id", e);
-			LOGGER.error("Issue in searching for client with PAMS ID - Method: search_for_client_with_pams_id", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in searching for client with PAMS ID");
-			Assert.fail("Issue in searching for client with PAMS ID: " + e.getMessage());
+			PageObjectHelper.handleError(LOGGER, "search_for_client_with_pams_id",
+					"Issue in searching for client with PAMS ID: " + e.getMessage(), e);
 		}
 	}
-	
+
 	public void click_on_client_with_access_to_profile_manager_application() {
 		try {
 			String targetPamsId = CommonVariable.TARGET_PAMS_ID;
-			
+
 			// Wait for clients table to be visible
 			wait.until(ExpectedConditions.visibilityOf(clientsTableBody)).isDisplayed();
-			
+
 			// Get client rows (excluding header) - use tbody to avoid header row
 			java.util.List<WebElement> clientRows = driver.findElements(By.xpath("//tbody//tr[@class='table-row']"));
 			Assert.assertTrue(clientRows.size() > 0, "No client rows found in the table");
-			
-			LOGGER.info("Clicking on client with Profile Manager access");
-			ExtentCucumberAdapter.addTestStepLog("Clicking on client with Profile Manager access");
-			
+
+			PageObjectHelper.log(LOGGER, "Clicking on client with Profile Manager access");
+
 			boolean clientClicked = false;
 			String selectedClientName = "";
-			
+
 			// Iterate through client rows to find and click the appropriate client
 			for (int i = 0; i < clientRows.size(); i++) {
 				try {
 					// Get client name - try both clickable link and non-clickable div
 					WebElement clientNameElement = null;
 					String clientName = "";
-					
+
 					try {
 						// First try to find clickable client link
-						clientNameElement = clientRows.get(i).findElement(By.xpath(".//a[contains(@data-testid,'client-')]"));
+						clientNameElement = clientRows.get(i)
+								.findElement(By.xpath(".//a[contains(@data-testid,'client-')]"));
 						clientName = clientNameElement.getText();
 					} catch (Exception e) {
 						// If no clickable link, try to find non-clickable client name div
-						clientNameElement = clientRows.get(i).findElement(By.xpath(".//div[contains(@class,'data-content-container')]//div[contains(@title, '')]"));
+						clientNameElement = clientRows.get(i).findElement(By
+								.xpath(".//div[contains(@class,'data-content-container')]//div[contains(@title, '')]"));
 						clientName = clientNameElement.getAttribute("title");
-						
+
 						// If this client doesn't have a clickable link, skip it
 						LOGGER.info("Client " + clientName + " is not clickable, skipping...");
 						continue;
 					}
-					
+
 					// Get PAMS ID for this client
-					WebElement pamsIdElement = clientRows.get(i).findElement(By.xpath(".//td[contains(@data-testid,'iam-clients-list-pams_id-table-data-cell-')]"));
+					WebElement pamsIdElement = clientRows.get(i).findElement(
+							By.xpath(".//td[contains(@data-testid,'iam-clients-list-pams_id-table-data-cell-')]"));
 					String pamsId = pamsIdElement.getText().trim();
-					
+
 					// Get products for this client
-					WebElement productsElement = clientRows.get(i).findElement(By.xpath(".//td[contains(@data-testid,'iam-clients-list-clientProducts-table-data-cell-')]"));
+					WebElement productsElement = clientRows.get(i).findElement(By
+							.xpath(".//td[contains(@data-testid,'iam-clients-list-clientProducts-table-data-cell-')]"));
 					String productsText = productsElement.getText();
-					
+
 					// Check if this client has Profile Manager access
 					boolean hasProfileManager = productsText.toLowerCase().contains("profile manager");
-					
+
 					// Determine if this is the target client based on PAMS ID configuration
 					boolean isTargetClient = false;
 					if (targetPamsId != null && !targetPamsId.trim().isEmpty()) {
@@ -850,111 +807,106 @@ public class PO01_KFoneLogin {
 						// If no specific PAMS ID, consider all clients
 						isTargetClient = true;
 					}
-					
+
 					// Click on client if it matches our criteria
 					if (isTargetClient && hasProfileManager && !clientClicked) {
 						// Scroll element into view
-						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", clientNameElement);
+						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
+								clientNameElement);
 						SmartWaits.waitForElementClickable(driver, clientNameElement);
-						
+
 						// Click on this client
 						clientNameElement.click();
 						clientClicked = true;
 						selectedClientName = clientName;
-						
-						LOGGER.info("Successfully clicked on client: " + clientName + " (PAMS ID: " + pamsId + ")");
-						ExtentCucumberAdapter.addTestStepLog("Successfully clicked on client: " + clientName + " (PAMS ID: " + pamsId + ")");
+
+						PageObjectHelper.log(LOGGER,
+								"Successfully clicked on client: " + clientName + " (PAMS ID: " + pamsId + ")");
 						break; // Stop the loop after clicking
 					}
-					
+
 				} catch (Exception clientException) {
 					LOGGER.warn("Could not check client row " + (i + 1) + ": " + clientException.getMessage());
 					// Continue to next client instead of failing
 				}
 			}
-			
+
 			// Verify that a client was clicked
 			if (!clientClicked) {
 				LOGGER.error("No suitable client found to click");
-				ExtentCucumberAdapter.addTestStepLog("No suitable client found to click");
 				Assert.fail("No suitable client found to click");
 			}
-			
+
 			// Wait for navigation to complete
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			SmartWaits.waitForPageLoad(driver);
-			
-			LOGGER.info("Successfully navigated to client: " + selectedClientName);
-			ExtentCucumberAdapter.addTestStepLog("Successfully navigated to client: " + selectedClientName);
-			
+
+			PageObjectHelper.log(LOGGER, "Successfully navigated to client: " + selectedClientName);
+
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_client_with_access_to_profile_manager_application", e);
-			LOGGER.error("Issue in clicking on client with access to Profile Manager Application - Method: click_on_client_with_access_to_profile_manager_application", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on client with access to Profile Manager Application");
-			Assert.fail("Issue in clicking on client with access to Profile Manager Application");
+			PageObjectHelper.handleError(LOGGER, "click_on_client_with_access_to_profile_manager_application",
+					"Issue in clicking on client with access to Profile Manager Application", e);
 		}
 	}
-	
+
 	public void verify_user_navigated_to_kfone_home_page() {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			SmartWaits.waitForPageLoad(driver);
 			PerformanceUtils.waitForPageReady(driver, 5);
-			
+
 			// Verify KFONE Home page header
 			wait.until(ExpectedConditions.visibilityOf(KFONE_landingPage_title));
 			String text1 = wait.until(ExpectedConditions.visibilityOf(KFONEHomePageHeader)).getText();
 			LOGGER.info(text1 + " is displaying on KFONE Home Page as expected");
-			
+
 			// Verify that user is on KFONE Home page by checking for Your Products section
 			// Get the element reference from the wait to avoid stale element issues
 			WebElement productsElement = wait.until(ExpectedConditions.visibilityOf(yourProductsSection));
 			String productsSectionText = productsElement.getText();
 			Assert.assertEquals("Your products", productsSectionText, "User is not on KFONE Home page");
-			
-			LOGGER.info("User successfully navigated to KFONE Home Page");
-			LOGGER.info("Verified 'Your products' section is displayed: " + productsSectionText);
-			ExtentCucumberAdapter.addTestStepLog("User successfully navigated to KFONE Home Page");
-			ExtentCucumberAdapter.addTestStepLog("Verified 'Your products' section is displayed: " + productsSectionText);
-			
+
+			PageObjectHelper.log(LOGGER, "User successfully navigated to KFONE Home Page");
+			PageObjectHelper.log(LOGGER, "Verified 'Your products' section is displayed: " + productsSectionText);
+
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_user_navigated_to_kfone_home_page", e);
-			LOGGER.error("Issue in verifying user navigated to KFONE Home Page - Method: verify_user_navigated_to_kfone_home_page", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying user navigated to KFONE Home Page");
-			Assert.fail("Issue in verifying user navigated to KFONE Home Page");
+			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_kfone_home_page",
+					"Issue in verifying user navigated to KFONE Home Page", e);
 		}
 	}
-	
+
 	public void click_on_profile_manager_application_in_your_products_section() {
 		try {
 			// Scroll to the Your Products section to ensure it's visible
 			js.executeScript("arguments[0].scrollIntoView(true);", yourProductsSection);
 			SmartWaits.shortWait(driver);
-			
+
 			// Wait for Profile Manager application to be visible and clickable
 			wait.until(ExpectedConditions.elementToBeClickable(profileManagerInProductsSection)).isDisplayed();
 			PerformanceUtils.waitForPageReady(driver, 3);
-			LOGGER.info("Profile Manager application tile is visible in Your Products section");
-			ExtentCucumberAdapter.addTestStepLog("Profile Manager application tile is visible in Your Products section");
-			
+			PageObjectHelper.log(LOGGER, "Profile Manager application tile is visible in Your Products section");
+
 			// Click on Profile Manager application
 			wait.until(ExpectedConditions.elementToBeClickable(profileManagerInProductsSection)).click();
-			
-			LOGGER.info("Successfully clicked on Profile Manager application in Your Products section");
-			ExtentCucumberAdapter.addTestStepLog("Successfully clicked on Profile Manager application in Your Products section");
-			
+
+			PageObjectHelper.log(LOGGER,
+					"Successfully clicked on Profile Manager application in Your Products section");
+
 			// Wait for navigation to complete
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			SmartWaits.waitForPageLoad(driver);
-			
-			// OPTIMIZATION: Handle cookies banner immediately after navigation (with short timeout)
-//			handleCookiesBanner();
-			
+
+			// OPTIMIZATION: Handle cookies banner immediately after navigation (with short
+			// timeout)
+            // handleCookiesBanner();
+
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_profile_manager_application_in_your_products_section", e);
-			LOGGER.error("Issue in clicking on Profile Manager application in Your Products section - Method: click_on_profile_manager_application_in_your_products_section", e);
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Profile Manager application in Your Products section");
-			Assert.fail("Issue in clicking on Profile Manager application in Your Products section");
+			ScreenshotHandler.captureFailureScreenshot("click_on_profile_manager_application_in_your_products_section",
+					e);
+			PageObjectHelper.handleError(LOGGER, "click_on_profile_manager_application_in_your_products_section",
+					"Issue in clicking on Profile Manager application in Your Products section", e);
 		}
 	}
 }

@@ -139,7 +139,7 @@ on:
       parallel_execution:
         description: 'Enable Parallel Execution'
         required: false
-        default: false
+        default: true
         type: boolean
       
       login_type:
@@ -171,70 +171,14 @@ on:
   # ═══════════════════════════════════════════════════════════════════
   # 📅 SCHEDULED RUNS - CURRENTLY DISABLED (Manual execution only)
   # ═══════════════════════════════════════════════════════════════════
-  # Status: ❌ All schedules DISABLED for manual testing phase
-  # To enable: Uncomment the "schedule:" line and any cron schedule below
-  # Note: All times are in UTC. Convert your local time to UTC.
-  # Cron format: minute hour day_of_month month day_of_week
-  # Example: '0 2 * * *' = 2:00 AM UTC every day
+  # To enable: Uncomment "schedule:" and add cron expressions
+  # Cron format: minute hour day_of_month month day_of_week (UTC timezone)
+  # Examples: '0 2 * * *' (daily 2AM), '0 */6 * * *' (every 6hrs), '0 9 * * 1' (Mon 9AM)
   # Use https://crontab.guru/ to build custom schedules
   # ═══════════════════════════════════════════════════════════════════
   
   # schedule:
-    # ── Daily Schedules ────────────────────────────────────────────
-    # Daily at 2:00 AM UTC (runs smoke tests by default)
-    # - cron: '0 2 * * *'
-    
-    # Daily at 6:00 AM UTC (morning run)
-    # - cron: '0 6 * * *'
-    
-    # Daily at 2:00 PM UTC (afternoon run)
-    # - cron: '0 14 * * *'
-    
-    # Daily at 10:00 PM UTC (evening run)
-    # - cron: '0 22 * * *'
-    
-    # ── Multiple Times Per Day ─────────────────────────────────────
-    # Twice daily: 6:00 AM and 6:00 PM UTC
-    # - cron: '0 6,18 * * *'
-    
-    # Three times daily: 6:00 AM, 2:00 PM, 10:00 PM UTC
-    # - cron: '0 6,14,22 * * *'
-    
-    # Every 6 hours
-    # - cron: '0 */6 * * *'
-    
-    # Every 12 hours
-    # - cron: '0 */12 * * *'
-    
-    # ── Weekly Schedules ───────────────────────────────────────────
-    # Every Monday at 9:00 AM UTC
-    # - cron: '0 9 * * 1'
-    
-    # Every Friday at 5:00 PM UTC (weekly regression)
-    # - cron: '0 17 * * 5'
-    
-    # Weekdays only (Mon-Fri) at 7:00 AM UTC
-    # - cron: '0 7 * * 1-5'
-    
-    # Weekends only (Sat-Sun) at 10:00 AM UTC
-    # - cron: '0 10 * * 6,0'
-    
-    # ── Business Hours ─────────────────────────────────────────────
-    # Every weekday at 8:00 AM UTC (business hours start)
-    # - cron: '0 8 * * 1-5'
-    
-    # Every weekday at 6:00 PM UTC (business hours end)
-    # - cron: '0 18 * * 1-5'
-    
-    # ── Custom Intervals ───────────────────────────────────────────
-    # Every 4 hours during business days
-    # - cron: '0 */4 * * 1-5'
-    
-    # First day of every month at midnight UTC
-    # - cron: '0 0 1 * *'
-    
-    # Every Sunday at midnight (weekly full regression)
-    # - cron: '0 0 * * 0'
+    # - cron: '0 2 * * *'  # Daily at 2:00 AM UTC
 
 env:
   JAVA_VERSION: '17'
@@ -339,69 +283,33 @@ jobs:
       - name: 🔄 Reset Excel Report (Optional)
         if: ${{ github.event.inputs.reset_excel_report == 'true' || (github.event_name == 'schedule' && env.SCHEDULED_RESET_EXCEL == 'true') }}
         run: |
-          echo "════════════════════════════════════════════════════════════════"
-          echo "🔄 RESET EXCEL REPORT - Starting with Fresh Data"
-          echo "════════════════════════════════════════════════════════════════"
-          echo ""
-          
-          # Determine trigger type
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "Trigger: Scheduled Run (using SCHEDULED_RESET_EXCEL = ${{ env.SCHEDULED_RESET_EXCEL }})"
-          else
-            echo "Trigger: Manual Run (user selected: Reset Excel Report = TRUE)"
-          fi
-          
-          echo "This will delete any existing Excel report and start fresh."
-          echo ""
+          echo "🔄 Resetting Excel Report - Starting with fresh data"
           
           # Check if Excel report exists
           if [ -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" ]; then
-            echo "📋 Found existing Excel report:"
-            ls -lh e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx
-            echo ""
-            
-            # Create backup directory for safety
+            echo "📋 Found existing report - creating backup..."
             BACKUP_DIR="e2e-automation/ExcelReports/Backup"
             mkdir -p "$BACKUP_DIR"
-            
-            # Create timestamped backup before deletion
             TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-            BACKUP_FILE="TestResults_PreReset_Backup_${TIMESTAMP}.xlsx"
-            
-            echo "💾 Creating backup before deletion..."
+            BACKUP_FILE="TestResults_PreReset_${TIMESTAMP}.xlsx"
             cp "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" "$BACKUP_DIR/$BACKUP_FILE"
             
             if [ -f "$BACKUP_DIR/$BACKUP_FILE" ]; then
-              echo "✅ Backup created: $BACKUP_DIR/$BACKUP_FILE"
-              ls -lh "$BACKUP_DIR/$BACKUP_FILE"
+              echo "✅ Backup created: $BACKUP_FILE"
+              rm -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx"
+              echo "✅ Excel report deleted - next run will create fresh report"
             else
-              echo "⚠️  Warning: Backup creation failed"
-            fi
-            
-            echo ""
-            echo "🗑️  Deleting existing Excel report..."
-            rm -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx"
-            
-            if [ ! -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" ]; then
-              echo "✅ Excel report deleted successfully"
-            else
-              echo "❌ Failed to delete Excel report"
+              echo "❌ Backup failed - aborting reset"
               exit 1
             fi
           else
-            echo "ℹ️  No existing Excel report found - nothing to delete"
+            echo "ℹ️  No existing report found - will create new report"
           fi
-          
-          echo ""
-          echo "✅ Reset complete - next test run will create a fresh Excel report"
-          echo "════════════════════════════════════════════════════════════════"
       
       - name: ⚙️ Configure Test Environment
         working-directory: e2e-automation
         run: |
           echo "🔧 Creating config.properties from template..."
-          
-          # Copy template to config.properties
           cp src/test/resources/config.properties.template src/test/resources/config.properties
           
           # Configure from workflow inputs
@@ -411,28 +319,20 @@ jobs:
           LOGIN_TYPE="${{ github.event.inputs.login_type || 'NON_SSO' }}"
           PAMS_ID="${{ github.event.inputs.pams_id || '23139' }}"
           
-          # Update basic settings
+          # Update settings
           sed -i "s/^headless\.mode=.*/headless.mode=${HEADLESS}/" src/test/resources/config.properties
           sed -i "s/^browser=.*/browser=${BROWSER}/" src/test/resources/config.properties
           sed -i "s/^Environment=.*/Environment=${ENVIRONMENT}/" src/test/resources/config.properties
           sed -i "s/^login\.type=.*/login.type=${LOGIN_TYPE}/" src/test/resources/config.properties
           sed -i "s/^target\.pams\.id=.*/target.pams.id=${PAMS_ID}/" src/test/resources/config.properties
           
-          # Inject credentials from GitHub Secrets (SECURE)
-          echo "🔐 Injecting credentials from GitHub Secrets..."
+          # Inject credentials from GitHub Secrets
           sed -i "s/\${SSO_USERNAME}/${{ secrets.SSO_USERNAME }}/" src/test/resources/config.properties
           sed -i "s/\${SSO_PASSWORD}/${{ secrets.SSO_PASSWORD }}/" src/test/resources/config.properties
           sed -i "s/\${NON_SSO_USERNAME}/${{ secrets.NON_SSO_USERNAME }}/" src/test/resources/config.properties
           sed -i "s/\${NON_SSO_PASSWORD}/${{ secrets.NON_SSO_PASSWORD }}/" src/test/resources/config.properties
           
-          echo "✅ config.properties created and configured"
-          echo "📋 Configuration Summary:"
-          echo "   Browser: ${BROWSER}"
-          echo "   Environment: ${ENVIRONMENT}"
-          echo "   Headless: ${HEADLESS}"
-          echo "   Login Type: ${LOGIN_TYPE}"
-          echo "   PAMS ID: ${PAMS_ID}"
-          echo "   Credentials: GitHub Secrets"
+          echo "✅ Configured: ${BROWSER} | ${ENVIRONMENT} | Headless: ${HEADLESS} | ${LOGIN_TYPE} | PAMS: ${PAMS_ID}"
       
       - name: 🖥️ Setup Display for Headless (Linux)
         if: runner.os == 'Linux'
@@ -475,24 +375,14 @@ jobs:
           fi
           
           echo "════════════════════════════════════════"
-          echo "    E2E TEST EXECUTION CONFIGURATION"
+          echo "🧪 E2E TEST EXECUTION"
           echo "════════════════════════════════════════"
-          echo "Execution Mode: ${EXECUTION_MODE}"
-          
           if [ "${EXECUTION_MODE}" = "individual_runner" ]; then
-            echo "🏃 Individual Runner: ${INDIVIDUAL_RUNNER}"
+            echo "Mode: Individual Runner | ${INDIVIDUAL_RUNNER}"
           else
-            echo "📋 Test Suite: ${TEST_SUITE}"
+            echo "Mode: Test Suite | ${TEST_SUITE}"
           fi
-          
-          echo "Browser: ${BROWSER}"
-          echo "Environment: ${ENVIRONMENT}"
-          echo "Login Type: ${LOGIN_TYPE}"
-          echo "PAMS ID: ${PAMS_ID}"
-          echo "Credentials: GitHub Secrets"
-          echo "Headless Mode: ${HEADLESS}"
-          echo "Parallel Execution: ${PARALLEL}"
-          echo "Working Directory: $(pwd)"
+          echo "Config: ${BROWSER} | ${ENVIRONMENT} | Headless: ${HEADLESS} | Parallel: ${PARALLEL}"
           echo "════════════════════════════════════════"
           
           # Build Maven command based on execution mode
@@ -525,8 +415,10 @@ jobs:
           
           # Add parallel execution if enabled (only for test suite mode)
           if [ "${PARALLEL}" = "true" ] && [ "${EXECUTION_MODE}" = "test_suite" ]; then
-            MVN_CMD="${MVN_CMD} -Dparallel=methods -DthreadCount=3"
-            echo "⚡ Parallel execution enabled (3 threads)"
+            MVN_CMD="${MVN_CMD} -Denable.parallel=true"
+            echo "⚡ Parallel execution enabled (TestNG suite XML controls threads: 2-3)"
+          else
+            echo "ℹ️  Sequential execution (parallel disabled)"
           fi
           
           # Add CI/CD specific Maven options
@@ -554,141 +446,52 @@ jobs:
           echo "✅ Test execution completed"
           echo ""
           
-          # Calculate and display execution time
+          # Display execution time and quick summary
           END_TIME=$(date +%s)
           DURATION=$((END_TIME - START_TIME))
           MINUTES=$((DURATION / 60))
           SECONDS=$((DURATION % 60))
-          echo "⏱️  Total Execution Time: ${MINUTES}m ${SECONDS}s"
-          echo ""
+          echo "⏱️  Execution Time: ${MINUTES}m ${SECONDS}s"
           
-          # Display detailed test output summary
-          echo "═══════════════════════════════════════════════"
-          echo "📊 Test Output Summary"
-          echo "═══════════════════════════════════════════════"
-          
-          # Check TestNG results
-          if [ -f "test-output/testng-results.xml" ]; then
-            echo "✅ TestNG results file: test-output/testng-results.xml ($(wc -l < test-output/testng-results.xml) lines)"
-          else
-            echo "❌ TestNG results file NOT FOUND: test-output/testng-results.xml"
-          fi
-          
-          # List everything in test-output
-          if [ -d "test-output" ]; then
-            echo ""
-            echo "📂 Contents of test-output/:"
-            ls -lah test-output/ || echo "Cannot list test-output/"
-          else
-            echo "❌ test-output/ directory does NOT exist"
-          fi
-          
-          # Check Surefire reports
-          if [ -d "target/surefire-reports" ]; then
-            echo ""
-            echo "📂 Contents of target/surefire-reports/:"
-            ls -lah target/surefire-reports/ | head -20
-          fi
-          
-          # Check ExtentReports
-          if [ -d "test-output/ExtentReports" ]; then
-            echo ""
-            echo "✅ ExtentReports directory exists"
-            ls -la test-output/ExtentReports/ || echo "ExtentReports directory is empty"
-          else
-            echo "⚠️  ExtentReports directory not found"
-          fi
-          
-          # Check ExcelReports
-          if [ -d "ExcelReports" ]; then
-            echo ""
-            echo "✅ ExcelReports directory exists"
-            ls -la ExcelReports/ || echo "ExcelReports directory is empty"
-          else
-            echo "⚠️  ExcelReports directory not found"
-          fi
-          
-          echo "═══════════════════════════════════════════════"
+          # Quick artifact check
+          [ -f "test-output/testng-results.xml" ] && echo "✅ TestNG results generated" || echo "⚠️  TestNG results missing"
+          [ -d "test-output/ExtentReports" ] && echo "✅ Extent report generated" || echo "⚠️  Extent report missing"
+          [ -d "ExcelReports" ] && echo "✅ Excel report generated" || echo "⚠️  Excel report missing"
           
           # ═══════════════════════════════════════════════════════════════
-          # CRITICAL VALIDATION: Ensure tests actually executed
+          # Test Validation
           # ═══════════════════════════════════════════════════════════════
           echo ""
-          echo "═══════════════════════════════════════════════"
-          echo "🔍 VALIDATION: Checking if tests were executed"
-          echo "═══════════════════════════════════════════════"
+          echo "🔍 Validating test execution..."
           
           VALIDATION_FAILED=0
-          
-          # Find TestNG results file
           TESTNG_RESULTS=""
-          if [ -f "test-output/testng-results.xml" ]; then
-            TESTNG_RESULTS="test-output/testng-results.xml"
-          elif [ -f "target/surefire-reports/testng-results.xml" ]; then
-            TESTNG_RESULTS="target/surefire-reports/testng-results.xml"
-          fi
+          [ -f "test-output/testng-results.xml" ] && TESTNG_RESULTS="test-output/testng-results.xml"
+          [ -z "$TESTNG_RESULTS" ] && [ -f "target/surefire-reports/testng-results.xml" ] && TESTNG_RESULTS="target/surefire-reports/testng-results.xml"
           
           if [ -z "$TESTNG_RESULTS" ]; then
-            echo "❌ CRITICAL ERROR: TestNG results file not found!"
-            echo "   Expected locations:"
-            echo "   - test-output/testng-results.xml"
-            echo "   - target/surefire-reports/testng-results.xml"
+            echo "❌ ERROR: TestNG results not found"
             VALIDATION_FAILED=1
           else
-            echo "✅ Found TestNG results: $TESTNG_RESULTS"
-            
-            # Extract test counts
             TOTAL_TESTS=$(grep -oP 'total="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
             PASSED_TESTS=$(grep -oP 'passed="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
             FAILED_TESTS=$(grep -oP 'failed="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
             SKIPPED_TESTS=$(grep -oP 'skipped="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
             
-            echo "📊 Test Execution Summary:"
-            echo "   Total Tests: ${TOTAL_TESTS}"
-            echo "   Passed: ${PASSED_TESTS}"
-            echo "   Failed: ${FAILED_TESTS}"
-            echo "   Skipped: ${SKIPPED_TESTS}"
+            echo "📊 Results: Total: ${TOTAL_TESTS} | Passed: ${PASSED_TESTS} | Failed: ${FAILED_TESTS} | Skipped: ${SKIPPED_TESTS}"
             
-            # Validate that tests were actually executed
             if [ "$TOTAL_TESTS" = "0" ] || [ -z "$TOTAL_TESTS" ]; then
-              echo ""
-              echo "❌ CRITICAL ERROR: NO TESTS WERE EXECUTED!"
-              echo "   This indicates a configuration problem."
-              echo "   Possible causes:"
-              echo "   - Test suite XML has incorrect class paths"
-              echo "   - Runner classes not found"
-              echo "   - Cucumber glue paths are incorrect"
-              echo "   - Test classes don't extend correct base class"
+              echo "❌ ERROR: No tests executed - check configuration"
+              VALIDATION_FAILED=1
+            elif [ "$FAILED_TESTS" != "0" ] && [ -n "$FAILED_TESTS" ]; then
+              echo "❌ TEST FAILURES: ${FAILED_TESTS}/${TOTAL_TESTS} failed (Pass rate: $(awk "BEGIN {printf \"%.1f%%\", (${PASSED_TESTS}/${TOTAL_TESTS})*100}"))"
               VALIDATION_FAILED=1
             else
-              echo ""
-              echo "✅ VALIDATION PASSED: ${TOTAL_TESTS} test(s) were executed"
-              
-              # Check for test failures
-              if [ "$FAILED_TESTS" != "0" ] && [ -n "$FAILED_TESTS" ]; then
-                echo ""
-                echo "❌ TEST FAILURES DETECTED!"
-                echo "   Failed Tests: ${FAILED_TESTS} out of ${TOTAL_TESTS}"
-                echo "   Pass Rate: $(awk "BEGIN {printf \"%.1f%%\", (${PASSED_TESTS}/${TOTAL_TESTS})*100}")"
-                echo ""
-                echo "   ⚠️  The workflow will FAIL due to test failures"
-                echo "   📊 Review the test reports for details"
-                VALIDATION_FAILED=1
-              else
-                echo "✅ All ${TOTAL_TESTS} test(s) PASSED - No failures detected!"
-              fi
+              echo "✅ All ${TOTAL_TESTS} test(s) PASSED"
             fi
           fi
           
-          echo "═══════════════════════════════════════════════"
-          
-          # Fail the workflow if validation failed
-          if [ $VALIDATION_FAILED -eq 1 ]; then
-            echo ""
-            echo "💥 WORKFLOW FAILED: Critical validation errors detected"
-            echo "   The workflow will now exit with failure status"
-            exit 1
-          fi
+          [ $VALIDATION_FAILED -eq 1 ] && exit 1 || exit 0
       
       - name: 📊 Generate Test Report Summary
         if: always()
@@ -837,36 +640,16 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
       
-      - name: 🔍 Debug - List Excel Report Files
+      - name: 🔍 Verify Excel Report Generation
         if: always()
         run: |
-          echo "═══════════════════════════════════════════════"
-          echo "🔍 Searching for Excel Reports..."
-          echo "═══════════════════════════════════════════════"
-          
-          echo ""
-          echo "📂 Current directory:"
-          pwd
-          
-          echo ""
-          echo "📂 Checking e2e-automation/ExcelReports/:"
+          echo "🔍 Checking Excel reports..."
           if [ -d "e2e-automation/ExcelReports" ]; then
-            echo "✅ Directory exists!"
-            ls -laR e2e-automation/ExcelReports/
+            echo "✅ ExcelReports directory found"
+            ls -lh e2e-automation/ExcelReports/*.xlsx 2>/dev/null || echo "⚠️  No .xlsx files found"
           else
-            echo "❌ Directory does NOT exist"
+            echo "❌ ExcelReports directory missing"
           fi
-          
-          echo ""
-          echo "📂 Checking for ExcelReports anywhere in e2e-automation:"
-          find e2e-automation -type d -name "ExcelReports" 2>/dev/null || echo "No ExcelReports directories found"
-          
-          echo ""
-          echo "📂 Looking for *.xlsx files in e2e-automation:"
-          find e2e-automation -name "*.xlsx" -type f 2>/dev/null || echo "No .xlsx files found"
-          
-          echo ""
-          echo "═══════════════════════════════════════════════"
       
       - name: 📤 Upload Excel Reports
         if: always()
