@@ -69,28 +69,55 @@ public class DriverManager {
 		CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "true"
 	);
 	
-	// Launch browser based on configuration
-switch (CommonVariable.BROWSER) {
-		case "chrome":
-			setupChromeDriver();
-		driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
-		break;
-	case "firefox":
-		setupFirefoxDriver();
-		driver.set(new FirefoxDriver(configureFirefoxOptions(isHeadless)));
-		break;
-	case "edge":
-		setupEdgeDriver();
-		driver.set(new EdgeDriver());
-		break;
-	default:
-		setupChromeDriver();
-		driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
-		break;
+	// Launch browser based on configuration with retry mechanism
+	int maxRetries = 3;
+	boolean browserLaunched = false;
+	Exception lastException = null;
+	
+	for (int attempt = 1; attempt <= maxRetries && !browserLaunched; attempt++) {
+		try {
+	switch (CommonVariable.BROWSER) {
+			case "chrome":
+					setupChromeDriver();
+					driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
+					break;
+				case "firefox":
+					setupFirefoxDriver();
+					driver.set(new FirefoxDriver(configureFirefoxOptions(isHeadless)));
+					break;
+				case "edge":
+					setupEdgeDriver();
+					driver.set(new EdgeDriver());
+					break;
+				default:
+					setupChromeDriver();
+					driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
+					break;
+			}
+			browserLaunched = true;
+			LOGGER.info("✓ Browser launched successfully on attempt {}/{}", attempt, maxRetries);
+		} catch (Exception e) {
+			lastException = e;
+			LOGGER.warn("Browser launch attempt {}/{} failed: {}", attempt, maxRetries, e.getMessage());
+			
+			if (attempt < maxRetries) {
+				try {
+					Thread.sleep(2000 * attempt); // Exponential backoff: 2s, 4s, 6s
+					LOGGER.info("Retrying browser launch after {} seconds...", 2 * attempt);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+				}
+			}
+		}
 	}
 	
-	LOGGER.info("✓ Browser launched: {} ({})", 
-		CommonVariable.BROWSER, isHeadless ? "headless" : "windowed");
+	if (!browserLaunched) {
+		LOGGER.error("✗ Failed to launch browser after {} attempts", maxRetries);
+		throw new RuntimeException("Browser initialization failed after " + maxRetries + " attempts", lastException);
+	}
+	
+	LOGGER.info("✓ Browser launched: {} ({}) - Thread: {}", 
+		CommonVariable.BROWSER, isHeadless ? "headless" : "windowed", Thread.currentThread().getId());
 	
 	// Configure timeouts and browser
 	configureTimeoutsAndBrowser(isHeadless);
@@ -168,9 +195,17 @@ switch (CommonVariable.BROWSER) {
 	
 	/**
 	 * Configure Chrome options with all necessary arguments
+	 * PARALLEL EXECUTION OPTIMIZED: Isolates each Chrome instance with unique user-data-dir
 	 */
 	private static ChromeOptions configureChromeOptions(boolean isHeadless) {
 		ChromeOptions options = new ChromeOptions();
+		
+		// CRITICAL FOR PARALLEL EXECUTION: Isolate user data directory per thread
+		// This prevents port conflicts and profile locking issues
+		long threadId = Thread.currentThread().getId();
+		String userDataDir = System.getProperty("user.dir") + File.separator + "chrome-profile-" + threadId;
+		options.addArguments("--user-data-dir=" + userDataDir);
+		LOGGER.debug("Chrome instance using isolated profile: {}", userDataDir);
 		
 		// Download directory configuration
 		Map<String, Object> prefs = new HashMap<>();
@@ -453,6 +488,7 @@ switch (CommonVariable.BROWSER) {
 	
 	/**
 	 * Closes the browser and cleans up resources
+	 * PARALLEL EXECUTION OPTIMIZED: Also cleans up isolated Chrome profile directory
 	 */
 	public static void closeBrowser() {
 		if (driver.get() != null) {
@@ -463,11 +499,49 @@ switch (CommonVariable.BROWSER) {
 			} finally {
 				driver.remove();
 				wait.remove();
+				cleanupChromeProfile();
 			}
 		} else {
 			driver.remove();
 			wait.remove();
+			cleanupChromeProfile();
 		}
+	}
+	
+	/**
+	 * Cleans up the isolated Chrome profile directory created for this thread
+	 * Prevents disk space issues in parallel execution
+	 */
+	private static void cleanupChromeProfile() {
+		try {
+			long threadId = Thread.currentThread().getId();
+			String userDataDir = System.getProperty("user.dir") + File.separator + "chrome-profile-" + threadId;
+			File profileDir = new File(userDataDir);
+			
+			if (profileDir.exists()) {
+				deleteDirectory(profileDir);
+				LOGGER.debug("Cleaned up Chrome profile directory for thread {}", threadId);
+			}
+		} catch (Exception e) {
+			LOGGER.warn("Failed to cleanup Chrome profile directory: {}", e.getMessage());
+		}
+	}
+	
+	/**
+	 * Recursively deletes a directory and its contents
+	 */
+	private static void deleteDirectory(File directory) {
+		File[] files = directory.listFiles();
+		if (files != null) {
+			for (File file : files) {
+				if (file.isDirectory()) {
+					deleteDirectory(file);
+				} else {
+					file.delete();
+				}
+			}
+		}
+		directory.delete();
 	}
 	
 	/**
