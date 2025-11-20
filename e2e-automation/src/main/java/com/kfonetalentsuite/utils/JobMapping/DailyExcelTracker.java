@@ -598,8 +598,9 @@ public class DailyExcelTracker {
      * Add or update cross-browser scenario with browser-specific status
      * This prevents duplicate scenarios and aggregates browser results
      * ENHANCED: Maintains correct scenario execution order to match Normal execution
+     * THREAD-SAFE: Synchronized to prevent concurrent modification in parallel execution
      */
-    private static void addOrUpdateCrossBrowserScenario(TestResultsSummary summary, String className,
+    private static synchronized void addOrUpdateCrossBrowserScenario(TestResultsSummary summary, String className,
                                                       String featureName, String scenarioName,
                                                       String browserName, String status) {
 
@@ -1361,8 +1362,9 @@ public class DailyExcelTracker {
     /**
      * Add scenario to appropriate feature group
      * ENHANCED: Uses exact className matching to prevent cross-runner contamination
+     * THREAD-SAFE: Synchronized to prevent concurrent modification in parallel execution
      */
-    private static void addScenarioToFeature(TestResultsSummary summary, ScenarioDetail scenario, String className, String actualFeatureName) {
+    private static synchronized void addScenarioToFeature(TestResultsSummary summary, ScenarioDetail scenario, String className, String actualFeatureName) {
         // Use actual feature name if available, otherwise fall back to class-based name
         String featureName = (actualFeatureName != null && !actualFeatureName.isEmpty())
             ? actualFeatureName
@@ -1399,6 +1401,7 @@ public class DailyExcelTracker {
             LOGGER.debug("Adding scenario to EXISTING feature: '{}' (runner: {})", feature.featureName, className);
         }
 
+        // THREAD-SAFE: ArrayList.add() is now protected by method synchronization
         feature.scenarios.add(scenario);
         feature.totalScenarios = feature.scenarios.size();
 

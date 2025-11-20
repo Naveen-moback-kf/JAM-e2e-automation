@@ -482,6 +482,7 @@ public class PO06_PublishJobProfile {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 2);
+			
 			// Click on KFONE Global Menu button
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(KfoneMenu)).click();
@@ -495,9 +496,34 @@ public class PO06_PublishJobProfile {
 
 			PageObjectHelper.log(LOGGER, "Clicked KFONE Global Menu in Job Mapping UI");
 
+			// ENHANCED PARALLEL EXECUTION FIX: Verify menu actually opened
+			// Wait for the menu container to be visible by checking if menu items are present
+			boolean menuOpened = false;
+			int maxAttempts = 10; // Try for up to 5 seconds (10 * 500ms)
+			
+			for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+				try {
+					// Check if either Profile Manager or Architect button is present in DOM
+					WebElement menuItem = driver.findElement(By.xpath("//span[@aria-label='Profile Manager' or @aria-label='Architect']"));
+					if (menuItem.isDisplayed()) {
+						menuOpened = true;
+						LOGGER.info("Global menu successfully expanded (verified on attempt {}/{})", attempt, maxAttempts);
+						break;
+					}
+				} catch (Exception e) {
+					if (attempt < maxAttempts) {
+						LOGGER.debug("Menu not fully loaded yet, waiting... (attempt {}/{})", attempt, maxAttempts);
+						Thread.sleep(500);
+					}
+				}
+			}
+			
+			if (!menuOpened) {
+				LOGGER.warn("Global menu may not have fully opened - proceeding anyway");
+			}
+			
+			// Additional stability wait
 			PerformanceUtils.waitForPageReady(driver, 1);
-			// PARALLEL EXECUTION FIX: Wait for menu to fully expand
-			Thread.sleep(1000);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_kfone_global_menu_in_job_mapping_ui",
 					"Issue clicking KFone Global Menu", e);
@@ -506,12 +532,27 @@ public class PO06_PublishJobProfile {
 
 	public void click_on_profile_manager_application_button_in_kfone_global_menu() {
 		try {
-			// PARALLEL EXECUTION FIX: Retry mechanism for stale elements
+			// ENHANCED PARALLEL EXECUTION FIX: More robust element finding and retry mechanism
 			int maxRetries = 3;
 			boolean clicked = false;
 
 			for (int attempt = 1; attempt <= maxRetries && !clicked; attempt++) {
 				try {
+					// First, ensure the menu is visible by checking for any menu item
+					try {
+						wait.until(ExpectedConditions.presenceOfElementLocated(
+								By.xpath("//span[@aria-label='Profile Manager' or @aria-label='Architect']")));
+					} catch (TimeoutException te) {
+						LOGGER.warn("Menu items not detected - menu may not be open. Attempt {}/{}", attempt, maxRetries);
+						if (attempt == maxRetries) {
+							throw new RuntimeException(
+									"Global menu items not found after " + maxRetries + " attempts", te);
+						}
+						Thread.sleep(1000);
+						continue;
+					}
+
+					// Now try to interact with the Profile Manager button
 					WebElement pmBtn = wait.until(ExpectedConditions.visibilityOf(KfoneMenuPMBtn));
 					Assert.assertTrue(pmBtn.isDisplayed(), "Profile Manager button not visible in menu");
 					String applicationNameText = pmBtn.getText();
@@ -526,6 +567,13 @@ public class PO06_PublishJobProfile {
 					}
 					LOGGER.warn("Stale element on attempt {}/{} - retrying PM button click", attempt, maxRetries);
 					Thread.sleep(500);
+				} catch (org.openqa.selenium.NoSuchElementException e) {
+					if (attempt == maxRetries) {
+						throw new RuntimeException(
+								"Profile Manager button not found in global menu after " + maxRetries + " attempts", e);
+					}
+					LOGGER.warn("Element not found on attempt {}/{} - retrying...", attempt, maxRetries);
+					Thread.sleep(1000);
 				}
 			}
 		} catch (Exception e) {
@@ -548,12 +596,27 @@ public class PO06_PublishJobProfile {
 
 	public void click_on_architect_application_button_in_kfone_global_menu() {
 		try {
-			// PARALLEL EXECUTION FIX: Retry mechanism for stale elements
+			// ENHANCED PARALLEL EXECUTION FIX: More robust element finding and retry mechanism
 			int maxRetries = 3;
 			boolean clicked = false;
 
 			for (int attempt = 1; attempt <= maxRetries && !clicked; attempt++) {
 				try {
+					// First, ensure the menu is visible by checking for any menu item
+					try {
+						wait.until(ExpectedConditions.presenceOfElementLocated(
+								By.xpath("//span[@aria-label='Profile Manager' or @aria-label='Architect']")));
+					} catch (TimeoutException te) {
+						LOGGER.warn("Menu items not detected - menu may not be open. Attempt {}/{}", attempt, maxRetries);
+						if (attempt == maxRetries) {
+							throw new RuntimeException(
+									"Global menu items not found after " + maxRetries + " attempts", te);
+						}
+						Thread.sleep(1000);
+						continue;
+					}
+
+					// Now try to interact with the Architect button
 					WebElement architectBtn = wait.until(ExpectedConditions.visibilityOf(KfoneMenuArchitectBtn));
 					Assert.assertTrue(architectBtn.isDisplayed(), "Architect button not visible in menu");
 					String applicationNameText = architectBtn.getText();
@@ -569,6 +632,13 @@ public class PO06_PublishJobProfile {
 					LOGGER.warn("Stale element on attempt {}/{} - retrying Architect button click", attempt,
 							maxRetries);
 					Thread.sleep(500);
+				} catch (org.openqa.selenium.NoSuchElementException e) {
+					if (attempt == maxRetries) {
+						throw new RuntimeException(
+								"Architect button not found in global menu after " + maxRetries + " attempts", e);
+					}
+					LOGGER.warn("Element not found on attempt {}/{} - retrying...", attempt, maxRetries);
+					Thread.sleep(1000);
 				}
 			}
 		} catch (Exception e) {
