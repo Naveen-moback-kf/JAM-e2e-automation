@@ -13,7 +13,6 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -50,122 +49,95 @@ public class PO06_PublishJobProfile {
 	
 	//XPATHs
 	@FindBy(xpath = "//*[@class='blocking-loader']//img")
-	@CacheLookup
 	WebElement pageLoadSpinner1;
 	
 	@FindBy(xpath = "//div[@data-testid='loader']//img")
-	@CacheLookup
 	WebElement pageLoadSpinner2;
 	
 	@FindBy(xpath = "//tbody//tr[1]//td[2]//div[contains(text(),'(')]")
-	@CacheLookup
 	public WebElement jobNameinRow1;
 	
 	@FindBy(xpath = "//tbody//tr[2]//td[2]//div[contains(text(),'(')]")
-	@CacheLookup
 	public WebElement jobNameinRow2;
 	
 	@FindBy(xpath = "//tbody//tr[2]//button[@id='publish-btn'][1]")
-	@CacheLookup
 	public WebElement job1PublishBtn;
 	
 	// Primary success message locator with fallback options
 	@FindBy(xpath = "//p[contains(text(),'Success profile published')]/..")
-	@CacheLookup
 	public WebElement publishSuccessMsg;
 	
 	// Alternative success message locators for enhanced reliability
 	@FindBy(xpath = "//p[contains(text(),'Success profile published')]")
-	@CacheLookup
 	public WebElement publishSuccessMsgDirect;
 	
 	@FindBy(xpath = "//*[contains(text(),'profile published') or contains(text(),'successfully published')]")
-	@CacheLookup
 	public WebElement publishSuccessMsgFlexible;
 	
 	@FindBy(xpath = "//input[contains(@id,'search-job-title')]")
-	@CacheLookup
 	public WebElement searchBar;
 	
 	@FindBy(xpath = "//div[contains(@id,'results-toggle')]//label//div//div[2]")
-	@CacheLookup
 	public WebElement viewPublishedToggleBtn;
 	
 	@FindBy(xpath = "//input[@id='toggleSwitch']")
-	@CacheLookup
 	public WebElement toggleSwitch;
 	
 	@FindBy(xpath = "//tbody//tr[2]//button[text()='Published'][1]")
-	@CacheLookup
 	public WebElement job1PublishedBtn;
 	
 	@FindBy(xpath = "//span[contains(text(),'HCM Sync')]")
-	@CacheLookup
 	public WebElement HCMSyncProfilesTabinPM;
 	
 	@FindBy(xpath = "//span[text()='Jobs']")
-	@CacheLookup
 	public WebElement JobsPageHeaderinArchitect;
 	
 	@FindBy(xpath = "//h1[contains(text(),'Sync Profiles')]")
-	@CacheLookup
 	public WebElement HCMSyncProfilesHeader;
 	
 	@FindBy(xpath = "//input[@type='search']")
-	@CacheLookup
 	public WebElement ProfilesSearch;
 	
 	@FindBy(xpath = "//tbody//tr[1]//td//div//span[1]//a")
-	@CacheLookup
 	public WebElement HCMSyncProfilesJobinRow1;
 	
 	@FindBy(xpath = "//span[contains(text(),'Select your view')]")
-	@CacheLookup
 	public WebElement SPdetailsPageText;
 	
 	@FindBy(xpath = "//tbody//tr[1]//td[7]//span")
-	@CacheLookup
 	public WebElement HCMSyncProfilesDateinRow1;
 	
 	@FindBy(xpath = "//h1[contains(text(),'Profile Manager')]")
-	@CacheLookup
 	WebElement PMHeader;
 	
 	@FindBy(xpath = "//h1[contains(text(),'Architect')]")
-	@CacheLookup
 	WebElement ArchitectHeader;
 	
 	@FindBy(xpath = "//div[contains(@class,'leading')]//div[1]//div[1]")
-	@CacheLookup
 	WebElement JCpageOrgJobTitleHeader;
 	
 	@FindBy(xpath = "//button[@id='publish-select-btn']")
-	@CacheLookup
 	WebElement JCPagePublishSelectBtn;
 	
 	@FindBy(xpath = "//*[@id='no-data-container']")
-	@CacheLookup
 	WebElement noDataContainer;
 	
 	@FindBy(xpath = "//span[@aria-label='Profile Manager']")
 	public WebElement KfoneMenuPMBtn;
 	
 	@FindBy(xpath = "//button[@id='global-nav-menu-btn']")
-	@CacheLookup
 	public WebElement KfoneMenu;
 	
 	@FindBy(xpath = "//span[@aria-label='Architect']")
 	public WebElement KfoneMenuArchitectBtn;
 	
 	@FindBy(xpath = "//tbody//tr[1]//td//div//div//a")
-	@CacheLookup
 	public WebElement ArchitectJobinRow1;
 	
 	@FindBy(xpath = "//tbody//tr[1]//td[9]")
-	@CacheLookup
 	public WebElement ArchitectDateinRow1;
 	
-	
+
 	//METHODs
 	public void user_should_verify_publish_button_is_displaying_on_first_job_profile() {
 		try { 
@@ -174,26 +146,21 @@ public class PO06_PublishJobProfile {
 	PO15_ValidateRecommendedProfileDetails.orgJobName.set(job1OrgName.get());
 		wait.until(ExpectedConditions.visibilityOf(job1PublishBtn)).isDisplayed();
 			Assert.assertEquals(true, job1PublishBtn.isDisplayed());
-			LOGGER.info("Publish button on first job profile with Organization Name: " + job1NameText.split("-", 2)[0].trim() +" is displaying as expected");
-			ExtentCucumberAdapter.addTestStepLog("Publish button on first job profile with Organization Name: " + job1NameText.split("-", 2)[0].trim() + " is displaying as expected");		
+			PageObjectHelper.log(LOGGER, "Publish button on first job profile (Org: " + job1OrgName.get() + ") is displaying");
 		} catch (Exception e) {
 			ScreenshotHandler.handleTestFailure("verify_publish_btn_on_first_job_profile", e, 
-				"Issue in verifying Publish button on first job....Please Investigate!!!");
+				"Issue in verifying Publish button on first job");
 		}
 	}
 	
 	public void click_on_publish_button_on_first_job_profile() {
 		try { 
 		wait.until(ExpectedConditions.elementToBeClickable(job1PublishBtn)).click();
-		LOGGER.info("Clicked on Publish button on first job profile with Organization Name: " + job1OrgName.get());
-		ExtentCucumberAdapter.addTestStepLog("Clicked on Publish button on first job profile with Organization Name: " + job1OrgName.get());
+		PageObjectHelper.log(LOGGER, "Clicked Publish button on first job (Org: " + job1OrgName.get() + ")");
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_publish_button_on_first_job_profile", e);
-			LOGGER.error("Issue in clicking Publish button on first job - Method: click_on_publish_button_on_first_job_profile", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking Publish button on first job....Please Investigate!!!");
-			Assert.fail("Issue in clicking Publish button on first job....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_publish_button_on_first_job_profile",
+				"Issue clicking Publish button on first job", e);
 		}
 	}
 	
@@ -209,50 +176,48 @@ public class PO06_PublishJobProfile {
 			try {
 				successElement = wait.until(ExpectedConditions.visibilityOf(publishSuccessMsg));
 				primarySuccess = true;
-				LOGGER.info("Success popup found using primary locator (parent element)");
+				LOGGER.info("Success popup found using primary locator");
 			} catch (Exception primaryException) {
-				LOGGER.warn("Primary locator failed, trying alternative approaches...");
+				LOGGER.warn("Primary locator failed, trying alternatives...");
 				
-				// Alternative approach 1: Direct text element (no parent)
+				// Alternative approach 1: Direct text element
 				try {
 					successElement = wait.until(ExpectedConditions.visibilityOf(publishSuccessMsgDirect));
 					LOGGER.info("Success popup found using direct text locator");
 				} catch (Exception altException1) {
 					
-					// Alternative approach 2: Flexible text matching WebElement
+					// Alternative approach 2: Flexible text matching
 					try {
 						successElement = wait.until(ExpectedConditions.visibilityOf(publishSuccessMsgFlexible));
-						LOGGER.info("Success popup found using flexible text matching WebElement");
+						LOGGER.info("Success popup found using flexible text locator");
 					} catch (Exception altException2) {
 						
-						// Alternative approach 3: Dynamic By locators (fallback)
+						// Alternative approach 3: Dynamic By locators
 						try {
 							successElement = wait.until(ExpectedConditions.visibilityOfElementLocated(
 								By.xpath("//*[contains(text(),'profile published') or contains(text(),'successfully published')]")));
-							LOGGER.info("Success popup found using dynamic flexible locator");
+							LOGGER.info("Success popup found using dynamic locator");
 						} catch (Exception altException3) {
 							
-							// Final attempt: Look for any success indicators
+							// Final attempt: Generic success indicators
 							try {
 								successElement = wait.until(ExpectedConditions.visibilityOfElementLocated(
 									By.xpath("//*[contains(@class,'success') or contains(@class,'alert-success') or contains(text(),'Success')]")));
-								LOGGER.info("Success indicator found using generic success locator");
+								LOGGER.info("Success indicator found using generic locator");
 							} catch (Exception finalException) {
 								// Take screenshot for debugging
 								try {
 									String screenshotPath = ScreenshotHandler.captureScreenshotWithDescription("publish_success_popup_not_found");
-									LOGGER.error("Screenshot taken for debugging: " + screenshotPath);
+									LOGGER.error("Screenshot taken: " + screenshotPath);
 								} catch (Exception screenshotException) {
-									LOGGER.error("Failed to take debugging screenshot: " + screenshotException.getMessage());
+									LOGGER.error("Failed to take debugging screenshot");
 								}
 							
-								// Log page source for debugging
+								// Log page info for debugging
 								LOGGER.error("Current page title: " + driver.getTitle());
-								LOGGER.error("Current page URL: " + driver.getCurrentUrl());
+								LOGGER.error("Current URL: " + driver.getCurrentUrl());
 								
-								throw new RuntimeException("Success popup not found using any locator strategy. " +
-									"Primary error: " + primaryException.getMessage() + 
-									". Check screenshot for debugging details.");
+								throw new RuntimeException("Success popup not found using any locator strategy");
 							}
 						}
 					}
@@ -262,13 +227,10 @@ public class PO06_PublishJobProfile {
 		// Verify the element is displayed and get text
 		Assert.assertTrue(successElement.isDisplayed(), "Success popup element is not displayed");
 		String publishSuccessMsgText = successElement.getText();
-		LOGGER.info("Success message text: " + publishSuccessMsgText);
-		ExtentCucumberAdapter.addTestStepLog("Success message: " + publishSuccessMsgText);
+		PageObjectHelper.log(LOGGER, "Success message: " + publishSuccessMsgText);
 			
-			// Wait for the popup to disappear (with shorter timeout for CI/CD compatibility)
-			// In headless/Linux environments, popup may not auto-dismiss via JavaScript
+			// Wait for the popup to disappear (with shorter timeout for CI/CD)
 			try {
-				// Use a shorter wait (10 seconds) instead of full 180 seconds
 				WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
 				
 				if (primarySuccess) {
@@ -279,50 +241,37 @@ public class PO06_PublishJobProfile {
 					LOGGER.info("Success popup dismissed automatically");
 				}
 			} catch (org.openqa.selenium.TimeoutException te) {
-				// Popup didn't auto-dismiss (common in headless mode) - this is OK
-				LOGGER.warn("Success popup did not auto-dismiss within 10 seconds (expected in headless mode)");
-				LOGGER.info("Continuing test execution - success message was verified");
-				ExtentCucumberAdapter.addTestStepLog(" Success popup verified (auto-dismiss skipped for headless compatibility)");
+				LOGGER.warn("Success popup did not auto-dismiss (expected in headless mode)");
 			}
 			
 		// Final spinner check
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-		
-		LOGGER.info("Publish Success Popup verification completed successfully");
-		ExtentCucumberAdapter.addTestStepLog("Publish Success Popup appeared and verified");
+		LOGGER.info("Publish Success Popup verification completed");
 			
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_publish_success_popup_appears_on_screen", e);
-			LOGGER.error("Error in verifying Publish Success popup - Method: user_should_verify_publish_success_popup_appears_on_screen", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Publish Success popup - " + e.getMessage());
-			Assert.fail("Issue in verifying Publish Success popup on screen. Error: " + e.getMessage());
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_publish_success_popup_appears_on_screen",
+				"Issue verifying Publish Success popup", e);
 		}
 	}
 	
 	public void click_on_view_published_toggle_button_to_turn_on() {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 3); // Smart wait instead of fixed 3000ms
+			PerformanceUtils.waitForPageReady(driver, 3);
 			if(toggleSwitch.getAttribute("aria-checked")== "true" || toggleSwitch.isSelected()) {
-				LOGGER.info("View published toggle button is already turned ON");
-				ExtentCucumberAdapter.addTestStepLog("View published toggle button is already turned ON"); 
+				PageObjectHelper.log(LOGGER, "View published toggle button is already ON");
 			} else {
 				utils.jsClick(driver, viewPublishedToggleBtn);
 				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-				PerformanceUtils.waitForPageReady(driver, 2); // Smart wait instead of fixed 2000ms
-				LOGGER.info("View published toggle button is turned ON");
-				ExtentCucumberAdapter.addTestStepLog("View published toggle button is turned ON");
+				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.log(LOGGER, "View published toggle button is turned ON");
 				PO17_ValidateSortingFunctionality_JAM.jobNamesTextInDefaultOrder.clear();
 			}
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 3); // Smart wait instead of fixed 3000ms
+			PerformanceUtils.waitForPageReady(driver, 3);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_view_published_toggle_button_to_turn_on", e);
-			LOGGER.error("Issue in clicking View Published toggle button to turn ON - Method: click_on_view_published_toggle_button_to_turn_on", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking View Published toggle button to turn ON...Please Investigate!!!");
-			Assert.fail("Issue in clicking View Published toggle button to turn ON...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_view_published_toggle_button_to_turn_on",
+				"Issue clicking View Published toggle button", e);
 		}
 	}
 	
@@ -343,15 +292,11 @@ public class PO06_PublishJobProfile {
 			wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(Keys.ENTER);
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 		PerformanceUtils.waitForPageReady(driver, 2); 
-		LOGGER.info("Entered job name as " + PO15_ValidateRecommendedProfileDetails.orgJobName.get() + " in the search bar in View Published screen");
-		ExtentCucumberAdapter.addTestStepLog("Entered job name as " + PO15_ValidateRecommendedProfileDetails.orgJobName.get()  + " in the search bar in View Published screen");
+		PageObjectHelper.log(LOGGER, "Searched for job: " + PO15_ValidateRecommendedProfileDetails.orgJobName.get() + " in View Published screen");
 			PerformanceUtils.waitForPageReady(driver, 2); 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("search_for_published_job_name_in_view_published_screen", e);
-			LOGGER.error("Failed to enter Organization job name text in search bar in View Published screen - Method: search_for_published_job_name_in_view_published_screen", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Failed to enter Organization job name text in search bar in View Published screen...Please investigate!!!");
-			Assert.fail("Failed to enter Organization job name text in search bar in View Published screen...Please investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name_in_view_published_screen",
+				"Failed to search for job in View Published screen", e);
 		}
 	    
 	}
@@ -363,14 +308,10 @@ public class PO06_PublishJobProfile {
 	job1OrgName.set(job1NameText.split("-", 2)[0].trim());
 	Assert.assertEquals(PO15_ValidateRecommendedProfileDetails.orgJobName.get(), job1NameText.split("-", 2)[0].trim());
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(job1PublishedBtn)).isDisplayed());
-			LOGGER.info("Published Job with name : " + job1NameText.split("-", 2)[0].trim() +" is displayed in view published screen as expected");
-			ExtentCucumberAdapter.addTestStepLog("Published Job with name : " + job1NameText.split("-", 2)[0].trim() + " is displayed in view published screen as expected");
+			PageObjectHelper.log(LOGGER, "Published Job (Org: " + job1OrgName.get() + ") is displayed in view published screen");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_view_published_screen", e);
-			LOGGER.error("Issue in verifying Published Job in view published screen - Method: user_should_verify_published_job_is_displayed_in_view_published_screen", e);
-		e.printStackTrace();
-		ExtentCucumberAdapter.addTestStepLog("Issue in verifying Published Job with name : " + PO15_ValidateRecommendedProfileDetails.orgJobName.get() + " in view published screen...Please Investigate!!!");
-		Assert.fail("Issue in verifying Published Job with name : " + PO15_ValidateRecommendedProfileDetails.orgJobName.get() + " in view published screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_view_published_screen",
+				"Issue verifying Published Job: " + PO15_ValidateRecommendedProfileDetails.orgJobName.get(), e);
 		}
 	}
 	
@@ -392,14 +333,10 @@ public class PO06_PublishJobProfile {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesHeader)).isDisplayed());
 			String HCMSyncProfilesHeaderText = wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesHeader)).getText();
 			Assert.assertEquals("HCM Sync Profiles",HCMSyncProfilesHeaderText);
-			LOGGER.info("User navigated to HCM Sync Profiles screen in PM");
-			ExtentCucumberAdapter.addTestStepLog("User navigated to HCM Sync Profiles screen in PM");
+			PageObjectHelper.log(LOGGER, "Navigated to HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_navigate_to_hcm_sync_profiles_tab_in_pm", e);
-			LOGGER.error("Issue in Navigating to HCM Sync Profiles screen in Profile Manager - Method: user_should_navigate_to_hcm_sync_profiles_tab_in_pm", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in Navigating to HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
-			Assert.fail("Issue in Navigating to HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_navigate_to_hcm_sync_profiles_tab_in_pm",
+				"Issue navigating to HCM Sync Profiles screen", e);
 		}
 		
 	}
@@ -412,14 +349,10 @@ public class PO06_PublishJobProfile {
 		wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(job1OrgName.get().split("-", 2)[0].trim());
 		wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(Keys.ENTER);
 		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-		LOGGER.info("Entered job name as " + job1OrgName.get().split("-", 2)[0].trim() +" in the search bar in HCM Sync Profiles screen in PM");
-		ExtentCucumberAdapter.addTestStepLog("Entered job name as " + job1OrgName.get().split("-", 2)[0].trim() + " in the search bar in  HCM Sync Profiles screen in PM");
+		PageObjectHelper.log(LOGGER, "Searched for job: " + job1OrgName.get() + " in HCM Sync Profiles");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("search_for_published_job_name_in_hcm_sync_profiles_tab_in_pm", e);
-			LOGGER.error("Failed to enter Organization job name text in search bar in HCM Sync Profiles screen in PM - Method: search_for_published_job_name_in_hcm_sync_profiles_tab_in_pm", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Failed to enter Organization job name text in search bar in HCM Sync Profiles screen in PM...Please investigate!!!");
-			Assert.fail("Failed to enter Organization job name text in search bar in HCM Sync Profiles screen in PM...Please investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name_in_hcm_sync_profiles_tab_in_pm",
+				"Failed to search for job in HCM Sync Profiles", e);
 		}
 	}
 	
@@ -430,7 +363,7 @@ public class PO06_PublishJobProfile {
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			
-			// Check if results are actually present or if "no results" scenario
+			// Check if results are actually present
 			boolean resultsFound = false;
 			String job1NameText = "";
 			
@@ -440,18 +373,17 @@ public class PO06_PublishJobProfile {
 				job1NameText = shortWait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText();
 				resultsFound = true;
 			} catch (TimeoutException e) {
-				// No results found - check results count or "no results" message
+				// No results found
 				LOGGER.warn("Published job profile not found in search results after 10 seconds");
 				
-				// Try to get results count to verify search returned 0 results
+				// Try to get results count
 				try {
 					WebElement resultsCount = driver.findElement(By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]"));
 					String countText = resultsCount.getText();
 					LOGGER.warn("Results count text: {}", countText);
 					
 				if (countText.contains("Showing 0")) {
-					Assert.fail("Search returned 0 results - Published job profile '" + job1OrgName.get() + "' not found in HCM Sync Profiles. " +
-							   "Verify the job was actually published and synchronized to HCM.");
+					Assert.fail("Search returned 0 results - Published job '" + job1OrgName.get() + "' not found in HCM Sync Profiles");
 					}
 				} catch (Exception countEx) {
 					LOGGER.warn("Could not get results count element");
@@ -461,32 +393,25 @@ public class PO06_PublishJobProfile {
 				try {
 					WebElement noProfilesMsg = driver.findElement(By.xpath("//div[contains(text(),'no Success Profiles') or contains(text(),'No profiles found')]"));
 				if (noProfilesMsg.isDisplayed()) {
-					Assert.fail("No profiles message displayed - Published job profile '" + job1OrgName.get() + "' not found in HCM Sync Profiles. " +
-							   "Verify the job was actually published and synchronized to HCM.");
+					Assert.fail("No profiles message displayed - Job '" + job1OrgName.get() + "' not found in HCM Sync Profiles");
 					}
 				} catch (Exception noMsgEx) {
-					LOGGER.warn("Could not find 'no profiles' message element");
+					LOGGER.warn("Could not find 'no profiles' message");
 				}
 				
-			// If we got here, unclear why no results - fail with timeout info
-			Assert.fail("Published job profile '" + job1OrgName.get() + "' not found in HCM Sync Profiles after 10 seconds. " +
-					   "The first row element did not appear. Verify the job was published and synchronized properly.");
+			Assert.fail("Published job '" + job1OrgName.get() + "' not found in HCM Sync Profiles after 10 seconds");
 			}
 			
 			// Verify the job name matches
 			if (resultsFound) {
 			String actualJobName = job1NameText.split("-", 2)[0].trim();
 			Assert.assertEquals(job1OrgName.get(), actualJobName);
-			LOGGER.info("Published Job with name : {} is displayed in HCM Sync Profiles screen in PM as expected", actualJobName);
-				ExtentCucumberAdapter.addTestStepLog("Published Job with name : " + actualJobName + " is displayed in HCM Sync Profiles screen in PM as expected");
+			PageObjectHelper.log(LOGGER, "Published Job (Org: " + actualJobName + ") is displayed in HCM Sync Profiles");
 			}
 			
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", e);
-			LOGGER.error("Issue in verifying published job in HCM Sync Profiles screen in PM - Method: user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying published job in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			Assert.fail("Issue in verifying published job in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm",
+				"Issue verifying published job in HCM Sync Profiles", e);
 		}
 	}
 	
@@ -505,21 +430,17 @@ public class PO06_PublishJobProfile {
 			}
 			String jobPublishedDate = wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesDateinRow1)).getText();
 		Assert.assertEquals(jobPublishedDate, todayDate);
-		LOGGER.info("Last Modified date is verified successfully on Published Job with name : " + job1OrgName.get() );
-		ExtentCucumberAdapter.addTestStepLog("Last Modified Date is verified successfully on Published Job with name : " + job1OrgName.get() );
+		PageObjectHelper.log(LOGGER, "Last Modified date verified on Published Job: " + job1OrgName.get());
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_date_on_published_job_matches_with_current_date", e);
-			LOGGER.error("Issue in verifying date on published job that matches with Last Modified date - Method: user_should_verify_date_on_published_job_matches_with_current_date", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying date on published job that matches with Last Modified date...Please Invetsigate!!!");
-			Assert.fail("Issue in verifying date on published job that matches with Last Modified date...Please Invetsigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_date_on_published_job_matches_with_current_date",
+				"Issue verifying date on published job", e);
 		}
 	}
 	
 	public void user_should_verify_sp_details_page_opens_on_click_of_published_job_name() {
 		try {
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-			PerformanceUtils.waitForPageReady(driver, 2); // Smart wait instead of fixed 2000ms
+			PerformanceUtils.waitForPageReady(driver, 2);
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(HCMSyncProfilesJobinRow1)).click();
 			} catch (Exception e) {
@@ -529,18 +450,13 @@ public class PO06_PublishJobProfile {
 					utils.jsClick(driver, HCMSyncProfilesJobinRow1);
 				}
 		}
-		LOGGER.info("Clicked on Published Job with name : " + job1OrgName.get() + " in HCM Sync Profiles screen in PM");
-		ExtentCucumberAdapter.addTestStepLog("Published Job with name : " + job1OrgName.get() + " in HCM Sync Profiles screen in PM");
+		PageObjectHelper.log(LOGGER, "Clicked Published Job (Org: " + job1OrgName.get() + ") in HCM Sync Profiles");
 		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(SPdetailsPageText)).isDisplayed());
-			LOGGER.info("SP details page opens as expected on click of Published Job name in HCM Sync Profiles screen in PM....");
-			ExtentCucumberAdapter.addTestStepLog( "SP details page opens as expected on click of Published Job name in HCM Sync Profiles screen in PM....");
+			LOGGER.info("SP details page opened on click of Published Job name");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_sp_details_page_opens_on_click_of_published_job_name", e);
-			LOGGER.error("Issue in Navigating to SP details Page on click of Published Job name in HCM Sync Profiles screen in PM - Method: user_should_verify_sp_details_page_opens_on_click_of_published_job_name", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in Navigating to SP details Page on click of Published Job name in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			Assert.fail("Issue in Navigating to SP details Page on click of Published Job name in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_sp_details_page_opens_on_click_of_published_job_name",
+				"Issue navigating to SP details page", e);
 		}
 	}
 	
@@ -559,18 +475,14 @@ public class PO06_PublishJobProfile {
 				}
 			}
 			
-		LOGGER.info("Successfully clicked KFONE Global Menu in Job Mapping UI");
-		ExtentCucumberAdapter.addTestStepLog("Successfully clicked KFONE Global Menu in Job Mapping UI");
+		PageObjectHelper.log(LOGGER, "Clicked KFONE Global Menu in Job Mapping UI");
 		
 		PerformanceUtils.waitForPageReady(driver, 1);
 		// PARALLEL EXECUTION FIX: Wait for menu to fully expand
 		Thread.sleep(1000);
 	} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_kfone_global_menu_in_job_mapping_ui", e);
-			LOGGER.error("Issue in clicking on KFone Global Menu in Job Mapping UI - Method: click_on_kfone_global_menu_in_job_mapping_ui", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on KFone Global Menu in Job Mapping UI...Please Investigate!!!");
-			Assert.fail("Issue in clicking on KFone Global Menu in Job Mapping UI...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_kfone_global_menu_in_job_mapping_ui",
+				"Issue clicking KFone Global Menu", e);
 		}
 	}
 	
@@ -585,27 +497,22 @@ public class PO06_PublishJobProfile {
 					WebElement pmBtn = wait.until(ExpectedConditions.visibilityOf(KfoneMenuPMBtn));
 					Assert.assertTrue(pmBtn.isDisplayed(), "Profile Manager button not visible in menu");
 					String applicationNameText = pmBtn.getText();
-					LOGGER.info(applicationNameText + " application is displaying as expected in KFONE Global Menu");
-					ExtentCucumberAdapter.addTestStepLog(applicationNameText + " application is displaying as expected in KFONE Global Menu");
+					LOGGER.info(applicationNameText + " application is displaying in KFONE Global Menu");
 					
 					wait.until(ExpectedConditions.elementToBeClickable(KfoneMenuPMBtn)).click();
-					LOGGER.info("Clicked on Profile Manager application button in KFONE Global Menu");
-					ExtentCucumberAdapter.addTestStepLog("Clicked on Profile Manager application button in KFONE Global Menu");
+					PageObjectHelper.log(LOGGER, "Clicked Profile Manager application button in KFONE Global Menu");
 					clicked = true;
 				} catch (org.openqa.selenium.StaleElementReferenceException e) {
 					if (attempt == maxRetries) {
 						throw e;
 					}
-					LOGGER.warn("Stale element on attempt {}/{} - retrying Profile Manager button click", attempt, maxRetries);
+					LOGGER.warn("Stale element on attempt {}/{} - retrying PM button click", attempt, maxRetries);
 					Thread.sleep(500);
 				}
 			}
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_profile_manager_application_button_in_kfone_global_menu", e);
-			LOGGER.error("Issue in clicking Profile Manager application button in KFONE Global - Method: click_on_profile_manager_application_button_in_kfone_global_menu", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking Profile Manager application button in KFONE Global...Please Investigate!!!");
-			Assert.fail("Issue in clicking Profile Manager application button in KFONE Global...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_profile_manager_application_button_in_kfone_global_menu",
+				"Issue clicking Profile Manager application button", e);
 		}
 	}
 
@@ -614,14 +521,10 @@ public class PO06_PublishJobProfile {
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(PMHeader)).isDisplayed());
 			String PMHeaderText = wait.until(ExpectedConditions.visibilityOf(PMHeader)).getText();
-			LOGGER.info("User Successfully landed on the " + PMHeaderText + " Dashboard Page");
-			ExtentCucumberAdapter.addTestStepLog("User Successfully landed on the " + PMHeaderText + " Dashboard Page");
+			PageObjectHelper.log(LOGGER, "User landed on " + PMHeaderText + " Dashboard Page");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_user_should_land_on_profile_manager_dashboard_page", e);
-			LOGGER.error("Issue in landing on Profile Manager dashboard - Method: verify_profile_manager_dashboard_landing", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in landing on Profile Manager dashboard page...Please Investigate!!!");
-			Assert.fail("Issue in landing on Profile Manager dashboard page...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_user_should_land_on_profile_manager_dashboard_page",
+				"Issue landing on Profile Manager dashboard", e);
 		}
 	}
 	
@@ -636,12 +539,10 @@ public class PO06_PublishJobProfile {
 					WebElement architectBtn = wait.until(ExpectedConditions.visibilityOf(KfoneMenuArchitectBtn));
 					Assert.assertTrue(architectBtn.isDisplayed(), "Architect button not visible in menu");
 					String applicationNameText = architectBtn.getText();
-					LOGGER.info(applicationNameText + " application is displaying as expected in KFONE Global Menu");
-					ExtentCucumberAdapter.addTestStepLog(applicationNameText + " application is displaying as expected in KFONE Global Menu");
+					LOGGER.info(applicationNameText + " application is displaying in KFONE Global Menu");
 					
 					wait.until(ExpectedConditions.elementToBeClickable(KfoneMenuArchitectBtn)).click();
-					LOGGER.info("Clicked on Architect application button in KFONE Global Menu");
-					ExtentCucumberAdapter.addTestStepLog("Clicked on Architect application button in KFONE Global Menu");
+					PageObjectHelper.log(LOGGER, "Clicked Architect application button in KFONE Global Menu");
 					clicked = true;
 				} catch (org.openqa.selenium.StaleElementReferenceException e) {
 					if (attempt == maxRetries) {
@@ -652,27 +553,18 @@ public class PO06_PublishJobProfile {
 				}
 			}
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_architect_application_button_in_kfone_global_menu", e);
-			LOGGER.error("Issue in clicking Architect application button in KFONE Global - Method: click_on_architect_application_button_in_kfone_global_menu", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking Architect application button in KFONE Global...Please Investigate!!!");
-			Assert.fail("Issue in clicking Architect application button in KFONE Global...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_architect_application_button_in_kfone_global_menu",
+				"Issue clicking Architect application button", e);
 		}
 	}
 	
 	public void verify_user_should_land_on_architect_dashboard_page() {
 		try {
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-//			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(ArchitectHeader)).isDisplayed());
-//			String ArchitectHeaderText = wait.until(ExpectedConditions.visibilityOf(ArchitectHeader)).getText();
-			LOGGER.info("User Successfully landed on the Architect Dashboard Page");
-			ExtentCucumberAdapter.addTestStepLog("User Successfully landed on the Architect Dashboard Page");
+			PageObjectHelper.log(LOGGER, "User landed on Architect Dashboard Page");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_user_should_land_on_architect_dashboard_page", e);
-			LOGGER.error("Issue in landing on Profile Manager dashboard - Method: verify_architect_dashboard_landing", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in landing on Architect dashboard page...Please Investigate!!!");
-			Assert.fail("Issue in landing on Architect dashboard page...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_user_should_land_on_architect_dashboard_page",
+				"Issue landing on Architect dashboard", e);
 		}
 	}
 	
@@ -682,58 +574,53 @@ public class PO06_PublishJobProfile {
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			// HEADLESS FIX: Add extra wait for JavaScript to complete in headless mode
+			// HEADLESS FIX: Add extra wait for JavaScript
 			Thread.sleep(500);
 			
-			// HEADLESS FIX: Use fresh element lookup to avoid stale reference from @CacheLookup
+			// HEADLESS FIX: Use fresh element lookup
 			WebElement jobsElement = wait.until(ExpectedConditions.presenceOfElementLocated(
 				By.xpath("//span[text()='Jobs']")
 			));
 			
-			// HEADLESS FIX: Ensure element is visible and in viewport
+			// HEADLESS FIX: Ensure element is visible
 			wait.until(ExpectedConditions.visibilityOf(jobsElement));
 			
-			// HEADLESS FIX: Scroll element into view (critical for headless)
+			// HEADLESS FIX: Scroll element into view
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'instant', block: 'center'});", jobsElement);
-			Thread.sleep(300); // Brief pause after scroll
+			Thread.sleep(300);
 			
-			// Assert element is displayed
 			Assert.assertTrue(jobsElement.isDisplayed(), "Jobs element is not displayed after scrolling into view");
 			
 			// HEADLESS FIX: Multiple click strategies
 			boolean clickSucceeded = false;
 			
-			// Strategy 1: Regular click
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(jobsElement));
 				jobsElement.click();
 				clickSucceeded = true;
 			} catch (Exception e1) {
-				// Strategy 2: JavaScript click (most reliable in headless)
 				try {
 					js.executeScript("arguments[0].click();", jobsElement);
 					clickSucceeded = true;
 				} catch (Exception e2) {
-					// Strategy 3: Utility jsClick method
 					try {
 						utils.jsClick(driver, jobsElement);
 						clickSucceeded = true;
 					} catch (Exception e3) {
-						LOGGER.error("All click methods failed: {}", e3.getMessage());
-						throw new Exception("Failed to click Jobs element using all available methods. Last error: " + e3.getMessage());
+						throw new Exception("Failed to click Jobs element using all methods: " + e3.getMessage());
 					}
 				}
 			}
 			
 			if (!clickSucceeded) {
-				throw new Exception("Failed to click Jobs element - all strategies exhausted");
+				throw new Exception("Failed to click Jobs element");
 			}
 			
 			// Wait for page transition
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			// HEADLESS FIX: Re-locate element after click (avoid stale reference)
+			// HEADLESS FIX: Re-locate element after click
 			WebElement jobsHeaderAfterClick = wait.until(ExpectedConditions.presenceOfElementLocated(
 				By.xpath("//span[text()='Jobs']")
 			));
@@ -745,28 +632,13 @@ public class PO06_PublishJobProfile {
 			);
 			
 			String JobsHeaderText = jobsHeaderAfterClick.getText();
-			Assert.assertEquals("Jobs", JobsHeaderText, 
-				String.format("Expected Jobs header text to be 'Jobs' but found '%s'", JobsHeaderText));
+			Assert.assertEquals("Jobs", JobsHeaderText);
 			
-			LOGGER.info("User navigated to Jobs page in Architect");
-			ExtentCucumberAdapter.addTestStepLog("User navigated to Jobs page in Architect");
+			PageObjectHelper.log(LOGGER, "Navigated to Jobs page in Architect");
 			
 		} catch (Exception e) {
-			// Enhanced error details for headless debugging
-			String errorDetails = String.format(
-				"Failed to navigate to Jobs page in Architect. " +
-				"XPath: //span[text()='Jobs'], " +
-				"Error type: %s, " +
-				"Error message: %s",
-				e.getClass().getSimpleName(),
-				e.getMessage()
-			);
-			
-			ScreenshotHandler.captureFailureScreenshot("user_should_navigate_to_jobs_page_in_architect", e);
-			LOGGER.error(errorDetails, e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorDetails);
-			Assert.fail(errorDetails);
+			PageObjectHelper.handleError(LOGGER, "user_should_navigate_to_jobs_page_in_architect",
+				"Failed to navigate to Jobs page in Architect", e);
 		}
 		
 	}
@@ -779,32 +651,24 @@ public class PO06_PublishJobProfile {
 		wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(job1OrgName.get().split("-", 2)[0].trim());
 		wait.until(ExpectedConditions.visibilityOf(ProfilesSearch)).sendKeys(Keys.ENTER);
 		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-		LOGGER.info("Entered job name as " + job1OrgName.get().split("-", 2)[0].trim() +" in the search bar in Jobs page in Architect");
-		ExtentCucumberAdapter.addTestStepLog("Entered job name as " + job1OrgName.get().split("-", 2)[0].trim() + " in the search bar in Jobs page in Architect");
+		PageObjectHelper.log(LOGGER, "Searched for job: " + job1OrgName.get() + " in Jobs page in Architect");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("search_for_published_job_name_in_jobs_page_in_architect", e);
-			LOGGER.error("Failed to enter Organization job name text in search bar in Jobs page in Architect - Method: search_for_published_job_name_in_jobs_page_in_architect", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Failed to enter Organization job name text in search bar in Jobs page in Architect...Please investigate!!!");
-			Assert.fail("Failed to enter Organization job name text in search bar in Jobs page in Architect...Please investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name_in_jobs_page_in_architect",
+				"Failed to search for job in Jobs page in Architect", e);
 		}
 	}
 	
 	public void user_should_verify_published_job_is_displayed_in_jobs_page_in_architect() {
 		try {
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
-			PerformanceUtils.waitForPageReady(driver, 2); // Smart wait instead of fixed 2000ms
+			PerformanceUtils.waitForPageReady(driver, 2);
 			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
 		String job1NameText = wait.until(ExpectedConditions.visibilityOf(ArchitectJobinRow1)).getText();
 		Assert.assertEquals(job1OrgName.get(), job1NameText.split("-", 2)[0].trim());
-		LOGGER.info("Published Job with name : " + job1NameText.split("-", 2)[0].trim() +" is displayed in Jobs page in Architect as expected");
-			ExtentCucumberAdapter.addTestStepLog("Published Job with name : " + job1NameText.split("-", 2)[0].trim() + " is displayed in Jobs page in Architect as expected");
+		PageObjectHelper.log(LOGGER, "Published Job (Org: " + job1OrgName.get() + ") is displayed in Jobs page in Architect");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", e);
-			LOGGER.error("Issue in verifying published job in Jobs page in Architect - Method: user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying published job in Jobs page in Architect...Please Investigate!!!");
-			Assert.fail("Issue in verifying published job in Jobs page in Architect...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_jobs_page_in_architect",
+				"Issue verifying published job in Jobs page in Architect", e);
 		}
 	}
 	
@@ -823,14 +687,10 @@ public class PO06_PublishJobProfile {
 			}
 			String jobPublishedDate = wait.until(ExpectedConditions.visibilityOf(ArchitectDateinRow1)).getText();
 		Assert.assertEquals(jobPublishedDate, todayDate);
-		LOGGER.info("Updated date is verified successfully on Published Job with name : " + job1OrgName.get() + " in Architect Application");
-		ExtentCucumberAdapter.addTestStepLog("Last Modified Date is verified successfully on Published Job with name : " + job1OrgName.get() + " in Architect Application");
+		PageObjectHelper.log(LOGGER, "Updated date verified on Published Job: " + job1OrgName.get() + " in Architect");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify__updated_date_on_published_job_matches_with_current_date_in_architect", e);
-			LOGGER.error("Issue in verifying date on published job that matches with Updated date in Architect Application - Method: user_should_verify__updated_date_on_published_job_matches_with_current_date_in_architect", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying date on published job that matches with Updated date in Architect Application...Please Invetsigate!!!");
-			Assert.fail("Issue in verifying date on published job that matches with Updated date in Architect Application...Please Invetsigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify__updated_date_on_published_job_matches_with_current_date_in_architect",
+				"Issue verifying date on published job in Architect", e);
 		}
 	}
 }

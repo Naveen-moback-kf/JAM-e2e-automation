@@ -21,8 +21,8 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO07_PublishJobFromComparisonScreen {
 	WebDriver driver = DriverManager.getDriver();	
@@ -46,19 +46,15 @@ public class PO07_PublishJobFromComparisonScreen {
 	
 	// WebElements for Job Comparison Screen functionality
 	@FindBy(xpath = "//h1[@id='compare-desc']")
-	@CacheLookup
 	public WebElement CompareandSelectheader;
 	
 	@FindBy(xpath = "//span[@aria-label='Loading']")
-	@CacheLookup
 	public WebElement pageLoadSpinner2;
 	
 	@FindBy(xpath = "//div[contains(@class, 'text-[24px] font-semibold')] | //h2[contains(@class, 'job-title')]")
-	@CacheLookup
 	public WebElement JCpageOrgJobTitleHeader;
 	
 	@FindBy(xpath = "//button[@id='publish-select-btn']")
-	@CacheLookup
 	public WebElement JCPagePublishSelectBtn;
 
 	public void verify_user_landed_on_job_comparison_screen() {
@@ -66,15 +62,11 @@ public class PO07_PublishJobFromComparisonScreen {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			String compareAndSelectHeaderText = wait.until(ExpectedConditions.visibilityOf(CompareandSelectheader)).getText();
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?");
-		LOGGER.info("User landed on the Job Comparison screen successfully");
-		ExtentCucumberAdapter.addTestStepLog("User landed on the Job Comparison screen successfully");
-	} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("verify_user_landed_on_job_comparison_screen", e);
-		LOGGER.error(" Failed to land on Job Comparison screen - Method: verify_user_landed_on_job_comparison_screen", e);
-		e.printStackTrace();
-		Assert.fail("Issue in landing Job Comparison screen....Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in landing Job Comparison screen....Please Investigate!!!");
-	}
+			PageObjectHelper.log(LOGGER, "User landed on the Job Comparison screen successfully");
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_job_comparison_screen", 
+				"Issue in landing Job Comparison screen", e);
+		}
 	}
 	
 public void select_second_profile_from_ds_suggestions_of_organization_job() {
@@ -96,17 +88,13 @@ public void select_second_profile_from_ds_suggestions_of_organization_job() {
 						}
 					}
 					String JCpageOrgJobTitleHeaderText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobTitleHeader)).getText();
-					LOGGER.info("Second Profile is selected from DS Suggestions of the Organization Job : " + JCpageOrgJobTitleHeaderText +" in Job Comparison Page");
-			ExtentCucumberAdapter.addTestStepLog("Second Profile is selected from DS Suggestions of the Organization Job : " + JCpageOrgJobTitleHeaderText + " in Job Comparison Page");
+					PageObjectHelper.log(LOGGER, "Second Profile selected from DS Suggestions for job: " + JCpageOrgJobTitleHeaderText);
 			}
 		}
 		PerformanceUtils.waitForUIStability(driver, 1);
 	} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("select_second_profile_from_ds_suggestions_of_organization_job", e);
-		LOGGER.error(" Failed to select second profile from DS suggestions - Method: select_second_profile_from_ds_suggestions_of_organization_job", e);
-		e.printStackTrace();
-		Assert.fail("Issue in selecting Second Profile from DS Suggestions of the Organization Job in Job Comparison Page...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in selecting Second Profile from DS Suggestions of the Organization Job in Job Comparison Page...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "select_second_profile_from_ds_suggestions_of_organization_job",
+			"Issue in selecting Second Profile from DS Suggestions", e);
 	}
 	}
 
@@ -123,14 +111,10 @@ public void select_second_profile_from_ds_suggestions_of_organization_job() {
 					utils.jsClick(driver, JCPagePublishSelectBtn);
 				}
 		}
-	LOGGER.info("Clicked on Publish Selected button in the Job Comparison Page for job profile with Organization Name: " + job1OrgName.get());
-	ExtentCucumberAdapter.addTestStepLog("Clicked on Publish Selected button in the Job Comparison Page for job profile with Organization Name: " + job1OrgName.get());
+		PageObjectHelper.log(LOGGER, "Clicked Publish Selected button for job: " + job1OrgName.get());
 	} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("click_on_publish_selected_button_in_job_comparison_page", e);
-		LOGGER.error(" Failed to click Publish Selected button - Method: click_on_publish_selected_button_in_job_comparison_page", e);
-		e.printStackTrace();
-		Assert.fail("Issue in clicking Publish Selected button in the Job Comparison Page....Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in clicking Publish Selected button in the Job Comparison Page....Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "click_on_publish_selected_button_in_job_comparison_page",
+			"Issue clicking Publish Selected button", e);
 	}
 }
 }
