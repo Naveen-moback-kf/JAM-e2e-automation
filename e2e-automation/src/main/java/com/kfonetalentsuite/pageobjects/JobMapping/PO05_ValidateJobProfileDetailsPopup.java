@@ -21,8 +21,8 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO05_ValidateJobProfileDetailsPopup {
 	WebDriver driver = DriverManager.getDriver();	
@@ -103,39 +103,30 @@ public class PO05_ValidateJobProfileDetailsPopup {
 	//METHODs
 	
 	public void user_is_on_profile_details_popup() {
-		LOGGER.info("User is on Profile Details Popup....");
-		ExtentCucumberAdapter.addTestStepLog("User is on Profile Details Popup....");
+		PageObjectHelper.log(LOGGER, "User is on Profile Details Popup");
 	}
 	
 	public void verify_profile_header_matches_with_matched_profile_name() {
 		try {
-		String profileHeaderName = wait.until(ExpectedConditions.visibilityOf(profileHeader)).getText();
-		Assert.assertEquals(PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName.get(),profileHeaderName);
-		LOGGER.info("Profile header on the details popup : " + profileHeaderName);
-		ExtentCucumberAdapter.addTestStepLog("Profile header on the details popup : " + profileHeaderName);
+			String profileHeaderName = wait.until(ExpectedConditions.visibilityOf(profileHeader)).getText();
+			Assert.assertEquals(PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName.get(), profileHeaderName);
+			PageObjectHelper.log(LOGGER, "Profile header on the details popup: " + profileHeaderName);
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_profile_header_matches_with_matched_profile_name", e);
-			LOGGER.error(" Failed to verify profile details popup header - Method: verify_profile_header_matches_with_matched_profile_name", e);
-			e.printStackTrace();
-			Assert.fail("Issue in verifying profile details popup header....Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying profile details popup header....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_profile_header_matches_with_matched_profile_name",
+					"Failed to verify profile details popup header", e);
 		}
 	}
 	
 	public void verify_profile_details_displaying_on_the_popup() {
 		try {
-		String profileDeatilsText = wait.until(ExpectedConditions.visibilityOf(profileDetails)).getText();
-		ProfileDetails = profileDeatilsText;
-		LOGGER.info("Below are the Profile Details displaying on the popup screen: ");
-		LOGGER.info(profileDeatilsText);
-		ExtentCucumberAdapter.addTestStepLog("Below are the Profile Details displaying on the popup screen: \n");
-		ExtentCucumberAdapter.addTestStepLog(profileDeatilsText);
+			String profileDetailsText = wait.until(ExpectedConditions.visibilityOf(profileDetails)).getText();
+			ProfileDetails = profileDetailsText;
+			PageObjectHelper.log(LOGGER, "Profile Details displaying on the popup screen:\n" + profileDetailsText);
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_profile_details_displaying_on_the_popup", e);
-			LOGGER.error(" Failed to display profile details on the popup screen - Method: verify_profile_details_displaying_on_the_popup", e);
-			e.printStackTrace();
-			Assert.fail("Issue in displaying profile details on the popup screen....Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in displaying profile details on the popup screen....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_profile_details_displaying_on_the_popup",
+					"Failed to display profile details on the popup screen", e);
 		}
 	}
 
@@ -144,86 +135,64 @@ public class PO05_ValidateJobProfileDetailsPopup {
 		try {
 			if(wait.until(ExpectedConditions.visibilityOf(profileLevelDropdown)).isEnabled()) {
 				wait.until(ExpectedConditions.elementToBeClickable(profileLevelDropdown)).click();
-				LOGGER.info("Profile Level dropdown is available and Clicked on it...");
-				ExtentCucumberAdapter.addTestStepLog("Profile Level dropdown is available and Clicked on it...");
 				Select dropdown = new Select(profileLevelDropdown);
 				List<WebElement> allOptions = dropdown.getOptions();
-				LOGGER.info("Levels present inside profile level dropdown : ");
-				ExtentCucumberAdapter.addTestStepLog("Levels present inside profile level dropdown : ");
+				StringBuilder levels = new StringBuilder();
 				for(WebElement option : allOptions){
-			        LOGGER.info(option.getText());
-			        ExtentCucumberAdapter.addTestStepLog(option.getText());
-			        }
-				wait.until(ExpectedConditions.elementToBeClickable(profileLevelDropdown)).click(); // This click is to close dropdown options visibility 
-				LOGGER.info("Successfully Verified Profile Level dropdown and levels present inside it...");
-				ExtentCucumberAdapter.addTestStepLog("Successfully Verified Profile Level dropdown and levels present inside it...");
+					levels.append(option.getText()).append(", ");
+				}
+				wait.until(ExpectedConditions.elementToBeClickable(profileLevelDropdown)).click(); // Close dropdown
+				PageObjectHelper.log(LOGGER, "Profile Level dropdown verified. Levels: " + levels.toString().replaceAll(", $", ""));
 			} else {
-				LOGGER.info("No Profile Levels available for this mapped profile with name : " + PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName); 
-				ExtentCucumberAdapter.addTestStepLog("No Profile Levels available for this mapped profile with name : " + PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName);
-		}
-		
+				PageObjectHelper.log(LOGGER, "No Profile Levels available for profile: " + PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName);
+			}
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown", e);
-			LOGGER.error(" Failed to validate profile level dropdown - Method: user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown", e);
-			e.printStackTrace();
-			Assert.fail("Issue in validating profile level dropdown in profile details popup in Job Mapping page...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in validating profile level dropdown in profile details popup in Job Mapping page...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown",
+					"Failed to validate profile level dropdown", e);
 		}	
 	}
 
 	
 	public void validate_role_summary_is_displaying() {
 		try {
-		String roleSummaryText = wait.until(ExpectedConditions.visibilityOf(roleSummary)).getText();
-		ProfileRoleSummary = roleSummaryText.split(": ", 2)[1].trim();
-		LOGGER.info("Role summary of Matched Success Profile : " + ProfileRoleSummary);
-		ExtentCucumberAdapter.addTestStepLog("Role summary of Matched Success Profile : " + ProfileRoleSummary); 
-	} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("validate_role_summary_is_displaying", e);
-		LOGGER.error(" Failed to validate Role Summary in Profile Details Popup - Method: validate_role_summary_is_displaying", e);
-		e.printStackTrace();
-		Assert.fail("Issue in validating Role Summary in Profile Details Popup in Job Mapping page...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in validating Role Summary in Profile Details Popup in Job Mapping page...Please Investigate!!!");
-	}
+			String roleSummaryText = wait.until(ExpectedConditions.visibilityOf(roleSummary)).getText();
+			ProfileRoleSummary = roleSummaryText.split(": ", 2)[1].trim();
+			PageObjectHelper.log(LOGGER, "Role summary of Matched Success Profile: " + ProfileRoleSummary);
+		} catch (Exception e) {
+			ScreenshotHandler.captureFailureScreenshot("validate_role_summary_is_displaying", e);
+			PageObjectHelper.handleError(LOGGER, "validate_role_summary_is_displaying",
+					"Failed to validate Role Summary in Profile Details Popup", e);
+		}
 	}
 
 	
 public void validate_data_in_responsibilities_tab() {
 	try {
-		// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 		PerformanceUtils.waitForPageReady(driver, 2);
 		wait.until(ExpectedConditions.elementToBeClickable(viewMoreButtonInResponsibilitiesTab.get(0))).click();
-			while(true) {
-				try {
-					if(viewMoreButtonInResponsibilitiesTab.isEmpty()) {
-						LOGGER.info("Reached end of content in Responsibilities screen");
-						ExtentCucumberAdapter.addTestStepLog("Reached end of content in Responsibilities screen");
-						break;
-					}
+		
+		while(true) {
+			try {
+				if(viewMoreButtonInResponsibilitiesTab.isEmpty()) {
+					break;
+				}
 				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInResponsibilitiesTab.get(0));
-				String ViewMoreBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreButtonInResponsibilitiesTab.get(0))).getText();
 				viewMoreButtonInResponsibilitiesTab.get(0).click();
 				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInResponsibilitiesTab.get(0));
-				LOGGER.info("Clicked on "+ ViewMoreBtnText +" button in Responsibilities screen");
-				ExtentCucumberAdapter.addTestStepLog("Clicked on "+ ViewMoreBtnText +" button in Responsibilities screen");
-				// PERFORMANCE: Replaced Thread.sleep(2000) with smart UI stability wait
 				PerformanceUtils.waitForUIStability(driver, 2);
-				} catch(StaleElementReferenceException e) {
-					LOGGER.info("Reached end of content in Responsibilities screen");
-					ExtentCucumberAdapter.addTestStepLog("Reached end of content in Responsibilities screen");
-					break;
-				}	
-			}
+			} catch(StaleElementReferenceException e) {
+				break;
+			}	
+		}
+		
 		String responsibilitiesDataText = wait.until(ExpectedConditions.visibilityOf(responisbilitiesData)).getText();
 		ProfileResponsibilities = responsibilitiesDataText;
-//			LOGGER.info("Data present in Responsibilities screen : \n" + responsibilitiesDataText);
-//			ExtentCucumberAdapter.addTestStepLog("Data present in Responsibilities screen : \n" + responsibilitiesDataText);
+		PageObjectHelper.log(LOGGER, "Responsibilities data validated successfully");
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("validate_data_in_responsibilities_tab", e);
-		LOGGER.error(" Failed to validate data in Responsibilities screen - Method: validate_data_in_responsibilities_tab", e);
-		e.printStackTrace();
-		Assert.fail("Issue in validating data in Responsibilities screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in validating data in Responsibilities screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "validate_data_in_responsibilities_tab",
+				"Failed to validate data in Responsibilities screen", e);
 	}
 }
 	
@@ -231,42 +200,30 @@ public void validate_data_in_responsibilities_tab() {
 public void validate_data_in_behavioural_competencies_tab() {
 	try {
 		js.executeScript("arguments[0].scrollIntoView(true);", roleSummary);
-		// PERFORMANCE: Replaced Thread.sleep(3000) with smart page ready wait
 		PerformanceUtils.waitForPageReady(driver, 3);
 		wait.until(ExpectedConditions.elementToBeClickable(behaviourCompetenciesTabButton)).click();
-			LOGGER.info("Clicked on Behaviour Competencies screen");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Behaviour Competencies screen");
-			while(true) {
-				try {
-					if(viewMoreButtonInBehaviourCompetenciesTab.isEmpty()) {
-						LOGGER.info("Reached end of content in Behaviour Competencies screen");
-						ExtentCucumberAdapter.addTestStepLog("Reached end of content in Behaviour Competencies screen");
-						break;
-					}
-			js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInBehaviourCompetenciesTab.get(0));
-			String ViewMoreBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreButtonInBehaviourCompetenciesTab.get(0))).getText();
-			viewMoreButtonInBehaviourCompetenciesTab.get(0).click();
-			js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInBehaviourCompetenciesTab.get(0));
-			LOGGER.info("Clicked on "+ ViewMoreBtnText +" button in Behaviour Competencies screen");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on "+ ViewMoreBtnText +" button in Behaviour Competencies screen");
-			// PERFORMANCE: Replaced Thread.sleep(2000) with smart UI stability wait
-			PerformanceUtils.waitForUIStability(driver, 2);
-				} catch(StaleElementReferenceException e) {
-					LOGGER.info("Reached end of content in Behaviour Competencies screen");
-					ExtentCucumberAdapter.addTestStepLog("Reached end of content in Behaviour Competencies screen");
+		
+		while(true) {
+			try {
+				if(viewMoreButtonInBehaviourCompetenciesTab.isEmpty()) {
 					break;
-				}	
-			}
+				}
+				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInBehaviourCompetenciesTab.get(0));
+				viewMoreButtonInBehaviourCompetenciesTab.get(0).click();
+				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInBehaviourCompetenciesTab.get(0));
+				PerformanceUtils.waitForUIStability(driver, 2);
+			} catch(StaleElementReferenceException e) {
+				break;
+			}	
+		}
+		
 		String behaviourDataText = wait.until(ExpectedConditions.visibilityOf(behaviourData)).getText();
 		ProfileBehaviouralCompetencies = behaviourDataText;
-//			LOGGER.info("Data present in Behaviour Competencies screen : \n" + behaviourDataText);
-//			ExtentCucumberAdapter.addTestStepLog("Data present in Behaviour Competencies screen : \n" + behaviourDataText);
+		PageObjectHelper.log(LOGGER, "Behavioural Competencies data validated successfully");
 	} catch (Exception e) {
 		ScreenshotHandler.captureFailureScreenshot("validate_data_in_behavioural_competencies_tab", e);
-		LOGGER.error(" Failed to validate data in Behaviour Competencies screen - Method: validate_data_in_behavioural_competencies_tab", e);
-		e.printStackTrace();
-		Assert.fail("Issue in validating data in Behaviour Competencies screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in validating data in Behaviour Competencies screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "validate_data_in_behavioural_competencies_tab",
+				"Failed to validate data in Behaviour Competencies screen", e);
 	}
 }
 
@@ -274,45 +231,32 @@ public void validate_data_in_behavioural_competencies_tab() {
 public void validate_data_in_skills_tab() {
 	try {
 		js.executeScript("arguments[0].scrollIntoView(true);", roleSummary);
-		// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 		PerformanceUtils.waitForPageReady(driver, 2);
 		wait.until(ExpectedConditions.elementToBeClickable(skillsTabButton)).click();
-			LOGGER.info("Clicked on Skills screen");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Skills screen");
-			while(true) {
-				try {
-					if(viewMoreButtonInSkillsTab.isEmpty()) {
-						LOGGER.info("Reached end of content in Skills screen");
-						ExtentCucumberAdapter.addTestStepLog("Reached end of content in Skills screen");
-						break;
-					}
-			js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInSkillsTab.get(0));
-			String ViewMoreBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreButtonInSkillsTab.get(0))).getText();
-			viewMoreButtonInSkillsTab.get(0).click();
-			js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInSkillsTab.get(0));
-			LOGGER.info("Clicked on "+ ViewMoreBtnText +" button in Skills screen");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on "+ ViewMoreBtnText +" button in Skills screen");
-			// PERFORMANCE: Replaced Thread.sleep(2000) with smart UI stability wait
-			PerformanceUtils.waitForUIStability(driver, 2);
-				} catch(StaleElementReferenceException e) {
-					LOGGER.info("Reached end of content in Skills screen");
-					ExtentCucumberAdapter.addTestStepLog("Reached end of content in Skills screen");
+		
+		while(true) {
+			try {
+				if(viewMoreButtonInSkillsTab.isEmpty()) {
 					break;
-				}	
-			}
-			String skillsDataText = wait.until(ExpectedConditions.visibilityOf(skillsData)).getText();
+				}
+				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInSkillsTab.get(0));
+				viewMoreButtonInSkillsTab.get(0).click();
+				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInSkillsTab.get(0));
+				PerformanceUtils.waitForUIStability(driver, 2);
+			} catch(StaleElementReferenceException e) {
+				break;
+			}	
+		}
+		
+		String skillsDataText = wait.until(ExpectedConditions.visibilityOf(skillsData)).getText();
 		ProfileSkills = skillsDataText;
-//			LOGGER.info("Data present in Skills screen : \n" + skillsDataText);
-//			ExtentCucumberAdapter.addTestStepLog("Data present in Skills screen : \n" + skillsDataText);
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_data_in_skills_tab", e);
-		LOGGER.error(" Failed to validate data in Skills screen - Method: validate_data_in_skills_tab", e);
-		e.printStackTrace();
-		Assert.fail("Issue in validating data in Skills screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in validating data in Skills screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
+		PageObjectHelper.log(LOGGER, "Skills data validated successfully");
+	} catch (Exception e) {
+		ScreenshotHandler.captureFailureScreenshot("validate_data_in_skills_tab", e);
+		PageObjectHelper.handleError(LOGGER, "validate_data_in_skills_tab",
+				"Failed to validate data in Skills screen", e);
 	}
-	    
-	}
+}
 
 	
 	/**
@@ -321,54 +265,35 @@ public void validate_data_in_skills_tab() {
 	 */
 	public void user_should_verify_publish_profile_button_is_available_on_popup_screen() {
 		try {
-			LOGGER.debug("Attempting to verify Publish Profile button availability...");
-			
-			// STEP 1: Scroll the popup content to the bottom (CRITICAL for headless mode)
 			// Try multiple scrolling strategies to ensure button comes into view
 			try {
-				// Strategy 1: Scroll to the button element directly
-				LOGGER.debug("Scrolling popup to bring Publish button into view...");
 				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end', inline: 'nearest'});", publishProfileButton);
-				Thread.sleep(1000); // Wait for smooth scroll to complete
+				Thread.sleep(1000);
 			} catch (Exception scrollEx1) {
-				LOGGER.debug("Direct scroll failed, trying popup container scroll...");
 				try {
-					// Strategy 2: Find and scroll the popup container to bottom
 					WebElement popupContainer = driver.findElement(By.xpath("//div[contains(@class, 'modal-body') or contains(@class, 'popup-content') or contains(@class, 'dialog-content')]"));
 					js.executeScript("arguments[0].scrollTop = arguments[0].scrollHeight;", popupContainer);
 					Thread.sleep(1000);
 				} catch (Exception scrollEx2) {
-					LOGGER.debug("Popup container scroll failed, trying window scroll as fallback...");
-					// Strategy 3: Fallback - scroll the window itself
 					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 					Thread.sleep(500);
 				}
 			}
 			
-			// STEP 2: Wait for page stability after scroll (critical for headless)
 			PerformanceUtils.waitForPageReady(driver, 2);
-			Thread.sleep(500); // Additional buffer for DOM updates in headless mode
+			Thread.sleep(500);
 			
-			// STEP 3: Verify the button is now visible and clickable
-			LOGGER.debug("Waiting for Publish button to be clickable after scroll...");
 			boolean isButtonDisplayed = wait.until(ExpectedConditions.elementToBeClickable(publishProfileButton)).isDisplayed();
-			
-			if (isButtonDisplayed) {
-				LOGGER.info("✅ Publish button is displaying on the Profile Details Popup and is clickable");
-				ExtentCucumberAdapter.addTestStepLog("✅ Publish button is displaying on the Profile Details Popup and is clickable");
-			} else {
+			if (!isButtonDisplayed) {
 				throw new Exception("Publish button found but not displayed");
 			}
 			
+			PageObjectHelper.log(LOGGER, "✅ Publish button is displaying on the Profile Details Popup and is clickable");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("user_should_verify_publish_profile_button_is_available_on_popup_screen", e);
-			LOGGER.error("❌ Failed to verify Publish Profile button on profile details popup - Method: user_should_verify_publish_profile_button_is_available_on_popup_screen", e);
-			LOGGER.error("Possible causes: 1) Button not scrolled into view in headless mode, 2) Popup not fully loaded, 3) Element locator issue");
-			e.printStackTrace();
-			Assert.fail("Issue in verifying Publish Profile button on profile details popup screen in Job Mapping page....Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Publish Profile button on profile details popup screen in Job Mapping page....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_publish_profile_button_is_available_on_popup_screen",
+					"Failed to verify Publish Profile button on profile details popup", e);
 		}
-	    
 	}
 
 
