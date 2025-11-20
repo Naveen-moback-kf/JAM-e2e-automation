@@ -103,11 +103,11 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 				String afterOf = countText.substring(countText.indexOf("of") + 2).trim();
 				String totalCountStr = afterOf.split("\\s+")[0].replaceAll("[^0-9]", "");
 				
-				if (!totalCountStr.isEmpty()) {
-					unpublishedProfilesCountBefore.set(Integer.parseInt(totalCountStr));;
-					LOGGER.info("Un-Published Profiles count BEFORE Publishing Selected Profiles: " + unpublishedProfilesCountBefore);
-					ExtentCucumberAdapter.addTestStepLog("Un-Published Profiles count BEFORE Publishing Selected Profiles: " + unpublishedProfilesCountBefore);
-				}
+			if (!totalCountStr.isEmpty()) {
+				unpublishedProfilesCountBefore.set(Integer.parseInt(totalCountStr));
+				LOGGER.info("Un-Published Profiles count BEFORE Publishing Selected Profiles: " + unpublishedProfilesCountBefore.get());
+				ExtentCucumberAdapter.addTestStepLog("Un-Published Profiles count BEFORE Publishing Selected Profiles: " + unpublishedProfilesCountBefore.get());
+			}
 			}
 			
 		} catch (Exception e) {
@@ -132,11 +132,11 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 				String afterOf = countText.substring(countText.indexOf("of") + 2).trim();
 				String totalCountStr = afterOf.split("\\s+")[0].replaceAll("[^0-9]", "");
 				
-				if (!totalCountStr.isEmpty()) {
-					publishedProfilesCountBefore.set(Integer.parseInt(totalCountStr));;
-					LOGGER.info("Published Profiles count BEFORE Publishing Selected Profiles: " + publishedProfilesCountBefore);
-					ExtentCucumberAdapter.addTestStepLog("Published Profiles count BEFORE Publishing Selected Profiles: " + publishedProfilesCountBefore);
-				}
+			if (!totalCountStr.isEmpty()) {
+				publishedProfilesCountBefore.set(Integer.parseInt(totalCountStr));
+				LOGGER.info("Published Profiles count BEFORE Publishing Selected Profiles: " + publishedProfilesCountBefore.get());
+				ExtentCucumberAdapter.addTestStepLog("Published Profiles count BEFORE Publishing Selected Profiles: " + publishedProfilesCountBefore.get());
+			}
 			}
 			
 		} catch (Exception e) {
@@ -514,16 +514,16 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 				String afterOf = countText.substring(countText.indexOf("of") + 2).trim();
 				String totalCountStr = afterOf.split("\\s+")[0].replaceAll("[^0-9]", "");
 				
-				if (!totalCountStr.isEmpty()) {
-					unpublishedProfilesCountAfter.set(Integer.parseInt(totalCountStr));
-					LOGGER.info(" Un-Published Profiles count AFTER Publishing Selected Profiles in Job Mapping screen: " + unpublishedProfilesCountAfter);
-					ExtentCucumberAdapter.addTestStepLog(" Un-Published Profiles count AFTER Publishing Selected  Profiles in Job Mapping screen: " + unpublishedProfilesCountAfter);
-					
-					// Verify count decreased
-					if (unpublishedProfilesCountAfter.get() < unpublishedProfilesCountBefore.get()) {
-						LOGGER.info(" Unpublished count decreased from " + unpublishedProfilesCountBefore + " to " + unpublishedProfilesCountAfter);
-						ExtentCucumberAdapter.addTestStepLog(" Unpublished count decreased successfully");
-					}
+			if (!totalCountStr.isEmpty()) {
+				unpublishedProfilesCountAfter.set(Integer.parseInt(totalCountStr));
+				LOGGER.info(" Un-Published Profiles count AFTER Publishing Selected Profiles in Job Mapping screen: " + unpublishedProfilesCountAfter.get());
+				ExtentCucumberAdapter.addTestStepLog(" Un-Published Profiles count AFTER Publishing Selected  Profiles in Job Mapping screen: " + unpublishedProfilesCountAfter.get());
+				
+				// Verify count decreased
+				if (unpublishedProfilesCountAfter.get() < unpublishedProfilesCountBefore.get()) {
+					LOGGER.info(" Unpublished count decreased from " + unpublishedProfilesCountBefore.get() + " to " + unpublishedProfilesCountAfter.get());
+					ExtentCucumberAdapter.addTestStepLog(" Unpublished count decreased successfully");
+				}
 				}
 			}
 			
@@ -539,27 +539,27 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			// Calculate published count
-			totalPublishedCount.set(unpublishedProfilesCountBefore.get() - unpublishedProfilesCountAfter.get() + publishedProfilesCountBefore.get());
+		// Calculate published count
+		totalPublishedCount.set(unpublishedProfilesCountBefore.get() - unpublishedProfilesCountAfter.get() + publishedProfilesCountBefore.get());
+		
+		LOGGER.info(" Published Profiles Calculation:");
+		LOGGER.info("   (Before: " + unpublishedProfilesCountBefore.get() + "  After: " + unpublishedProfilesCountAfter.get() + ") + Published Before: " + publishedProfilesCountBefore.get());
+		LOGGER.info("   Total Published: " + totalPublishedCount.get());
+		
+		ExtentCucumberAdapter.addTestStepLog(" Total Published: " + totalPublishedCount.get() + " profiles");
+		
+		// Validation: Compare with selected profiles count
+		if (selectedProfilesCount.get() > 0) {
+			int actualPublishedFromSelection = unpublishedProfilesCountBefore.get() - unpublishedProfilesCountAfter.get();
 			
-			LOGGER.info(" Published Profiles Calculation:");
-			LOGGER.info("   (Before: " + unpublishedProfilesCountBefore + "  After: " + unpublishedProfilesCountAfter + ") + Published Before: " + publishedProfilesCountBefore);
-			LOGGER.info("   Total Published: " + totalPublishedCount);
-			
-			ExtentCucumberAdapter.addTestStepLog(" Total Published: " + totalPublishedCount + " profiles");
-			
-			// Validation: Compare with selected profiles count
-			if (selectedProfilesCount.get() > 0) {
-				int actualPublishedFromSelection = unpublishedProfilesCountBefore.get() - unpublishedProfilesCountAfter.get();
-				
-				if (actualPublishedFromSelection == selectedProfilesCount.get()) {
-					LOGGER.info(" Validation PASSED: " + actualPublishedFromSelection + " published (matches " + selectedProfilesCount + " selected)");
-					ExtentCucumberAdapter.addTestStepLog(" Validation: Count matches expected (" + selectedProfilesCount + " profiles)");
-				} else {
-					int difference = Math.abs(actualPublishedFromSelection - selectedProfilesCount.get());
-					LOGGER.warn(" Validation WARNING: Expected " + selectedProfilesCount + ", Actual " + actualPublishedFromSelection + " (" + difference + ")");
-					ExtentCucumberAdapter.addTestStepLog(" Validation: Mismatch - Expected " + selectedProfilesCount + ", Actual " + actualPublishedFromSelection);
-				}
+			if (actualPublishedFromSelection == selectedProfilesCount.get()) {
+				LOGGER.info(" Validation PASSED: " + actualPublishedFromSelection + " published (matches " + selectedProfilesCount.get() + " selected)");
+				ExtentCucumberAdapter.addTestStepLog(" Validation: Count matches expected (" + selectedProfilesCount.get() + " profiles)");
+			} else {
+				int difference = Math.abs(actualPublishedFromSelection - selectedProfilesCount.get());
+				LOGGER.warn(" Validation WARNING: Expected " + selectedProfilesCount.get() + ", Actual " + actualPublishedFromSelection + " (" + difference + ")");
+				ExtentCucumberAdapter.addTestStepLog(" Validation: Mismatch - Expected " + selectedProfilesCount.get() + ", Actual " + actualPublishedFromSelection);
+			}
 			}
 			
 		} catch (Exception e) {
@@ -581,11 +581,11 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 				String afterOf = countText.substring(countText.indexOf("of") + 2).trim();
 				String totalCountStr = afterOf.split("\\s+")[0].replaceAll("[^0-9]", "");
 				
-				if (!totalCountStr.isEmpty()) {
-					publishedProfilesCountAfter.set(Integer.parseInt(totalCountStr));
-					LOGGER.info(" Published Profiles count AFTER Publishing Selected Profiles: " + publishedProfilesCountAfter);
-					ExtentCucumberAdapter.addTestStepLog(" Published Profiles count AFTER Publishing Selected Profiles: " + publishedProfilesCountAfter);
-				}
+			if (!totalCountStr.isEmpty()) {
+				publishedProfilesCountAfter.set(Integer.parseInt(totalCountStr));
+				LOGGER.info(" Published Profiles count AFTER Publishing Selected Profiles: " + publishedProfilesCountAfter.get());
+				ExtentCucumberAdapter.addTestStepLog(" Published Profiles count AFTER Publishing Selected Profiles: " + publishedProfilesCountAfter.get());
+			}
 			}
 			
 		} catch (Exception e) {
@@ -641,8 +641,8 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			profilesToBePublished = selectedProfilesCount;
 			expectedTotalMinutes.set((int) Math.ceil((double) profilesToBePublished.get() / PROFILES_PER_MINUTE));
 			
-			LOGGER.info(" Batch Publishing: " + profilesToBePublished + " profiles @ " + PROFILES_PER_MINUTE + "/min  ~" + expectedTotalMinutes + " minutes");
-			ExtentCucumberAdapter.addTestStepLog(" Publishing " + profilesToBePublished + " profiles (~" + expectedTotalMinutes + " min expected)");
+			LOGGER.info(" Batch Publishing: " + profilesToBePublished.get() + " profiles @ " + PROFILES_PER_MINUTE + "/min  ~" + expectedTotalMinutes.get() + " minutes");
+			ExtentCucumberAdapter.addTestStepLog(" Publishing " + profilesToBePublished.get() + " profiles (~" + expectedTotalMinutes.get() + " min expected)");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("calculate_expected_total_time_for_batch_publishing_based_on_profile_count", e);
@@ -666,7 +666,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 		int targetUnpublishedCount = unpublishedProfilesCountBefore.get() - selectedProfilesCount.get();
 		
 		try {
-			LOGGER.info(" Monitoring: " + initialUnpublishedCount + "  " + targetUnpublishedCount + " (publish " + selectedProfilesCount + ") | Max wait: " + maxWaitMinutes + " min");
+			LOGGER.info(" Monitoring: " + initialUnpublishedCount + "  " + targetUnpublishedCount + " (publish " + selectedProfilesCount.get() + ") | Max wait: " + maxWaitMinutes + " min");
 			ExtentCucumberAdapter.addTestStepLog(" Monitoring: Publish " + selectedProfilesCount + " profiles (check every " + REFRESH_INTERVAL_SECONDS + "s)");
 			
 			// Monitor progress every 30 seconds
