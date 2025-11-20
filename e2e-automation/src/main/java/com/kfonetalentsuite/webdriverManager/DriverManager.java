@@ -76,9 +76,12 @@ public class DriverManager {
 	
 	for (int attempt = 1; attempt <= maxRetries && !browserLaunched; attempt++) {
 		try {
+			LOGGER.info("Browser launch attempt {}/{} - Thread: {}", attempt, maxRetries, Thread.currentThread().getId());
+			
 	switch (CommonVariable.BROWSER) {
 			case "chrome":
 					setupChromeDriver();
+					LOGGER.debug("Creating ChromeDriver instance with headless={}", isHeadless);
 					driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
 					break;
 				case "firefox":
@@ -98,14 +101,27 @@ public class DriverManager {
 			LOGGER.info("✓ Browser launched successfully on attempt {}/{}", attempt, maxRetries);
 		} catch (Exception e) {
 			lastException = e;
-			LOGGER.warn("Browser launch attempt {}/{} failed: {}", attempt, maxRetries, e.getMessage());
+			LOGGER.warn("✗ Browser launch attempt {}/{} failed: {}", attempt, maxRetries, e.getMessage());
+			
+			// Clean up failed driver instance
+			if (driver.get() != null) {
+				try {
+					driver.get().quit();
+				} catch (Exception quitEx) {
+					// Ignore cleanup errors
+				}
+				driver.set(null);
+			}
 			
 			if (attempt < maxRetries) {
+				// Progressive backoff: 3s, 6s, 10s
+				int delaySec = (attempt == 1) ? 3 : (attempt == 2) ? 6 : 10;
 				try {
-					Thread.sleep(2000 * attempt); // Exponential backoff: 2s, 4s, 6s
-					LOGGER.info("Retrying browser launch after {} seconds...", 2 * attempt);
+					LOGGER.info("Retrying browser launch after {} seconds...", delaySec);
+					Thread.sleep(delaySec * 1000);
 				} catch (InterruptedException ie) {
 					Thread.currentThread().interrupt();
+					LOGGER.warn("Retry delay interrupted");
 				}
 			}
 		}
@@ -128,33 +144,57 @@ public class DriverManager {
 }
 	}
 	
+	// Static flag to ensure driver is downloaded only once
+	private static volatile boolean driverDownloaded = false;
+	private static final Object driverLock = new Object();
+	
 	/**
 	 * Setup ChromeDriver with parallel execution optimization
 	 * Synchronized to prevent race conditions during parallel test execution
 	 */
 	private static synchronized void setupChromeDriver() {
-		try {
-			WebDriverManager.chromedriver()
-				.cachePath("~/.cache/selenium")  // Use cache to avoid repeated downloads
-				.timeout(120)                      // Increase timeout for CI/CD environments
-				.avoidShutdownHook()              // Prevent shutdown conflicts in parallel execution
-				.clearDriverCache()               // Clear any corrupted cache
-				.clearResolutionCache()           // Clear resolution cache
-				.setup();
-			LOGGER.info("ChromeDriver setup completed successfully");
-		} catch (Exception e) {
-			LOGGER.warn("ChromeDriver setup failed, retrying with fallback: {}", e.getMessage());
-			// Fallback: Try without cache clearing
+		// If driver already downloaded, skip setup
+		if (driverDownloaded) {
+			LOGGER.debug("ChromeDriver already set up, skipping...");
+			return;
+		}
+		
+		synchronized (driverLock) {
+			// Double-check after acquiring lock
+			if (driverDownloaded) {
+				return;
+			}
+			
 			try {
+				// Determine cache path (handle both Linux and Windows)
+				String cacheDir = System.getProperty("user.home") + File.separator + ".cache" + File.separator + "selenium";
+				LOGGER.info("Setting up ChromeDriver with cache directory: {}", cacheDir);
+				
 				WebDriverManager.chromedriver()
-					.cachePath("~/.cache/selenium")
-					.timeout(120)
-					.avoidShutdownHook()
+					.cachePath(cacheDir)          // Use explicit cache path
+					.timeout(180)                 // Increased timeout for slow networks/CI
+					.avoidShutdownHook()         // Prevent shutdown conflicts in parallel execution
 					.setup();
-				LOGGER.info("ChromeDriver setup completed with fallback");
-			} catch (Exception fallbackException) {
-				LOGGER.error("ChromeDriver setup failed completely: {}", fallbackException.getMessage());
-				throw new RuntimeException("Failed to setup ChromeDriver", fallbackException);
+					
+				driverDownloaded = true;
+				LOGGER.info("✓ ChromeDriver setup completed successfully");
+			} catch (Exception e) {
+				LOGGER.error("✗ ChromeDriver setup failed: {}", e.getMessage());
+				LOGGER.info("Retrying ChromeDriver setup with relaxed configuration...");
+				
+				// Fallback: Try with default settings
+				try {
+					Thread.sleep(2000); // Brief pause before retry
+					WebDriverManager.chromedriver()
+						.timeout(180)
+						.avoidShutdownHook()
+						.setup();
+					driverDownloaded = true;
+					LOGGER.info("✓ ChromeDriver setup completed with fallback configuration");
+				} catch (Exception fallbackException) {
+					LOGGER.error("✗ ChromeDriver setup failed completely", fallbackException);
+					throw new RuntimeException("Failed to setup ChromeDriver after retry", fallbackException);
+				}
 			}
 		}
 	}
@@ -164,14 +204,15 @@ public class DriverManager {
 	 */
 	private static synchronized void setupFirefoxDriver() {
 		try {
+			String cacheDir = System.getProperty("user.home") + File.separator + ".cache" + File.separator + "selenium";
 			WebDriverManager.firefoxdriver()
-				.cachePath("~/.cache/selenium")
-				.timeout(120)
+				.cachePath(cacheDir)
+				.timeout(180)
 				.avoidShutdownHook()
 				.setup();
-			LOGGER.info("FirefoxDriver setup completed successfully");
+			LOGGER.info("✓ FirefoxDriver setup completed successfully");
 		} catch (Exception e) {
-			LOGGER.error("FirefoxDriver setup failed: {}", e.getMessage());
+			LOGGER.error("✗ FirefoxDriver setup failed", e);
 			throw new RuntimeException("Failed to setup FirefoxDriver", e);
 		}
 	}
@@ -181,14 +222,15 @@ public class DriverManager {
 	 */
 	private static synchronized void setupEdgeDriver() {
 		try {
+			String cacheDir = System.getProperty("user.home") + File.separator + ".cache" + File.separator + "selenium";
 			WebDriverManager.edgedriver()
-				.cachePath("~/.cache/selenium")
-				.timeout(120)
+				.cachePath(cacheDir)
+				.timeout(180)
 				.avoidShutdownHook()
 				.setup();
-			LOGGER.info("EdgeDriver setup completed successfully");
+			LOGGER.info("✓ EdgeDriver setup completed successfully");
 		} catch (Exception e) {
-			LOGGER.error("EdgeDriver setup failed: {}", e.getMessage());
+			LOGGER.error("✗ EdgeDriver setup failed", e);
 			throw new RuntimeException("Failed to setup EdgeDriver", e);
 		}
 	}
