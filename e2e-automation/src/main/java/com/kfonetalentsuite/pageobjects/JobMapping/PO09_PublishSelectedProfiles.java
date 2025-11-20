@@ -18,7 +18,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;

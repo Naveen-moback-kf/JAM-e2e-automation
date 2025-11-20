@@ -182,11 +182,11 @@ public class PO01_KFoneLogin {
 			}
 
 			switch (CommonVariable.ENVIRONMENT) {
-		case "Stage":
-			driver.get(CommonVariable.KFONE_STAGEURL);
-			PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
-					+ " Environment URL: " + CommonVariable.KFONE_STAGEURL);
-			break;
+			case "Stage":
+				driver.get(CommonVariable.KFONE_STAGEURL);
+				PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
+						+ " Environment URL: " + CommonVariable.KFONE_STAGEURL);
+				break;
 
 			case "ProdEU":
 				driver.get(CommonVariable.KFONE_PRODEUURL);
@@ -297,12 +297,12 @@ public class PO01_KFoneLogin {
 		try {
 			// Check for terms and conditions popup with shorter timeout
 			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-		try {
-			shortWait.until(ExpectedConditions.elementToBeClickable(proceedBtn)).click();
-			PageObjectHelper.log(LOGGER, "Accepted KFONE terms and conditions");
-		} catch (NoSuchElementException | TimeoutException e) {
-			// Terms already accepted - continue silently
-		}
+			try {
+				shortWait.until(ExpectedConditions.elementToBeClickable(proceedBtn)).click();
+				PageObjectHelper.log(LOGGER, "Accepted KFONE terms and conditions");
+			} catch (NoSuchElementException | TimeoutException e) {
+				// Terms already accepted - continue silently
+			}
 
 			// Wait for spinner to disappear and page to load
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
@@ -334,7 +334,7 @@ public class PO01_KFoneLogin {
 			for (int retry = 1; retry <= maxRetries && !pmHeaderFound; retry++) {
 				try {
 					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
-					
+
 					// Wait for spinners to disappear
 					try {
 						shortWait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
@@ -350,7 +350,8 @@ public class PO01_KFoneLogin {
 					if (shortWait.until(ExpectedConditions.visibilityOf(PMHeader)).isDisplayed()) {
 						pmHeaderFound = true;
 						String MainHeader = PMHeader.getText();
-						PageObjectHelper.log(LOGGER, "✅ User Successfully landed on the " + MainHeader + " Dashboard Page");
+						PageObjectHelper.log(LOGGER,
+								"✅ User Successfully landed on the " + MainHeader + " Dashboard Page");
 						Thread.sleep(500); // Final stability check
 						break;
 					}
@@ -375,8 +376,7 @@ public class PO01_KFoneLogin {
 					"verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub", e);
 			PageObjectHelper.handleError(LOGGER,
 					"verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub",
-					"Issue with seamless navigation from KFONE to Profile Manager Application",
-					e);
+					"Issue with seamless navigation from KFONE to Profile Manager Application", e);
 		}
 	}
 
@@ -900,7 +900,7 @@ public class PO01_KFoneLogin {
 
 			// OPTIMIZATION: Handle cookies banner immediately after navigation (with short
 			// timeout)
-            // handleCookiesBanner();
+			// handleCookiesBanner();
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_profile_manager_application_in_your_products_section",

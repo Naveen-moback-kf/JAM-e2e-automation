@@ -19,11 +19,11 @@ import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 public class PO08_PublishJobFromDetailsPopup {
-	WebDriver driver = DriverManager.getDriver();	
+	WebDriver driver = DriverManager.getDriver();
 
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO08_PublishJobFromDetailsPopup publishJobFromDetailsPopup;
-	
+
 	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
 	public static ThreadLocal<String> job1OrgName = ThreadLocal.withInitial(() -> null);
 
@@ -37,11 +37,11 @@ public class PO08_PublishJobFromDetailsPopup {
 	JavascriptExecutor js = (JavascriptExecutor) driver;
 	LocalDate currentdate = LocalDate.now();
 	Month currentMonth = currentdate.getMonth();
-	
+
 	// WebElements for Profile Details Popup functionality
 	@FindBy(xpath = "//button[@id='publish-job-profile']")
 	public WebElement publishProfileBtnInPopup;
-	
+
 	@FindBy(xpath = "//span[@aria-label='Loading']")
 	public WebElement pageLoadSpinner2;
 
@@ -53,7 +53,7 @@ public class PO08_PublishJobFromDetailsPopup {
 		try {
 			// Wait for button to be visible and clickable
 			WebElement publishButton = wait.until(ExpectedConditions.elementToBeClickable(publishProfileBtnInPopup));
-			
+
 			// Try regular click first
 			try {
 				publishButton.click();
@@ -62,15 +62,15 @@ public class PO08_PublishJobFromDetailsPopup {
 				LOGGER.warn("Regular click failed, using JavaScript click");
 				js.executeScript("arguments[0].click();", publishButton);
 			}
-			
+
 			PageObjectHelper.log(LOGGER, "Clicked Publish Profile button in Profile Details popup");
-			
+
 			// Wait for loading spinner to disappear
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			
+
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_publish_profile_button_in_profile_details_popup",
-				"Failed to click Publish Profile button in popup", e);
+					"Failed to click Publish Profile button in popup", e);
 		}
 	}
 }

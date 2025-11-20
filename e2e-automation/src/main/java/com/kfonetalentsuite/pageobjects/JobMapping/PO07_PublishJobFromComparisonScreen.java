@@ -23,11 +23,11 @@ import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 public class PO07_PublishJobFromComparisonScreen {
-	WebDriver driver = DriverManager.getDriver();	
+	WebDriver driver = DriverManager.getDriver();
 
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO07_PublishJobFromComparisonScreen publishJobFromComparisonScreen;
-	
+
 	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
 	public static ThreadLocal<String> job1OrgName = ThreadLocal.withInitial(() -> null);
 
@@ -41,39 +41,40 @@ public class PO07_PublishJobFromComparisonScreen {
 	JavascriptExecutor js = (JavascriptExecutor) driver;
 	LocalDate currentdate = LocalDate.now();
 	Month currentMonth = currentdate.getMonth();
-	
+
 	// WebElements for Job Comparison Screen functionality
 	@FindBy(xpath = "//h1[@id='compare-desc']")
 	public WebElement CompareandSelectheader;
-	
+
 	@FindBy(xpath = "//span[@aria-label='Loading']")
 	public WebElement pageLoadSpinner2;
-	
+
 	@FindBy(xpath = "//div[contains(@class, 'text-[24px] font-semibold')] | //h2[contains(@class, 'job-title')]")
 	public WebElement JCpageOrgJobTitleHeader;
-	
+
 	@FindBy(xpath = "//button[@id='publish-select-btn']")
 	public WebElement JCPagePublishSelectBtn;
 
 	public void verify_user_landed_on_job_comparison_screen() {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			String compareAndSelectHeaderText = wait.until(ExpectedConditions.visibilityOf(CompareandSelectheader)).getText();
+			String compareAndSelectHeaderText = wait.until(ExpectedConditions.visibilityOf(CompareandSelectheader))
+					.getText();
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?");
 			PageObjectHelper.log(LOGGER, "User landed on the Job Comparison screen successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_job_comparison_screen", 
-				"Issue in landing Job Comparison screen", e);
+			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_job_comparison_screen",
+					"Issue in landing Job Comparison screen", e);
 		}
 	}
-	
-public void select_second_profile_from_ds_suggestions_of_organization_job() {
-	try {
-		PerformanceUtils.waitForPageReady(driver, 2);
-		List<WebElement> SelectBtnsInJcPage = driver.findElements(By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span"));
-			for (int i=0; i<=SelectBtnsInJcPage.size(); i++)
-			{
-				if(i==2) {
+
+	public void select_second_profile_from_ds_suggestions_of_organization_job() {
+		try {
+			PerformanceUtils.waitForPageReady(driver, 2);
+			List<WebElement> SelectBtnsInJcPage = driver
+					.findElements(By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span"));
+			for (int i = 0; i <= SelectBtnsInJcPage.size(); i++) {
+				if (i == 2) {
 					try {
 						wait.until(ExpectedConditions.visibilityOf(SelectBtnsInJcPage.get(i))).click();
 					} catch (Exception e) {
@@ -85,22 +86,25 @@ public void select_second_profile_from_ds_suggestions_of_organization_job() {
 							utils.jsClick(driver, SelectBtnsInJcPage.get(i));
 						}
 					}
-					String JCpageOrgJobTitleHeaderText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobTitleHeader)).getText();
-					PageObjectHelper.log(LOGGER, "Second Profile selected from DS Suggestions for job: " + JCpageOrgJobTitleHeaderText);
+					String JCpageOrgJobTitleHeaderText = wait
+							.until(ExpectedConditions.visibilityOf(JCpageOrgJobTitleHeader)).getText();
+					PageObjectHelper.log(LOGGER,
+							"Second Profile selected from DS Suggestions for job: " + JCpageOrgJobTitleHeaderText);
+				}
 			}
+			PerformanceUtils.waitForUIStability(driver, 1);
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "select_second_profile_from_ds_suggestions_of_organization_job",
+					"Issue in selecting Second Profile from DS Suggestions", e);
 		}
-		PerformanceUtils.waitForUIStability(driver, 1);
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "select_second_profile_from_ds_suggestions_of_organization_job",
-			"Issue in selecting Second Profile from DS Suggestions", e);
-	}
 	}
 
 	public void click_on_publish_selected_button_in_job_comparison_page() {
 		try {
-		String JCpageOrgJobTitleHeaderText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobTitleHeader)).getText();
-		job1OrgName.set(JCpageOrgJobTitleHeaderText.split("-", 2)[0].trim());
-		try {
+			String JCpageOrgJobTitleHeaderText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobTitleHeader))
+					.getText();
+			job1OrgName.set(JCpageOrgJobTitleHeaderText.split("-", 2)[0].trim());
+			try {
 				wait.until(ExpectedConditions.elementToBeClickable(JCPagePublishSelectBtn)).click();
 			} catch (Exception e) {
 				try {
@@ -108,12 +112,11 @@ public void select_second_profile_from_ds_suggestions_of_organization_job() {
 				} catch (Exception s) {
 					utils.jsClick(driver, JCPagePublishSelectBtn);
 				}
+			}
+			PageObjectHelper.log(LOGGER, "Clicked Publish Selected button for job: " + job1OrgName.get());
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "click_on_publish_selected_button_in_job_comparison_page",
+					"Issue clicking Publish Selected button", e);
 		}
-		PageObjectHelper.log(LOGGER, "Clicked Publish Selected button for job: " + job1OrgName.get());
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "click_on_publish_selected_button_in_job_comparison_page",
-			"Issue clicking Publish Selected button", e);
 	}
 }
-}
-

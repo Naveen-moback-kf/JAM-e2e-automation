@@ -718,15 +718,19 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void clear_search_bar_in_hcm_sync_profiles_tab() {
 		try {
-			// PERFORMANCE: Single optimized wait - visibility check already ensures element is ready
+			// Wait for element visibility
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(hcmSyncProfilesSearchbar)).isDisplayed());
-			// Scroll element into view to avoid click interception
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", hcmSyncProfilesSearchbar);
-			PerformanceUtils.waitForPageReady(driver, 1);
+			
+			// HEADLESS FIX: Use 'auto' instead of 'smooth' for instant scroll in headless mode
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", hcmSyncProfilesSearchbar);
+			
+			// HEADLESS FIX: Longer wait for page to stabilize after scroll
+			PerformanceUtils.waitForPageReady(driver, 2);
+			Thread.sleep(500); // Additional stability wait for headless
 			
 			// Try clicking with multiple fallback options
 			try {
-			wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).click();
 			} catch (Exception clickException) {
 				try {
 					js.executeScript("arguments[0].click();", hcmSyncProfilesSearchbar);
@@ -735,25 +739,30 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				}
 			}
 			
-		// Clear the search bar
-		try {
-			hcmSyncProfilesSearchbar.sendKeys(Keys.CONTROL + "a");
-			hcmSyncProfilesSearchbar.sendKeys(Keys.DELETE);
-		} catch(Exception c) {
-	       js.executeScript("arguments[0].value = '';", hcmSyncProfilesSearchbar);
-	       js.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", hcmSyncProfilesSearchbar);		        
-	}
-	// CRITICAL: Wait for spinner to disappear after clearing search
-	wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-	PerformanceUtils.waitForPageReady(driver, 2);
-	LOGGER.info("Cleared Search bar in HCM Sync Profiles screen in PM....");
-		ExtentCucumberAdapter.addTestStepLog("Cleared Search bar in HCM Sync Profiles screen in PM....");
-	} catch (Exception e) {
-		LOGGER.error("Issue clearing search bar - Method: clear_search_bar_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("clear_search_bar", e);
+			// HEADLESS FIX: Use JavaScript to clear instead of keyboard combinations
+			// This is more reliable across headless and windowed modes
+			try {
+				// First try WebDriver clear (fastest)
+				hcmSyncProfilesSearchbar.clear();
+			} catch(Exception clearException) {
+				// Fallback to JavaScript clear (most reliable for headless)
+				js.executeScript("arguments[0].value = '';", hcmSyncProfilesSearchbar);
+				js.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", hcmSyncProfilesSearchbar);
+				js.executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", hcmSyncProfilesSearchbar);
+			}
+			
+			// Wait for spinner and page to stabilize after clearing
+			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForPageReady(driver, 2);
+			
+			LOGGER.info("Cleared Search bar in HCM Sync Profiles screen in PM");
+			ExtentCucumberAdapter.addTestStepLog("Cleared Search bar in HCM Sync Profiles screen in PM");
+		} catch (Exception e) {
+			LOGGER.error("Issue clearing search bar - Method: clear_search_bar_in_hcm_sync_profiles_tab", e);
+			ScreenshotHandler.captureFailureScreenshot("clear_search_bar", e);
 			e.printStackTrace();
-			Assert.fail("Issue in clearing search bar in HCM Sync Profiles screen in PM....");
-			ExtentCucumberAdapter.addTestStepLog("Issue in clearing search bar in HCM Sync Profiles screen in PM....");
+			Assert.fail("Issue in clearing search bar in HCM Sync Profiles screen in PM");
+			ExtentCucumberAdapter.addTestStepLog("Issue in clearing search bar in HCM Sync Profiles screen in PM");
 		}
 	}
 	

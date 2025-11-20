@@ -25,11 +25,10 @@ import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 public class PO05_ValidateJobProfileDetailsPopup {
-	WebDriver driver = DriverManager.getDriver();	
+	WebDriver driver = DriverManager.getDriver();
 
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO05_ValidateJobProfileDetailsPopup validateJobProfileDetailsPopup;
-	
 
 	public PO05_ValidateJobProfileDetailsPopup() throws IOException {
 		// super();
@@ -39,73 +38,72 @@ public class PO05_ValidateJobProfileDetailsPopup {
 	WebDriverWait wait = DriverManager.getWait();
 	Utilities utils = new Utilities();
 	JavascriptExecutor js = (JavascriptExecutor) driver;
-	
+
 	public static String ProfileDetails;
 	public static String ProfileRoleSummary;
 	public static String ProfileResponsibilities;
 	public static String ProfileBehaviouralCompetencies;
 	public static String ProfileSkills;
-	
-	//XPATHs
+
+	// XPATHs
 	@FindBy(xpath = "//h2[@id='summary-modal']//p")
 	@CacheLookup
 	public WebElement profileHeader;
-	
+
 	@FindBy(xpath = "//div[@id='details-container']//div[contains(@class,'mt-2')]")
 	@CacheLookup
 	public WebElement profileDetails;
-	
+
 	@FindBy(xpath = "//select[contains(@id,'profileLevel') or @id='profile-level']")
 	@CacheLookup
 	public WebElement profileLevelDropdown;
-	
+
 	@FindBy(xpath = "//div[@id='role-summary-container']//p")
 	@CacheLookup
 	public WebElement roleSummary;
-	
+
 	@FindBy(xpath = "//div[@id='responsibilities-panel']//button[contains(text(),'View')]")
 	@CacheLookup
-	public List <WebElement> viewMoreButtonInResponsibilitiesTab;
-	
+	public List<WebElement> viewMoreButtonInResponsibilitiesTab;
+
 	@FindBy(xpath = "//div[@id='responsibilities-panel']//div[@id='item-container']")
 	@CacheLookup
 	public WebElement responisbilitiesData;
-	
+
 	@FindBy(xpath = "//button[contains(text(),'BEHAVIOUR')]")
 	@CacheLookup
 	public WebElement behaviourCompetenciesTabButton;
-	
+
 	@FindBy(xpath = "//div[@id='behavioural-panel']//button[contains(text(),'View')]")
 	@CacheLookup
-	public List <WebElement> viewMoreButtonInBehaviourCompetenciesTab;
-	
+	public List<WebElement> viewMoreButtonInBehaviourCompetenciesTab;
+
 	@FindBy(xpath = "//div[@id='behavioural-panel']//div[@id='item-container']")
 	@CacheLookup
 	public WebElement behaviourData;
-	
+
 	@FindBy(xpath = "//button[text()='SKILLS']")
 	@CacheLookup
 	public WebElement skillsTabButton;
-	
+
 	@FindBy(xpath = "//div[@id='skills-panel']//button[contains(text(),'View')]")
 	@CacheLookup
-	public List <WebElement> viewMoreButtonInSkillsTab;
-	
+	public List<WebElement> viewMoreButtonInSkillsTab;
+
 	@FindBy(xpath = "//div[@id='skills-panel']//div[@id='item-container']")
 	@CacheLookup
 	public WebElement skillsData;
-	
+
 	@FindBy(xpath = "//button[@id='publish-job-profile']")
 	@CacheLookup
 	public WebElement publishProfileButton;
-	
-	
-	//METHODs
-	
+
+	// METHODs
+
 	public void user_is_on_profile_details_popup() {
 		PageObjectHelper.log(LOGGER, "User is on Profile Details Popup");
 	}
-	
+
 	public void verify_profile_header_matches_with_matched_profile_name() {
 		try {
 			String profileHeaderName = wait.until(ExpectedConditions.visibilityOf(profileHeader)).getText();
@@ -117,7 +115,7 @@ public class PO05_ValidateJobProfileDetailsPopup {
 					"Failed to verify profile details popup header", e);
 		}
 	}
-	
+
 	public void verify_profile_details_displaying_on_the_popup() {
 		try {
 			String profileDetailsText = wait.until(ExpectedConditions.visibilityOf(profileDetails)).getText();
@@ -130,30 +128,33 @@ public class PO05_ValidateJobProfileDetailsPopup {
 		}
 	}
 
-	
 	public void user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown() {
 		try {
-			if(wait.until(ExpectedConditions.visibilityOf(profileLevelDropdown)).isEnabled()) {
+			if (wait.until(ExpectedConditions.visibilityOf(profileLevelDropdown)).isEnabled()) {
 				wait.until(ExpectedConditions.elementToBeClickable(profileLevelDropdown)).click();
 				Select dropdown = new Select(profileLevelDropdown);
 				List<WebElement> allOptions = dropdown.getOptions();
 				StringBuilder levels = new StringBuilder();
-				for(WebElement option : allOptions){
+				for (WebElement option : allOptions) {
 					levels.append(option.getText()).append(", ");
 				}
 				wait.until(ExpectedConditions.elementToBeClickable(profileLevelDropdown)).click(); // Close dropdown
-				PageObjectHelper.log(LOGGER, "Profile Level dropdown verified. Levels: " + levels.toString().replaceAll(", $", ""));
+				PageObjectHelper.log(LOGGER,
+						"Profile Level dropdown verified. Levels: " + levels.toString().replaceAll(", $", ""));
 			} else {
-				PageObjectHelper.log(LOGGER, "No Profile Levels available for profile: " + PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName);
+				PageObjectHelper.log(LOGGER, "No Profile Levels available for profile: "
+						+ PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName);
 			}
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown", e);
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown",
+			ScreenshotHandler.captureFailureScreenshot(
+					"user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown",
+					e);
+			PageObjectHelper.handleError(LOGGER,
+					"user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown",
 					"Failed to validate profile level dropdown", e);
-		}	
+		}
 	}
 
-	
 	public void validate_role_summary_is_displaying() {
 		try {
 			String roleSummaryText = wait.until(ExpectedConditions.visibilityOf(roleSummary)).getText();
@@ -166,112 +167,113 @@ public class PO05_ValidateJobProfileDetailsPopup {
 		}
 	}
 
-	
-public void validate_data_in_responsibilities_tab() {
-	try {
-		PerformanceUtils.waitForPageReady(driver, 2);
-		wait.until(ExpectedConditions.elementToBeClickable(viewMoreButtonInResponsibilitiesTab.get(0))).click();
-		
-		while(true) {
-			try {
-				if(viewMoreButtonInResponsibilitiesTab.isEmpty()) {
-					break;
-				}
-				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInResponsibilitiesTab.get(0));
-				viewMoreButtonInResponsibilitiesTab.get(0).click();
-				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInResponsibilitiesTab.get(0));
-				PerformanceUtils.waitForUIStability(driver, 2);
-			} catch(StaleElementReferenceException e) {
-				break;
-			}	
-		}
-		
-		String responsibilitiesDataText = wait.until(ExpectedConditions.visibilityOf(responisbilitiesData)).getText();
-		ProfileResponsibilities = responsibilitiesDataText;
-		PageObjectHelper.log(LOGGER, "Responsibilities data validated successfully");
-	} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("validate_data_in_responsibilities_tab", e);
-		PageObjectHelper.handleError(LOGGER, "validate_data_in_responsibilities_tab",
-				"Failed to validate data in Responsibilities screen", e);
-	}
-}
-	
-	
-public void validate_data_in_behavioural_competencies_tab() {
-	try {
-		js.executeScript("arguments[0].scrollIntoView(true);", roleSummary);
-		PerformanceUtils.waitForPageReady(driver, 3);
-		wait.until(ExpectedConditions.elementToBeClickable(behaviourCompetenciesTabButton)).click();
-		
-		while(true) {
-			try {
-				if(viewMoreButtonInBehaviourCompetenciesTab.isEmpty()) {
-					break;
-				}
-				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInBehaviourCompetenciesTab.get(0));
-				viewMoreButtonInBehaviourCompetenciesTab.get(0).click();
-				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInBehaviourCompetenciesTab.get(0));
-				PerformanceUtils.waitForUIStability(driver, 2);
-			} catch(StaleElementReferenceException e) {
-				break;
-			}	
-		}
-		
-		String behaviourDataText = wait.until(ExpectedConditions.visibilityOf(behaviourData)).getText();
-		ProfileBehaviouralCompetencies = behaviourDataText;
-		PageObjectHelper.log(LOGGER, "Behavioural Competencies data validated successfully");
-	} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("validate_data_in_behavioural_competencies_tab", e);
-		PageObjectHelper.handleError(LOGGER, "validate_data_in_behavioural_competencies_tab",
-				"Failed to validate data in Behaviour Competencies screen", e);
-	}
-}
+	public void validate_data_in_responsibilities_tab() {
+		try {
+			PerformanceUtils.waitForPageReady(driver, 2);
+			wait.until(ExpectedConditions.elementToBeClickable(viewMoreButtonInResponsibilitiesTab.get(0))).click();
 
-	
-public void validate_data_in_skills_tab() {
-	try {
-		js.executeScript("arguments[0].scrollIntoView(true);", roleSummary);
-		PerformanceUtils.waitForPageReady(driver, 2);
-		wait.until(ExpectedConditions.elementToBeClickable(skillsTabButton)).click();
-		
-		while(true) {
-			try {
-				if(viewMoreButtonInSkillsTab.isEmpty()) {
+			while (true) {
+				try {
+					if (viewMoreButtonInResponsibilitiesTab.isEmpty()) {
+						break;
+					}
+					js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInResponsibilitiesTab.get(0));
+					viewMoreButtonInResponsibilitiesTab.get(0).click();
+					js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInResponsibilitiesTab.get(0));
+					PerformanceUtils.waitForUIStability(driver, 2);
+				} catch (StaleElementReferenceException e) {
 					break;
 				}
-				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInSkillsTab.get(0));
-				viewMoreButtonInSkillsTab.get(0).click();
-				js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInSkillsTab.get(0));
-				PerformanceUtils.waitForUIStability(driver, 2);
-			} catch(StaleElementReferenceException e) {
-				break;
-			}	
-		}
-		
-		String skillsDataText = wait.until(ExpectedConditions.visibilityOf(skillsData)).getText();
-		ProfileSkills = skillsDataText;
-		PageObjectHelper.log(LOGGER, "Skills data validated successfully");
-	} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("validate_data_in_skills_tab", e);
-		PageObjectHelper.handleError(LOGGER, "validate_data_in_skills_tab",
-				"Failed to validate data in Skills screen", e);
-	}
-}
+			}
 
-	
+			String responsibilitiesDataText = wait.until(ExpectedConditions.visibilityOf(responisbilitiesData))
+					.getText();
+			ProfileResponsibilities = responsibilitiesDataText;
+			PageObjectHelper.log(LOGGER, "Responsibilities data validated successfully");
+		} catch (Exception e) {
+			ScreenshotHandler.captureFailureScreenshot("validate_data_in_responsibilities_tab", e);
+			PageObjectHelper.handleError(LOGGER, "validate_data_in_responsibilities_tab",
+					"Failed to validate data in Responsibilities screen", e);
+		}
+	}
+
+	public void validate_data_in_behavioural_competencies_tab() {
+		try {
+			js.executeScript("arguments[0].scrollIntoView(true);", roleSummary);
+			PerformanceUtils.waitForPageReady(driver, 3);
+			wait.until(ExpectedConditions.elementToBeClickable(behaviourCompetenciesTabButton)).click();
+
+			while (true) {
+				try {
+					if (viewMoreButtonInBehaviourCompetenciesTab.isEmpty()) {
+						break;
+					}
+					js.executeScript("arguments[0].scrollIntoView(true);",
+							viewMoreButtonInBehaviourCompetenciesTab.get(0));
+					viewMoreButtonInBehaviourCompetenciesTab.get(0).click();
+					js.executeScript("arguments[0].scrollIntoView(true);",
+							viewMoreButtonInBehaviourCompetenciesTab.get(0));
+					PerformanceUtils.waitForUIStability(driver, 2);
+				} catch (StaleElementReferenceException e) {
+					break;
+				}
+			}
+
+			String behaviourDataText = wait.until(ExpectedConditions.visibilityOf(behaviourData)).getText();
+			ProfileBehaviouralCompetencies = behaviourDataText;
+			PageObjectHelper.log(LOGGER, "Behavioural Competencies data validated successfully");
+		} catch (Exception e) {
+			ScreenshotHandler.captureFailureScreenshot("validate_data_in_behavioural_competencies_tab", e);
+			PageObjectHelper.handleError(LOGGER, "validate_data_in_behavioural_competencies_tab",
+					"Failed to validate data in Behaviour Competencies screen", e);
+		}
+	}
+
+	public void validate_data_in_skills_tab() {
+		try {
+			js.executeScript("arguments[0].scrollIntoView(true);", roleSummary);
+			PerformanceUtils.waitForPageReady(driver, 2);
+			wait.until(ExpectedConditions.elementToBeClickable(skillsTabButton)).click();
+
+			while (true) {
+				try {
+					if (viewMoreButtonInSkillsTab.isEmpty()) {
+						break;
+					}
+					js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInSkillsTab.get(0));
+					viewMoreButtonInSkillsTab.get(0).click();
+					js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtonInSkillsTab.get(0));
+					PerformanceUtils.waitForUIStability(driver, 2);
+				} catch (StaleElementReferenceException e) {
+					break;
+				}
+			}
+
+			String skillsDataText = wait.until(ExpectedConditions.visibilityOf(skillsData)).getText();
+			ProfileSkills = skillsDataText;
+			PageObjectHelper.log(LOGGER, "Skills data validated successfully");
+		} catch (Exception e) {
+			ScreenshotHandler.captureFailureScreenshot("validate_data_in_skills_tab", e);
+			PageObjectHelper.handleError(LOGGER, "validate_data_in_skills_tab",
+					"Failed to validate data in Skills screen", e);
+		}
+	}
+
 	/**
-	 * Verifies Publish Profile button is available on popup screen
-	 * ENHANCED FOR HEADLESS MODE: Scrolls popup to bottom to ensure button is visible
+	 * Verifies Publish Profile button is available on popup screen ENHANCED FOR
+	 * HEADLESS MODE: Scrolls popup to bottom to ensure button is visible
 	 */
 	public void user_should_verify_publish_profile_button_is_available_on_popup_screen() {
 		try {
 			// Try multiple scrolling strategies to ensure button comes into view
 			try {
-				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end', inline: 'nearest'});", publishProfileButton);
+				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end', inline: 'nearest'});",
+						publishProfileButton);
 				Thread.sleep(1000);
 			} catch (Exception scrollEx1) {
 				try {
-					WebElement popupContainer = driver.findElement(By.xpath("//div[contains(@class, 'modal-body') or contains(@class, 'popup-content') or contains(@class, 'dialog-content')]"));
+					WebElement popupContainer = driver.findElement(By.xpath(
+							"//div[contains(@class, 'modal-body') or contains(@class, 'popup-content') or contains(@class, 'dialog-content')]"));
 					js.executeScript("arguments[0].scrollTop = arguments[0].scrollHeight;", popupContainer);
 					Thread.sleep(1000);
 				} catch (Exception scrollEx2) {
@@ -279,22 +281,25 @@ public void validate_data_in_skills_tab() {
 					Thread.sleep(500);
 				}
 			}
-			
+
 			PerformanceUtils.waitForPageReady(driver, 2);
 			Thread.sleep(500);
-			
-			boolean isButtonDisplayed = wait.until(ExpectedConditions.elementToBeClickable(publishProfileButton)).isDisplayed();
+
+			boolean isButtonDisplayed = wait.until(ExpectedConditions.elementToBeClickable(publishProfileButton))
+					.isDisplayed();
 			if (!isButtonDisplayed) {
 				throw new Exception("Publish button found but not displayed");
 			}
-			
-			PageObjectHelper.log(LOGGER, "✅ Publish button is displaying on the Profile Details Popup and is clickable");
+
+			PageObjectHelper.log(LOGGER,
+					"✅ Publish button is displaying on the Profile Details Popup and is clickable");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_publish_profile_button_is_available_on_popup_screen", e);
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_publish_profile_button_is_available_on_popup_screen",
+			ScreenshotHandler.captureFailureScreenshot(
+					"user_should_verify_publish_profile_button_is_available_on_popup_screen", e);
+			PageObjectHelper.handleError(LOGGER,
+					"user_should_verify_publish_profile_button_is_available_on_popup_screen",
 					"Failed to verify Publish Profile button on profile details popup", e);
 		}
 	}
-
 
 }
