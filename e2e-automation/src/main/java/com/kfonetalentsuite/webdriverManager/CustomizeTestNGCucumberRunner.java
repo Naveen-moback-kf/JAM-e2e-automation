@@ -33,10 +33,6 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
             
             VariableManager.getInstance().loadProperties();
             String loginTag = resolveLoginTag();
-            String tagExpression = buildTagExpression(loginTag);
-            
-            // Set Cucumber tag filter (replaces @DYNAMIC_LOGIN with actual login tag)
-            System.setProperty("cucumber.filter.tags", tagExpression);
             
             LOGGER.debug("Dynamic tags configured for {} with login: {}", runnerName, loginTag);
             
@@ -50,11 +46,6 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
     
     protected String resolveLoginTag() {
         return DynamicTagResolver.getLoginTag();
-    }
-    
-    private String buildTagExpression(String loginTag) {
-        String template = getTagExpressionTemplate();
-        return template.replace("@DYNAMIC_LOGIN", loginTag);
     }
     
     private void ensureDriverInitialized() {
@@ -108,10 +99,42 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
             return new Object[0][0];
         }
         
-        Object[][] scenarios = testNGCucumberRunner.provideScenarios();
-        LOGGER.debug("{} providing {} scenarios", this.getClass().getSimpleName(), scenarios.length);
+        Object[][] allScenarios = testNGCucumberRunner.provideScenarios();
         
-        return scenarios;
+        // THREAD-SAFE: Filter scenarios based on login type from config
+        // This ensures each runner only executes scenarios for the configured login type
+        String configuredLoginTag = resolveLoginTag();
+        String runnerName = this.getClass().getSimpleName();
+        
+        // Filter out scenarios with the wrong login tag
+        java.util.List<Object[]> filteredScenarios = new java.util.ArrayList<>();
+        for (Object[] scenario : allScenarios) {
+            PickleWrapper pickleWrapper = (PickleWrapper) scenario[0];
+            java.util.List<String> tags = pickleWrapper.getPickle().getTags();
+            
+            // Check if this scenario should be included
+            boolean includeScenario = true;
+            
+            // If scenario has a login tag, it must match the configured login type
+            boolean hasSSO = tags.contains("@SSO_Login_via_KFONE");
+            boolean hasNonSSO = tags.contains("@NON_SSO_Login_via_KFONE");
+            
+            if (hasSSO || hasNonSSO) {
+                // This is a login scenario - only include if it matches config
+                includeScenario = tags.contains(configuredLoginTag);
+            }
+            // If no login tag, include the scenario (it's not a login scenario)
+            
+            if (includeScenario) {
+                filteredScenarios.add(scenario);
+            }
+        }
+        
+        Object[][] result = filteredScenarios.toArray(new Object[0][0]);
+        LOGGER.debug("[Thread-{}] {} providing {} scenarios (filtered from {} based on {})", 
+                    Thread.currentThread().getId(), runnerName, result.length, allScenarios.length, configuredLoginTag);
+        
+        return result;
     }
 
     @AfterClass(alwaysRun = true)

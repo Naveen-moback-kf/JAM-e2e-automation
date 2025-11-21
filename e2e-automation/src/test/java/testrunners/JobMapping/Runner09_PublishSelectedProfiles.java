@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 			"src/test/resources/features/01KFoneLogin.feature",
 			"src/test/resources/features/JobMapping/09PublishSelectedProfiles.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Publish_Selected_Job_Profiles_Functionality",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Publish_Selected_Job_Profiles_Functionality",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -33,7 +33,7 @@ public class Runner09_PublishSelectedProfiles extends CustomizeTestNGCucumberRun
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Publish_Selected_Job_Profiles_Functionality";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Publish_Selected_Job_Profiles_Functionality";
 	}
 
 	@Override

@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 			"src/test/resources/features/01KFoneLogin.feature",
 			"src/test/resources/features/JobMapping/04VerifyJobMappingPageComponents.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Verify_JobMappingPage_Components",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Verify_Job_Mapping_Page_Components",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -32,7 +32,7 @@ public class Runner04_VerifyJobMappingPageComponents extends CustomizeTestNGCucu
 	
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Verify_JobMappingPage_Components";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Verify_Job_Mapping_Page_Components";
 	}
 	
 	@Override

@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 			"src/test/resources/features/01KFoneLogin.feature",
 			"src/test/resources/features/JobMapping/20ManualMappingofSPinAutoAI.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Manual_Mapping_SP_in_AutoAI",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Manual_Mapping_SP_in_AutoAI",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -32,7 +32,7 @@ public class Runner20_ManualMappingofSPinAutoAI extends CustomizeTestNGCucumberR
 	
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Manual_Mapping_SP_in_AutoAI";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Manual_Mapping_SP_in_AutoAI";
 	}
 	
 	@Override

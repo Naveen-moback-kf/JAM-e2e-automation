@@ -20,7 +20,7 @@ import io.cucumber.testng.CucumberOptions;
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -31,7 +31,7 @@ public class Runner01_KFoneLogin extends CustomizeTestNGCucumberRunner {
 	
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access";
 	}
 	
 	@Override

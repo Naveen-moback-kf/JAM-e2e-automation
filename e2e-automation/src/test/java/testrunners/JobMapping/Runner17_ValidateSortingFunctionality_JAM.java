@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 			"src/test/resources/features/01KFoneLogin.feature",
 			"src/test/resources/features/JobMapping/17ValidateSortingFunctionality_JAM.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Sorting_Functionality",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Sorting_Functionality",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -32,7 +32,7 @@ public class Runner17_ValidateSortingFunctionality_JAM extends CustomizeTestNGCu
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Sorting_Functionality";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Sorting_Functionality";
 	}
 	
 	@Override

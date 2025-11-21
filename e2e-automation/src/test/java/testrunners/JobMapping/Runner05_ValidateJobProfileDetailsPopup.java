@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 			"src/test/resources/features/01KFoneLogin.feature",
 			"src/test/resources/features/JobMapping/05ValidateJobProfileDetailsPopup.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Job_Profile_Details_Popup",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Job_Profile_Details_Popup",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -32,7 +32,7 @@ public class Runner05_ValidateJobProfileDetailsPopup extends CustomizeTestNGCucu
 	
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Job_Profile_Details_Popup";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Job_Profile_Details_Popup";
 	}
 	
 	@Override

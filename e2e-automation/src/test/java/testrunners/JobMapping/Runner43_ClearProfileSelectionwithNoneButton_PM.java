@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 			"src/test/resources/features/01KFoneLogin.feature",
 			"src/test/resources/features/JobMapping/43ClearProfileSelectionwithNoneButton_PM.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Clear_Profile_Selection_With_None_Button_PM",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Clear_Profile_Selection_With_None_Button_PM",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -32,7 +32,7 @@ public class Runner43_ClearProfileSelectionwithNoneButton_PM extends CustomizeTe
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Clear_Profile_Selection_With_None_Button_PM";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Clear_Profile_Selection_With_None_Button_PM";
 	}
 	
 	@Override

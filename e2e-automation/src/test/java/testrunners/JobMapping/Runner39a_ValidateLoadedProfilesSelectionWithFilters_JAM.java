@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 			"src/test/resources/features/01KFoneLogin.feature",
 			"src/test/resources/features/JobMapping/39aValidateLoadedProfilesSelectionWithFilters_JAM.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Select_Job_Mapping_Loaded_Profiles_With_Filter_JAM",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Select_Job_Mapping_Loaded_Profiles_With_Filter_JAM",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -32,7 +32,7 @@ public class Runner39a_ValidateLoadedProfilesSelectionWithFilters_JAM extends Cu
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Select_Job_Mapping_Loaded_Profiles_With_Filter_JAM";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Select_Job_Mapping_Loaded_Profiles_With_Filter_JAM";
 	}
 
 	@Override

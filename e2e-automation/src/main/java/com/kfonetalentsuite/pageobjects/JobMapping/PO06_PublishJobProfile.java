@@ -498,9 +498,9 @@ public class PO06_PublishJobProfile {
 
 	public void click_on_kfone_global_menu_in_job_mapping_ui() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PerformanceUtils.waitForPageReady(driver, 5);
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", KfoneMenu);
-			PerformanceUtils.waitForElement(driver, KfoneMenu, 2);
+			PerformanceUtils.waitForElement(driver, KfoneMenu, 3);
 			
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(KfoneMenu)).click();

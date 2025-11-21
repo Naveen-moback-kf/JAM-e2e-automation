@@ -330,7 +330,7 @@ public class PO01_KFoneLogin {
 			for (int retry = 1; retry <= maxRetries && !pmHeaderFound; retry++) {
 				try {
 					// OPTIMIZED: Reduced timeout from 30s to 10s
-					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
+					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(15));
 
 					// OPTIMIZED: Single comprehensive wait (removed redundancy)
 					PerformanceUtils.waitForPageReady(driver, 5);
@@ -347,7 +347,7 @@ public class PO01_KFoneLogin {
 				} catch (Exception retryEx) {
 					if (retry < maxRetries) {
 						LOGGER.warn("Attempt {}/{} failed - retrying...", retry, maxRetries);
-						driver.navigate().refresh();
+//						driver.navigate().refresh();
 						PerformanceUtils.waitForPageReady(driver, 3); // Quick refresh wait
 					}
 				}

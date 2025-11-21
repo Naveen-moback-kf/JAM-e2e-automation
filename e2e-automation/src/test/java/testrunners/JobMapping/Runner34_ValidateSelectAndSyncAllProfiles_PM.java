@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 			"src/test/resources/features/01KFoneLogin.feature",
 			"src/test/resources/features/JobMapping/34ValidateSelectAndSyncAllProfiles_PM.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @SelectAll_Profiles_And_Sync",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @SelectAll_Profiles_And_Sync",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -32,7 +32,7 @@ public class Runner34_ValidateSelectAndSyncAllProfiles_PM extends CustomizeTestN
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @SelectAll_Profiles_And_Sync";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @SelectAll_Profiles_And_Sync";
 	}
 	
 	@Override

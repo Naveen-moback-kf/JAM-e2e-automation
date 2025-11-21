@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 			"src/test/resources/features/01KFoneLogin.feature",
 			"src/test/resources/features/JobMapping/28VerifyInfoMessageForManualMappingProfiles.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Verify_Info_Message_Manual_Mapping_Profiles",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Verify_Info_Message_Manual_Mapping_Profiles",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -33,7 +33,7 @@ public class Runner28_VerifyInfoMessageForManualMappingProfiles extends Customiz
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Verify_Info_Message_Manual_Mapping_Profiles";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Verify_Info_Message_Manual_Mapping_Profiles";
 	}
 	
 	@Override

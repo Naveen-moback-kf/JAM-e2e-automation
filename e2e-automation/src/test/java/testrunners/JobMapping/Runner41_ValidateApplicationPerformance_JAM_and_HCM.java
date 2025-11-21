@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 			"src/test/resources/features/01KFoneLogin.feature",
 			"src/test/resources/features/JobMapping/41ValidateApplicationPerformance_JAM_and_HCM.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @PerformanceTest_JAM_HCM",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @PerformanceTest_JAM_HCM",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -32,7 +32,7 @@ public class Runner41_ValidateApplicationPerformance_JAM_and_HCM extends Customi
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @PerformanceTest_JAM_HCM";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @PerformanceTest_JAM_HCM";
 	}
 
 	@Override

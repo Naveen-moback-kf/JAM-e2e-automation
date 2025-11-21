@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 			"src/test/resources/features/01KFoneLogin.feature",
 			"src/test/resources/features/JobMapping/26VerifyJobsMissingDataTipMessage.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Verify_Jobs_Missing_Data_Tip_Message",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Verify_Jobs_Missing_Data_Tip_Message",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -32,7 +32,7 @@ public class Runner26_VerifyJobsMissingDataTipMessage extends CustomizeTestNGCuc
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Verify_Jobs_Missing_Data_Tip_Message";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Verify_Jobs_Missing_Data_Tip_Message";
 	}
 	
 	@Override

@@ -1,21 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 
-<!-- OPTIMIZED FOR PARALLEL EXECUTION WITH CUCUMBER -->
-<!-- Key Configuration:
-     - parallel="tests": Each <test> (runner) runs on its own dedicated thread
-     - thread-count="2": Number of parallel threads (2 runners at a time)
-     - verbose="2": Detailed logging for debugging parallel execution
-     
-     How it works:
-     1. TestNG creates separate runner instances for each <test>
-     2. Each runner instance has its own TestNGCucumberRunner
-     3. Each runner's scenarios execute sequentially on its assigned thread
-     4. No scenario mixing between threads
--->
 <suite name="Job Mapping - Sanity Test Suite" 
        parallel="tests" 
-       thread-count="3" 
+       thread-count="2" 
        verbose="2">
     
     <listeners> 

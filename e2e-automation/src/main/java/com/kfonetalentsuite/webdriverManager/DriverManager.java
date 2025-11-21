@@ -76,7 +76,7 @@ public class DriverManager {
 	
 	for (int attempt = 1; attempt <= maxRetries && !browserLaunched; attempt++) {
 		try {
-			LOGGER.info("Browser launch attempt {}/{} - Thread: {}", attempt, maxRetries, Thread.currentThread().getId());
+			LOGGER.debug("Browser launch attempt {}/{} - Thread: {}", attempt, maxRetries, Thread.currentThread().getId());
 			
 	switch (CommonVariable.BROWSER) {
 			case "chrome":
@@ -98,7 +98,7 @@ public class DriverManager {
 					break;
 			}
 			browserLaunched = true;
-			LOGGER.info("✓ Browser launched successfully on attempt {}/{}", attempt, maxRetries);
+			LOGGER.debug("✓ Browser launched successfully on attempt {}/{}", attempt, maxRetries);
 		} catch (Exception e) {
 			lastException = e;
 			LOGGER.warn("✗ Browser launch attempt {}/{} failed: {}", attempt, maxRetries, e.getMessage());
@@ -117,7 +117,7 @@ public class DriverManager {
 				// Progressive backoff: 3s, 6s, 10s
 				int delaySec = (attempt == 1) ? 3 : (attempt == 2) ? 6 : 10;
 				try {
-					LOGGER.info("Retrying browser launch after {} seconds...", delaySec);
+					LOGGER.debug("Retrying browser launch after {} seconds...", delaySec);
 					Thread.sleep(delaySec * 1000);
 				} catch (InterruptedException ie) {
 					Thread.currentThread().interrupt();
@@ -132,7 +132,7 @@ public class DriverManager {
 		throw new RuntimeException("Browser initialization failed after " + maxRetries + " attempts", lastException);
 	}
 	
-	LOGGER.info("✓ Browser launched: {} ({}) - Thread: {}", 
+	LOGGER.debug("✓ Browser launched: {} ({}) - Thread: {}", 
 		CommonVariable.BROWSER, isHeadless ? "headless" : "windowed", Thread.currentThread().getId());
 	
 	// Configure timeouts and browser
@@ -168,7 +168,7 @@ public class DriverManager {
 			try {
 				// Determine cache path (handle both Linux and Windows)
 				String cacheDir = System.getProperty("user.home") + File.separator + ".cache" + File.separator + "selenium";
-				LOGGER.info("Setting up ChromeDriver with cache directory: {}", cacheDir);
+				LOGGER.debug("Setting up ChromeDriver with cache directory: {}", cacheDir);
 				
 				WebDriverManager.chromedriver()
 					.cachePath(cacheDir)          // Use explicit cache path
@@ -177,10 +177,10 @@ public class DriverManager {
 					.setup();
 					
 				driverDownloaded = true;
-				LOGGER.info("✓ ChromeDriver setup completed successfully");
+				LOGGER.debug("✓ ChromeDriver setup completed successfully");
 			} catch (Exception e) {
 				LOGGER.error("✗ ChromeDriver setup failed: {}", e.getMessage());
-				LOGGER.info("Retrying ChromeDriver setup with relaxed configuration...");
+				LOGGER.debug("Retrying ChromeDriver setup with relaxed configuration...");
 				
 				// Fallback: Try with default settings
 				try {
@@ -190,7 +190,7 @@ public class DriverManager {
 						.avoidShutdownHook()
 						.setup();
 					driverDownloaded = true;
-					LOGGER.info("✓ ChromeDriver setup completed with fallback configuration");
+					LOGGER.debug("✓ ChromeDriver setup completed with fallback configuration");
 				} catch (Exception fallbackException) {
 					LOGGER.error("✗ ChromeDriver setup failed completely", fallbackException);
 					throw new RuntimeException("Failed to setup ChromeDriver after retry", fallbackException);
@@ -210,7 +210,7 @@ public class DriverManager {
 				.timeout(180)
 				.avoidShutdownHook()
 				.setup();
-			LOGGER.info("✓ FirefoxDriver setup completed successfully");
+			LOGGER.debug("✓ FirefoxDriver setup completed successfully");
 		} catch (Exception e) {
 			LOGGER.error("✗ FirefoxDriver setup failed", e);
 			throw new RuntimeException("Failed to setup FirefoxDriver", e);
@@ -228,7 +228,7 @@ public class DriverManager {
 				.timeout(180)
 				.avoidShutdownHook()
 				.setup();
-			LOGGER.info("✓ EdgeDriver setup completed successfully");
+			LOGGER.debug("✓ EdgeDriver setup completed successfully");
 		} catch (Exception e) {
 			LOGGER.error("✗ EdgeDriver setup failed", e);
 			throw new RuntimeException("Failed to setup EdgeDriver", e);
@@ -336,7 +336,7 @@ public class DriverManager {
 			wait.set(new WebDriverWait(currentDriver, Duration.ofSeconds(60)));
 		}
 		
-		LOGGER.info("✓ Timeouts configured: page={}s, implicit={}s", 
+		LOGGER.debug("✓ Timeouts configured: page={}s, implicit={}s", 
 			isHeadless ? 180 : 60, isHeadless ? 20 : 15);
 		
 		// Clean browser state and maximize window
@@ -389,7 +389,7 @@ public class DriverManager {
 			);
 			executeActionSilently(() -> currentDriver.get("about:blank"));
 			
-			LOGGER.info("✓ Browser cache cleared");
+			LOGGER.debug("✓ Browser cache cleared");
 			
 		} catch (Exception e) {
 			LOGGER.warn("Cache clear failed: {}", e.getMessage());
@@ -598,7 +598,7 @@ public class DriverManager {
 			killChromeDriver.waitFor(2, java.util.concurrent.TimeUnit.SECONDS);
 			
 			Thread.sleep(500);
-			LOGGER.info("✓ Chrome processes cleaned up");
+			LOGGER.debug("✓ Chrome processes cleaned up");
 		} catch (Exception e) {
 			// Ignore - no processes to clean
 		}

@@ -19,9 +19,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature",
-			"src/test/resources/features/JobMapping/22ValidateHCMSyncProfilesScreen_PM.feature"
+			"src/test/resources/features/JobMapping/22ValidateHCMSyncProfilesTab_PM.feature"
 		},
-		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_HCMSyncProfiles_Tab_in_PM",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_HCMSyncProfiles_Tab_in_PM",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
@@ -32,7 +32,7 @@ public class Runner22_ValidateHCMSyncProfilesTab_PM extends CustomizeTestNGCucum
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_HCMSyncProfiles_Tab_in_PM";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_HCMSyncProfiles_Tab_in_PM";
 	}
 	
 	@Override

@@ -234,32 +234,72 @@ public class PO15_ValidateRecommendedProfileDetails {
 	 */
 	public void click_on_matched_profile_of_job_profile_with_view_other_matches_button() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			WebElement	linkedMatchedProfile = driver.findElement(By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr["+Integer.toString(rowNumber.get()-1)+"]//td[1]//div"));
-			String MatchedProfileNameText = wait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile)).getText();
-			matchedSuccessPrflName.set(MatchedProfileNameText);
+			// PARALLEL EXECUTION FIX: Wait for page to be ready first
+			PerformanceUtils.waitForPageReady(driver, 5);
 			
-			// CRITICAL FOR HEADLESS MODE: Scroll element into view before clicking
-			LOGGER.debug("Scrolling matched profile '{}' into view before clicking...", MatchedProfileNameText);
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'});", linkedMatchedProfile);
-			Thread.sleep(500); // Wait for smooth scroll to complete
+			// Validate rowNumber is set
+			int currentRow = rowNumber.get();
+			if (currentRow == 0) {
+				throw new Exception("rowNumber is not set. Please ensure 'Search for Job Profile with View Other Matches button' step executed successfully.");
+			}
+			
+			int matchedProfileRow = currentRow - 1;
+			LOGGER.debug("Attempting to click matched profile in row {} (button found in row {})", matchedProfileRow, currentRow);
+			
+			// Build XPath for matched profile
+			String matchedProfileXPath = "//div[@id='kf-job-container']//div//table//tbody//tr[" + matchedProfileRow + "]//td[1]//div";
+			
+			// Wait for matched profile element to be present
+			WebElement linkedMatchedProfile = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(matchedProfileXPath)));
+			
+			// Wait for element to be clickable and get text
+			WebElement clickableElement = wait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile));
+			String MatchedProfileNameText = clickableElement.getText();
+			
+			if (MatchedProfileNameText == null || MatchedProfileNameText.trim().isEmpty()) {
+				throw new Exception("Matched Profile name is empty at row " + matchedProfileRow);
+			}
+			
+			matchedSuccessPrflName.set(MatchedProfileNameText);
+			LOGGER.debug("Found matched profile: '{}' at row {}", MatchedProfileNameText, matchedProfileRow);
+			
+			// PARALLEL EXECUTION FIX: Use 'auto' scroll for instant positioning
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", linkedMatchedProfile);
+			
+			// PARALLEL EXECUTION FIX: Wait for element to be stable
+			PerformanceUtils.waitForElement(driver, linkedMatchedProfile, 3);
 			
 			// Attempt to click with fallback strategies
+			boolean clickSuccessful = false;
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile)).click();
+				clickableElement.click();
+				clickSuccessful = true;
+				LOGGER.debug("Successfully clicked using WebElement.click()");
 			} catch (Exception e) {
+				LOGGER.debug("WebElement.click() failed, trying JavaScript click: {}", e.getMessage());
 				try {
 					js.executeScript("arguments[0].click();", linkedMatchedProfile);
+					clickSuccessful = true;
+					LOGGER.debug("Successfully clicked using JavaScript");
 				} catch (Exception s) {
+					LOGGER.debug("JavaScript click failed, trying utils.jsClick(): {}", s.getMessage());
 					utils.jsClick(driver, linkedMatchedProfile);
+					clickSuccessful = true;
+					LOGGER.debug("Successfully clicked using utils.jsClick()");
 				}
 			}
-	PageObjectHelper.log(LOGGER, "Clicked on Matched Profile: " + MatchedProfileNameText + " of Organization Job: " + orgJobName.get());
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-} catch (Exception e) {
-	PageObjectHelper.handleError(LOGGER, "click_on_matched_profile_of_job_profile_with_view_other_matches_button",
-		"Issue clicking Matched Profile linked with job name " + orgJobName.get(), e);
-}
+			
+			if (clickSuccessful) {
+				PageObjectHelper.log(LOGGER, "Clicked on Matched Profile: " + MatchedProfileNameText + " of Organization Job: " + orgJobName.get());
+				// PARALLEL EXECUTION FIX: Use consolidated wait
+				PerformanceUtils.waitForPageReady(driver, 10);
+			} else {
+				throw new Exception("All click strategies failed for Matched Profile: " + MatchedProfileNameText);
+			}
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "click_on_matched_profile_of_job_profile_with_view_other_matches_button",
+				"Issue clicking Matched Profile linked with job name " + orgJobName.get() + " (rowNumber: " + rowNumber.get() + ")", e);
+		}
 	}
 	public void verify_user_navigated_to_job_comparison_page() {
 		try {

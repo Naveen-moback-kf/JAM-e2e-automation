@@ -306,17 +306,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			// OPTIMIZED: Single initial wait
 			PerformanceUtils.waitForPageReady(driver, 5);
 
-			// Check if already on Job Mapping page
-			try {
-				if (driver.findElements(By.xpath("//div[@id='org-job-container']")).size() > 0 &&
-					driver.findElement(By.xpath("//div[@id='org-job-container']")).isDisplayed()) {
-					PageObjectHelper.log(LOGGER, "Already on Job Mapping page - skipping navigation");
-					return;
-				}
-			} catch (Exception e) {
-				// Not on Job Mapping page, proceed with navigation
-			}
-
 			PageObjectHelper.log(LOGGER, "Clicking KFONE Global Menu in Profile Manager...");
 			
 			// Scroll menu button into view
@@ -340,7 +329,7 @@ public class PO04_VerifyJobMappingPageComponents {
 			
 			// CRITICAL: Wait for menu animation to complete (especially important in parallel/headless)
 			try {
-				Thread.sleep(1500); // Allow menu to fully expand
+				Thread.sleep(1000); // Allow menu to fully expand
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			}
@@ -850,25 +839,37 @@ public class PO04_VerifyJobMappingPageComponents {
 		try {
 			// FIX FOR 413 PAYLOAD TOO LARGE ERROR: Clear cookies before clicking
 			driver.manage().deleteAllCookies();
-			Thread.sleep(1000);
+			
+			// PARALLEL EXECUTION FIX: Wait for page to stabilize after cookie deletion
+			PerformanceUtils.waitForPageReady(driver, 5);
 
-			// Scroll element into view before clicking
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", addMoreJobsBtn);
-			Thread.sleep(500);
+			// Scroll element into view before clicking (use 'auto' for instant scroll)
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", addMoreJobsBtn);
+			
+			// PARALLEL EXECUTION FIX: Wait for element to be fully ready
+			WebElement button = wait.until(ExpectedConditions.elementToBeClickable(addMoreJobsBtn));
 
+			// Try multiple click strategies
+			boolean clickSuccessful = false;
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(addMoreJobsBtn)).click();
+				button.click();
+				clickSuccessful = true;
 			} catch (Exception e) {
 				try {
 					js.executeScript("arguments[0].click();", addMoreJobsBtn);
+					clickSuccessful = true;
 				} catch (Exception s) {
 					utils.jsClick(driver, addMoreJobsBtn);
+					clickSuccessful = true;
 				}
 			}
-			PageObjectHelper.log(LOGGER, "Clicked on Add more jobs button");
-
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			if (clickSuccessful) {
+				PageObjectHelper.log(LOGGER, "Clicked on Add more jobs button");
+				PerformanceUtils.waitForPageReady(driver, 10);
+			} else {
+				throw new Exception("All click strategies failed for Add More Jobs button");
+			}
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_add_more_jobs_button_is_clickable",
