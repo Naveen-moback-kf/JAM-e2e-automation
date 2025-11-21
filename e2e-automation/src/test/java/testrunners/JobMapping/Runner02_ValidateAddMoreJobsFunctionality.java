@@ -19,7 +19,10 @@ import io.cucumber.testng.CucumberOptions;
 })
 
 @CucumberOptions(
-		features = "src/test/resources/features",
+		features = {
+			"src/test/resources/features/01KFoneLogin.feature",
+			"src/test/resources/features/JobMapping/02ValidateAddMoreJobsFunctionality.feature"
+		},
 		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Add_More_Jobs_Functionality",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,

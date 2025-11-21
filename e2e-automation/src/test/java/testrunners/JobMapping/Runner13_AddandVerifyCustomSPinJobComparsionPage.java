@@ -16,7 +16,10 @@ import io.cucumber.testng.CucumberOptions;
 })
 
 @CucumberOptions(
-		features = "src/test/resources/features",
+		features = {
+			"src/test/resources/features/01KFoneLogin.feature",
+			"src/test/resources/features/JobMapping/13AddandVerifyCustomSPinJobComparisonPage.feature"
+		},
 		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Add_and_Verify_CustomSP_In_Job_Comparison_Page",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,

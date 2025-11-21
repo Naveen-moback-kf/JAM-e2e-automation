@@ -29,31 +29,22 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
     @BeforeTest
     public final void setupDynamicTags() {
         try {
-            long threadId = Thread.currentThread().getId();
-            String threadName = Thread.currentThread().getName();
             String runnerName = this.getClass().getSimpleName();
-            
-            LOGGER.info("[Thread-{}:{}] 🔧 Setting up for {}", 
-                       threadId, threadName, runnerName);
             
             VariableManager.getInstance().loadProperties();
             String loginTag = resolveLoginTag();
             String tagExpression = buildTagExpression(loginTag);
             
-            // CRITICAL FIX: Do NOT use System.setProperty in parallel execution!
-            // Each runner already has its tags defined in @CucumberOptions
-            // The dynamic tag resolution is only for logging/informational purposes
+            // Set Cucumber tag filter (replaces @DYNAMIC_LOGIN with actual login tag)
+            System.setProperty("cucumber.filter.tags", tagExpression);
             
-            LOGGER.info("[Thread-{}:{}] 📌 Runner {} will use tag expression: {}", 
-                       threadId, threadName, runnerName, tagExpression);
-            LOGGER.info("[Thread-{}:{}] ℹ️  Note: Tags are defined in @CucumberOptions, not System.setProperty", 
-                       threadId, threadName);
+            LOGGER.debug("Dynamic tags configured for {} with login: {}", runnerName, loginTag);
             
             ensureDriverInitialized();
             
         } catch (Exception e) {
-            LOGGER.error("Failed to setup: " + e.getMessage());
-            throw new RuntimeException("Setup failed", e);
+            LOGGER.error("Failed to setup dynamic tags: " + e.getMessage());
+            throw new RuntimeException("Dynamic tag setup failed", e);
         }
     }
     
@@ -77,26 +68,16 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
     
     @BeforeClass(alwaysRun = true)
     public void setUpClass() {
-        long threadId = Thread.currentThread().getId();
-        String threadName = Thread.currentThread().getName();
         String runnerName = this.getClass().getSimpleName();
         
-        LOGGER.info("╔═══════════════════════════════════════════════════════════════╗");
-        LOGGER.info("║  TEST RUNNER STARTING: {}                                    ", runnerName);
-        LOGGER.info("║  Thread: {} ({})                                             ", threadId, threadName);
-        LOGGER.info("╚═══════════════════════════════════════════════════════════════╝");
+        LOGGER.info("▶️  Starting: {}", runnerName);
         
         // CACHE CLEANUP BEFORE RUNNER: Clear all browser data before runner starts (defensive)
-        // This ensures the runner starts with clean state and prevents cross-runner contamination
         try {
             DriverManager.clearAllBrowserData();
         } catch (Exception e) {
-            LOGGER.warn("[Thread-{}:{}] ⚠️  Failed to clear browser data: {}", 
-                threadId, threadName, e.getMessage());
+            LOGGER.warn("Failed to clear browser data: {}", e.getMessage());
         }
-        
-        LOGGER.info("[Thread-{}:{}] ▶️  Test runner {} beginning execution...", 
-            threadId, threadName, runnerName);
         
         testNGCucumberRunner = new TestNGCucumberRunner(this.getClass());
     }
@@ -127,39 +108,24 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
             return new Object[0][0];
         }
         
-        // Log which runner is providing scenarios for debugging
-        String runnerName = this.getClass().getSimpleName();
-        long threadId = Thread.currentThread().getId();
-        String threadName = Thread.currentThread().getName();
-        
         Object[][] scenarios = testNGCucumberRunner.provideScenarios();
-        LOGGER.info("[Thread-{}:{}] 📋 Runner {} providing {} scenarios", 
-                   threadId, threadName, runnerName, scenarios.length);
+        LOGGER.debug("{} providing {} scenarios", this.getClass().getSimpleName(), scenarios.length);
         
         return scenarios;
     }
 
     @AfterClass(alwaysRun = true)
     public void tearDownClass() {
-        long threadId = Thread.currentThread().getId();
-        String threadName = Thread.currentThread().getName();
         String runnerName = this.getClass().getSimpleName();
         
-        LOGGER.info("[Thread-{}:{}] ⏹️  Test runner {} execution completed", 
-            threadId, threadName, runnerName);
+        LOGGER.info("⏹️  Completed: {}", runnerName);
         
         // CACHE CLEANUP AFTER RUNNER: Clean up browser data for good hygiene
         try {
             DriverManager.clearAllBrowserData();
         } catch (Exception e) {
-            LOGGER.warn("[Thread-{}:{}] ⚠️  Failed to clear browser data: {}", 
-                threadId, threadName, e.getMessage());
+            LOGGER.warn("Failed to clear browser data: {}", e.getMessage());
         }
-        
-        LOGGER.info("╔═══════════════════════════════════════════════════════════════╗");
-        LOGGER.info("║  TEST RUNNER COMPLETED: {}                                   ", runnerName);
-        LOGGER.info("║  Thread: {} ({})                                             ", threadId, threadName);
-        LOGGER.info("╚═══════════════════════════════════════════════════════════════╝");
         
         if (testNGCucumberRunner == null) {
             return;

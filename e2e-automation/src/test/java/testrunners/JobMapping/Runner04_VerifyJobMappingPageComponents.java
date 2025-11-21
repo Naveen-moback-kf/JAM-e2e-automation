@@ -17,7 +17,10 @@ import io.cucumber.testng.CucumberOptions;
 })
 
 @CucumberOptions(
-		features = "src/test/resources/features",
+		features = {
+			"src/test/resources/features/01KFoneLogin.feature",
+			"src/test/resources/features/JobMapping/04VerifyJobMappingPageComponents.feature"
+		},
 		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Verify_JobMappingPage_Components",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
@@ -29,7 +32,7 @@ public class Runner04_VerifyJobMappingPageComponents extends CustomizeTestNGCucu
 	
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Verify_Job_Mapping_Page_Components";
+		return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Verify_JobMappingPage_Components";
 	}
 	
 	@Override

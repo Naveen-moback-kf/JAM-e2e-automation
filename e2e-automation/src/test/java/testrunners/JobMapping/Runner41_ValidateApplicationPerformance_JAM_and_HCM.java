@@ -17,7 +17,10 @@ import io.cucumber.testng.CucumberOptions;
 })
 
 @CucumberOptions(
-		features = "src/test/resources/features",
+		features = {
+			"src/test/resources/features/01KFoneLogin.feature",
+			"src/test/resources/features/JobMapping/41ValidateApplicationPerformance_JAM_and_HCM.feature"
+		},
 		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @PerformanceTest_JAM_HCM",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,

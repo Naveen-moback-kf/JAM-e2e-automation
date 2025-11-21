@@ -17,7 +17,10 @@ import io.cucumber.testng.CucumberOptions;
 })
 
 @CucumberOptions(
-		features = "src/test/resources/features",
+		features = {
+			"src/test/resources/features/01KFoneLogin.feature",
+			"src/test/resources/features/JobMapping/26VerifyJobsMissingDataTipMessage.feature"
+		},
 		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Verify_Jobs_Missing_Data_Tip_Message",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,

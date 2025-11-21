@@ -17,7 +17,10 @@ import io.cucumber.testng.CucumberOptions;
 })
 
 @CucumberOptions(
-		features = "src/test/resources/features",
+		features = {
+			"src/test/resources/features/01KFoneLogin.feature",
+			"src/test/resources/features/JobMapping/36aValidateLoadedProfilesSelectionWithFilters_PM.feature"
+		},
 		tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Select_HCM_Sync_Loaded_Profiles_With_Filter_PM",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
