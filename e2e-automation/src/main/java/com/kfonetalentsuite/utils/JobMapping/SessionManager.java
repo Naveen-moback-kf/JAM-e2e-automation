@@ -37,8 +37,8 @@ public class SessionManager {
     // Configuration: Session validation interval (default: 5 minutes)
     private static final Duration SESSION_CHECK_INTERVAL = Duration.ofMinutes(5);
     
-    // Configuration: Session timeout threshold (default: 25 minutes - Azure AD default is 30 min)
-    private static final Duration SESSION_TIMEOUT_THRESHOLD = Duration.ofMinutes(25);
+    // // Configuration: Session timeout threshold (default: 25 minutes - Azure AD default is 30 min)
+    // private static final Duration SESSION_TIMEOUT_THRESHOLD = Duration.ofMinutes(25);
     
     // Configuration: Maximum re-login attempts
     private static final int MAX_RELOGIN_ATTEMPTS = 2;
