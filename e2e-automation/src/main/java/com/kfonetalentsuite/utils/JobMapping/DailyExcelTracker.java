@@ -3414,36 +3414,12 @@ public class DailyExcelTracker {
         mergeConsecutiveCellsInColumn(sheet, workbook, 0, "Feature File"); // Feature File column
         mergeConsecutiveCellsInColumn(sheet, workbook, 1, "Feature");      // Feature column
     }
-
-    /**
-     * HELPER METHOD: Remove existing merged regions in a specific column
-     * This is necessary before reapplying merge logic to avoid conflicts
-     * 
-     * @param sheet The worksheet to process
-     * @param columnIndex The column index to clear merged regions from
-     */
-    private static void removeMergedRegionsInColumn(Sheet sheet, int columnIndex) {
-        try {
-            // We need to iterate backwards because removing regions changes the indices
-            for (int i = sheet.getNumMergedRegions() - 1; i >= 0; i--) {
-                CellRangeAddress mergedRegion = sheet.getMergedRegion(i);
-                
-                // Check if this merged region is in our target column
-                if (mergedRegion != null && 
-                    mergedRegion.getFirstColumn() == columnIndex && 
-                    mergedRegion.getLastColumn() == columnIndex) {
-                    sheet.removeMergedRegion(i);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.warn("Failed to remove merged regions in column {} (non-critical): {}", columnIndex, e.getMessage());
-        }
-    }
     
     /**
      * NEW METHOD: Merge consecutive cells with same value in a specified column
      * Generic method that works for any column
      * ENHANCED: Applies green/red background color based on feature status
+     * BUGFIX: Aggressively removes ALL old merged regions before reapplying to prevent style persistence
      * 
      * @param sheet The worksheet to process
      * @param workbook The workbook (for creating styles)
@@ -3473,10 +3449,20 @@ public class DailyExcelTracker {
                 return;
             }
             
-            // CRITICAL FIX: Remove existing merged regions in this column before reapplying
-            // This ensures merging works correctly on subsequent runs when appending data
-            removeMergedRegionsInColumn(sheet, columnIndex);
-            LOGGER.debug("Cleared existing merged regions in column {} ({})", columnIndex, columnName);
+            // CRITICAL BUGFIX: Aggressively remove ALL existing merged regions in this column
+            // This prevents red backgrounds from persisting when consecutive runs change from FAILED to PASSED
+            int removedCount = 0;
+            for (int i = sheet.getNumMergedRegions() - 1; i >= 0; i--) {
+                CellRangeAddress mergedRegion = sheet.getMergedRegion(i);
+                if (mergedRegion != null && 
+                    mergedRegion.getFirstColumn() == columnIndex && 
+                    mergedRegion.getLastColumn() == columnIndex) {
+                    sheet.removeMergedRegion(i);
+                    removedCount++;
+                }
+            }
+            LOGGER.info("BUGFIX: Removed {} old merged regions from column {} ({}) before reapplying", 
+                       removedCount, columnIndex, columnName);
             
             // Create passed style (green background) for merged cells
             CellStyle passedStyle = workbook.createCellStyle();
@@ -3522,26 +3508,60 @@ public class DailyExcelTracker {
                 if (!Objects.equals(cellValue, currentValue)) {
                     // Process previous group (merge if multiple rows, style if single row)
                     if (currentValue != null) {
-                        // ENHANCED: Determine feature status (check if any scenario failed in this group)
-                        boolean hasFailure = false;
+                    // ENHANCED: Determine feature status (check if any scenario failed in this group)
+                    // BUGFIX: More robust detection - check ALL browser cells and look for PASSED/FAILED/SKIPPED
+                    boolean hasFailure = false;
+                    boolean hasAnyStatus = false; // Track if we found any status at all
+                    
+                    for (int rowIndex = mergeStartRow; rowIndex < i; rowIndex++) {
+                        Row checkRow = sheet.getRow(rowIndex);
+                        if (checkRow != null) {
+                            // Check browser status columns (3=Chrome, 4=Firefox, 5=Edge)
+                            for (int browserCol = 3; browserCol <= 5; browserCol++) {
+                                Cell browserCell = checkRow.getCell(browserCol);
+                                if (browserCell != null) {
+                                    String browserStatus = browserCell.getStringCellValue();
+                                    if (browserStatus != null && !browserStatus.trim().isEmpty()) {
+                                        hasAnyStatus = true;
+                                        String statusUpper = browserStatus.toUpperCase();
+                                        // Check for failure indicators: "FAILED" or ❌
+                                        if (statusUpper.contains("FAILED") || browserStatus.contains("❌")) {
+                                            hasFailure = true;
+                                            break;
+                                        }
+                                        // BUGFIX: Explicitly check for PASSED to ensure we're not missing status
+                                        // (SKIPPED is treated as non-failure)
+                                    }
+                                }
+                            }
+                            if (hasFailure) break;
+                        }
+                    }
+                    
+                    // BUGFIX: If no status found in browser columns, fall back to checking Scenario column (column 2)
+                    // This handles edge cases where browser columns might be empty
+                    if (!hasAnyStatus) {
+                        LOGGER.warn("No browser status found for feature '{}' (rows {}-{}), checking Scenario column as fallback", 
+                                   currentValue, mergeStartRow, i-1);
                         for (int rowIndex = mergeStartRow; rowIndex < i; rowIndex++) {
                             Row checkRow = sheet.getRow(rowIndex);
                             if (checkRow != null) {
-                                // Check browser status columns (3=Chrome, 4=Firefox, 5=Edge)
-                                for (int browserCol = 3; browserCol <= 5; browserCol++) {
-                                    Cell browserCell = checkRow.getCell(browserCol);
-                                    if (browserCell != null) {
-                                        String browserStatus = browserCell.getStringCellValue();
-                                        // Check for failure indicators: ❌ or "FAILED"
-                                        if (browserStatus != null && (browserStatus.contains("❌") || browserStatus.toUpperCase().contains("FAILED"))) {
+                                Cell scenarioCell = checkRow.getCell(2);
+                                if (scenarioCell != null) {
+                                    // Check if the row itself has FAILED styling
+                                    CellStyle cellStyle = scenarioCell.getCellStyle();
+                                    if (cellStyle != null) {
+                                        short bgColor = cellStyle.getFillForegroundColor();
+                                        // ROSE color index indicates FAILED
+                                        if (bgColor == IndexedColors.ROSE.getIndex()) {
                                             hasFailure = true;
                                             break;
                                         }
                                     }
                                 }
-                                if (hasFailure) break;
                             }
                         }
+                    }
                         
                         // Apply style based on feature status (green if all passed, red if any failed)
                         CellStyle styleToApply = hasFailure ? failedStyle : passedStyle;
@@ -3557,12 +3577,15 @@ public class DailyExcelTracker {
                                         columnName, currentValue, mergeStartRow, hasFailure ? "FAILED (Red)" : "PASSED (Green)");
                         }
                         
-                        // Apply style to the cell
-                        Row firstRow = sheet.getRow(mergeStartRow);
-                        if (firstRow != null) {
-                            Cell cell = firstRow.getCell(columnIndex);
-                            if (cell != null) {
-                                cell.setCellStyle(styleToApply);
+                        // BUGFIX: Apply fresh style to ALL cells in the merged range (not just first cell)
+                        // This ensures old styles don't persist when status changes from FAILED to PASSED
+                        for (int rowIndex = mergeStartRow; rowIndex < i; rowIndex++) {
+                            Row targetRow = sheet.getRow(rowIndex);
+                            if (targetRow != null) {
+                                Cell targetCell = targetRow.getCell(columnIndex);
+                                if (targetCell != null) {
+                                    targetCell.setCellStyle(styleToApply);
+                                }
                             }
                         }
                     }
@@ -3796,6 +3819,8 @@ public class DailyExcelTracker {
 
     /**
      * Copy row content to a new position
+     * BUGFIX: Do NOT copy cell styles during compaction - new rows will get correct styles when appended
+     * This prevents red/green background colors from persisting when runners are executed consecutively
      */
     private static void copyRow(Sheet sheet, Row sourceRow, int targetRowIndex) {
         Row newRow = sheet.createRow(targetRowIndex);
@@ -3821,10 +3846,9 @@ public class DailyExcelTracker {
                         break;
                 }
 
-                // Copy cell style if available
-                if (sourceCell.getCellStyle() != null) {
-                    newCell.setCellStyle(sourceCell.getCellStyle());
-                }
+                // BUGFIX: Do NOT copy cell styles - this was causing red backgrounds to persist
+                // when consecutive runs changed from FAILED to PASSED status
+                // New rows will get correct styles applied via ExcelStyleHelper.applyRowLevelStylingToSpecificColumns()
             }
         }
     }
@@ -4332,9 +4356,47 @@ public class DailyExcelTracker {
         return null;
     }
 
+    // PERSISTENT STORAGE: Store last known user/client info for suite-level reporting
+    private static volatile String lastKnownUsername = null;
+    private static volatile String lastKnownClientName = null;
+    
+    /**
+     * Proactively cache username and client name from PO01_KFoneLogin
+     * This should be called early in test execution to ensure cache is populated
+     * for suite-level reporting
+     */
+    public static void cacheUserAndClientInfo() {
+        try {
+            Class<?> loginClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin");
+            
+            // Cache username
+            java.lang.reflect.Field usernameField = loginClass.getField("username");
+            @SuppressWarnings("unchecked")
+            ThreadLocal<String> usernameThreadLocal = (ThreadLocal<String>) usernameField.get(null);
+            String username = usernameThreadLocal.get();
+            if (username != null && !username.trim().isEmpty()) {
+                lastKnownUsername = username.trim();
+                LOGGER.info("✅ Cached username for Excel reporting: {}", lastKnownUsername);
+            }
+            
+            // Cache client name
+            java.lang.reflect.Field clientNameField = loginClass.getField("clientName");
+            @SuppressWarnings("unchecked")
+            ThreadLocal<String> clientNameThreadLocal = (ThreadLocal<String>) clientNameField.get(null);
+            String clientName = clientNameThreadLocal.get();
+            if (clientName != null && !clientName.trim().isEmpty()) {
+                lastKnownClientName = clientName.trim();
+                LOGGER.info("✅ Cached client name for Excel reporting: {}", lastKnownClientName);
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Could not cache user/client info: {}", e.getMessage());
+        }
+    }
+    
     /**
      * Get username from PO01_KFoneLogin for Excel reporting
      * Uses reflection to access the ThreadLocal variable
+     * ENHANCED: Caches last known value for suite-level reporting
      */
     private static String getUsernameForExcel() {
         try {
@@ -4346,13 +4408,20 @@ public class DailyExcelTracker {
             String username = usernameThreadLocal.get();
             
             if (username != null && !username.trim().isEmpty()) {
+                lastKnownUsername = username.trim(); // Cache for later use
                 return username.trim();
             }
         } catch (Exception e) {
             LOGGER.debug("Could not retrieve username from PO01_KFoneLogin: {}", e.getMessage());
         }
         
-        // Fallback: Try to get from system properties or environment
+        // Fallback 1: Use last known username from previous execution in this suite
+        if (lastKnownUsername != null && !lastKnownUsername.trim().isEmpty()) {
+            LOGGER.debug("Using cached username: {}", lastKnownUsername);
+            return lastKnownUsername;
+        }
+        
+        // Fallback 2: Try to get from system properties or environment
         String systemUser = System.getProperty("user.name");
         if (systemUser != null && !systemUser.trim().isEmpty()) {
             return systemUser.trim();
@@ -4363,6 +4432,7 @@ public class DailyExcelTracker {
     
     /**
      * Get client name for Excel reporting (from PO01_KFoneLogin.clientName ThreadLocal)
+     * ENHANCED: Caches last known value for suite-level reporting
      */
     private static String getClientNameForExcel() {
         try {
@@ -4374,10 +4444,17 @@ public class DailyExcelTracker {
             String clientName = clientNameThreadLocal.get();
             
             if (clientName != null && !clientName.trim().isEmpty()) {
+                lastKnownClientName = clientName.trim(); // Cache for later use
                 return clientName.trim();
             }
         } catch (Exception e) {
             LOGGER.debug("Could not retrieve client name from PO01_KFoneLogin: {}", e.getMessage());
+        }
+        
+        // Fallback: Use last known client name from previous execution in this suite
+        if (lastKnownClientName != null && !lastKnownClientName.trim().isEmpty()) {
+            LOGGER.debug("Using cached client name: {}", lastKnownClientName);
+            return lastKnownClientName;
         }
         
         return "N/A";
@@ -4619,6 +4696,7 @@ public class DailyExcelTracker {
      */
     private static Map<String, ExecutionRecord> extractUniqueRunnersForToday(Sheet executionHistorySheet, String targetDate, String executionTypeFilter) {
         Map<String, ExecutionRecord> uniqueRunners = new HashMap<>();
+        Map<String, ExecutionRecord> suiteRecords = new HashMap<>(); // Track suite records separately
 
         String filterMessage = executionTypeFilter != null ? " (filtering: " + executionTypeFilter + ")" : " (no filter)";
         LOGGER.info("Scanning Execution History for unique runners on date: {}{}", targetDate, filterMessage);
@@ -4650,27 +4728,32 @@ public class DailyExcelTracker {
 
                         // Only process records for today
                         if (executionDate.equals(targetDate)) {
-                            ExecutionRecord record = uniqueRunners.getOrDefault(runnerName, new ExecutionRecord());
-                            // Removed unused field assignments (runnerName, executionDate)
+                            // SMART DEDUPLICATION: Separate suite records from individual runners
+                            boolean isSuiteRecord = runnerName.contains("Suite") && !runnerName.startsWith("Runner");
+                            
+                            ExecutionRecord record = new ExecutionRecord();
 
                             // ENHANCED: Use latest execution data with robust cell value extraction
                             if (totalTestsCell != null) {
                                 record.totalTests = getCellValueAsInt(totalTestsCell);
-                                LOGGER.info("FIXED: Runner {}: totalTests = {} (from Functions Tested column)", runnerName, record.totalTests);
+                                LOGGER.info("FIXED: {} {}: totalTests = {} (from Functions Tested column)", 
+                                           isSuiteRecord ? "Suite" : "Runner", runnerName, record.totalTests);
                             }
                             if (passedTestsCell != null) {
                                 record.passedTests = getCellValueAsInt(passedTestsCell);
-                                LOGGER.info("FIXED: Runner {}: passedTests = {} (from Working column)", runnerName, record.passedTests);
+                                LOGGER.info("FIXED: {} {}: passedTests = {} (from Working column)", 
+                                           isSuiteRecord ? "Suite" : "Runner", runnerName, record.passedTests);
                             }
                             if (failedTestsCell != null) {
                                 record.failedTests = getCellValueAsInt(failedTestsCell);
-                                LOGGER.info("FIXED: Runner {}: failedTests = {} (from Issues Found column)", runnerName, record.failedTests);
+                                LOGGER.info("FIXED: {} {}: failedTests = {} (from Issues Found column)", 
+                                           isSuiteRecord ? "Suite" : "Runner", runnerName, record.failedTests);
                             }
                             if (skippedTestsCell != null) {
                                 record.skippedTests = getCellValueAsInt(skippedTestsCell);
                             }
 
-                            // Create mock feature result for this runner
+                            // Create mock feature result for this runner/suite
                             FeatureResult mockFeature = new FeatureResult();
                             // FIXED: Use proper feature name extraction instead of simple replacement
                             // This prevents truncated names like "_ValidateApplicationPerformance..."
@@ -4700,14 +4783,16 @@ public class DailyExcelTracker {
                                 mockFeature.scenarios.add(mockScenario);
                             }
 
-            //                       mockFeature.featureName, mockFeature.scenarios.size(),
-            //                       record.passedTests, record.failedTests, runnerName);
-
                             record.featureResults = Arrays.asList(mockFeature);
 
-                            uniqueRunners.put(runnerName, record);
-
-                            //                runnerName, record.totalTests, record.passedTests, record.failedTests);
+                            // SMART DEDUPLICATION: Store in appropriate map
+                            if (isSuiteRecord) {
+                                suiteRecords.put(runnerName, record);
+                                LOGGER.debug("Stored suite record: {} ({} tests)", runnerName, record.totalTests);
+                            } else {
+                                uniqueRunners.put(runnerName, record);
+                                LOGGER.debug("Stored runner record: {} ({} tests)", runnerName, record.totalTests);
+                            }
                         }
                     }
                 }
@@ -4716,14 +4801,38 @@ public class DailyExcelTracker {
             }
         }
 
-        LOGGER.info("Extracted {} unique runners: {}", uniqueRunners.size(), uniqueRunners.keySet());
-
-        //                record.runnerName,
-        //                record.featureResults.get(0).featureName,
-        //                record.totalTests,
-        //                record.featureResults.get(0).scenarios.size());
-
-        return uniqueRunners;
+        // ADDITIVE COUNTING LOGIC: Include both individual runners AND suite records
+        LOGGER.info("Found {} individual runners and {} suite records for today", uniqueRunners.size(), suiteRecords.size());
+        
+        // Combine both maps - suites and individual runners are counted together
+        Map<String, ExecutionRecord> combinedRecords = new HashMap<>();
+        
+        // Add all individual runners
+        combinedRecords.putAll(uniqueRunners);
+        
+        // Add all suite records
+        combinedRecords.putAll(suiteRecords);
+        
+        if (!combinedRecords.isEmpty()) {
+            int individualRunnerTotal = uniqueRunners.values().stream().mapToInt(r -> r.totalTests).sum();
+            int suiteTotal = suiteRecords.values().stream().mapToInt(r -> r.totalTests).sum();
+            int combinedTotal = individualRunnerTotal + suiteTotal;
+            
+            LOGGER.info("✅ ADDITIVE COUNTING: Dashboard will show {} total tests", combinedTotal);
+            LOGGER.info("   - Individual Runners: {} tests from {} runners", individualRunnerTotal, uniqueRunners.size());
+            LOGGER.info("   - Suite Executions: {} tests from {} suites", suiteTotal, suiteRecords.size());
+            
+            if (uniqueRunners.size() > 0 && suiteRecords.size() > 0) {
+                LOGGER.info("ℹ️ NOTE: Dashboard counts both individual runners AND suite executions (may include overlapping scenarios)");
+            }
+            
+            return combinedRecords;
+            
+        } else {
+            // No executions found for today
+            LOGGER.warn("⚠️ No runners or suites found for today's date: {}", targetDate);
+            return new HashMap<>();
+        }
     }
 
     /**
@@ -6672,8 +6781,8 @@ public class DailyExcelTracker {
             return false;
         }
 
-    // Extract date from the Testing Date column (Column 1, shifted from 0)
-    Cell dateCell = row.getCell(1);
+    // Extract date from the Testing Date column (Column 2: 0=User Name, 1=Client Name, 2=Testing Date)
+    Cell dateCell = row.getCell(2);
     if (dateCell == null) {
         return false;
     }

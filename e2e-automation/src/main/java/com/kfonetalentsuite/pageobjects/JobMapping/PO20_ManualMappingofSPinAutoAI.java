@@ -2,7 +2,6 @@ package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -19,8 +18,8 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO20_ManualMappingofSPinAutoAI {
 	WebDriver driver = DriverManager.getDriver();	
@@ -57,62 +56,76 @@ public class PO20_ManualMappingofSPinAutoAI {
 	WebElement searchDifferntSPBtn;
 	
 	//METHODs
-public void verify_profile_with_no_bic_mapping_is_displaying_on_top_after_sorting() throws InterruptedException {
-	try {
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-		PerformanceUtils.waitForPageReady(driver, 3);
-		wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.xpath("//tbody//tr[2]//button[not(contains(@id,'view'))] | //tbody//tr[1]//button[contains(text(),'Find')]")))).isDisplayed();
-		WebElement	button = driver.findElement(By.xpath("//tbody//tr[2]//button[not(contains(@id,'view'))] | //tbody//tr[1]//button[contains(text(),'Find')]"));
-		js.executeScript("arguments[0].scrollIntoView(true);", button);
-		String text = button.getText();
-		if(text.contains("Publish")) {
-			PO21_MapDifferentSPtoProfileInAutoAI.mapSP.set(false);
-			LOGGER.info("Currently, All Profiles in Job Mapping are Mapped with BIC Profiles");
-			ExtentCucumberAdapter.addTestStepLog("Currently, All Profiles in Job Mapping are Mapped with BIC Profiles");
-			driver.navigate().refresh();
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+	public void verify_profile_with_no_bic_mapping_is_displaying_on_top_after_sorting() throws InterruptedException {
+		try {
+			// PERFORMANCE: Single comprehensive wait
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 			PerformanceUtils.waitForPageReady(driver, 3);
-		} else {
-			PO21_MapDifferentSPtoProfileInAutoAI.mapSP.set(true);
-			LOGGER.info("Job profile with No BIC Profile Mapping is found");
-			ExtentCucumberAdapter.addTestStepLog("Job profile with No BIC Profile Mapping is found");	
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 2);
-			WebElement	jobName = driver.findElement(By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]"));
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobName)).isDisplayed());
-			String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText(); 
-		PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.set(jobname1.split("-", 2)[0].trim());
-		PO21_MapDifferentSPtoProfileInAutoAI.orgJobCode.set(jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length()-2));
-		ExtentCucumberAdapter.addTestStepLog("Organization Job name / Job Code of Profile with No BIC Profile Mapped : " + PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get() +  "/"  + PO21_MapDifferentSPtoProfileInAutoAI.orgJobCode.get());
-		LOGGER.info("Organization Job name / Job Code of Profile with with No BIC Profile Mapped : " + PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get() + "/" + PO21_MapDifferentSPtoProfileInAutoAI.orgJobCode.get());
-			WebElement	jobGrade = driver.findElement(By.xpath("//tbody//tr[1]//td[3]//div[1]"));
-			PO21_MapDifferentSPtoProfileInAutoAI.orgJobGrade.set(jobGrade.getText());
-			if(PO21_MapDifferentSPtoProfileInAutoAI.orgJobGrade.get().contentEquals("-") || PO21_MapDifferentSPtoProfileInAutoAI.orgJobGrade.get().isEmpty() || PO21_MapDifferentSPtoProfileInAutoAI.orgJobGrade.get().isBlank()) {
-				PO21_MapDifferentSPtoProfileInAutoAI.orgJobGrade.set("NULL");	
+			
+			// Find the button to determine profile state
+			WebElement button = wait.until(ExpectedConditions.visibilityOfElementLocated(
+				By.xpath("//tbody//tr[2]//button[not(contains(@id,'view'))] | //tbody//tr[1]//button[contains(text(),'Find')]")));
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", button);
+			String text = button.getText();
+			
+			if(text.contains("Publish")) {
+				// All profiles are already mapped
+				PO21_MapDifferentSPtoProfileInAutoAI.mapSP.set(false);
+				PageObjectHelper.log(LOGGER, "Currently, All Profiles in Job Mapping are Mapped with BIC Profiles");
+				
+				driver.navigate().refresh();
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
+				PerformanceUtils.waitForPageReady(driver, 3);
+			} else {
+				// Found profile with no BIC mapping
+				PO21_MapDifferentSPtoProfileInAutoAI.mapSP.set(true);
+				PageObjectHelper.log(LOGGER, "Job profile with No BIC Profile Mapping is found");
+				
+				// PERFORMANCE: Single wait for page ready
+				PerformanceUtils.waitForPageReady(driver, 3);
+				
+				// Extract job details
+				WebElement jobName = wait.until(ExpectedConditions.visibilityOfElementLocated(
+					By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]")));
+				String jobname1 = jobName.getText();
+				
+				PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.set(jobname1.split("-", 2)[0].trim());
+				PO21_MapDifferentSPtoProfileInAutoAI.orgJobCode.set(
+					jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length()-2));
+				
+				PageObjectHelper.log(LOGGER, "Organization Job name / Job Code of Profile with No BIC Profile Mapped : " + 
+					PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get() + "/" + PO21_MapDifferentSPtoProfileInAutoAI.orgJobCode.get());
+				
+				// Extract job grade
+				WebElement jobGrade = driver.findElement(By.xpath("//tbody//tr[1]//td[3]//div[1]"));
+				String gradeText = jobGrade.getText();
+				PO21_MapDifferentSPtoProfileInAutoAI.orgJobGrade.set(
+					(gradeText.equals("-") || gradeText.isEmpty() || gradeText.isBlank()) ? "NULL" : gradeText);
+				
+				// Extract job department
+				WebElement jobDepartment = driver.findElement(By.xpath("//tbody//tr[1]//td[4]//div[1]"));
+				String deptText = jobDepartment.getText();
+				PO21_MapDifferentSPtoProfileInAutoAI.orgJobDepartment.set(
+					(deptText.equals("-") || deptText.isEmpty() || deptText.isBlank()) ? "NULL" : deptText);
+				
+				// Extract job function
+				WebElement jobFunction = driver.findElement(By.xpath("//tbody//tr[2]//div//span[2]"));
+				String funcText = jobFunction.getText();
+				PO21_MapDifferentSPtoProfileInAutoAI.orgJobFunction.set(
+					(funcText.equals("-") || funcText.isEmpty() || funcText.isBlank()) ? "NULL" : funcText);
 			}
-			WebElement	jobDepartment = driver.findElement(By.xpath("//tbody//tr[1]//td[4]//div[1]"));
-			PO21_MapDifferentSPtoProfileInAutoAI.orgJobDepartment.set(jobDepartment.getText());
-			if(PO21_MapDifferentSPtoProfileInAutoAI.orgJobDepartment.get().contentEquals("-") || PO21_MapDifferentSPtoProfileInAutoAI.orgJobDepartment.get().isEmpty() || PO21_MapDifferentSPtoProfileInAutoAI.orgJobDepartment.get().isBlank()) {
-				PO21_MapDifferentSPtoProfileInAutoAI.orgJobDepartment.set("NULL");	
-			}
-			WebElement	jobFunction = driver.findElement(By.xpath("//tbody//tr[2]//div//span[2]"));
-			PO21_MapDifferentSPtoProfileInAutoAI.orgJobFunction.set(jobFunction.getText());
-			if(PO21_MapDifferentSPtoProfileInAutoAI.orgJobFunction.get().contentEquals("-") || PO21_MapDifferentSPtoProfileInAutoAI.orgJobFunction.get().isEmpty() || PO21_MapDifferentSPtoProfileInAutoAI.orgJobFunction.get().isBlank()) {
-				PO21_MapDifferentSPtoProfileInAutoAI.orgJobFunction.set("NULL");	
+		} catch(NoSuchElementException e) {
+			PO21_MapDifferentSPtoProfileInAutoAI.mapSP.set(false);
+			PageObjectHelper.log(LOGGER, "Currently, All Profiles in Job Mapping are Mapped with BIC Profiles");
+			PageObjectHelper.handleError(LOGGER, "verify_profile_with_no_bic_mapping_is_displaying_on_top_after_sorting",
+				"No profile with No BIC mapping found", e);
 		}
 	}
-} catch(NoSuchElementException e) {
-		LOGGER.error("No profile with No BIC mapping found - Method: verify_profile_with_no_bic_mapping_is_displaying_on_top_after_sorting", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_profile_with_no_bic_mapping", e);
-		PO21_MapDifferentSPtoProfileInAutoAI.mapSP.set(false);
-		LOGGER.info("Currently, All Profiles in Job Mapping are Mapped with BIC Profiles");
-		ExtentCucumberAdapter.addTestStepLog("Currently, All Profiles in Job Mapping are Mapped with BIC Profiles");
-	}
-}
 	
 	public void click_on_find_match_button() {
 		if(PO21_MapDifferentSPtoProfileInAutoAI.mapSP.get()) {
 			try {
+				// Click with fallback strategies
 				try {
 					wait.until(ExpectedConditions.elementToBeClickable(findMatchBtn)).click();
 				} catch (Exception e) {
@@ -122,41 +135,51 @@ public void verify_profile_with_no_bic_mapping_is_displaying_on_top_after_sortin
 						utils.jsClick(driver, findMatchBtn);
 					}
 				}
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Find Match button of Organization Job : "+ PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get());
-		LOGGER.info("Clicked on Find Match button of Organization Job : "+ PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get());
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-		} catch (Exception e) {
-			LOGGER.error("Issue clicking Find Match button - Method: click_on_find_match_button", e);
-			ScreenshotHandler.handleTestFailure("click_find_match_button", e, 
-				"Issue in clicking on Find Match button of Organization job name "+ PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get() + "...Please Investigate!!!");
-		}
+				
+				PageObjectHelper.log(LOGGER, "Clicked on Find Match button of Organization Job : " + 
+					PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get());
+				
+				// PERFORMANCE: Wait for spinners to disappear
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
+			} catch (Exception e) {
+				PageObjectHelper.handleError(LOGGER, "click_on_find_match_button",
+					"Issue in clicking on Find Match button of Organization job name " + 
+					PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get(), e);
+			}
 		}
 	}
 	
 	public void user_should_verify_search_a_different_profile_button_is_displaying_on_manually_mapped_success_profile() {
 		if(PO21_MapDifferentSPtoProfileInAutoAI.manualMapping.get()) {
-		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
-		wait.until(ExpectedConditions.elementToBeClickable(searchDifferntSPBtn)).isDisplayed();
-		LOGGER.info("Search a Different Profile is Displaying on matched success profile which is on the Top of the Profiles List");
-		ExtentCucumberAdapter.addTestStepLog("Search a Different Profile is Displaying on matched success profile which is on the Top of the Profiles List");
-	} catch (Exception e) {
-		LOGGER.error("Search Different Profile button not found - Method: user_should_verify_search_a_different_profile_button_is_displaying_on_manually_mapped_success_profile", e);
-		ScreenshotHandler.handleTestFailure("verify_search_different_profile_button_displaying", e, 
-			"Search a different profile is NOT displaying on Manually Mapped success profile which is on the Top of the Profiles List");
+			try {
+				PerformanceUtils.waitForPageReady(driver, 2);
+				
+				Assert.assertTrue(wait.until(ExpectedConditions.elementToBeClickable(searchDifferntSPBtn)).isDisplayed(),
+					"Search a Different Profile button should be visible");
+				
+				PageObjectHelper.log(LOGGER, "Search a Different Profile is Displaying on matched success profile which is on the Top of the Profiles List");
+			} catch (Exception e) {
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_search_a_different_profile_button_is_displaying_on_manually_mapped_success_profile",
+					"Search a different profile is NOT displaying on Manually Mapped success profile which is on the Top of the Profiles List", e);
+			}
+		}
 	}
-	}
-}
 	
 	public void click_on_manually_mapped_profile_name_of_job_profile_on_top_of_profiles_list() {
 		if(PO21_MapDifferentSPtoProfileInAutoAI.manualMapping.get()) { 
 			try {
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-				WebElement	linkedMappedProfile = driver.findElement(By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr[1]//td[1]//div"));
-				String MappedProfileNameText = wait.until(ExpectedConditions.elementToBeClickable(linkedMappedProfile)).getText();
+				// PERFORMANCE: Wait for spinners to disappear
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
+				
+				// Locate and get profile name
+				WebElement linkedMappedProfile = wait.until(ExpectedConditions.elementToBeClickable(
+					By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr[1]//td[1]//div")));
+				String MappedProfileNameText = linkedMappedProfile.getText();
 				PO21_MapDifferentSPtoProfileInAutoAI.mappedSuccessPrflName.set(MappedProfileNameText);
+				
+				// Click with fallback strategies
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(linkedMappedProfile)).click();
+					linkedMappedProfile.click();
 				} catch (Exception e) {
 					try {
 						js.executeScript("arguments[0].click();", linkedMappedProfile);
@@ -164,14 +187,18 @@ public void verify_profile_with_no_bic_mapping_is_displaying_on_top_after_sortin
 						utils.jsClick(driver, linkedMappedProfile);
 					}
 				}
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Manually Mapped Profile with name " + MappedProfileNameText + " of Organization Job " + PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get() + " which is on the Top of the Profiles List");
-		LOGGER.info("Clicked on Manually Mapped Profile with name " + MappedProfileNameText +" of Organization Job " + PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get() + " which is on the Top of the Profiles List");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-		} catch (Exception e) {
-			LOGGER.error("Issue clicking manually mapped profile - Method: click_on_manually_mapped_profile_name_of_job_profile_on_top_of_profiles_list", e);
-			ScreenshotHandler.handleTestFailure("click_manually_mapped_profile_name_top_list", e, 
-				"Issue in clicking Manually Mapped Profile linked with job name "+ PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get() + "...Please Investigate!!!");
-		}
+				
+				PageObjectHelper.log(LOGGER, "Clicked on Manually Mapped Profile with name " + MappedProfileNameText + 
+					" of Organization Job " + PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get() + 
+					" which is on the Top of the Profiles List");
+				
+				// PERFORMANCE: Wait for spinners after click
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
+			} catch (Exception e) {
+				PageObjectHelper.handleError(LOGGER, "click_on_manually_mapped_profile_name_of_job_profile_on_top_of_profiles_list",
+					"Issue in clicking Manually Mapped Profile linked with job name " + 
+					PO21_MapDifferentSPtoProfileInAutoAI.orgJobName.get(), e);
+			}
 		}
 	}
 		

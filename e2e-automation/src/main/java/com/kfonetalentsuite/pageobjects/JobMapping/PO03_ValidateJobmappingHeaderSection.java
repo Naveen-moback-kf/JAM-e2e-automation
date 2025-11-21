@@ -19,8 +19,6 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.SmartWaits;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
@@ -178,7 +176,6 @@ public class PO03_ValidateJobmappingHeaderSection {
 			PageObjectHelper.log(LOGGER,
 					"KORN FERRY TALENT SUITE Logo is displaying as Expected on Job Mapping UI Header");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_kf_talent_suite_logo_is_displaying", e);
 			PageObjectHelper.handleError(LOGGER, "verify_kf_talent_suite_logo_is_displaying",
 					"Issue in displaying KF Talent Suite logo in Job Mapping UI Header", e);
 		}
@@ -197,7 +194,6 @@ public class PO03_ValidateJobmappingHeaderSection {
 			}
 			PageObjectHelper.log(LOGGER, "Clicked on KORN FERRY TALENT SUITE Logo in Job Mapping UI Header");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_kf_talent_suite_logo", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_kf_talent_suite_logo",
 					"Issue in clicking on KORN FERRY TALENT SUITE Logo in Job Mapping UI Header", e);
 		}
@@ -205,7 +201,7 @@ public class PO03_ValidateJobmappingHeaderSection {
 
 	public void navigate_to_job_mapping_page_from_kfone_global_menu() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 
 			// Click on KFONE Global Menu button
 			try {
@@ -231,12 +227,11 @@ public class PO03_ValidateJobmappingHeaderSection {
 				}
 			}
 
-			// Wait for navigation to complete
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 2);
-			PageObjectHelper.log(LOGGER, "Successfully Navigated to Job Mapping screen");
+		// Wait for navigation to complete
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.log(LOGGER, "Successfully Navigated to Job Mapping screen");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("navigate_to_job_mapping_page_from_kfone_global_menu", e);
 			PageObjectHelper.handleError(LOGGER, "navigate_to_job_mapping_page_from_kfone_global_menu",
 					"Failed to navigate to Job Mapping page from KFONE Global Menu", e);
 		}
@@ -250,7 +245,6 @@ public class PO03_ValidateJobmappingHeaderSection {
 			PageObjectHelper.log(LOGGER,
 					"Client name correctly displaying on the Job Mapping UI Header: " + clientnameText);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_client_name_is_correctly_displaying", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_client_name_is_correctly_displaying",
 					"Issue in displaying correct client name in Job Mapping UI Header", e);
 		}
@@ -269,17 +263,16 @@ public class PO03_ValidateJobmappingHeaderSection {
 			}
 			PageObjectHelper.log(LOGGER, "Clicked on client name in Job Mapping UI Header");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_client_name_in_job_mapping_ui_header", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_client_name_in_job_mapping_ui_header",
 					"Issue in clicking on client name in Job Mapping UI Header", e);
 		}
 	}
 
 	public void verify_user_navigated_to_kfone_clients_page() {
-		try {
-			// Wait for spinner to disappear and page to load
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
-			SmartWaits.waitForPageLoad(driver);
+	try {
+		// Wait for spinner to disappear and page to load
+		// OPTIMIZED: Single comprehensive wait
+		PerformanceUtils.waitForPageReady(driver, 5);
 
 			// Verify landing page elements
 			wait.until(ExpectedConditions.visibilityOf(KFONE_landingPage_title)).isDisplayed();
@@ -289,7 +282,6 @@ public class PO03_ValidateJobmappingHeaderSection {
 
 			PageObjectHelper.log(LOGGER, "User navigated to KFONE Clients Page as Expected");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_user_navigated_to_kfone_clients_page", e);
 			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_kfone_clients_page",
 					"Issue in navigating to KFONE clients page", e);
 		}
@@ -309,7 +301,6 @@ public class PO03_ValidateJobmappingHeaderSection {
 			}
 			PageObjectHelper.log(LOGGER, "User Profile logo is displaying in Job Mapping Header and clicked on it");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_user_profile_logo_is_displaying_and_clickable", e);
 			PageObjectHelper.handleError(LOGGER, "verify_user_profile_logo_is_displaying_and_clickable",
 					"Issue in displaying or clicking User Profile logo in Job Mapping Header", e);
 		}
@@ -321,7 +312,6 @@ public class PO03_ValidateJobmappingHeaderSection {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(profileUserName)).isDisplayed());
 			PageObjectHelper.log(LOGGER, "User profile menu is opened on click of user profile logo");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_user_profile_menu_is_opened", e);
 			PageObjectHelper.handleError(LOGGER, "verify_user_profile_menu_is_opened",
 					"Issue in opening User Profile Menu", e);
 		}
@@ -333,7 +323,6 @@ public class PO03_ValidateJobmappingHeaderSection {
 			PageObjectHelper.log(LOGGER,
 					"User Name: " + profileUserNameText + " is displayed in Profile Menu as expected");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_user_name_is_displayed_in_profile_menu", e);
 			PageObjectHelper.handleError(LOGGER, "verify_user_name_is_displayed_in_profile_menu",
 					"Issue in displaying User name in User Profile Menu", e);
 		}
@@ -348,7 +337,6 @@ public class PO03_ValidateJobmappingHeaderSection {
 			PageObjectHelper.log(LOGGER,
 					"User Email: " + profileUserEmailText + " is displayed in Profile Menu as expected");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_user_email_is_displayed_in_profile_menu", e);
 			PageObjectHelper.handleError(LOGGER, "verify_user_email_is_displayed_in_profile_menu",
 					"Issue in displaying User email in User Profile Menu", e);
 		}
@@ -368,7 +356,6 @@ public class PO03_ValidateJobmappingHeaderSection {
 			}
 			PageObjectHelper.log(LOGGER, "Clicked on logout button in User Profile Menu");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_signout_button_in_user_profile_menu", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_signout_button_in_user_profile_menu",
 					"Issue in clicking logout button in User Profile Menu", e);
 		}
@@ -376,13 +363,12 @@ public class PO03_ValidateJobmappingHeaderSection {
 
 	public void user_should_be_signed_out_from_the_application() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
+			// OPTIMIZED: Single comprehensive wait
 			PerformanceUtils.waitForPageReady(driver, 3);
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(loginPageTextXapth)).isDisplayed());
 			PageObjectHelper.log(LOGGER,
 					"User signed out successfully and navigated back to Korn Ferry Talent Suite Sign In page");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_be_signed_out_from_the_application", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_be_signed_out_from_the_application",
 					"Issue in signing out from Application", e);
 		}

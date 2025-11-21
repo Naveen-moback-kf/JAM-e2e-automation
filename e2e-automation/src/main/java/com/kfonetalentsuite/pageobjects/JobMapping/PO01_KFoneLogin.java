@@ -21,7 +21,7 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.SmartWaits;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.SessionManager;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.utils.common.CommonVariable;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
@@ -215,7 +215,6 @@ public class PO01_KFoneLogin {
 			}
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("launch_the_kfone_application", e);
 			PageObjectHelper.handleError(LOGGER, "launch_the_kfone_application",
 					"Issue in launching KFONE application in environment: " + CommonVariable.ENVIRONMENT, e);
 		}
@@ -227,14 +226,10 @@ public class PO01_KFoneLogin {
 			wait.until(ExpectedConditions.elementToBeClickable(userNameTxt)).sendKeys(CommonVariable.SSO_USERNAME);
 			PageObjectHelper.log(LOGGER, "Provided SSO Login Username: " + CommonVariable.SSO_USERNAME);
 			username.set(CommonVariable.SSO_USERNAME);
-
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			utils.jsClick(driver, kfoneSigninBtn);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			Thread.sleep(2000);
 			PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page", e);
 			PageObjectHelper.handleError(LOGGER,
 					"provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page",
 					"Issue in providing SSO login username and clicking sign in button", e);
@@ -246,7 +241,6 @@ public class PO01_KFoneLogin {
 			wait.until(ExpectedConditions.visibilityOf(MicrosoftPasswordPageHeader)).isDisplayed();
 			PageObjectHelper.log(LOGGER, "User successfully navigated to Microsoft Login page");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_navigate_to_microsoft_login_page", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_navigate_to_microsoft_login_page",
 					"Issue in navigating to Microsoft Login page", e);
 		}
@@ -265,7 +259,6 @@ public class PO01_KFoneLogin {
 			wait.until(ExpectedConditions.elementToBeClickable(MicrosoftYesBtn)).click();
 			PageObjectHelper.log(LOGGER, "Clicked on Yes Button in Microsoft Login Page");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("provide_sso_login_password_and_click_sign_in", e);
 			PageObjectHelper.handleError(LOGGER, "provide_sso_login_password_and_click_sign_in",
 					"Issue in providing SSO login password and clicking sign in", e);
 		}
@@ -278,9 +271,9 @@ public class PO01_KFoneLogin {
 		PageObjectHelper.log(LOGGER, "Provided NON-SSO Login Username: " + CommonVariable.NON_SSO_USERNAME);
 		username.set(CommonVariable.NON_SSO_USERNAME);
 
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		utils.jsClick(driver, kfoneSigninBtn);
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
 	}
 
@@ -289,36 +282,39 @@ public class PO01_KFoneLogin {
 		PageObjectHelper.log(LOGGER, "Provided NON-SSO Login Password in KFONE Login Page");
 
 		utils.jsClick(driver, kfoneSigninBtn);
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
 	}
 
 	public void verify_the_kfone_landing_page() {
 		try {
-			// Check for terms and conditions popup with shorter timeout
-			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-			try {
-				shortWait.until(ExpectedConditions.elementToBeClickable(proceedBtn)).click();
-				PageObjectHelper.log(LOGGER, "Accepted KFONE terms and conditions");
-			} catch (NoSuchElementException | TimeoutException e) {
-				// Terms already accepted - continue silently
+			// OPTIMIZED: Check if proceedBtn exists before waiting (instant if not present)
+			if (!driver.findElements(By.xpath("//*[text()='Proceed']")).isEmpty()) {
+				try {
+					WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+					shortWait.until(ExpectedConditions.elementToBeClickable(proceedBtn)).click();
+					PageObjectHelper.log(LOGGER, "Accepted KFONE terms and conditions");
+				} catch (NoSuchElementException | TimeoutException e) {
+					// Terms popup appeared but couldn't be clicked - continue
+				}
 			}
 
-			// Wait for spinner to disappear and page to load
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			SmartWaits.waitForPageLoad(driver);
+			// PERFORMANCE: Single comprehensive wait replaces redundant spinner + page load waits
+			// This handles both spinners and page readiness in one efficient call
+			PerformanceUtils.waitForPageReady(driver, 10);
 
-			// Verify landing page elements
-			wait.until(ExpectedConditions.visibilityOf(KFONE_landingPage_title)).isDisplayed();
-			wait.until(ExpectedConditions.visibilityOf(KFONE_clientsPage_header)).isDisplayed();
-			String text1 = wait.until(ExpectedConditions.visibilityOf(KFONE_clientsPage_header)).getText();
-			String obj1 = "Clients";
-			Assert.assertEquals(obj1, text1);
+			// Verify landing page elements - use single wait to get element and verify
+			WebElement clientsHeader = wait.until(ExpectedConditions.visibilityOf(KFONE_clientsPage_header));
+			String headerText = clientsHeader.getText();
+			Assert.assertEquals("Clients", headerText, "Expected 'Clients' header on KFONE landing page");
 
 			PageObjectHelper.log(LOGGER, "Landed on KFONE Clients Page as Expected");
 			PageObjectHelper.log(LOGGER, "KFONE Landing Page Verification is Successful");
+			
+			// SESSION MANAGEMENT: Mark session as authenticated after successful login
+			SessionManager.markAuthenticated();
+			LOGGER.info("✅ Session marked as authenticated after successful login");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_the_kfone_landing_page", e);
 			PageObjectHelper.handleError(LOGGER, "verify_the_kfone_landing_page",
 					"Issue in verifying KFONE landing page after login", e);
 		}
@@ -327,32 +323,24 @@ public class PO01_KFoneLogin {
 
 	public void verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub() {
 		try {
-			// HEADLESS MODE OPTIMIZATION: Use shorter waits with multiple retries
-			int maxRetries = 3;
+			// OPTIMIZED: Single efficient wait with faster retry logic
+			int maxRetries = 2; // Reduced from 3
 			boolean pmHeaderFound = false;
 
 			for (int retry = 1; retry <= maxRetries && !pmHeaderFound; retry++) {
 				try {
-					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
+					// OPTIMIZED: Reduced timeout from 30s to 10s
+					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
 
-					// Wait for spinners to disappear
-					try {
-						shortWait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-					} catch (Exception spinnerEx) {
-						// Spinner timeout - continue anyway (common in headless mode)
-					}
+					// OPTIMIZED: Single comprehensive wait (removed redundancy)
+					PerformanceUtils.waitForPageReady(driver, 5);
 
-					// Wait for page to be ready
-					PerformanceUtils.waitForPageReady(driver, 3);
-					Thread.sleep(800); // Allow DOM to stabilize
-
-					// Check if PM Header is visible
+					// Check if PM Header is visible (with 10s max wait)
 					if (shortWait.until(ExpectedConditions.visibilityOf(PMHeader)).isDisplayed()) {
 						pmHeaderFound = true;
 						String MainHeader = PMHeader.getText();
 						PageObjectHelper.log(LOGGER,
 								"✅ User Successfully landed on the " + MainHeader + " Dashboard Page");
-						Thread.sleep(500); // Final stability check
 						break;
 					}
 
@@ -360,9 +348,7 @@ public class PO01_KFoneLogin {
 					if (retry < maxRetries) {
 						LOGGER.warn("Attempt {}/{} failed - retrying...", retry, maxRetries);
 						driver.navigate().refresh();
-						Thread.sleep(2000);
-					} else {
-						throw retryEx;
+						PerformanceUtils.waitForPageReady(driver, 3); // Quick refresh wait
 					}
 				}
 			}
@@ -372,8 +358,6 @@ public class PO01_KFoneLogin {
 			}
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub", e);
 			PageObjectHelper.handleError(LOGGER,
 					"verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub",
 					"Issue with seamless navigation from KFONE to Profile Manager Application", e);
@@ -423,7 +407,6 @@ public class PO01_KFoneLogin {
 			wait.until(ExpectedConditions.visibilityOf(clientsTable)).isDisplayed();
 			PageObjectHelper.log(LOGGER, "User is successfully on KFONE Clients page");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_is_in_kfone_clients_page", e);
 			PageObjectHelper.handleError(LOGGER, "user_is_in_kfone_clients_page",
 					"Issue in verifying user is on KFONE Clients page", e);
 		}
@@ -558,7 +541,6 @@ public class PO01_KFoneLogin {
 					"Products information is not displayed for the first client");
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_products_that_client_can_access", e);
 			PageObjectHelper.handleError(LOGGER, "verify_products_that_client_can_access",
 					"Issue in verifying products that client can access", e);
 		}
@@ -640,7 +622,6 @@ public class PO01_KFoneLogin {
 			}
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_client_name_based_on_pams_id", e);
 			PageObjectHelper.handleError(LOGGER, "verify_client_name_based_on_pams_id",
 					"Issue in verifying client name based on PAMS ID", e);
 		}
@@ -741,7 +722,6 @@ public class PO01_KFoneLogin {
 			LOGGER.info("========================================");
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("search_for_client_with_pams_id", e);
 			PageObjectHelper.handleError(LOGGER, "search_for_client_with_pams_id",
 					"Issue in searching for client with PAMS ID: " + e.getMessage(), e);
 		}
@@ -819,6 +799,10 @@ public class PO01_KFoneLogin {
 						clientNameElement.click();
 						clientClicked = true;
 						selectedClientName = clientName;
+						
+						// CRITICAL FIX: Store client name in ThreadLocal for Excel reporting
+						PO01_KFoneLogin.clientName.set(clientName);
+						LOGGER.info("✅ Stored client name for Excel reporting: {}", clientName);
 
 						PageObjectHelper.log(LOGGER,
 								"Successfully clicked on client: " + clientName + " (PAMS ID: " + pamsId + ")");
@@ -838,13 +822,12 @@ public class PO01_KFoneLogin {
 			}
 
 			// Wait for navigation to complete
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			SmartWaits.waitForPageLoad(driver);
+			// OPTIMIZED: Single comprehensive wait (replaces spinner + pageLoad redundancy)
+			PerformanceUtils.waitForPageReady(driver, 5);
 
 			PageObjectHelper.log(LOGGER, "Successfully navigated to client: " + selectedClientName);
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_client_with_access_to_profile_manager_application", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_client_with_access_to_profile_manager_application",
 					"Issue in clicking on client with access to Profile Manager Application", e);
 		}
@@ -852,8 +835,7 @@ public class PO01_KFoneLogin {
 
 	public void verify_user_navigated_to_kfone_home_page() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			SmartWaits.waitForPageLoad(driver);
+			// OPTIMIZED: Single comprehensive wait (replaces 3 redundant waits)
 			PerformanceUtils.waitForPageReady(driver, 5);
 
 			// Verify KFONE Home page header
@@ -871,7 +853,6 @@ public class PO01_KFoneLogin {
 			PageObjectHelper.log(LOGGER, "Verified 'Your products' section is displayed: " + productsSectionText);
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_user_navigated_to_kfone_home_page", e);
 			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_kfone_home_page",
 					"Issue in verifying user navigated to KFONE Home Page", e);
 		}
@@ -895,16 +876,14 @@ public class PO01_KFoneLogin {
 					"Successfully clicked on Profile Manager application in Your Products section");
 
 			// Wait for navigation to complete
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			SmartWaits.waitForPageLoad(driver);
+			// OPTIMIZED: Single comprehensive wait (replaces spinner + pageLoad redundancy)
+			PerformanceUtils.waitForPageReady(driver, 5);
 
 			// OPTIMIZATION: Handle cookies banner immediately after navigation (with short
 			// timeout)
 			// handleCookiesBanner();
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_profile_manager_application_in_your_products_section",
-					e);
 			PageObjectHelper.handleError(LOGGER, "click_on_profile_manager_application_in_your_products_section",
 					"Issue in clicking on Profile Manager application in Your Products section", e);
 		}

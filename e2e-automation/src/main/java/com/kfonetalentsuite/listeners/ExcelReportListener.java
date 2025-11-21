@@ -244,6 +244,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
             return;
         }
         
+        // CRITICAL: Cache user/client info immediately after runner completes
+        // This ensures the cache is populated for suite-level reporting
+        DailyExcelTracker.cacheUserAndClientInfo();
+        
         // ENHANCED: Update progress bar when runner completes
         if (totalTestContexts.get() > 0) {
             completedTestContexts.incrementAndGet();

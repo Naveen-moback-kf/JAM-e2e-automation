@@ -80,15 +80,13 @@ public class PO09_PublishSelectedProfiles {
 
 	public void search_for_published_job_name1() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 2);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			// OPTIMIZED: Single comprehensive wait
+			PerformanceUtils.waitForPageReady(driver, 3);
 			wait.until(ExpectedConditions.visibilityOf(searchBar)).click();
 			wait.until(ExpectedConditions.visibilityOf(searchBar)).clear();
 			wait.until(ExpectedConditions.visibilityOf(searchBar))
 					.sendKeys(PO04_VerifyJobMappingPageComponents.orgJobNameInRow1.get());
 			wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(Keys.ENTER);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER, "Searched for job: "
 					+ PO04_VerifyJobMappingPageComponents.orgJobNameInRow1.get() + " in View Published screen");
@@ -100,7 +98,7 @@ public class PO09_PublishSelectedProfiles {
 
 	public void user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			// OPTIMIZED: Single comprehensive wait
 			PerformanceUtils.waitForPageReady(driver, 2);
 			String job1NameText = wait.until(ExpectedConditions.visibilityOf(jobNameinRow1)).getText();
 			Assert.assertEquals(PO04_VerifyJobMappingPageComponents.orgJobNameInRow1.get(),
@@ -117,15 +115,13 @@ public class PO09_PublishSelectedProfiles {
 
 	public void search_for_published_job_name2() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 2);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			// OPTIMIZED: Single comprehensive wait
+			PerformanceUtils.waitForPageReady(driver, 3);
 			wait.until(ExpectedConditions.visibilityOf(searchBar)).click();
 			wait.until(ExpectedConditions.visibilityOf(searchBar)).clear();
 			wait.until(ExpectedConditions.visibilityOf(searchBar))
 					.sendKeys(PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get());
 			wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(Keys.ENTER);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER, "Searched for job: "
 					+ PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get() + " in View Published screen");
@@ -137,7 +133,7 @@ public class PO09_PublishSelectedProfiles {
 
 	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			// OPTIMIZED: Single comprehensive wait
 			PerformanceUtils.waitForPageReady(driver, 2);
 			String job1NameText = wait.until(ExpectedConditions.visibilityOf(jobNameinRow1)).getText();
 			Assert.assertEquals(PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get(),

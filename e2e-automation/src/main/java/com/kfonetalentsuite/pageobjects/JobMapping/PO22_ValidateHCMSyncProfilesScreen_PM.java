@@ -1,8 +1,8 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -17,11 +17,13 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.TimeoutException;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.HeadlessCompatibleActions;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
@@ -315,7 +317,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	//METHODs
 	public void user_is_on_architect_dashboard_page() {
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver);
 		LOGGER.info("User is on Architect Dashboard Page");
 		ExtentCucumberAdapter.addTestStepLog("User is on Architect Dashboard Page");
 	}
@@ -327,30 +329,24 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			String PMHeaderText = wait.until(ExpectedConditions.visibilityOf(PMHeader)).getText();
 			LOGGER.info("User is on " + PMHeaderText + " page as expected");
 			ExtentCucumberAdapter.addTestStepLog("User is on " + PMHeaderText + " page as expected");
-		} catch (AssertionError e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_user_on_profile_manager_page", e);
-			LOGGER.error(" Assertion failed - User is NOT on Profile Manager page - Method: user_is_on_profile_manager_page", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in verifying user is on Profile Manager page...Please Investigate!!!");
-			throw e; // Re-throw to fail the test
+	} catch (AssertionError e) {
+		PageObjectHelper.handleError(LOGGER, "user_is_on_profile_manager_page",
+			"Assertion failed - User is NOT on Profile Manager page", new Exception(e));
+		throw e; // Re-throw to fail the test
 	} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("verify_user_on_profile_manager_page", e);
-			LOGGER.error(" Issue verifying user is on Profile Manager page - Method: user_is_on_profile_manager_page", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in verifying user is on Profile Manager page...Please Investigate!!!");
-			Assert.fail("Issue in verifying user is on Profile Manager page...Please Investigate!!!");
-		}
+		PageObjectHelper.handleError(LOGGER, "user_is_on_profile_manager_page",
+			"Issue verifying user is on Profile Manager page", e);
+		Assert.fail("Issue in verifying user is on Profile Manager page...Please Investigate!!!");
+	}
 	}
 	
 	public void click_on_menu_button() {
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+		// PERFORMANCE: Single comprehensive wait
+		PerformanceUtils.waitForPageReady(driver, 3);
 		try {
 			utils.jsClick(driver, MenuBtn);
-			// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
-			PerformanceUtils.waitForPageReady(driver, 2);
 		} catch (Exception e) {
 			utils.jsClick(driver, homeMenuBtn1);
-			PerformanceUtils.waitForPageReady(driver, 2);
 		}
 		LOGGER.info("Able to click on Menu Button");
 		ExtentCucumberAdapter.addTestStepLog("Able to click on Menu Button");
@@ -370,7 +366,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	}
 
 	public void user_should_be_landed_to_pm_dashboard() {
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver);
 //		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(PMHeader)).isDisplayed());
 //		String MainHeader = wait.until(ExpectedConditions.visibilityOf(PMHeader)).getText();
 		LOGGER.info("User Successfully landed on the PROFILE MANAGER Dashboard Page");
@@ -393,9 +389,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		// PERFORMANCE: Single optimized wait - waitForPageReady already checks spinners
 		PerformanceUtils.waitForPageReady(driver, 2);
 	} catch (Exception e) {
-		LOGGER.error(" Issue clicking HCM Sync Profiles header - Method: click_on_hcm_sync_profiles_header_button", e);
-			ScreenshotHandler.handleTestFailure("click_on_hcm_sync_profiles_header", e, 
-				"Issue in clicking HCM Sync Profiles header in Profile Manager...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "click_on_hcm_sync_profiles_header_button",
+			"Issue in clicking HCM Sync Profiles header in Profile Manager", e);
+		Assert.fail("Issue in clicking HCM Sync Profiles header in Profile Manager...Please Investigate!!!");
 		}
 	}
 	
@@ -407,7 +403,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog("User should be Navigated to HCM Sync Profiles screen in Profile Manager");
 	} catch (Exception e) {
 		LOGGER.error(" Issue navigating to HCM Sync Profiles screen - Method: user_should_be_navigated_to_hcm_sync_profiles_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("navigate_to_hcm_sync_profiles_screen", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Navigating to HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Navigating to HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -421,13 +416,11 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("Title is correctly displaying in HCM Sync Profiles screen in Profile Manager");
 			ExtentCucumberAdapter.addTestStepLog("Title is correctly displaying in HCM Sync Profiles screen in Profile Manager");
 		} catch (AssertionError e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_title_hcm_sync_profiles", e);
 			LOGGER.error(" Assertion failed - Title mismatch in HCM Sync Profiles screen - Method: verify_title_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
 			e.printStackTrace();
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying title in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			throw e; // Re-throw to fail the test
 	} catch (Exception e) {
-		ScreenshotHandler.captureFailureScreenshot("verify_title_hcm_sync_profiles", e);
 			LOGGER.error(" Issue verifying title - Method: verify_title_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
 			e.printStackTrace();
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying title in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -443,7 +436,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog("Title Description below the title is correctly displaying in HCM Sync Profiles screen in Profile Manager");
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying title description - Method: verify_description_below_the_title_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_title_description", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying title description in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying title description in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -452,14 +444,31 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void verify_search_bar_text_box_is_clickable_in_hcm_sync_profiles_tab() {
 		try {
-			// PERFORMANCE: Clickable check already ensures element is visible and spinners are gone
-			wait.until(ExpectedConditions.visibilityOf(hcmSyncProfilesSearchbar)).isDisplayed();
+			// ENHANCED FIX: Explicitly wait for blocking loader to disappear
+			PerformanceUtils.waitForPageReady(driver, 15);
+			
+			// Additional explicit wait for blocking loader to be invisible
+			try {
+				WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
+				shortWait.until(ExpectedConditions.invisibilityOfElementLocated(
+					By.xpath("//div[contains(@class,'blocking-loader')]")));
+				LOGGER.info("✅ Blocking loader disappeared");
+			} catch (TimeoutException e) {
+				LOGGER.warn("⚠️ Blocking loader check timed out (may not be present) - continuing...");
+			}
+			
+			// Scroll search bar into view
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", hcmSyncProfilesSearchbar);
+			
+			// Small wait after scroll for stability
+			Thread.sleep(500);
+			
+			// Now wait for search bar to be clickable and click
 			wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).click();
 			LOGGER.info("Search bar text box is displayed and clickable in HCM Sync Profiles screen in Profile Manager");
 			ExtentCucumberAdapter.addTestStepLog("Search bar text box is displayed and clickable in HCM Sync Profiles screen in Profile Manager");
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying search bar clickability - Method: verify_search_bar_text_box_is_clickable_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_search_bar_clickable", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying Search bar is clickable or not in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Search bar is clickable or not in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -474,7 +483,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog(placeHolderText + " is displaying as Placeholder Text in Search bar in HCM Sync Profiles screen in Profile Manager");
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying search bar placeholder text - Method: verify_search_bar_placeholder_text_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_search_bar_placeholder", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying Search bar Placeholder Text in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Search bar Placeholder Text in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -512,9 +520,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).clear();
 				wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).sendKeys(profileName);
 				
-				// CRITICAL: Wait for spinner to disappear before checking results
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-				PerformanceUtils.waitForPageReady(driver, 2);
+				// PERFORMANCE: Single comprehensive wait for search results
+				PerformanceUtils.waitForPageReady(driver, 5);
 					
 					// Check if results were found
 					String resultsCountText = "";
@@ -572,13 +579,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				ExtentCucumberAdapter.addTestStepLog(" No profile name returned results. Using: '" + selectedProfileName + "'");
 			}
 			
-			LOGGER.info("========================================");
-			LOGGER.info("Final selected profile name: '" + jobProfileName + "'");
-			LOGGER.info("========================================");
+		LOGGER.info("========================================");
+		LOGGER.info("Final selected profile name: '" + jobProfileName.get() + "'");
+		LOGGER.info("========================================");
 			
 		} catch (Exception e) {
 			LOGGER.error(" Issue entering job profile name in search bar - Method: enter_job_profile_name_in_search_bar_in_hcm_sync_profiles_tab", e);
-			ScreenshotHandler.captureFailureScreenshot("enter_job_profile_name_search_bar", e);
 			e.printStackTrace();
 			Assert.fail("Issue in entering Job Profile Name in Search bar in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in entering Job Profile Name in Search bar in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -587,11 +593,16 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void user_should_verify_profile_name_matching_profile_is_displaying_in_organization_jobs_profile_list() {
 	try {
-		LOGGER.info("Verifying if profile name '{}' is displaying in HCM Sync Profiles list", jobProfileName);
+		// Validate that job profile name is available
+		if (jobProfileName.get() == null || jobProfileName.get().isEmpty()) {
+			throw new IllegalStateException("Job profile name (jobProfileName) is not set. Ensure a profile was searched in a previous step.");
+		}
 		
-		// CRITICAL: Wait for spinner to disappear before checking results
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		PerformanceUtils.waitForPageReady(driver, 2);
+		String searchedProfileName = jobProfileName.get();
+		LOGGER.info("Verifying if profile name '{}' is displaying in HCM Sync Profiles list", searchedProfileName);
+		
+		// PERFORMANCE: Single comprehensive wait
+		PerformanceUtils.waitForPageReady(driver, 5);
 		
 		// ENHANCED: First check if profile is found or "No SP" message is displayed
 		boolean profileFound = false;
@@ -611,29 +622,28 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		if (profileFound) {
 		// Profile exists - verify it matches search criteria
 		String profileNameFromList = job1NameText.split("-", 2)[0].trim();
-		boolean matchesSearch = profileNameFromList.toLowerCase().contains(jobProfileName.get().toLowerCase());
+		boolean matchesSearch = profileNameFromList.toLowerCase().contains(searchedProfileName.toLowerCase());
 			
 			if (matchesSearch) {
 				LOGGER.info("Searched String present in Job Profile with name: '{}' is displaying in HCM Sync Profiles screen in PM as expected", profileNameFromList);
 				ExtentCucumberAdapter.addTestStepLog("Searched String present in Job Profile with name: " + profileNameFromList + " is displaying in HCM Sync Profiles screen in PM as expected");
 			} else {
-				String errorMsg = String.format(
-					"Profile found but does not match search criteria. " +
-					"Searched for: '%s', Found profile: '%s', " +
-					"Profile does not contain searched text.",
-					jobProfileName,
-					profileNameFromList
-				);
+			String errorMsg = String.format(
+				"Profile found but does not match search criteria. " +
+				"Searched for: '%s', Found profile: '%s', " +
+				"Profile does not contain searched text.",
+				searchedProfileName,
+				profileNameFromList
+			);
 				LOGGER.error(errorMsg);
-				ScreenshotHandler.captureFailureScreenshot("profile_mismatch", new AssertionError(errorMsg));
 				Assert.fail(errorMsg);
 			}
 		} else {
 			// No profile in first row - check if "No SP" message is displayed
 			try {
-				wait.until(ExpectedConditions.visibilityOf(NoSPMsg)).isDisplayed();
-				LOGGER.info("No Success Profile Found with searched String: '{}'", jobProfileName);
-				ExtentCucumberAdapter.addTestStepLog("No Success Profile Found with searched String: " + jobProfileName);
+			wait.until(ExpectedConditions.visibilityOf(NoSPMsg)).isDisplayed();
+			LOGGER.info("No Success Profile Found with searched String: '{}'", searchedProfileName);
+			ExtentCucumberAdapter.addTestStepLog("No Success Profile Found with searched String: " + searchedProfileName);
 				
 				// Clear the search bar
 				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(hcmSyncProfilesSearchbar)).isDisplayed());
@@ -650,18 +660,17 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				ExtentCucumberAdapter.addTestStepLog("Cleared Search bar in HCM Sync Profiles screen in PM");
 			} catch(Exception d) {
 				// Neither profile nor "No SP" message found
-				String errorMsg = String.format(
-					"Failed to verify profile name matching. " +
-					"Searched for: '%s', " +
-					"Neither matching profile nor 'No Success Profile' message was found. " +
-					"Error type: %s, Error message: %s",
-					jobProfileName,
-					d.getClass().getSimpleName(),
-					d.getMessage()
-				);
+			String errorMsg = String.format(
+				"Failed to verify profile name matching. " +
+				"Searched for: '%s', " +
+				"Neither matching profile nor 'No Success Profile' message was found. " +
+				"Error type: %s, Error message: %s",
+				searchedProfileName,
+				d.getClass().getSimpleName(),
+				d.getMessage()
+			);
 				
 				LOGGER.error(errorMsg, d);
-				ScreenshotHandler.captureFailureScreenshot("verify_profile_name_matching", d);
 				d.printStackTrace();
 				Assert.fail(errorMsg);
 				ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorMsg);
@@ -669,16 +678,23 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		}	
 	} catch (Exception outerException) {
 		// Outer catch for any unexpected errors
-		String errorDetails = String.format(
-			"Unexpected error while verifying profile name matching. " +
-			"Searched for: '%s', Error type: %s, Error message: %s",
-			jobProfileName,
-			outerException.getClass().getSimpleName(),
-			outerException.getMessage()
-		);
+		// Safely get profile name for error message
+		String profileNameForError = "N/A";
+		try {
+			profileNameForError = (jobProfileName.get() != null) ? jobProfileName.get() : "N/A";
+		} catch (Exception e) {
+			// Ignore - use default "N/A"
+		}
+		
+	String errorDetails = String.format(
+		"Unexpected error while verifying profile name matching. " +
+		"Searched for: '%s', Error type: %s, Error message: %s",
+		profileNameForError,
+		outerException.getClass().getSimpleName(),
+		outerException.getMessage()
+	);
 		
 		LOGGER.error(errorDetails, outerException);
-		ScreenshotHandler.captureFailureScreenshot("verify_profile_unexpected_error", outerException);
 		outerException.printStackTrace();
 		Assert.fail(errorDetails);
 		ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorDetails);
@@ -691,10 +707,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			wait.until(ExpectedConditions.elementToBeClickable(HCMSyncProfilesJobinRow1)).click();
 			LOGGER.info("Clicked on profile with name : " + job1NameText.split("-", 2)[0].trim() + " in Row1 in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on profile with name : " + job1NameText.split("-", 2)[0].trim() + " in Row1 in HCM Sync Profiles screen in PM");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking on name matching profile - Method: click_on_name_matching_profile_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("click_name_matching_profile", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Clicking on Searched name Matching profile in Row1 in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Clicking on Searched name Matching profile in Row1 in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -709,7 +724,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog("User navigated to SP details page as expected on click of Matching Profile Job name in HCM Sync Profiles screen in PM....");
 	} catch (Exception e) {
 		LOGGER.error(" Issue navigating to SP details page - Method: user_should_be_navigated_to_sp_details_page_on_click_of_matching_profile", e);
-		ScreenshotHandler.captureFailureScreenshot("navigate_to_sp_details_page", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Navigating to SP details Page on click of Matching Profile Job name in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Navigating to SP details Page on click of Matching Profile Job name in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -751,15 +765,13 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				js.executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", hcmSyncProfilesSearchbar);
 			}
 			
-			// Wait for spinner and page to stabilize after clearing
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver, 2);
+			// PERFORMANCE: Single comprehensive wait after clearing
+			PerformanceUtils.waitForPageReady(driver, 5);
 			
 			LOGGER.info("Cleared Search bar in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Cleared Search bar in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
 			LOGGER.error("Issue clearing search bar - Method: clear_search_bar_in_hcm_sync_profiles_tab", e);
-			ScreenshotHandler.captureFailureScreenshot("clear_search_bar", e);
 			e.printStackTrace();
 			Assert.fail("Issue in clearing search bar in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Issue in clearing search bar in HCM Sync Profiles screen in PM");
@@ -768,16 +780,15 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab() {
 		try {
-			// CRITICAL: Wait for spinner to disappear before checking results count
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		PerformanceUtils.waitForPageReady(driver, 2);
-		String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-		intialResultsCount.set(resultsCountText);
-	    LOGGER.info("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
-	    ExtentCucumberAdapter.addTestStepLog("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
-	} catch (Exception e) {
-		LOGGER.error(" Issue verifying job profiles count - Method: verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_job_profiles_count", e);
+			// PERFORMANCE: Single comprehensive wait for page readiness
+			PerformanceUtils.waitForPageReady(driver, 5);
+			WebElement resultsCountElement = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
+			String resultsCountText = resultsCountElement.getText();
+			intialResultsCount.set(resultsCountText);
+			LOGGER.info("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
+			ExtentCucumberAdapter.addTestStepLog("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
+		} catch (Exception e) {
+			LOGGER.error(" Issue verifying job profiles count - Method: verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying job profiles results count in on the page in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying job profiles results count in on the page in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -787,14 +798,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void scroll_page_to_view_more_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
 			headlessActions.scrollToBottom();
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
-			PerformanceUtils.waitForPageReady(driver);
+			// PERFORMANCE: Single comprehensive wait after scroll
+			PerformanceUtils.waitForPageReady(driver, 5);
 			LOGGER.info("Scrolled page down to view more job profiles in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Scrolled page down to view more job profiles in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue scrolling page - Method: scroll_page_to_view_more_job_profiles_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("scroll_page_to_view_more_profiles", e);
 			e.printStackTrace();
 			Assert.fail("Issue in scrolling page down to view more job profiles in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in scrolling page down to view more job profiles in in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -804,9 +813,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table_in_hcm_sync_profiles_tab() {
 		try {
 			js.executeScript("arguments[0].scrollIntoView(true);", hcmSyncProfilesTitle);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		// PERFORMANCE: Replaced Thread.sleep(3000) with smart element wait
-		PerformanceUtils.waitForElement(driver, showingJobResultsCount);
+			// PERFORMANCE: Single comprehensive wait
+			PerformanceUtils.waitForElement(driver, showingJobResultsCount, 5);
 		String resultsCountText1 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
 		updatedResultsCount.set(resultsCountText1);
 		// PERFORMANCE: Removed Thread.sleep(2000) - element already waited for above
@@ -821,7 +829,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			}
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying profiles count after scrolling - Method: user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_profiles_count_after_scrolling", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -836,8 +843,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void click_on_filters_dropdown_button_in_hcm_sync_profiles_tab() {
 		try {
 			js.executeScript("window.scrollTo(0, 0);"); // Instant scroll to top
-			// PERFORMANCE: waitForElement already handles spinner checks and element readiness
-			PerformanceUtils.waitForElement(driver, filtersDropdownBtn);
+			
+			// PERFORMANCE: Ensure page is ready before interacting
+			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			// Wait for filters button to be clickable
+			WebElement filtersBtn = wait.until(ExpectedConditions.elementToBeClickable(filtersDropdownBtn));
 			
 			// Check if dropdown is already open by checking visibility of filterOptions
 			boolean isDropdownOpen = false;
@@ -851,17 +862,35 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			if (isDropdownOpen) {
 				LOGGER.info("Filters dropdown is already open in HCM Sync Profiles screen - skipping click");
 				ExtentCucumberAdapter.addTestStepLog("Filters dropdown is already open in HCM Sync Profiles screen");
-			} else {
-				// Dropdown is closed, so open it
-				utils.jsClick(driver, filtersDropdownBtn);
-				LOGGER.info("Clicked on filters dropdown button in HCM Sync Profiles screen in PM...");
-				ExtentCucumberAdapter.addTestStepLog("Clicked on filters dropdown button in HCM Sync Profiles screen in PM...");
-				// PERFORMANCE: Wait for dropdown to be visible (replaces spinner wait + page ready + visibility check)
-				wait.until(ExpectedConditions.visibilityOf(filterOptions));
+		} else {
+			// Dropdown is closed, so open it - filtersBtn is already clickable from line 846
+			try {
+				wait.until(ExpectedConditions.elementToBeClickable(filtersBtn)).click();
+			} catch (Exception e) {
+				try {
+					js.executeScript("arguments[0].click();", filtersBtn);
+				} catch (Exception s) {
+					utils.jsClick(driver, filtersBtn);
+				}
+			}
+			LOGGER.info("Clicked on filters dropdown button in HCM Sync Profiles screen in PM...");
+			ExtentCucumberAdapter.addTestStepLog("Clicked on filters dropdown button in HCM Sync Profiles screen in PM...");
+				
+				// PERFORMANCE: Wait for dropdown to be visible with shorter timeout
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+				try {
+					shortWait.until(ExpectedConditions.visibilityOf(filterOptions));
+					LOGGER.info("Filters dropdown opened successfully");
+				} catch (TimeoutException te) {
+					// If accordion doesn't appear, check if we're on the right page
+					String currentUrl = driver.getCurrentUrl();
+					LOGGER.error("Filters dropdown did not appear after clicking. Current URL: {}", currentUrl);
+					throw new Exception("Filters dropdown (accordion) did not appear after 10 seconds. " +
+							"This might indicate the page is not in the expected state. Current URL: " + currentUrl);
+				}
 			}
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking filters dropdown - Method: click_on_filters_dropdown_button_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("click_filters_dropdown", e);
 			e.printStackTrace();
 			Assert.fail("Issue in clicking filters dropdown button in HCM Sync Profiles screen in PM...Please investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in clicking filters dropdown button in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -869,33 +898,51 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	}
 	
 	public void verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab() {
-		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(filterOptions)).isDisplayed());
+		// PERFORMANCE: Wait for dropdown to be visible
+		wait.until(ExpectedConditions.visibilityOf(filterOptions));
+		
 		try {
-			String filterOption1Text = wait.until(ExpectedConditions.visibilityOf(filterOption1)).getText();
+			// STALE ELEMENT FIX: Re-locate elements dynamically to avoid cached stale references
+			WebElement option1 = driver.findElement(By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][1]//span//div"));
+			WebElement option2 = driver.findElement(By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][2]//span//div"));
+			WebElement option3 = driver.findElement(By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div"));
+			
+			String filterOption1Text = wait.until(ExpectedConditions.visibilityOf(option1)).getText();
 			Assert.assertEquals(filterOption1Text, "KF Grade");
-			String filterOption2Text = wait.until(ExpectedConditions.visibilityOf(filterOption2)).getText();
+			String filterOption2Text = wait.until(ExpectedConditions.visibilityOf(option2)).getText();
 			Assert.assertEquals(filterOption2Text, "Levels");
-			String filterOption3Text = wait.until(ExpectedConditions.visibilityOf(filterOption3)).getText();
+			String filterOption3Text = wait.until(ExpectedConditions.visibilityOf(option3)).getText();
 			Assert.assertEquals(filterOption3Text, "Functions / Subfunctions");
 			LOGGER.info("Options inside Filters dropdown verified successfully in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Options inside Filters dropdown verified successfully in HCM Sync Profiles screen in PM");
-	} catch (Exception e) {
-		LOGGER.error(" Issue verifying filter options - Method: verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_filter_options", e);
+		} catch (Exception e) {
+			LOGGER.error(" Issue verifying filter options - Method: verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying Options inside Filter dropdown in HCM Sync Profiles screen in PM....Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Options inside Filter dropdown in HCM Sync Profiles screen in PM....Please Investigate!!!");
 		}
 		
 		try {
-			wait.until(ExpectedConditions.elementToBeClickable(filterOption3)).click();
-			wait.until(ExpectedConditions.visibilityOf(searchBarInFilterOption3)).isDisplayed();
-			searchBarInFilterOption3.click();
+			// STALE ELEMENT FIX: Re-locate option3 for clicking
+			WebElement option3ToClick = driver.findElement(By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div"));
+			try {
+				wait.until(ExpectedConditions.elementToBeClickable(option3ToClick)).click();
+			} catch (Exception e) {
+				try {
+					js.executeScript("arguments[0].click();", option3ToClick);
+				} catch (Exception s) {
+					utils.jsClick(driver, option3ToClick);
+				}
+			}
+			
+			// STALE ELEMENT FIX: Re-locate search bar
+			WebElement searchBar = driver.findElement(By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//input"));
+			wait.until(ExpectedConditions.visibilityOf(searchBar));
+			searchBar.click();
 			LOGGER.info("Search bar inside Functions / Subfunctions filter option is available and is clickable in HCM Sync Profiles screen in PM...");
 			ExtentCucumberAdapter.addTestStepLog("Search bar inside Functions / Subfunctions filter option is available and is clickable in HCM Sync Profiles screen in PM...");
-	} catch (Exception e) {
-		LOGGER.error(" Issue verifying search bar in filter option - Method: verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_search_bar_in_filter", e);
+		} catch (Exception e) {
+			LOGGER.error(" Issue verifying search bar in filter option - Method: verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying Search bar inside Functions / Subfunctions filter option in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Search bar inside Functions / Subfunctions filter option in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -903,9 +950,11 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		
 		// Close the dropdown after verification to ensure clean state for next scenario
 		try {
-			if (filterOptions.isDisplayed()) {
+			// STALE ELEMENT FIX: Re-locate filterOptions for visibility check
+			WebElement filterOptionsElement = driver.findElement(By.xpath("//*[@class='accordion']"));
+			if (filterOptionsElement.isDisplayed()) {
 				utils.jsClick(driver, filtersDropdownBtn);
-				wait.until(ExpectedConditions.invisibilityOf(filterOptions));
+				wait.until(ExpectedConditions.invisibilityOf(filterOptionsElement));
 				LOGGER.info("Closed Filters dropdown after verification in HCM Sync Profiles screen");
 				ExtentCucumberAdapter.addTestStepLog("Closed Filters dropdown after verification");
 			}
@@ -933,7 +982,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				ExtentCucumberAdapter.addTestStepLog("Clicked on KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...");
 	} catch (Exception e) {
 		LOGGER.error("Issue clicking KF Grade dropdown - Method: apply_kf_grade_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-			ScreenshotHandler.captureFailureScreenshot("click_kf_grade_dropdown", e);
 				e.printStackTrace();
 				Assert.fail("Issue in clicking KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in clicking KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -945,7 +993,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		
 		if (KFGradeAllCheckboxes.isEmpty() || KFGradeAllLabels.isEmpty()) {
 			LOGGER.error(" No KF Grade options found after expanding dropdown");
-			ScreenshotHandler.captureFailureScreenshot("no_kf_grade_options_found", new Exception("No options found"));
 			throw new Exception("No KF Grade filter options found");
 		}
 		
@@ -973,7 +1020,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		ExtentCucumberAdapter.addTestStepLog("Selected KF Grade Value : " + kfGradeValue + " from Filters dropdown in HCM Sync Profiles screen in PM....");
 	} catch (Exception e) {
 				LOGGER.error(" Issue selecting KF Grade option - Method: apply_kf_grade_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-				ScreenshotHandler.captureFailureScreenshot("select_kf_grade_option", e);
 				e.printStackTrace();
 				Assert.fail("Issue in selecting a option from KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in selecting a option from KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1001,9 +1047,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			}
 			
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			// PERFORMANCE: Replaced Thread.sleep(3000+2000) with smart element wait  
-			PerformanceUtils.waitForPageReady(driver, 2);
+			// PERFORMANCE: Single comprehensive wait after closing dropdown
+			PerformanceUtils.waitForPageReady(driver, 5);
 			
 			// Check if there are no results after applying the filter
 			boolean noResults = false;
@@ -1041,14 +1086,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			}
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying profiles count after KF Grade filter - Method: apply_kf_grade_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_count_after_kf_grade_filter", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}
 	} catch (Exception e) {
 		LOGGER.error(" Issue applying KF Grade filter - Method: apply_kf_grade_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("apply_kf_grade_filter", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying KF Grade Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying KF Grade Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1057,14 +1100,13 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void clear_kf_grade_filter_in_hcm_sync_profiles_tab() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(closeAppliedFilter)).isDisplayed();
-			wait.until(ExpectedConditions.visibilityOf(closeAppliedFilter)).click();
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			WebElement closeFilterElement = wait.until(ExpectedConditions.visibilityOf(closeAppliedFilter));
+			closeFilterElement.click();
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 			LOGGER.info("Cleared Applied KF Grade Filter in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Cleared Applied KF Grade Filter in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue clearing KF Grade filter - Method: clear_kf_grade_filter_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("clear_kf_grade_filter", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Clearing Applied KF Grade Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Clearing Applied KF Grade Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1081,7 +1123,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				ExtentCucumberAdapter.addTestStepLog("Clicked on Levels dropdown in Filters in HCM Sync Profiles screen in PM...");
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking Levels dropdown - Method: apply_levels_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-			ScreenshotHandler.captureFailureScreenshot("click_levels_dropdown", e);
 				e.printStackTrace();
 				Assert.fail("Issue in clicking Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in clicking Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1093,7 +1134,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		
 		if (LevelsAllCheckboxes.isEmpty() || LevelsAllLabels.isEmpty()) {
 			LOGGER.error(" No Levels options found after expanding dropdown");
-			ScreenshotHandler.captureFailureScreenshot("no_levels_options_found", new Exception("No options found"));
 			throw new Exception("No Levels filter options found");
 		}
 		
@@ -1121,7 +1161,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		ExtentCucumberAdapter.addTestStepLog("Selected Levels Value : " + levelsValue + " from Filters dropdown in HCM Sync Profiles screen in PM....");
 	} catch (Exception e) {
 		LOGGER.error(" Issue selecting Levels option - Method: apply_levels_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-				ScreenshotHandler.captureFailureScreenshot("select_levels_option", e);
 					e.printStackTrace();
 					Assert.fail("Issue in selecting a option from Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 					ExtentCucumberAdapter.addTestStepLog("Issue in selecting a option from Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1149,9 +1188,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			}
 			
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			// PERFORMANCE: Replaced Thread.sleep(3000+2000) with smart element wait  
-			PerformanceUtils.waitForPageReady(driver, 2);
+			// PERFORMANCE: Single comprehensive wait after closing dropdown
+			PerformanceUtils.waitForPageReady(driver, 5);
 			
 			// Check if there are no results after applying the filter
 			boolean noResults = false;
@@ -1190,14 +1228,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			}
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying profiles count after Levels filter - Method: apply_levels_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_count_after_levels_filter", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}
 	} catch (Exception e) {
 		LOGGER.error(" Issue applying Levels filter - Method: apply_levels_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("apply_levels_filter", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying Levels Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Levels Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1206,14 +1242,13 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void clear_levels_filter_in_hcm_sync_profiles_tab() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(closeAppliedFilter)).isDisplayed();
-			wait.until(ExpectedConditions.visibilityOf(closeAppliedFilter)).click();
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			WebElement closeFilterElement = wait.until(ExpectedConditions.visibilityOf(closeAppliedFilter));
+			closeFilterElement.click();
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 			LOGGER.info("Cleared Applied Levels Filter in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Cleared Applied Levels Filter in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue clearing Levels filter - Method: clear_levels_filter_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("clear_levels_filter", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Clearing Applied Levels Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Clearing Applied Levels Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1230,7 +1265,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				ExtentCucumberAdapter.addTestStepLog("Clicked on Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...");
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking Functions/Subfunctions dropdown - Method: apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-			ScreenshotHandler.captureFailureScreenshot("click_functions_subfunctions_dropdown", e);
 				e.printStackTrace();
 				Assert.fail("Issue in clicking Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in clicking Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1242,7 +1276,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		
 		if (FunctionsSubfunctionsAllCheckboxes.isEmpty() || FunctionsSubfunctionsAllLabels.isEmpty()) {
 			LOGGER.error(" No Functions/Subfunctions options found after expanding dropdown");
-			ScreenshotHandler.captureFailureScreenshot("no_functions_subfunctions_options_found", new Exception("No options found"));
 			throw new Exception("No Functions/Subfunctions filter options found");
 		}
 		
@@ -1270,7 +1303,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		ExtentCucumberAdapter.addTestStepLog("Selected Function Value : " + functionsValue + " from Filters dropdown in HCM Sync Profiles screen in PM....");
 	} catch (Exception e) {
 		LOGGER.error(" Issue selecting Functions/Subfunctions option - Method: apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-			ScreenshotHandler.captureFailureScreenshot("select_functions_subfunctions_option", e);
 				e.printStackTrace();
 				Assert.fail("Issue in selecting a option from Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in selecting a option from Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1293,16 +1325,14 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				ExtentCucumberAdapter.addTestStepLog("Filters dropdown closed successfully in HCM Sync Profiles screen in PM...");
 	} catch (Exception e) {
 		LOGGER.error(" Issue closing filters dropdown - Method: apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-			ScreenshotHandler.captureFailureScreenshot("close_filters_dropdown_functions", e);
 				e.printStackTrace();
 				Assert.fail("Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			}
 			
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			// PERFORMANCE: Replaced Thread.sleep(3000+2000) with smart element wait  
-			PerformanceUtils.waitForPageReady(driver, 2);
+			// PERFORMANCE: Single comprehensive wait after closing dropdown
+			PerformanceUtils.waitForPageReady(driver, 5);
 			
 			// Check if there are no results after applying the filter
 			boolean noResults = false;
@@ -1341,14 +1371,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			}
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying profiles count after Functions filter - Method: apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_count_after_functions_filter", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}
 	} catch (Exception e) {
 		LOGGER.error(" Issue applying Functions/Subfunctions filter - Method: apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("apply_functions_subfunctions_filter", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying Functions / Subfunctions Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Functions / Subfunctions Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1377,10 +1405,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			
 			LOGGER.info("Clicked on Clear All Filters button in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Clear All Filters button in HCM Sync Profiles screen in PM");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking Clear All Filters button - Method: click_on_clear_all_filters_button_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("click_clear_all_filters_button", e);
 			e.printStackTrace();
 			Assert.fail("Issue in clicking on Clear All Filters button in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Clear All Filters button in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1397,7 +1424,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				ExtentCucumberAdapter.addTestStepLog("Clicked on Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...");
 	} catch (Exception e) {
 			LOGGER.error(" Issue clicking Profile Status dropdown - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-			ScreenshotHandler.captureFailureScreenshot("click_profile_status_dropdown", e);
 			e.printStackTrace();
 			Assert.fail("Issue in clicking on Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1409,7 +1435,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		
 		if (ProfileStatusAllCheckboxes.isEmpty() || ProfileStatusAllLabels.isEmpty()) {
 			LOGGER.error(" No Profile Status options found after expanding dropdown");
-			ScreenshotHandler.captureFailureScreenshot("no_profile_status_options_found", new Exception("No options found"));
 			throw new Exception("No Profile Status filter options found");
 		}
 		
@@ -1437,7 +1462,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		ExtentCucumberAdapter.addTestStepLog("Selected Profile Status Value : " + profileStatusValue + " from Filters dropdown in HCM Sync Profiles screen in PM....");
 	} catch (Exception e) {
 			LOGGER.error(" Issue selecting Profile Status option - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-			ScreenshotHandler.captureFailureScreenshot("select_profile_status_option", e);
 			e.printStackTrace();
 			Assert.fail("Issue in selecting a option from Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in selecting a option from Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1465,9 +1489,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			}
 			
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			// PERFORMANCE: Replaced Thread.sleep(3000+2000) with smart element wait  
-			PerformanceUtils.waitForPageReady(driver, 2);
+			// PERFORMANCE: Single comprehensive wait after closing dropdown
+			PerformanceUtils.waitForPageReady(driver, 5);
 			
 			// Check if there are no results after applying the filter
 			boolean noResults = false;
@@ -1505,14 +1528,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			}
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying profiles count after Profile Status filter - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_count_after_profile_status_filter", e);
 		e.printStackTrace();
 		Assert.fail("Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
 	}
 	} catch (Exception e) {
 		LOGGER.error(" Issue applying Profile Status filter - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("apply_profile_status_filter", e);
 		e.printStackTrace();
 		Assert.fail("Issue in verifying Profile Status Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in verifying Profile Status Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1541,7 +1562,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		ExtentCucumberAdapter.addTestStepLog("Organization jobs table headers verified successfully in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying table headers - Method: user_should_verify_organization_jobs_table_headers_are_correctly_displaying_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_table_headers", e);
 		e.printStackTrace();
 		Assert.fail("Issue in verifying organization jobs table headers in HCM Sync Profiles screen in PM....Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in verifying organization jobs table headers in HCM Sync Profiles screen in PM....Please Investigate!!!");
@@ -1555,7 +1575,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		ExtentCucumberAdapter.addTestStepLog("Download button is disabled as expected in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying download button disabled - Method: user_should_verify_download_button_is_disabled_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_download_button_disabled", e);
 		e.printStackTrace();
 		Assert.fail("Issue in verifying Download button is disabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in verifying Download button is disabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1597,8 +1616,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				profilesCount.set(profilesCount.get() - 1);
 			}
 		} catch(Exception e) {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver, 3);
+			// PERFORMANCE: Single comprehensive wait
+			PerformanceUtils.waitForPageReady(driver, 5);
 			WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(i) + "]//td[1]//*//..//div//kf-checkbox//div"));
 			// REMOVED: Scroll operation - js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
 			String text = SP_Checkbox.getAttribute("class");
@@ -1621,7 +1640,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick.get() + " job profiles in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking header checkbox to select loaded profiles - Method: click_on_header_checkbox_to_select_loaded_profiles_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("click_header_checkbox_select_loaded_profiles_in_HCM_Screen", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking on header checkbox to select loaded job profiles in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in clicking on header checkbox to select loaded job profiles in in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1631,13 +1649,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void user_should_verify_download_button_is_enabled_in_hcm_sync_profiles_tab() {
 		try {
 			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(downloadBtn)).isEnabled());
 		LOGGER.info("Download button is enabled as expected after selecting job profiles in HCM Sync Profiles screen in PM");
 		ExtentCucumberAdapter.addTestStepLog("Download button is enabled as expected after selecting job profiles in HCM Sync Profiles screen in PM"); 
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying download button enabled - Method: user_should_verify_download_button_is_enabled_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_download_button_enabled", e);
 		e.printStackTrace();
 		Assert.fail("Issue in verifying Download button is enabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in verifying Download button is enabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1647,7 +1664,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void user_should_uncheck_header_checkbox_to_deselect_selected_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
 			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 		// Step 1: Store count of profiles BEFORE unchecking header checkbox
 		int profilesBeforeDeselect = selectedProfilesAfterHeaderCheckboxClick.get();
 		LOGGER.info("Selected profiles count (BEFORE unchecking header checkbox): " + profilesBeforeDeselect);
@@ -1675,7 +1692,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox and deselected all " + profilesBeforeDeselect + " job profiles in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking header checkbox to deselect all - Method: user_should_uncheck_header_checkbox_to_deselect_selected_job_profiles_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("click_header_checkbox_deselect_all", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking on header checkbox to deselect all job profiles in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in clicking on header checkbox to deselect all job profiles in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1699,7 +1715,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		profilesCount.set(profilesCount.get() + 1); 
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking first profile checkbox - Method: click_on_first_profile_checkbox_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("click_first_profile_checkbox", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking First job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in clicking First job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1708,6 +1723,10 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void click_on_second_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
+			Thread.sleep(500);
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", HCMSyncProfilesJobinRow2);
+			Thread.sleep(300);
+			
 			jobname2.set(wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow2)).getText());
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(profile2Checkbox)).click();
@@ -1723,7 +1742,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		profilesCount.set(profilesCount.get() + 1);
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking second profile checkbox - Method: click_on_second_profile_checkbox_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("click_second_profile_checkbox", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking Second job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in clicking Second job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1732,8 +1750,29 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void click_on_third_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
-			js.executeScript("arguments[0].scrollIntoView(true);", HCMSyncProfilesJobinRow3);
-			jobname3.set(wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow3)).getText());
+			// Wait for table to load and stabilize
+			Thread.sleep(1000);
+			PerformanceUtils.waitForPageReady(driver, 2);
+			
+			// Scroll table container to trigger lazy loading if needed
+			try {
+				WebElement tableContainer = driver.findElement(By.xpath("//div[contains(@class, 'table') or contains(@class, 'list')]"));
+				js.executeScript("arguments[0].scrollTop = arguments[0].scrollHeight;", tableContainer);
+				Thread.sleep(500);
+			} catch (Exception ignored) {
+				// Table container not found or not scrollable, continue
+			}
+			
+			// Wait explicitly for third row to be present
+			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+			WebElement row3 = shortWait.until(ExpectedConditions.presenceOfElementLocated(
+					By.xpath("//tbody//tr[3]//td//div//span[1]//a")));
+			
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", row3);
+			Thread.sleep(500);
+			
+			jobname3.set(shortWait.until(ExpectedConditions.visibilityOf(row3)).getText());
+			
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(profile3Checkbox)).click();
 			} catch (Exception e) {
@@ -1748,7 +1787,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		profilesCount.set(profilesCount.get() + 1);
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking third profile checkbox - Method: click_on_third_profile_checkbox_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("click_third_profile_checkbox", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking Third job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in clicking Third job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1757,9 +1795,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void user_should_verify_sync_with_hcm_button_is_disabled_in_hcm_sync_profiles_tab() {
 		try {
-			// CRITICAL: Wait for spinner and page ready before checking button state
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver, 2);
+			// PERFORMANCE: Single comprehensive wait before checking button state
+			PerformanceUtils.waitForPageReady(driver, 5);
 			
 			// Wait for button state to update with retry logic
 			WebDriverWait buttonWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
@@ -1807,7 +1844,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog(" Sync with HCM button is disabled as expected in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying Sync with HCM button disabled - Method: user_should_verify_sync_with_hcm_button_is_disabled_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_sync_hcm_button_disabled", e);
 		e.printStackTrace();
 		Assert.fail("Issue in verifying Sync with HCM button is disabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in verifying Sync with HCM button is disabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1816,9 +1852,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void user_should_verify_sync_with_hcm_button_is_enabled_in_hcm_sync_profiles_tab() {
 		try {
-			// CRITICAL: Wait for spinner and page ready before checking button state
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver, 2);
+			// PERFORMANCE: Single comprehensive wait before checking button state
+			PerformanceUtils.waitForPageReady(driver, 5);
 			
 			// Wait for button state to update with retry logic
 			WebDriverWait buttonWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
@@ -1866,7 +1901,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog(" Sync with HCM button is enabled as expected in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying Sync with HCM button enabled - Method: user_should_verify_sync_with_hcm_button_is_enabled_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_sync_hcm_button_enabled", e);
 		e.printStackTrace();
 		Assert.fail("Issue in verifying Sync with HCM button is enabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in verifying Sync with HCM button is enabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1875,8 +1909,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void verify_checkboxes_of_first_second_and_third_profile_are_selected_in_hcm_sync_profiles_tab() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		PerformanceUtils.waitForPageReady(driver, 3);
+			// PERFORMANCE: Single comprehensive wait
+			PerformanceUtils.waitForPageReady(driver, 5);
 			String jobname1 = wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText();
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(profile1Checkbox)).isSelected());
 			LOGGER.info("First job profile with name : " + jobname1 +" is Already Selected in HCM Sync Profiles screen in PM");
@@ -1893,7 +1927,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		ExtentCucumberAdapter.addTestStepLog("Third job profile with name : " + jobname3 +" is Already Selected in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying profile checkboxes selected - Method: verify_checkboxes_of_first_second_and_third_profile_are_selected_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_profile_checkboxes_selected", e);
 		e.printStackTrace();
 		Assert.fail("Issue in Verifying whether checkboxes of First, Second and Third Profile are Selected or Not in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in Verifying whether checkboxes of First, Second and Third Profile are Selected or Not in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1902,9 +1935,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void click_on_sync_with_hcm_button_in_hcm_sync_profiles_tab() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(SyncwithHCMBtn)).click();
 			} catch (Exception e) {
@@ -1916,10 +1948,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			}
 		LOGGER.info("Clicked on Sync with HCM button in HCM Sync Profiles screen in PM....");
 		ExtentCucumberAdapter.addTestStepLog("Clicked on Sync with HCM button in HCM Sync Profiles screen in PM....");
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver);
 	} catch (Exception e) {
 		LOGGER.error(" Issue clicking Sync with HCM button - Method: click_on_sync_with_hcm_button_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("click_sync_with_hcm_button", e);
 		e.printStackTrace();
 		Assert.fail("Issue in clicking on Sync with HCM button in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in Verifying CSV Format Zip File download in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1928,9 +1959,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void user_should_verify_sync_with_hcm_success_popup_appears_on_screen_in_hcm_sync_profiles_tab() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(SyncwithHCMSuccessPopupText)).isDisplayed());
-			String SyncwithHCMSuccessMsg = wait.until(ExpectedConditions.visibilityOf(SyncwithHCMSuccessPopupText)).getText();
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
+			WebElement successPopup = wait.until(ExpectedConditions.visibilityOf(SyncwithHCMSuccessPopupText));
+			String SyncwithHCMSuccessMsg = successPopup.getText();
 			LOGGER.info("Sync with HCM Success Popup Message : " + SyncwithHCMSuccessMsg);
 			ExtentCucumberAdapter.addTestStepLog("Sync with HCM Success Popup Message : " + SyncwithHCMSuccessMsg);
 			
@@ -1948,7 +1979,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				}
 				
 				// Capture screenshot and fail the scenario
-				ScreenshotHandler.captureFailureScreenshot("export_to_hcm_failed", new Exception(SyncwithHCMSuccessMsg));
 				Assert.fail(SyncwithHCMSuccessMsg);
 			}
 			
@@ -1958,13 +1988,11 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("Sync with HCM Success Popup closed successfully in HCM Sync Profiles screen in PM....");
 			ExtentCucumberAdapter.addTestStepLog("Sync with HCM Success Popup closed successfully in HCM Sync Profiles screen in PM....");
 		} catch (AssertionError e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_sync_hcm_success_popup", e);
 			LOGGER.error("Assertion failed in verifying Sync with HCM success popup - Method: user_should_verify_sync_with_hcm_success_popup_appears_on_screen_in_hcm_sync_profiles_tab", e);
 			e.printStackTrace();
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying appearance of Sync with HCM Success Popup in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			throw e; // Re-throw to mark scenario as failed but allow next scenarios to continue
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_sync_hcm_success_popup", e);
 			LOGGER.error("Issue verifying Sync with HCM success popup - Method: user_should_verify_sync_with_hcm_success_popup_appears_on_screen_in_hcm_sync_profiles_tab", e);
 			e.printStackTrace();
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying appearance of Sync with HCM Success Popup in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1981,7 +2009,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog("Sync with HCM Warning Message closed successfully in HCM Sync Profiles screen in PM....");
 		} catch (Exception e) {
 			LOGGER.error("Issue verifying Sync with HCM warning message - Method: user_should_verify_sync_with_hcm_success_popup_appears_on_screen_in_hcm_sync_profiles_tab", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_sync_hcm_warning_message", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying appearance of Sync with HCM Warning Message in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying appearance of Sync with HCM Warning Message in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1990,8 +2017,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void verify_checkboxes_of_first_second_and_third_profile_are_deselected_in_hcm_sync_profiles_tab() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PerformanceUtils.waitForPageReady(driver, 5);
 			String jobname1 = wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText();
 			Assert.assertTrue(!(wait.until(ExpectedConditions.visibilityOf(profile1Checkbox)).isSelected()));
 			LOGGER.info("First job profile with name : " + jobname1 +" is De-Selected as expected after Sync with HCM is successful in HCM Sync Profiles screen in PM");
@@ -2008,7 +2034,6 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog("Third job profile with name : " + jobname3 +" is De-Selected as expected after Sync with HCM is successful in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
 		LOGGER.error(" Issue verifying profile checkboxes deselected - Method: verify_checkboxes_of_first_second_and_third_profile_are_deselected_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_profile_checkboxes_deselected", e);
 		e.printStackTrace();
 		Assert.fail("Issue in Verifying whether checkboxes of First, Second and Third Profile are De-Selected or Not in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		ExtentCucumberAdapter.addTestStepLog("Issue in Verifying whether checkboxes of First, Second and Third Profile are De-Selected or Not in HCM Sync Profiles screen in PM...Please Investigate!!!");

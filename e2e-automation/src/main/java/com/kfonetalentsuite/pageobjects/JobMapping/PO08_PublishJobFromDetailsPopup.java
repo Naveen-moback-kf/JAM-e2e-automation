@@ -14,6 +14,7 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
@@ -66,7 +67,7 @@ public class PO08_PublishJobFromDetailsPopup {
 			PageObjectHelper.log(LOGGER, "Clicked Publish Profile button in Profile Details popup");
 
 			// Wait for loading spinner to disappear
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_publish_profile_button_in_profile_details_popup",

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.core.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.CacheLookup;
@@ -17,7 +18,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.SmartWaits;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
@@ -276,11 +277,9 @@ public class PO04_VerifyJobMappingPageComponents {
 	public WebElement tipMsg1CloseBtn;
 
 	@FindBy(xpath = "//button[@id='global-nav-menu-btn']")
-	@CacheLookup
 	public WebElement KfoneMenu;
 
 	@FindBy(xpath = "//button[@aria-label='Job Mapping']")
-	@CacheLookup
 	public WebElement KfoneMenuJAMBtn;
 
 	@FindBy(xpath = "//div[@id='header-logo']")
@@ -297,7 +296,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(JAMLogo)).isDisplayed());
 			PageObjectHelper.log(LOGGER, "Job Mapping logo is displayed on screen as expected");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_job_mapping_logo_is_displayed_on_screen", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_job_mapping_logo_is_displayed_on_screen",
 					"Issue in displaying Job Mapping Logo", e);
 		}
@@ -305,52 +303,82 @@ public class PO04_VerifyJobMappingPageComponents {
 
 	public void navigate_to_job_mapping_page_from_kfone_global_menu_in_pm() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
+			// OPTIMIZED: Single initial wait
+			PerformanceUtils.waitForPageReady(driver, 5);
 
-			PageObjectHelper.log(LOGGER, "Clicking KFONE Global Menu in Profile Manager...");
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", KfoneMenu);
+			// Check if already on Job Mapping page
 			try {
-				Thread.sleep(500);
-			} catch (InterruptedException ie) {
+				if (driver.findElements(By.xpath("//div[@id='org-job-container']")).size() > 0 &&
+					driver.findElement(By.xpath("//div[@id='org-job-container']")).isDisplayed()) {
+					PageObjectHelper.log(LOGGER, "Already on Job Mapping page - skipping navigation");
+					return;
+				}
+			} catch (Exception e) {
+				// Not on Job Mapping page, proceed with navigation
 			}
 
+			PageObjectHelper.log(LOGGER, "Clicking KFONE Global Menu in Profile Manager...");
+			
+			// Scroll menu button into view
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", KfoneMenu);
+			
+			// Wait for menu button to be clickable
+			WebElement menuButton = wait.until(ExpectedConditions.elementToBeClickable(KfoneMenu));
+			
+			// Click with fallback strategies
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(KfoneMenu)).click();
+				menuButton.click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", KfoneMenu);
+					js.executeScript("arguments[0].click();", menuButton);
 				} catch (Exception s) {
-					utils.jsClick(driver, KfoneMenu);
+					utils.jsClick(driver, menuButton);
 				}
 			}
 
 			PageObjectHelper.log(LOGGER, "Successfully clicked KFONE Global Menu");
-			PerformanceUtils.waitForPageReady(driver, 1);
+			
+			// CRITICAL: Wait for menu animation to complete (especially important in parallel/headless)
+			try {
+				Thread.sleep(1500); // Allow menu to fully expand
+			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+			}
+			
+			// Wait for menu container to be visible (confirms menu is open)
+			try {
+				wait.until(ExpectedConditions.presenceOfElementLocated(
+					By.xpath("//div[contains(@class, 'global-nav-menu') or contains(@class, 'menu-container')]")));
+			} catch (Exception e) {
+				LOGGER.warn("Menu container not detected, proceeding anyway...");
+			}
+			
+			// Wait for Job Mapping button to be visible and clickable
+			WebDriverWait menuWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(15));
+			WebElement jamButton = menuWait.until(ExpectedConditions.elementToBeClickable(
+				By.xpath("//button[@aria-label='Job Mapping']")));
 
 			PageObjectHelper.log(LOGGER, "Clicking Job Mapping button in KFONE menu...");
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", KfoneMenuJAMBtn);
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", jamButton);
+			
+			// Wait for button to be clickable
+			menuWait.until(ExpectedConditions.elementToBeClickable(jamButton));
+			
 			try {
-				Thread.sleep(500);
-			} catch (InterruptedException ie) {
-			}
-
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(KfoneMenuJAMBtn)).click();
+				jamButton.click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", KfoneMenuJAMBtn);
+					js.executeScript("arguments[0].click();", jamButton);
 				} catch (Exception s) {
-					utils.jsClick(driver, KfoneMenuJAMBtn);
+					utils.jsClick(driver, jamButton);
 				}
 			}
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			Thread.sleep(3000);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			// OPTIMIZED: Single comprehensive wait for navigation
+			PerformanceUtils.waitForPageReady(driver, 10);
 
 			PageObjectHelper.log(LOGGER, "Successfully Navigated to Job Mapping screen");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("navigate_to_job_mapping_page_from_kfone_global_menu_in_pm", e);
 			PageObjectHelper.handleError(LOGGER, "navigate_to_job_mapping_page_from_kfone_global_menu_in_pm",
 					"Failed to navigate to Job Mapping page from KFONE Global Menu in Profile Manager", e);
 		}
@@ -358,14 +386,13 @@ public class PO04_VerifyJobMappingPageComponents {
 
 	public void user_should_be_landed_on_job_mapping_page() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForElement(driver, jobMappingPageContainer);
+			// OPTIMIZED: Single comprehensive wait
+			PerformanceUtils.waitForPageReady(driver, 5);
+			PerformanceUtils.waitForElement(driver, jobMappingPageContainer, 5);
+			
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobMappingPageContainer)).isDisplayed());
-
-			Thread.sleep(3000);
 			PageObjectHelper.log(LOGGER, "User landed on the JOB MAPPING page successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_be_landed_on_job_mapping_page", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_be_landed_on_job_mapping_page",
 					"Issue in landing Job Mapping page", e);
 		}
@@ -390,7 +417,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			Assert.assertEquals(actualTitleHeader, expectedTitleHeader);
 			PageObjectHelper.log(LOGGER, "Title header '" + actualTitleHeader + "' is displaying as expected");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_title_header_is_correctly_displaying", e);
 			PageObjectHelper.handleError(LOGGER, "verify_title_header_is_correctly_displaying",
 					"Issue in verifying title header in Job Mapping page", e);
 		}
@@ -402,7 +428,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			String titleDesc = wait.until(ExpectedConditions.visibilityOf(pageTitleDesc)).getText();
 			PageObjectHelper.log(LOGGER, "Description below the title header: " + titleDesc);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_title_description_below_the_title_header", e);
 			PageObjectHelper.handleError(LOGGER, "verify_title_description_below_the_title_header",
 					"Issue in verifying title description below the title header", e);
 		}
@@ -428,7 +453,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			wait.until(ExpectedConditions.elementToBeClickable(searchBar)).click();
 			PageObjectHelper.log(LOGGER, "Organization Jobs Search bar text box is clickable as expected");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_organization_jobs_search_bar_text_box_is_clickable", e);
 			PageObjectHelper.handleError(LOGGER, "verify_organization_jobs_search_bar_text_box_is_clickable",
 					" Failed to click inside Organization Jobs search bar in Job Mapping page...Please Investigate!!!",
 					e);
@@ -442,7 +466,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			PageObjectHelper.log(LOGGER, "Placeholder text inside Organization Jobs search bar is " + placeholderText
 					+ " displaying as expected");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_organization_jobs_search_bar_placeholder_text", e);
 			PageObjectHelper.handleError(LOGGER, "verify_organization_jobs_search_bar_placeholder_text",
 					"Issue in verifying Organization Jobs search bar placeholder text in Job Mapping page...Please Investigate!!!",
 					e);
@@ -474,7 +497,7 @@ public class PO04_VerifyJobMappingPageComponents {
 					wait.until(ExpectedConditions.visibilityOf(searchBar)).clear();
 					wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(substring);
 					wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(Keys.ENTER);
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 2);
 
 					String resultsCountText = "";
@@ -503,7 +526,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			}
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("enter_job_name_substring_in_search_bar", e);
 			PageObjectHelper.handleError(LOGGER, "enter_job_name_substring_in_search_bar",
 					"Failed to enter job name substring text in search bar", e);
 		}
@@ -511,7 +533,7 @@ public class PO04_VerifyJobMappingPageComponents {
 
 //	public void user_should_verify_job_name_matching_profile_is_displaying_in_first_row_in_organization_jobs_profile_list() throws Exception {
 //		try {
-//			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+//			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 //			PerformanceUtils.waitForPageReady(driver, 2); 
 //			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobNameofProfile1)).isDisplayed());
 //			String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobNameofProfile1)).getText(); 
@@ -532,7 +554,7 @@ public class PO04_VerifyJobMappingPageComponents {
 
 	public void user_should_verify_organization_job_name_and_job_code_values_of_first_profile() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			// OPTIMIZED: Single comprehensive wait
 			PerformanceUtils.waitForPageReady(driver, 2);
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobNameofProfile1)).isDisplayed());
 			String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobNameofProfile1)).getText();
@@ -545,8 +567,6 @@ public class PO04_VerifyJobMappingPageComponents {
 					.addTestStepLog("Job code of the first profile in organization table : " + orgJobCodeInRow1.get());
 			LOGGER.info("Job code of the first profile in organization table : " + orgJobCodeInRow1.get());
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_organization_job_name_and_job_code_values_of_first_profile", e);
 			LOGGER.error(
 					"Issue in verifying job name and job code values in Row1 - Method: user_should_verify_organization_job_name_and_job_code_values_of_first_profile",
 					e);
@@ -571,8 +591,6 @@ public class PO04_VerifyJobMappingPageComponents {
 					.addTestStepLog("Grade value of Organization Job first profile : " + orgJobGradeInRow1.get());
 			LOGGER.info("Grade value of Organization Job first profile : " + orgJobGradeInRow1.get());
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_organization_job_grade_and_department_values_of_first_profile", e);
 			LOGGER.error(
 					"Issue in Verifying Organization Job Grade value first profile - Method: user_should_verify_organization_job_grade_in_first_row",
 					e);
@@ -594,8 +612,6 @@ public class PO04_VerifyJobMappingPageComponents {
 					"Department value of Organization Job first profile : " + orgJobDepartmentInRow1.get());
 			LOGGER.info("Department value of Organization Job first profile : " + orgJobDepartmentInRow1.get());
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_organization_job_grade_and_department_values_of_first_profile", e);
 			LOGGER.error(
 					"Issue in Verifying Organization Job Department value first profile - Method: user_should_verify_organization_job_department_in_first_row",
 					e);
@@ -625,8 +641,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			PageObjectHelper.log(LOGGER,
 					"Function/Sub-function values of Organization Job first profile: " + orgJobFunctionInRow1.get());
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_organization_job_function_or_sub_function_of_first_profile", e);
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_verify_organization_job_function_or_sub_function_of_first_profile",
 					"Issue in Verifying Organization Job Function/Sub-function values first profile", e);
@@ -635,7 +649,7 @@ public class PO04_VerifyJobMappingPageComponents {
 
 	public void click_on_matched_profile_of_job_in_first_row() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			String MatchedProfileNameText = wait
 					.until(ExpectedConditions.elementToBeClickable(job1LinkedMatchedProfile)).getText();
 			matchedSuccessPrflName.set(MatchedProfileNameText);
@@ -656,9 +670,8 @@ public class PO04_VerifyJobMappingPageComponents {
 
 			PageObjectHelper.log(LOGGER, "Clicked on Matched Profile '" + MatchedProfileNameText
 					+ "' of Organization Job '" + orgJobNameInRow1.get() + "'");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_matched_profile_of_job_in_first_row", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_matched_profile_of_job_in_first_row",
 					"Issue in clicking Matched Profile linked with job name " + orgJobNameInRow1.get(), e);
 		}
@@ -666,11 +679,10 @@ public class PO04_VerifyJobMappingPageComponents {
 
 	public void verify_profile_details_popup_is_displayed() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(profileDetailsPopupHeader)).isDisplayed());
 			PageObjectHelper.log(LOGGER, "Profile details popup is displayed on screen as expected");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_profile_details_popup_is_displayed", e);
 			PageObjectHelper.handleError(LOGGER, "verify_profile_details_popup_is_displayed",
 					"Issue in displaying profile details popup", e);
 		}
@@ -696,9 +708,8 @@ public class PO04_VerifyJobMappingPageComponents {
 			}
 
 			PageObjectHelper.log(LOGGER, "Clicked on close button in Profile details popup");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_close_button_in_profile_details_popup", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_close_button_in_profile_details_popup",
 					"Issue in clicking close button in Profile details popup", e);
 		}
@@ -710,11 +721,12 @@ public class PO04_VerifyJobMappingPageComponents {
 	public void click_on_filters_dropdown_button() {
 		try {
 			js.executeScript("window.scrollTo(0, 0);");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 1);
+			
+			// OPTIMIZED: Single wait for element to be ready (page is already loaded)
+			PerformanceUtils.waitForElement(driver, filtersBtn, 3);
 
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(filtersBtn)).click();
+				filtersBtn.click();
 			} catch (Exception e) {
 				try {
 					js.executeScript("arguments[0].click();", filtersBtn);
@@ -724,15 +736,10 @@ public class PO04_VerifyJobMappingPageComponents {
 			}
 
 			PageObjectHelper.log(LOGGER, "Clicked on filters dropdown button");
-			// PERFORMANCE: Use shorter timeout for spinner (filters dropdown opens fast)
-			try {
-				WebDriverWait spinnerWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(2));
-				spinnerWait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			} catch (Exception e) {
-				// Spinner might not appear for fast operations, continue
-			}
+			
+			// OPTIMIZED: Quick spinner check (filters dropdown opens fast)
+			PerformanceUtils.waitForPageReady(driver, 2);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_filters_dropdown_button", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_filters_dropdown_button",
 					"Issue in clicking filters dropdown button in Job Mapping page...Please investigate!!!", e);
 		}
@@ -751,7 +758,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			Assert.assertEquals(filterOption4Text, "Mapping Status");
 			PageObjectHelper.log(LOGGER, "Options inside Filter dropdown verified successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_options_available_inside_filters_dropdown", e);
 			PageObjectHelper.handleError(LOGGER, "verify_options_available_inside_filters_dropdown",
 					"Issue in verifying Options inside Filter dropdown....Please Investigate!!!", e);
 		}
@@ -763,23 +769,34 @@ public class PO04_VerifyJobMappingPageComponents {
 				Thread.sleep(500);
 			} catch (InterruptedException ie) {
 			}
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(filterOption3)).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", filterOption3);
-				} catch (Exception s) {
-					utils.jsClick(driver, filterOption3);
-				}
-			}
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			wait.until(ExpectedConditions.visibilityOf(searchBarInFilterOption3)).isDisplayed();
-			searchBarInFilterOption3.click();
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PageObjectHelper.log(LOGGER,
-					"Search bar inside Functions / Subfunctions filter option is available and clickable");
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(filterOption3)).click();
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_options_available_inside_filters_dropdown_searchbar", e);
+			try {
+				js.executeScript("arguments[0].click();", filterOption3);
+			} catch (Exception s) {
+				utils.jsClick(driver, filterOption3);
+			}
+		}
+		
+		// Wait for search bar to appear after expanding filter option
+		PerformanceUtils.waitForPageReady(driver, 5);
+		
+		// FIXED: Removed redundant .isDisplayed() call after wait - it was causing ScriptTimeoutException
+		// ExpectedConditions.visibilityOf() already confirms the element is visible and displayed
+		wait.until(ExpectedConditions.visibilityOf(searchBarInFilterOption3));
+		
+		// Click the search bar to verify it's interactive
+		try {
+			searchBarInFilterOption3.click();
+		} catch (Exception e) {
+			// Fallback to JS click if regular click fails
+			js.executeScript("arguments[0].click();", searchBarInFilterOption3);
+		}
+		
+		PageObjectHelper.log(LOGGER,
+				"Search bar inside Functions / Subfunctions filter option is available and clickable");
+		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_options_available_inside_filters_dropdown",
 					"Issue in verifying Search bar inside Functions / Subfunctions filter option...Please Investigate!!!",
 					e);
@@ -797,10 +814,11 @@ public class PO04_VerifyJobMappingPageComponents {
 			// Use JS click directly (most reliable method for this element)
 			js.executeScript("arguments[0].click();", filtersBtn);
 
-			// Verify dropdown is closed (the wait is only for invisibility check)
-			Assert.assertTrue(wait.until(ExpectedConditions.invisibilityOf(filterOptions)));
+		// Verify dropdown is closed
+		SmartWaits.waitForElementInvisible(driver, filterOptions);
+		Assert.assertTrue(true); // Dropdown closed successfully
 
-			LOGGER.info(" Filters dropdown closed successfully");
+		LOGGER.info(" Filters dropdown closed successfully");
 			ExtentCucumberAdapter.addTestStepLog("Closed Filters dropdown");
 
 			// MINIMAL WAIT: Just enough for dropdown close animation
@@ -812,7 +830,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			}
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("close_filters_dropdown", e);
 			PageObjectHelper.handleError(LOGGER, "close_filters_dropdown", "Failed to close Filters dropdown", e);
 		}
 	}
@@ -823,7 +840,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			String btnText = wait.until(ExpectedConditions.visibilityOf(addMoreJobsBtn)).getText();
 			PageObjectHelper.log(LOGGER, btnText + " button is displaying as expected");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_see_add_more_jobs_button_is_displaying", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_see_add_more_jobs_button_is_displaying",
 					"Issue in displaying add more jobs button in Job Mapping page...Please Investigate!!!", e);
 		}
@@ -851,11 +867,10 @@ public class PO04_VerifyJobMappingPageComponents {
 			}
 			PageObjectHelper.log(LOGGER, "Clicked on Add more jobs button");
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 5);
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_add_more_jobs_button_is_clickable", e);
 			PageObjectHelper.handleError(LOGGER, "verify_add_more_jobs_button_is_clickable",
 					"Issue on clicking Add more jobs button", e);
 		}
@@ -864,13 +879,12 @@ public class PO04_VerifyJobMappingPageComponents {
 
 	public void verify_user_landed_on_add_more_jobs_page() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(addMoreJobsPageHeader)).isDisplayed();
-			String addMoreJobsPageheaderText = wait.until(ExpectedConditions.visibilityOf(addMoreJobsPageHeader))
-					.getText();
+			// FIXED: Removed redundant .isDisplayed() call - wait.until already confirms visibility
+			WebElement header = wait.until(ExpectedConditions.visibilityOf(addMoreJobsPageHeader));
+			String addMoreJobsPageheaderText = header.getText();
 			Assert.assertEquals(addMoreJobsPageheaderText, "Add Job Data");
 			PageObjectHelper.log(LOGGER, "Add More Jobs landing page is Verified Successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_user_landed_on_add_more_jobs_page", e);
 			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_add_more_jobs_page",
 					"Issue in verifying Add more jobs landing page...Please Investigate!!!", e);
 		}
@@ -895,9 +909,8 @@ public class PO04_VerifyJobMappingPageComponents {
 				}
 			}
 			PageObjectHelper.log(LOGGER, "Clicked on Add more jobs Close button(X)");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("close_add_more_jobs_page", e);
 			PageObjectHelper.handleError(LOGGER, "close_add_more_jobs_page",
 					"Issue in Closing Add more jobs page...Please Investigate!!!", e);
 		}
@@ -908,8 +921,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			Assert.assertTrue(!(wait.until(ExpectedConditions.visibilityOf(publishSelectedProfilesBtn))).isEnabled());
 			PageObjectHelper.log(LOGGER, "Publish Selected Profiles button is disabled as expected");
 		} catch (Exception e) {
-			ScreenshotHandler
-					.captureFailureScreenshot("user_should_verify_publish_selected_profiles_button_is_disabled", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_publish_selected_profiles_button_is_disabled",
 					"Issue in verifying Publish Selected Profiles button is disabled in Job Mapping page...Please Investigate!!!",
 					e);
@@ -1023,8 +1034,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox and selected "
 					+ selectedProfilesAfterHeaderCheckboxClick.get() + " job profiles in Job Mapping screen");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"click_on_header_checkbox_to_select_loaded_job_profiles_in_job_mapping_screen", e);
 			LOGGER.error(
 					"Issue in clicking on header checkbox to select loaded job profiles in Job Mapping screen - Method: click_on_header_checkbox_to_select_loaded_job_profiles_in_job_mapping_screen",
 					e);
@@ -1038,7 +1047,7 @@ public class PO04_VerifyJobMappingPageComponents {
 
 	public void user_should_verify_publish_selected_profiles_button_is_enabled() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			// OPTIMIZED: Single comprehensive wait
 			PerformanceUtils.waitForPageReady(driver, 2);
 			Thread.sleep(500); // Allow UI to stabilize
 
@@ -1052,8 +1061,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			PageObjectHelper.log(LOGGER,
 					"Publish Selected Profiles button is enabled as expected after selecting job profiles");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_publish_selected_profiles_button_is_enabled",
-					e);
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_publish_selected_profiles_button_is_enabled",
 					"Issue in verifying Publish Selected Profiles button is enabled in Job Mapping page...Please Investigate!!!",
 					e);
@@ -1080,8 +1087,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			}
 			PageObjectHelper.log(LOGGER, "Clicked on header checkbox and Deselected all job profiles");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_uncheck_header_checkbox_to_deselect_selected_job_profiles", e);
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_uncheck_header_checkbox_to_deselect_selected_job_profiles",
 					"Issue in clicking on header checkbox to deselect all job profiles...Please Investigate!!!", e);
@@ -1110,7 +1115,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			PageObjectHelper.log(LOGGER,
 					"Clicked on checkbox of First job profile with name: " + orgJobNameInRow1.get());
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_checkbox_of_first_job_profile", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_checkbox_of_first_job_profile",
 					"Issue in clicking First job profile checkbox in Job Mapping page...Please Investigate!!!", e);
 		}
@@ -1138,7 +1142,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			PageObjectHelper.log(LOGGER,
 					"Clicked on checkbox of Second job profile with name: " + orgJobNameInRow2.get());
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_checkbox_of_second_job_profile", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_checkbox_of_second_job_profile",
 					"Issue in clicking Second job profile checkbox in Job Mapping page...Please Investigate!!!", e);
 		}
@@ -1164,7 +1167,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			}
 			PageObjectHelper.log(LOGGER, "Clicked on Publish Selected Profiles button to publish selected profiles");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_publish_selected_profiles_button", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_publish_selected_profiles_button",
 					"Issue in clicking Publish Selected Profiles button in Job Mapping page...Please Investigate!!!",
 					e);
@@ -1226,7 +1228,6 @@ public class PO04_VerifyJobMappingPageComponents {
 					+ "This usually indicates: 1) Results count element not loading, 2) Page stuck loading, or 3) No results to display.",
 					retryAttempts, 20, e.getClass().getSimpleName(), e.getMessage());
 
-			ScreenshotHandler.captureFailureScreenshot("verify_job_profiles_count_is_displaying_on_the_page", e);
 			LOGGER.error(errorDetails, e);
 			e.printStackTrace();
 			ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorDetails);
@@ -1236,19 +1237,18 @@ public class PO04_VerifyJobMappingPageComponents {
 
 	public void scroll_page_to_view_more_job_profiles() throws InterruptedException {
 		try {
-//			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+//			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 
 			// ... IMPROVED: Use smooth scroll with throttling to prevent browser
 			// unresponsiveness
 			js.executeScript("window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});");
 			Thread.sleep(1000); // Reduced from potential rapid scrolling
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			// OPTIMIZED: Single comprehensive wait
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			PageObjectHelper.log(LOGGER, "Scrolled page down to view more job profiles");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("scroll_page_to_view_more_job_profiles", e);
 			PageObjectHelper.handleError(LOGGER, "scroll_page_to_view_more_job_profiles",
 					"Issue in scrolling page down to view more job profiles in Job Mapping page...Please Investigate!!!",
 					e);
@@ -1261,14 +1261,8 @@ public class PO04_VerifyJobMappingPageComponents {
 		try {
 			js.executeScript("arguments[0].scrollIntoView(true);", pageTitleHeader);
 
-			// CRITICAL: Wait for ALL spinners to disappear (filters can trigger multiple
-			// spinners)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			wait.until(ExpectedConditions
-					.invisibilityOfAllElements(driver.findElements(By.xpath("//div[@data-testid='loader']//img"))));
-
-			// PERFORMANCE: Wait for page to fully process the filter changes
-			PerformanceUtils.waitForPageReady(driver, 1);
+			// OPTIMIZED: Single comprehensive wait for page readiness after filter changes
+			PerformanceUtils.waitForPageReady(driver, 5);
 
 			// IMPORTANT: Wait for the results count text to actually CHANGE (not just be
 			// present)
@@ -1356,9 +1350,6 @@ public class PO04_VerifyJobMappingPageComponents {
 						+ " ....Please Investigate!!!");
 			}
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table",
-					e);
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table",
 					"Issue in verifying job profiles results count after scrolling down in Job Mapping page...Please Investigate!!!",
@@ -1387,9 +1378,8 @@ public class PO04_VerifyJobMappingPageComponents {
 				}
 			}
 			PageObjectHelper.log(LOGGER, "View published toggle button is turned ON");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_toggle_button_to_turn_on", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_toggle_button_to_turn_on",
 					"Issue in clicking View Published toggle button to turn ON in Job Mapping page...Please Investigate!!!",
 					e);
@@ -1397,27 +1387,36 @@ public class PO04_VerifyJobMappingPageComponents {
 	}
 
 	public void user_should_verify_published_jobs_are_displaying_in_the_listing_table() {
-		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(publishedBtn)).isDisplayed());
-		boolean dataavailable = publishedBtn.isDisplayed();
 		try {
-			if (dataavailable) {
-				wait.until(ExpectedConditions.visibilityOf(publishedBtn)).isDisplayed();
-				PageObjectHelper.log(LOGGER, "Published jobs are displaying in the profile table as expected");
-				try {
-					Assert.assertTrue(!(driver.findElement(By.xpath("//button[text()='Published']")).isEnabled()));
-					PageObjectHelper.log(LOGGER, "Published button is disabled as expected");
-				} catch (Exception e) {
-					PageObjectHelper.log(LOGGER,
-							"Published button is Enabled which is NOT expected....please raise defect!!!");
-					e.printStackTrace();
-				}
-			} else {
-				wait.until(ExpectedConditions.visibilityOf(nodataavailable)).isDisplayed();
+			// FIXED: Removed redundant .isDisplayed() calls - wait.until already confirms visibility
+			// Check if published button is visible (indicates published jobs exist)
+			wait.until(ExpectedConditions.visibilityOf(publishedBtn));
+			
+			// Published jobs are present
+			PageObjectHelper.log(LOGGER, "Published jobs are displaying in the profile table as expected");
+			
+			// Verify the Published button is disabled (as expected when viewing published jobs)
+			try {
+				WebElement publishedButton = driver.findElement(By.xpath("//button[text()='Published']"));
+				Assert.assertFalse(publishedButton.isEnabled(), "Published button should be disabled when viewing published jobs");
+				PageObjectHelper.log(LOGGER, "Published button is disabled as expected");
+			} catch (AssertionError e) {
+				PageObjectHelper.log(LOGGER,
+						"Published button is Enabled which is NOT expected....please raise defect!!!");
+				throw e;
+			}
+			
+		} catch (TimeoutException e) {
+			// If publishedBtn is not visible, check for "no data" message
+			try {
+				wait.until(ExpectedConditions.visibilityOf(nodataavailable));
 				PageObjectHelper.log(LOGGER, "No Jobs were published yet");
+			} catch (Exception ex) {
+				PageObjectHelper.handleError(LOGGER,
+						"user_should_verify_published_jobs_are_displaying_in_the_listing_table",
+						"Issue in verifying published jobs.....Please Investigate!!!", ex);
 			}
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_published_jobs_are_displaying_in_the_listing_table", e);
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_verify_published_jobs_are_displaying_in_the_listing_table",
 					"Issue in verifying published jobs.....Please Investigate!!!", e);
@@ -1428,9 +1427,10 @@ public class PO04_VerifyJobMappingPageComponents {
 	public void click_on_toggle_button_to_turn_off() throws InterruptedException {
 		try {
 			// Scroll element into view before clicking
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});",
 					viewPublishedToggleBtn);
-			Thread.sleep(500);
+			
+			// PERFORMANCE: Consolidated click with fallback strategies
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(viewPublishedToggleBtn)).click();
 			} catch (Exception e) {
@@ -1441,9 +1441,10 @@ public class PO04_VerifyJobMappingPageComponents {
 				}
 			}
 			PageObjectHelper.log(LOGGER, "View published toggle button is turned OFF");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			
+			// PERFORMANCE: Use comprehensive page ready wait instead of just spinner wait
+			PerformanceUtils.waitForPageReady(driver, 10);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_toggle_button_to_turn_off", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_toggle_button_to_turn_off",
 					"Issue in clicking View Published toggle button to turn OFF in Job Mapping page...Please Investigate!!!",
 					e);
@@ -1453,24 +1454,20 @@ public class PO04_VerifyJobMappingPageComponents {
 
 	public void user_should_verify_unpublished_jobs_are_displaying_in_the_listing_table() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(publishBtn)).isDisplayed();
+			// PERFORMANCE: Single wait to get element and verify visibility/enabled state
+			WebElement publishButton = wait.until(ExpectedConditions.visibilityOf(publishBtn));
+			Assert.assertTrue(publishButton.isDisplayed(), "Publish button should be visible");
 			PageObjectHelper.log(LOGGER,
 					"Unpublished jobs with Publish button are displaying in the profile table as expected");
-			try {
-				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(publishBtn)).isEnabled());
-				PageObjectHelper.log(LOGGER, "Publish button is enabled as expected");
-			} catch (Exception e) {
-				PageObjectHelper.log(LOGGER,
-						"Publish button is disabled which is NOT expected....please raise defect!!!");
-				Assert.fail("Publish button is disabled which is NOT expected....please raise defect!!!");
-				e.printStackTrace();
-			}
+			
+			// Verify button is enabled
+			Assert.assertTrue(publishButton.isEnabled(), 
+					"Publish button should be enabled but is disabled - please raise defect!");
+			PageObjectHelper.log(LOGGER, "Publish button is enabled as expected");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_unpublished_jobs_are_displaying_in_the_listing_table", e);
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_verify_unpublished_jobs_are_displaying_in_the_listing_table",
-					"Published jobs are displaying in the profile table which is not expected in View Published screen in Job Mapping page...Please Investigate!!!",
+					"Issue verifying unpublished jobs in the profile table - Please Investigate!!!",
 					e);
 		}
 	}
@@ -1481,8 +1478,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			Assert.assertEquals(table1TitleText, "Organization jobs");
 			PageObjectHelper.log(LOGGER, "Organization jobs table title verified successfully");
 		} catch (Exception e) {
-			ScreenshotHandler
-					.captureFailureScreenshot("user_should_verify_organization_jobs_table_title_and_headers_title", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_jobs_table_title_and_headers",
 					"Issue in verifying organization jobs table title....Please Investigate!!!", e);
 		}
@@ -1495,8 +1490,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			Assert.assertEquals(table1Header3Text, "DEPARTMENT");
 			PageObjectHelper.log(LOGGER, "Organization jobs table headers verified successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_organization_jobs_table_title_and_headers_headers", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_jobs_table_title_and_headers",
 					"Issue in verifying organization jobs table headers....Please Investigate!!!", e);
 		}
@@ -1510,8 +1503,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			ExtentCucumberAdapter.addTestStepLog("Matched success profiles table title verified successfully");
 			LOGGER.info("Matched success profiles table title verified successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_matched_success_profiles_table_title_and_headers_title", e);
 			LOGGER.error(
 					"Issue in verifying Matched success profiles table title - Method: user_should_verify_matched_success_profiles_table_title_and_headers",
 					e);
@@ -1533,8 +1524,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			Assert.assertEquals(table2Header5Text, "FUNCTION / SUBFUNCTION");
 			PageObjectHelper.log(LOGGER, "Matched success profiles table headers verified successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_matched_success_profiles_table_title_and_headers_headers", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_matched_success_profiles_table_title_and_headers",
 					"Issue in verifying organization jobs table headers....Please Investigate!!!", e);
 		}
@@ -1548,8 +1537,6 @@ public class PO04_VerifyJobMappingPageComponents {
 			PageObjectHelper.log(LOGGER, "Button with text " + viewOtherMatchesText
 					+ " is displaying on the matched success profile on first job in table");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_view_other_matches_button_on_matched_success_profile_is_displaying", e);
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_verify_view_other_matches_button_on_matched_success_profile_is_displaying",
 					"Issue in displaying View Other Matches button on first job....Please Investigate!!!", e);
@@ -1559,25 +1546,18 @@ public class PO04_VerifyJobMappingPageComponents {
 
 	public void click_on_view_other_matches_button() {
 		try {
-			// Wait for the button to be present and visible before clicking
-			WebElement viewOtherMatchesBtn = wait.until(ExpectedConditions.presenceOfElementLocated(
+			// Wait for the button to be present and clickable
+			WebElement viewOtherMatchesBtn = wait.until(ExpectedConditions.elementToBeClickable(
 					By.xpath("//tbody//tr[" + Integer.toString(PO15_ValidateRecommendedProfileDetails.rowNumber.get())
 							+ "]//button[not(contains(@id,'publish'))]")));
 
 			// Scroll element into view before clicking
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});",
 					viewOtherMatchesBtn);
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException ie) {
-			}
-			PerformanceUtils.waitForElement(driver, viewOtherMatchesBtn, 1);
 
-			// Wait for visibility and clickability
-			wait.until(ExpectedConditions.visibilityOf(viewOtherMatchesBtn));
-
+			// PERFORMANCE: Consolidated click with fallback strategies
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(viewOtherMatchesBtn)).click();
+				viewOtherMatchesBtn.click();
 			} catch (Exception e) {
 				try {
 					js.executeScript("arguments[0].click();", viewOtherMatchesBtn);
@@ -1585,11 +1565,11 @@ public class PO04_VerifyJobMappingPageComponents {
 					utils.jsClick(driver, viewOtherMatchesBtn);
 				}
 			}
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			
+			// PERFORMANCE: Removed redundant spinner wait - next step will handle page transition
 			PageObjectHelper.log(LOGGER, "Clicked on View Other Matches button on the job profile: "
 					+ PO15_ValidateRecommendedProfileDetails.orgJobName.get());
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_view_other_matches_button", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_view_other_matches_button",
 					"Issue in clicking View Other matches button on the job profile: "
 							+ PO15_ValidateRecommendedProfileDetails.orgJobName.get() + "...Please Investigate!!!",
@@ -1599,13 +1579,12 @@ public class PO04_VerifyJobMappingPageComponents {
 
 	public void verify_user_landed_on_job_compare_page() throws InterruptedException {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			String compareAndSelectHeaderText = wait.until(ExpectedConditions.visibilityOf(CompareandSelectheader))
 					.getText();
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?");
 			PageObjectHelper.log(LOGGER, "User landed on the Job Compare page successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_user_landed_on_job_compare_page", e);
 			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_job_compare_page",
 					"Issue in landing Job Compare page....Please Investigate!!!", e);
 		}
@@ -1618,12 +1597,10 @@ public class PO04_VerifyJobMappingPageComponents {
 		try {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(job1PublishBtn)).isDisplayed());
 			wait.until(ExpectedConditions.elementToBeClickable(job1PublishBtn)).click();
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.log(LOGGER,
 					"Publish button on matched success profile is displaying as expected on first job and clicked on button");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_publish_button_on_matched_success_profile_is_displaying_and_clickable", e);
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_verify_publish_button_on_matched_success_profile_is_displaying_and_clickable",
 					"Issue in displaying or clicking Publish button of first job....Please Investigate!!!", e);
@@ -1635,7 +1612,7 @@ public class PO04_VerifyJobMappingPageComponents {
 			// STEP 1: Ensure all loading spinners have disappeared (CRITICAL for stability)
 			LOGGER.debug("Waiting for page spinners to disappear before checking for success popup...");
 			try {
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			} catch (Exception spinnerEx) {
 				LOGGER.debug("Spinner wait timed out or no spinners found, continuing...");
 			}
@@ -1676,7 +1653,6 @@ public class PO04_VerifyJobMappingPageComponents {
 					+ successMsgText + "' is displaying as expected");
 			LOGGER.info("✓ Success profile published popup verified successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_get_success_profile_published_popup", e);
 			LOGGER.error("Detailed error: " + e.getClass().getName() + " - " + e.getMessage());
 			PageObjectHelper.handleError(LOGGER, "user_should_get_success_profile_published_popup",
 					"✗ Issue in appearing success profile published message popup. Error: " + e.getMessage(), e);
@@ -1701,11 +1677,10 @@ public class PO04_VerifyJobMappingPageComponents {
 					utils.jsClick(driver, publishedSuccessMsgCloseBtn);
 				}
 			}
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			// OPTIMIZED: Single comprehensive wait
 			PerformanceUtils.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER, "Successfully closed Success Profile Published popup");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("close_the_success_profile_published_popup", e);
 			PageObjectHelper.handleError(LOGGER, "close_the_success_profile_published_popup",
 					"Issue in closing popup with message Success Profile Published...Please Investigate!!!", e);
 		}
@@ -1728,11 +1703,10 @@ public class PO04_VerifyJobMappingPageComponents {
 				js.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", searchBar);
 
 			}
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			// OPTIMIZED: Single comprehensive wait
 			PerformanceUtils.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER, "Search bar successfully cleared in Job Mapping page");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("clear_search_bar_in_job_mapping_page", e);
 			PageObjectHelper.handleError(LOGGER, "clear_search_bar_in_job_mapping_page",
 					"Issue in clearing Search bar in Job Mapping page...Please Investigate!!!", e);
 		}

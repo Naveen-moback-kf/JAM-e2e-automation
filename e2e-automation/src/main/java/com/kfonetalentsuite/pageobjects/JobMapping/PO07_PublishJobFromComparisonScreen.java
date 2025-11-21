@@ -57,7 +57,8 @@ public class PO07_PublishJobFromComparisonScreen {
 
 	public void verify_user_landed_on_job_comparison_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			// PERFORMANCE: Single comprehensive wait for page readiness and element visibility
+			PerformanceUtils.waitForPageReady(driver, 10);
 			String compareAndSelectHeaderText = wait.until(ExpectedConditions.visibilityOf(CompareandSelectheader))
 					.getText();
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?");

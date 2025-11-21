@@ -139,19 +139,44 @@ public class PerformanceUtils {
     }
     
     public static void waitForSpinnersToDisappear(WebDriver driver, int timeoutSeconds) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+        // CRITICAL FIX: Use short polling timeout with existence check first
+        WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofMillis(500)); // Only 0.5s per check
         
         try {
+            boolean foundAnySpinner = false;
+            
             for (String selector : SPINNER_SELECTORS) {
                 try {
-                    wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(selector)));
+                    // PERFORMANCE: First check if spinner EXISTS before waiting
+                    List<WebElement> spinners = driver.findElements(By.xpath(selector));
+                    
+                    if (!spinners.isEmpty()) {
+                        // Spinner exists - now check if it's visible
+                        for (WebElement spinner : spinners) {
+                            try {
+                                if (spinner.isDisplayed()) {
+                                    foundAnySpinner = true;
+                                    // Wait for this specific spinner to disappear (max 0.5s)
+                                    shortWait.until(ExpectedConditions.invisibilityOf(spinner));
+                                }
+                            } catch (Exception e) {
+                                // Spinner disappeared or stale - good! Continue to next
+                            }
+                        }
+                    }
+                    // If spinner doesn't exist, skip immediately (no wait!)
                 } catch (Exception e) {
-                    // Continue to next spinner - it might not exist
+                    // Continue to next spinner selector
                 }
             }
-            // Spinners disappeared - no need to log (expected behavior)
+            
+            // PERFORMANCE: If no spinners found at all, return immediately
+            if (!foundAnySpinner) {
+                return; // Fast exit!
+            }
+            
         } catch (Exception e) {
-            // Only log spinner timeout if it's a significant delay
+            // Only log if significant timeout occurred
             if (timeoutSeconds > 3) {
                 LOGGER.warn(" Spinner wait timeout after {}s: {}", timeoutSeconds, e.getMessage());
             }
@@ -410,3 +435,4 @@ public class PerformanceUtils {
     }
     
 }
+

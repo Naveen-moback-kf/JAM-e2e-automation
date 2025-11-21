@@ -111,7 +111,7 @@ public class PO10_ValidateScreen1SearchResults {
 				Thread.sleep(500);
 
 				// Wait for spinner to disappear
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 
 				// Wait for page to stabilize
 				Thread.sleep(1500);

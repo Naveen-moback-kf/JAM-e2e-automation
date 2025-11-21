@@ -24,7 +24,6 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import org.openqa.selenium.interactions.Actions;
@@ -178,8 +177,8 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 	// METHODs
 	public void verify_unpublished_jobs_count_before_adding_more_jobs() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver);
+			// OPTIMIZED: Single comprehensive wait
+			PerformanceUtils.waitForPageReady(driver, 5);
 
 			try {
 				String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
@@ -203,7 +202,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 				}
 			}
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_unpublished_jobs_count_before_adding_more_jobs", e);
 			PageObjectHelper.handleError(LOGGER, "verify_unpublished_jobs_count_before_adding_more_jobs",
 					"Issue in verifying Unpublished job profiles count", e);
 		}
@@ -219,7 +217,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			Assert.assertEquals(headerText, "Add Job Data");
 			PageObjectHelper.log(LOGGER, "User landed on KFONE Add Job Data page Successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_be_landed_on_kfone_add_job_data_page", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_be_landed_on_kfone_add_job_data_page",
 					"Issue in landing KFONE Add Job Data page", e);
 		}
@@ -246,7 +243,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			}
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_is_in_kfone_add_job_data_page", e);
 			PageObjectHelper.handleError(LOGGER, "user_is_in_kfone_add_job_data_page",
 					"Issue in validating KFONE Add Job Data page", e);
 		}
@@ -262,7 +258,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			wait.until(ExpectedConditions.elementToBeClickable(manualUploadBtn)).click();
 			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_click_on_manual_upload_button", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_click_on_manual_upload_button",
 					"Issue in clicking Manual upload Button", e);
 		}
@@ -278,8 +273,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			PageObjectHelper.log(LOGGER,
 					"Jobs count before Adding More Jobs: " + KFONEjobsCountBeforeAddingMoreJobs.get());
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs", e);
 			PageObjectHelper.handleError(LOGGER,
 					"verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs",
 					"Issue in verifying Jobs count before adding", e);
@@ -295,8 +288,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			lastSyncedInfo1.set(lastSyncedInfoText1);
 			PageObjectHelper.log(LOGGER, "Last Synced Info before adding More Jobs: " + lastSyncedInfoText1);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"verify_last_synced_info_on_add_job_data_screen_before_adding_more_jobs", e);
 			PageObjectHelper.handleError(LOGGER,
 					"verify_last_synced_info_on_add_job_data_screen_before_adding_more_jobs",
 					"Issue in verifying Last Synced Info before adding", e);
@@ -349,7 +340,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			PageObjectHelper.log(LOGGER, "Job catalog file uploaded successfully. File name: " + uploadedFileNameText);
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("upload_job_catalog_file_using_attach_file_button", e);
 			PageObjectHelper.handleError(LOGGER, "upload_job_catalog_file_using_attach_file_button",
 					"Issue in uploading Job Catalog file: " + e.getMessage(), e);
 		}
@@ -511,8 +501,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			wait.until(ExpectedConditions.visibilityOf(fileCloseBtn)).click();
 			PageObjectHelper.log(LOGGER, "File Close button clicked successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_verify_file_close_button_displaying_and_clickable",
-					e);
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_file_close_button_displaying_and_clickable",
 					"Issue in verifying File Close Button", e);
 		}
@@ -528,7 +516,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			wait.until(ExpectedConditions.elementToBeClickable(continueBtn)).click();
 			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_continue_button_in_add_job_data_screen", e);
 			PageObjectHelper.handleError(LOGGER, "click_on_continue_button_in_add_job_data_screen",
 					"Issue in clicking Continue Button", e);
 		}
@@ -539,7 +526,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(uploadProgressText)).isDisplayed());
 			PageObjectHelper.log(LOGGER, "Upload in progress - " + uploadProgressText.getText());
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_validate_job_data_upload_is_in_progress", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_job_data_upload_is_in_progress",
 					"Issue in validating Upload in Progress", e);
 		}
@@ -556,7 +542,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			PerformanceUtils.waitForUIStability(driver, 2);
 			PageObjectHelper.log(LOGGER, uploadSuccessMessage.getText() + " - Job data added successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("user_should_validate_job_data_added_successfully", e);
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_job_data_added_successfully",
 					"Issue in validating Job data added successfully", e);
 		}
@@ -578,8 +563,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 						+ ")");
 			}
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"verify_jobs_count_in_kfone_add_job_data_screen_after_adding_more_jobs", e);
 			PageObjectHelper.handleError(LOGGER,
 					"verify_jobs_count_in_kfone_add_job_data_screen_after_adding_more_jobs",
 					"Issue in verifying Jobs count after adding", e);
@@ -600,8 +583,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 						+ lastSyncedInfo1.get() + ", After: " + lastSyncedInfoText2 + ")");
 			}
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"verify_last_synced_info_on_add_job_data_screen_after_adding_more_jobs", e);
 			PageObjectHelper.handleError(LOGGER,
 					"verify_last_synced_info_on_add_job_data_screen_after_adding_more_jobs",
 					"Issue in verifying Last Synced Info after adding", e);
@@ -615,10 +596,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 				closeBtn.click();
 			});
 
-			PageObjectHelper.log(LOGGER, "Clicked on Add more jobs Close button");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("close_add_job_data_screen", e);
+		PageObjectHelper.log(LOGGER, "Clicked on Add more jobs Close button");
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+	} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "close_add_job_data_screen", "Issue in closing Add more jobs page", e);
 		}
 	}
@@ -629,10 +609,10 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			Thread.sleep(120000);
 
 			driver.navigate().refresh();
-			PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
+		PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			PerformanceUtils.waitForPageReady(driver, 3);
+		// OPTIMIZED: Single comprehensive wait
+		PerformanceUtils.waitForPageReady(driver, 3);
 
 			String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
 			String ResultsCountAfterAddingMoreJobs = resultsCountText.split(" ")[3];
@@ -646,7 +626,6 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 						+ ResultsCountBeforeAddingMoreJobs.get() + ", After: " + ResultsCountAfterAddingMoreJobs + ")");
 			}
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_unpublished_jobs_count_after_adding_more_jobs", e);
 			PageObjectHelper.handleError(LOGGER, "verify_unpublished_jobs_count_after_adding_more_jobs",
 					"Issue in verifying Unpublished job profiles count after adding", e);
 		}
@@ -661,14 +640,13 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 
 			wait.until(ExpectedConditions.elementToBeClickable(doneBtn)).click();
 			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("click_on_done_button_in_kfone_add_job_data_page", e);
-			PageObjectHelper.handleError(LOGGER, "click_on_done_button_in_kfone_add_job_data_page",
-					"Issue in clicking Done Button", e);
-		}
+	} catch (Exception e) {
+		PageObjectHelper.handleError(LOGGER, "click_on_done_button_in_kfone_add_job_data_page",
+				"Issue in clicking Done Button", e);
 	}
+}
 
-	public void user_is_in_kfone_add_job_data_page_afer_uploading_file() {
+public void user_is_in_kfone_add_job_data_page_afer_uploading_file() {
 		PageObjectHelper.log(LOGGER, "User is in KFONE Add Job Data page after uploading file");
 	}
 

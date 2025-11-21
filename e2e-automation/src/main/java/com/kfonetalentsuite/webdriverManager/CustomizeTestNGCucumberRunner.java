@@ -19,22 +19,41 @@ import io.cucumber.testng.TestNGCucumberRunner;
 @Listeners({com.kfonetalentsuite.listeners.ExcelReportListener.class})
 public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
 
+    // THREAD-SAFE: Each runner instance gets its own TestNGCucumberRunner
+    // This prevents scenario mixing between parallel test executions
     private TestNGCucumberRunner testNGCucumberRunner;
+    
     protected static final Logger LOGGER = (Logger) LogManager.getLogger(CustomizeTestNGCucumberRunner.class);
     protected abstract String getTagExpressionTemplate();
     
     @BeforeTest
     public final void setupDynamicTags() {
         try {
+            long threadId = Thread.currentThread().getId();
+            String threadName = Thread.currentThread().getName();
+            String runnerName = this.getClass().getSimpleName();
+            
+            LOGGER.info("[Thread-{}:{}] 🔧 Setting up for {}", 
+                       threadId, threadName, runnerName);
+            
             VariableManager.getInstance().loadProperties();
             String loginTag = resolveLoginTag();
             String tagExpression = buildTagExpression(loginTag);
-            System.setProperty("cucumber.filter.tags", tagExpression);
+            
+            // CRITICAL FIX: Do NOT use System.setProperty in parallel execution!
+            // Each runner already has its tags defined in @CucumberOptions
+            // The dynamic tag resolution is only for logging/informational purposes
+            
+            LOGGER.info("[Thread-{}:{}] 📌 Runner {} will use tag expression: {}", 
+                       threadId, threadName, runnerName, tagExpression);
+            LOGGER.info("[Thread-{}:{}] ℹ️  Note: Tags are defined in @CucumberOptions, not System.setProperty", 
+                       threadId, threadName);
+            
             ensureDriverInitialized();
             
         } catch (Exception e) {
-            LOGGER.error("Failed to setup dynamic tags: " + e.getMessage());
-            throw new RuntimeException("Dynamic tag setup failed", e);
+            LOGGER.error("Failed to setup: " + e.getMessage());
+            throw new RuntimeException("Setup failed", e);
         }
     }
     
@@ -89,12 +108,35 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
     }
 
     
+    /**
+     * THREAD-SAFE DataProvider for Cucumber scenarios
+     * 
+     * IMPORTANT: Do NOT use parallel=true here!
+     * - parallel=true would parallelize scenarios WITHIN a runner, causing chaos
+     * - We want each runner to execute its scenarios sequentially on its own thread
+     * - TestNG parallel="tests" already ensures each runner runs on a separate thread
+     * 
+     * Thread Safety:
+     * - Each runner class instance has its own testNGCucumberRunner
+     * - TestNG creates separate instances for each <test> in parallel execution
+     * - This ensures scenarios from Runner01 stay with Thread-1, Runner02 with Thread-2, etc.
+     */
     @DataProvider
     public Object[][] scenarios() {
         if (testNGCucumberRunner == null) {
             return new Object[0][0];
         }
-        return testNGCucumberRunner.provideScenarios();
+        
+        // Log which runner is providing scenarios for debugging
+        String runnerName = this.getClass().getSimpleName();
+        long threadId = Thread.currentThread().getId();
+        String threadName = Thread.currentThread().getName();
+        
+        Object[][] scenarios = testNGCucumberRunner.provideScenarios();
+        LOGGER.info("[Thread-{}:{}] 📋 Runner {} providing {} scenarios", 
+                   threadId, threadName, runnerName, scenarios.length);
+        
+        return scenarios;
     }
 
     @AfterClass(alwaysRun = true)

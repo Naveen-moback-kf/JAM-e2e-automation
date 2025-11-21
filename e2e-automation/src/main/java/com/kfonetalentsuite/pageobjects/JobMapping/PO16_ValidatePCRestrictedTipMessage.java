@@ -19,8 +19,8 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.SmartWaits;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
@@ -282,7 +282,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 	public void navigate_to_system_configuration_page_from_kfone_global_menu() {
 		try {
 			// Wait for page load spinner to disappear
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner1));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			
 		LOGGER.info("Clicking KFONE Global Menu...");
 		ExtentCucumberAdapter.addTestStepLog("Clicking KFONE Global Menu...");
@@ -325,10 +325,10 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			ExtentCucumberAdapter.addTestStepLog("Successfully clicked User Access button in KFONE menu");
 			
 			// Wait for navigation to complete
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			
 			try {
-				wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 //				String text = wait.until(ExpectedConditions.visibilityOf(SystemConfigurationHeaderText)).getText();
 //				Assert.assertEquals(text, "SYSTEM CONFIGURATION");
 				wait.until(ExpectedConditions.visibilityOf(UAMbutton)).isDisplayed();
@@ -342,12 +342,11 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			
 	} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("navigate_to_system_configuration_page_from_kfone_global_menu", e);
-			LOGGER.error("Error navigating to System Configuration page from KFONE Global Menu: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Error navigating to System Configuration page from KFONE Global Menu: " + e.getMessage());
-			throw new RuntimeException("Failed to navigate to System Configuration page from KFONE Global Menu", e);
-		}
+		PageObjectHelper.handleError(LOGGER, "navigate_to_system_configuration_page_from_kfone_global_menu", 
+			"Error navigating to System Configuration page from KFONE Global Menu", e);
+		throw new RuntimeException("Failed to navigate to System Configuration page from KFONE Global Menu", e);
 	}
+}
 	
 	public void click_on_user_admin_module_button() {
 		try {
@@ -365,27 +364,25 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			LOGGER.info("Clicked on User Admin Module button....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on User Admin Module button....");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in clicking on User Admin Module button - Method: click_user_admin_module_button", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in clicking on User Admin Module button...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_user_admin_module_button", 
+				"Issue in clicking on User Admin Module button", e);
 			Assert.fail("Issue in clicking on User Admin Module button...Please Investigate!!!");
 		}
 	}
 	
 	public void user_should_be_landed_on_clients_dashboard_page() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			String text = wait.until(ExpectedConditions.visibilityOf(clientDashboard)).getText();
 			Assert.assertEquals(text, "DASHBOARD");
 			String clientname = wait.until(ExpectedConditions.visibilityOf(clientNameText)).getText();
 			LOGGER.info("User successfully landed on the Dashboard page of the client : " + clientname);
 			ExtentCucumberAdapter.addTestStepLog("User successfully landed on the Dashboard page of the client : " + clientname);
 		} catch (Exception e) {
-			LOGGER.error("Issue in landing on Clients Dashboard page - Method: verify_clients_dashboard_page", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in landing on Clients Dashboard page....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_be_landed_on_clients_dashboard_page", 
+				"Issue in landing on Clients Dashboard page", e);
 			Assert.fail("Issue in landing on Clients Dashboard page....Please Investigate!!!");
 		}
 	}
@@ -412,18 +409,17 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			LOGGER.info("Clicked on Teams section in User Admin Module....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Teams section in User Admin Module....");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in clicking on Teams section in User Admin Module - Method: click_teams_section_user_admin", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in clicking on Teams section in User Admin Module...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_teams_section", 
+				"Issue in clicking on Teams section in User Admin Module", e);
 			Assert.fail("Issue in clicking on Teams section in User Admin Module...Please Investigate!!!");
 		}
 	}
 	
 	public void verify_user_landed_on_teams_page() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			String text = wait.until(ExpectedConditions.visibilityOf(teamsPageHeader)).getText();
 			Assert.assertEquals(text, "TEAMS");
 			LOGGER.info("User landed on the " + text + " page successfully");
@@ -432,9 +428,8 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info(text1);
 			ExtentCucumberAdapter.addTestStepLog(text1);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in landing on Teams page - Method: verify_teams_page_landing", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in landing on Teams page....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_teams_page", 
+				"Issue in landing on Teams page", e);
 			Assert.fail("Issue in landing on Teams page....Please Investigate!!!");
 		}
 	}
@@ -455,18 +450,17 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			LOGGER.info("Clicked on " + "CREATE TEAMS" +" button in Teams section....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on " + "CREATE TEAMS" +" button in Teams section....");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in clicking on Create Teams button - Method: click_create_teams_button", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in clicking on Create Teams button in Teams section...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_create_teams_button", 
+				"Issue in clicking on Create Teams button in Teams section", e);
 			Assert.fail("Issue in clicking on Create Teams button in Teams section...Please Investigate!!!");
 		}
 	}
 	
 	public void user_should_be_navigated_to_first_step_of_creating_a_team() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			String text = wait.until(ExpectedConditions.visibilityOf(createTeamsFirstStepHeader)).getText();
 			Assert.assertEquals(text, "Step 1 of 2: Name and describe your team and select a Profile Collection");
 			LOGGER.info("User successfully navigated to first step of creating a team");
@@ -474,9 +468,8 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info(text);
 			ExtentCucumberAdapter.addTestStepLog(text);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in navigating to first step of creating a team - Method: navigate_first_step_creating_team", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in navigating to first step of creating a team....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_first_step_of_creating_a_team", 
+				"Issue in navigating to first step of creating a team", e);
 			Assert.fail("Issue in navigating to first step of creating a team....Please Investigate!!!");
 		}
 	}
@@ -503,9 +496,8 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info("Entered Team Description : " + "Creating a Team through Automation on " + todayDate);
 			ExtentCucumberAdapter.addTestStepLog("Entered Team Description : " + "Creating a Team through Automation on " + todayDate);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in entering Team name and description - Method: enter_team_name_description", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in entering Team name and Team Description in the first step of creating a team....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_enter_team_name_and_team_description", 
+				"Issue in entering Team name and Team Description in the first step of creating a team", e);
 			Assert.fail("Issue in entering Team name and Team Description in the first step of creating a team....Please Investigate!!!");
 		}
 	}
@@ -526,18 +518,17 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			LOGGER.info("Clicked on Next button in Create Teams page....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Next button in Create Teams page....");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in clicking on Next button in Create Teams page - Method: click_next_button_create_teams", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in clicking on Next button in Create Teams page...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_next_button_in_create_team_page", 
+				"Issue in clicking on Next button in Create Teams page", e);
 			Assert.fail("Issue in clicking on Next button in Create Teams page...Please Investigate!!!");
 		}
 	}
 	
 	public void user_should_be_navigated_to_second_step_of_creating_a_team() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			String text = wait.until(ExpectedConditions.visibilityOf(createTeamsSecondStepHeader)).getText();
 			Assert.assertEquals(text, "Step 2 of 2: Select Team Members");
 			LOGGER.info("User successfully navigated to Second step of creating a team");
@@ -545,9 +536,8 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info(text);
 			ExtentCucumberAdapter.addTestStepLog(text);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in navigating to second step of creating a team - Method: navigate_second_step_creating_team", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in navigating to Second step of creating a team....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_second_step_of_creating_a_team", 
+				"Issue in navigating to Second step of creating a team", e);
 			Assert.fail("Issue in navigating to Second step of creating a team....Please Investigate!!!");
 		}
 	}
@@ -555,22 +545,21 @@ public class PO16_ValidatePCRestrictedTipMessage {
 	public void search_user_to_add_as_team_member() {
 		try {
 		wait.until(ExpectedConditions.visibilityOf(createTeamsSecondStepSearchbar)).sendKeys(PO01_KFoneLogin.username.get());
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		LOGGER.info("Entered User name : " + PO01_KFoneLogin.username.get() + " in the search bar to add as Team Member");
 		ExtentCucumberAdapter.addTestStepLog("Entered User name : " + PO01_KFoneLogin.username.get() + " in the search bar to add as Team Member");
 		} catch (Exception e) {
-			LOGGER.error(" Issue in searching a user to add as Team Member - Method: search_user_add_team_member", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in Searching a user to add as Team Member....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "search_user_to_add_as_team_member", 
+				"Issue in Searching a user to add as Team Member", e);
 			Assert.fail("Issue in Searching a user to add as Team Member....Please Investigate!!!");
 		}
 	}
 	
 	public void select_searched_user_to_add_as_team_member() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 		PerformanceUtils.waitForPageReady(driver, 2);
 		// Scroll element into view before clicking
@@ -587,11 +576,10 @@ public class PO16_ValidatePCRestrictedTipMessage {
 		}
 		LOGGER.info("User " + PO01_KFoneLogin.username.get() + " is Selected to add as Team Member");
 		ExtentCucumberAdapter.addTestStepLog("User " + PO01_KFoneLogin.username.get() + " is Selected to add as Team Member");
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in selecting user to add as Team Member - Method: select_user_add_team_member", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in selecting user to add as Team Member...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "select_searched_user_to_add_as_team_member", 
+				"Issue in selecting user to add as Team Member", e);
 			Assert.fail("Issue in selecting user to add as Team Member...Please Investigate!!!");
 		}
 	}
@@ -610,28 +598,26 @@ public class PO16_ValidatePCRestrictedTipMessage {
 					utils.jsClick(driver, teamMembersHeader);
 				}
 			}
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			LOGGER.info("Clicked on Team Members header in Create Teams page....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Team Members header in Create Teams page....");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in clicking on Team Members header - Method: click_team_members_header", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in clicking on Team Members header...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_team_members_header_and_verify_user_is_added_successfully_as_team_member", 
+				"Issue in clicking on Team Members header", e);
 			Assert.fail("Issue in clicking on Team Members header...Please Investigate!!!");
 		}
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			wait.until(ExpectedConditions.visibilityOf(userCount)).isDisplayed();
 			String text = wait.until(ExpectedConditions.visibilityOf(userCount)).getText();
 		Assert.assertEquals(text,"Showing 1 of 1 Users");
 		LOGGER.info("User " + PO01_KFoneLogin.username.get() + " successfully added as Team Member");
 		ExtentCucumberAdapter.addTestStepLog("User " + PO01_KFoneLogin.username.get() + " successfully added as Team Member");
 		} catch (Exception e) {
-			LOGGER.error(" Issue in verifying user added as Team Member - Method: verify_user_added_team_member", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in Verifying User added as Team Member....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_team_members_header_and_verify_user_is_added_successfully_as_team_member", 
+				"Issue in Verifying User added as Team Member", e);
 			Assert.fail("Issue in Verifying User added as Team Member....Please Investigate!!!");
 		}
 	}
@@ -653,16 +639,15 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			LOGGER.info("Clicked on Save button in Create Teams page....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Save button in Create Teams page....");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in clicking on Save button in Create Teams page - Method: click_save_button_create_teams", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in clicking on Save button in Create Teams page...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_save_button_on_team_page_and_verify_success_popup_appears", 
+				"Issue in clicking on Save button in Create Teams page", e);
 			Assert.fail("Issue in clicking on Save button in Create Teams page...Please Investigate!!!");
 		}
 		
 		try {
-//			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+//			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			SmartWaits.shortWait(driver);
 			try {
 				// PERFORMANCE: Replaced Thread.sleep(1000) with smart element wait
@@ -678,9 +663,8 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				ExtentCucumberAdapter.addTestStepLog(FailureText);
 			}
 		} catch (Exception e) {
-			LOGGER.error(" Issue in verifying popup after creating team - Method: verify_popup_after_creating_team", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in verifying appearing of popup after creating a team....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_save_button_on_team_page_and_verify_success_popup_appears", 
+				"Issue in verifying appearing of popup after creating a team", e);
 			Assert.fail("Issue in verifying appearing of popup after creating a team....Please Investigate!!!");
 		}
 	}
@@ -688,7 +672,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 	public void search_for_team_name_in_teams_page_and_verify_team_is_created_successfully() {
 		try {
 	wait.until(ExpectedConditions.visibilityOf(teamsPageSearchbar)).sendKeys(teamName.get());
-	wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+	PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 	// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
 	PerformanceUtils.waitForElement(driver, teamNameinTopRow, 2);
 	String text = wait.until(ExpectedConditions.visibilityOf(teamNameinTopRow)).getText();
@@ -696,9 +680,8 @@ public class PO16_ValidatePCRestrictedTipMessage {
 		LOGGER.info("Team with name : " + teamName.get() + " is successfully created");
 		ExtentCucumberAdapter.addTestStepLog("Team with name : " + teamName.get() + " is successfully created");
 		} catch (Exception e) {
-			LOGGER.error(" Issue in searching and verifying team created - Method: search_verify_team_created", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in Searching and Verifying a Team is created successfully....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "search_for_team_name_in_teams_page_and_verify_team_is_created_successfully", 
+				"Issue in Searching and Verifying a Team is created successfully", e);
 			Assert.fail("Issue in Searching and Verifying a Team is created successfully....Please Investigate!!!");
 		}
 	}
@@ -720,18 +703,17 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			LOGGER.info("Clicked on Profile Collections section in User Admin Module....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Profile Collections section in User Admin Module....");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in clicking on Profile Collections section - Method: click_profile_collections_section", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in clicking on Profile Collections section in User Admin Module...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_profile_collections_section", 
+				"Issue in clicking on Profile Collections section in User Admin Module", e);
 			Assert.fail("Issue in clicking on Profile Collections section in User Admin Module...Please Investigate!!!");
 		}
 	}
 	
 	public void verify_user_navigated_to_manage_success_profiles_page() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			String text = wait.until(ExpectedConditions.visibilityOf(pcPageHeader)).getText();
 			Assert.assertEquals(text, "MANAGE SUCCESS PROFILES");
 			LOGGER.info("User landed on the " + text + " page successfully");
@@ -740,9 +722,8 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info(text1);
 			ExtentCucumberAdapter.addTestStepLog(text1);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in landing on Manage Success Profiles page - Method: verify_manage_success_profiles_page", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in landing on Manage Success Profiles page....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_manage_success_profiles_page", 
+				"Issue in landing on Manage Success Profiles page", e);
 			Assert.fail("Issue in landing on Manage Success Profiles page....Please Investigate!!!");
 		}
 	}
@@ -764,18 +745,17 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			LOGGER.info("Clicked on " + "CREATE PRFOILE COLLECTION" +" button in Teams section....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on " + "CREATE PRFOILE COLLECTION" +" button in Teams section....");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			LOGGER.error(" Issue in clicking on CREATE PROFILE COLLECTION button - Method: click_create_profile_collection_button", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(" Issue in clicking on CREATE PROFILE COLLECTION button in Teams section...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_create_profile_collection_button", 
+				"Issue in clicking on CREATE PROFILE COLLECTION button in Teams section", e);
 			Assert.fail("Issue in clicking on CREATE PROFILE COLLECTION button in Teams section...Please Investigate!!!");
 		}
 	}
 	
 	public void user_should_navigated_to_first_step_of_creating_a_profile_collection() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			String text = wait.until(ExpectedConditions.visibilityOf(createPCFirstStepHeader)).getText();
 			Assert.assertEquals(text, "Step 1 of 3: Name and describe your Profile Collection");
 			LOGGER.info("User successfully navigated to first step of creating a team");
@@ -783,8 +763,8 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info(text);
 			ExtentCucumberAdapter.addTestStepLog(text);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in navigating to first step of creating a Profile Collection....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_navigated_to_first_step_of_creating_a_profile_collection", 
+				"Issue in navigating to first step of creating a Profile Collection", e);
 			Assert.fail("Issue in navigating to first step of creating a Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -836,8 +816,8 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			LOGGER.info("Entered Profile Collection Description : " + "Creating a Profile Collection through Automation on " + todayDate);
 			ExtentCucumberAdapter.addTestStepLog("Entered Profile Collection Description : " + "Creating a Team through Automation on " + todayDate);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in entering Profile Collection name and Profile Collection Description in the first step of creating a Profile Collection....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_enter_profile_collection_name_and_profile_collection_description", 
+				"Issue in entering Profile Collection name and Profile Collection Description in the first step of creating a Profile Collection", e);
 			Assert.fail("Issue in entering Profile Collection name and Profile Collection Description in the first step of creating a Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -859,34 +839,34 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			LOGGER.info("Clicked on Next button in Create Profile Collection page....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Next button in Create Profile Collection page....");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Next button in Create Profile Collection page...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_next_button_in_create_profile_collection_page", 
+				"Issue in clicking on Next button in Create Profile Collection page", e);
 			Assert.fail("Issue in clicking on Next button in Create Profile Collection page...Please Investigate!!!");
 		}
 	}
 	
 	public void user_should_be_navigated_to_second_step_of_creating_a_profile_collection() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			String text = wait.until(ExpectedConditions.visibilityOf(createPCSecondStepHeader)).getText();
 			Assert.assertEquals(text, "Step 2 of 3: Select Team(s) for your Profile Collection");
 			LOGGER.info("User successfully navigated to Second step of creating a Profile Collection");
 			ExtentCucumberAdapter.addTestStepLog("User successfully navigated to Second step of creating a Profile Collection");
 			LOGGER.info(text);
 			ExtentCucumberAdapter.addTestStepLog(text);
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in navigating to Second step of creating a Profile Collection....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_second_step_of_creating_a_profile_collection", 
+				"Issue in navigating to Second step of creating a Profile Collection", e);
 			Assert.fail("Issue in navigating to Second step of creating a Profile Collection....Please Investigate!!!");
 		}
 	}
 	
 	public void click_on_all_teams_header() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 			PerformanceUtils.waitForPageReady(driver);
 			// Scroll element into view before clicking
@@ -904,19 +884,19 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			LOGGER.info("Clicked on All Teams button in Create Profile Collection page....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on All Teams button in Create Profile Collection page....");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on All Teams header button in Create Profile Collection page...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_all_teams_header", 
+				"Issue in clicking on All Teams header button in Create Profile Collection page", e);
 			Assert.fail("Issue in clicking on All Teams header button in Create Profile Collection page...Please Investigate!!!");
 		}
 	}
 	
 	public void select_recently_created_team_name() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 		PerformanceUtils.waitForPageReady(driver, 2);
 		// Scroll element into view before clicking
@@ -934,10 +914,10 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 		LOGGER.info("Recently Created Team with name " + teamName.get() + " is Selected for Profile Collection");
 		ExtentCucumberAdapter.addTestStepLog("Recently Created Team with name " + teamName.get() + " is Selected for Profile Collection");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in selecting Recently Created Team for Profile Collection...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "select_recently_created_team_name", 
+				"Issue in selecting Recently Created Team for Profile Collection", e);
 			Assert.fail("Issue in selecting Recently Created Team for Profile Collection...Please Investigate!!!");
 		}
 	}
@@ -960,17 +940,17 @@ public void click_on_selected_teams_header() {
 			}
 			LOGGER.info("Clicked on Selected Teams button in Create Profile Collection page....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Selected Teams button in Create Profile Collection page....");
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Selected Teams header button in Create Profile Collection page...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_selected_teams_header", 
+				"Issue in clicking on Selected Teams header button in Create Profile Collection page", e);
 			Assert.fail("Issue in clicking on Selected Teams header button in Create Profile Collection page...Please Investigate!!!");
 		}
 	}
 	
 	public void user_should_verify_recently_created_team_name_is_available_in_selected_teams() {
 		try {
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 2);
 		wait.until(ExpectedConditions.visibilityOf(teamCount)).isDisplayed();
 			String text = wait.until(ExpectedConditions.visibilityOf(teamCount)).getText();
@@ -978,25 +958,25 @@ public void click_on_selected_teams_header() {
 			LOGGER.info("Recently created team " + teamName + " is available in Selected Teams as Expected");
 			ExtentCucumberAdapter.addTestStepLog("Recently created team " + teamName + " is available in Selected Teams as Expected");
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifing Recently created team name is available in selected teams....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_recently_created_team_name_is_available_in_selected_teams", 
+				"Issue in Verifing Recently created team name is available in selected teams", e);
 			Assert.fail("Issue in Verifing Recently created team name is available in selected teams....Please Investigate!!!");
 		}
 	}
 	
 	public void user_should_be_navigated_to_third_step_of_creating_a_profile_collection() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			String text = wait.until(ExpectedConditions.visibilityOf(createPCThirdStepHeader)).getText();
 			Assert.assertEquals(text, "Step 3 of 3: Select Success Profiles for your Profile Collection");
 			LOGGER.info("User successfully navigated to Third step of creating a Profile Collection");
 			ExtentCucumberAdapter.addTestStepLog("User successfully navigated to Third step of creating a Profile Collection");
 			LOGGER.info(text);
 			ExtentCucumberAdapter.addTestStepLog(text);
-			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in navigating to Third step of creating a Profile Collection....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_third_step_of_creating_a_profile_collection", 
+				"Issue in navigating to Third step of creating a Profile Collection", e);
 			Assert.fail("Issue in navigating to Third step of creating a Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -1019,11 +999,11 @@ public void click_on_add_additional_success_profiles_header() {
 		}
 		LOGGER.info("Clicked on ADD ADDITIONAL SUCCESS PROFILES button in Create Profile Collection page....");
 		ExtentCucumberAdapter.addTestStepLog("Clicked on ADD ADDITIONAL SUCCESS PROFILES button in Create Profile Collection page....");
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 2);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on ADD ADDITIONAL SUCCESS PROFILES header button in Create Profile Collection page...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_add_additional_success_profiles_header", 
+				"Issue in clicking on ADD ADDITIONAL SUCCESS PROFILES header button in Create Profile Collection page", e);
 			Assert.fail("Issue in clicking on ADD ADDITIONAL SUCCESS PROFILES header button in Create Profile Collection page...Please Investigate!!!");
 		}
 	}
@@ -1031,7 +1011,7 @@ public void click_on_add_additional_success_profiles_header() {
 	public void search_and_add_success_profiles_to_profile_collection() {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(pcThirdStepSearchbar)).sendKeys(spNameString.get());
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 2);
 		// Scroll element into view before clicking
 		WebElement element = wait.until(ExpectedConditions.elementToBeClickable(selectAllCheckbox));
@@ -1049,8 +1029,8 @@ public void click_on_add_additional_success_profiles_header() {
 			LOGGER.info("Success Profiles which contains " + spNameString + " as Sub-string are selected to add to Profile Collection");
 			ExtentCucumberAdapter.addTestStepLog("Success Profiles which contains " + spNameString + " as Sub-string are selected to add to Profile Collection");
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in Searching and adding Success Profiles to Profile Collection....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "search_and_add_success_profiles_to_profile_collection", 
+				"Issue in Searching and adding Success Profiles to Profile Collection", e);
 			Assert.fail("Issue in Searching and adding Success Profiles to Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -1073,18 +1053,18 @@ public void click_on_success_profiles_header() {
 		}
 		LOGGER.info("Clicked on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection....");
 		ExtentCucumberAdapter.addTestStepLog("Clicked on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection....");
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 2);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_success_profiles_header", 
+				"Issue in clicking on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection", e);
 			Assert.fail("Issue in clicking on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection...Please Investigate!!!");
 		}
 	}
 	
 	public void user_should_verify_added_profiles_are_available_in_success_profiles_header() {
 		try {
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 2);
 		wait.until(ExpectedConditions.visibilityOf(pcCount)).isDisplayed();
 			String resultsCountText = wait.until(ExpectedConditions.visibilityOf(pcCount)).getText();
@@ -1092,8 +1072,8 @@ public void click_on_success_profiles_header() {
 			LOGGER.info(resultsCountText_split[3] + " Success Profiles " + "which contains " + spNameString + " as Sub-string are added to Profile Collection");
 			ExtentCucumberAdapter.addTestStepLog(resultsCountText_split[3] + "Success Profiles " + "which contains " + spNameString + " as Sub-string are added to Profile Collection");
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifing added profiles availablity in success profiles for Profile Collection....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_added_profiles_are_available_in_success_profiles_header", 
+				"Issue in Verifing added profiles availablity in success profiles for Profile Collection", e);
 			Assert.fail("Issue in Verifing added profiles availablity in success profiles for Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -1115,10 +1095,10 @@ public void click_on_success_profiles_header() {
 			}
 			LOGGER.info("Clicked on Done button in Create Profile Collections page....");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Done button in Create Profile Collections page....");
-//			wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+//			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Done button in Create Profile Collections page.......Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_done_button_on_create_profile_collection_page_and_verify_success_popup_appears", 
+				"Issue in clicking on Done button in Create Profile Collections page", e);
 			Assert.fail("Issue in clicking on Done button in Create Profile Collections page.......Please Investigate!!!");
 		}
 		
@@ -1129,8 +1109,8 @@ public void click_on_success_profiles_header() {
 			LOGGER.info(SuccesstText);
 			ExtentCucumberAdapter.addTestStepLog(SuccesstText);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying appearing of success popup after creating a Profile Collection....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_done_button_on_create_profile_collection_page_and_verify_success_popup_appears", 
+				"Issue in verifying appearing of success popup after creating a Profile Collection", e);
 			Assert.fail("Issue in verifying appearing of success popup after creating a Profile Collection....Please Investigate!!!");
 		}
 		LOGGER.info("Profile Collection with name " + pcName + " is created successfully");
@@ -1141,22 +1121,22 @@ public void click_on_success_profiles_header() {
 		try {
 		wait.until(ExpectedConditions.visibilityOf(pcSearchbar)).sendKeys(pcName.get());
 		PerformanceUtils.waitForUIStability(driver, 1);			
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 3);
 		wait.until(ExpectedConditions.elementToBeClickable(topRowThreeDots)).click();
 		PerformanceUtils.waitForUIStability(driver, 2);
 		wait.until(ExpectedConditions.elementToBeClickable(topRowDeletebtn)).click();
 		PerformanceUtils.waitForUIStability(driver, 2);
 		wait.until(ExpectedConditions.elementToBeClickable(deleteConfirmbtn)).click();
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 3);
 		String text = wait.until(ExpectedConditions.visibilityOf(deletionSuccessPopup)).getText();
 			LOGGER.info(text);
 			ExtentCucumberAdapter.addTestStepLog(text);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in Searching and Deleting Profile Collection....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "search_and_delete_profile_collection", 
+				"Issue in Searching and Deleting Profile Collection", e);
 			Assert.fail("Issue in Searching and Deleting Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -1164,21 +1144,21 @@ public void click_on_success_profiles_header() {
 	public void search_for_team_name_in_teams_page_and_delete_team() {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(teamsPageSearchbar)).sendKeys(teamName.get());
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 3);
 		wait.until(ExpectedConditions.elementToBeClickable(topRowThreeDots)).click();
 		PerformanceUtils.waitForUIStability(driver, 2);
 		wait.until(ExpectedConditions.elementToBeClickable(topRowDeletebtn)).click();
 		PerformanceUtils.waitForUIStability(driver, 2);
 		wait.until(ExpectedConditions.elementToBeClickable(deleteConfirmbtn)).click();
-		wait.until(ExpectedConditions.invisibilityOf(pageLoadSpinner));
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 3);
 		String text = wait.until(ExpectedConditions.visibilityOf(deletionSuccessPopup)).getText();
 			LOGGER.info(text);
 			ExtentCucumberAdapter.addTestStepLog(text);
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in Searching and Deleting Team....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "search_for_team_name_in_teams_page_and_delete_team", 
+				"Issue in Searching and Deleting Team", e);
 			Assert.fail("Issue in Searching and Deleting Team....Please Investigate!!!");
 		}
 	}
@@ -1193,8 +1173,8 @@ public void click_on_success_profiles_header() {
 			LOGGER.info("PC Restricted Tip Message verified and closed successfully...");
 			ExtentCucumberAdapter.addTestStepLog("PC Restricted Tip Message verified and closed successfully...");
 		} catch (Exception e) {
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying PC Restricted Tip Message on Job Mapping page...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_pc_restricted_tip_message_is_displaying_on_job_mapping_page", 
+				"Issue in verifying PC Restricted Tip Message on Job Mapping page", e);
 			Assert.fail("Issue in verifying PC Restricted Tip Message on Job Mapping page...Please Investigate!!!");
 		}
 	}

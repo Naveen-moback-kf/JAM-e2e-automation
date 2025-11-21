@@ -21,9 +21,9 @@ import org.testng.Assert;
 import org.testng.SkipException;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.HeadlessCompatibleActions;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
@@ -246,7 +246,7 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 	//METHODs
 	public void user_should_search_for_job_profile_with_search_a_different_profile_button_on_mapped_success_profile() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 			// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 			PerformanceUtils.waitForPageReady(driver);
 			
@@ -328,7 +328,7 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 				headlessActions.scrollToBottom();
 				
 				// Wait for spinner and page to stabilize
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
 				PerformanceUtils.waitForPageReady(driver, 2);
 			}
 			
@@ -362,10 +362,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 				throw new SkipException("SKIPPED: No Manually Mapped profiles available in Job Mapping. This scenario requires at least one job with 'Search a Different Profile' button to execute.");
 			} else {
 				// This is a real error that occurred after finding a profile
-				LOGGER.error(" Issue searching for job profile with Search Different Profile button - Method: user_should_search_for_job_profile_with_search_a_different_profile_button", e);
-				ScreenshotHandler.captureFailureScreenshot("search_job_profile_with_search_different_profile_button", e);
-				e.printStackTrace();
-				ExtentCucumberAdapter.addTestStepLog("Issue in searching a Job Profile with Search a Different Profile button in Job Mapping UI....Please Investigate!!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_search_for_job_profile_with_search_a_different_profile_button",
+				"Issue in searching a Job Profile with Search a Different Profile button in Job Mapping UI", e);
 				Assert.fail("Issue in searching a Job Profile with Search a Different Profile button in Job Mapping UI....Please Investigate!!!!");
 			}
 		}
@@ -374,7 +372,7 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 	public void user_should_verify_organization_job_name_and_job_code_values_of_job_profile_with_search_a_different_profile_button() {
 		if(mapSP.get()) {
 			try {
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
 			// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 			PerformanceUtils.waitForPageReady(driver, 2);
 			WebElement	jobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()-1) + "]//td[2]//div[contains(text(),'(')]"));
@@ -385,8 +383,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 			ExtentCucumberAdapter.addTestStepLog("Organization Job name / Job Code of Profilewith Search a Different Profile button in the organization table : " + orgJobName.get() + "/" + orgJobCode.get());
 			LOGGER.info("Organization Job name / Job Code of Profile a Different Profile button in the organization table : " + orgJobName.get() + "/" + orgJobCode.get());
 			} catch (Exception e) {
-				LOGGER.error(" Issue verifying organization job name/code - Method: user_should_verify_organization_job_name_and_job_code_values", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_organization_job_name_code", e);
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_name_and_job_code_values",
+				"Issue verifying organization job name/code", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog("Issue in verifying job name of Profile with Search a Different Profile button in the Organization jobs profile list...Please Investigate!!!");
 				Assert.fail("Issue in verifying job name of Profile with Search a Different Profile button in the Organization jobs profile list...Please Investigate!!!");
@@ -408,8 +406,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 			ExtentCucumberAdapter.addTestStepLog("Grade value of Organization Job Profile with Search a Different Profile button : " + orgJobGrade.get());
 			LOGGER.info("Grade value of Organization Job Profile with Search a Different Profile button : " + orgJobGrade.get());
 			} catch (Exception e) {
-				LOGGER.error(" Issue verifying organization job grade - Method: user_should_verify_organization_job_grade_and_department_values", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_organization_job_grade", e);
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_grade_and_department_values",
+				"Issue verifying organization job grade", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Organization Job Grade value of Profile with Search a Different Profile button...Please Investigate!!!");
 				Assert.fail("Issue in Verifying Organization Job Grade value of Profile with Search a Different Profile button...Please Investigate!!!");
@@ -428,8 +426,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 			ExtentCucumberAdapter.addTestStepLog("Department value of Organization Job Profile with Search a Different Profile button : " + orgJobDepartment.get());
 			LOGGER.info("Department value of Organization Job Profile with Search a Different Profile button : " + orgJobDepartment.get());
 			} catch (Exception e) {
-				LOGGER.error(" Issue verifying organization job department - Method: user_should_verify_organization_job_grade_and_department_values", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_organization_job_department", e);
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_grade_and_department_values",
+				"Issue verifying organization job department", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Organization Job Department value of Profile with Search a Different Profile button...Please Investigate!!!");
 				Assert.fail("Issue in Verifying Organization Job Department value of Profile with Search a Different Profile button...Please Investigate!!!");
@@ -455,8 +453,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 			ExtentCucumberAdapter.addTestStepLog("Function / Sub-function values of Organization Job Profile with Search a Different Profile button : " + orgJobFunction.get());
 			LOGGER.info("Function / Sub-function values of Organization Job Profile with Search a Different Profile button : " + orgJobFunction.get());
 			} catch (Exception e) {
-				LOGGER.error(" Issue verifying organization job function - Method: user_should_verify_organization_job_function_or_sub_function", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_organization_job_function", e);
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_function_or_sub_function",
+				"Issue verifying organization job function", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Organization Job Function / Sub-function values of Profile with Search a Different Profile button...Please Investigate!!!");
 				Assert.fail("Issue in Verifying Organization Job Function / Sub-function values of Profile with Search a Different Profile button...Please Investigate!!!");
@@ -467,7 +465,7 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 	public void click_on_mapped_profile_of_job_profile_with_search_a_different_profile_button() {
 		if(mapSP.get() | manualMapping.get()) {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 		WebElement	linkedMappedProfile = driver.findElement(By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr[" + Integer.toString(rowNumber.get()-1) + "]//td[1]//div"));
 		String MappedProfileNameText = wait.until(ExpectedConditions.elementToBeClickable(linkedMappedProfile)).getText();
 		mappedSuccessPrflName.set(MappedProfileNameText);
@@ -486,10 +484,10 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 			}
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Manually Mapped Profile with name " + MappedProfileNameText + " of Organization Job "+ orgJobName.get());
 			LOGGER.info("Clicked on Manually Mapped Profile with name " + MappedProfileNameText +" of Organization Job "+ orgJobName.get());
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
 			} catch (Exception e) {
-				LOGGER.error(" Issue clicking mapped profile - Method: click_on_mapped_profile_of_job_profile_with_search_a_different_profile_button", e);
-		ScreenshotHandler.captureFailureScreenshot("click_mapped_profile", e);
+				PageObjectHelper.handleError(LOGGER, "click_on_mapped_profile_of_job_profile_with_search_a_different_profile_button",
+				"Issue clicking mapped profile", e);
 			e.printStackTrace();
 			ExtentCucumberAdapter.addTestStepLog("Issue in clicking Manually Mapped Profile linked with job name "+ orgJobName.get() + "...Please Investigate!!!");
 			Assert.fail("Issue in clicking Manually Mapped Profile linked with job name "+ orgJobName.get() + "...Please Investigate!!!");
@@ -500,13 +498,13 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 	public void verify_mapped_profile_details_popup_is_displayed() {
 		if(mapSP.get() | manualMapping.get()) {
 			try {
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
 				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(profileDetailsPopupHeader)).isDisplayed());
 				ExtentCucumberAdapter.addTestStepLog("Mapped Profile details popup is displayed on screen as expected");
 				LOGGER.info("Mapped Profile details popup is displayed on screen as expected");
 			} catch (Exception e) {
-				LOGGER.error(" Issue displaying profile details popup - Method: verify_mapped_profile_details_popup_is_displayed", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_mapped_profile_details_popup", e);
+				PageObjectHelper.handleError(LOGGER, "verify_mapped_profile_details_popup_is_displayed",
+				"Issue displaying profile details popup", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog("Issue in displaying Mapped profile details popup...Please Investigate!!!");
 				Assert.fail("Issue in displaying Mapped profile details popup...Please Investigate!!!");
@@ -529,8 +527,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 				LOGGER.info("Profile header on the details popup : " + profileHeaderName);
 				ExtentCucumberAdapter.addTestStepLog("Profile header on the details popup : " + profileHeaderName);
 				} catch (Exception e) {
-					LOGGER.error(" Issue verifying profile header - Method: verify_profile_header_matches_with_mapped_profile_name", e);
-				ScreenshotHandler.captureFailureScreenshot("verify_profile_header", e);
+					PageObjectHelper.handleError(LOGGER, "verify_profile_header_matches_with_mapped_profile_name",
+					"Issue verifying profile header", e);
 					e.printStackTrace();
 					ExtentCucumberAdapter.addTestStepLog(" Issue in verifying profile details popup header....Please Investigate!!!");
 					Assert.fail("Issue in verifying profile details popup header....Please Investigate!!!");
@@ -548,8 +546,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 				ExtentCucumberAdapter.addTestStepLog("Below are the Profile Details displaying on the popup screen: \n");
 				ExtentCucumberAdapter.addTestStepLog(profileDeatilsText);
 				} catch (Exception e) {
-					LOGGER.error(" Issue displaying profile details - Method: verify_mapped_profile_details_displaying_on_the_popup", e);
-				ScreenshotHandler.captureFailureScreenshot("display_profile_details", e);
+					PageObjectHelper.handleError(LOGGER, "verify_mapped_profile_details_displaying_on_the_popup",
+					"Issue displaying profile details", e);
 					e.printStackTrace();
 					ExtentCucumberAdapter.addTestStepLog(" Issue in displaying profile details on the popup screen....Please Investigate!!!");
 					Assert.fail("Issue in displaying profile details on the popup screen....Please Investigate!!!");
@@ -580,8 +578,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 				ExtentCucumberAdapter.addTestStepLog("No Profile Levels available for this mapped profile with name : " + mappedSuccessPrflName.get());
 				}
 			} catch (Exception e) {
-				LOGGER.error(" Issue validating profile level dropdown - Method: user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown_of_mapped_profile", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_profile_level_dropdown", e);
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown_of_mapped_profile",
+				"Issue validating profile level dropdown", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog(" Issue in validating profile level dropdown in profile details popup in Job Mapping page...Please Investigate!!!");
 				Assert.fail("Issue in validating profile level dropdown in profile details popup in Job Mapping page...Please Investigate!!!");
@@ -597,8 +595,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 			LOGGER.info("Role summary of Mapped Success Profile : " + ProfileRoleSummary.get());
 			ExtentCucumberAdapter.addTestStepLog("Role summary of Mapped Success Profile : " + ProfileRoleSummary.get());
 			} catch (Exception e) {
-				LOGGER.error(" Issue validating role summary - Method: validate_role_summary_of_mapped_profile_is_displaying", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_role_summary", e);
+				PageObjectHelper.handleError(LOGGER, "validate_role_summary_of_mapped_profile_is_displaying",
+				"Issue validating role summary", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog(" Issue in validating Role Summary in Profile Details Popup in Job Mapping page...Please Investigate!!!");
 				Assert.fail("Issue in validating Role Summary in Profile Details Popup in Job Mapping page...Please Investigate!!!");
@@ -638,8 +636,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 //				LOGGER.info("Data present in Responsibilities screen : \n" + responsibilitiesDataText);
 //				ExtentCucumberAdapter.addTestStepLog("Data present in Responsibilities screen : \n" + responsibilitiesDataText);
 			} catch (Exception e) {
-				LOGGER.error(" Issue validating responsibilities screen - Method: validate_data_in_responsibilities_tab_of_mapped_profile", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_responsibilities_tab", e);
+				PageObjectHelper.handleError(LOGGER, "validate_data_in_responsibilities_tab_of_mapped_profile",
+				"Issue validating responsibilities screen", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog(" Issue in validating data in Responsibilities screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
 				Assert.fail("Issue in validating data in Responsibilities screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
@@ -682,8 +680,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 //				LOGGER.info("Data present in Behaviour Competencies screen : \n" + behaviourDataText);
 //				ExtentCucumberAdapter.addTestStepLog("Data present in Behaviour Competencies screen : \n" + behaviourDataText);
 			} catch (Exception e) {
-				LOGGER.error(" Issue validating behavioural competencies screen - Method: validate_data_in_behavioural_competencies_tab_of_mapped_profile", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_behavioural_competencies_tab", e);
+				PageObjectHelper.handleError(LOGGER, "validate_data_in_behavioural_competencies_tab_of_mapped_profile",
+				"Issue validating behavioural competencies screen", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog(" Issue in validating data in Behaviour Competencies screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
 				Assert.fail("Issue in validating data in Behaviour Competencies screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
@@ -726,8 +724,8 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 //				LOGGER.info("Data present in Skills screen : \n" + skillsDataText);
 //				ExtentCucumberAdapter.addTestStepLog("Data present in Skills screen : \n" + skillsDataText);
 			} catch (Exception e) {
-				LOGGER.error(" Issue validating skills screen - Method: validate_data_in_skills_tab_of_mapped_profile", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_skills_tab", e);
+				PageObjectHelper.handleError(LOGGER, "validate_data_in_skills_tab_of_mapped_profile",
+				"Issue validating skills screen", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog(" Issue in validating data in Skills screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
 				Assert.fail("Issue in validating data in Skills screen in Profile Details Popup in Job Mapping page...Please Investigate!!!");
@@ -783,8 +781,9 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 				
 			} catch (Exception e) {
 				LOGGER.error("❌ Issue verifying Publish Profile button - Method: user_should_verify_publish_profile_button_is_available_on_popup_screen_of_mapped_profile", e);
-				LOGGER.error("Possible causes: 1) Button not scrolled into view in headless mode, 2) Popup not fully loaded, 3) Element locator issue");
-				ScreenshotHandler.captureFailureScreenshot("verify_publish_profile_button", e);
+			LOGGER.error("Possible causes: 1) Button not scrolled into view in headless mode, 2) Popup not fully loaded, 3) Element locator issue");
+			PageObjectHelper.handleError(LOGGER, "verify_publish_profile_button_is_displayed_on_mapped_profile_details_popup",
+				"Issue verifying publish profile button", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog(" Issue in verifying Publish Profile button on profile details popup screen in Job Mapping page....Please Investigate!!!");
 				Assert.fail("Issue in verifying Publish Profile button on profile details popup screen in Job Mapping page....Please Investigate!!!");
@@ -810,10 +809,10 @@ public void click_on_close_button_in_profile_details_popup_of_mapped_profile() {
 			}
 				ExtentCucumberAdapter.addTestStepLog("Clicked on close button in Profile details popup");
 				LOGGER.info("Clicked on close button in Profile details popup");
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
 			} catch (Exception e) {
-				LOGGER.error(" Issue clicking close button - Method: click_on_close_button_in_profile_details_popup_of_mapped_profile", e);
-			ScreenshotHandler.captureFailureScreenshot("click_close_button_profile_details_popup", e);
+				PageObjectHelper.handleError(LOGGER, "click_on_close_button_in_profile_details_popup_of_mapped_profile",
+				"Issue clicking close button", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog("Issue in clicking close button in Profile details popup in Job Mapping page...Please Investigate!!!");
 				Assert.fail("Issue in clicking close button in Profile details popup in Job Mapping page...Please investigate!!!");
@@ -842,8 +841,8 @@ if(mapSP.get()) {
 			LOGGER.info("Clicked on Search a different profile button on Mapped SP of Organization Job Profile with name : " + orgJobName.get());
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Search a different profile button on Mapped SP of Organization Job Profile with name : "+ orgJobName.get());
 			} catch(Exception e) {
-			LOGGER.error(" Issue clicking Search Different Profile button - Method: click_on_search_a_different_profile_button_on_mapped_success_profile", e);
-			ScreenshotHandler.captureFailureScreenshot("click_search_different_profile_button", e);
+		PageObjectHelper.handleError(LOGGER, "click_on_search_a_different_profile_button_on_mapped_success_profile",
+			"Issue clicking Search Different Profile button", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Search a different profile button in Job Mapping page...Please Investigate!!!");
 				Assert.fail("Issue in clicking on Search a different profile button in Job Mapping page...Please investigate!!!");
@@ -855,7 +854,7 @@ if(mapSP.get()) {
 	public void user_should_be_navigated_to_manual_job_mapping_screen() {
 		if(mapSP.get()) {
 			try {
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
 				String actualHeader = wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[contains(text(),'Which profile')]")))).getText();
 				// PERFORMANCE: Replaced Thread.sleep(3000) with element readiness wait
 				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//*[contains(text(),'Which profile')]")));
@@ -866,8 +865,8 @@ if(mapSP.get()) {
 				manualMapping.set(true);
 				}
 			} catch (Exception e) {
-				LOGGER.error(" Issue navigating to Manual Mapping screen - Method: user_should_be_navigated_to_manual_job_mapping_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("navigate_manual_mapping_screen", e);
+				PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_manual_job_mapping_screen",
+				"Issue navigating to Manual Mapping screen", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog(" Issue in navigating to Manual Mapping screen...Please Investigate!!!");
 				Assert.fail("Issue in navigating to Manual Mapping screen...Please Investigate!!!");
@@ -878,15 +877,15 @@ if(mapSP.get()) {
 	public void verify_organization_job_details_in_manual_mapping_screen() {
 		if(manualMapping.get()) {
 			try {
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
 				String manualMappingPageOrgJobTitleHeaderText = wait.until(ExpectedConditions.visibilityOf(manualMappingPageOrgJobTitleHeader)).getText();
 				Assert.assertTrue(manualMappingPageOrgJobTitleHeaderText.contains(orgJobName.get()));
 				Assert.assertTrue(manualMappingPageOrgJobTitleHeaderText.contains(orgJobCode.get()));
 				LOGGER.info("Organization Job Name and Job code validated successfully in the Manual Mapping screen");
 				ExtentCucumberAdapter.addTestStepLog("Organization Job Name and Job code validated successfully in the Manual Mapping screen");
 			} catch (Exception e) {
-				LOGGER.error(" Issue validating organization job details - Method: verify_organization_job_details_in_manual_mapping_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_organization_job_details_manual_mapping", e);
+				PageObjectHelper.handleError(LOGGER, "verify_organization_job_details_in_manual_mapping_screen",
+				"Issue validating organization job details", e);
 				e.printStackTrace();
 				ExtentCucumberAdapter.addTestStepLog(" Issue in validating Organization Job Name and Job Code in the Manual Mapping screen....Please Investigate!!!");
 				Assert.fail("Issue in validating Organization Job Name and Job Code in the Manual Mapping screen....Please Investigate!!!");
@@ -903,8 +902,8 @@ if(mapSP.get()) {
 				LOGGER.info("Organization Job Grade value validated successfully in the Manual Mapping screen");
 				ExtentCucumberAdapter.addTestStepLog("Organization Job Grade value validated successfully in the Manual Mapping screen");
 			} catch (Exception e) {
-				LOGGER.error(" Issue validating organization job grade in manual mapping - Method: verify_organization_job_details_in_manual_mapping_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_organization_job_grade_manual_mapping", e);
+				PageObjectHelper.handleError(LOGGER, "verify_organization_job_details_in_manual_mapping_screen",
+				"Issue validating organization job grade in manual mapping", e);
 				e.printStackTrace();
 				Assert.fail("Issue in validating Organization Job Grade value in the Manual Mapping screen....Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in validating Organization Job Grade value in the Manual Mapping screen....Please Investigate!!!");
@@ -921,8 +920,8 @@ if(mapSP.get()) {
 				LOGGER.info("Organization Job Department value validated successfully in the Manual Mapping screen");
 				ExtentCucumberAdapter.addTestStepLog("Organization Job Department value validated successfully in the Manual Mapping screen");
 			} catch (Exception e) {
-				LOGGER.error(" Issue validating organization job department in manual mapping - Method: verify_organization_job_details_in_manual_mapping_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_organization_job_department_manual_mapping", e);
+				PageObjectHelper.handleError(LOGGER, "verify_organization_job_details_in_manual_mapping_screen",
+				"Issue validating organization job department in manual mapping", e);
 				e.printStackTrace();
 				Assert.fail("Issue in validating Organization Job Department value in the Manual Mapping screen....Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in validating Organization Job Department value in the Manual Mapping screen....Please Investigate!!!");
@@ -942,8 +941,8 @@ if(mapSP.get()) {
 				LOGGER.info("Organization Job Function / Sub-function values validated successfully in the Manual Mapping screen");
 				ExtentCucumberAdapter.addTestStepLog("Organization Job Function / Sub-function values validated successfully in the Manual Mapping screen");
 			} catch (Exception e) {
-				LOGGER.error(" Issue validating organization job function in manual mapping - Method: verify_organization_job_details_in_manual_mapping_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_organization_job_function_manual_mapping", e);
+				PageObjectHelper.handleError(LOGGER, "verify_organization_job_details_in_manual_mapping_screen",
+				"Issue validating organization job function in manual mapping", e);
 				e.printStackTrace();
 				Assert.fail("Issue in validating Organization Job Function / Sub-function values in the Manual Mapping screen....Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in validating Organization Job Function / Sub-function values in the Manual Mapping screen....Please Investigate!!!");
@@ -959,8 +958,8 @@ if(mapSP.get()) {
 				LOGGER.info("Last saved Profile is displaying in the Manual Mapping screen as " + manualMappingPageLastSavedProfileText);
 				ExtentCucumberAdapter.addTestStepLog("Last saved Profile is displaying in the Manual Mapping screen as " + manualMappingPageLastSavedProfileText);
 			} catch (Exception e) {
-				LOGGER.error(" Issue verifying last saved profile name - Method: user_should_verify_last_saved_profile_name_is_displaying_in_manual_mapping_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_last_saved_profile_name", e);
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_last_saved_profile_name_is_displaying_in_manual_mapping_screen",
+				"Issue verifying last saved profile name", e);
 				e.printStackTrace();
 				Assert.fail("Issue in displaying of Last Saved Profile name in the Manual Mapping screen....Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in displaying of Last Saved Profile name in the Manual Mapping screen....Please Investigate!!!");
@@ -991,8 +990,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 				ExtentCucumberAdapter.addTestStepLog("Clicked on Last Saved Profile name : " + text + " in the Manual Mapping screen");
 				wait.until(ExpectedConditions.elementToBeClickable(manualMappingPageProfileTitle)).isDisplayed();
 		} catch (Exception e) {
-			LOGGER.error(" Issue clicking last saved profile name - Method: click_on_last_saved_profile_name_in_manual_mapping_screen", e);
-		ScreenshotHandler.captureFailureScreenshot("click_last_saved_profile_name", e);
+			PageObjectHelper.handleError(LOGGER, "click_on_last_saved_profile_name_in_manual_mapping_screen",
+			"Issue clicking last saved profile name", e);
 			e.printStackTrace();
 			Assert.fail("Issue in clicking on Last Saved Profile name in the Manual Mapping screen....Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Last Saved Profile name in the Manual Mapping screen....Please Investigate!!!");
@@ -1009,8 +1008,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 				LOGGER.info("Last Saved Profile Name in the Manual Mapping screen matches with Profile Name in the details popup as expected");
 				ExtentCucumberAdapter.addTestStepLog("Last Saved Profile Name in the Manual Mapping screen matches with Profile Name in the details popup as expected");
 			} catch (Exception e) {
-				LOGGER.error(" Issue verifying last saved profile name match - Method: user_should_verify_last_saved_profile_name_in_manual_mapping_screen_matches_with_profile_name_in_details_popup", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_last_saved_profile_name_match", e);
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_last_saved_profile_name_in_manual_mapping_screen_matches_with_profile_name_in_details_popup",
+				"Issue verifying last saved profile name match", e);
 				e.printStackTrace();
 				Assert.fail("Issue in verifying Last Saved Profile Name in the Manual Mapping screen....Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in verifying Last Saved Profile Name in the Manual Mapping screen....Please Investigate!!!");
@@ -1042,8 +1041,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 				}
 				
 			} catch (Exception e) {
-				LOGGER.error(" Issue validating profile level dropdown in manual mapping - Method: user_should_verify_profile_level_dropdown_is_available_on_last_saved_success_profile_and_validate_levels_present_inside_dropdown", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_profile_level_dropdown_manual_mapping", e);
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_profile_level_dropdown_is_available_on_last_saved_success_profile_and_validate_levels_present_inside_dropdown",
+				"Issue validating profile level dropdown in manual mapping", e);
 				e.printStackTrace();
 				Assert.fail("Issue in validating profile level dropdown of Last Saved Profile in Manual Mapping page...Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in validating profile level dropdown in Last Saved Profile in Manual Mapping page...Please Investigate!!!");
@@ -1060,8 +1059,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 			LOGGER.info("Last Saved Profile Role Summary in the Manual Mapping screen matches with Mapped Success Profile Role Summary in details popup as expected");
 			ExtentCucumberAdapter.addTestStepLog("Last Saved Profile Role Summary in the Manual Mapping screen matches with Mapped Success Profile Role Summary in details popup as expected");
 		} catch (Exception e) {
-			LOGGER.error(" Issue validating role summary match - Method: validate_last_saved_success_profile_role_summary_matches_with_profile_role_summary_in_details_popup", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_role_summary_match", e);
+		PageObjectHelper.handleError(LOGGER, "validate_last_saved_success_profile_role_summary_matches_with_profile_role_summary_in_details_popup",
+			"Issue validating role summary match", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Validating Last Saved Profile Role Summary in the Manual Mapping screen....Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Validating Last Saved Profile Role Summary in the Manual Mapping screen....Please Investigate!!!");
@@ -1078,8 +1077,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 		LOGGER.info("Last Saved Profile Details in the Manual Mapping screen matches with Mapped Success Profile Details in details popup as expected");
 		ExtentCucumberAdapter.addTestStepLog("Last Saved Profile Details in the Manual Mapping screen matches with Mapped Success Profile Details in details popup as expected");
 		} catch (Exception e) {
-			LOGGER.error(" Issue validating profile details match - Method: validate_last_saved_success_profile_details_matches_with_profile_details_in_details_popup", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_profile_details_match", e);
+		PageObjectHelper.handleError(LOGGER, "validate_last_saved_success_profile_details_matches_with_profile_details_in_details_popup",
+			"Issue validating profile details match", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Validating Last Saved Profile Details in the Manual Mapping screen....Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Validating Last Saved Profile Details in the Manual Mapping screen....Please Investigate!!!");
@@ -1131,8 +1130,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 			LOGGER.info("Last Saved Success Profile Responsibilities in the Job Compare page matches with Mapped Success Profile Responsibilities in details popup as expected");
 			ExtentCucumberAdapter.addTestStepLog("Last Saved Success Profile Responsibilities in the Job Compare page matches with Mapped Success Profile Responsibilities in details popup as expected");
 		} catch (Exception e) {
-			LOGGER.error(" Issue validating responsibilities match - Method: validate_last_saved_success_profile_responsibilities_matches_with_profile_responsibilities_in_details_popup", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_responsibilities_match", e);
+		PageObjectHelper.handleError(LOGGER, "validate_last_saved_success_profile_responsibilities_matches_with_profile_responsibilities_in_details_popup",
+			"Issue validating responsibilities match", e);
 			e.printStackTrace();
 			Assert.fail("Issue in validating data in Last Saved Success Profile Responsibilities Section in Manual Mapping screen...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in validating data in Last Saved Success Profile Responsibilities Section in Manual Mapping screen...Please Investigate!!!");
@@ -1184,8 +1183,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 			LOGGER.info("Last Saved Success Profile Behavioural Competencies in the Job Compare page matches with Mapped Success Profile Behavioural Competencies in details popup as expected");
 			ExtentCucumberAdapter.addTestStepLog("Last Saved Success Profile Behavioural Competencies in the Job Compare page matches with Mapped Success Profile Behavioural Competencies in details popup as expected");		
 		} catch (Exception e) {
-			LOGGER.error(" Issue validating behavioural competencies match - Method: validate_last_saved_success_profile_behavioural_competencies_matches_with_profile_behavioural_competencies_in_details_popup", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_behavioural_competencies_match", e);
+		PageObjectHelper.handleError(LOGGER, "validate_last_saved_success_profile_behavioural_competencies_matches_with_profile_behavioural_competencies_in_details_popup",
+			"Issue validating behavioural competencies match", e);
 			e.printStackTrace();
 			Assert.fail("Issue in validating data in Last Saved Success Profile Behavioural Competencies Section in Manual Mapping screen...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in validating data in Last Saved Success Profile Behavioural Competencies Section in Manual Mapping screen...Please Investigate!!!");
@@ -1237,8 +1236,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 			LOGGER.info("Last Saved Success Profile Skills in the Job Compare page matches with Mapped Success Profile Skills in details popup as expected");
 			ExtentCucumberAdapter.addTestStepLog("Last Saved Success Profile Skills in the Job Compare page matches with Mapped Success Profile Skills in details popup as expected");
 		} catch (Exception e) {
-			LOGGER.error(" Issue validating skills match - Method: validate_last_saved_success_profile_skills_macthes_with_profile_skills_in_details_popup", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_skills_match", e);
+		PageObjectHelper.handleError(LOGGER, "validate_last_saved_success_profile_skills_macthes_with_profile_skills_in_details_popup",
+			"Issue validating skills match", e);
 			e.printStackTrace();
 			Assert.fail("Issue in validating data in Last Saved Success Profile Skills Section in Manual Mapping screen...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in validating data in Last Saved Success Profile Skills Section in Manual Mapping screen...Please Investigate!!!");
@@ -1248,7 +1247,7 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 	
 	public void search_for_success_profile_in_manual_mapping_screen() {
 		if(manualMapping.get()) {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 			try {
 			// PERFORMANCE: Replaced Thread.sleep(2000) with element readiness wait
@@ -1259,8 +1258,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 		LOGGER.info("Entered " + SPSearchString.get() +" as Korn Ferry SP Search String in the search bar in Manual Mapping screen");
 		ExtentCucumberAdapter.addTestStepLog("Entered " + SPSearchString.get() + " as Korn Ferry SP Search String in the search bar in Manual Mapping screen");
 		} catch (Exception e) {
-			LOGGER.error(" Issue entering search string - Method: search_for_success_profile_in_manual_mapping_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("enter_search_string_manual_mapping", e);
+		PageObjectHelper.handleError(LOGGER, "search_for_success_profile_in_manual_mapping_screen",
+			"Issue entering search string", e);
 			e.printStackTrace();
 			Assert.fail("Failed to enter Korn Ferry SP Search String in the search bar in Manual Mapping screen...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Failed to enter Korn Ferry SP Search String in the search bar in Manual Mapping screen...Please Investigate!!!");
@@ -1270,7 +1269,7 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 	
 	public void select_first_sucess_profile_from_search_results_in_manual_mapping_screen() {
 		if(manualMapping.get()) {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 			try {
 				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(firstSearchResultBtninManualMappingPage)).isDisplayed());
 				wait.until(ExpectedConditions.elementToBeClickable(firstSearchResultBtninManualMappingPage)).click();
@@ -1279,8 +1278,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 				ExtentCucumberAdapter.addTestStepLog("First SP with Name : " + customSPNameinSearchResults.get() + " from search results is selected in Manual Mapping screen");
 			    wait.until(ExpectedConditions.invisibilityOf(firstSearchResultBtninManualMappingPage));
 		} catch (Exception e) {
-			LOGGER.error(" Issue selecting first SP from search results - Method: select_first_sucess_profile_from_search_results_in_manual_mapping_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("select_first_sp_from_search_results", e);
+		PageObjectHelper.handleError(LOGGER, "select_first_sucess_profile_from_search_results_in_manual_mapping_screen",
+			"Issue selecting first SP from search results", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Selecting First SP from Search Results in Manual Mapping screen...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Selecting First SP from Search Results in Manual Mapping screen...Please Investigate!!!");
@@ -1298,8 +1297,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 			LOGGER.info("Success Profile with name " + profileHeaderName + " is added successfully on Manual Job Mapping screen");
 			ExtentCucumberAdapter.addTestStepLog("Success Profile with name " + profileHeaderName + " is added successfully on Manual Job Mapping screen");
 			} catch (Exception e) {
-				LOGGER.error(" Issue verifying success profile added - Method: verify_success_profile_is_added_in_manual_job_mapping_screen", e);
-				ScreenshotHandler.captureFailureScreenshot("verify_success_profile_added", e);
+			PageObjectHelper.handleError(LOGGER, "verify_success_profile_is_added_in_manual_job_mapping_screen",
+				"Issue verifying success profile added", e);
 				e.printStackTrace();
 				Assert.fail("Issue in adding success profile on manual job mapping screen....Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in adding success profile on manual job mapping screen....Please Investigate!!!");
@@ -1331,8 +1330,8 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error(" Issue validating profile level dropdown - Method: user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown_in_manual_job_mapping_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_profile_level_dropdown_manual_job_mapping", e);
+		PageObjectHelper.handleError(LOGGER, "user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown_in_manual_job_mapping_screen",
+			"Issue validating profile level dropdown", e);
 			e.printStackTrace();
 			Assert.fail("Issue in validating profile level dropdown of Last Saved Profile in Manual Mapping page...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in validating profile level dropdown in Last Saved Profile in Manual Mapping page...Please Investigate!!!");
@@ -1357,15 +1356,15 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 //					int levels = dropdown.getOptions().size();
 					dropdown.selectByVisibleText(changedlevelvalue.get());
 //					dropdown.selectByIndex(levels - 1);
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+					PerformanceUtils.waitForSpinnersToDisappear(driver);
 									// PERFORMANCE: Replaced Thread.sleep(4000+4000) with UI stability wait
 					PerformanceUtils.waitForUIStability(driver);
 					LOGGER.info("Successfully Changed Profile Level to : " + changedlevelvalue.get() + " in Manual Mapping screen");
 					ExtentCucumberAdapter.addTestStepLog("Successfully Changed Profile Level to : " + changedlevelvalue.get() + " in Manual Mapping screen");
 					PerformanceUtils.waitForUIStability(driver);
 			} catch (Exception e) {
-				LOGGER.error(" Issue changing profile level - Method: change_profile_level_in_manual_job_mapping_screen", e);
-				ScreenshotHandler.captureFailureScreenshot("change_profile_level", e);
+			PageObjectHelper.handleError(LOGGER, "change_profile_level_in_manual_job_mapping_screen",
+				"Issue changing profile level", e);
 				e.printStackTrace();
 				Assert.fail("Issue in Changing Profile Level in Manual Mapping screen...Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in Changing Profile Level in Manual Mapping screen...Please Investigate!!!");
@@ -1618,7 +1617,7 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 		if(manualMapping.get()) {
 			try {
 				// Optimized wait - no blocking Thread.sleep
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
 				// FIXED: Use more reliable org-job-container for page detection, then verify header
 				wait.until(ExpectedConditions.visibilityOf(jobMappingPageContainer));
 				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobMappingPageContainer)).isDisplayed());
@@ -1635,8 +1634,8 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 	public void verify_organization_job_with_new_mapped_sp_is_displaying_on_top_of_profiles_list() {
 		if(manualMapping.get()) {
 			try {
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 				PerformanceUtils.waitForPageReady(driver, 2);
 				WebElement	button = driver.findElement(By.xpath("//tbody//tr[2]//button[contains(text(),'different profile')] | //tbody//tr[2]//button[contains(@id,'view')]"));
@@ -1832,8 +1831,8 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 			LOGGER.info("Profile Behavioural Competencies in Details Popup matches with Mapped Success Profile Behavioural Competencies as expected");
 			ExtentCucumberAdapter.addTestStepLog("Profile Behavioural Competencies in Details Popup matches with Mapped Success Profile Behavioural Competencies as expected");		
 		} catch (Exception e) {
-			LOGGER.error(" Issue validating behavioural competencies in details popup - Method: validate_profile_behavioural_competencies_in_details_popup_matches_with_mapped_success_profile_behavioural_competencies", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_behavioural_competencies_details_popup", e);
+		PageObjectHelper.handleError(LOGGER, "validate_profile_behavioural_competencies_in_details_popup_matches_with_mapped_success_profile_behavioural_competencies",
+			"Issue validating behavioural competencies in details popup", e);
 			e.printStackTrace();
 			Assert.fail("Issue in validating data in Profile Behavioural Competencies Section in Details Popup matches with Mapped Success Profile Behavioural Competencies...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in validating data in Profile Behavioural Competencies Section in Details Popup matches with Mapped Success Profile Behavioural Competencies...Please Investigate!!!");
@@ -1885,8 +1884,8 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 			LOGGER.info("Profile Skills in Details Popup matches with Mapped Success Profile Skills as expected");
 			ExtentCucumberAdapter.addTestStepLog("Profile Skills in Details Popup matches with Mapped Success Profile Skills as expected");
 		} catch (Exception e) {
-			LOGGER.error(" Issue validating skills in details popup - Method: validate_profile_skills_in_details_popup_matches_with_mapped_success_profile_skills", e);
-			ScreenshotHandler.captureFailureScreenshot("validate_skills_details_popup", e);
+		PageObjectHelper.handleError(LOGGER, "validate_profile_skills_in_details_popup_matches_with_mapped_success_profile_skills",
+			"Issue validating skills in details popup", e);
 			e.printStackTrace();
 			Assert.fail("Issue in validating data in Profile Skills Section in Details Popup matches with Mapped Success Profile Skills...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in validating data in Profile Skills Section in Details Popup matches with Mapped Success Profile Skills...Please Investigate!!!");
@@ -1909,7 +1908,7 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 				}
 				wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(orgJobName.get());
 				wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(Keys.ENTER);
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver);
 		// PERFORMANCE: Replaced Thread.sleep(2000) with search results wait
 		PerformanceUtils.waitForSearchResults(driver, By.xpath("//tbody//tr"), 2);
 			LOGGER.info("Entered job name as " + orgJobName.get() + " in the search bar");

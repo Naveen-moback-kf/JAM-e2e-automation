@@ -19,7 +19,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
@@ -110,7 +109,6 @@ public class PO05_ValidateJobProfileDetailsPopup {
 			Assert.assertEquals(PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName.get(), profileHeaderName);
 			PageObjectHelper.log(LOGGER, "Profile header on the details popup: " + profileHeaderName);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_profile_header_matches_with_matched_profile_name", e);
 			PageObjectHelper.handleError(LOGGER, "verify_profile_header_matches_with_matched_profile_name",
 					"Failed to verify profile details popup header", e);
 		}
@@ -122,7 +120,6 @@ public class PO05_ValidateJobProfileDetailsPopup {
 			ProfileDetails = profileDetailsText;
 			PageObjectHelper.log(LOGGER, "Profile Details displaying on the popup screen:\n" + profileDetailsText);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_profile_details_displaying_on_the_popup", e);
 			PageObjectHelper.handleError(LOGGER, "verify_profile_details_displaying_on_the_popup",
 					"Failed to display profile details on the popup screen", e);
 		}
@@ -146,9 +143,6 @@ public class PO05_ValidateJobProfileDetailsPopup {
 						+ PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName);
 			}
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown",
-					e);
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown",
 					"Failed to validate profile level dropdown", e);
@@ -161,7 +155,6 @@ public class PO05_ValidateJobProfileDetailsPopup {
 			ProfileRoleSummary = roleSummaryText.split(": ", 2)[1].trim();
 			PageObjectHelper.log(LOGGER, "Role summary of Matched Success Profile: " + ProfileRoleSummary);
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_role_summary_is_displaying", e);
 			PageObjectHelper.handleError(LOGGER, "validate_role_summary_is_displaying",
 					"Failed to validate Role Summary in Profile Details Popup", e);
 		}
@@ -191,7 +184,6 @@ public class PO05_ValidateJobProfileDetailsPopup {
 			ProfileResponsibilities = responsibilitiesDataText;
 			PageObjectHelper.log(LOGGER, "Responsibilities data validated successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_data_in_responsibilities_tab", e);
 			PageObjectHelper.handleError(LOGGER, "validate_data_in_responsibilities_tab",
 					"Failed to validate data in Responsibilities screen", e);
 		}
@@ -223,7 +215,6 @@ public class PO05_ValidateJobProfileDetailsPopup {
 			ProfileBehaviouralCompetencies = behaviourDataText;
 			PageObjectHelper.log(LOGGER, "Behavioural Competencies data validated successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_data_in_behavioural_competencies_tab", e);
 			PageObjectHelper.handleError(LOGGER, "validate_data_in_behavioural_competencies_tab",
 					"Failed to validate data in Behaviour Competencies screen", e);
 		}
@@ -253,7 +244,6 @@ public class PO05_ValidateJobProfileDetailsPopup {
 			ProfileSkills = skillsDataText;
 			PageObjectHelper.log(LOGGER, "Skills data validated successfully");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_data_in_skills_tab", e);
 			PageObjectHelper.handleError(LOGGER, "validate_data_in_skills_tab",
 					"Failed to validate data in Skills screen", e);
 		}
@@ -294,8 +284,6 @@ public class PO05_ValidateJobProfileDetailsPopup {
 			PageObjectHelper.log(LOGGER,
 					"✅ Publish button is displaying on the Profile Details Popup and is clickable");
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"user_should_verify_publish_profile_button_is_available_on_popup_screen", e);
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_verify_publish_profile_button_is_available_on_popup_screen",
 					"Failed to verify Publish Profile button on profile details popup", e);
