@@ -732,24 +732,43 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void clear_search_bar_in_hcm_sync_profiles_tab() {
 		try {
+			// PARALLEL EXECUTION FIX: Extended wait for page readiness
+			PerformanceUtils.waitForPageReady(driver, 3);
+			
+			// PARALLEL EXECUTION FIX: Wait for element to be present in DOM (avoid stale element)
+			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
+			WebElement searchBar = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
+				By.xpath("//input[@type='search']")));
+			
 			// Wait for element visibility
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(hcmSyncProfilesSearchbar)).isDisplayed());
+			searchBar = extendedWait.until(ExpectedConditions.visibilityOf(searchBar));
+			Assert.assertTrue(searchBar.isDisplayed(), "Search bar not visible in HCM Sync Profiles screen");
 			
 			// HEADLESS FIX: Use 'auto' instead of 'smooth' for instant scroll in headless mode
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", hcmSyncProfilesSearchbar);
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", searchBar);
+			
+			// PARALLEL EXECUTION FIX: Additional wait for scroll and DOM stability
+			try {
+				Thread.sleep(1000); // Critical for parallel execution stability
+			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+			}
 			
 			// HEADLESS FIX: Longer wait for page to stabilize after scroll
 			PerformanceUtils.waitForPageReady(driver, 2);
-			Thread.sleep(500); // Additional stability wait for headless
+			
+			// PARALLEL EXECUTION FIX: Re-fetch element to ensure it's fresh and clickable
+			searchBar = extendedWait.until(ExpectedConditions.elementToBeClickable(
+				By.xpath("//input[@type='search']")));
 			
 			// Try clicking with multiple fallback options
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).click();
+				searchBar.click();
 			} catch (Exception clickException) {
 				try {
-					js.executeScript("arguments[0].click();", hcmSyncProfilesSearchbar);
+					js.executeScript("arguments[0].click();", searchBar);
 				} catch (Exception jsClickException) {
-					utils.jsClick(driver, hcmSyncProfilesSearchbar);
+					utils.jsClick(driver, searchBar);
 				}
 			}
 			
@@ -757,12 +776,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			// This is more reliable across headless and windowed modes
 			try {
 				// First try WebDriver clear (fastest)
-				hcmSyncProfilesSearchbar.clear();
+				searchBar.clear();
 			} catch(Exception clearException) {
 				// Fallback to JavaScript clear (most reliable for headless)
-				js.executeScript("arguments[0].value = '';", hcmSyncProfilesSearchbar);
-				js.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", hcmSyncProfilesSearchbar);
-				js.executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", hcmSyncProfilesSearchbar);
+				js.executeScript("arguments[0].value = '';", searchBar);
+				js.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", searchBar);
+				js.executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", searchBar);
 			}
 			
 			// PERFORMANCE: Single comprehensive wait after clearing
