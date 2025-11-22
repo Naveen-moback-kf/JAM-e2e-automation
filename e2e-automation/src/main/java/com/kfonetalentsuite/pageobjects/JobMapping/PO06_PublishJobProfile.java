@@ -525,55 +525,28 @@ public class PO06_PublishJobProfile {
 			// PARALLEL EXECUTION FIX: Extended wait for page readiness
 			PerformanceUtils.waitForPageReady(driver, 3);
 			
-			// PARALLEL EXECUTION FIX: Smart wait with early exit - checks if element exists, doesn't blindly wait
-			// Menu should already be open from previous step, but items may take time to render in parallel execution
-			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
+			// PARALLEL EXECUTION FIX: Simple extended wait with frequent polling
+			// Use WebDriverWait instead of manual retry loops
+			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
+			extendedWait.pollingEvery(java.time.Duration.ofMillis(200)); // Check every 200ms
 			
-			// PARALLEL EXECUTION FIX: Retry loop for element presence (exits early when found)
-			WebElement pmBtn = null;
-			int retryAttempts = 0;
-			int maxRetries = 10; // Max 10 attempts with 300ms intervals = max 3 seconds total
+			LOGGER.debug("Waiting for Profile Manager button to become visible...");
+			WebElement pmBtn = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(
+				By.xpath("//span[@aria-label='Profile Manager']")));
 			
-			while (retryAttempts < maxRetries && pmBtn == null) {
-				try {
-					pmBtn = driver.findElement(By.xpath("//span[@aria-label='Profile Manager']"));
-					break; // Found it! Exit immediately
-				} catch (org.openqa.selenium.NoSuchElementException e) {
-					retryAttempts++;
-					if (retryAttempts < maxRetries) {
-						LOGGER.debug("Profile Manager button not found, attempt " + retryAttempts + "/" + maxRetries);
-						try {
-							Thread.sleep(300); // Wait 300ms before retry
-						} catch (InterruptedException ie) {
-							Thread.currentThread().interrupt();
-						}
-					}
-				}
-			}
+			LOGGER.debug("Profile Manager button is now visible");
 			
-			// If still not found after retries, use explicit wait (will throw timeout exception)
-			if (pmBtn == null) {
-				LOGGER.warn("Profile Manager button not found after " + maxRetries + " quick checks, using explicit wait...");
-				pmBtn = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
-					By.xpath("//span[@aria-label='Profile Manager']")));
-			}
-			
-			// HEADLESS FIX: Scroll Profile Manager button into view
+			// Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center', inline: 'center'});", pmBtn);
-			try {
-				Thread.sleep(300); // Brief wait for scroll
-			} catch (InterruptedException ie) {
-				Thread.currentThread().interrupt();
-			}
 			
-			// PARALLEL EXECUTION FIX: Wait for element to be clickable
+			// Wait for element to be clickable
 			pmBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(pmBtn));
 			
 			Assert.assertTrue(pmBtn.isDisplayed(), "Profile Manager button not visible in menu");
 			String applicationNameText = pmBtn.getText();
 			PageObjectHelper.log(LOGGER, applicationNameText + " application is displaying in KFONE Global Menu");
 			
-			// HEADLESS FIX: Multiple click strategies with fallbacks
+			// Click with fallback strategies
 			try {
 				pmBtn.click();
 				PageObjectHelper.log(LOGGER, "Clicked Profile Manager using standard click");
@@ -613,44 +586,21 @@ public class PO06_PublishJobProfile {
 			// PARALLEL EXECUTION FIX: Extended wait for page readiness
 			PerformanceUtils.waitForPageReady(driver, 3);
 			
-			// PARALLEL EXECUTION FIX: Smart wait with early exit - checks if element exists, doesn't blindly wait
-			// Menu should already be open from previous step, but items may take time to render in parallel execution
-			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
+			// PARALLEL EXECUTION FIX: Simple extended wait with frequent polling
+			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
+			extendedWait.pollingEvery(java.time.Duration.ofMillis(200)); // Check every 200ms
 			
-			// PARALLEL EXECUTION FIX: Retry loop for element presence (exits early when found)
-			WebElement architectBtn = null;
-			int retryAttempts = 0;
-			int maxRetries = 10; // Max 10 attempts with 300ms intervals = max 3 seconds total
+			LOGGER.debug("Waiting for Architect button to become visible...");
+			WebElement architectBtn = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(
+				By.xpath("//span[@aria-label='Architect']")));
 			
-			while (retryAttempts < maxRetries && architectBtn == null) {
-				try {
-					architectBtn = driver.findElement(By.xpath("//span[@aria-label='Architect']"));
-					break; // Found it! Exit immediately
-				} catch (org.openqa.selenium.NoSuchElementException e) {
-					retryAttempts++;
-					if (retryAttempts < maxRetries) {
-						LOGGER.debug("Architect button not found, attempt " + retryAttempts + "/" + maxRetries);
-						try {
-							Thread.sleep(300); // Wait 300ms before retry
-						} catch (InterruptedException ie) {
-							Thread.currentThread().interrupt();
-						}
-					}
-				}
-			}
-			
-			// If still not found after retries, use explicit wait (will throw timeout exception)
-			if (architectBtn == null) {
-				LOGGER.warn("Architect button not found after " + maxRetries + " quick checks, using explicit wait...");
-				architectBtn = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
-					By.xpath("//span[@aria-label='Architect']")));
-			}
+			LOGGER.debug("Architect button is now visible");
 			
 			// Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", architectBtn);
 			PerformanceUtils.waitForElement(driver, architectBtn, 2);
 			
-			// PARALLEL EXECUTION FIX: Wait for element to be clickable
+			// Wait for element to be clickable
 			architectBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(architectBtn));
 			
 			Assert.assertTrue(architectBtn.isDisplayed(), "Architect button not visible in menu");

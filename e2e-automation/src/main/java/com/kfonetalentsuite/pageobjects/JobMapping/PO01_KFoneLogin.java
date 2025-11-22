@@ -271,12 +271,14 @@ public class PO01_KFoneLogin {
 		PageObjectHelper.log(LOGGER, "Provided NON-SSO Login Username: " + CommonVariable.NON_SSO_USERNAME);
 		username.set(CommonVariable.NON_SSO_USERNAME);
 
-		// PERFORMANCE FIX: Removed unnecessary spinner wait before clicking Sign In
-		// Spinners only appear AFTER submitting, not before. This eliminates delay in parallel execution
-		utils.jsClick(driver, kfoneSigninBtn);
+		// PARALLEL EXECUTION FIX: Wait for button to be ready, then click
+		WebElement signInButton = wait.until(ExpectedConditions.elementToBeClickable(kfoneSigninBtn));
+		utils.jsClick(driver, signInButton);
 		
-		// Wait for spinners that may appear AFTER clicking Sign In
-		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		// PERFORMANCE FIX: After username submit, wait for PASSWORD field (not spinners!)
+		// The page transitions to password screen - no spinners appear here
+		wait.until(ExpectedConditions.elementToBeClickable(passwordTxt));
+		
 		PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
 	}
 
@@ -285,17 +287,10 @@ public class PO01_KFoneLogin {
 		PageObjectHelper.log(LOGGER, "Provided NON-SSO Login Password in KFONE Login Page");
 
 		// PARALLEL EXECUTION FIX: Ensure Sign In button is ready before clicking
-		// In parallel execution, button may take time to become clickable after password entry
-		try {
-			WebDriverWait buttonWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-			buttonWait.until(ExpectedConditions.elementToBeClickable(kfoneSigninBtn));
-		} catch (Exception e) {
-			LOGGER.debug("Sign In button wait timed out, attempting click anyway");
-		}
-		
-		utils.jsClick(driver, kfoneSigninBtn);
-		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		WebElement signInButton = wait.until(ExpectedConditions.elementToBeClickable(kfoneSigninBtn));
+		utils.jsClick(driver, signInButton);
 		PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
+		PerformanceUtils.waitForPageReady(driver, 10);
 	}
 
 	public void verify_the_kfone_landing_page() {

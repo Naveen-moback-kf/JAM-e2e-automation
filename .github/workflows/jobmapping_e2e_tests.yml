@@ -344,6 +344,55 @@ jobs:
           echo "DISPLAY=:99" >> $GITHUB_ENV
           echo "✅ Virtual display configured (Xvfb on :99)"
       
+      - name: 🔧 Configure Parallel Execution in Test Suite
+        if: github.event.inputs.execution_mode == 'test_suite' || github.event_name == 'schedule'
+        working-directory: e2e-automation
+        run: |
+          # Determine parallel execution setting
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            PARALLEL="false"
+            TEST_SUITE="${{ env.SCHEDULED_TEST_SUITE }}"
+          else
+            PARALLEL="${{ github.event.inputs.parallel_execution || 'false' }}"
+            TEST_SUITE="${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}"
+          fi
+          
+          echo "════════════════════════════════════════"
+          echo "🔧 PARALLEL EXECUTION CONFIGURATION"
+          echo "════════════════════════════════════════"
+          echo "Test Suite: ${TEST_SUITE}"
+          echo "Parallel Execution: ${PARALLEL}"
+          echo "════════════════════════════════════════"
+          
+          # Create backup of original XML (for restoration later)
+          if [ -f "${TEST_SUITE}" ]; then
+            cp "${TEST_SUITE}" "${TEST_SUITE}.backup"
+            echo "✅ Created backup: ${TEST_SUITE}.backup"
+          else
+            echo "❌ ERROR: Test suite file not found: ${TEST_SUITE}"
+            exit 1
+          fi
+          
+          # Modify XML based on parallel execution setting
+          if [ "${PARALLEL}" = "false" ]; then
+            echo "🔄 Disabling parallel execution in XML..."
+            # Remove parallel attribute or set it to "none"
+            sed -i 's/parallel="tests"/parallel="none"/g' "${TEST_SUITE}"
+            sed -i 's/parallel="methods"/parallel="none"/g' "${TEST_SUITE}"
+            sed -i 's/parallel="classes"/parallel="none"/g' "${TEST_SUITE}"
+            # Also set thread-count to 1 for clarity
+            sed -i 's/thread-count="[0-9]*"/thread-count="1"/g' "${TEST_SUITE}"
+            echo "✅ Parallel execution DISABLED (sequential execution)"
+          else
+            echo "⚡ Keeping parallel execution ENABLED (as defined in XML)"
+          fi
+          
+          # Show the modified suite configuration
+          echo ""
+          echo "📄 Current suite configuration:"
+          grep -E '<suite.*parallel.*thread-count' "${TEST_SUITE}" || echo "No parallel settings found"
+          echo ""
+      
       - name: 🚀 Execute E2E Tests
         working-directory: e2e-automation
         run: |
@@ -413,13 +462,9 @@ jobs:
           # Add environment parameter (if needed by your framework)
           # MVN_CMD="${MVN_CMD} -Denvironment=${ENVIRONMENT}"
           
-          # Add parallel execution if enabled (only for test suite mode)
-          if [ "${PARALLEL}" = "true" ] && [ "${EXECUTION_MODE}" = "test_suite" ]; then
-            MVN_CMD="${MVN_CMD} -Denable.parallel=true"
-            echo "⚡ Parallel execution enabled (TestNG suite XML controls threads: 2-3)"
-          else
-            echo "ℹ️  Sequential execution (parallel disabled)"
-          fi
+          # Note: Parallel execution is now controlled directly in the test suite XML
+          # The XML file is modified before execution based on the parallel_execution input
+          echo "ℹ️  Parallel execution controlled via test suite XML (already configured above)"
           
           # Add CI/CD specific Maven options
           MVN_CMD="${MVN_CMD} -Dmaven.test.failure.ignore=true -B"
@@ -492,6 +537,25 @@ jobs:
           fi
           
           [ $VALIDATION_FAILED -eq 1 ] && exit 1 || exit 0
+      
+      - name: 🔄 Restore Original Test Suite XML
+        if: always() && (github.event.inputs.execution_mode == 'test_suite' || github.event_name == 'schedule')
+        working-directory: e2e-automation
+        run: |
+          # Determine which test suite was used
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            TEST_SUITE="${{ env.SCHEDULED_TEST_SUITE }}"
+          else
+            TEST_SUITE="${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}"
+          fi
+          
+          # Restore backup if it exists
+          if [ -f "${TEST_SUITE}.backup" ]; then
+            mv "${TEST_SUITE}.backup" "${TEST_SUITE}"
+            echo "✅ Restored original test suite XML: ${TEST_SUITE}"
+          else
+            echo "ℹ️  No backup found to restore"
+          fi
       
       - name: 📊 Generate Test Report Summary
         if: always()

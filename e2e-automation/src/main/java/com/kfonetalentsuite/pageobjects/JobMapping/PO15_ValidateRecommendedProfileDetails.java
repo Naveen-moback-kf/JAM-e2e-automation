@@ -237,6 +237,9 @@ public class PO15_ValidateRecommendedProfileDetails {
 			// PARALLEL EXECUTION FIX: Wait for page to be ready first
 			PerformanceUtils.waitForPageReady(driver, 5);
 			
+			// PARALLEL EXECUTION FIX: Wait for any spinners/loaders to disappear
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			
 			// Validate rowNumber is set
 			int currentRow = rowNumber.get();
 			if (currentRow == 0) {
@@ -244,7 +247,6 @@ public class PO15_ValidateRecommendedProfileDetails {
 			}
 			
 			int matchedProfileRow = currentRow - 1;
-			LOGGER.debug("Attempting to click matched profile in row {} (button found in row {})", matchedProfileRow, currentRow);
 			
 			// Build XPath for matched profile
 			String matchedProfileXPath = "//div[@id='kf-job-container']//div//table//tbody//tr[" + matchedProfileRow + "]//td[1]//div";
@@ -261,37 +263,43 @@ public class PO15_ValidateRecommendedProfileDetails {
 			}
 			
 			matchedSuccessPrflName.set(MatchedProfileNameText);
-			LOGGER.debug("Found matched profile: '{}' at row {}", MatchedProfileNameText, matchedProfileRow);
 			
-			// PARALLEL EXECUTION FIX: Use 'auto' scroll for instant positioning
+			// PARALLEL EXECUTION FIX: Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", linkedMatchedProfile);
 			
-			// PARALLEL EXECUTION FIX: Wait for element to be stable
+			// PARALLEL EXECUTION FIX: Wait for element stability AND spinners after scroll
 			PerformanceUtils.waitForElement(driver, linkedMatchedProfile, 3);
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			
+			// PARALLEL EXECUTION FIX: Active wait for loader overlay to be invisible
+			// This catches loaders that appear AFTER scroll (common in parallel execution)
+			WebDriverWait loaderWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(15));
+			loaderWait.until(ExpectedConditions.invisibilityOfElementLocated(
+				By.xpath("//div[@data-testid='loader' and contains(@class, 'fixed')]")));
+			
+			// Re-locate element to avoid stale reference after waiting
+			linkedMatchedProfile = driver.findElement(By.xpath(matchedProfileXPath));
+			
+			// Final clickability check
+			clickableElement = wait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile));
 			
 			// Attempt to click with fallback strategies
 			boolean clickSuccessful = false;
 			try {
 				clickableElement.click();
 				clickSuccessful = true;
-				LOGGER.debug("Successfully clicked using WebElement.click()");
 			} catch (Exception e) {
-				LOGGER.debug("WebElement.click() failed, trying JavaScript click: {}", e.getMessage());
 				try {
 					js.executeScript("arguments[0].click();", linkedMatchedProfile);
 					clickSuccessful = true;
-					LOGGER.debug("Successfully clicked using JavaScript");
 				} catch (Exception s) {
-					LOGGER.debug("JavaScript click failed, trying utils.jsClick(): {}", s.getMessage());
 					utils.jsClick(driver, linkedMatchedProfile);
 					clickSuccessful = true;
-					LOGGER.debug("Successfully clicked using utils.jsClick()");
 				}
 			}
 			
 			if (clickSuccessful) {
 				PageObjectHelper.log(LOGGER, "Clicked on Matched Profile: " + MatchedProfileNameText + " of Organization Job: " + orgJobName.get());
-				// PARALLEL EXECUTION FIX: Use consolidated wait
 				PerformanceUtils.waitForPageReady(driver, 10);
 			} else {
 				throw new Exception("All click strategies failed for Matched Profile: " + MatchedProfileNameText);

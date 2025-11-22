@@ -327,31 +327,22 @@ public class PO04_VerifyJobMappingPageComponents {
 
 			PageObjectHelper.log(LOGGER, "Successfully clicked KFONE Global Menu");
 			
-			// CRITICAL: Wait for menu animation to complete (especially important in parallel/headless)
-			try {
-				Thread.sleep(1000); // Allow menu to fully expand
-			} catch (InterruptedException ie) {
-				Thread.currentThread().interrupt();
-			}
+			// PARALLEL EXECUTION FIX: Simple extended wait for menu items to render
+			// Use longer timeout and poll more frequently
+			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
+			extendedWait.pollingEvery(java.time.Duration.ofMillis(200)); // Check every 200ms
 			
-			// Wait for menu container to be visible (confirms menu is open)
-			try {
-				wait.until(ExpectedConditions.presenceOfElementLocated(
-					By.xpath("//div[contains(@class, 'global-nav-menu') or contains(@class, 'menu-container')]")));
-			} catch (Exception e) {
-				LOGGER.warn("Menu container not detected, proceeding anyway...");
-			}
-			
-			// Wait for Job Mapping button to be visible and clickable
-			WebDriverWait menuWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(15));
-			WebElement jamButton = menuWait.until(ExpectedConditions.elementToBeClickable(
+			LOGGER.debug("Waiting for Job Mapping button to become visible...");
+			WebElement jamButton = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(
 				By.xpath("//button[@aria-label='Job Mapping']")));
+			
+			LOGGER.debug("Job Mapping button is now visible");
 
 			PageObjectHelper.log(LOGGER, "Clicking Job Mapping button in KFONE menu...");
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", jamButton);
 			
 			// Wait for button to be clickable
-			menuWait.until(ExpectedConditions.elementToBeClickable(jamButton));
+			jamButton = extendedWait.until(ExpectedConditions.elementToBeClickable(jamButton));
 			
 			try {
 				jamButton.click();
