@@ -1,101 +1,101 @@
 ﻿Client Job Code,Client Job Title,Department,Job Family,Job Sub Family,Job Grade,Is Executive
-JOB01-20251121182659, Frontend Developer 20251121182659, Education, UI/UX Design & User Research, Executive Support,JGL01,FALSE
-JOB02-20251121182659, Backend Developer 20251121182659, Engineering, Vendor Relations & Supply Chain Coordination, Finance Operations,JGL02,FALSE
-JOB03-20251121182659, Full Stack Developer 20251121182659, Environmental Services, Web Development & Digital Solutions, Financial Analysis,JGL03,FALSE
-JOB04-20251121182659, Mobile Application Developer (iOS) 20251121182659, Finance, Web Analytics & Performance Optimization, Financial Reporting,JGL04,FALSE
-JOB05-20251121182659, Mobile Application Developer (Android) 20251121182659, Financial Planning, Workforce Planning & Talent Strategy, Forecasting,JGL05,FALSE
-JOB06-20251121182659, Game Developer 20251121182659, Food & Beverage, Workplace Health & Safety & Risk Management, Fraud Prevention,JGL06,FALSE
-JOB07-20251121182659, Embedded Systems Engineer 20251121182659, Government, Youth Engagement & Community Outreach, Full Stack Development,JGL07,FALSE
-JOB08-20251121182659, Firmware Engineer 20251121182659, Graphic Design,Accounting & Finance Management, Graphic Design,JGL08,FALSE
-JOB09-20251121182659, DevOps Engineer 20251121182659, Healthcare, Advertising & Brand Strategy, HR Administration,JGL09,FALSE
-JOB10-20251121182659, Site Reliability Engineer (SRE) 20251121182659, Human Resources, Business Development & Strategic Partnerships, HR Analytics,JGL10,FALSE
-JOB11-20251121182659, Software Development Engineer in Test (SDET) 20251121182659, Information Technology (IT), Client Relations & Customer Success, HR Business Partner,JGL10,FALSE
-JOB12-20251121182659, Low-Code/No-Code Developer 20251121182659, Insurance, Cloud & Infrastructure Management, HR Compliance,JGL01,FALSE
-JOB13-20251121182659, Blockchain Developer 20251121182659, Interior Design, Content Creation & Digital Media, HR Training,JGL02,FALSE
-JOB14-20251121182659, Smart Contract Developer 20251121182659, International Relations, Data Analytics & Business Intelligence, Internal Audit,JGL03,FALSE
-JOB15-20251121182659, Web3 Developer 20251121182659, IT Support, Data Engineering & Architecture, Internal Communications,JGL04,FALSE
-JOB16-20251121182659, AR/VR Developer 20251121182659, Legal, Design & Creative Direction, IT Architecture,JGL05,FALSE
-JOB17-20251121182659, Unity Developer 20251121182659, Logistics, Employee Relations & Human Resources, IT Infrastructure,JGL06,FALSE
-JOB18-20251121182659, Unreal Engine Developer 20251121182659, Marketing, Enterprise Software Development & Solutions, IT Project Management,JGL07,FALSE
-JOB19-20251121182659, Microservices Developer 20251121182659, Media, Event Planning & Coordination, IT Security,JGL08,FALSE
-JOB20-20251121182659, API Developer 20251121182659, Music, Financial Planning & Investment Analysis, Legal Counsel,JGL09,FALSE
-JOB21-20251121182659, Data Scientist 20251121182659, Non-Profit, Healthcare Management & Operations, Legal Support,JGL10,FALSE
-JOB22-20251121182659, Data Engineer 20251121182659, Nursing, Information Security & Cybersecurity, Learning & Development,JGL11,FALSE
-JOB23-20251121182659, Data Analyst 20251121182659, Operations, IT Consulting & Solutions, Logistics Coordination,JGL12,FALSE
-JOB24-20251121182659, Business Intelligence Developer 20251121182659, Procurement, IT Project Management & Strategy, Market Research,JGL01,FALSE
-JOB25-20251121182659, Machine Learning Engineer 20251121182659, Product Management, Legal Research & Corporate Law, Marketing Campaigns,JGL02,FALSE
-JOB26-20251121182659, AI Engineer 20251121182659, Project Management, Market Research & Consumer Insights, Marketing Communications,JGL03,FALSE
-JOB27-20251121182659, Big Data Engineer 20251121182659, Quality Assurance, Marketing & Communications Strategy, Marketing Operations,JGL04,FALSE
-JOB28-20251121182659, ETL Developer 20251121182659, Real Estate, Media Relations & Publicity, Media Buying,JGL05,FALSE
-JOB29-20251121182659, Data Warehouse Architect 20251121182659, Research & Development, Mobile Application Development & Design, Media Relations,JGL06,FALSE
-JOB30-20251121182659, Analytics Engineer 20251121182659, Retail, Operations & Supply Chain Management, Mobile Development,JGL07,FALSE
-JOB31-20251121182659, Predictive Modeler 20251121182659, Sales, Organizational Development & Change Management, Operations Management,JGL08,FALSE
-JOB32-20251121182659, Data Visualization Specialist 20251121182659, Science, Payroll & Benefits Administration, Payroll,JGL09,FALSE
-JOB33-20251121182659, Quantitative Analyst 20251121182659, Security, Performance Optimization & Business Strategy, Performance Management,JGL10,FALSE
-JOB34-20251121182659, Research Scientist (AI/ML) 20251121182659, Software Development, Product Design & Development, Pricing Strategy,JGL11,FALSE
-JOB35-20251121182659, MLOps Engineer 20251121182659, Strategy, Product Marketing & Go-to-Market Strategy, Product Development,JGL12,FALSE
-JOB36-20251121182659, Security Engineer 20251121182659, Supply Chain, Project Coordination & Resource Management, Product Marketing,JGL01,FALSE
-JOB37-20251121182659, Penetration Tester (Ethical Hacker) 20251121182659, Sustainability, Public Relations & Media Strategy, Procurement & Sourcing,JGL02,FALSE
-JOB38-20251121182659, Security Analyst 20251121182659, Telecommunications, Quality Assurance & Testing, Process Improvement,JGL03,FALSE
-JOB39-20251121182659, Security Architect 20251121182659, Training & Development, Recruitment & Talent Acquisition, Product Management,JGL04,FALSE
-JOB40-20251121182659, Chief Information Security Officer (CISO) 20251121182659, Transportation, Research & Data Science, Project Coordination,JGL05,FALSE
-JOB41-20251121182659, Cybersecurity Consultant 20251121182659, Tourism, Risk Assessment & Management, Public Relations,JGL06,FALSE
-JOB42-20251121182659, Security Operations Center (SOC) Analyst 20251121182659, Retail Management, Sales Enablement & Operations, Quality Control,JGL07,FALSE
-JOB43-20251121182659, Incident Response Analyst 20251121182659, Quality Control, Sales Strategy & Account Management, Quality Assurance,JGL08,FALSE
-JOB44-20251121182659, Threat Intelligence Analyst 20251121182659, Risk Management, Social Media & Community Management, Recruiting,JGL09,FALSE
-JOB45-20251121182659, Application Security Engineer 20251121182659, Event Planning, Software Engineering & Development, Research & Development,JGL10,FALSE
-JOB46-20251121182659, Cloud Security Engineer 20251121182659, Manufacturing,,,JGL01,FALSE
-JOB47-20251121182659, Network Security Engineer 20251121182659, Public Relations, Strategic Planning & Business Development, Risk Management,,FALSE
-JOB48-20251121182659, Cryptographer 20251121182659, Publishing, Taxation & Financial Compliance,,JGL03,FALSE
-JOB49-20251121182659, Security Compliance Analyst 20251121182659, Social Media,, Sales Operations,JGL04,FALSE
-JOB50-20251121182659, Vulnerability Assessment Specialist 20251121182659,, Telecommunications & Network Management, Social Media Management,JGL02,FALSE
-JOB51-20251121182659, Cloud Engineer 20251121182659, Education,, Executive Support,JGL01,FALSE
-JOB52-20251121182659, Cloud Architect 20251121182659, Engineering, Vendor Relations & Supply Chain Coordination, Finance Operations,JGL02,FALSE
-JOB53-20251121182659, AWS Solutions Architect 20251121182659, Environmental Services, Web Development & Digital Solutions, Financial Analysis,JGL03,FALSE
-JOB54-20251121182659, Azure Solutions Architect 20251121182659, Finance, Web Analytics & Performance Optimization, Financial Reporting,JGL04,FALSE
-JOB55-20251121182659, Google Cloud Engineer 20251121182659, Financial Planning, Workforce Planning & Talent Strategy, Forecasting,JGL05,FALSE
-JOB56-20251121182659, Infrastructure Engineer 20251121182659, Food & Beverage, Workplace Health & Safety & Risk Management, Fraud Prevention,JGL06,FALSE
-JOB57-20251121182659, Systems Administrator 20251121182659, Government, Youth Engagement & Community Outreach, Full Stack Development,JGL07,FALSE
-JOB58-20251121182659, Network Engineer 20251121182659, Graphic Design,Accounting & Finance Management, Graphic Design,JGL08,FALSE
-JOB59-20251121182659, Platform Engineer 20251121182659, Healthcare, Advertising & Brand Strategy, HR Administration,JGL09,FALSE
-JOB60-20251121182659, Container Orchestration Specialist (Kubernetes) 20251121182659, Human Resources, Business Development & Strategic Partnerships, HR Analytics,JGL10,FALSE
-JOB61-20251121182659, UI/UX Designer 20251121182659, Information Technology (IT), Client Relations & Customer Success, HR Business Partner,JGL10,FALSE
-JOB62-20251121182659, Product Designer 20251121182659, Insurance, Cloud & Infrastructure Management, HR Compliance,JGL01,FALSE
-JOB63-20251121182659, Interaction Designer 20251121182659, Interior Design, Content Creation & Digital Media, HR Training,JGL02,FALSE
-JOB64-20251121182659, Visual Designer 20251121182659, International Relations, Data Analytics & Business Intelligence, Internal Audit,JGL03,FALSE
-JOB65-20251121182659, UX Researcher 20251121182659, IT Support, Data Engineering & Architecture, Internal Communications,JGL04,FALSE
-JOB66-20251121182659, Information Architect 20251121182659, Legal, Design & Creative Direction, IT Architecture,JGL05,FALSE
-JOB67-20251121182659, Motion Graphics Designer 20251121182659, Logistics, Employee Relations & Human Resources, IT Infrastructure,JGL06,FALSE
-JOB68-20251121182659, Accessibility Specialist 20251121182659, Marketing, Enterprise Software Development & Solutions, IT Project Management,JGL07,FALSE
-JOB69-20251121182659, QA Engineer 20251121182659, Media, Event Planning & Coordination, IT Security,JGL08,FALSE
-JOB70-20251121182659, QA Automation Engineer 20251121182659, Music, Financial Planning & Investment Analysis, Legal Counsel,JGL09,FALSE
-JOB71-20251121182659, Test Automation Architect 20251121182659, Non-Profit, Healthcare Management & Operations, Legal Support,JGL10,FALSE
-JOB72-20251121182659, Performance Test Engineer 20251121182659, Nursing, Information Security & Cybersecurity, Learning & Development,JGL11,FALSE
-JOB73-20251121182659, Manual QA Tester 20251121182659, Operations, IT Consulting & Solutions, Logistics Coordination,JGL12,FALSE
-JOB74-20251121182659, Quality Assurance Manager 20251121182659, Procurement, IT Project Management & Strategy, Market Research,JGL01,FALSE
-JOB75-20251121182659, Test Lead 20251121182659, Product Management, Legal Research & Corporate Law, Marketing Campaigns,JGL02,FALSE
-JOB76-20251121182659, Release Manager 20251121182659, Project Management, Market Research & Consumer Insights, Marketing Communications,JGL03,FALSE
-JOB77-20251121182659, Product Manager 20251121182659, Quality Assurance, Marketing & Communications Strategy, Marketing Operations,JGL04,FALSE
-JOB78-20251121182659, Technical Product Manager 20251121182659, Real Estate, Media Relations & Publicity, Media Buying,JGL05,FALSE
-JOB79-20251121182659, Product Owner 20251121182659, Research & Development, Mobile Application Development & Design, Media Relations,JGL06,FALSE
-JOB80-20251121182659, Project Manager (IT) 20251121182659, Retail, Operations & Supply Chain Management, Mobile Development,JGL07,FALSE
-JOB81-20251121182659, Scrum Master 20251121182659, Sales, Organizational Development & Change Management, Operations Management,JGL08,FALSE
-JOB82-20251121182659, Agile Coach 20251121182659, Science, Payroll & Benefits Administration, Payroll,JGL09,FALSE
-JOB83-20251121182659, Program Manager 20251121182659, Security, Performance Optimization & Business Strategy, Performance Management,JGL10,FALSE
-JOB84-20251121182659, Portfolio Manager 20251121182659, Software Development, Product Design & Development, Pricing Strategy,JGL11,FALSE
-JOB85-20251121182659, Enterprise Architect 20251121182659, Strategy, Product Marketing & Go-to-Market Strategy, Product Development,JGL12,FALSE
-JOB86-20251121182659, Solutions Architect 20251121182659, Supply Chain, Project Coordination & Resource Management, Product Marketing,JGL01,FALSE
-JOB87-20251121182659, Technical Architect 20251121182659, Sustainability, Public Relations & Media Strategy, Procurement & Sourcing,JGL02,FALSE
-JOB88-20251121182659, Software Architect 20251121182659, Telecommunications, Quality Assurance & Testing, Process Improvement,JGL03,FALSE
-JOB89-20251121182659, Integration Architect 20251121182659, Training & Development, Recruitment & Talent Acquisition, Product Management,JGL04,FALSE
-JOB90-20251121182659, Chief Technology Officer (CTO) 20251121182659, Transportation, Research & Data Science, Project Coordination,JGL05,FALSE
-JOB91-20251121182659, IT Support Specialist 20251121182659, Tourism, Risk Assessment & Management, Public Relations,JGL06,FALSE
-JOB92-20251121182659, Help Desk Technician 20251121182659, Retail Management, Sales Enablement & Operations, Quality Control,JGL07,FALSE
-JOB93-20251121182659, Technical Support Engineer 20251121182659, Quality Control, Sales Strategy & Account Management, Quality Assurance,JGL08,FALSE
-JOB94-20251121182659, Customer Success Engineer 20251121182659, Risk Management, Social Media & Community Management, Recruiting,JGL09,FALSE
-JOB95-20251121182659, Implementation Specialist 20251121182659, Event Planning, Software Engineering & Development, Research & Development,JGL10,FALSE
-JOB96-20251121182659, Technical Account Manager 20251121182659, Manufacturing,,,JGL01,FALSE
-JOB97-20251121182659, IoT Engineer 20251121182659, Public Relations, Strategic Planning & Business Development, Risk Management,,FALSE
-JOB98-20251121182659, Robotics Engineer 20251121182659, Publishing, Taxation & Financial Compliance,,JGL03,FALSE
-JOB99-20251121182659, Quantum Computing Researcher 20251121182659, Social Media,, Sales Operations,JGL04,FALSE
-JOB100-20251121182659, Conversational AI Designer (Chatbot Developer) 20251121182659,, Telecommunications & Network Management, Social Media Management,JGL02,FALSE
+JOB01-20251121201101, Frontend Developer 20251121201101, Education, UI/UX Design & User Research, Executive Support,JGL01,FALSE
+JOB02-20251121201101, Backend Developer 20251121201101, Engineering, Vendor Relations & Supply Chain Coordination, Finance Operations,JGL02,FALSE
+JOB03-20251121201101, Full Stack Developer 20251121201101, Environmental Services, Web Development & Digital Solutions, Financial Analysis,JGL03,FALSE
+JOB04-20251121201101, Mobile Application Developer (iOS) 20251121201101, Finance, Web Analytics & Performance Optimization, Financial Reporting,JGL04,FALSE
+JOB05-20251121201101, Mobile Application Developer (Android) 20251121201101, Financial Planning, Workforce Planning & Talent Strategy, Forecasting,JGL05,FALSE
+JOB06-20251121201101, Game Developer 20251121201101, Food & Beverage, Workplace Health & Safety & Risk Management, Fraud Prevention,JGL06,FALSE
+JOB07-20251121201101, Embedded Systems Engineer 20251121201101, Government, Youth Engagement & Community Outreach, Full Stack Development,JGL07,FALSE
+JOB08-20251121201101, Firmware Engineer 20251121201101, Graphic Design,Accounting & Finance Management, Graphic Design,JGL08,FALSE
+JOB09-20251121201101, DevOps Engineer 20251121201101, Healthcare, Advertising & Brand Strategy, HR Administration,JGL09,FALSE
+JOB10-20251121201101, Site Reliability Engineer (SRE) 20251121201101, Human Resources, Business Development & Strategic Partnerships, HR Analytics,JGL10,FALSE
+JOB11-20251121201101, Software Development Engineer in Test (SDET) 20251121201101, Information Technology (IT), Client Relations & Customer Success, HR Business Partner,JGL10,FALSE
+JOB12-20251121201101, Low-Code/No-Code Developer 20251121201101, Insurance, Cloud & Infrastructure Management, HR Compliance,JGL01,FALSE
+JOB13-20251121201101, Blockchain Developer 20251121201101, Interior Design, Content Creation & Digital Media, HR Training,JGL02,FALSE
+JOB14-20251121201101, Smart Contract Developer 20251121201101, International Relations, Data Analytics & Business Intelligence, Internal Audit,JGL03,FALSE
+JOB15-20251121201101, Web3 Developer 20251121201101, IT Support, Data Engineering & Architecture, Internal Communications,JGL04,FALSE
+JOB16-20251121201101, AR/VR Developer 20251121201101, Legal, Design & Creative Direction, IT Architecture,JGL05,FALSE
+JOB17-20251121201101, Unity Developer 20251121201101, Logistics, Employee Relations & Human Resources, IT Infrastructure,JGL06,FALSE
+JOB18-20251121201101, Unreal Engine Developer 20251121201101, Marketing, Enterprise Software Development & Solutions, IT Project Management,JGL07,FALSE
+JOB19-20251121201101, Microservices Developer 20251121201101, Media, Event Planning & Coordination, IT Security,JGL08,FALSE
+JOB20-20251121201101, API Developer 20251121201101, Music, Financial Planning & Investment Analysis, Legal Counsel,JGL09,FALSE
+JOB21-20251121201101, Data Scientist 20251121201101, Non-Profit, Healthcare Management & Operations, Legal Support,JGL10,FALSE
+JOB22-20251121201101, Data Engineer 20251121201101, Nursing, Information Security & Cybersecurity, Learning & Development,JGL11,FALSE
+JOB23-20251121201101, Data Analyst 20251121201101, Operations, IT Consulting & Solutions, Logistics Coordination,JGL12,FALSE
+JOB24-20251121201101, Business Intelligence Developer 20251121201101, Procurement, IT Project Management & Strategy, Market Research,JGL01,FALSE
+JOB25-20251121201101, Machine Learning Engineer 20251121201101, Product Management, Legal Research & Corporate Law, Marketing Campaigns,JGL02,FALSE
+JOB26-20251121201101, AI Engineer 20251121201101, Project Management, Market Research & Consumer Insights, Marketing Communications,JGL03,FALSE
+JOB27-20251121201101, Big Data Engineer 20251121201101, Quality Assurance, Marketing & Communications Strategy, Marketing Operations,JGL04,FALSE
+JOB28-20251121201101, ETL Developer 20251121201101, Real Estate, Media Relations & Publicity, Media Buying,JGL05,FALSE
+JOB29-20251121201101, Data Warehouse Architect 20251121201101, Research & Development, Mobile Application Development & Design, Media Relations,JGL06,FALSE
+JOB30-20251121201101, Analytics Engineer 20251121201101, Retail, Operations & Supply Chain Management, Mobile Development,JGL07,FALSE
+JOB31-20251121201101, Predictive Modeler 20251121201101, Sales, Organizational Development & Change Management, Operations Management,JGL08,FALSE
+JOB32-20251121201101, Data Visualization Specialist 20251121201101, Science, Payroll & Benefits Administration, Payroll,JGL09,FALSE
+JOB33-20251121201101, Quantitative Analyst 20251121201101, Security, Performance Optimization & Business Strategy, Performance Management,JGL10,FALSE
+JOB34-20251121201101, Research Scientist (AI/ML) 20251121201101, Software Development, Product Design & Development, Pricing Strategy,JGL11,FALSE
+JOB35-20251121201101, MLOps Engineer 20251121201101, Strategy, Product Marketing & Go-to-Market Strategy, Product Development,JGL12,FALSE
+JOB36-20251121201101, Security Engineer 20251121201101, Supply Chain, Project Coordination & Resource Management, Product Marketing,JGL01,FALSE
+JOB37-20251121201101, Penetration Tester (Ethical Hacker) 20251121201101, Sustainability, Public Relations & Media Strategy, Procurement & Sourcing,JGL02,FALSE
+JOB38-20251121201101, Security Analyst 20251121201101, Telecommunications, Quality Assurance & Testing, Process Improvement,JGL03,FALSE
+JOB39-20251121201101, Security Architect 20251121201101, Training & Development, Recruitment & Talent Acquisition, Product Management,JGL04,FALSE
+JOB40-20251121201101, Chief Information Security Officer (CISO) 20251121201101, Transportation, Research & Data Science, Project Coordination,JGL05,FALSE
+JOB41-20251121201101, Cybersecurity Consultant 20251121201101, Tourism, Risk Assessment & Management, Public Relations,JGL06,FALSE
+JOB42-20251121201101, Security Operations Center (SOC) Analyst 20251121201101, Retail Management, Sales Enablement & Operations, Quality Control,JGL07,FALSE
+JOB43-20251121201101, Incident Response Analyst 20251121201101, Quality Control, Sales Strategy & Account Management, Quality Assurance,JGL08,FALSE
+JOB44-20251121201101, Threat Intelligence Analyst 20251121201101, Risk Management, Social Media & Community Management, Recruiting,JGL09,FALSE
+JOB45-20251121201101, Application Security Engineer 20251121201101, Event Planning, Software Engineering & Development, Research & Development,JGL10,FALSE
+JOB46-20251121201101, Cloud Security Engineer 20251121201101, Manufacturing,,,JGL01,FALSE
+JOB47-20251121201101, Network Security Engineer 20251121201101, Public Relations, Strategic Planning & Business Development, Risk Management,,FALSE
+JOB48-20251121201101, Cryptographer 20251121201101, Publishing, Taxation & Financial Compliance,,JGL03,FALSE
+JOB49-20251121201101, Security Compliance Analyst 20251121201101, Social Media,, Sales Operations,JGL04,FALSE
+JOB50-20251121201101, Vulnerability Assessment Specialist 20251121201101,, Telecommunications & Network Management, Social Media Management,JGL02,FALSE
+JOB51-20251121201101, Cloud Engineer 20251121201101, Education,, Executive Support,JGL01,FALSE
+JOB52-20251121201101, Cloud Architect 20251121201101, Engineering, Vendor Relations & Supply Chain Coordination, Finance Operations,JGL02,FALSE
+JOB53-20251121201101, AWS Solutions Architect 20251121201101, Environmental Services, Web Development & Digital Solutions, Financial Analysis,JGL03,FALSE
+JOB54-20251121201101, Azure Solutions Architect 20251121201101, Finance, Web Analytics & Performance Optimization, Financial Reporting,JGL04,FALSE
+JOB55-20251121201101, Google Cloud Engineer 20251121201101, Financial Planning, Workforce Planning & Talent Strategy, Forecasting,JGL05,FALSE
+JOB56-20251121201101, Infrastructure Engineer 20251121201101, Food & Beverage, Workplace Health & Safety & Risk Management, Fraud Prevention,JGL06,FALSE
+JOB57-20251121201101, Systems Administrator 20251121201101, Government, Youth Engagement & Community Outreach, Full Stack Development,JGL07,FALSE
+JOB58-20251121201101, Network Engineer 20251121201101, Graphic Design,Accounting & Finance Management, Graphic Design,JGL08,FALSE
+JOB59-20251121201101, Platform Engineer 20251121201101, Healthcare, Advertising & Brand Strategy, HR Administration,JGL09,FALSE
+JOB60-20251121201101, Container Orchestration Specialist (Kubernetes) 20251121201101, Human Resources, Business Development & Strategic Partnerships, HR Analytics,JGL10,FALSE
+JOB61-20251121201101, UI/UX Designer 20251121201101, Information Technology (IT), Client Relations & Customer Success, HR Business Partner,JGL10,FALSE
+JOB62-20251121201101, Product Designer 20251121201101, Insurance, Cloud & Infrastructure Management, HR Compliance,JGL01,FALSE
+JOB63-20251121201101, Interaction Designer 20251121201101, Interior Design, Content Creation & Digital Media, HR Training,JGL02,FALSE
+JOB64-20251121201101, Visual Designer 20251121201101, International Relations, Data Analytics & Business Intelligence, Internal Audit,JGL03,FALSE
+JOB65-20251121201101, UX Researcher 20251121201101, IT Support, Data Engineering & Architecture, Internal Communications,JGL04,FALSE
+JOB66-20251121201101, Information Architect 20251121201101, Legal, Design & Creative Direction, IT Architecture,JGL05,FALSE
+JOB67-20251121201101, Motion Graphics Designer 20251121201101, Logistics, Employee Relations & Human Resources, IT Infrastructure,JGL06,FALSE
+JOB68-20251121201101, Accessibility Specialist 20251121201101, Marketing, Enterprise Software Development & Solutions, IT Project Management,JGL07,FALSE
+JOB69-20251121201101, QA Engineer 20251121201101, Media, Event Planning & Coordination, IT Security,JGL08,FALSE
+JOB70-20251121201101, QA Automation Engineer 20251121201101, Music, Financial Planning & Investment Analysis, Legal Counsel,JGL09,FALSE
+JOB71-20251121201101, Test Automation Architect 20251121201101, Non-Profit, Healthcare Management & Operations, Legal Support,JGL10,FALSE
+JOB72-20251121201101, Performance Test Engineer 20251121201101, Nursing, Information Security & Cybersecurity, Learning & Development,JGL11,FALSE
+JOB73-20251121201101, Manual QA Tester 20251121201101, Operations, IT Consulting & Solutions, Logistics Coordination,JGL12,FALSE
+JOB74-20251121201101, Quality Assurance Manager 20251121201101, Procurement, IT Project Management & Strategy, Market Research,JGL01,FALSE
+JOB75-20251121201101, Test Lead 20251121201101, Product Management, Legal Research & Corporate Law, Marketing Campaigns,JGL02,FALSE
+JOB76-20251121201101, Release Manager 20251121201101, Project Management, Market Research & Consumer Insights, Marketing Communications,JGL03,FALSE
+JOB77-20251121201101, Product Manager 20251121201101, Quality Assurance, Marketing & Communications Strategy, Marketing Operations,JGL04,FALSE
+JOB78-20251121201101, Technical Product Manager 20251121201101, Real Estate, Media Relations & Publicity, Media Buying,JGL05,FALSE
+JOB79-20251121201101, Product Owner 20251121201101, Research & Development, Mobile Application Development & Design, Media Relations,JGL06,FALSE
+JOB80-20251121201101, Project Manager (IT) 20251121201101, Retail, Operations & Supply Chain Management, Mobile Development,JGL07,FALSE
+JOB81-20251121201101, Scrum Master 20251121201101, Sales, Organizational Development & Change Management, Operations Management,JGL08,FALSE
+JOB82-20251121201101, Agile Coach 20251121201101, Science, Payroll & Benefits Administration, Payroll,JGL09,FALSE
+JOB83-20251121201101, Program Manager 20251121201101, Security, Performance Optimization & Business Strategy, Performance Management,JGL10,FALSE
+JOB84-20251121201101, Portfolio Manager 20251121201101, Software Development, Product Design & Development, Pricing Strategy,JGL11,FALSE
+JOB85-20251121201101, Enterprise Architect 20251121201101, Strategy, Product Marketing & Go-to-Market Strategy, Product Development,JGL12,FALSE
+JOB86-20251121201101, Solutions Architect 20251121201101, Supply Chain, Project Coordination & Resource Management, Product Marketing,JGL01,FALSE
+JOB87-20251121201101, Technical Architect 20251121201101, Sustainability, Public Relations & Media Strategy, Procurement & Sourcing,JGL02,FALSE
+JOB88-20251121201101, Software Architect 20251121201101, Telecommunications, Quality Assurance & Testing, Process Improvement,JGL03,FALSE
+JOB89-20251121201101, Integration Architect 20251121201101, Training & Development, Recruitment & Talent Acquisition, Product Management,JGL04,FALSE
+JOB90-20251121201101, Chief Technology Officer (CTO) 20251121201101, Transportation, Research & Data Science, Project Coordination,JGL05,FALSE
+JOB91-20251121201101, IT Support Specialist 20251121201101, Tourism, Risk Assessment & Management, Public Relations,JGL06,FALSE
+JOB92-20251121201101, Help Desk Technician 20251121201101, Retail Management, Sales Enablement & Operations, Quality Control,JGL07,FALSE
+JOB93-20251121201101, Technical Support Engineer 20251121201101, Quality Control, Sales Strategy & Account Management, Quality Assurance,JGL08,FALSE
+JOB94-20251121201101, Customer Success Engineer 20251121201101, Risk Management, Social Media & Community Management, Recruiting,JGL09,FALSE
+JOB95-20251121201101, Implementation Specialist 20251121201101, Event Planning, Software Engineering & Development, Research & Development,JGL10,FALSE
+JOB96-20251121201101, Technical Account Manager 20251121201101, Manufacturing,,,JGL01,FALSE
+JOB97-20251121201101, IoT Engineer 20251121201101, Public Relations, Strategic Planning & Business Development, Risk Management,,FALSE
+JOB98-20251121201101, Robotics Engineer 20251121201101, Publishing, Taxation & Financial Compliance,,JGL03,FALSE
+JOB99-20251121201101, Quantum Computing Researcher 20251121201101, Social Media,, Sales Operations,JGL04,FALSE
+JOB100-20251121201101, Conversational AI Designer (Chatbot Developer) 20251121201101,, Telecommunications & Network Management, Social Media Management,JGL02,FALSE

@@ -3,7 +3,7 @@
 
 <suite name="Job Mapping - Sanity Test Suite" 
        parallel="tests" 
-       thread-count="2" 
+       thread-count="3" 
        verbose="2">
     
     <listeners> 
