@@ -271,8 +271,11 @@ public class PO01_KFoneLogin {
 		PageObjectHelper.log(LOGGER, "Provided NON-SSO Login Username: " + CommonVariable.NON_SSO_USERNAME);
 		username.set(CommonVariable.NON_SSO_USERNAME);
 
-		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		// PERFORMANCE FIX: Removed unnecessary spinner wait before clicking Sign In
+		// Spinners only appear AFTER submitting, not before. This eliminates delay in parallel execution
 		utils.jsClick(driver, kfoneSigninBtn);
+		
+		// Wait for spinners that may appear AFTER clicking Sign In
 		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
 	}
