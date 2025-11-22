@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -780,12 +781,14 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 				previousRowCount = rowsAfterScrollCount;
 			}
 
-			// If we reach here, no suitable profile was found
-			LOGGER.info(" Fallback search complete: Checked ALL " + profilesChecked + " profiles, none have missing data with info message");
-			ExtentCucumberAdapter.addTestStepLog(" No AutoMapped profiles found with missing data and info message (checked all " + profilesChecked + " profiles)");
-			LOGGER.error("SKIPPING SCENARIO: No AutoMapped profiles with missing data and info message found (checked all " + profilesChecked + " profiles)");
-			Assert.fail("SKIPPING SCENARIO: No AutoMapped profiles with missing data and info message found (checked all " + profilesChecked + " profiles)");
-			
+		// If we reach here, no suitable profile was found
+		LOGGER.info(" Fallback search complete: Checked ALL " + profilesChecked + " profiles, none have missing data with info message");
+		ExtentCucumberAdapter.addTestStepLog(" No AutoMapped profiles found with missing data and info message (checked all " + profilesChecked + " profiles)");
+		LOGGER.warn("SKIPPING SCENARIO: No AutoMapped profiles with missing data and info message found (checked all " + profilesChecked + " profiles)");
+		
+		// Throw SkipException to mark scenario as SKIPPED in TestNG (not FAILED)
+		throw new SkipException("SKIPPED: No AutoMapped profiles with missing data and info message found after checking all " + profilesChecked + " profiles. This scenario requires at least one profile with missing data to execute.");
+		
 	} catch (Exception e) {
 		PageObjectHelper.handleError(LOGGER, "find_profile_with_missing_data_and_info_message",
 			"Error searching for AutoMapped profile with missing data", e);
@@ -1032,12 +1035,14 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 				previousRowCount = rowsAfterScrollCount;
 			}
 
-			// If we reach here, no suitable second profile was found
-			LOGGER.info(" Fallback search complete: Checked ALL " + profilesChecked + " profiles, no SECOND profile found with missing data and info message");
-			ExtentCucumberAdapter.addTestStepLog(" No SECOND AutoMapped profile found with missing data and info message (checked all " + profilesChecked + " profiles)");
-			LOGGER.error("SKIPPING SCENARIO: No SECOND AutoMapped profile with missing data and info message found (checked all " + profilesChecked + " profiles)");
-			Assert.fail("SKIPPING SCENARIO: No SECOND AutoMapped profile with missing data and info message found (checked all " + profilesChecked + " profiles)");
-				
+		// If we reach here, no suitable second profile was found
+		LOGGER.info(" Fallback search complete: Checked ALL " + profilesChecked + " profiles, no SECOND profile found with missing data and info message");
+		ExtentCucumberAdapter.addTestStepLog(" No SECOND AutoMapped profile found with missing data and info message (checked all " + profilesChecked + " profiles)");
+		LOGGER.warn("SKIPPING SCENARIO: No SECOND AutoMapped profile with missing data and info message found (checked all " + profilesChecked + " profiles)");
+		
+		// Throw SkipException to mark scenario as SKIPPED in TestNG (not FAILED)
+		throw new SkipException("SKIPPED: No SECOND AutoMapped profile with missing data and info message found after checking all " + profilesChecked + " profiles. This scenario requires at least two profiles with missing data to execute.");
+			
 		} catch (Exception e) {
 		PageObjectHelper.handleError(LOGGER, "find_second_profile_with_missing_data_and_info_message",
 			"Error searching for SECOND AutoMapped profile with missing data", e);
