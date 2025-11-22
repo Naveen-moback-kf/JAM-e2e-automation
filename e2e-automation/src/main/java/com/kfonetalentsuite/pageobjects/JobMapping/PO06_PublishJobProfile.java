@@ -522,27 +522,37 @@ public class PO06_PublishJobProfile {
 
 	public void click_on_profile_manager_application_button_in_kfone_global_menu() {
 		try {
-			// HEADLESS FIX: Wait for page to be ready and menu to fully expand
-			PerformanceUtils.waitForPageReady(driver, 1);
+			// PARALLEL EXECUTION FIX: Extended wait for page readiness
+			PerformanceUtils.waitForPageReady(driver, 3);
+			
+			// PARALLEL EXECUTION FIX: Wait for menu to be fully expanded and items rendered
+			// In parallel execution, menu items may take longer to appear in DOM
 			try {
-				Thread.sleep(1000); // Allow menu animation to complete
+				Thread.sleep(2000); // Critical wait for menu animation and DOM rendering
 			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
 			}
 			
-			// HEADLESS FIX: Scroll into view before waiting for element
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center', inline: 'center'});", KfoneMenuPMBtn);
+			// PARALLEL EXECUTION FIX: Explicit wait for Profile Manager button presence in DOM
+			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
+			WebElement pmBtn = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
+				By.xpath("//span[@aria-label='Profile Manager']")));
+			
+			// HEADLESS FIX: Scroll Profile Manager button into view
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center', inline: 'center'});", pmBtn);
 			try {
 				Thread.sleep(500); // Allow scroll to complete
 			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
 			}
 			
-			// HEADLESS FIX: Wait for elementToBeClickable instead of visibilityOf
-			// This ensures the element is ready for interaction in headless mode
-			WebElement pmBtn = wait.until(ExpectedConditions.elementToBeClickable(KfoneMenuPMBtn));
+			// PARALLEL EXECUTION FIX: Wait for element to be clickable (not just present)
+			pmBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(
+				By.xpath("//span[@aria-label='Profile Manager']")));
 			
 			Assert.assertTrue(pmBtn.isDisplayed(), "Profile Manager button not visible in menu");
 			String applicationNameText = pmBtn.getText();
-			LOGGER.info(applicationNameText + " application is displaying in KFONE Global Menu");
+			PageObjectHelper.log(LOGGER, applicationNameText + " application is displaying in KFONE Global Menu");
 			
 			// HEADLESS FIX: Multiple click strategies with fallbacks
 			try {
@@ -550,10 +560,10 @@ public class PO06_PublishJobProfile {
 				PageObjectHelper.log(LOGGER, "Clicked Profile Manager using standard click");
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", KfoneMenuPMBtn);
+					js.executeScript("arguments[0].click();", pmBtn);
 					PageObjectHelper.log(LOGGER, "Clicked Profile Manager using JavaScript click");
 				} catch (Exception s) {
-					utils.jsClick(driver, KfoneMenuPMBtn);
+					utils.jsClick(driver, pmBtn);
 					PageObjectHelper.log(LOGGER, "Clicked Profile Manager using utils.jsClick");
 				}
 			}
@@ -581,23 +591,49 @@ public class PO06_PublishJobProfile {
 
 	public void click_on_architect_application_button_in_kfone_global_menu() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
-			WebElement architectBtn = wait.until(ExpectedConditions.visibilityOf(KfoneMenuArchitectBtn));
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", KfoneMenuArchitectBtn);
-			PerformanceUtils.waitForElement(driver, KfoneMenuArchitectBtn, 2);
+			// PARALLEL EXECUTION FIX: Extended wait for page readiness
+			PerformanceUtils.waitForPageReady(driver, 3);
+			
+			// PARALLEL EXECUTION FIX: Wait for menu to be fully expanded and items rendered
+			// In parallel execution, menu items may take longer to appear in DOM
+			try {
+				Thread.sleep(2000); // Critical wait for menu animation and DOM rendering
+			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+			}
+			
+			// PARALLEL EXECUTION FIX: Explicit wait for Architect button presence in DOM
+			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
+			WebElement architectBtn = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
+				By.xpath("//span[@aria-label='Architect']")));
+			
+			// Scroll into view
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", architectBtn);
+			PerformanceUtils.waitForElement(driver, architectBtn, 2);
+			
+			// PARALLEL EXECUTION FIX: Wait for element to be clickable (not just present)
+			architectBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(
+				By.xpath("//span[@aria-label='Architect']")));
+			
 			Assert.assertTrue(architectBtn.isDisplayed(), "Architect button not visible in menu");
 			String applicationNameText = architectBtn.getText();
-			LOGGER.info(applicationNameText + " application is displaying in KFONE Global Menu");
+			PageObjectHelper.log(LOGGER, applicationNameText + " application is displaying in KFONE Global Menu");
+			
+			// Click with fallback strategies
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(KfoneMenuArchitectBtn)).click();
+				architectBtn.click();
+				PageObjectHelper.log(LOGGER, "Clicked Architect using standard click");
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", KfoneMenuArchitectBtn);
+					js.executeScript("arguments[0].click();", architectBtn);
+					PageObjectHelper.log(LOGGER, "Clicked Architect using JavaScript click");
 				} catch (Exception s) {
-					utils.jsClick(driver, KfoneMenuArchitectBtn);
+					utils.jsClick(driver, architectBtn);
+					PageObjectHelper.log(LOGGER, "Clicked Architect using utils.jsClick");
 				}
 			}
-			PageObjectHelper.log(LOGGER, "Clicked Architect application button in KFONE Global Menu");
+			
+			PageObjectHelper.log(LOGGER, "Successfully clicked Architect application button in KFONE Global Menu");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_architect_application_button_in_kfone_global_menu",
 					"Issue clicking Architect application button", e);
