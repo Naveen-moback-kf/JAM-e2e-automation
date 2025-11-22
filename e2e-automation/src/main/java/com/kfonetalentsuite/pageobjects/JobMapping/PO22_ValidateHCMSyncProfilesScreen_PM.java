@@ -799,10 +799,43 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	
 	public void verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab() {
 		try {
-			// PERFORMANCE: Single comprehensive wait for page readiness
+			// PARALLEL EXECUTION FIX: Extended wait for page readiness
 			PerformanceUtils.waitForPageReady(driver, 5);
-			WebElement resultsCountElement = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
-			String resultsCountText = resultsCountElement.getText();
+			
+			// PARALLEL EXECUTION FIX: Use dynamic element location with retry for stale elements
+			String resultsCountText = "";
+			int retryAttempts = 0;
+			int maxRetries = 5;
+			
+			while (retryAttempts < maxRetries) {
+				try {
+					// Get fresh element on each attempt to avoid stale reference
+					WebElement resultsCountElement = driver.findElement(
+						By.xpath("//div[contains(text(),'Showing')]"));
+					resultsCountText = resultsCountElement.getText().trim();
+					
+					// Break if we got valid text
+					if (!resultsCountText.isEmpty()) {
+						break;
+					}
+					
+					Thread.sleep(500);
+					retryAttempts++;
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					LOGGER.warn("Stale element on attempt " + (retryAttempts + 1) + ", retrying...");
+					retryAttempts++;
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException ie) {
+						Thread.currentThread().interrupt();
+					}
+				}
+			}
+			
+			if (resultsCountText.isEmpty()) {
+				throw new Exception("Could not retrieve results count text after " + maxRetries + " retries");
+			}
+			
 			intialResultsCount.set(resultsCountText);
 			LOGGER.info("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");

@@ -525,30 +525,49 @@ public class PO06_PublishJobProfile {
 			// PARALLEL EXECUTION FIX: Extended wait for page readiness
 			PerformanceUtils.waitForPageReady(driver, 3);
 			
-			// PARALLEL EXECUTION FIX: Wait for menu to be fully expanded and items rendered
-			// In parallel execution, menu items may take longer to appear in DOM
-			try {
-				Thread.sleep(2000); // Critical wait for menu animation and DOM rendering
-			} catch (InterruptedException ie) {
-				Thread.currentThread().interrupt();
+			// PARALLEL EXECUTION FIX: Smart wait with early exit - checks if element exists, doesn't blindly wait
+			// Menu should already be open from previous step, but items may take time to render in parallel execution
+			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
+			
+			// PARALLEL EXECUTION FIX: Retry loop for element presence (exits early when found)
+			WebElement pmBtn = null;
+			int retryAttempts = 0;
+			int maxRetries = 10; // Max 10 attempts with 300ms intervals = max 3 seconds total
+			
+			while (retryAttempts < maxRetries && pmBtn == null) {
+				try {
+					pmBtn = driver.findElement(By.xpath("//span[@aria-label='Profile Manager']"));
+					break; // Found it! Exit immediately
+				} catch (org.openqa.selenium.NoSuchElementException e) {
+					retryAttempts++;
+					if (retryAttempts < maxRetries) {
+						LOGGER.debug("Profile Manager button not found, attempt " + retryAttempts + "/" + maxRetries);
+						try {
+							Thread.sleep(300); // Wait 300ms before retry
+						} catch (InterruptedException ie) {
+							Thread.currentThread().interrupt();
+						}
+					}
+				}
 			}
 			
-			// PARALLEL EXECUTION FIX: Explicit wait for Profile Manager button presence in DOM
-			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
-			WebElement pmBtn = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
-				By.xpath("//span[@aria-label='Profile Manager']")));
+			// If still not found after retries, use explicit wait (will throw timeout exception)
+			if (pmBtn == null) {
+				LOGGER.warn("Profile Manager button not found after " + maxRetries + " quick checks, using explicit wait...");
+				pmBtn = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
+					By.xpath("//span[@aria-label='Profile Manager']")));
+			}
 			
 			// HEADLESS FIX: Scroll Profile Manager button into view
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center', inline: 'center'});", pmBtn);
 			try {
-				Thread.sleep(500); // Allow scroll to complete
+				Thread.sleep(300); // Brief wait for scroll
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			}
 			
-			// PARALLEL EXECUTION FIX: Wait for element to be clickable (not just present)
-			pmBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(
-				By.xpath("//span[@aria-label='Profile Manager']")));
+			// PARALLEL EXECUTION FIX: Wait for element to be clickable
+			pmBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(pmBtn));
 			
 			Assert.assertTrue(pmBtn.isDisplayed(), "Profile Manager button not visible in menu");
 			String applicationNameText = pmBtn.getText();
@@ -594,26 +613,45 @@ public class PO06_PublishJobProfile {
 			// PARALLEL EXECUTION FIX: Extended wait for page readiness
 			PerformanceUtils.waitForPageReady(driver, 3);
 			
-			// PARALLEL EXECUTION FIX: Wait for menu to be fully expanded and items rendered
-			// In parallel execution, menu items may take longer to appear in DOM
-			try {
-				Thread.sleep(2000); // Critical wait for menu animation and DOM rendering
-			} catch (InterruptedException ie) {
-				Thread.currentThread().interrupt();
+			// PARALLEL EXECUTION FIX: Smart wait with early exit - checks if element exists, doesn't blindly wait
+			// Menu should already be open from previous step, but items may take time to render in parallel execution
+			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
+			
+			// PARALLEL EXECUTION FIX: Retry loop for element presence (exits early when found)
+			WebElement architectBtn = null;
+			int retryAttempts = 0;
+			int maxRetries = 10; // Max 10 attempts with 300ms intervals = max 3 seconds total
+			
+			while (retryAttempts < maxRetries && architectBtn == null) {
+				try {
+					architectBtn = driver.findElement(By.xpath("//span[@aria-label='Architect']"));
+					break; // Found it! Exit immediately
+				} catch (org.openqa.selenium.NoSuchElementException e) {
+					retryAttempts++;
+					if (retryAttempts < maxRetries) {
+						LOGGER.debug("Architect button not found, attempt " + retryAttempts + "/" + maxRetries);
+						try {
+							Thread.sleep(300); // Wait 300ms before retry
+						} catch (InterruptedException ie) {
+							Thread.currentThread().interrupt();
+						}
+					}
+				}
 			}
 			
-			// PARALLEL EXECUTION FIX: Explicit wait for Architect button presence in DOM
-			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
-			WebElement architectBtn = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
-				By.xpath("//span[@aria-label='Architect']")));
+			// If still not found after retries, use explicit wait (will throw timeout exception)
+			if (architectBtn == null) {
+				LOGGER.warn("Architect button not found after " + maxRetries + " quick checks, using explicit wait...");
+				architectBtn = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
+					By.xpath("//span[@aria-label='Architect']")));
+			}
 			
 			// Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", architectBtn);
 			PerformanceUtils.waitForElement(driver, architectBtn, 2);
 			
-			// PARALLEL EXECUTION FIX: Wait for element to be clickable (not just present)
-			architectBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(
-				By.xpath("//span[@aria-label='Architect']")));
+			// PARALLEL EXECUTION FIX: Wait for element to be clickable
+			architectBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(architectBtn));
 			
 			Assert.assertTrue(architectBtn.isDisplayed(), "Architect button not visible in menu");
 			String applicationNameText = architectBtn.getText();
