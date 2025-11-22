@@ -832,22 +832,74 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table_in_hcm_sync_profiles_tab() {
 		try {
 			js.executeScript("arguments[0].scrollIntoView(true);", hcmSyncProfilesTitle);
-			// PERFORMANCE: Single comprehensive wait
-			PerformanceUtils.waitForElement(driver, showingJobResultsCount, 5);
-		String resultsCountText1 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-		updatedResultsCount.set(resultsCountText1);
-		// PERFORMANCE: Removed Thread.sleep(2000) - element already waited for above
-		Assert.assertNotEquals(intialResultsCount.get(),resultsCountText1);
-		if (!resultsCountText1.equals(intialResultsCount.get())) {
-			LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText1 + " as expected in HCM Sync Profiles screen in PM");
-			ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText1 + " as expected in HCM Sync Profiles screen in PM");	
-		}
-			else {
+			
+			// PARALLEL EXECUTION FIX: Extended wait for page readiness after scrolling
+			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			// PARALLEL EXECUTION FIX: Additional wait for DOM to stabilize
+			try {
+				Thread.sleep(1500); // Critical for parallel execution - allow lazy-loading to update count
+			} catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+			}
+			
+			// PARALLEL EXECUTION FIX: Use dynamic element location to avoid stale element
+			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(15));
+			
+			// Wait for element presence in DOM
+			WebElement resultsCountElement = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
+				By.xpath("//div[contains(text(),'Showing')]")));
+			
+			// PARALLEL EXECUTION FIX: Retry mechanism to handle DOM updates
+			String resultsCountText1 = "";
+			int retryCount = 0;
+			int maxRetries = 5;
+			
+			while (retryCount < maxRetries) {
+				try {
+					// Re-fetch element to ensure freshness
+					resultsCountElement = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(
+						By.xpath("//div[contains(text(),'Showing')]")));
+					
+					resultsCountText1 = resultsCountElement.getText().trim();
+					
+					// Break if we got valid text
+					if (resultsCountText1 != null && !resultsCountText1.isEmpty()) {
+						break;
+					}
+					
+					Thread.sleep(500);
+					retryCount++;
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					LOGGER.warn("Stale element encountered, retry attempt " + (retryCount + 1));
+					Thread.sleep(500);
+					retryCount++;
+				}
+			}
+			
+			// Ensure we have valid text before proceeding
+			if (resultsCountText1 == null || resultsCountText1.isEmpty()) {
+				throw new Exception("Could not retrieve results count text after " + maxRetries + " retries");
+			}
+			
+			updatedResultsCount.set(resultsCountText1);
+			
+			// Verify count has changed from initial count
+			String initialCount = intialResultsCount.get();
+			LOGGER.info("Initial count: " + initialCount + " | Updated count: " + resultsCountText1);
+			
+			Assert.assertNotEquals(initialCount, resultsCountText1, 
+				"Results count should have changed after scrolling. Initial: " + initialCount + ", Current: " + resultsCountText1);
+			
+			if (!resultsCountText1.equals(initialCount)) {
+				LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText1 + " as expected in HCM Sync Profiles screen in PM");
+				ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText1 + " as expected in HCM Sync Profiles screen in PM");	
+			} else {
 				ExtentCucumberAdapter.addTestStepLog("Issue in updating success profiles results count, Still " + resultsCountText1 + " in HCM Sync Profiles screen in PM....Please Investiagte!!!");
 				throw new Exception("Issue in updating success profiles results count, Still " + resultsCountText1 + " in HCM Sync Profiles screen in PM....Please Investiagte!!!");
 			}
-	} catch (Exception e) {
-		LOGGER.error(" Issue verifying profiles count after scrolling - Method: user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table_in_hcm_sync_profiles_tab", e);
+		} catch (Exception e) {
+			LOGGER.error(" Issue verifying profiles count after scrolling - Method: user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table_in_hcm_sync_profiles_tab", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
