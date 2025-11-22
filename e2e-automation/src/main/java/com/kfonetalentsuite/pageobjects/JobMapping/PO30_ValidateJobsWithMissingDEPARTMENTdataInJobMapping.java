@@ -23,38 +23,11 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
-/**
- * Page Object for Validating Jobs with Missing DEPARTMENT Data Flow
- * 
- * This class handles two distinct validation workflows for missing DEPARTMENT data:
- * 
- *  FORWARD SCENARIO (Scenario 1):
- * 1. Start on Job Mapping page and find job with missing Department + info message
- * 2. Extract job details from Job Mapping page
- * 3. Navigate to Jobs with Missing Data screen
- * 4. Search for the same job in Missing Data screen
- * 5. Validate job details match between both screens
- * 
- *  REVERSE SCENARIO (Scenario 2):
- * 1. Navigate from Job Mapping to Jobs with Missing Data screen
- * 2. Find and extract job details from Jobs Missing Data screen (Department = N/A)
- * 3. Return to Job Mapping and search for the same job
- * 4. Validate job details match between both screens
- * 5. Verify Info Messages are displayed correctly on Job Mapping page
- * 
- * ... DETERMINISTIC FIRST-MATCH PROFILE VALIDATION:
- * - Both scenarios find and validate the FIRST perfect match encountered during sequential search (not hardcoded)
- * - Forward Scenario: Searches Job Mapping screen sequentially  validates FIRST job with ONLY missing Department + info message
- * - Reverse Scenario: Searches Missing Data screen sequentially  validates FIRST job with missing Department found
- * - Each scenario is CONSISTENT: same scenario always validates same profile (deterministic FIRST match)
- * - Scenarios may validate DIFFERENT profiles from each other (since they search different screens)  
- * - No dependency on specific job names - fully adaptable to FIRST suitable match with missing DEPARTMENT
- * - State variables are cleared at scenario start to prevent interference between scenarios
- */
-public class PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping {
+public class PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping extends DriverManager {
 	
 	WebDriver driver = DriverManager.getDriver();	
 
@@ -201,9 +174,8 @@ public class PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping {
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error("Failed to verify Jobs with Missing Data screen: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to verify Jobs with Missing Data screen: " + e.getMessage());
-			throw new IOException("Failed to verify Jobs with Missing Data screen", e);
+			PageObjectHelper.handleError(LOGGER, "verify_user_is_navigated_to_jobs_with_missing_data_screen",
+				"Failed to verify Jobs with Missing Data screen", e);
 		}
 	}
 

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Logger;
 import org.testng.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -18,28 +18,13 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
-/**
- * SIMPLIFIED: AutoMapped Profile Info Message Validation
- * 
- * CRITICAL FIXES AND ENHANCEMENTS IMPLEMENTED:
- * 1. SIMPLIFIED APPROACH: 3-step process (Scroll  Load  Search)
- * 2. PROFILE TYPE FILTERING: Now correctly identifies and skips Manual Mapping profiles
- * 3. BUTTON DETECTION FIX: Removed dangerous broad XPath that was clicking "Search a different profile" buttons  
- * 4. AUTOMAPPED FOCUS: Only processes profiles with "View Other Matches" buttons
- * 5. VALIDATION LOGIC: Added isAutoMappedProfile() method to distinguish profile types
- * 6. ENHANCED SEARCH: Multi-attempt search with scrolling to find AutoMapped profiles
- * 7. SMART SCROLLING: Progressive scrolling to load at least 50 profiles for comprehensive coverage
- * 8. WINDOWS COMPATIBLE: Replaced Unicode emojis with text labels for encoding compatibility
- * 9. ROBUST EXTRACTION: Multiple fallback methods for job detail extraction
- * 10. SIMPLE SECOND PROFILE: Straightforward loop to find second AutoMapped profile
- */
 public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager {
 	
-	private static final Logger LOGGER = LogManager.getLogger(PO27_VerifyInfoMessageForMissingDataProfiles.class);
+	private static final Logger LOGGER = (Logger) LogManager.getLogger(PO27_VerifyInfoMessageForMissingDataProfiles.class);
 	
 	WebDriver driver;
 	WebDriverWait wait;
@@ -506,7 +491,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 
 	public void find_and_verify_profile_with_missing_data_has_info_message_displayed() throws IOException {
 		try {
-			LOGGER.info("Finding and verifying profile with missing data has Info Message displayed");
+			PageObjectHelper.log(LOGGER, "Finding and verifying profile with missing data has Info Message displayed");
 			
 			// Wait for page to load
 			safeSleep(2000);
@@ -567,27 +552,25 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			Assert.assertTrue(infoMessageDisplayed, 
 				"Info Message should be displayed for profiles with missing data (checked visible content + scrolled for more)");
 			
-			ExtentCucumberAdapter.addTestStepLog("Successfully found and verified profile with missing data has Info Message displayed (searched across multiple pages)");
-			LOGGER.info("SUCCESS: Successfully verified profile with missing data has Info Message displayed");
+			PageObjectHelper.log(LOGGER, "Successfully found and verified profile with missing data has Info Message displayed (searched across multiple pages)");
 			
 	} catch (Exception e) {
-		LOGGER.error("ERROR: Error finding profile with missing data and Info Message - Method: find_and_verify_profile_with_missing_data_has_info_message_displayed", e);
-		ScreenshotHandler.captureFailureScreenshot("find_verify_profile_missing_data", e);
-		throw new IOException("Failed to find and verify profile with missing data has Info Message: " + e.getMessage());
+		PageObjectHelper.handleError(LOGGER, "find_and_verify_profile_with_missing_data_has_info_message_displayed",
+			"Failed to find and verify profile with missing data has Info Message", e);
 	}
 	}
 
 	public void find_profile_with_missing_data_and_info_message() throws IOException {
 		LOGGER.info("====================================");
 		LOGGER.info("Looking for AutoMapped profile with missing data and info message...");
-		ExtentCucumberAdapter.addTestStepLog(" Searching for AutoMapped profile with missing data and info message");
+		PageObjectHelper.log(LOGGER, "Searching for AutoMapped profile with missing data and info message");
 
 		try {
 			safeSleep(2000);
 			
 			// FALLBACK: Search through ALL profiles with lazy loading (no limit)
 			LOGGER.info(" FALLBACK: Searching through ALL profiles with lazy loading to find AutoMapped profile with info message...");
-			ExtentCucumberAdapter.addTestStepLog(" Fallback search: checking all profiles with lazy loading...");
+			PageObjectHelper.log(LOGGER, "Fallback search: checking all profiles with lazy loading...");
 
 			int profilesChecked = 0;
 			int scrollAttempts = 0;
@@ -804,10 +787,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			Assert.fail("SKIPPING SCENARIO: No AutoMapped profiles with missing data and info message found (checked all " + profilesChecked + " profiles)");
 			
 	} catch (Exception e) {
-		LOGGER.error("Error in find_profile_with_missing_data_and_info_message - Method: find_profile_with_missing_data_and_info_message", e);
-		ScreenshotHandler.captureFailureScreenshot("find_profile_missing_data", e);
-		ExtentCucumberAdapter.addTestStepLog(" Error searching for AutoMapped profile: " + e.getMessage());
-		throw e;
+		PageObjectHelper.handleError(LOGGER, "find_profile_with_missing_data_and_info_message",
+			"Error searching for AutoMapped profile with missing data", e);
 	}
 	}
 
@@ -1058,10 +1039,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			Assert.fail("SKIPPING SCENARIO: No SECOND AutoMapped profile with missing data and info message found (checked all " + profilesChecked + " profiles)");
 				
 		} catch (Exception e) {
-		LOGGER.error("Error in find_second_profile_with_missing_data_and_info_message - Method: find_second_profile_with_missing_data_and_info_message", e);
-		ScreenshotHandler.captureFailureScreenshot("find_second_profile_missing_data", e);
-		ExtentCucumberAdapter.addTestStepLog(" Error searching for SECOND AutoMapped profile: " + e.getMessage());
-		throw e;
+		PageObjectHelper.handleError(LOGGER, "find_second_profile_with_missing_data_and_info_message",
+			"Error searching for SECOND AutoMapped profile with missing data", e);
 	}
 	}
 	
@@ -1177,9 +1156,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			LOGGER.info("Successfully verified Info Message text");
 			
 	} catch (Exception e) {
-		LOGGER.error("Error verifying Info Message text - Method: verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_data", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_info_message_text", e);
-		throw new IOException("Failed to verify Info Message text: " + e.getMessage());
+		PageObjectHelper.handleError(LOGGER, "verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_data",
+			"Failed to verify Info Message text", e);
 	}
 	}
 
@@ -1236,9 +1214,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			}
 			// Details already logged during search - no need to log again
 	} catch (Exception e) {
-		LOGGER.error("Error: First profile job details not found - Method: extract_job_details_from_profile_with_info_message", e);
-		ScreenshotHandler.captureFailureScreenshot("extract_job_details_first_profile", e);
-		throw new IOException("Failed to validate first profile job details: " + e.getMessage());
+		PageObjectHelper.handleError(LOGGER, "extract_job_details_from_profile_with_info_message",
+			"Failed to validate first profile job details", e);
 	}
 	}
 
@@ -1269,9 +1246,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			LOGGER.info("SUCCESS: Info Message persistence verified for first profile");
 			
 	} catch (Exception e) {
-		LOGGER.error("ERROR: Error verifying Info Message persistence for first profile - Method: verify_info_message_is_still_displayed_in_job_comparison_page", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_info_message_persistence", e);
-		throw new IOException("Failed to verify Info Message persistence in Job Comparison page for first profile: " + e.getMessage());
+		PageObjectHelper.handleError(LOGGER, "verify_info_message_is_still_displayed_in_job_comparison_page",
+			"Failed to verify Info Message persistence in Job Comparison page for first profile", e);
 	}
 	}
 
@@ -1523,9 +1499,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			LOGGER.info("SUCCESS: User is successfully navigated to Job Comparison page");
 			
 	} catch (Exception e) {
-		LOGGER.error("ERROR: Error verifying navigation to Job Comparison page - Method: verify_user_is_navigated_to_job_comparison_page", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_navigation_job_comparison", e);
-		throw new IOException("Failed to verify navigation to Job Comparison page: " + e.getMessage());
+		PageObjectHelper.handleError(LOGGER, "verify_user_is_navigated_to_job_comparison_page",
+			"Failed to verify navigation to Job Comparison page", e);
 	}
 	}
 
@@ -1810,9 +1785,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			}
 			
 	} catch (Exception e) {
-		LOGGER.error("Error extracting job details from Job Comparison page for second profile - Method: extract_job_details_from_job_comparison_page_for_second_profile", e);
-		ScreenshotHandler.captureFailureScreenshot("extract_job_details_comparison_second", e);
-		throw new IOException("Failed to extract job details from Job Comparison page for second profile: " + e.getMessage());
+		PageObjectHelper.handleError(LOGGER, "extract_job_details_from_job_comparison_page_for_second_profile",
+			"Failed to extract job details from Job Comparison page for second profile", e);
 	}
 	}
 
@@ -1856,9 +1830,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			LOGGER.info("SUCCESS: Info Message text consistency verified in Job Comparison page");
 			
 	} catch (Exception e) {
-		LOGGER.error("ERROR: Error verifying Info Message text consistency - Method: verify_info_message_contains_same_text_about_reduced_match_accuracy", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_info_message_text_consistency", e);
-		throw new IOException("Failed to verify Info Message text consistency in Job Comparison page: " + e.getMessage());
+		PageObjectHelper.handleError(LOGGER, "verify_info_message_contains_same_text_about_reduced_match_accuracy",
+			"Failed to verify Info Message text consistency in Job Comparison page", e);
 	}
 	}
 
@@ -1923,9 +1896,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			LOGGER.info("SUCCESS: Navigation back to Job Mapping page completed");
 			
 	} catch (Exception e) {
-		LOGGER.error("ERROR: Error navigating back to Job Mapping page - Method: navigate_back_to_job_mapping_page_from_job_comparison", e);
-		ScreenshotHandler.captureFailureScreenshot("navigate_back_job_mapping", e);
-		throw new IOException("Failed to navigate back to Job Mapping page from Job Comparison: " + e.getMessage());
+		PageObjectHelper.handleError(LOGGER, "navigate_back_to_job_mapping_page_from_job_comparison",
+			"Failed to navigate back to Job Mapping page from Job Comparison", e);
 	}
 	}
 

@@ -20,8 +20,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
@@ -131,13 +131,10 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			wait.until(ExpectedConditions.visibilityOf(missingDataTipMessageContainer));
 			Assert.assertTrue(missingDataTipMessageContainer.isDisplayed(), 
 				"Missing Data Tip Message should be displayed on Job Mapping page");
-			ExtentCucumberAdapter.addTestStepLog(" Missing Data Tip Message is successfully displayed on Job Mapping page");
-			LOGGER.info("Missing Data Tip Message is displayed on Job Mapping page");
+			PageObjectHelper.log(LOGGER, "Missing Data Tip Message is successfully displayed on Job Mapping page");
 	} catch (Exception e) {
-		LOGGER.error("Failed to verify Missing Data Tip Message display - Method: verify_missing_data_tip_message_is_displaying_on_job_mapping_page", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_missing_data_tip_message_display", e);
-		ExtentCucumberAdapter.addTestStepLog("- Failed to verify Missing Data Tip Message display: " + e.getMessage());
-		throw e;
+		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_is_displaying_on_job_mapping_page",
+			"Failed to verify Missing Data Tip Message display", e);
 	}
 	}
 
@@ -154,16 +151,13 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 				String extractedCount = matcher.group(1);
 				Assert.assertTrue(extractedCount != null && !extractedCount.isEmpty(), 
 					"Job count should be extracted from tip message");
-				ExtentCucumberAdapter.addTestStepLog(" Successfully extracted job count from tip message: " + extractedCount);
-				LOGGER.info("Extracted job count from tip message: " + extractedCount);
+				PageObjectHelper.log(LOGGER, "Successfully extracted job count from tip message: " + extractedCount);
 			} else {
 				Assert.fail("Could not extract job count from tip message: " + tipMessageText);
 			}
 	} catch (Exception e) {
-		LOGGER.error("Failed to verify job count in tip message - Method: verify_missing_data_tip_message_contains_correct_count_of_jobs_with_missing_data", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_job_count_tip_message", e);
-		ExtentCucumberAdapter.addTestStepLog("- Failed to verify job count in tip message: " + e.getMessage());
-		throw e;
+		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_contains_correct_count_of_jobs_with_missing_data",
+			"Failed to verify job count in tip message", e);
 	}
 	}
 
@@ -176,13 +170,10 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 				"'" + linkText + "' link should be present in Missing Data Tip Message");
 			Assert.assertTrue(viewReuploadJobsLink.getText().contains(linkText), 
 				"Link should contain expected text: " + linkText);
-			ExtentCucumberAdapter.addTestStepLog(" '" + linkText + "' link is present in Missing Data Tip Message");
-			LOGGER.info("'" + linkText + "' link is present in tip message");
+			PageObjectHelper.log(LOGGER, "'" + linkText + "' link is present in Missing Data Tip Message");
 	} catch (Exception e) {
-		LOGGER.error("Failed to verify link presence - Method: verify_link_is_present_in_missing_data_tip_message", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_link_presence", e);
-		ExtentCucumberAdapter.addTestStepLog("- Failed to verify '" + linkText + "' link presence: " + e.getMessage());
-		throw e;
+		PageObjectHelper.handleError(LOGGER, "verify_link_is_present_in_missing_data_tip_message",
+			"Failed to verify link presence", e);
 	}
 	}
 
@@ -200,10 +191,8 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			// Wait for page navigation (optimized)
 			safeSleep(1000); // Reduced from 2000ms to 1000ms
 	} catch (Exception e) {
-		LOGGER.error("Failed to click on link - Method: click_on_link_in_missing_data_tip_message", e);
-		ScreenshotHandler.captureFailureScreenshot("click_link_tip_message", e);
-		ExtentCucumberAdapter.addTestStepLog("- Failed to click on '" + linkText + "' link: " + e.getMessage());
-		throw new IOException(e);
+		PageObjectHelper.handleError(LOGGER, "click_on_link_in_missing_data_tip_message",
+			"Failed to click on '" + linkText + "' link", e);
 	}
 	}
 
@@ -310,8 +299,6 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			}
 			
 		LOGGER.error("Failed to verify navigation to re-upload page - Method: verify_user_is_navigated_to_appropriate_page_for_viewing_and_re_uploading_jobs", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_navigation_reupload_page", e);
-		ExtentCucumberAdapter.addTestStepLog("- Error details: " + e.getMessage());
 		throw new IOException(e);
 	}
 	}
@@ -391,10 +378,8 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 				LOGGER.debug("Failed to get debug URL: " + debugEx.getMessage());
 			}
 			
-		LOGGER.error("Failed to navigate back to Job Mapping page - Method: navigate_back_to_job_mapping_page", e);
-		ScreenshotHandler.captureFailureScreenshot("navigate_back_job_mapping", e);
-		ExtentCucumberAdapter.addTestStepLog("- Error details: " + e.getMessage());
-		throw new IOException(e);
+		PageObjectHelper.handleError(LOGGER, "navigate_back_to_job_mapping_page",
+			"Failed to navigate back to Job Mapping page", e);
 	}
 	}
 
@@ -403,13 +388,10 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			wait.until(ExpectedConditions.visibilityOf(missingDataTipMessageContainer));
 			Assert.assertTrue(missingDataTipMessageContainer.isDisplayed(), 
 				"Missing Data Tip Message should still be displayed on Job Mapping page after navigation");
-			ExtentCucumberAdapter.addTestStepLog(" Missing Data Tip Message is still displaying on Job Mapping page after navigation");
-			LOGGER.info("Missing Data Tip Message verified as still displayed after navigation");
+			PageObjectHelper.log(LOGGER, "Missing Data Tip Message is still displaying on Job Mapping page after navigation");
 	} catch (Exception e) {
-		LOGGER.error("Failed to verify Missing Data Tip Message is still displayed - Method: verify_missing_data_tip_message_is_still_displaying_on_job_mapping_page", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_tip_message_still_displayed", e);
-		ExtentCucumberAdapter.addTestStepLog("- Failed to verify Missing Data Tip Message is still displayed: " + e.getMessage());
-		throw e;
+		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_is_still_displaying_on_job_mapping_page",
+			"Failed to verify Missing Data Tip Message is still displayed", e);
 	}
 	}
 
@@ -429,10 +411,8 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			ExtentCucumberAdapter.addTestStepLog("+/- Waiting for missing data tip message to disappear...");
 			
 	} catch (Exception e) {
-		LOGGER.error("Failed to click on close button - Method: click_on_close_button_in_missing_data_tip_message", e);
-		ScreenshotHandler.captureFailureScreenshot("click_close_button_tip_message", e);
-		ExtentCucumberAdapter.addTestStepLog("- Failed to click on missing data tip message close button: " + e.getMessage());
-		throw new IOException(e);
+		PageObjectHelper.handleError(LOGGER, "click_on_close_button_in_missing_data_tip_message",
+			"Failed to click on missing data tip message close button", e);
 	}
 	}
 
@@ -452,8 +432,7 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 					// Element completely removed from DOM
 					tipMessageHidden = true;
 					hiddenReason = "Element removed from DOM";
-					ExtentCucumberAdapter.addTestStepLog(" Missing Data Tip Message is no longer displayed - element removed from DOM");
-					LOGGER.info("Missing Data Tip Message removed from DOM after closing");
+					PageObjectHelper.log(LOGGER, "Missing Data Tip Message is no longer displayed - element removed from DOM");
 				} else {
 					// Element exists, check if it's visible
 					WebElement tipElement = tipElements.get(0);
@@ -461,8 +440,7 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 						// Element exists but is hidden
 						tipMessageHidden = true;
 						hiddenReason = "Element hidden (display:none or visibility:hidden)";
-						ExtentCucumberAdapter.addTestStepLog(" Missing Data Tip Message is no longer displayed - element hidden via CSS");
-						LOGGER.info("Missing Data Tip Message hidden via CSS after closing");
+						PageObjectHelper.log(LOGGER, "Missing Data Tip Message is no longer displayed - element hidden via CSS");
 					} else {
 						// Element is still visible - this is a failure
 						tipMessageHidden = false;
@@ -474,27 +452,21 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 				// If we get any exception checking for the element, assume it's hidden
 				tipMessageHidden = true;
 				hiddenReason = "Exception occurred while checking element - likely removed: " + e.getMessage();
-				ExtentCucumberAdapter.addTestStepLog(" Missing Data Tip Message is no longer displayed - exception indicates element not present");
-				LOGGER.info("Missing Data Tip Message likely removed - exception: " + e.getMessage());
+				PageObjectHelper.log(LOGGER, "Missing Data Tip Message is no longer displayed - exception indicates element not present");
 			}
 			
 			// Final assertion
 			if (tipMessageHidden) {
-				ExtentCucumberAdapter.addTestStepLog(" SUCCESS: Missing Data Tip Message is no longer displayed on Job Mapping page");
-				ExtentCucumberAdapter.addTestStepLog("   Reason: " + hiddenReason);
-				LOGGER.info("Successfully verified Missing Data Tip Message is hidden: " + hiddenReason);
+				PageObjectHelper.log(LOGGER, "SUCCESS: Missing Data Tip Message is no longer displayed on Job Mapping page - Reason: " + hiddenReason);
 			} else {
 				String errorMessage = "Missing Data Tip Message is still displayed when it should be hidden. Reason: " + hiddenReason;
-				ExtentCucumberAdapter.addTestStepLog("- FAILED: " + errorMessage);
 				LOGGER.error(errorMessage);
 				Assert.fail(errorMessage);
 			}
 			
 	} catch (Exception e) {
-		LOGGER.error("Failed to verify tip message is hidden - Method: verify_missing_data_tip_message_is_no_longer_displayed_on_job_mapping_page", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_tip_message_hidden", e);
-		ExtentCucumberAdapter.addTestStepLog("- Failed to verify tip message is hidden: " + e.getMessage());
-		throw new IOException(e);
+		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_is_no_longer_displayed_on_job_mapping_page",
+			"Failed to verify tip message is hidden", e);
 	}
 	}
 
@@ -545,13 +517,10 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			
 			Assert.assertTrue(tipMessageText.contains("jobs have missing data"), 
 				"Tip message should contain text about jobs having missing data");
-			ExtentCucumberAdapter.addTestStepLog(" Tip message contains text about jobs having missing data");
-			LOGGER.info("Verified tip message contains text about missing data");
+			PageObjectHelper.log(LOGGER, "Tip message contains text about jobs having missing data");
 	} catch (Exception e) {
-		LOGGER.error("Failed to verify missing data text - Method: verify_missing_data_tip_message_contains_text_about_jobs_having_missing_data", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_missing_data_text", e);
-		ExtentCucumberAdapter.addTestStepLog("- Failed to verify missing data text: " + e.getMessage());
-		throw e;
+		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_contains_text_about_jobs_having_missing_data",
+			"Failed to verify missing data text", e);
 	}
 	}
 
@@ -562,13 +531,10 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			
 			Assert.assertTrue(tipMessageText.contains("reduce match accuracy"), 
 				"Tip message should contain text about reduced match accuracy");
-			ExtentCucumberAdapter.addTestStepLog(" Tip message contains text about reduced match accuracy");
-			LOGGER.info("Verified tip message contains text about reduced match accuracy");
+			PageObjectHelper.log(LOGGER, "Tip message contains text about reduced match accuracy");
 	} catch (Exception e) {
-		LOGGER.error("Failed to verify reduced accuracy text - Method: verify_missing_data_tip_message_contains_text_about_reduced_match_accuracy", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_reduced_accuracy_text", e);
-		ExtentCucumberAdapter.addTestStepLog("- Failed to verify reduced accuracy text: " + e.getMessage());
-		throw e;
+		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_contains_text_about_reduced_match_accuracy",
+			"Failed to verify reduced accuracy text", e);
 	}
 	}
 }

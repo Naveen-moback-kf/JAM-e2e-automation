@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Logger;
 import org.testng.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -18,58 +18,13 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
-/**
- * ENHANCED: Manual Mapping Profile Info Message Validation
- * 
- *  GLOBAL TRACKING & AGGRESSIVE SEARCH SYSTEM - BULLETPROOF DUPLICATE PREVENTION:
- * 1. GLOBAL PROFILE TRACKING: Persistent first profile storage across entire test execution
- * 2. AGGRESSIVE SCROLLING: Up to 25 search attempts + extra aggressive scrolling when needed
- * 3. MULTI-LAYER VALIDATION: Row Index + Profile Number + Job Name + Job Code verification  
- * 4. IMMEDIATE STOP OPTIMIZATION: Stop scrolling immediately after finding different profile
- * 5. PROFILE TYPE FILTERING: Correctly identifies Manual Mapping profiles (have "Search a different profile" buttons)
- * 6. SUCCESS CASE HANDLING: Treat "no missing data" as SUCCESS case (exit gracefully)
- * 7. CONTENT COMPARISON: Job details verification for absolute duplicate prevention
- * 8. COMPREHENSIVE LOGGING: Enhanced logging with global tracking status at each step
- * 9. BULLETPROOF ERROR HANDLING: Clear messages when duplicates detected with context
- * 10. ENHANCED DEBUGGING: Detailed duplicate detection messages with global tracking info
- * 
- *  GLOBAL TRACKING SYSTEM:
- * - globalFirstManualProfileRowIndex: Persistent row index of first profile
- * - globalFirstManualProfileNumber: Persistent profile number of first profile  
- * - globalFirstManualJobNameWithInfoMessage: Job name for content comparison
- * - globalFirstManualJobCodeWithInfoMessage: Job code for content comparison
- * 
- *  AGGRESSIVE SEARCH STRATEGY:
- * - Phase 1: Check currently visible profiles with info messages (FIRST PROFILE)
- * - Phase 2: GLOBAL STORAGE  Store first profile information for bulletproof tracking
- * - Phase 3: If found  STOP and start validation immediately (NO unnecessary scrolling)  
- * - Phase 4: For second profile  AGGRESSIVE SEARCH using global tracking (up to 25 attempts)
- * - Phase 5: MULTI-LAYER VALIDATION  Row + Profile Number + Content checks per candidate
- * - Phase 6: IMMEDIATE STOP  Stop scrolling as soon as different profile found
- * - Phase 7: EXTRA AGGRESSIVE SCROLLING  Force scroll to bottom + additional attempts when needed
- * - Phase 8: Handle success case when only one unique profile exists
- * 
- *  BULLETPROOF DUPLICATE PREVENTION:
- * ... GLOBAL TRACKING: Impossible to lose first profile information across test execution
- * ... ROW INDEX CHECK: Skip profiles with same table row as global first
- * ... PROFILE NUMBER CHECK: Skip profiles with same profile number as global first  
- * ... CONTENT VERIFICATION: Job Name + Job Code comparison for absolute certainty
- * ... PROFILE TYPE FILTERING: Only Manual Mapping profiles (have "Search a different profile" buttons)
- * ... AGGRESSIVE SCROLLING: Up to 25 attempts + extra aggressive when needed
- * ... IMMEDIATE STOP: Performance optimized - stop as soon as different profile found
- * ... SUCCESS CASE: Graceful handling when no profiles with missing data exist
- * ... SINGLE PROFILE MODE: Handle scenarios with only one Manual Mapping profile available
- * ... CLEAR SEPARATION: No interference with AutoMapped profile test scenarios
- * ... ENHANCED LOGGING: Comprehensive duplicate detection messages with global context
- * 
- *  GUARANTEED: Zero duplicate profile validations - each test validates two genuinely different Manual Mapping profiles!
- */
 public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManager {
 	
-	private static final Logger LOGGER = LogManager.getLogger(PO28_VerifyInfoMessageForManualMappingProfiles.class);
+	private static final Logger LOGGER = (Logger) LogManager.getLogger(PO28_VerifyInfoMessageForManualMappingProfiles.class);
 	
 	WebDriver driver;
 	WebDriverWait wait;
@@ -520,12 +475,11 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			
 			Assert.assertTrue(infoMessageDisplayed, "Info Message should be displayed for manually mapped profiles with missing data");
 			
-			ExtentCucumberAdapter.addTestStepLog("Successfully found and verified manually mapped profile with missing data has Info Message displayed");
-			LOGGER.info("Successfully verified manually mapped profile with missing data has Info Message displayed");
+			PageObjectHelper.log(LOGGER, "Successfully found and verified manually mapped profile with missing data has Info Message displayed");
 			
 		} catch (Exception e) {
-			LOGGER.error("Error finding manually mapped profile with missing data and Info Message: " + e.getMessage());
-			throw new IOException("Failed to find and verify manually mapped profile with missing data has Info Message: " + e.getMessage());
+			PageObjectHelper.handleError(LOGGER, "find_and_verify_manually_mapped_profile_with_missing_data_has_info_message_displayed",
+				"Failed to find and verify manually mapped profile with missing data has Info Message", e);
 		}
 	}
 

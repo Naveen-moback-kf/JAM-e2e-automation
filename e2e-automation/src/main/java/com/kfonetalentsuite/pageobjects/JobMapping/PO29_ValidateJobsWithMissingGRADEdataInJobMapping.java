@@ -23,39 +23,11 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
-/**
- * Page Object for Validating Jobs with Missing GRADE Data Flow
- * 
- * This class handles two distinct validation workflows for missing GRADE data:
- * 
- *  FORWARD SCENARIO (Scenario 1):
- * 1. Start on Job Mapping page and find job with missing Grade + info message
- * 2. Extract job details from Job Mapping page
- * 3. Navigate to Jobs with Missing Data screen
- * 4. Search for the same job in Missing Data screen
- * 5. Validate job details match between both screens
- * 
- *  REVERSE SCENARIO (Scenario 2):
- * 1. Navigate from Job Mapping to Jobs with Missing Data screen
- * 2. Find and extract job details from Jobs Missing Data screen (Grade = N/A)
- * 3. Return to Job Mapping and search for the same job
- * 4. Validate job details match between both screens
- * 5. Verify Info Messages are displayed correctly on Job Mapping page
- * 
- * ... DETERMINISTIC FIRST-MATCH PROFILE VALIDATION:
- * - Both scenarios find and validate the FIRST perfect match encountered during sequential search (not hardcoded)
- * - Forward Scenario: Searches Job Mapping screen sequentially  validates FIRST job with ONLY missing Grade + info message
- * - Reverse Scenario: Searches Missing Data screen sequentially  validates FIRST job with missing Grade found
- * - Each scenario is CONSISTENT: same scenario always validates same profile (deterministic FIRST match)
- * - Scenarios may validate DIFFERENT profiles from each other (since they search different screens)  
- * - No dependency on specific job names - fully adaptable to FIRST suitable match with missing GRADE
- * - State variables are cleared at scenario start to prevent interference between scenarios
- */
-public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping {
+public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverManager {
 	
 	WebDriver driver = DriverManager.getDriver();	
 
@@ -713,14 +685,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping {
 			
 			LOGGER.info("Searched for job: " + searchTerm);
 			LOGGER.info("Will find specific profile in search results that matches job name AND job code from Missing Data screen");
-			ExtentCucumberAdapter.addTestStepLog("Searched for job profile: " + searchTerm);
+			PageObjectHelper.log(LOGGER, "Searched for job profile: " + searchTerm);
 			
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("search_for_the_extracted_job_profile_by_name_in_job_mapping_page", e);
-			e.printStackTrace();
-			LOGGER.error("Failed to search for job profile: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to search for job profile: " + e.getMessage());
-			throw new IOException("Failed to search for job profile", e);
+			PageObjectHelper.handleError(LOGGER, "search_for_the_extracted_job_profile_by_name_in_job_mapping_page",
+				"Failed to search for job profile", e);
 		}
 	}
 
@@ -773,9 +742,8 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping {
 			}
 			
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verifySearchResultsContainSearchTerm", e);
-			e.printStackTrace();
-			throw new IOException("Search verification failed: " + e.getMessage());
+			PageObjectHelper.handleError(LOGGER, "verifySearchResultsContainSearchTerm",
+				"Search verification failed", e);
 		}
 	}
 

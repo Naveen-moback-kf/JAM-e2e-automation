@@ -22,8 +22,8 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.HeadlessCompatibleActions;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
@@ -144,8 +144,7 @@ public class PO24_ValidatePublishCenter_PM {
 	
 	//METHODs
 	public void user_is_in_hcm_sync_profiles_screen_after_syncing_profiles() {
-		LOGGER.info("User is in HCM Sync Profiles screen after syncing profiles");
-		ExtentCucumberAdapter.addTestStepLog("User is in HCM Sync Profiles screen after syncing profiles");
+		PageObjectHelper.log(LOGGER, "User is in HCM Sync Profiles screen after syncing profiles");
 	}
 	
 	public void click_on_publish_center_button() {
@@ -162,14 +161,10 @@ public class PO24_ValidatePublishCenter_PM {
 					utils.jsClick(driver, publishCenterBtn);
 				}
 			}
-		LOGGER.info("Clicked on Publish Center button in My Organization's Job Profiles screen in PM");
-		ExtentCucumberAdapter.addTestStepLog("Clicked on Publish Center button in My Organization's Job Profiles screen in PM");
+		PageObjectHelper.log(LOGGER, "Clicked on Publish Center button in My Organization's Job Profiles screen in PM");
 	} catch (Exception e) {
-		LOGGER.error("Issue clicking Publish Center button - Method: click_on_publish_center_button", e);
-		ScreenshotHandler.captureFailureScreenshot("click_publish_center_button", e);
-		e.printStackTrace();
-		Assert.fail("Issue in clicking on Publish Center button in My Organization's Job Profiles screen in PM...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Publish Center button in My Organization's Job Profiles screen in PM...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "click_on_publish_center_button",
+			"Issue in clicking on Publish Center button in My Organization's Job Profiles screen in PM", e);
 	}
 	}
 	
@@ -178,14 +173,10 @@ public class PO24_ValidatePublishCenter_PM {
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 		PerformanceUtils.waitForPageReady(driver, 2);
 		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jphScreenTitle)).isDisplayed());
-		LOGGER.info("User navigated to " + jphScreenTitle.getText() + " screen successfully....");
-		ExtentCucumberAdapter.addTestStepLog("User navigated to " + jphScreenTitle.getText() + " screen successfully....");
+		PageObjectHelper.log(LOGGER, "User navigated to " + jphScreenTitle.getText() + " screen successfully....");
 	} catch(Exception e) {
-		LOGGER.error("Issue navigating to Job Profile History screen - Method: verify_user_navigated_to_job_profile_history_screen_succcessfully", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_navigation_job_profile_history", e);
-		e.printStackTrace();
-		Assert.fail("Issue in navigating to Job Profile History screen on click of Publish Center button...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in navigating to Job Profile History screen on click of Publish Center button...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_job_profile_history_screen_succcessfully",
+			"Issue in navigating to Job Profile History screen on click of Publish Center button", e);
 	}
 	}
 	
@@ -193,14 +184,10 @@ public class PO24_ValidatePublishCenter_PM {
 		try {
 			String profilesCountTextinRow1 = wait.until(ExpectedConditions.visibilityOf(jphProfilesCountinRow1)).getText();
 			Assert.assertEquals(Integer.toString(PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get()), profilesCountTextinRow1);
-			LOGGER.info("Recently downloaded Job Profiles History is displaying in Top Row in Publish Center as expected....");
-			ExtentCucumberAdapter.addTestStepLog("Recently downloaded Job Profiles History is displaying in Top Row in Publish Center as expected....");
+			PageObjectHelper.log(LOGGER, "Recently downloaded Job Profiles History is displaying in Top Row in Publish Center as expected....");
 	} catch (Exception e) {
-			LOGGER.error("Issue verifying recently downloaded profiles in top row - Method: verify_recently_downloaded_job_profiles_history_is_in_top_row", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_downloaded_profiles_top_row", e);
-			e.printStackTrace();
-			Assert.fail("Issue in Verifying Recently downloaded Job Profiles History is displaying in Top Row in Publish Center...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Recently downloaded Job Profiles History is displaying in Top Row in Publish Center...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_recently_downloaded_job_profiles_history_is_in_top_row",
+				"Issue in Verifying Recently downloaded Job Profiles History is displaying in Top Row in Publish Center", e);
 	}
 		
 	}
@@ -219,35 +206,23 @@ public class PO24_ValidatePublishCenter_PM {
 				todayDate = currentMonth.toString().substring(0,1) + currentMonth.toString().substring(1,3).toLowerCase() + " " + Integer.toString(currentDay) + ", " + Integer.toString(currentYear);
 			}
 			Assert.assertEquals(Integer.toString(PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get()), jphProfilesCountinRow1.getText());
-			LOGGER.info("No.of Profiles count in Publish Center matches with No.of Profiles selected for Download in HCM Sync Profiles screen in PM");
-			ExtentCucumberAdapter.addTestStepLog("No.of Profiles count in Publish Center matches with No.of Profiles selected for Download in HCM Sync Job Profiles screen in PM");
+			PageObjectHelper.log(LOGGER, "No.of Profiles count in Publish Center matches with No.of Profiles selected for Download in HCM Sync Profiles screen in PM");
 			PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(0);
 			ProfilesCountInRow1 = Integer.parseInt(jphProfilesCountinRow1.getText());
 			Assert.assertEquals(jphAccessedDateinRow1.getText(), todayDate);
-			LOGGER.info("Accessed Date of the Recently downloaded Job Profile Matches with today's date as expected");
-			ExtentCucumberAdapter.addTestStepLog("Accessed Date of the Recently downloaded Job Profile Matches with today's date as expected");
+			PageObjectHelper.log(LOGGER, "Accessed Date of the Recently downloaded Job Profile Matches with today's date as expected");
 			Assert.assertEquals(jphActionTakeninRow1.getText(),"Downloaded");
-			LOGGER.info("Action taken tag displaying as " + "Downloaded" +" for the Recently downloaded Job Profile as expected");
-			ExtentCucumberAdapter.addTestStepLog("Action taken tag displaying as " + "Downloaded" +" for the Recently downloaded Job Profile as expected");
-			LOGGER.info("Below are the details of the Recently Downloaded Job Profile in Job Profile History screen : \n "
+			PageObjectHelper.log(LOGGER, "Action taken tag displaying as " + "Downloaded" +" for the Recently downloaded Job Profile as expected");
+			PageObjectHelper.log(LOGGER, "Below are the details of the Recently Downloaded Job Profile in Job Profile History screen : \n "
 					+ jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCountinRow1.getText() + "   "
 					+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedByinRow1.getText() + "   "
 					+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDateinRow1.getText() + "   "
 					+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTakeninRow1.getText()+ "   "
 					+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatusinRow1.getText());
-			ExtentCucumberAdapter.addTestStepLog("Below are the details of the Recently Downloaded Job Profile in Job Profile History screen : \n "
-					+ jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCountinRow1.getText() + "   "
-					+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedByinRow1.getText() + "   "
-					+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDateinRow1.getText() + "   "
-				+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTakeninRow1.getText()+ "   "
-				+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatusinRow1.getText());
 		
 	} catch (Exception e) {
-		LOGGER.error("Issue verifying downloaded profile details - Method: verify_details_of_the_recently_downloaded_job_profiles_in_job_profile_history_screen", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_downloaded_profile_details", e);
-		e.printStackTrace();
-		Assert.fail("Issue in Verifying details of the Recently downloaded Job Profiles in Job Profile History screen in Publish Center...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in Verifying details of the Recently downloaded Job Profiles in Job Profile History screen in Publish Center...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "verify_details_of_the_recently_downloaded_job_profiles_in_job_profile_history_screen",
+			"Issue in Verifying details of the Recently downloaded Job Profiles in Job Profile History screen in Publish Center", e);
 	}
 	}
 	
@@ -262,14 +237,10 @@ public class PO24_ValidatePublishCenter_PM {
 					utils.jsClick(driver, jphProfilesCountinRow1);
 				}
 			}
-			LOGGER.info("Clicked on Profiles Count of Recently downloaded job profiles in Job Profile History screen");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Profiles Count of Recently downloaded job profiles in Job Profile History screen");
+			PageObjectHelper.log(LOGGER, "Clicked on Profiles Count of Recently downloaded job profiles in Job Profile History screen");
 		} catch (Exception e) {
-			LOGGER.error("Issue clicking profiles count - Method: click_on_profiles_count_of_recently_downloaded_job_profiles_in_job_profile_history_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("click_profiles_count", e);
-			e.printStackTrace();
-			Assert.fail("Issue in clicking on Profiles Count of Recently downloaded job profiles in Job Profile History screen...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Profiles Count of Recently downloaded job profiles in Job Profile History screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_profiles_count_of_recently_downloaded_job_profiles_in_job_profile_history_screen",
+				"Issue in clicking on Profiles Count of Recently downloaded job profiles in Job Profile History screen", e);
 	}
 	}
 	
@@ -279,14 +250,10 @@ public class PO24_ValidatePublishCenter_PM {
 		// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 		PerformanceUtils.waitForPageReady(driver, 2);
 		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(profilesDownloadedScreenTitle)).isDisplayed());
-		LOGGER.info("User navigated to " + profilesDownloadedScreenTitle.getText() + " screen successfully....");
-		ExtentCucumberAdapter.addTestStepLog("User navigated to " + profilesDownloadedScreenTitle.getText() + " screen successfully....");
+		PageObjectHelper.log(LOGGER, "User navigated to " + profilesDownloadedScreenTitle.getText() + " screen successfully....");
 	} catch(Exception e) {
-		LOGGER.error("Issue navigating to Profiles Downloaded screen - Method: user_should_be_navigated_to_profiles_downloaded_screen", e);
-		ScreenshotHandler.captureFailureScreenshot("navigate_profiles_downloaded_screen", e);
-		e.printStackTrace();
-		Assert.fail("Issue in navigating to Profiles Downloaded screen on click of Profiles count of Recently Downloaded Profile...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in navigating to Profiles Downloaded screen on click of Profiles count of Recently Downloaded Profile...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_profiles_downloaded_screen",
+			"Issue in navigating to Profiles Downloaded screen on click of Profiles count of Recently Downloaded Profile", e);
 	}
 	}
 	
@@ -296,32 +263,22 @@ public class PO24_ValidatePublishCenter_PM {
 		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 		// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
 		PerformanceUtils.waitForPageReady(driver, 2);
-		LOGGER.info("Below are the " + "Header Details" +" of the Recently Downloaded Job Profiles in " + "Profiles Downloaded" +" screen : \n "
+		PageObjectHelper.log(LOGGER, "Below are the " + "Header Details" +" of the Recently Downloaded Job Profiles in " + "Profiles Downloaded" +" screen : \n "
 					+ profilesDownloadedScreenHeaderDetails.getText());
-			ExtentCucumberAdapter.addTestStepLog("Below are the " + "Header Details" +" of the Recently Downloaded Job Profiles in " + "Profiles Downloaded" +" screen : \n "
-					+ profilesDownloadedScreenHeaderDetails.getText());
-			LOGGER.info("Below are the Profiles Details of the Recently Downloaded Job Profiles in Profiles Downloaded screen :");
-			ExtentCucumberAdapter.addTestStepLog("Below are the Profiles Details of the Recently Downloaded Job Profiles in Profiles Downloaded screen :");
+			PageObjectHelper.log(LOGGER, "Below are the Profiles Details of the Recently Downloaded Job Profiles in Profiles Downloaded screen :");
 			for(int i=1; i<= ProfilesCountInRow1; i++) {
 				WebElement profilename = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[1]/span"));
 				WebElement jobCode = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[2]/span"));
 				WebElement modifiedBy = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[3]/span"));
 				WebElement lastModified = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]/span"));
-				LOGGER.info(pdHeader1.getText() + " : " + profilename.getText() +
+				PageObjectHelper.log(LOGGER, pdHeader1.getText() + " : " + profilename.getText() +
 						"   " + pdHeader2.getText() + " : " + jobCode.getText() +
 						"   " + pdHeader3.getText() + " : " + modifiedBy.getText() +
 						"   " + pdHeader4.getText() + " : "+ lastModified.getText());
-				ExtentCucumberAdapter.addTestStepLog(pdHeader1.getText() + " : " + profilename.getText() +
-						"   " + pdHeader2.getText() + " : " + jobCode.getText() +
-						"   " + pdHeader3.getText() + " : " + modifiedBy.getText() +
-				"   " + pdHeader4.getText() + " : "+ lastModified.getText());
 		}
 	} catch (Exception e) {
-		LOGGER.error("Issue verifying profiles downloaded details - Method: verify_details_in_profiles_downloaded_screen", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_profiles_downloaded_details", e);
-		e.printStackTrace();
-		Assert.fail("Issue in Verifying details of the Recently downloaded Job Profiles in Profiles Downloaded screen in Publish Center...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in Verifying details of the Recently downloaded Job Profiles in Profiles Downloaded screen in Publish Center...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "verify_details_in_profiles_downloaded_screen",
+			"Issue in Verifying details of the Recently downloaded Job Profiles in Profiles Downloaded screen in Publish Center", e);
 	}
 	}
 	
@@ -337,14 +294,10 @@ public class PO24_ValidatePublishCenter_PM {
 					utils.jsClick(driver, closeBtn);
 				}
 			}
-		LOGGER.info("Profiles Downloaded screen closed succesfully....");
-		ExtentCucumberAdapter.addTestStepLog("Profiles Downloaded screen closed succesfully....");
+		PageObjectHelper.log(LOGGER, "Profiles Downloaded screen closed succesfully....");
 	} catch (Exception e) {
-		LOGGER.error("Issue closing Profiles Downloaded screen - Method: close_profiles_downloaded_screen", e);
-		ScreenshotHandler.captureFailureScreenshot("close_profiles_downloaded_screen", e);
-		e.printStackTrace();
-		Assert.fail("Issue in clicking on Close button in Profiles Downloaded screen...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Close button in Profiles Downloaded screen...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "close_profiles_downloaded_screen",
+			"Issue in clicking on Close button in Profiles Downloaded screen", e);
 	}
 	}
 	
@@ -370,16 +323,12 @@ public class PO24_ValidatePublishCenter_PM {
 						PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get() + 1);
 					}
 //					ValidateHCMSyncProfiles_PM.profilesCount = ValidateHCMSyncProfiles_PM.profilesCount + 1;
-					LOGGER.info("Selected " + Integer.toString(PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get()) + " Job Profiles in HCM Sync Profiles screen in PM");
-					ExtentCucumberAdapter.addTestStepLog("Selected " + Integer.toString(PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get()) + " Job Profiles in HCM Sync Profiles screen in PM");
+					PageObjectHelper.log(LOGGER, "Selected " + Integer.toString(PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get()) + " Job Profiles in HCM Sync Profiles screen in PM");
 				}
 			}	
 	} catch (NoSuchElementException e) {
-		LOGGER.error("Issue selecting job profiles - Method: select_job_profiles_in_hcm_sync_profiles_tab", e);
-		ScreenshotHandler.captureFailureScreenshot("select_job_profiles", e);
-		e.printStackTrace();
-		Assert.fail("Issue in selecting Job Profiles in My Organization Job Profiles screen in PM...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in selecting Job Profiles in My Organization Job Profiles screen in PM...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "select_job_profiles_in_hcm_sync_profiles_tab",
+			"Issue in selecting Job Profiles in My Organization Job Profiles screen in PM", e);
 	}
 	}
 	
@@ -387,14 +336,10 @@ public class PO24_ValidatePublishCenter_PM {
 		try {
 			String profilesCountTextinRow1 = wait.until(ExpectedConditions.visibilityOf(jphProfilesCountinRow1)).getText();
 			Assert.assertEquals(Integer.toString(PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get()), profilesCountTextinRow1);
-			LOGGER.info("Recently Exported Job Profiles History is displaying in Top Row in Publish Center as expected....");
-			ExtentCucumberAdapter.addTestStepLog("Recently Exported Job Profiles History is displaying in Top Row in Publish Center as expected....");
+			PageObjectHelper.log(LOGGER, "Recently Exported Job Profiles History is displaying in Top Row in Publish Center as expected....");
 	} catch (Exception e) {
-		LOGGER.error("Issue verifying exported profiles in top row - Method: verify_recently_exported_job_profiles_history_is_in_top_row", e);
-		ScreenshotHandler.captureFailureScreenshot("verify_exported_profiles_top_row", e);
-		e.printStackTrace();
-		Assert.fail("Issue in Verifying Recently Exported Job Profiles History is displaying in Top Row in Publish Center...Please Investigate!!!");
-		ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Recently Exported Job Profiles History is displaying in Top Row in Publish Center...Please Investigate!!!");
+		PageObjectHelper.handleError(LOGGER, "verify_recently_exported_job_profiles_history_is_in_top_row",
+			"Issue in Verifying Recently Exported Job Profiles History is displaying in Top Row in Publish Center", e);
 	}
 	}
 	
@@ -416,17 +361,16 @@ public class PO24_ValidatePublishCenter_PM {
 			if (PO22_ValidateHCMSyncProfilesScreen_PM.isProfilesCountComplete.get()) {
 				// Count is COMPLETE - Perform assertion
 				Assert.assertEquals(Integer.toString(PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get()), jphProfilesCountinRow1.getText());
-				LOGGER.info("✅ No.of Profiles count in Publish Center matches with No.of Profiles selected for Export to HCM in My Organization's Job Profiles screen in PM");
-				LOGGER.info("✅ Expected: {}, Actual: {}", PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get(), jphProfilesCountinRow1.getText());
-				ExtentCucumberAdapter.addTestStepLog("✅ No.of Profiles count in Publish Center matches with No.of Profiles selected for Export to HCM in My Organization's Job Profiles screen in PM");
+				PageObjectHelper.log(LOGGER, "No.of Profiles count in Publish Center matches with No.of Profiles selected for Export to HCM in My Organization's Job Profiles screen in PM");
+				PageObjectHelper.log(LOGGER, "Expected: " + PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get() + ", Actual: " + jphProfilesCountinRow1.getText());
 			} else {
 				// Count is INCOMPLETE - Skip assertion with clear logging
-				LOGGER.warn("⚠️ SKIPPING PROFILE COUNT ASSERTION: Profile count is INCOMPLETE due to max scroll limit reached");
-				LOGGER.warn("⚠️ Counted profiles from scrolling: {}", PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get());
-				LOGGER.warn("⚠️ Actual exported profiles in Publish Center: {}", jphProfilesCountinRow1.getText());
-				LOGGER.warn("⚠️ This is NOT a test failure - it's a limitation of scrolling with large datasets");
-				ExtentCucumberAdapter.addTestStepLog("⚠️ SKIPPED: Profile count assertion (incomplete count due to max scroll limit)");
-				ExtentCucumberAdapter.addTestStepLog("📊 Counted: " + PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get() + 
+				LOGGER.warn("SKIPPING PROFILE COUNT ASSERTION: Profile count is INCOMPLETE due to max scroll limit reached");
+				LOGGER.warn("Counted profiles from scrolling: " + PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get());
+				LOGGER.warn("Actual exported profiles in Publish Center: " + jphProfilesCountinRow1.getText());
+				LOGGER.warn("This is NOT a test failure - it's a limitation of scrolling with large datasets");
+				ExtentCucumberAdapter.addTestStepLog("SKIPPED: Profile count assertion (incomplete count due to max scroll limit)");
+				ExtentCucumberAdapter.addTestStepLog("Counted: " + PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get() + 
 					" | Actual exported: " + jphProfilesCountinRow1.getText() + " (discrepancy expected)");
 			}
 			
@@ -436,27 +380,18 @@ public class PO24_ValidatePublishCenter_PM {
 			
 			ProfilesCountInRow1 = Integer.parseInt(jphProfilesCountinRow1.getText());
 			Assert.assertEquals(jphAccessedDateinRow1.getText(), todayDate);
-			LOGGER.info("Accessed Date of the Recently Exported Job Profile Matches with today's date as expected");
-			ExtentCucumberAdapter.addTestStepLog("Accessed Date of the Recently Exported Job Profile Matches with today's date as expected");
+			PageObjectHelper.log(LOGGER, "Accessed Date of the Recently Exported Job Profile Matches with today's date as expected");
 			Assert.assertEquals(jphActionTakeninRow1.getText(),"Exported to HCM");
-			LOGGER.info("Action taken tag displaying as Exported to HCM for the Recently downloaded Job Profile as expected");
-			ExtentCucumberAdapter.addTestStepLog("Action taken tag displaying as Export to HCM for the Recently downloaded Job Profile as expected");
-			LOGGER.info("Below are the details of the Recently Exported Job Profiles in Job Profile History screen : \n "
-					+ jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCountinRow1.getText() + "   "
-					+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedByinRow1.getText() + "   "
-					+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDateinRow1.getText() + "   "
-					+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTakeninRow1.getText() + "   "
-					+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatusinRow1.getText());
-			ExtentCucumberAdapter.addTestStepLog("Below are the details of the Recently Exported Job Profiles in Job Profile History screen : \n "
+			PageObjectHelper.log(LOGGER, "Action taken tag displaying as Exported to HCM for the Recently downloaded Job Profile as expected");
+			PageObjectHelper.log(LOGGER, "Below are the details of the Recently Exported Job Profiles in Job Profile History screen : \n "
 					+ jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCountinRow1.getText() + "   "
 					+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedByinRow1.getText() + "   "
 					+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDateinRow1.getText() + "   "
 					+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTakeninRow1.getText() + "   "
 					+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatusinRow1.getText());
 		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail("Issue in Verifying details of the Recently Exported Job Profiles in Job Profile History screen in Publish Center...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying details of the Recently Exported Job Profiles in Job Profile History screen in Publish Center...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_details_of_the_recently_exported_job_profiles_in_job_profile_history_screen",
+				"Issue in Verifying details of the Recently Exported Job Profiles in Job Profile History screen in Publish Center", e);
 		}
 	}
 	
@@ -471,12 +406,10 @@ public class PO24_ValidatePublishCenter_PM {
 					utils.jsClick(driver, jphProfilesCountinRow1);
 				}
 			}
-			LOGGER.info("Clicked on Profiles Count of Recently Exported job profiles in Job Profile History screen");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Profiles Count of Recently Exported job profiles in Job Profile History screen");
+			PageObjectHelper.log(LOGGER, "Clicked on Profiles Count of Recently Exported job profiles in Job Profile History screen");
 		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail("Issue in clicking on Profiles Count of Recently Exported job profiles in Job Profile History screen...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Profiles Count of Recently Exported job profiles in Job Profile History screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_profiles_count_of_recently_exported_job_profiles_in_job_profile_history_screen",
+				"Issue in clicking on Profiles Count of Recently Exported job profiles in Job Profile History screen", e);
 		}
 	}
 	
@@ -485,42 +418,32 @@ public class PO24_ValidatePublishCenter_PM {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 2);
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(profilesExportedScreenTitle)).isDisplayed());
-			LOGGER.info("User navigated to " + profilesExportedScreenTitle.getText() + " screen successfully....");
-			ExtentCucumberAdapter.addTestStepLog("User navigated to " + profilesExportedScreenTitle.getText() + " screen successfully....");
+			PageObjectHelper.log(LOGGER, "User navigated to " + profilesExportedScreenTitle.getText() + " screen successfully....");
 		} catch(Exception e) {
-			e.printStackTrace();
-			Assert.fail("Issue in navigating to Profiles Exported screen on click of Profiles count of Recently Downloaded Profile...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in navigating to Profiles Exported screen on click of Profiles count of Recently Downloaded Profile...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_profiles_exported_screen",
+				"Issue in navigating to Profiles Exported screen on click of Profiles count of Recently Downloaded Profile", e);
 		}
 	}
 	
 	public void verify_details_in_profiles_exported_screen() {
 		try {
-			LOGGER.info("Below are the Header Details of the Recently Exported Job Profiles in Profiles Exported screen : \n "
-					+ profilesDownloadedScreenHeaderDetails.getText());
-			ExtentCucumberAdapter.addTestStepLog("Below are the Header Details of the Recently Exported Job Profiles in Profiles Exported screen : \n "
+			PageObjectHelper.log(LOGGER, "Below are the Header Details of the Recently Exported Job Profiles in Profiles Exported screen : \n "
 					+ profilesDownloadedScreenHeaderDetails.getText());
 			js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-			LOGGER.info("Below are the Profiles Details of the Recently Exported Job Profiles in Profiles Exported screen :");
-			ExtentCucumberAdapter.addTestStepLog("Below are the Profiles Details of the Recently Exported Job Profiles in Profiles Exported screen :");
+			PageObjectHelper.log(LOGGER, "Below are the Profiles Details of the Recently Exported Job Profiles in Profiles Exported screen :");
 			for(int i=1; i<= ProfilesCountInRow1; i++) {
 				WebElement profilename = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[1]/span"));
 				WebElement jobCode = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[2]/span"));
 				WebElement modifiedBy = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[3]/span"));
 				WebElement lastModified = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]/span"));
-				LOGGER.info(pdHeader1.getText() + " : " + profilename.getText() +
-						"   " + pdHeader2.getText() + " : " + jobCode.getText() +
-						"   " + pdHeader3.getText() + " : " + modifiedBy.getText() +
-						"   " + pdHeader4.getText() + " : " + lastModified.getText());
-				ExtentCucumberAdapter.addTestStepLog(pdHeader1.getText() + " : " + profilename.getText() +
+				PageObjectHelper.log(LOGGER, pdHeader1.getText() + " : " + profilename.getText() +
 						"   " + pdHeader2.getText() + " : " + jobCode.getText() +
 						"   " + pdHeader3.getText() + " : " + modifiedBy.getText() +
 						"   " + pdHeader4.getText() + " : " + lastModified.getText());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail("Issue in Verifying details of the Recently Exported Job Profiles in Profiles Exported screen in Publish Center...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying details of the Recently Exported Job Profiles in Profiles Exported screen in Publish Center...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_details_in_profiles_exported_screen",
+				"Issue in Verifying details of the Recently Exported Job Profiles in Profiles Exported screen in Publish Center", e);
 		}
 	}
 	
@@ -536,18 +459,15 @@ public class PO24_ValidatePublishCenter_PM {
 					utils.jsClick(driver, closeBtn);
 				}
 			}
-			LOGGER.info("Profiles Exported screen closed succesfully....");
-			ExtentCucumberAdapter.addTestStepLog("Profiles Exported screen closed succesfully....");
+			PageObjectHelper.log(LOGGER, "Profiles Exported screen closed succesfully....");
 		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail("Issue in clicking on Close button in Profiles Exported screen...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on Close button in Profiles Exported screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "close_profiles_exported_screen",
+				"Issue in clicking on Close button in Profiles Exported screen", e);
 		}
 	}
 	
 	public void user_is_in_job_profile_history_screen() {
-		LOGGER.info("User is in Job Profile History screen in Publish Center....");
-		ExtentCucumberAdapter.addTestStepLog("User is in Job Profile History screen in Publish Center....");
+		PageObjectHelper.log(LOGGER, "User is in Job Profile History screen in Publish Center....");
 	}
 	
 	public void user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles_in_job_profile_history_screen() {
@@ -566,17 +486,15 @@ public class PO24_ValidatePublishCenter_PM {
 			PerformanceUtils.waitForPageReady(driver, 3);
 			
 			String resultsCountText_updated = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-			LOGGER.info("Scrolled down till third page and now "+ resultsCountText_updated + " of Job Profiles as expected");
-			ExtentCucumberAdapter.addTestStepLog("Scrolled down till third page and now "+ resultsCountText_updated + " of Job Profiles as expected");	
+			PageObjectHelper.log(LOGGER, "Scrolled down till third page and now "+ resultsCountText_updated + " of Job Profiles as expected");	
 			
 			// Scroll to top (headless-compatible)
 			js.executeScript("window.scrollTo(0, 0);");
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 2);
 	} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail("Issue in scrolling page down two times to view first thirty job profiles in Job Profile History screen...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in scrolling page down two times to view first thirty job profiles in Job Profile History screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "scroll_page_down_two_times_to_view_first_thirty_job_profiles_in_job_profile_history_screen",
+				"Issue in scrolling page down two times to view first thirty job profiles in Job Profile History screen", e);
 	}
 	}
 	
@@ -584,32 +502,25 @@ public class PO24_ValidatePublishCenter_PM {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			LOGGER.info("Below are the details of the First 30 Job Profiles in Default Order before applying sorting in Job Profile History screen : ");
+			PageObjectHelper.log(LOGGER, "Below are the details of the First 30 Job Profiles in Default Order before applying sorting in Job Profile History screen : ");
 			for(int i=1; i<= 30; i++) {
 				WebElement jphProfilesCount = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[1]/span"));
 				WebElement jphAccessedBy = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[2]/span"));
 				WebElement jphAccessedDate = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[3]/span"));
 				WebElement jphActionTaken = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[4]/span"));
 				WebElement jphStatus = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[5]/span"));
-				LOGGER.info(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
-				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+				PageObjectHelper.log(LOGGER, jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
 						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
 						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
 						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
 						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
 				profilesCountInDefaultOrder.add(jphProfilesCount.getText());
 			}
-			LOGGER.info("Default Order of first thirty Job Profiles before applying sorting in Job Profile History screen is verified successfully");
-			ExtentCucumberAdapter.addTestStepLog("Default Order of first thirty Job Profiles before applying sorting in Job Profile History screen is verified successfully");
+			PageObjectHelper.log(LOGGER, "Default Order of first thirty Job Profiles before applying sorting in Job Profile History screen is verified successfully");
 			
 		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail("Issue in Verifying default Order of first thirty Job Profiles before applying sorting in Job Profile History screen...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying default Order of first thirty Job Profiles before applying sorting in Job Profile History screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting_in_job_profile_history_screen",
+				"Issue in Verifying default Order of first thirty Job Profiles before applying sorting in Job Profile History screen", e);
 		}	
 	}
 	
@@ -626,12 +537,10 @@ public class PO24_ValidatePublishCenter_PM {
 			}
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			LOGGER.info("Clicked on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in ascending order in Job Profile History screen");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in ascending order in Job Profile History screen");
+			PageObjectHelper.log(LOGGER, "Clicked on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in ascending order in Job Profile History screen");
 		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail("Issue in clicking on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in ascending order in Job Profile History screen...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in ascending order in Job Profile History screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_no_of_profiles_in_ascending_order_in_job_profile_history_screen",
+				"Issue in clicking on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in ascending order in Job Profile History screen", e);
 		}
 	}
 	
@@ -639,7 +548,7 @@ public class PO24_ValidatePublishCenter_PM {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			LOGGER.info("Below are the details of the First 30 Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Ascending Order: ");
+			PageObjectHelper.log(LOGGER, "Below are the details of the First 30 Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Ascending Order: ");
 			
 			// Collect profile counts for validation
 			ArrayList<Integer> profileCounts = new ArrayList<Integer>();
@@ -660,41 +569,30 @@ public class PO24_ValidatePublishCenter_PM {
 						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
 						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
 						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
-				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
 			}
 			
-			// ✅ VALIDATE ASCENDING ORDER
+			// VALIDATE ASCENDING ORDER
 			int sortViolations = 0;
 			for(int i = 0; i < profileCounts.size() - 1; i++) {
 				int current = profileCounts.get(i);
 				int next = profileCounts.get(i + 1);
 				if(current > next) {
 					sortViolations++;
-					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": " + current + " > " + next + " (NOT in Ascending Order!)");
-					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Row " + (i + 1) + " (" + current + ") > Row " + (i + 2) + " (" + next + ")");
+					PageObjectHelper.log(LOGGER, "SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": " + current + " > " + next + " (NOT in Ascending Order!)");
 				}
 			}
 			
 			if(sortViolations > 0) {
-				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted in Ascending Order!";
-				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				String errorMsg = "SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted in Ascending Order!";
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else {
-				LOGGER.info("✅ SORT VALIDATION PASSED: All " + profileCounts.size() + " Job Profiles are correctly sorted by NO. OF PROFILES in Ascending Order");
-				ExtentCucumberAdapter.addTestStepLog("✅ Sorting validation PASSED - Data is correctly sorted in Ascending Order");
+				PageObjectHelper.log(LOGGER, "SORT VALIDATION PASSED: All " + profileCounts.size() + " Job Profiles are correctly sorted by NO. OF PROFILES in Ascending Order");
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error("Issue validating sorting - Method: user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_ascending_order_in_job_profile_history_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_no_of_profiles_ascending_sort", e);
-			e.printStackTrace();
-			Assert.fail("Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Ascending Order...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Ascending Order...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_ascending_order_in_job_profile_history_screen",
+				"Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Ascending Order", e);
 		}	
 	}
 	
@@ -703,8 +601,7 @@ public class PO24_ValidatePublishCenter_PM {
 			driver.navigate().refresh();
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 3);
-			LOGGER.info("Refreshed Job Profile History screen....");
-			ExtentCucumberAdapter.addTestStepLog("Refreshed Job Profile History screen....");
+			PageObjectHelper.log(LOGGER, "Refreshed Job Profile History screen....");
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			wait.until(ExpectedConditions.visibilityOf(jphProfilesCountinRow1));
 			for(int i=1; i<= 10; i++) {
@@ -716,12 +613,10 @@ public class PO24_ValidatePublishCenter_PM {
 					throw new Exception("No. Of Profiles Count : " + text + " in Row " + Integer.toString(i) + " DOEST NOT Match with No. Of Profiles count : " + profilesCountInDefaultOrder.get(i-1) + " after Refreshing Job Profile History screen");
 				}
 				}
-			LOGGER.info("Job Profiles are in Default Order as expected After Refreshing the Job Profile History screen....");
-			ExtentCucumberAdapter.addTestStepLog("Job Profiles are in Default Order as expected After Refreshing the Job Profile History screen....");
+			PageObjectHelper.log(LOGGER, "Job Profiles are in Default Order as expected After Refreshing the Job Profile History screen....");
 		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail("Issue in Verifying Default order of Job Profiles after Refreshing Job Profile History screen...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Default order of Job Profiles after Refreshing Job Profile History screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_refresh_job_profile_history_screen_and_verify_job_profiles_are_in_default_order",
+				"Issue in Verifying Default order of Job Profiles after Refreshing Job Profile History screen", e);
 		}
 	}
 	
@@ -771,14 +666,10 @@ public class PO24_ValidatePublishCenter_PM {
 			PerformanceUtils.waitForPageReady(driver, 2);
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			
-			LOGGER.info("Clicked two times on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in descending order in Job Profile History screen");
-			ExtentCucumberAdapter.addTestStepLog("Clicked two times on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in descending order in Job Profile History screen");
+			PageObjectHelper.log(LOGGER, "Clicked two times on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in descending order in Job Profile History screen");
 		} catch (Exception e) {
-			LOGGER.error("Issue sorting NO. OF PROFILES descending - Method: sort_job_profiles_by_no_of_profiles_in_descending_order_in_job_profile_history_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("sort_no_of_profiles_descending", e);
-			e.printStackTrace();
-			Assert.fail("Issue in clicking on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in descending order in Job Profile History screen...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in descending order in Job Profile History screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_no_of_profiles_in_descending_order_in_job_profile_history_screen",
+				"Issue in clicking on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in descending order in Job Profile History screen", e);
 		}
 	}
 	
@@ -808,41 +699,30 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profile
 						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
 						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
 						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
-				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
 			}
 			
-			// ✅ VALIDATE DESCENDING ORDER
+			// VALIDATE DESCENDING ORDER
 			int sortViolations = 0;
 			for(int i = 0; i < profileCounts.size() - 1; i++) {
 				int current = profileCounts.get(i);
 				int next = profileCounts.get(i + 1);
 				if(current < next) {
 					sortViolations++;
-					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": " + current + " < " + next + " (NOT in Descending Order!)");
-					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Row " + (i + 1) + " (" + current + ") < Row " + (i + 2) + " (" + next + ")");
+					PageObjectHelper.log(LOGGER, "SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": " + current + " < " + next + " (NOT in Descending Order!)");
 				}
 			}
 			
 			if(sortViolations > 0) {
-				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted in Descending Order!";
-				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				String errorMsg = "SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted in Descending Order!";
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else {
-				LOGGER.info("✅ SORT VALIDATION PASSED: All " + profileCounts.size() + " Job Profiles are correctly sorted by NO. OF PROFILES in Descending Order");
-				ExtentCucumberAdapter.addTestStepLog("✅ Sorting validation PASSED - Data is correctly sorted in Descending Order");
+				PageObjectHelper.log(LOGGER, "SORT VALIDATION PASSED: All " + profileCounts.size() + " Job Profiles are correctly sorted by NO. OF PROFILES in Descending Order");
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error("Issue validating sorting - Method: user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_descending_order_in_job_profile_history_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_no_of_profiles_descending_sort", e);
-			e.printStackTrace();
-			Assert.fail("Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Descending Order...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Descending Order...Please Investigate!!!");			
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_descending_order_in_job_profile_history_screen",
+				"Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Descending Order", e);
 		}	
 	}
 	
@@ -859,12 +739,10 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profile
 			}
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			LOGGER.info("Clicked on ACCESSED DATE header to Sort Job Profiles by Accessed Date in ascending order in Job Profile History screen");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on ACCESSED DATE header to Sort Job Profiles by Accessed Date in ascending order in Job Profile History screen");
+			PageObjectHelper.log(LOGGER, "Clicked on ACCESSED DATE header to Sort Job Profiles by Accessed Date in ascending order in Job Profile History screen");
 		} catch (Exception e) {
-			e.printStackTrace();
-			Assert.fail("Issue in clicking on ACCESSED DATE header to Sort Job Profiles by Accessed Date in ascending order in Job Profile History screen...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on ACCESSED DATE header to Sort Job Profiles by Accessed Date in ascending order in Job Profile History screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_accessed_date_in_ascending_order_in_job_profile_history_screen",
+				"Issue in clicking on ACCESSED DATE header to Sort Job Profiles by Accessed Date in ascending order in Job Profile History screen", e);
 		}
 	}
 	
@@ -891,60 +769,45 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profile
 					LocalDate date = LocalDate.parse(dateText, formatter);
 					accessedDates.add(date);
 				} catch (Exception dateParseEx) {
-					LOGGER.warn("⚠ Unable to parse date: " + dateText + " at Row " + i + ". Skipping date validation for this row.");
+					LOGGER.warn("Unable to parse date: " + dateText + " at Row " + i + ". Skipping date validation for this row.");
 				}
 				
-				LOGGER.info(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
-				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+				PageObjectHelper.log(LOGGER, jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
 						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
 						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
 						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
 						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
 			}
 			
-			// ✅ VALIDATE ASCENDING ORDER (oldest to newest)
+			// VALIDATE ASCENDING ORDER (oldest to newest)
 			int sortViolations = 0;
 			for(int i = 0; i < accessedDates.size() - 1; i++) {
 				LocalDate current = accessedDates.get(i);
 				LocalDate next = accessedDates.get(i + 1);
 				if(current.isAfter(next)) {
 					sortViolations++;
-					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": " + current + " is AFTER " + next + " (NOT in Ascending Order!)");
-					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Row " + (i + 1) + " (" + current + ") > Row " + (i + 2) + " (" + next + ")");
+					PageObjectHelper.log(LOGGER, "SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": " + current + " is AFTER " + next + " (NOT in Ascending Order!)");
 				}
 			}
 			
 			if(sortViolations > 0) {
-				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted by ACCESSED DATE in Ascending Order!";
-				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				String errorMsg = "SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted by ACCESSED DATE in Ascending Order!";
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else {
-				LOGGER.info("✅ SORT VALIDATION PASSED: All " + accessedDates.size() + " Job Profiles are correctly sorted by ACCESSED DATE in Ascending Order");
-				ExtentCucumberAdapter.addTestStepLog("✅ Sorting validation PASSED - Data is correctly sorted by ACCESSED DATE in Ascending Order");
+				PageObjectHelper.log(LOGGER, "SORT VALIDATION PASSED: All " + accessedDates.size() + " Job Profiles are correctly sorted by ACCESSED DATE in Ascending Order");
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error("Issue validating sorting - Method: user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_ascending_order_in_job_profile_history_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_accessed_date_ascending_sort", e);
-			e.printStackTrace();
-			Assert.fail("Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Ascending Order...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Ascending Order...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_ascending_order_in_job_profile_history_screen",
+				"Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Ascending Order", e);
 		}	
 	}
 	
-	/**
-	 * Sorts job profiles by ACCESSED DATE in descending order (clicks header twice)
-	 * Enhanced with proper waits for HEADLESS MODE compatibility
-	 */
 	public void sort_job_profiles_by_accessed_date_in_descending_order_in_job_profile_history_screen() {
 		try {
 			// FIRST CLICK - Sort Ascending
-			LOGGER.info("First click on ACCESSED DATE header to sort ascending...");
+			PageObjectHelper.log(LOGGER, "First click on ACCESSED DATE header to sort ascending...");
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(jphHeader3)).click();
 			} catch (Exception e) {
@@ -983,14 +846,10 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profile
 			PerformanceUtils.waitForPageReady(driver, 2);
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			
-			LOGGER.info("Clicked two times on ACCESSED DATE header to Sort Job Profiles by Accessed Date in descending order in Job Profile History screen");
-			ExtentCucumberAdapter.addTestStepLog("Clicked two times on ACCESSED DATE header to Sort Job Profiles by Accessed Date in descending order in Job Profile History screen");
+			PageObjectHelper.log(LOGGER, "Clicked two times on ACCESSED DATE header to Sort Job Profiles by Accessed Date in descending order in Job Profile History screen");
 		} catch (Exception e) {
-			LOGGER.error("Issue sorting ACCESSED DATE descending - Method: sort_job_profiles_by_accessed_date_in_descending_order_in_job_profile_history_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("sort_accessed_date_descending", e);
-			e.printStackTrace();
-			Assert.fail("Issue in clicking on ACCESSED DATE header to Sort Job Profiles by Accessed Date in descending order in Job Profile History screen...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in clicking on ACCESSED DATE header to Sort Job Profiles by Accessed Date in descending order in Job Profile History screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_accessed_date_in_descending_order_in_job_profile_history_screen",
+				"Issue in clicking on ACCESSED DATE header to Sort Job Profiles by Accessed Date in descending order in Job Profile History screen", e);
 		}
 	}
 	
@@ -1018,49 +877,38 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date
 					LocalDate date = LocalDate.parse(dateText, formatter);
 					accessedDates.add(date);
 				} catch (Exception dateParseEx) {
-					LOGGER.warn("⚠ Unable to parse date: " + dateText + " at Row " + i + ". Skipping date validation for this row.");
+					LOGGER.warn("Unable to parse date: " + dateText + " at Row " + i + ". Skipping date validation for this row.");
 				}
 				
-				LOGGER.info(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
-						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
-						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
-						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
-						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
-				ExtentCucumberAdapter.addTestStepLog(jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
+				PageObjectHelper.log(LOGGER, jphHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText() + "   "
 						+ jphHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedBy.getText() + "   "
 						+ jphHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphAccessedDate.getText() + "   "
 						+ jphHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphActionTaken.getText() + "   "
 						+ jphHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphStatus.getText());
 			}
 			
-			// ✅ VALIDATE DESCENDING ORDER (newest to oldest)
+			// VALIDATE DESCENDING ORDER (newest to oldest)
 			int sortViolations = 0;
 			for(int i = 0; i < accessedDates.size() - 1; i++) {
 				LocalDate current = accessedDates.get(i);
 				LocalDate next = accessedDates.get(i + 1);
 				if(current.isBefore(next)) {
 					sortViolations++;
-					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": " + current + " is BEFORE " + next + " (NOT in Descending Order!)");
-					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Row " + (i + 1) + " (" + current + ") < Row " + (i + 2) + " (" + next + ")");
+					PageObjectHelper.log(LOGGER, "SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": " + current + " is BEFORE " + next + " (NOT in Descending Order!)");
 				}
 			}
 			
 			if(sortViolations > 0) {
-				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted by ACCESSED DATE in Descending Order!";
-				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				String errorMsg = "SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted by ACCESSED DATE in Descending Order!";
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else {
-				LOGGER.info("✅ SORT VALIDATION PASSED: All " + accessedDates.size() + " Job Profiles are correctly sorted by ACCESSED DATE in Descending Order");
-				ExtentCucumberAdapter.addTestStepLog("✅ Sorting validation PASSED - Data is correctly sorted by ACCESSED DATE in Descending Order");
+				PageObjectHelper.log(LOGGER, "SORT VALIDATION PASSED: All " + accessedDates.size() + " Job Profiles are correctly sorted by ACCESSED DATE in Descending Order");
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error("Issue validating sorting - Method: user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_descending_order_in_job_profile_history_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_accessed_date_descending_sort", e);
-			e.printStackTrace();
-			Assert.fail("Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Descending Order...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Descending Order...Please Investigate!!!");			
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_descending_order_in_job_profile_history_screen",
+				"Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Descending Order", e);			
 		}	
 	}
 	

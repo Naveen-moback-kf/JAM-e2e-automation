@@ -19,10 +19,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO23_VerifyProfileswithNoJobCode_PM {
 	WebDriver driver = DriverManager.getDriver();	
@@ -96,126 +95,138 @@ public class PO23_VerifyProfileswithNoJobCode_PM {
 	WebElement downloadBtn;
 	
 	//METHODs
-public void user_should_search_for_success_profile_with_no_job_code_assigned() {
-	try {
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		PerformanceUtils.waitForPageReady(driver, 2);
-		String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-		String[] resultsCountText_split = resultsCountText.split(" ");
-		for(int i = 1; i<=Integer.parseInt(resultsCountText_split[3]); i++) {
-			try {
-				rowNumber.set(i);;
-				WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*//..//div//kf-checkbox//div"));
-				js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
-				String text = SP_Checkbox.getAttribute("class");
-				if(text.contains("disable")) {
-					LOGGER.info("Success profile with No Job Code assigned is found....");
-					ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
-					noJobCode.set(true);
-					break;
-				}
-			} catch(Exception e) {
+	public void user_should_search_for_success_profile_with_no_job_code_assigned() {
+		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver, 3);
-			rowNumber.set(i);
-			WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*//..//div//kf-checkbox//div"));
-			js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
-			String text = SP_Checkbox.getAttribute("class");
-			if(text.contains("disable")) {
-				LOGGER.info("Success profile with No Job Code assigned is found....");
-				ExtentCucumberAdapter.addTestStepLog("Success profile with No Job Code assigned is found....");
-				noJobCode.set(true);
-					break;
+			PerformanceUtils.waitForPageReady(driver, 2);
+			String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
+			String[] resultsCountText_split = resultsCountText.split(" ");
+			int totalProfiles = Integer.parseInt(resultsCountText_split[3]);
+			
+			PageObjectHelper.log(LOGGER, "Searching through " + totalProfiles + " profiles for Success Profile with No Job Code...");
+			
+			for(int i = 1; i <= totalProfiles; i++) {
+				try {
+					rowNumber.set(i);
+					WebElement SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*//..//div//kf-checkbox//div"));
+					js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
+					String text = SP_Checkbox.getAttribute("class");
+					if(text.contains("disable")) {
+						PageObjectHelper.log(LOGGER, "Success profile with No Job Code assigned is found at row " + rowNumber.get());
+						noJobCode.set(true);
+						break;
+					}
+				} catch(Exception e) {
+					// Retry logic with explicit waits
+					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+					PerformanceUtils.waitForPageReady(driver, 3);
+					rowNumber.set(i);
+					WebElement SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*//..//div//kf-checkbox//div"));
+					js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
+					String text = SP_Checkbox.getAttribute("class");
+					if(text.contains("disable")) {
+						PageObjectHelper.log(LOGGER, "Success profile with No Job Code assigned is found at row " + rowNumber.get() + " (after retry)");
+						noJobCode.set(true);
+						break;
+					}
 				}
 			}
+			
+			if(!noJobCode.get()) {
+				PageObjectHelper.log(LOGGER, "No Success profile with No Job Code was found in the current results");
+			}
+			
+		} catch(Exception s) {
+			PageObjectHelper.handleError(LOGGER, "user_should_search_for_success_profile_with_no_job_code_assigned",
+				"Issue in searching for a Success profile with No Job Code assigned in HCM Sync Profiles screen in PM", s);
 		}
-	} catch(Exception s) {
-		LOGGER.error(" Issue searching for success profile with no job code - Method: user_should_search_for_success_profile_with_no_job_code_assigned", s);
-		ScreenshotHandler.captureFailureScreenshot("search_profile_no_job_code", s);
-		s.printStackTrace();
-		ExtentCucumberAdapter.addTestStepLog("Issue in searching for a Success profile with No Job Code assigned in HCM Sync Profiles screen in PM....Please Investigate!!!!");
-		Assert.fail("Issue in searching for a Success profile with No Job Code assigned in HCM Sync Profiles screen in PM....Please Investigate!!!!");
-	}
 	}
 	
 	public void user_should_verify_tooltip_is_displaying_on_checkbox_of_success_profile_with_no_job_code() {
 		if(noJobCode.get()) {
 			try {
-				if (rowNumber.get()==1) {
+				// Scroll to ensure element is visible
+				if (rowNumber.get() == 1) {
 					js.executeScript("arguments[0].scrollIntoView(true);", downloadBtn);
-				} else if(rowNumber.get()<5) {
-					WebElement	SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(1) + "]//td[1]//*"));
+				} else if(rowNumber.get() < 5) {
+					WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(1) + "]//td[1]//*"));
 					js.executeScript("arguments[0].scrollIntoView(true);", SP_JobName);
-				} else if(rowNumber.get()>5) {
-					WebElement	SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()-5) + "]//td[1]//*"));
+				} else if(rowNumber.get() > 5) {
+					WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()-5) + "]//td[1]//*"));
 					js.executeScript("arguments[0].scrollIntoView(true);", SP_JobName);
 				}
-				Actions action = new Actions(driver);
-				WebElement	SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*//..//div//kf-checkbox//div"));
-				action.moveToElement(SP_Checkbox).build().perform();
+				
+				// Perform hover action
+				WebElement SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*//..//div//kf-checkbox//div"));
+				
+				try {
+					// Try Actions first
+					Actions action = new Actions(driver);
+					action.moveToElement(SP_Checkbox).build().perform();
+				} catch(Exception e) {
+					// Fallback to JavaScript hover
+					js.executeScript("var evt = new MouseEvent('mouseover', {bubbles: true, cancelable: true, view: window}); arguments[0].dispatchEvent(evt);", SP_Checkbox);
+				}
+				
+				// Verify tooltip is displayed
 				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(noJobCodeToolTip)).isDisplayed());
-				String TipMessage = noJobCodeToolTip.getText();
-				LOGGER.info(TipMessage);
-			LOGGER.info("Tooltip on Checkbox of SP with No Job Code is verified Successfully");
-			ExtentCucumberAdapter.addTestStepLog(TipMessage);
-		} catch (Exception e) {
-			LOGGER.error(" Issue verifying tooltip on checkbox - Method: user_should_verify_tooltip_is_displaying_on_checkbox_of_success_profile_with_no_job_code", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_tooltip_no_job_code", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Tooltip on checkbox of Success profile with No Job Code assigned in HCM Sync Profiles screen in PM....Please Investigate!!!!");
-			Assert.fail("Issue in verifying Tooltip on checkbox of Success profile with No Job Code assigned in HCM Sync Profiles screen in PM....Please Investigate!!!!");
-		}
-			
+				String tipMessage = noJobCodeToolTip.getText();
+				
+				PageObjectHelper.log(LOGGER, "Tooltip verified on Checkbox of SP with No Job Code at row " + rowNumber.get());
+				PageObjectHelper.log(LOGGER, "Tooltip Message: " + tipMessage);
+				
+			} catch (Exception e) {
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_tooltip_is_displaying_on_checkbox_of_success_profile_with_no_job_code",
+					"Issue in verifying Tooltip on checkbox of Success profile with No Job Code assigned in HCM Sync Profiles screen in PM", e);
+			}
+		} else {
+			PageObjectHelper.log(LOGGER, "Skipping tooltip verification - No profile with No Job Code was found");
 		}
 	}
 	
 	public void verify_details_of_the_success_profile_with_no_job_code_assigned_in_hcm_sync_profiles_tab() {
 		if(noJobCode.get()) {
 			try {
-				if(rowNumber.get()>2) {
-					WebElement	SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()-2) + "]//td[1]//*"));
+				// Scroll to ensure element is visible (headless-compatible)
+				if(rowNumber.get() > 2) {
+					WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()-2) + "]//td[1]//*"));
 					js.executeScript("arguments[0].scrollIntoView(true);", SP_JobName);
-				} else if (rowNumber.get()==1) {
+				} else if (rowNumber.get() == 1) {
 					js.executeScript("arguments[0].scrollIntoView(true);", downloadBtn);
 				}
-				WebElement	SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*"));
+				
+				// Wait for page stability after scroll
+				PerformanceUtils.waitForPageReady(driver, 1);
+				
+				// Extract all profile details
+				WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[1]//*"));
 				js.executeScript("arguments[0].scrollIntoView(true);", SP_JobName);
-				SPJobName.set( SP_JobName.getText());
-				WebElement	SP_Status = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[2]//*"));
-				WebElement	SP_KFGrade = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[3]//*"));
-				WebElement	SP_Level = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[4]//*"));
-				WebElement	SP_Function = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[5]//*"));
-				WebElement	SP_CreatedBy = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[6]//*"));
-				WebElement	SP_LastModified = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[7]//*"));
-				WebElement	SP_ExportStatus = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[8]//*"));
-				LOGGER.info("Below are the details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM : \n "
+				SPJobName.set(SP_JobName.getText());
+				
+				WebElement SP_Status = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[2]//*"));
+				WebElement SP_KFGrade = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[3]//*"));
+				WebElement SP_Level = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[4]//*"));
+				WebElement SP_Function = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[5]//*"));
+				WebElement SP_CreatedBy = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[6]//*"));
+				WebElement SP_LastModified = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[7]//*"));
+				WebElement SP_ExportStatus = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//td[8]//*"));
+				
+				PageObjectHelper.log(LOGGER, "Below are the details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM (Row " + rowNumber.get() + "): \n "
 						+ tableHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobName.getText() + "   "
 						+ tableHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Status.getText() + "   "
 						+ tableHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_KFGrade.getText() + "   "
 						+ tableHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Level.getText() + "   "
-						+ tableHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Function.getText() + "  "
+						+ tableHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Function.getText() + "   "
 						+ tableHeader6.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_CreatedBy.getText() + "   "
-						+ tableHeader7.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_LastModified.getText() + "  "
-						+ tableHeader8.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_ExportStatus.getText() + "   ");
-				ExtentCucumberAdapter.addTestStepLog("Below are the details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM : \n "
-						+ tableHeader1.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobName.getText() + "   "
-						+ tableHeader2.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Status.getText() + "   "
-						+ tableHeader3.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_KFGrade.getText() + "   "
-						+ tableHeader4.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Level.getText() + "   "
-						+ tableHeader5.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Function.getText() + "  "
-						+ tableHeader6.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_CreatedBy.getText() + "   "
-					+ tableHeader7.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_LastModified.getText() + "  "
-					+ tableHeader8.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_ExportStatus.getText() + "   ");
-		} catch (Exception e) {
-			LOGGER.error(" Issue verifying profile details - Method: verify_details_of_the_success_profile_with_no_job_code_assigned_in_hcm_sync_profiles_tab", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_profile_details_no_job_code", e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM....Please Investigate!!!!");
-			Assert.fail("Issue in Verifying details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM....Please Investigate!!!!");
-		}
+						+ tableHeader7.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_LastModified.getText() + "   "
+						+ tableHeader8.getText().replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_ExportStatus.getText());
+						
+			} catch (Exception e) {
+				PageObjectHelper.handleError(LOGGER, "verify_details_of_the_success_profile_with_no_job_code_assigned_in_hcm_sync_profiles_tab",
+					"Issue in Verifying details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM", e);
+			}
 		} else {
-			LOGGER.info("Currently, Job Code has been assigned to all Success Profiles in HCM Sync Profiles screen in PM");
-			ExtentCucumberAdapter.addTestStepLog("Currently, Job Code has been assigned to all Success Profiles in HCM Sync Profiles screen in PM");
+			PageObjectHelper.log(LOGGER, "Currently, Job Code has been assigned to all Success Profiles in HCM Sync Profiles screen in PM");
 		}
 	}
 }

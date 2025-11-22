@@ -24,8 +24,8 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.SimpleErrorHandler;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 
 
@@ -146,21 +146,21 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 		try {
 			// Strategy 1: Standard WebDriver click
 			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
-			LOGGER.info("Clicked on {} using normal click", elementName);
+			PageObjectHelper.log(LOGGER, "Clicked on " + elementName + " using normal click");
 		} catch (ElementNotInteractableException | TimeoutException e1) {
 			try {
 				// Strategy 2: JavaScript click
 				js.executeScript("arguments[0].click();", element);
-				LOGGER.info("Clicked on {} using JavaScript click", elementName);
+				PageObjectHelper.log(LOGGER, "Clicked on " + elementName + " using JavaScript click");
 			} catch (Exception e2) {
 				try {
 					// Strategy 3: Utility click
 					utils.jsClick(driver, element);
-					LOGGER.info("Clicked on {} using utility click", elementName);
+					PageObjectHelper.log(LOGGER, "Clicked on " + elementName + " using utility click");
 							} catch (Exception e3) {
-				LOGGER.error("All click strategies failed for: {}", elementName);
+				LOGGER.error("All click strategies failed for: " + elementName);
 				// Capture screenshot for click failure
-				LOGGER.error("Enhanced click failed for element: {} - Method: performEnhancedClick", elementName, e3);
+				LOGGER.error("Enhanced click failed for element: " + elementName + " - Method: performEnhancedClick", e3);
 				e3.printStackTrace();
 				throw e3;
 			}
@@ -281,12 +281,12 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	}
 	
 	/**
+	 * DEPRECATED: Use PageObjectHelper.log() directly instead
 	 * Log and add to extent report
 	 * @param message Message to log
 	 */
 	private void logAndReport(String message) {
-		LOGGER.info(message);
-		ExtentCucumberAdapter.addTestStepLog(message);
+		PageObjectHelper.log(LOGGER, message);
 	}
 	
 
@@ -314,14 +314,14 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForUIStability(driver, 1);
 			
-				LOGGER.info("Page navigation detected - SP details page loaded");
+				PageObjectHelper.log(LOGGER, "Page navigation detected - SP details page loaded");
 				return true;
 				
 			} catch (Exception e) {
 				// Strategy 3: Check for URL change
 				String newUrl = driver.getCurrentUrl();
 				if (!currentUrl.equals(newUrl)) {
-					LOGGER.info("Page navigation detected - URL changed from {} to {}", currentUrl, newUrl);
+					PageObjectHelper.log(LOGGER, "Page navigation detected - URL changed from " + currentUrl + " to " + newUrl);
 					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 					return true;
 				}
@@ -329,7 +329,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 				// Strategy 4: Check for page title change
 				try {
 					wait.until(ExpectedConditions.not(ExpectedConditions.titleIs(driver.getTitle())));
-					LOGGER.info("Page navigation detected - Title changed");
+					PageObjectHelper.log(LOGGER, "Page navigation detected - Title changed");
 					return true;
 				} catch (Exception titleException) {
 					LOGGER.warn("No navigation detected - staying on same page");
@@ -384,14 +384,14 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			}
 			
 		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext(
-				"user_should_search_for_a_profile_with_export_status_as_not_exported", e, "Profile search in table");
+			PageObjectHelper.handleError(LOGGER, "user_should_search_for_a_profile_with_export_status_as_not_exported",
+				"Profile search in table", e);
 		} catch (NoSuchElementException e) {
-			SimpleErrorHandler.handleWithContext(
-				"user_should_search_for_a_profile_with_export_status_as_not_exported", e, "Table elements");
+			PageObjectHelper.handleError(LOGGER, "user_should_search_for_a_profile_with_export_status_as_not_exported",
+				"Table elements", e);
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext(
-				"user_should_search_for_a_profile_with_export_status_as_not_exported", e, "Profile search operation");
+			PageObjectHelper.handleError(LOGGER, "user_should_search_for_a_profile_with_export_status_as_not_exported",
+				"Profile search operation", e);
 		}
 	}
 	
@@ -444,11 +444,11 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			logAndReport(message);
 			
 		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext(
-				"verify_details_of_the_not_exported_success_profile_in_hcm_sync_profiles_tab", e, "Profile details verification");
+			PageObjectHelper.handleError(LOGGER, "verify_details_of_the_not_exported_success_profile_in_hcm_sync_profiles_tab",
+				"Profile details verification", e);
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext(
-				"verify_details_of_the_not_exported_success_profile_in_hcm_sync_profiles_tab", e, "Profile details operation");
+			PageObjectHelper.handleError(LOGGER, "verify_details_of_the_not_exported_success_profile_in_hcm_sync_profiles_tab",
+				"Profile details operation", e);
 		}
 	}
 	
@@ -492,17 +492,15 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			logAndReport("Checkbox of the SP with Name " + SPJobName.get() + " is Enabled and able to Perform Export Operation");
 			
 		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext(
-				"verify_success_profile_checkbox_is_enabled_and_able_to_perform_export_operation", e,
-				"Checkbox element for profile: " + SPJobName);
+			PageObjectHelper.handleError(LOGGER, "verify_success_profile_checkbox_is_enabled_and_able_to_perform_export_operation",
+				"Checkbox element for profile: " + SPJobName, e);
 		} catch (AssertionError e) {
-			SimpleErrorHandler.handleWithContext(
-				"verify_success_profile_checkbox_is_enabled_and_able_to_perform_export_operation", e,
-				"Checkbox verification for profile: " + SPJobName);
+			String errorMsg = "Checkbox verification for profile: " + SPJobName;
+			LOGGER.error(errorMsg + " - Method: verify_success_profile_checkbox_is_enabled_and_able_to_perform_export_operation", e);
+			throw new RuntimeException(errorMsg, e);
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext(
-				"verify_success_profile_checkbox_is_enabled_and_able_to_perform_export_operation", e,
-				"Checkbox operation for profile: " + SPJobName);
+			PageObjectHelper.handleError(LOGGER, "verify_success_profile_checkbox_is_enabled_and_able_to_perform_export_operation",
+				"Checkbox operation for profile: " + SPJobName, e);
 		}
 	}
 	
@@ -677,8 +675,7 @@ PerformanceUtils.waitForUIStability(driver, 1);
 			}
 			
 			if (clickSuccessful) {
-			LOGGER.info("Clicked on Recently Exported Success Profile with name : " + SPJobName.get() +" in HCM Sync Profiles screen in PM");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Recently Exported Success Profile with name : " + SPJobName.get() +" in HCM Sync Profiles screen in PM");
+			PageObjectHelper.log(LOGGER, "Clicked on Recently Exported Success Profile with name : " + SPJobName.get() +" in HCM Sync Profiles screen in PM");
 				
 				// Enhanced post-click navigation handling
 				boolean navigationSuccessful = waitForPageNavigation();
