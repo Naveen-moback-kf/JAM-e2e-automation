@@ -656,6 +656,9 @@ PerformanceUtils.waitForUIStability(driver, 1);
 		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", E_SP_JobName);
 		PerformanceUtils.waitForUIStability(driver, 1);
 		
+		// CRITICAL: Wait for any spinners before clicking
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		
 			// Enhanced click operation with multiple strategies
 			boolean clickSuccessful = false;
 			
@@ -676,6 +679,9 @@ PerformanceUtils.waitForUIStability(driver, 1);
 			
 			if (clickSuccessful) {
 			PageObjectHelper.log(LOGGER, "Clicked on Recently Exported Success Profile with name : " + SPJobName.get() +" in HCM Sync Profiles screen in PM");
+				
+				// CRITICAL: Wait for spinners after navigation
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 				
 				// Enhanced post-click navigation handling
 				boolean navigationSuccessful = waitForPageNavigation();

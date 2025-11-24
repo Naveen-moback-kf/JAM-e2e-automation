@@ -38,9 +38,7 @@ public class Runner09_PublishSelectedProfiles extends CustomizeTestNGCucumberRun
 
 	@Override
 	protected String resolveLoginTag() {
-		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info(" Using KFone login tag: " + loginTag);
-		return loginTag;
+		return DynamicTagResolver.getKFoneLoginTag();
 	}
 	
 	@AfterTest

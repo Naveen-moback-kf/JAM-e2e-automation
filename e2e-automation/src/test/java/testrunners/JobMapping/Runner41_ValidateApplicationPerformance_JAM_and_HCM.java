@@ -37,9 +37,7 @@ public class Runner41_ValidateApplicationPerformance_JAM_and_HCM extends Customi
 
 	@Override
 	protected String resolveLoginTag() {
-		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info(" Using KFone login tag: " + loginTag);
-		return loginTag;
+		return DynamicTagResolver.getKFoneLoginTag();
 	}
 
 	@AfterTest

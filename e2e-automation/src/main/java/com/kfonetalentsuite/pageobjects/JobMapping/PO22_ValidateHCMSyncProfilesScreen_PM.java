@@ -512,24 +512,32 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("Attempting to find a profile name that returns results...");
 			ExtentCucumberAdapter.addTestStepLog("Searching with dynamic profile name (with fallback retry until results found)...");
 			
+			int attemptNumber = 0;
 			for (String profileName : SEARCH_PROFILE_NAME_OPTIONS) {
 				try {
-					LOGGER.info("Trying profile name: '" + profileName + "'");
+					attemptNumber++;
+					LOGGER.info("🔍 Attempt #{}: Trying profile name: '{}'", attemptNumber, profileName);
 					
-				// Clear and enter profile name
-				wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).clear();
-				wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).sendKeys(profileName);
-				
-				// PERFORMANCE: Single comprehensive wait for search results
-				PerformanceUtils.waitForPageReady(driver, 5);
+					// Clear and enter profile name
+					wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).clear();
+					wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).sendKeys(profileName);
+					
+					// CRITICAL FIX: Press Enter to trigger search
+					hcmSyncProfilesSearchbar.sendKeys(Keys.ENTER);
+					
+					// CRITICAL: Wait for spinners after search entry before page ready check
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+					
+					// PERFORMANCE: Single comprehensive wait for search results
+					PerformanceUtils.waitForPageReady(driver, 5);
 					
 					// Check if results were found
 					String resultsCountText = "";
 					try {
 						resultsCountText = showingJobResultsCount.getText().trim();
-					LOGGER.info("   Search results: " + resultsCountText);
+						LOGGER.info("📊 Search results: {}", resultsCountText);
 					} catch (Exception e) {
-						LOGGER.info("   - No profiles found with string '" + profileName + "' (results element not found)");
+						LOGGER.info("⚠️  No profiles found with string '{}' (results element not found)", profileName);
 						LOGGER.info("   Looking for profiles with another string...");
 						continue; // Try next profile name
 					}
@@ -541,50 +549,51 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 							String firstRowText = shortWait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText();
 							String firstProfileName = firstRowText.split("-", 2)[0].trim();
 							
-							LOGGER.info("   First result profile name: '" + firstProfileName + "'");
+							LOGGER.info("📝 First result profile name: '{}'", firstProfileName);
 							
 							if (firstProfileName.toLowerCase().contains(profileName.toLowerCase())) {
-							// Perfect match! First result contains the search term
-							selectedProfileName = profileName;
-							jobProfileName.set(profileName); // Update ThreadLocal variable for other methods to use
-							foundResults = true;
+								// Perfect match! First result contains the search term
+								selectedProfileName = profileName;
+								jobProfileName.set(profileName); // Update ThreadLocal variable for other methods to use
+								foundResults = true;
 								
-								LOGGER.info(" Found matching result with profile name: '" + profileName + "'");
-								LOGGER.info("   First profile: '" + firstProfileName + "' contains search term");
-								LOGGER.info("   Results: " + resultsCountText);
-								ExtentCucumberAdapter.addTestStepLog(" Search successful with profile name '" + profileName + "' - " + resultsCountText);
+								LOGGER.info("✅ Found matching result with profile name: '{}'", profileName);
+								LOGGER.info("   First profile: '{}' contains search term", firstProfileName);
+								LOGGER.info("   Results: {}", resultsCountText);
+								ExtentCucumberAdapter.addTestStepLog("✅ Search successful with profile name '" + profileName + "' - " + resultsCountText);
 								break; // Stop trying other profile names
 							} else {
-								LOGGER.info("   - First result '" + firstProfileName + "' does NOT contain search term '" + profileName + "'");
+								LOGGER.info("⚠️  First result '{}' does NOT contain search term '{}'", firstProfileName, profileName);
 								LOGGER.info("   Looking for profiles with another string...");
 							}
 						} catch (Exception e) {
-							LOGGER.info("   - Could not verify first result, trying next search term...");
+							LOGGER.info("⚠️  Could not verify first result, trying next search term...");
 						}
 					} else {
-						LOGGER.info("   - No profiles found with string '" + profileName + "' (0 results)");
+						LOGGER.info("⚠️  No profiles found with string '{}' (0 results)", profileName);
 						LOGGER.info("   Looking for profiles with another string...");
 					}
 					
 				} catch (Exception e) {
-					LOGGER.info("   - Error searching with '" + profileName + "', trying next...");
+					LOGGER.warn("❌ Error searching with '{}': {}", profileName, e.getMessage());
+					LOGGER.info("   Trying next profile name...");
 					// Continue to next profile name
 				}
 			}
 			
 			if (!foundResults) {
 				// All profile names exhausted, use the last one
-				LOGGER.warn(" All search profile names exhausted without finding results");
-				LOGGER.warn("   Proceeding with last profile name: '" + selectedProfileName + "'");
-				ExtentCucumberAdapter.addTestStepLog(" No profile name returned results. Using: '" + selectedProfileName + "'");
+				LOGGER.warn("⚠️  All search profile names exhausted without finding results");
+				LOGGER.warn("   Proceeding with last profile name: '{}'", selectedProfileName);
+				ExtentCucumberAdapter.addTestStepLog("⚠️ No profile name returned results. Using: '" + selectedProfileName + "'");
 			}
 			
-		LOGGER.info("========================================");
-		LOGGER.info("Final selected profile name: '" + jobProfileName.get() + "'");
-		LOGGER.info("========================================");
+			LOGGER.info("========================================");
+			LOGGER.info("✅ Final selected profile name: '{}'", jobProfileName.get());
+			LOGGER.info("========================================");
 			
 		} catch (Exception e) {
-			LOGGER.error(" Issue entering job profile name in search bar - Method: enter_job_profile_name_in_search_bar_in_hcm_sync_profiles_tab", e);
+			LOGGER.error("❌ Issue entering job profile name in search bar - Method: enter_job_profile_name_in_search_bar_in_hcm_sync_profiles_tab", e);
 			e.printStackTrace();
 			Assert.fail("Issue in entering Job Profile Name in Search bar in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in entering Job Profile Name in Search bar in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -737,11 +746,13 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			
 			// PARALLEL EXECUTION FIX: Wait for element to be present in DOM (avoid stale element)
 			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
+			
 			WebElement searchBar = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
 				By.xpath("//input[@type='search']")));
 			
 			// Wait for element visibility
 			searchBar = extendedWait.until(ExpectedConditions.visibilityOf(searchBar));
+			
 			Assert.assertTrue(searchBar.isDisplayed(), "Search bar not visible in HCM Sync Profiles screen");
 			
 			// HEADLESS FIX: Use 'auto' instead of 'smooth' for instant scroll in headless mode
@@ -783,6 +794,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				js.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", searchBar);
 				js.executeScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", searchBar);
 			}
+			
+			// CRITICAL HEADLESS FIX: Wait for spinners after clearing search - triggers data reload
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			
 			// PERFORMANCE: Single comprehensive wait after clearing
 			PerformanceUtils.waitForPageReady(driver, 5);
@@ -850,6 +864,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void scroll_page_to_view_more_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
 			headlessActions.scrollToBottom();
+			// CRITICAL: Wait for spinners after scroll before page ready check
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			// PERFORMANCE: Single comprehensive wait after scroll
 			PerformanceUtils.waitForPageReady(driver, 5);
 			LOGGER.info("Scrolled page down to view more job profiles in HCM Sync Profiles screen in PM");
@@ -865,6 +881,9 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	public void user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table_in_hcm_sync_profiles_tab() {
 		try {
 			js.executeScript("arguments[0].scrollIntoView(true);", hcmSyncProfilesTitle);
+			
+			// CRITICAL: Wait for spinners to disappear first after scrolling
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			
 			// PARALLEL EXECUTION FIX: Extended wait for page readiness after scrolling
 			PerformanceUtils.waitForPageReady(driver, 5);
@@ -1012,51 +1031,158 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	}
 	
 	public void verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab() {
-		// PERFORMANCE: Wait for dropdown to be visible
-		wait.until(ExpectedConditions.visibilityOf(filterOptions));
+		long startTime = System.currentTimeMillis();
+		int maxRetries = 3;
 		
 		try {
-			// STALE ELEMENT FIX: Re-locate elements dynamically to avoid cached stale references
-			WebElement option1 = driver.findElement(By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][1]//span//div"));
-			WebElement option2 = driver.findElement(By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][2]//span//div"));
-			WebElement option3 = driver.findElement(By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div"));
+			LOGGER.info("═══════════════════════════════════════════════════════════");
+			LOGGER.info("🔍 DEBUG: Verify Filter Options in HCM Sync Profiles");
+			LOGGER.info("═══════════════════════════════════════════════════════════");
+			LOGGER.info("🧵 Thread: " + Thread.currentThread().getName() + " (ID: " + Thread.currentThread().getId() + ")");
 			
-			String filterOption1Text = wait.until(ExpectedConditions.visibilityOf(option1)).getText();
-			Assert.assertEquals(filterOption1Text, "KF Grade");
-			String filterOption2Text = wait.until(ExpectedConditions.visibilityOf(option2)).getText();
-			Assert.assertEquals(filterOption2Text, "Levels");
-			String filterOption3Text = wait.until(ExpectedConditions.visibilityOf(option3)).getText();
-			Assert.assertEquals(filterOption3Text, "Functions / Subfunctions");
-			LOGGER.info("Options inside Filters dropdown verified successfully in HCM Sync Profiles screen in PM");
+			// PERFORMANCE: Wait for dropdown to be visible
+			long stepStart = System.currentTimeMillis();
+			wait.until(ExpectedConditions.visibilityOf(filterOptions));
+			LOGGER.info("✅ Filter dropdown visible after " + (System.currentTimeMillis() - stepStart) + "ms");
+			
+			// Wait for spinners to ensure page is stable
+			stepStart = System.currentTimeMillis();
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			long spinnerWait = System.currentTimeMillis() - stepStart;
+			if (spinnerWait > 1000) {
+				LOGGER.info("⏱️  Spinner wait: " + spinnerWait + "ms");
+			}
+			
+			// PARALLEL EXECUTION FIX: Verify filter options with retry mechanism for stale elements
+			String filterOption1Text = "";
+			String filterOption2Text = "";
+			String filterOption3Text = "";
+			
+			for (int attempt = 1; attempt <= maxRetries; attempt++) {
+				try {
+					LOGGER.info("🔄 Attempt " + attempt + " to read filter options...");
+					
+					// Use visibilityOfElementLocated instead of visibilityOf to avoid stale references
+					filterOption1Text = wait.until(ExpectedConditions.visibilityOfElementLocated(
+						By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][1]//span//div"))).getText();
+					LOGGER.info("   - Option 1: '" + filterOption1Text + "'");
+					
+					filterOption2Text = wait.until(ExpectedConditions.visibilityOfElementLocated(
+						By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][2]//span//div"))).getText();
+					LOGGER.info("   - Option 2: '" + filterOption2Text + "'");
+					
+					filterOption3Text = wait.until(ExpectedConditions.visibilityOfElementLocated(
+						By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div"))).getText();
+					LOGGER.info("   - Option 3: '" + filterOption3Text + "'");
+					
+					// If we got here, all reads were successful
+					LOGGER.info("✅ Successfully read all filter options on attempt " + attempt);
+					break;
+					
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					if (attempt < maxRetries) {
+						LOGGER.warn("⚠️  Stale element on attempt " + attempt + ", retrying...");
+						Thread.sleep(300);
+					} else {
+						LOGGER.error("❌ Failed after " + maxRetries + " attempts due to stale elements");
+						throw e;
+					}
+				}
+			}
+			
+			// Verify the text values
+			Assert.assertEquals(filterOption1Text, "KF Grade", "Option 1 should be 'KF Grade'");
+			Assert.assertEquals(filterOption2Text, "Levels", "Option 2 should be 'Levels'");
+			Assert.assertEquals(filterOption3Text, "Functions / Subfunctions", "Option 3 should be 'Functions / Subfunctions'");
+			
+			LOGGER.info("✅ Filter options verified successfully");
 			ExtentCucumberAdapter.addTestStepLog("Options inside Filters dropdown verified successfully in HCM Sync Profiles screen in PM");
+			
 		} catch (Exception e) {
-			LOGGER.error(" Issue verifying filter options - Method: verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab", e);
+			long totalDuration = System.currentTimeMillis() - startTime;
+			LOGGER.error("═══════════════════════════════════════════════════════════");
+			LOGGER.error("❌ Filter Options Verification FAILED after " + totalDuration + "ms");
+			LOGGER.error("🧵 Thread: " + Thread.currentThread().getName());
+			LOGGER.error("💥 Error: " + e.getMessage());
+			LOGGER.error("═══════════════════════════════════════════════════════════");
 			e.printStackTrace();
 			Assert.fail("Issue in verifying Options inside Filter dropdown in HCM Sync Profiles screen in PM....Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Options inside Filter dropdown in HCM Sync Profiles screen in PM....Please Investigate!!!");
 		}
 		
+		// Verify Functions/Subfunctions search bar
 		try {
-			// STALE ELEMENT FIX: Re-locate option3 for clicking
-			WebElement option3ToClick = driver.findElement(By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div"));
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(option3ToClick)).click();
-			} catch (Exception e) {
+			LOGGER.info("🔍 Verifying Functions/Subfunctions search bar...");
+			
+			// PARALLEL EXECUTION FIX: Click with retry for stale elements
+			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
-					js.executeScript("arguments[0].click();", option3ToClick);
-				} catch (Exception s) {
-					utils.jsClick(driver, option3ToClick);
+					long stepStart = System.currentTimeMillis();
+					
+					// Use elementToBeClickable with locator instead of element
+					WebElement option3ToClick = wait.until(ExpectedConditions.elementToBeClickable(
+						By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div")));
+					
+					try {
+						option3ToClick.click();
+						LOGGER.info("✅ Clicked option 3 using WebDriver click in " + (System.currentTimeMillis() - stepStart) + "ms");
+					} catch (Exception e) {
+						LOGGER.warn("⚠️  WebDriver click failed, trying JavaScript...");
+						try {
+							js.executeScript("arguments[0].click();", option3ToClick);
+							LOGGER.info("✅ Clicked option 3 using JavaScript click");
+						} catch (Exception s) {
+							LOGGER.warn("⚠️  JavaScript click failed, trying utility click...");
+							utils.jsClick(driver, option3ToClick);
+							LOGGER.info("✅ Clicked option 3 using utility click");
+						}
+					}
+					
+					// If we got here, click was successful
+					break;
+					
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					if (attempt < maxRetries) {
+						LOGGER.warn("⚠️  Stale element on click attempt " + attempt + ", retrying...");
+						Thread.sleep(300);
+					} else {
+						throw e;
+					}
 				}
 			}
 			
-			// STALE ELEMENT FIX: Re-locate search bar
-			WebElement searchBar = driver.findElement(By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//input"));
-			wait.until(ExpectedConditions.visibilityOf(searchBar));
-			searchBar.click();
+			// PARALLEL EXECUTION FIX: Verify search bar with retry
+			for (int attempt = 1; attempt <= maxRetries; attempt++) {
+				try {
+					long stepStart = System.currentTimeMillis();
+					
+					WebElement searchBar = wait.until(ExpectedConditions.visibilityOfElementLocated(
+						By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//input")));
+					searchBar.click();
+					
+					LOGGER.info("✅ Search bar verified and clicked in " + (System.currentTimeMillis() - stepStart) + "ms");
+					break;
+					
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					if (attempt < maxRetries) {
+						LOGGER.warn("⚠️  Stale element on search bar attempt " + attempt + ", retrying...");
+						Thread.sleep(300);
+					} else {
+						throw e;
+					}
+				}
+			}
+			
 			LOGGER.info("Search bar inside Functions / Subfunctions filter option is available and is clickable in HCM Sync Profiles screen in PM...");
 			ExtentCucumberAdapter.addTestStepLog("Search bar inside Functions / Subfunctions filter option is available and is clickable in HCM Sync Profiles screen in PM...");
+			
 		} catch (Exception e) {
-			LOGGER.error(" Issue verifying search bar in filter option - Method: verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab", e);
+			long totalDuration = System.currentTimeMillis() - startTime;
+			LOGGER.error("═══════════════════════════════════════════════════════════");
+			LOGGER.error("❌ Search Bar Verification FAILED after " + totalDuration + "ms");
+			LOGGER.error("🧵 Thread: " + Thread.currentThread().getName());
+			LOGGER.error("💥 Error: " + e.getMessage());
+			LOGGER.error("═══════════════════════════════════════════════════════════");
 			e.printStackTrace();
 			Assert.fail("Issue in verifying Search bar inside Functions / Subfunctions filter option in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Search bar inside Functions / Subfunctions filter option in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1064,16 +1190,37 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		
 		// Close the dropdown after verification to ensure clean state for next scenario
 		try {
-			// STALE ELEMENT FIX: Re-locate filterOptions for visibility check
-			WebElement filterOptionsElement = driver.findElement(By.xpath("//*[@class='accordion']"));
-			if (filterOptionsElement.isDisplayed()) {
-				utils.jsClick(driver, filtersDropdownBtn);
-				wait.until(ExpectedConditions.invisibilityOf(filterOptionsElement));
-				LOGGER.info("Closed Filters dropdown after verification in HCM Sync Profiles screen");
-				ExtentCucumberAdapter.addTestStepLog("Closed Filters dropdown after verification");
+			LOGGER.info("🔍 Closing filters dropdown...");
+			
+			// PARALLEL EXECUTION FIX: Check visibility with retry
+			for (int attempt = 1; attempt <= maxRetries; attempt++) {
+				try {
+					WebElement filterOptionsElement = driver.findElement(By.xpath("//*[@class='accordion']"));
+					if (filterOptionsElement.isDisplayed()) {
+						utils.jsClick(driver, filtersDropdownBtn);
+						wait.until(ExpectedConditions.invisibilityOf(filterOptionsElement));
+						LOGGER.info("✅ Closed Filters dropdown after verification");
+						ExtentCucumberAdapter.addTestStepLog("Closed Filters dropdown after verification");
+					}
+					break;
+					
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					if (attempt < maxRetries) {
+						LOGGER.warn("⚠️  Stale element on close attempt " + attempt + ", retrying...");
+						Thread.sleep(300);
+					} else {
+						LOGGER.warn("⚠️  Could not close filters dropdown after " + maxRetries + " attempts: " + e.getMessage());
+					}
+				}
 			}
+			
+			long totalDuration = System.currentTimeMillis() - startTime;
+			LOGGER.info("═══════════════════════════════════════════════════════════");
+			LOGGER.info("✅ Filter Options Verification COMPLETED in " + totalDuration + "ms");
+			LOGGER.info("═══════════════════════════════════════════════════════════");
+			
 		} catch (Exception e) {
-			LOGGER.warn(" Could not close filters dropdown after verification: " + e.getMessage());
+			LOGGER.warn("⚠️  Could not close filters dropdown after verification: " + e.getMessage());
 		}
 	}
 	
@@ -1328,9 +1475,17 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				}
 			} else {
 				// There are results, verify count changed
-				PerformanceUtils.waitForElement(driver, showingJobResultsCount);
-			String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-			Assert.assertNotEquals(intialResultsCount.get(), resultsCountText2);
+				// PARALLEL EXECUTION FIX: Add spinner wait before checking count
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+				PerformanceUtils.waitForPageReady(driver, 5);
+				
+				// PARALLEL EXECUTION FIX: Use locator-based wait to avoid stale element
+				String resultsCountText2 = wait.until(ExpectedConditions.visibilityOfElementLocated(
+					By.xpath("//div[contains(text(),'Showing')]"))).getText();
+					
+				Assert.assertNotEquals(intialResultsCount.get(), resultsCountText2,
+					"Results count should change after applying Levels filter");
+					
 			if (!resultsCountText2.equals(intialResultsCount.get())) {
 				LOGGER.info("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Levels Filters in HCM Sync Profiles screen in PM");
 				ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText2 + " as expected after applying Levels Filters in HCM Sync Profiles screen in PM");	

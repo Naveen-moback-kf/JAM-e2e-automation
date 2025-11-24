@@ -58,7 +58,6 @@ public class ProgressBarUtil {
         completedRunners = 0;
         
         // Display initial progress bar
-        logWithProgress(" Starting test suite execution with {} runners", totalRunners);
         displayProgressBar("Initializing...", false);
     }
     

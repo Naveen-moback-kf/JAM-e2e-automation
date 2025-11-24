@@ -200,40 +200,104 @@ public class PO03_ValidateJobmappingHeaderSection {
 	}
 
 	public void navigate_to_job_mapping_page_from_kfone_global_menu() {
-		try {
+		int maxRetries = 2;
+		boolean navigationSuccess = false;
+		
+		for (int attempt = 1; attempt <= maxRetries && !navigationSuccess; attempt++) {
+			try {
+			if (attempt > 1) {
+				LOGGER.warn("Retry attempt {}/{} - Refreshing browser before retrying navigation", attempt, maxRetries);
+				driver.navigate().refresh();
+				
+				// Wait for page to be ready after refresh - use longer waits for stability
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 20);
+				PerformanceUtils.waitForPageReady(driver, 5);
+				PerformanceUtils.waitForUIStability(driver, 3);
+				
+				// Add explicit sleep to ensure page is fully interactive
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+				}
+				
+				LOGGER.info("Page refreshed and ready for retry");
+			}
+			
+			// Wait for any spinners before starting navigation
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PerformanceUtils.waitForPageReady(driver, 2);
 
-			// Click on KFONE Global Menu button
+			// Click on KFONE Global Menu button - use By locator to avoid stale element
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(KfoneMenu)).click();
-			} catch (Exception e) {
+				// Use By.xpath to find fresh element every time
+				By kfoneMenuLocator = By.xpath("//button[@id='global-nav-menu-btn']");
+				WebElement menuButton = wait.until(ExpectedConditions.elementToBeClickable(kfoneMenuLocator));
+				
 				try {
-					js.executeScript("arguments[0].click();", KfoneMenu);
-				} catch (Exception s) {
-					utils.jsClick(driver, KfoneMenu);
+					menuButton.click();
+					LOGGER.info("Clicked KFONE Global Menu button using regular click");
+				} catch (Exception e) {
+					// Re-find fresh element for JS click
+					menuButton = wait.until(ExpectedConditions.elementToBeClickable(kfoneMenuLocator));
+					js.executeScript("arguments[0].click();", menuButton);
+					LOGGER.info("Clicked KFONE Global Menu button using JavaScript");
+				}
+				
+				// Wait for menu to open
+				PerformanceUtils.waitForUIStability(driver, 1);
+				
+			} catch (Exception e) {
+				LOGGER.warn("Failed to click KFONE Global Menu button on attempt {}/{}: {}", attempt, maxRetries, e.getMessage());
+				if (attempt < maxRetries) {
+					continue;
+				} else {
+					throw new RuntimeException("KFONE Global Menu button not clickable after " + maxRetries + " attempts");
 				}
 			}
 
-			PerformanceUtils.waitForPageReady(driver, 1);
+				PerformanceUtils.waitForPageReady(driver, 1);
 
-			// Click on Job Mapping button in the menu
+			// Click on Job Mapping button in the menu - use By locator to avoid stale element
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(KfoneMenuJAMBtn)).click();
+				// Use By.xpath to find fresh element every time
+				By jamButtonLocator = By.xpath("//button[@aria-label='Job Mapping']");
+				WebElement jamButton = wait.until(ExpectedConditions.elementToBeClickable(jamButtonLocator));
+				jamButton.click();
+				navigationSuccess = true;
+				LOGGER.info("Successfully clicked Job Mapping button");
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", KfoneMenuJAMBtn);
+					// Re-find fresh element for JS click
+					By jamButtonLocator = By.xpath("//button[@aria-label='Job Mapping']");
+					WebElement jamButton = wait.until(ExpectedConditions.elementToBeClickable(jamButtonLocator));
+					js.executeScript("arguments[0].click();", jamButton);
+					navigationSuccess = true;
+					LOGGER.info("Successfully clicked Job Mapping button using JavaScript");
 				} catch (Exception s) {
-					utils.jsClick(driver, KfoneMenuJAMBtn);
+					if (attempt < maxRetries) {
+						LOGGER.warn("Job Mapping button not found on attempt {}/{}", attempt, maxRetries);
+						continue;
+					} else {
+						throw new RuntimeException("Job Mapping button not found after " + maxRetries + " attempts with browser refresh");
+					}
 				}
 			}
 
-		// Wait for navigation to complete
-		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-		PerformanceUtils.waitForPageReady(driver, 2);
-		PageObjectHelper.log(LOGGER, "Successfully Navigated to Job Mapping screen");
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "navigate_to_job_mapping_page_from_kfone_global_menu",
-					"Failed to navigate to Job Mapping page from KFONE Global Menu", e);
+				// Wait for navigation to complete
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.log(LOGGER, "Successfully Navigated to Job Mapping screen");
+				
+			} catch (Exception e) {
+				if (attempt < maxRetries) {
+					LOGGER.warn("Navigation attempt {}/{} failed: {}", attempt, maxRetries, e.getMessage());
+				} else {
+					PageObjectHelper.handleError(LOGGER, "navigate_to_job_mapping_page_from_kfone_global_menu",
+							"Failed to navigate to Job Mapping page from KFONE Global Menu after " + maxRetries + " attempts", e);
+					throw new RuntimeException("Failed to navigate to Job Mapping page after " + maxRetries + " attempts with browser refresh", e);
+				}
+			}
 		}
 	}
 
@@ -270,7 +334,8 @@ public class PO03_ValidateJobmappingHeaderSection {
 
 	public void verify_user_navigated_to_kfone_clients_page() {
 	try {
-		// Wait for spinner to disappear and page to load
+		// CRITICAL: Wait for spinner to disappear and page to load
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		// OPTIMIZED: Single comprehensive wait
 		PerformanceUtils.waitForPageReady(driver, 5);
 

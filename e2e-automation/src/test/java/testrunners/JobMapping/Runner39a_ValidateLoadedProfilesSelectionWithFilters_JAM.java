@@ -37,9 +37,7 @@ public class Runner39a_ValidateLoadedProfilesSelectionWithFilters_JAM extends Cu
 
 	@Override
 	protected String resolveLoginTag() {
-		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info(" Using KFone login tag: " + loginTag);
-		return loginTag;
+		return DynamicTagResolver.getKFoneLoginTag();
 	}
 
 	@AfterTest

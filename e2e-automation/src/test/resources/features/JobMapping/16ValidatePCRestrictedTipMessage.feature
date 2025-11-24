@@ -7,7 +7,7 @@ Feature: Validate Profile Collections Restricted Tip Message in Job Mapping UI
   Scenario: Navigate to User Admin Module Dashboard
     Then Skip scenario if user is not KF Super User
     When User is on Profile Manager page
-    Then Navigate to System Configuration Page form KFONE Global Menu
+    Then Navigate to System Configuration Page from KFONE Global Menu
     Then Click on User Admin Module button
     Then User should be landed on Clients Dashboard page
 
@@ -88,7 +88,7 @@ Feature: Validate Profile Collections Restricted Tip Message in Job Mapping UI
  @Navigate_To_Job_Mapping
   Scenario: Navigate to Job Mapping page
   	Then Skip scenario if user is not KF Super User
-    Then Navigate to Job Mapping page from KFONE Global Menu in PM
+    Then Navigate to Job Mapping page from KFONE Global Menu
     Then User should be landed on Job Mapping page
 
   @Verify_PC_Restricted_Tip_Message
@@ -99,8 +99,8 @@ Feature: Validate Profile Collections Restricted Tip Message in Job Mapping UI
   @Navigate_to_UAM
   Scenario: Navigate to User Admin Module Dashboard
     Then Skip scenario if user is not KF Super User
-    When User is on Profile Manager page
-    Then Navigate to System Configuration Page form KFONE Global Menu
+    When User is in Job Mapping page
+    Then Navigate to System Configuration Page from KFONE Global Menu
     Then Click on User Admin Module button
     Then User should be landed on Clients Dashboard page
 

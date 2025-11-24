@@ -37,9 +37,7 @@ public class Runner17_ValidateSortingFunctionality_JAM extends CustomizeTestNGCu
 	
 	@Override
 	protected String resolveLoginTag() {
-		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info(" Using KFone login tag: " + loginTag);
-		return loginTag;
+		return DynamicTagResolver.getKFoneLoginTag();
 	}
 
 	@AfterTest

@@ -2,6 +2,7 @@ package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.logging.log4j.LogManager;
@@ -295,15 +296,27 @@ public class PO01_KFoneLogin {
 
 	public void verify_the_kfone_landing_page() {
 		try {
-			// OPTIMIZED: Check if proceedBtn exists before waiting (instant if not present)
-			if (!driver.findElements(By.xpath("//*[text()='Proceed']")).isEmpty()) {
-				try {
-					WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-					shortWait.until(ExpectedConditions.elementToBeClickable(proceedBtn)).click();
-					PageObjectHelper.log(LOGGER, "Accepted KFONE terms and conditions");
-				} catch (NoSuchElementException | TimeoutException e) {
-					// Terms popup appeared but couldn't be clicked - continue
+			// PARALLEL EXECUTION FIX: Disable implicit wait for quick check
+			try {
+				driver.manage().timeouts().implicitlyWait(Duration.ZERO);
+				
+				// OPTIMIZED: Check if proceedBtn exists before waiting (instant if not present)
+				List<WebElement> proceedButtons = driver.findElements(By.xpath("//*[text()='Proceed']"));
+				
+				if (!proceedButtons.isEmpty()) {
+					driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20)); // Restore for click
+					try {
+						WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+						shortWait.until(ExpectedConditions.elementToBeClickable(proceedBtn)).click();
+						PageObjectHelper.log(LOGGER, "Accepted KFONE terms and conditions");
+					} catch (NoSuchElementException | TimeoutException e) {
+						// Terms popup appeared but couldn't be clicked - continue
+						LOGGER.debug("Proceed button detected but couldn't be clicked: " + e.getMessage());
+					}
 				}
+			} finally {
+				// Always restore implicit wait
+				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
 			}
 
 			// PERFORMANCE: Single comprehensive wait replaces redundant spinner + page load waits
@@ -320,7 +333,6 @@ public class PO01_KFoneLogin {
 			
 			// SESSION MANAGEMENT: Mark session as authenticated after successful login
 			SessionManager.markAuthenticated();
-			LOGGER.info("✅ Session marked as authenticated after successful login");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_the_kfone_landing_page",
 					"Issue in verifying KFONE landing page after login", e);
@@ -330,19 +342,15 @@ public class PO01_KFoneLogin {
 
 	public void verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub() {
 		try {
-			// OPTIMIZED: Single efficient wait with faster retry logic
-			int maxRetries = 2; // Reduced from 3
+			int maxRetries = 2;
 			boolean pmHeaderFound = false;
 
 			for (int retry = 1; retry <= maxRetries && !pmHeaderFound; retry++) {
 				try {
-					// OPTIMIZED: Reduced timeout from 30s to 10s
 					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(15));
-
-					// OPTIMIZED: Single comprehensive wait (removed redundancy)
 					PerformanceUtils.waitForPageReady(driver, 5);
 
-					// Check if PM Header is visible (with 10s max wait)
+					// Check if PM Header is visible
 					if (shortWait.until(ExpectedConditions.visibilityOf(PMHeader)).isDisplayed()) {
 						pmHeaderFound = true;
 						String MainHeader = PMHeader.getText();
@@ -353,9 +361,9 @@ public class PO01_KFoneLogin {
 
 				} catch (Exception retryEx) {
 					if (retry < maxRetries) {
-						LOGGER.warn("Attempt {}/{} failed - retrying...", retry, maxRetries);
-//						driver.navigate().refresh();
-						PerformanceUtils.waitForPageReady(driver, 3); // Quick refresh wait
+						LOGGER.warn("Blank page detected (attempt {}/{}) - refreshing page...", retry, maxRetries);
+						driver.navigate().refresh();
+						PerformanceUtils.waitForPageReady(driver, 5); // Wait after refresh
 					}
 				}
 			}
@@ -422,8 +430,33 @@ public class PO01_KFoneLogin {
 	public void verify_products_that_client_can_access() {
 		try {
 			String targetPamsId = CommonVariable.TARGET_PAMS_ID;
+			
+			// CRITICAL: Ensure we're on the clients page before proceeding
+			try {
+				String currentUrl = (String) js.executeScript("return window.location.href;");
+				LOGGER.info("📍 Verifying products on page: " + currentUrl);
+				
+				if (!currentUrl.contains("/client")) {
+					LOGGER.error("❌ Not on clients page! Current URL: " + currentUrl);
+					throw new RuntimeException("Cannot verify products: Not on clients page. URL: " + currentUrl);
+				}
+			} catch (ClassCastException e) {
+				// Fallback if JS returns null
+				String currentUrl = driver.getCurrentUrl();
+				if (!currentUrl.contains("/client")) {
+					throw new RuntimeException("Cannot verify products: Not on clients page. URL: " + currentUrl);
+				}
+			}
 
-			wait.until(ExpectedConditions.visibilityOf(clientsTableBody)).isDisplayed();
+			// Wait for table with extended timeout and retry logic
+			WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(45));
+			try {
+				extendedWait.until(ExpectedConditions.visibilityOf(clientsTableBody)).isDisplayed();
+			} catch (Exception e) {
+				LOGGER.warn("⚠️  First attempt to find clients table failed, retrying...");
+				Thread.sleep(2000);
+				wait.until(ExpectedConditions.visibilityOf(clientsTableBody)).isDisplayed();
+			}
 
 			// Verify that the table contains client data
 			Assert.assertTrue(clientsTableBody.isDisplayed(), "Clients table body is not displayed");
@@ -869,26 +902,36 @@ public class PO01_KFoneLogin {
 		try {
 			// Scroll to the Your Products section to ensure it's visible
 			js.executeScript("arguments[0].scrollIntoView(true);", yourProductsSection);
-			SmartWaits.shortWait(driver);
+		SmartWaits.shortWait(driver);
 
-			// Wait for Profile Manager application to be visible and clickable
-			wait.until(ExpectedConditions.elementToBeClickable(profileManagerInProductsSection)).isDisplayed();
-			PerformanceUtils.waitForPageReady(driver, 3);
-			PageObjectHelper.log(LOGGER, "Profile Manager application tile is visible in Your Products section");
+		// Wait for Profile Manager application to be visible and clickable
+		wait.until(ExpectedConditions.elementToBeClickable(profileManagerInProductsSection)).isDisplayed();
+		PerformanceUtils.waitForPageReady(driver, 3);
+		PageObjectHelper.log(LOGGER, "Profile Manager application tile is visible in Your Products section");
 
-			// Click on Profile Manager application
+		// Click on Profile Manager application with fallback for frozen page
+		try {
 			wait.until(ExpectedConditions.elementToBeClickable(profileManagerInProductsSection)).click();
+		} catch (Exception e) {
+			LOGGER.warn("WebDriver click failed, trying JavaScript click: " + e.getMessage().split("\n")[0]);
+			try {
+				js.executeScript("arguments[0].click();", profileManagerInProductsSection);
+			} catch (Exception je) {
+				LOGGER.warn("JavaScript click failed, trying utility click: " + je.getMessage().split("\n")[0]);
+				utils.jsClick(driver, profileManagerInProductsSection);
+			}
+		}
 
-			PageObjectHelper.log(LOGGER,
-					"Successfully clicked on Profile Manager application in Your Products section");
+		PageObjectHelper.log(LOGGER,
+				"Successfully clicked on Profile Manager application in Your Products section");
 
-			// Wait for navigation to complete
-			// OPTIMIZED: Single comprehensive wait (replaces spinner + pageLoad redundancy)
-			PerformanceUtils.waitForPageReady(driver, 5);
+		// Wait for navigation to complete
+		// OPTIMIZED: Single comprehensive wait (replaces spinner + pageLoad redundancy)
+		PerformanceUtils.waitForPageReady(driver, 5);
 
-			// OPTIMIZATION: Handle cookies banner immediately after navigation (with short
-			// timeout)
-			// handleCookiesBanner();
+		// OPTIMIZATION: Handle cookies banner immediately after navigation (with short
+		// timeout)
+		// handleCookiesBanner();
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_profile_manager_application_in_your_products_section",

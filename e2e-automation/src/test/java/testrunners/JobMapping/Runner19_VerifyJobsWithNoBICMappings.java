@@ -37,9 +37,7 @@ public class Runner19_VerifyJobsWithNoBICMappings extends CustomizeTestNGCucumbe
 	
 	@Override
 	protected String resolveLoginTag() {
-		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info(" Using KFone login tag: " + loginTag);
-		return loginTag;
+		return DynamicTagResolver.getKFoneLoginTag();
 	}
 	
 	@AfterTest

@@ -65,6 +65,8 @@ Feature: Validate Sorting Functionality in AI Auto Screen1
     Then Sort Job Profiles by Organization Job Name in Ascending order
     Then User should scroll page down two times to view first thirty job profiles
     Then User should verify first thirty job profiles sorted by Organization Grade and Organization Job Name in Ascending order
+    Then Click on View Published toggle button to turn on
+    Then Click on toggle button to turn off
 
   @MultiLevelSortingGradeDescendingNameAscending
   Scenario: Validate multi level sorting by Organization Grade Descending and Job Name Ascending

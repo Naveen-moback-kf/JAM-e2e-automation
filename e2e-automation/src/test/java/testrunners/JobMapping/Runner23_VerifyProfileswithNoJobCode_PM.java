@@ -37,9 +37,7 @@ public class Runner23_VerifyProfileswithNoJobCode_PM extends CustomizeTestNGCucu
 	
 	@Override
 	protected String resolveLoginTag() {
-		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info(" Using KFone login tag: " + loginTag);
-		return loginTag;
+		return DynamicTagResolver.getKFoneLoginTag();
 	}
 	
 	@AfterTest

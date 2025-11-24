@@ -43,12 +43,13 @@ public class PerformanceUtils {
     private static final int SHORT_TIMEOUT_SECONDS = 3;    // Reduced from 5s to 3s
     
     // Common spinner and loader selectors
+    // OPTIMIZED: More specific selectors to avoid matching non-spinner elements
     private static final String[] SPINNER_SELECTORS = {
-        "//*[@class='blocking-loader']//img",
-        "//*[contains(@className,'animate-spin')]",
-        "//*[contains(@class,'spinner')]",
-        "//*[contains(@class,'loading')]",
-        "//*[contains(@class,'loader')]"
+        "//*[@class='blocking-loader']//img",                    // Primary spinner
+        "//*[contains(@class,'animate-spin') and not(contains(@class,'hidden'))]",  // Tailwind spinner (fixed @className -> @class)
+        "//*[@data-testid='loader']",                            // Data-testid loader
+        "//div[contains(@class,'spinner') and contains(@class,'visible')]",  // Visible spinner divs
+        "//img[contains(@src,'loader') or contains(@src,'spinner')]"  // Spinner images
     };
     
     /**
@@ -139,36 +140,87 @@ public class PerformanceUtils {
     }
     
     public static void waitForSpinnersToDisappear(WebDriver driver, int timeoutSeconds) {
+        long operationStartTime = System.currentTimeMillis();
+        
+        // CRITICAL FIX: Temporarily disable implicit wait to make findElements() instant
+        // Without this, findElements() waits for implicit timeout (20s) even when element doesn't exist
+        Duration originalImplicitWait = null;
+        try {
+            originalImplicitWait = driver.manage().timeouts().getImplicitWaitTimeout();
+            // Set implicit wait to 0 for instant findElements() calls
+            driver.manage().timeouts().implicitlyWait(Duration.ZERO);
+        } catch (Exception e) {
+            LOGGER.warn("⚠️  Could not modify implicit wait: {}", e.getMessage());
+        }
+        
         // CRITICAL FIX: Use short polling timeout with existence check first
         WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofMillis(500)); // Only 0.5s per check
         
+        // Track overall timeout
+        long maxWaitTime = timeoutSeconds * 1000L; // Convert to milliseconds
+        int iterationCount = 0;
+        
         try {
             boolean foundAnySpinner = false;
+            int totalSpinnersWaited = 0;
             
-            for (String selector : SPINNER_SELECTORS) {
-                try {
-                    // PERFORMANCE: First check if spinner EXISTS before waiting
-                    List<WebElement> spinners = driver.findElements(By.xpath(selector));
-                    
-                    if (!spinners.isEmpty()) {
-                        // Spinner exists - now check if it's visible
-                        for (WebElement spinner : spinners) {
-                            try {
-                                if (spinner.isDisplayed()) {
-                                    foundAnySpinner = true;
-                                    // Wait for this specific spinner to disappear (max 0.5s)
-                                    shortWait.until(ExpectedConditions.invisibilityOf(spinner));
+            while ((System.currentTimeMillis() - operationStartTime) < maxWaitTime) {
+                iterationCount++;
+                boolean foundSpinnerInThisIteration = false;
+                
+                for (int i = 0; i < SPINNER_SELECTORS.length; i++) {
+                    String selector = SPINNER_SELECTORS[i];
+                    try {
+                        // PERFORMANCE: First check if spinner EXISTS before waiting
+                        // With implicit wait = 0, this returns instantly if element doesn't exist
+                        List<WebElement> spinners = driver.findElements(By.xpath(selector));
+                        
+                        if (!spinners.isEmpty()) {
+                            // Spinner exists - now check if it's visible
+                            for (int j = 0; j < spinners.size(); j++) {
+                                WebElement spinner = spinners.get(j);
+                                try {
+                                    if (spinner.isDisplayed()) {
+                                        foundAnySpinner = true;
+                                        foundSpinnerInThisIteration = true;
+                                        totalSpinnersWaited++;
+                                        
+                                        // Wait for this specific spinner to disappear (max 0.5s)
+                                        try {
+                                            shortWait.until(ExpectedConditions.invisibilityOf(spinner));
+                                        } catch (org.openqa.selenium.TimeoutException te) {
+                                            // Spinner still visible, will check again in next iteration
+                                        }
+                                    }
+                                } catch (org.openqa.selenium.StaleElementReferenceException e) {
+                                    // Spinner disappeared or DOM changed - good!
+                                } catch (Exception e) {
+                                    // Continue checking other spinners
                                 }
-                            } catch (Exception e) {
-                                // Spinner disappeared or stale - good! Continue to next
                             }
                         }
+                    } catch (Exception e) {
+                        // Continue to next spinner selector
                     }
-                    // If spinner doesn't exist, skip immediately (no wait!)
-                } catch (Exception e) {
-                    // Continue to next spinner selector
                 }
+                
+                // If no visible spinners in this iteration, we're done!
+                if (!foundSpinnerInThisIteration) {
+                    long totalDuration = System.currentTimeMillis() - operationStartTime;
+                    // Only log if wait was significant (> 1 second) or spinners were found
+                    if (totalDuration > 1000 || totalSpinnersWaited > 0) {
+                        LOGGER.info("✅ Spinners disappeared after {}ms", totalDuration);
+                    }
+                    return; // Exit successfully
+                }
+                
+                // Small delay before next iteration to avoid hammering the DOM
+                Thread.sleep(100);
             }
+            
+            // TIMEOUT: Exceeded max wait time
+            long totalDuration = System.currentTimeMillis() - operationStartTime;
+            LOGGER.warn("⚠️  Spinner wait timeout! Duration: {}ms, Iterations: {}", totalDuration, iterationCount);
             
             // PERFORMANCE: If no spinners found at all, return immediately
             if (!foundAnySpinner) {
@@ -178,7 +230,17 @@ public class PerformanceUtils {
         } catch (Exception e) {
             // Only log if significant timeout occurred
             if (timeoutSeconds > 3) {
-                LOGGER.warn(" Spinner wait timeout after {}s: {}", timeoutSeconds, e.getMessage());
+                long totalDuration = System.currentTimeMillis() - operationStartTime;
+                LOGGER.warn(" Spinner wait timeout after {}s (duration: {}ms): {}", timeoutSeconds, totalDuration, e.getMessage());
+            }
+        } finally {
+            // CRITICAL: Restore original implicit wait
+            if (originalImplicitWait != null) {
+                try {
+                    driver.manage().timeouts().implicitlyWait(originalImplicitWait);
+                } catch (Exception e) {
+                    LOGGER.warn("⚠️  Could not restore implicit wait: {}", e.getMessage());
+                }
             }
         }
     }

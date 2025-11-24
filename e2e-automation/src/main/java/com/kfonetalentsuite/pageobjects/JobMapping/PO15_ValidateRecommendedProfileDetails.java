@@ -231,13 +231,14 @@ public class PO15_ValidateRecommendedProfileDetails {
 	/**
 	 * Clicks on matched profile of job profile with view other matches button
 	 * ENHANCED FOR HEADLESS MODE: Scrolls element into view before clicking
+	 * PERFORMANCE OPTIMIZED: Added comprehensive debug logging and optimized waits
 	 */
 	public void click_on_matched_profile_of_job_profile_with_view_other_matches_button() {
 		try {
 			// PARALLEL EXECUTION FIX: Wait for page to be ready first
 			PerformanceUtils.waitForPageReady(driver, 5);
 			
-			// PARALLEL EXECUTION FIX: Wait for any spinners/loaders to disappear
+			// CRITICAL: Wait for spinners BEFORE starting the click operation
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			
 			// Validate rowNumber is set
@@ -251,11 +252,13 @@ public class PO15_ValidateRecommendedProfileDetails {
 			// Build XPath for matched profile
 			String matchedProfileXPath = "//div[@id='kf-job-container']//div//table//tbody//tr[" + matchedProfileRow + "]//td[1]//div";
 			
-			// Wait for matched profile element to be present
-			WebElement linkedMatchedProfile = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(matchedProfileXPath)));
+			// Wait for matched profile element to be present (REDUCED TIMEOUT)
+			WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10)); // Reduced from 60s
+			WebElement linkedMatchedProfile = shortWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(matchedProfileXPath)));
 			
-			// Wait for element to be clickable and get text
-			WebElement clickableElement = wait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile));
+			// Wait for element to be clickable and get text (REDUCED TIMEOUT)
+			WebElement clickableElement = shortWait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile));
+			
 			String MatchedProfileNameText = clickableElement.getText();
 			
 			if (MatchedProfileNameText == null || MatchedProfileNameText.trim().isEmpty()) {
@@ -267,24 +270,61 @@ public class PO15_ValidateRecommendedProfileDetails {
 			// PARALLEL EXECUTION FIX: Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", linkedMatchedProfile);
 			
-			// PARALLEL EXECUTION FIX: Wait for element stability AND spinners after scroll
-			PerformanceUtils.waitForElement(driver, linkedMatchedProfile, 3);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			// OPTIMIZED: Short stability wait after scroll
+			Thread.sleep(300); // Just 300ms instead of full wait
 			
-			// PARALLEL EXECUTION FIX: Active wait for loader overlay to be invisible
-			// This catches loaders that appear AFTER scroll (common in parallel execution)
-			WebDriverWait loaderWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(15));
-			loaderWait.until(ExpectedConditions.invisibilityOfElementLocated(
-				By.xpath("//div[@data-testid='loader' and contains(@class, 'fixed')]")));
+			// CRITICAL: Temporarily disable implicit wait for instant findElements()
+			java.time.Duration savedImplicitWait = null;
+			try {
+				savedImplicitWait = driver.manage().timeouts().getImplicitWaitTimeout();
+				driver.manage().timeouts().implicitlyWait(java.time.Duration.ZERO);
+			} catch (Exception e) {
+				LOGGER.warn("Could not disable implicit wait: {}", e.getMessage());
+			}
 			
-			// Re-locate element to avoid stale reference after waiting
-			linkedMatchedProfile = driver.findElement(By.xpath(matchedProfileXPath));
+			try {
+				// OPTIMIZED: Quick spinner check with short timeout - don't wait if no spinners
+				try {
+					// Check if spinner exists first (INSTANT check with implicit wait = 0)
+					java.util.List<WebElement> spinners = driver.findElements(By.xpath("//*[@class='blocking-loader']//img"));
+					
+					if (!spinners.isEmpty() && spinners.get(0).isDisplayed()) {
+						WebDriverWait spinnerWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
+						spinnerWait.until(ExpectedConditions.invisibilityOfAllElements(spinners));
+					}
+				} catch (Exception e) {
+					// No action needed
+				}
+				
+				// OPTIMIZED: Check for loader overlay with SHORT timeout - fail fast if doesn't exist
+				try {
+					// Check if loader exists first (INSTANT check with implicit wait = 0)
+					java.util.List<WebElement> loaders = driver.findElements(By.xpath("//div[@data-testid='loader' and contains(@class, 'fixed')]"));
+					
+					if (!loaders.isEmpty() && loaders.get(0).isDisplayed()) {
+						WebDriverWait loaderWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
+						loaderWait.until(ExpectedConditions.invisibilityOfAllElements(loaders));
+					}
+				} catch (Exception e) {
+					// No action needed
+				}
+			} finally {
+				// CRITICAL: Restore implicit wait
+				if (savedImplicitWait != null) {
+					try {
+						driver.manage().timeouts().implicitlyWait(savedImplicitWait);
+					} catch (Exception e) {
+						LOGGER.warn("Could not restore implicit wait: {}", e.getMessage());
+					}
+				}
+			}
 			
-			// Final clickability check
-			clickableElement = wait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile));
+			// Final clickability check (REDUCED TIMEOUT)
+			clickableElement = shortWait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile));
 			
 			// Attempt to click with fallback strategies
 			boolean clickSuccessful = false;
+			
 			try {
 				clickableElement.click();
 				clickSuccessful = true;
@@ -304,7 +344,10 @@ public class PO15_ValidateRecommendedProfileDetails {
 			} else {
 				throw new Exception("All click strategies failed for Matched Profile: " + MatchedProfileNameText);
 			}
+			
 		} catch (Exception e) {
+			LOGGER.error("❌ Matched Profile Click FAILED: {}", e.getMessage());
+			
 			PageObjectHelper.handleError(LOGGER, "click_on_matched_profile_of_job_profile_with_view_other_matches_button",
 				"Issue clicking Matched Profile linked with job name " + orgJobName.get() + " (rowNumber: " + rowNumber.get() + ")", e);
 		}
@@ -504,29 +547,34 @@ public void validate_recommended_profile_general_experience_matches_with_matched
 	
 	public void validate_recommended_profile_responsibilities_matches_with_matched_success_profile_responsibilities() {
 		try {
-	js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1Responsibilities);
-	PerformanceUtils.waitForUIStability(driver, 2);
-	wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreResponsibilitiesBtn.get(0))).click();
-	while(true) {
-		try {
-			if(JCpageProfile1ViewMoreResponsibilitiesBtn.isEmpty()) {
-				js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-				break;
-			}
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1ViewMoreResponsibilitiesBtn.get(0));
-			PerformanceUtils.waitForUIStability(driver, 2);
+	js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1Responsibilities);
+	Thread.sleep(200);
+	
+	// Check if "View more" button exists before clicking
+	if (!JCpageProfile1ViewMoreResponsibilitiesBtn.isEmpty()) {
+		wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreResponsibilitiesBtn.get(0))).click();
+		
+		while(true) {
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreResponsibilitiesBtn.get(0))).click();
-			} catch(Exception e) {
-				js.executeScript("arguments[0].click();", JCpageProfile1ViewMoreResponsibilitiesBtn.get(0));
-			}
-			PerformanceUtils.waitForUIStability(driver, 2);
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1ViewMoreResponsibilitiesBtn.get(0));
-		} catch(StaleElementReferenceException e) {
-			js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
-			break;
-		}	
+				if(JCpageProfile1ViewMoreResponsibilitiesBtn.isEmpty()) {
+					break;
+				}
+				// Scroll button into center view before clicking
+				js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1ViewMoreResponsibilitiesBtn.get(0));
+				Thread.sleep(200);
+				
+				try {
+					wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreResponsibilitiesBtn.get(0))).click();
+				} catch(Exception e) {
+					js.executeScript("arguments[0].click();", JCpageProfile1ViewMoreResponsibilitiesBtn.get(0));
+				}
+				Thread.sleep(500); // Wait for content expansion
+			} catch(StaleElementReferenceException e) {
+				break;
+			}	
+		}
 	}
+	
 	String JCpageProfile1ResponsibilitiesText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Responsibilities)).getText();
 	Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileResponsibilities, JCpageProfile1ResponsibilitiesText);
 	PageObjectHelper.log(LOGGER, "Recommended Profile Responsibilities matches with Matched Success Profile");
@@ -538,27 +586,34 @@ public void validate_recommended_profile_general_experience_matches_with_matched
 	
 	public void validate_recommended_profile_behavioural_competencies_matches_with_matched_success_profile_behavioural_competencies() {
 		try {
-	js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1BehaviouralCompetencies);
-	PerformanceUtils.waitForUIStability(driver, 2);
-	wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreCompetenciesBtn.get(0))).click();
-	while(true) {
-		try {
-			if(JCpageProfile1ViewMoreCompetenciesBtn.isEmpty()) {
-				break;
-			}
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1ViewMoreCompetenciesBtn.get(0));
-			PerformanceUtils.waitForUIStability(driver, 2);
+	js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1BehaviouralCompetencies);
+	Thread.sleep(200);
+	
+	// Check if "View more" button exists before clicking
+	if (!JCpageProfile1ViewMoreCompetenciesBtn.isEmpty()) {
+		wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreCompetenciesBtn.get(0))).click();
+		
+		while(true) {
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreCompetenciesBtn.get(0))).click();
-			} catch(Exception e) {
-				js.executeScript("arguments[0].click();", JCpageProfile1ViewMoreCompetenciesBtn.get(0));
-			}
-			PerformanceUtils.waitForUIStability(driver, 2);
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1ViewMoreCompetenciesBtn.get(0));
-		} catch(StaleElementReferenceException e) {
-			break;
-		}	
+				if(JCpageProfile1ViewMoreCompetenciesBtn.isEmpty()) {
+					break;
+				}
+				// Scroll button into center view before clicking
+				js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1ViewMoreCompetenciesBtn.get(0));
+				Thread.sleep(200);
+				
+				try {
+					wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreCompetenciesBtn.get(0))).click();
+				} catch(Exception e) {
+					js.executeScript("arguments[0].click();", JCpageProfile1ViewMoreCompetenciesBtn.get(0));
+				}
+				Thread.sleep(500); // Wait for content expansion
+			} catch(StaleElementReferenceException e) {
+				break;
+			}	
+		}
 	}
+	
 	String JCpageProfile1BehaviouralCompetenciesText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1BehaviouralCompetencies)).getText();
 	Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileBehaviouralCompetencies, JCpageProfile1BehaviouralCompetenciesText);
 	PageObjectHelper.log(LOGGER, "Recommended Profile Behavioural Competencies matches with Matched Success Profile");
@@ -569,35 +624,41 @@ public void validate_recommended_profile_general_experience_matches_with_matched
 	}
  public void validate_recommended_profile_skills_matches_with_matched_success_profile_skills() {
 	 try {
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1Skills);
-			PerformanceUtils.waitForUIStability(driver, 2);
+		js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1Skills);
+		Thread.sleep(200);
+		
+		// Check if "View more" button exists before clicking
+		if (!JCpageProfile1ViewMoreSkillsBtn.isEmpty()) {
 			wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreSkillsBtn.get(0))).click();
+			
 			while(true) {
 				try {
 					if(JCpageProfile1ViewMoreSkillsBtn.isEmpty()) {
 						break;
-					} 
-					js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1ViewMoreSkillsBtn.get(0));
-					PerformanceUtils.waitForUIStability(driver, 2);
-					js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1ViewMoreSkillsBtn.get(0));
+					}
+					// Scroll button into center view before clicking
+					js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1ViewMoreSkillsBtn.get(0));
+					Thread.sleep(200);
+					
 					try {
 						wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreSkillsBtn.get(0))).click();
 					} catch(Exception e) {
-						js.executeScript("arguments[0].click();", JCpageProfile1ViewMoreCompetenciesBtn.get(0));
+						js.executeScript("arguments[0].click();", JCpageProfile1ViewMoreSkillsBtn.get(0));
 					}
-					PerformanceUtils.waitForUIStability(driver, 2);
-					js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1ViewMoreSkillsBtn.get(0));
+					Thread.sleep(500); // Wait for content expansion
 				} catch(StaleElementReferenceException e) {
 					break;
 				}	
 			}
-			String JCpageProfile1SkillsText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Skills)).getText();
-			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileSkills, JCpageProfile1SkillsText);
-			PageObjectHelper.log(LOGGER, "Recommended Profile Skills matches with Matched Success Profile");
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_skills_matches_with_matched_success_profile_skills",
-				"Issue validating Recommended Profile Skills", e);
 		}
+		
+		String JCpageProfile1SkillsText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Skills)).getText();
+		Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileSkills, JCpageProfile1SkillsText);
+		PageObjectHelper.log(LOGGER, "Recommended Profile Skills matches with Matched Success Profile");
+	} catch (Exception e) {
+		PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_skills_matches_with_matched_success_profile_skills",
+			"Issue validating Recommended Profile Skills", e);
+	}
  }
 }
 

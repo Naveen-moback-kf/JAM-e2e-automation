@@ -308,16 +308,19 @@ public void verify_custom_sp_profile_education() {
 	
 	public void verify_custom_sp_profile_responsibilities() {
 		try {
-	js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1Responsibilities);
+	js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1Responsibilities);
+	Thread.sleep(200); // Reduced from 300ms
 	wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreResponsibilitiesBtn.get(0))).click();
 	while(true) {
 		try {
 			if(JCpageProfile1ViewMoreResponsibilitiesBtn.isEmpty()) {
 				break;
-			} 
+			}
+			// Scroll button into center view before clicking to avoid nav bar interception
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1ViewMoreResponsibilitiesBtn.get(0));
+			Thread.sleep(200); // Reduced from 300ms
 			JCpageProfile1ViewMoreResponsibilitiesBtn.get(0).click();
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1ViewMoreResponsibilitiesBtn.get(0));
-			PerformanceUtils.waitForUIStability(driver, 2);
+			Thread.sleep(500); // Reduced from waitForUIStability 2s - just wait for content expansion
 		} catch(StaleElementReferenceException e) {
 			break;
 		}	
@@ -333,16 +336,19 @@ public void verify_custom_sp_profile_education() {
 	
 	public void verify_custom_sp_profile_behavioural_competencies() {
 		try {
-	js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1BehaviouralCompetencies);
+	js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1BehaviouralCompetencies);
+	Thread.sleep(200); // Reduced from 300ms
 	wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreCompetenciesBtn.get(0))).click();
 	while(true) {
 		try {
 			if(JCpageProfile1ViewMoreCompetenciesBtn.isEmpty()) {
 				break;
-			} 
+			}
+			// Scroll button into center view before clicking to avoid nav bar interception
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1ViewMoreCompetenciesBtn.get(0));
+			Thread.sleep(200); // Reduced from 300ms
 			JCpageProfile1ViewMoreCompetenciesBtn.get(0).click();
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1ViewMoreCompetenciesBtn.get(0));
-			PerformanceUtils.waitForUIStability(driver, 2);
+			Thread.sleep(500); // Reduced from waitForUIStability 2s - just wait for content expansion
 		} catch(StaleElementReferenceException e) {
 			break;
 		}	
@@ -357,20 +363,29 @@ public void verify_custom_sp_profile_education() {
 	
 	public void verify_custom_sp_profile_skills() {
 		try {
-	js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1Skills);
-	wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreSkillsBtn.get(0))).click();
-	while(true) {
-		try {
-			if(JCpageProfile1ViewMoreSkillsBtn.isEmpty()) {
+	js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1Skills);
+	Thread.sleep(200); // Reduced from 300ms
+	
+	// Check if "View more" button exists before clicking
+	if (!JCpageProfile1ViewMoreSkillsBtn.isEmpty()) {
+		wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreSkillsBtn.get(0))).click();
+		
+		while(true) {
+			try {
+				if(JCpageProfile1ViewMoreSkillsBtn.isEmpty()) {
+					break;
+				}
+				// Scroll button into center view before clicking to avoid nav bar interception
+				js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1ViewMoreSkillsBtn.get(0));
+				Thread.sleep(200); // Reduced from 300ms
+				JCpageProfile1ViewMoreSkillsBtn.get(0).click();
+				Thread.sleep(500); // Reduced from waitForUIStability 2s - just wait for content expansion
+			} catch(StaleElementReferenceException e) {
 				break;
-			} 
-			JCpageProfile1ViewMoreSkillsBtn.get(0).click();
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1ViewMoreSkillsBtn.get(0));
-			PerformanceUtils.waitForUIStability(driver, 2);
-		} catch(StaleElementReferenceException e) {
-			break;
-		}	
+			}	
+		}
 	}
+	
 	String JCpageProfile1SkillsText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Skills)).getText();
 	PageObjectHelper.log(LOGGER, "Custom SP Profile Skills verified (" + JCpageProfile1SkillsText.length() + " chars)");
 } catch (Exception e) {

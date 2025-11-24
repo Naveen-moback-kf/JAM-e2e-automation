@@ -37,9 +37,7 @@ public class Runner35_ValidateSelectAllWithSearchFunctionality_PM extends Custom
 
 	@Override
 	protected String resolveLoginTag() {
-		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info(" Using KFone login tag: " + loginTag);
-		return loginTag;
+		return DynamicTagResolver.getKFoneLoginTag();
 	}
 
 	@AfterTest

@@ -34,7 +34,7 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
             VariableManager.getInstance().loadProperties();
             String loginTag = resolveLoginTag();
             
-            LOGGER.debug("Dynamic tags configured for {} with login: {}", runnerName, loginTag);
+            LOGGER.info("▶️  Starting: {} with login: {}", runnerName, loginTag);
             
             ensureDriverInitialized();
             
@@ -59,10 +59,6 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
     
     @BeforeClass(alwaysRun = true)
     public void setUpClass() {
-        String runnerName = this.getClass().getSimpleName();
-        
-        LOGGER.info("▶️  Starting: {}", runnerName);
-        
         // CACHE CLEANUP BEFORE RUNNER: Clear all browser data before runner starts (defensive)
         try {
             DriverManager.clearAllBrowserData();
@@ -131,8 +127,7 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager{
         }
         
         Object[][] result = filteredScenarios.toArray(new Object[0][0]);
-        LOGGER.debug("[Thread-{}] {} providing {} scenarios (filtered from {} based on {})", 
-                    Thread.currentThread().getId(), runnerName, result.length, allScenarios.length, configuredLoginTag);
+        LOGGER.info("  ▶ {} executing {} scenarios", runnerName, result.length);
         
         return result;
     }

@@ -117,30 +117,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			List<WebElement> GradesValues = driver.findElements(
 					By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']//..//label"));
 
-			LOGGER.info("Found {} grade options in dropdown", GradesValues.size());
+		LOGGER.info("Found {} grade options in dropdown", GradesValues.size());
 
-			if (GradesValues.isEmpty()) {
-				throw new Exception("No grade options found in dropdown");
-			}
+		if (GradesValues.isEmpty()) {
+			throw new Exception("No grade options found in dropdown");
+		}
 
-			// Dynamically select the first available option (safer than hardcoded index)
-			int selectedIndex = 0;
+		// Dynamically select the first available option
+		int selectedIndex = 0;
 
-			// Try to select index 7 if available (for consistency with old tests),
-			// otherwise use first
-			if (GradesValues.size() > 7) {
-				selectedIndex = 7;
-				LOGGER.info("Using preferred index 7 for grade selection");
-			} else {
-				selectedIndex = 0;
-				LOGGER.info("Using first available grade (index 0) as there are fewer than 8 options");
-			}
-
-			WebElement targetCheckbox = GradesCheckboxes.get(selectedIndex);
-			WebElement targetLabel = GradesValues.get(selectedIndex);
-			String gradeValue = targetLabel.getText().trim();
-
-			LOGGER.info("Attempting to select grade: '{}'", gradeValue);
+		WebElement targetCheckbox = GradesCheckboxes.get(selectedIndex);
+		WebElement targetLabel = GradesValues.get(selectedIndex);
+		String gradeValue = targetLabel.getText().trim();
 
 			// Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", targetCheckbox);
@@ -168,7 +156,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				throw new Exception("Failed to click grade checkbox/label");
 			}
 
-			// Wait for page to update
+			// CRITICAL: Wait for page to update with spinner check first
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 1);
 
@@ -196,85 +184,73 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 
 	public void user_should_scroll_down_to_view_last_result_with_applied_filters() throws InterruptedException {
 		try {
-			int maxScrollAttempts = 50; // Prevent infinite loop with max attempts
+			PageObjectHelper.log(LOGGER, "Scrolling down to last filtered result");
+			int maxScrollAttempts = 50;
 			int scrollAttempts = 0;
-			String previousResultsCountText = "";
 			int stableCountIterations = 0;
-			int consecutiveFailures = 0; // Track consecutive failures to exit early
-			String workingXPath = null; // Cache the XPath that works
+			int consecutiveFailures = 0;
+			String workingXPath = null;
 
 			while (scrollAttempts < maxScrollAttempts) {
 				scrollAttempts++;
-				// PERFORMANCE: Minimal wait for small datasets
 				PerformanceUtils.waitForUIStability(driver, 1);
 
-				// Use a more robust element retrieval with retry logic to handle stale elements
 				String resultsCountText = "";
 				try {
-					// PERFORMANCE FIX: Use 1s timeout instead of 3s for faster detection
 					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(1));
-
-					// Try multiple XPath strategies
 					WebElement resultsElement = null;
 
-					// PERFORMANCE FIX: Try cached XPath first if we found one that works
 					if (workingXPath != null) {
 						try {
 							resultsElement = shortWait
 									.until(ExpectedConditions.presenceOfElementLocated(By.xpath(workingXPath)));
 						} catch (Exception e) {
-							// Cached XPath failed, reset and try all strategies
 							workingXPath = null;
 						}
 					}
 
-					// If cached XPath didn't work, try all strategies
 					if (resultsElement == null) {
 						try {
-							// Strategy 1: Original XPath
 							String xpath1 = "//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]";
 							resultsElement = shortWait
 									.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpath1)));
-							workingXPath = xpath1; // Cache this for next time
+							workingXPath = xpath1;
 						} catch (Exception e1) {
-							// Strategy 2: Alternative XPath
 							try {
 								String xpath2 = "//*[contains(text(),'Showing') and contains(text(),'of')]";
 								resultsElement = driver.findElement(By.xpath(xpath2));
-								workingXPath = xpath2; // Cache this for next time
+								workingXPath = xpath2;
 							} catch (Exception e2) {
-								// Strategy 3: Try to scroll to top first (element might be off-screen in
-								// headless)
 								try {
 									js.executeScript("window.scrollTo(0, 0);");
-									Thread.sleep(100); // PERFORMANCE: Reduced from 200ms
+									Thread.sleep(100);
 									resultsElement = driver.findElement(By.xpath(
 											"//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]"));
 								} catch (Exception e3) {
-									throw e1; // Throw original exception
+									throw e1;
 								}
 							}
 						}
 					}
 
 					if (resultsElement != null) {
-						// PERFORMANCE: Skip scroll if element is visible, minimal wait if not
 						try {
 							if (!resultsElement.isDisplayed()) {
 								js.executeScript("arguments[0].scrollIntoView({block: 'center'});", resultsElement);
-								Thread.sleep(50); // PERFORMANCE: Reduced from 100ms
+								Thread.sleep(50);
 							}
 						} catch (Exception e) {
 							// Element might be stale, try to get text anyway
 						}
 						resultsCountText = resultsElement.getText();
-						consecutiveFailures = 0; // Reset failure counter on success
+						consecutiveFailures = 0;
 					}
 
 				} catch (Exception e) {
 					consecutiveFailures++;
-					LOGGER.warn("Failed to get results count text on attempt {} (failure #{}): {}", scrollAttempts,
-							consecutiveFailures, e.getClass().getSimpleName());
+					if (consecutiveFailures == 1 || consecutiveFailures % 3 == 0) {
+						LOGGER.debug("Scroll attempt {}: Failed to get results count", scrollAttempts);
+					}
 
 					// HEADLESS FIX: Exit early after 5 consecutive failures (was looping 50 times)
 					if (consecutiveFailures >= 5) {
@@ -311,73 +287,39 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 
 				String[] resultsCountText_split = resultsCountText.split(" ");
 
-				// Fix: Use .equals() instead of != for string comparison
 				if (resultsCountText_split.length > 3 && !resultsCountText_split[1].equals("0")) {
-					if (resultsCountText_split[1].equals(resultsCountText_split[3])) {
-						// Results are fully loaded - verify stability
-						if (resultsCountText.equals(previousResultsCountText)) {
-							stableCountIterations++;
-							// If count is stable for 2 consecutive checks, we're done
-							if (stableCountIterations >= 2) {
-								PageObjectHelper.log(LOGGER, "Scrolled down till last Search Result and now "
-										+ resultsCountText + " of Job Profiles as expected");
-								break;
-							}
-						} else {
-							stableCountIterations = 0;
-							previousResultsCountText = resultsCountText;
-						}
-
-						// PERFORMANCE: Ultra-fast final scroll verification
-						try {
-							js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
-							Thread.sleep(100); // PERFORMANCE: Reduced from 150ms
-							js.executeScript("window.dispatchEvent(new Event('scroll'));");
-							Thread.sleep(50); // PERFORMANCE: Reduced from 100ms
-						} catch (Exception scrollEx) {
-							LOGGER.warn("Final scroll failed: {}", scrollEx.getMessage());
-						}
-
-						try {
-							WebDriverWait spinnerWait = new WebDriverWait(driver, java.time.Duration.ofMillis(500));
-							spinnerWait.until(ExpectedConditions.invisibilityOfAllElements(
-									driver.findElements(By.xpath("//div[@data-testid='loader']//img"))));
-						} catch (Exception e) {
-							// Spinner not found or already invisible
-						}
-						PerformanceUtils.waitForUIStability(driver, 1); // PERFORMANCE: Reduced for small datasets
-					} else {
-						// More results to load - keep scrolling
-						previousResultsCountText = resultsCountText;
-
-						// PERFORMANCE-OPTIMIZED: Ultra-fast scrolling for small datasets
-						try {
-							// Quick scroll to bottom
-							js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
-							Thread.sleep(150); // PERFORMANCE: Reduced from 250ms
-
-							// Trigger scroll event for lazy loading
-							js.executeScript("window.dispatchEvent(new Event('scroll'));");
-							Thread.sleep(100); // PERFORMANCE: Reduced from 150ms
-
-						} catch (Exception scrollEx) {
-							LOGGER.warn("Scroll operation failed: {}", scrollEx.getMessage());
-							// Fallback to basic scroll
-							js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
-							Thread.sleep(150);
-						}
-
-						// PERFORMANCE: Skip heavy spinner wait for small datasets
-						try {
-							WebDriverWait spinnerWait = new WebDriverWait(driver, java.time.Duration.ofMillis(500));
-							spinnerWait.until(ExpectedConditions.invisibilityOfAllElements(
-									driver.findElements(By.xpath("//div[@data-testid='loader']//img"))));
-						} catch (Exception e) {
-							// Spinner not found or already invisible - continue quickly
-						}
-						// PERFORMANCE: Minimal stability wait for small datasets
-						PerformanceUtils.waitForUIStability(driver, 1);
+					int currentShowing = Integer.parseInt(resultsCountText_split[1]);
+					int totalResults = Integer.parseInt(resultsCountText_split[3]);
+					
+					LOGGER.debug("Scroll attempt {}: Showing {} of {}", scrollAttempts, currentShowing, totalResults);
+					
+					if (currentShowing == totalResults) {
+						PageObjectHelper.log(LOGGER, "Scrolled down till last Search Result and now "
+								+ resultsCountText + " of Job Profiles as expected");
+						break;
 					}
+
+						// Check if count hasn't changed (page might be stuck)
+					if (currentShowing == Integer.parseInt(resultsCountText_split[1])) {
+						stableCountIterations++;
+						if (stableCountIterations >= 5) {
+							LOGGER.warn("Count unchanged after {} attempts. Current: {} of {}", stableCountIterations, currentShowing, totalResults);
+							break;
+						}
+					} else {
+						stableCountIterations = 0;
+					}
+
+					// Scroll down and wait for content to load
+					js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
+					Thread.sleep(500);
+
+					// Wait for spinner to disappear
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+
+					// Wait for page to stabilize
+					Thread.sleep(1000);
+					PerformanceUtils.waitForUIStability(driver, 1);
 				} else {
 					// Check for no data container
 					try {
@@ -472,39 +414,21 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			List<WebElement> GradesValues = driver.findElements(
 					By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']//..//label"));
 
-			LOGGER.info("Found {} grade options for multiple selection", GradesValues.size());
+		LOGGER.info("Found {} grade options for multiple selection", GradesValues.size());
 
-			if (GradesValues.size() < 2) {
-				throw new Exception(
-						"Not enough grade options available. Need at least 2, found: " + GradesValues.size());
-			}
+		if (GradesValues.size() < 2) {
+			throw new Exception(
+					"Not enough grade options available. Need at least 2, found: " + GradesValues.size());
+		}
 
-			// Dynamically select two indices based on available options
-			int firstIndex, secondIndex;
+		// Dynamically select two different options
+		int firstIndex = 0;
+		int secondIndex = Math.min(1, GradesValues.size() - 1);
 
-			if (GradesValues.size() > 12) {
-				// Prefer indices 10 and 12 for consistency with old tests
-				firstIndex = 10;
-				secondIndex = 12;
-				LOGGER.info("Using preferred indices 10 and 12 for multiple grade selection");
-			} else if (GradesValues.size() > 7) {
-				// Use middle indices if fewer options
-				firstIndex = GradesValues.size() / 3;
-				secondIndex = (GradesValues.size() * 2) / 3;
-				LOGGER.info("Using dynamic indices {} and {} based on available options", firstIndex, secondIndex);
-			} else {
-				// Use first two if very few options
-				firstIndex = 0;
-				secondIndex = 1;
-				LOGGER.info("Using first two indices (0 and 1) as there are fewer options");
-			}
-
-			// Select first grade
+		// Select first grade
 			WebElement firstCheckbox = GradesCheckboxes.get(firstIndex);
 			WebElement firstLabel = GradesValues.get(firstIndex);
 			String firstGradeValue = firstLabel.getText().trim();
-
-			LOGGER.info("Selecting first grade: '{}'", firstGradeValue);
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", firstCheckbox);
 			Thread.sleep(300);
 
@@ -538,8 +462,6 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			WebElement secondCheckbox = GradesCheckboxes.get(secondIndex);
 			WebElement secondLabel = GradesValues.get(secondIndex);
 			String secondGradeValue = secondLabel.getText().trim();
-
-			LOGGER.info("Selecting second grade: '{}'", secondGradeValue);
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", secondCheckbox);
 			Thread.sleep(300);
 
@@ -647,11 +569,12 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				throw new Exception("Failed to click Departments dropdown after all attempts");
 			}
 
-			// Wait for dropdown to expand
-			Thread.sleep(300);
-			PerformanceUtils.waitForPageReady(driver, 1);
+		// CRITICAL: Wait for dropdown to expand and any spinners to disappear
+		Thread.sleep(300);
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PerformanceUtils.waitForPageReady(driver, 1);
 
-			PageObjectHelper.log(LOGGER, "Clicked on Departments dropdown in Filters");
+		PageObjectHelper.log(LOGGER, "Clicked on Departments dropdown in Filters");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_departments_filters_dropdown_button",
@@ -668,30 +591,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			List<WebElement> DepartmentsValues = driver.findElements(
 					By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']//..//label"));
 
-			LOGGER.info("Found {} department options in dropdown", DepartmentsValues.size());
+		LOGGER.info("Found {} department options in dropdown", DepartmentsValues.size());
 
-			if (DepartmentsValues.isEmpty()) {
-				throw new Exception("No department options found in dropdown");
-			}
+		if (DepartmentsValues.isEmpty()) {
+			throw new Exception("No department options found in dropdown");
+		}
 
-			// Dynamically select the first available option (safer than hardcoded index)
-			int selectedIndex = 0;
+		// Dynamically select the first available option
+		int selectedIndex = 0;
 
-			// Try to select index 7 if available (for consistency with old tests),
-			// otherwise use first
-			if (DepartmentsValues.size() > 7) {
-				selectedIndex = 7;
-				LOGGER.info("Using preferred index 7 for department selection");
-			} else {
-				selectedIndex = 0;
-				LOGGER.info("Using first available department (index 0) as there are fewer than 8 options");
-			}
-
-			WebElement targetCheckbox = DepartmentsCheckboxes.get(selectedIndex);
-			WebElement targetLabel = DepartmentsValues.get(selectedIndex);
-			String departmentValue = targetLabel.getText().trim();
-
-			LOGGER.info("Attempting to select department: '{}'", departmentValue);
+		WebElement targetCheckbox = DepartmentsCheckboxes.get(selectedIndex);
+		WebElement targetLabel = DepartmentsValues.get(selectedIndex);
+		String departmentValue = targetLabel.getText().trim();
 
 			// Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", targetCheckbox);
@@ -719,7 +630,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				throw new Exception("Failed to click department checkbox/label");
 			}
 
-			// Wait for page to update
+			// CRITICAL: Wait for page to update after selection - spinner must disappear first
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 1);
 
@@ -785,39 +696,21 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			List<WebElement> DepartmentsValues = driver.findElements(
 					By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']//..//label"));
 
-			LOGGER.info("Found {} department options for multiple selection", DepartmentsValues.size());
+		LOGGER.info("Found {} department options for multiple selection", DepartmentsValues.size());
 
-			if (DepartmentsValues.size() < 2) {
-				throw new Exception(
-						"Not enough department options available. Need at least 2, found: " + DepartmentsValues.size());
-			}
+		if (DepartmentsValues.size() < 2) {
+			throw new Exception(
+					"Not enough department options available. Need at least 2, found: " + DepartmentsValues.size());
+		}
 
-			// Dynamically select two indices based on available options
-			int firstIndex, secondIndex;
+		// Dynamically select two different options
+		int firstIndex = 0;
+		int secondIndex = Math.min(1, DepartmentsValues.size() - 1);
 
-			if (DepartmentsValues.size() > 12) {
-				// Prefer indices 10 and 12 for consistency with old tests
-				firstIndex = 10;
-				secondIndex = 12;
-				LOGGER.info("Using preferred indices 10 and 12 for multiple department selection");
-			} else if (DepartmentsValues.size() > 7) {
-				// Use middle indices if fewer options
-				firstIndex = DepartmentsValues.size() / 3;
-				secondIndex = (DepartmentsValues.size() * 2) / 3;
-				LOGGER.info("Using dynamic indices {} and {} based on available options", firstIndex, secondIndex);
-			} else {
-				// Use first two if very few options
-				firstIndex = 0;
-				secondIndex = 1;
-				LOGGER.info("Using first two indices (0 and 1) as there are fewer options");
-			}
-
-			// Select first department
+		// Select first department
 			WebElement firstCheckbox = DepartmentsCheckboxes.get(firstIndex);
 			WebElement firstLabel = DepartmentsValues.get(firstIndex);
 			String firstDepartmentValue = firstLabel.getText().trim();
-
-			LOGGER.info("Selecting first department: '{}'", firstDepartmentValue);
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", firstCheckbox);
 			Thread.sleep(300);
 
@@ -853,8 +746,6 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			WebElement secondCheckbox = DepartmentsCheckboxes.get(secondIndex);
 			WebElement secondLabel = DepartmentsValues.get(secondIndex);
 			String secondDepartmentValue = secondLabel.getText().trim();
-
-			LOGGER.info("Selecting second department: '{}'", secondDepartmentValue);
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", secondCheckbox);
 			Thread.sleep(300);
 
@@ -1105,7 +996,8 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 						continue;
 					}
 
-					// Wait for page to stabilize
+					// CRITICAL: Wait for page to stabilize after function selection - spinner check
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 2);
 
 					// Verify checkbox is selected
@@ -1178,6 +1070,9 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			utils.jsClick(driver, selectedFunctionToggle);
 			LOGGER.info("Clicked toggle to expand subfunctions for: {}", FunctionsOption);
 			Thread.sleep(800); // Wait for expansion animation
+			
+			// CRITICAL: Wait for spinner after toggle expansion
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 
 			// Find subfunctions using ID pattern: "FunctionName-X::SubfunctionName-Y"
 			// The :: separator is the key - it only appears in subfunction IDs
@@ -2060,12 +1955,11 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				try {
 					js.executeScript("arguments[0].click();", mappingStatusFiltersDropdown);
 				} catch (Exception s) {
-					utils.jsClick(driver, mappingStatusFiltersDropdown);
-				}
+				utils.jsClick(driver, mappingStatusFiltersDropdown);
 			}
-			LOGGER.info("Clicked on Mapping Status dropdown in Filters...");
-			PageObjectHelper.log(LOGGER, "Clicked on Mapping Status dropdown in Filters...");
-		} catch (Exception e) {
+		}
+		PageObjectHelper.log(LOGGER, "Clicked on Mapping Status dropdown in Filters...");
+	} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_mapping_status_filters_dropdown_button",
 					"Issue in clicking Mapping Status dropdown in Filters", e);
 			throw e;
@@ -2092,13 +1986,11 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				for (int i = 0; i < MappingStatusValues.size(); i++) {
 					String actualStatusText = MappingStatusValues.get(i).getText();
 
-					// If this option contains the desired status keyword
-					if (actualStatusText.contains(desiredStatus)) {
-						LOGGER.info("Found matching Mapping Status: {} (contains '{}')", actualStatusText,
-								desiredStatus);
-						PageObjectHelper.log(LOGGER, "Found matching Mapping Status: " + actualStatusText);
+				// If this option contains the desired status keyword
+				if (actualStatusText.contains(desiredStatus)) {
+					PageObjectHelper.log(LOGGER, "Found matching Mapping Status: " + actualStatusText);
 
-						js.executeScript("arguments[0].scrollIntoView();", MappingStatusValues.get(i));
+					js.executeScript("arguments[0].scrollIntoView();", MappingStatusValues.get(i));
 						try {
 							wait.until(ExpectedConditions.visibilityOf(MappingStatusValues.get(i))).click();
 							PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -2115,13 +2007,11 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 								PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 								PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 							}
-						}
-						Assert.assertTrue(MappingStatusCheckboxes.get(i).isSelected());
-						DepartmentsOption = MappingStatusValues.get(i).getText().toString();
-						LOGGER.info("Selected Mapping Status Value: {} from Mapping Status Filters dropdown",
-								DepartmentsOption);
-						PageObjectHelper.log(LOGGER, "Selected Mapping Status Value: " + DepartmentsOption
-								+ " from Mapping Status Filters dropdown");
+					}
+					Assert.assertTrue(MappingStatusCheckboxes.get(i).isSelected());
+					DepartmentsOption = MappingStatusValues.get(i).getText().toString();
+					PageObjectHelper.log(LOGGER, "Selected Mapping Status Value: " + DepartmentsOption
+							+ " from Mapping Status Filters dropdown");
 						optionSelected = true;
 						break; // Exit inner loop after selecting
 					}

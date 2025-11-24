@@ -258,7 +258,8 @@ jobs:
           mkdir -p e2e-automation/logs
           mkdir -p e2e-automation/src/test/resources/JobCatalogBackups
       
-      - name: 📥 Download Previous Excel Report (if exists)
+      - name: 📥 Download Previous Excel Report (if NOT resetting)
+        if: ${{ github.event.inputs.reset_excel_report != 'true' && (github.event_name != 'schedule' || env.SCHEDULED_RESET_EXCEL != 'true') }}
         continue-on-error: true
         uses: dawidd6/action-download-artifact@v3
         with:
@@ -272,6 +273,7 @@ jobs:
           check_artifacts: true
       
       - name: ✅ Check for Existing Excel Report
+        if: ${{ github.event.inputs.reset_excel_report != 'true' && (github.event_name != 'schedule' || env.SCHEDULED_RESET_EXCEL != 'true') }}
         run: |
           if [ -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" ]; then
             echo "✅ Found existing Excel report - will append new results to it"

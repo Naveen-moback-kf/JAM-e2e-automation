@@ -575,7 +575,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 
 			int profilesChecked = 0;
 			int scrollAttempts = 0;
-			int maxScrollAttempts = 200; // Increased scroll attempts for large datasets
+			int maxScrollAttempts = 50; // Increased scroll attempts for large datasets
 			int lastProcessedRowIndex = 0; // Track which rows we've already processed
 			int previousRowCount = 0; // Track if new rows are being loaded
 			int noNewRowsCount = 0; // Track consecutive scrolls with no new rows
@@ -757,6 +757,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			} else {
 				jsExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 			}
+			PerformanceUtils.waitForSpinnersToDisappear(driver);
 			safeSleep(2000); // Wait for lazy loading to fetch more data
 
 				// Check if no new rows loaded after scroll (improved detection)

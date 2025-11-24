@@ -498,13 +498,20 @@ public class PO06_PublishJobProfile {
 
 	public void click_on_kfone_global_menu_in_job_mapping_ui() {
 		try {
+			// CRITICAL FIX: Wait for any spinners/loaders to disappear BEFORE clicking menu
+			// This prevents the menu click from being delayed by active loading indicators
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			// Scroll menu button into view and wait for it to be ready
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", KfoneMenu);
 			PerformanceUtils.waitForElement(driver, KfoneMenu, 3);
 			
+			// Click with fallback strategies
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(KfoneMenu)).click();
 			} catch (Exception e) {
+				LOGGER.warn("⚠️  WebDriver click failed, trying JavaScript click");
 				try {
 					js.executeScript("arguments[0].click();", KfoneMenu);
 				} catch (Exception s) {
@@ -513,6 +520,8 @@ public class PO06_PublishJobProfile {
 			}
 
 			PageObjectHelper.log(LOGGER, "Clicked KFONE Global Menu in Job Mapping UI");
+			
+			// Wait for page to stabilize after click
 			PerformanceUtils.waitForPageReady(driver, 2);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_kfone_global_menu_in_job_mapping_ui",
@@ -522,41 +531,37 @@ public class PO06_PublishJobProfile {
 
 	public void click_on_profile_manager_application_button_in_kfone_global_menu() {
 		try {
-			// PARALLEL EXECUTION FIX: Extended wait for page readiness
+			// Wait for spinners and page to be ready after menu opens
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 3);
 			
-			// PARALLEL EXECUTION FIX: Simple extended wait with frequent polling
-			// Use WebDriverWait instead of manual retry loops
+			// Extended wait with polling for Profile Manager button
 			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
-			extendedWait.pollingEvery(java.time.Duration.ofMillis(200)); // Check every 200ms
+			extendedWait.pollingEvery(java.time.Duration.ofMillis(200));
 			
-			LOGGER.debug("Waiting for Profile Manager button to become visible...");
+			// Wait for button visibility
 			WebElement pmBtn = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(
 				By.xpath("//span[@aria-label='Profile Manager']")));
-			
-			LOGGER.debug("Profile Manager button is now visible");
 			
 			// Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center', inline: 'center'});", pmBtn);
 			
-			// Wait for element to be clickable
+			// Wait for clickability
 			pmBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(pmBtn));
 			
 			Assert.assertTrue(pmBtn.isDisplayed(), "Profile Manager button not visible in menu");
-			String applicationNameText = pmBtn.getText();
+			String applicationNameText = pmBtn.getAttribute("aria-label");
 			PageObjectHelper.log(LOGGER, applicationNameText + " application is displaying in KFONE Global Menu");
 			
 			// Click with fallback strategies
 			try {
 				pmBtn.click();
-				PageObjectHelper.log(LOGGER, "Clicked Profile Manager using standard click");
 			} catch (Exception e) {
+				LOGGER.warn("⚠️  Standard click failed, trying JavaScript click");
 				try {
 					js.executeScript("arguments[0].click();", pmBtn);
-					PageObjectHelper.log(LOGGER, "Clicked Profile Manager using JavaScript click");
 				} catch (Exception s) {
 					utils.jsClick(driver, pmBtn);
-					PageObjectHelper.log(LOGGER, "Clicked Profile Manager using utils.jsClick");
 				}
 			}
 			
@@ -583,41 +588,38 @@ public class PO06_PublishJobProfile {
 
 	public void click_on_architect_application_button_in_kfone_global_menu() {
 		try {
-			// PARALLEL EXECUTION FIX: Extended wait for page readiness
+			// Wait for spinners and page to be ready after menu opens
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 3);
 			
-			// PARALLEL EXECUTION FIX: Simple extended wait with frequent polling
+			// Extended wait with polling for Architect button
 			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
-			extendedWait.pollingEvery(java.time.Duration.ofMillis(200)); // Check every 200ms
+			extendedWait.pollingEvery(java.time.Duration.ofMillis(200));
 			
-			LOGGER.debug("Waiting for Architect button to become visible...");
+			// Wait for button visibility
 			WebElement architectBtn = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(
 				By.xpath("//span[@aria-label='Architect']")));
-			
-			LOGGER.debug("Architect button is now visible");
 			
 			// Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", architectBtn);
 			PerformanceUtils.waitForElement(driver, architectBtn, 2);
 			
-			// Wait for element to be clickable
+			// Wait for clickability
 			architectBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(architectBtn));
 			
 			Assert.assertTrue(architectBtn.isDisplayed(), "Architect button not visible in menu");
-			String applicationNameText = architectBtn.getText();
+			String applicationNameText = architectBtn.getAttribute("aria-label");
 			PageObjectHelper.log(LOGGER, applicationNameText + " application is displaying in KFONE Global Menu");
 			
 			// Click with fallback strategies
 			try {
 				architectBtn.click();
-				PageObjectHelper.log(LOGGER, "Clicked Architect using standard click");
 			} catch (Exception e) {
+				LOGGER.warn("⚠️  Standard click failed, trying JavaScript click");
 				try {
 					js.executeScript("arguments[0].click();", architectBtn);
-					PageObjectHelper.log(LOGGER, "Clicked Architect using JavaScript click");
 				} catch (Exception s) {
 					utils.jsClick(driver, architectBtn);
-					PageObjectHelper.log(LOGGER, "Clicked Architect using utils.jsClick");
 				}
 			}
 			
@@ -750,3 +752,6 @@ public class PO06_PublishJobProfile {
 		}
 	}
 }
+
+
+

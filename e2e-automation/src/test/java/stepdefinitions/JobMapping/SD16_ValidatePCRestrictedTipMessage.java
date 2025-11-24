@@ -14,7 +14,7 @@ public class SD16_ValidatePCRestrictedTipMessage {
 		super();		
 	}
 	
-	@Then("Navigate to System Configuration Page form KFONE Global Menu")
+	@Then("Navigate to System Configuration Page from KFONE Global Menu")
 	public void navigate_to_system_configuration_page_from_kfone_global_menu() throws IOException {
 		validatePCRestrictedTipMessage.getValidatePCRestrictedTipMessage().navigate_to_system_configuration_page_from_kfone_global_menu();
 	}
