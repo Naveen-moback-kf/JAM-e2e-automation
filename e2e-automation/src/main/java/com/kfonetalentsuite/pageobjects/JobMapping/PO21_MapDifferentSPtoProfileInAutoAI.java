@@ -1636,7 +1636,7 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 			try {
 				PerformanceUtils.waitForSpinnersToDisappear(driver);
 				PerformanceUtils.waitForSpinnersToDisappear(driver);
-				// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
+				Thread.sleep(2000);
 				PerformanceUtils.waitForPageReady(driver, 2);
 				WebElement	button = driver.findElement(By.xpath("//tbody//tr[2]//button[contains(text(),'different profile')] | //tbody//tr[2]//button[contains(@id,'view')]"));
 				js.executeScript("arguments[0].scrollIntoView(true);", button);
@@ -1777,25 +1777,32 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 	public void validate_profile_behavioural_competencies_in_details_popup_matches_with_mapped_success_profile_behavioural_competencies() {
 		if(manualMapping.get()) {
 			try {
-			js.executeScript("arguments[0].scrollIntoView(true);", roleSummary);
-			// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
-			PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
-			// Scroll element into view before clicking
-			WebElement element = wait.until(ExpectedConditions.elementToBeClickable(behaviourCompetenciesTabButton));
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
-			try { Thread.sleep(500); } catch (InterruptedException ie) {}
+		js.executeScript("arguments[0].scrollIntoView(true);", roleSummary);
+		// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
+		PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
+		
+		// Wait for any loaders to disappear before clicking
+		PerformanceUtils.waitForSpinnersToDisappear(driver);
+		
+		// Scroll element into view before clicking
+		WebElement element = wait.until(ExpectedConditions.elementToBeClickable(behaviourCompetenciesTabButton));
+		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
+		try { Thread.sleep(500); } catch (InterruptedException ie) {}
+		
+		// Wait for loaders again after scroll
+		PerformanceUtils.waitForSpinnersToDisappear(driver);
+		
+		try {
+			element.click();
+		} catch (Exception e) {
 			try {
-				element.click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", behaviourCompetenciesTabButton);
-				} catch (Exception s) {
-					utils.jsClick(driver, behaviourCompetenciesTabButton);
-				}
+				js.executeScript("arguments[0].click();", behaviourCompetenciesTabButton);
+			} catch (Exception s) {
+				utils.jsClick(driver, behaviourCompetenciesTabButton);
 			}
-				wait.until(ExpectedConditions.elementToBeClickable(behaviourCompetenciesTabButton)).click();
-				LOGGER.info("Clicked on BEHAVIOURAL COMPETENCIES screen in Profiles Details Popup");
-				ExtentCucumberAdapter.addTestStepLog("Clicked on BEHAVIOURAL COMPETENCIES screen in Profiles Details Popup");
+		}
+		LOGGER.info("Clicked on BEHAVIOURAL COMPETENCIES screen in Profiles Details Popup");
+		ExtentCucumberAdapter.addTestStepLog("Clicked on BEHAVIOURAL COMPETENCIES screen in Profiles Details Popup");
 				while(true) {
 					try {
 						if(viewMoreButtonInBehaviourCompetenciesTab.isEmpty()) {
