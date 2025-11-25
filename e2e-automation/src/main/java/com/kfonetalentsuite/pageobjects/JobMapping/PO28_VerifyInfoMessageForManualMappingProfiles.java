@@ -166,12 +166,12 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 					int rowIndex = getRowIndex(jobRow);
 					
 					if (rowIndex > 0) {
-						// CRITICAL: Validate this is a Manual Mapping profile (has "Search a different profile")
-						if (!isManualMappingProfile(rowIndex)) {
-							int profileNumber = getProfileNumber(rowIndex);
-							LOGGER.info(" Skipping Profile {} (row {}) - AutoMapped profile", profileNumber, rowIndex);
-							continue; // Skip this profile and look for Manual Mapping ones
-						}
+					// CRITICAL: Validate this is a Manual Mapping profile (has "Search a different profile")
+					if (!isManualMappingProfile(rowIndex)) {
+						int profileNumber = getProfileNumber(rowIndex);
+						LOGGER.debug("Skipping Profile {} - AutoMapped", profileNumber);
+						continue; // Skip this profile and look for Manual Mapping ones
+					}
 						
 						// FOUND: Manual Mapping profile with info message!
 						manualProfilesWithInfoMessages.add(infoMessage);
@@ -193,14 +193,10 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 						globalFirstManualJobNameWithInfoMessage = manualJobNameWithInfoMessage;
 						globalFirstManualJobCodeWithInfoMessage = manualJobCodeWithInfoMessage;
 						
-						// Display the extracted job details with profile context
-						LOGGER.info("... FOUND: Manual Mapping Profile {} with Info Message (table row {}) after search attempt {}:", profileNumber, rowIndex, searchAttempt);
-						LOGGER.info("  Job Name: {}", manualJobNameWithInfoMessage);
-						LOGGER.info("  Job Code: {}", manualJobCodeWithInfoMessage);
-						LOGGER.info("  Grade: {}", manualGradeWithInfoMessage);
-						LOGGER.info("  Department: {}", manualDepartmentWithInfoMessage);
-						LOGGER.info("  Function/Sub-function: {}", manualFunctionSubfunctionWithInfoMessage);
-						LOGGER.info(" GLOBAL TRACKING: First manual mapping profile stored (Row: {}, Profile: {}) for duplicate prevention", globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
+					// Display the extracted job details with profile context
+					LOGGER.info("✓ Found Manual Mapping Profile {}: {}", profileNumber, manualJobNameWithInfoMessage);
+					LOGGER.info("  Details - Grade: {}, Dept: {}, Func: {}", manualGradeWithInfoMessage, manualDepartmentWithInfoMessage, manualFunctionSubfunctionWithInfoMessage);
+					LOGGER.debug("Stored as first profile (Row: {}, Profile: {}) for duplicate prevention", globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
 						
 						return true; // Found! Return immediately to stop further searching
 					}
@@ -210,8 +206,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			}
 		}
 		
-		LOGGER.info(" No Manual Mapping profiles found in current {} visible profiles", infoMessages.size());
-		return false; // No Manual Mapping profile found in current visible profiles
+	return false; // No Manual Mapping profile found in current visible profiles
 	}
 
 	/**
@@ -242,11 +237,11 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 							continue;
 						}
 						
-						// CRITICAL: Validate this is a Manual Mapping profile (has "Search a different profile")
-						if (!isManualMappingProfile(candidateRowIndex)) {
-							LOGGER.info(" Skipping Profile {} (row {}) - AutoMapped profile", candidateProfileNumber, candidateRowIndex);
-							continue; // Skip this profile and look for Manual Mapping ones
-						}
+					// CRITICAL: Validate this is a Manual Mapping profile (has "Search a different profile")
+					if (!isManualMappingProfile(candidateRowIndex)) {
+						LOGGER.debug("Skipping Profile {} - AutoMapped", candidateProfileNumber);
+						continue; // Skip this profile and look for Manual Mapping ones
+					}
 						
 						// DOUBLE-CHECK: Extract job details and compare names/codes to ensure truly different
 						try {
@@ -300,42 +295,31 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 	 */
 	private boolean isManualMappingProfile(int rowIndex) {
 		try {
-			// Look for "Search a different profile" button (Manual Mapping profiles)
-			List<WebElement> searchDifferentButtons = driver.findElements(
-				By.xpath(String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(text(), 'Search a different profile') or contains(@aria-label, 'Search a different profile')]", rowIndex))
+			// PERFORMANCE: Use JavaScript to check for buttons instantly (no 20-second waits!)
+			Boolean hasSearchDifferentButton = (Boolean) jsExecutor.executeScript(
+				"var row = document.querySelector('#kf-job-container tbody tr:nth-child(" + rowIndex + ")');" +
+				"if (!row) return false;" +
+				"var searchBtn = row.querySelector('button');" +
+				"if (!searchBtn) return false;" +
+				"var text = searchBtn.textContent || searchBtn.getAttribute('aria-label') || '';" +
+				"return text.toLowerCase().includes('search') && text.toLowerCase().includes('different');"
 			);
 			
-			// Check if any of these buttons are visible and enabled
-			boolean hasSearchDifferentButton = searchDifferentButtons.stream()
-				.anyMatch(btn -> {
-					try {
-						return btn.isDisplayed() && btn.isEnabled();
-					} catch (Exception e) {
-						return false;
-					}
-				});
-			
-			if (hasSearchDifferentButton) {
-				LOGGER.debug("... Profile at row {} is Manual Mapping (has 'Search a different profile' button)", rowIndex);
+			if (hasSearchDifferentButton != null && hasSearchDifferentButton) {
+				LOGGER.debug("Profile at row {} is Manual Mapping", rowIndex);
 				return true;
 			}
 			
 			// Double-check: Look for "View Other Matches" button (AutoMapped profiles - should skip these)
-			List<WebElement> viewOtherMatchesButtons = driver.findElements(
-				By.xpath(String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(@aria-label, 'View other matches') or contains(text(), 'View Other Matches')]", rowIndex))
+			Boolean hasViewOtherMatchesButton = (Boolean) jsExecutor.executeScript(
+				"var row = document.querySelector('#kf-job-container tbody tr:nth-child(" + rowIndex + ")');" +
+				"if (!row) return false;" +
+				"var btn = row.querySelector('button#view-matches');" +
+				"return btn !== null;"
 			);
 			
-			boolean hasViewOtherMatchesButton = viewOtherMatchesButtons.stream()
-				.anyMatch(btn -> {
-					try {
-						return btn.isDisplayed() && btn.isEnabled();
-					} catch (Exception e) {
-						return false;
-					}
-				});
-			
-			if (hasViewOtherMatchesButton) {
-				LOGGER.debug(" Profile at row {} is AutoMapped (has 'View Other Matches' button) - skipping", rowIndex);
+			if (hasViewOtherMatchesButton != null && hasViewOtherMatchesButton) {
+				LOGGER.debug("Profile at row {} is AutoMapped - skipping", rowIndex);
 				return false;
 			}
 			
@@ -354,38 +338,34 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 	 */
 	private boolean scrollDownAndFindMoreManualMappingProfiles() {
 		try {
-			LOGGER.info(" Enhanced scrolling to find Manual Mapping profiles with info messages...");
+			LOGGER.debug("Scrolling...");
 			
-			// Get initial count of all profiles and info messages
-			int initialInfoMessageCount = driver.findElements(
-				By.xpath("//div[@id='org-job-container']//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']")
-			).size();
+			// PERFORMANCE: Use JavaScript to get counts instantly
+			int initialInfoMessageCount = ((Number) jsExecutor.executeScript(
+				"return document.querySelectorAll('#org-job-container div[role=\"button\"][aria-label*=\"Reduced match accuracy\"]').length;"
+			)).intValue();
 			
-			int initialProfileCount = driver.findElements(
-				By.xpath("//div[@id='org-job-container']//tbody//tr")
-			).size();
-			
-			LOGGER.info(" Initial state: {} info messages, {} table rows", initialInfoMessageCount, initialProfileCount);
+			int initialProfileCount = ((Number) jsExecutor.executeScript(
+				"return document.querySelectorAll('#org-job-container tbody tr').length;"
+			)).intValue();
 			
 			// Perform comprehensive scrolling to load more content
-			for (int i = 0; i < 10; i++) { // Increased scroll attempts
+			for (int i = 0; i < 10; i++) {
 				// Scroll down progressively - small increments to trigger lazy loading
-				jsExecutor.executeScript("window.scrollBy(0, window.innerHeight * 0.75);"); // 75% of viewport height
-				safeSleep(800); // Wait for content to load
+				jsExecutor.executeScript("window.scrollBy(0, window.innerHeight * 0.75);");
+				safeSleep(800);
 				
-				// Check if new content loaded
-				int currentInfoMessageCount = driver.findElements(
-					By.xpath("//div[@id='org-job-container']//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']")
-				).size();
+				// PERFORMANCE: Check counts using JavaScript (instant)
+				int currentInfoMessageCount = ((Number) jsExecutor.executeScript(
+					"return document.querySelectorAll('#org-job-container div[role=\"button\"][aria-label*=\"Reduced match accuracy\"]').length;"
+				)).intValue();
 				
-				int currentProfileCount = driver.findElements(
-					By.xpath("//div[@id='org-job-container']//tbody//tr")
-				).size();
+				int currentProfileCount = ((Number) jsExecutor.executeScript(
+					"return document.querySelectorAll('#org-job-container tbody tr').length;"
+				)).intValue();
 				
 				if (currentInfoMessageCount > initialInfoMessageCount || currentProfileCount > initialProfileCount) {
-					LOGGER.info("... New content loaded after scroll {}: {} info messages (+{}), {} table rows (+{})", 
-						i + 1, currentInfoMessageCount, (currentInfoMessageCount - initialInfoMessageCount),
-						currentProfileCount, (currentProfileCount - initialProfileCount));
+					LOGGER.debug("New content loaded after scroll {}", i + 1);
 					
 					// Continue scrolling a bit more to ensure we get enough content
 					for (int j = 0; j < 3; j++) {
@@ -394,30 +374,25 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 					}
 					
 					// Final count after additional scrolling
-					int finalInfoMessageCount = driver.findElements(
-						By.xpath("//div[@id='org-job-container']//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']")
-					).size();
+					int finalInfoMessageCount = ((Number) jsExecutor.executeScript(
+						"return document.querySelectorAll('#org-job-container div[role=\"button\"][aria-label*=\"Reduced match accuracy\"]').length;"
+					)).intValue();
 					
-					LOGGER.info(" Final result: {} info messages (net gain: {})", finalInfoMessageCount, (finalInfoMessageCount - initialInfoMessageCount));
 					return finalInfoMessageCount > initialInfoMessageCount;
 				}
 			}
 			
 			// Final attempt: Scroll to bottom and wait
-			LOGGER.info(" Final scroll attempt: Going to bottom of page...");
+			LOGGER.debug("Final scroll attempt");
 			jsExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-			safeSleep(2000); // Longer wait for final load
+			safeSleep(2000);
 			
 			// Final check
-			int finalInfoMessageCount = driver.findElements(
-				By.xpath("//div[@id='org-job-container']//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']")
-			).size();
+			int finalInfoMessageCount = ((Number) jsExecutor.executeScript(
+				"return document.querySelectorAll('#org-job-container div[role=\"button\"][aria-label*=\"Reduced match accuracy\"]').length;"
+			)).intValue();
 			
-			boolean foundNew = finalInfoMessageCount > initialInfoMessageCount;
-			LOGGER.info(" Scroll complete: Initial={}, Final={}, New content found={}", 
-				initialInfoMessageCount, finalInfoMessageCount, foundNew);
-				
-			return foundNew;
+			return finalInfoMessageCount > initialInfoMessageCount;
 			
 		} catch (Exception e) {
 			LOGGER.warn(" Error during enhanced scrolling operation for Manual Mapping profiles: " + e.getMessage());
@@ -556,14 +531,14 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 		boolean foundManualMappingProfile = false;
 		int searchAttempts = 0;
 		
-		// Phase 1: Check currently visible profiles first
-		searchAttempts++;
-		LOGGER.info(" Initial search for Manual Mapping profiles in visible content");
-		foundManualMappingProfile = checkCurrentProfilesForManualMapped(infoMessages, searchAttempts);
-		
-		// Phase 2: Scroll and check immediately after each scroll until found or end reached
-		while (!foundManualMappingProfile) {
-			LOGGER.info(" No Manual Mapping profiles found in current view, scrolling to load more profiles...");
+	// Phase 1: Check currently visible profiles first
+	searchAttempts++;
+	LOGGER.info("Searching for Manual Mapping profile...");
+	foundManualMappingProfile = checkCurrentProfilesForManualMapped(infoMessages, searchAttempts);
+	
+	// Phase 2: Scroll and check immediately after each scroll until found or end reached
+	while (!foundManualMappingProfile) {
+		LOGGER.debug("Scrolling to load more profiles...");
 			
 			// Scroll down to load more profiles
 			boolean foundMoreProfiles = scrollDownAndFindMoreManualMappingProfiles();
@@ -580,13 +555,12 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			);
 			LOGGER.info(" After scrolling: Found {} total info messages to check", infoMessages.size());
 			
-			// CRITICAL: Check immediately after each scroll - stop as soon as Manual Mapping profile found
-			foundManualMappingProfile = checkCurrentProfilesForManualMapped(infoMessages, searchAttempts);
-			
-			if (foundManualMappingProfile) {
-				LOGGER.info(" OPTIMIZATION: Stopped scrolling immediately after finding Manual Mapping profile!");
-				break; // Stop scrolling immediately!
-			}
+		// CRITICAL: Check immediately after each scroll - stop as soon as Manual Mapping profile found
+		foundManualMappingProfile = checkCurrentProfilesForManualMapped(infoMessages, searchAttempts);
+		
+		if (foundManualMappingProfile) {
+			break; // Stop scrolling immediately!
+		}
 		}
 		
 		// ENHANCED: Handle no Manual Mapping profiles found as success case
@@ -756,15 +730,13 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 				throw new IOException("Manually mapped profile job details not found. Please call find_manually_mapped_profile_with_missing_data_and_info_message() first.");
 			}
 			
-			int profileNumber = getProfileNumber(currentManualRowIndex);
-			LOGGER.info("Extracted Job Details from Manually Mapped Profile {} (Job Mapping page):", profileNumber);
-			LOGGER.info("  Job Name: {}", manualJobNameWithInfoMessage);
-			LOGGER.info("  Job Code: {}", manualJobCodeWithInfoMessage);
-			LOGGER.info("  Grade: {}", manualGradeWithInfoMessage);
-			LOGGER.info("  Department: {}", manualDepartmentWithInfoMessage);
-			LOGGER.info("  Function/Sub-function: {}", manualFunctionSubfunctionWithInfoMessage);
-			
-			ExtentCucumberAdapter.addTestStepLog("Extracted job details for Manually Mapped Profile " + profileNumber + ": " + manualJobNameWithInfoMessage + " (" + manualJobCodeWithInfoMessage + ")");
+		int profileNumber = getProfileNumber(currentManualRowIndex);
+		LOGGER.info("Profile {} details:", profileNumber);
+		LOGGER.info("  Job: {} ({})", manualJobNameWithInfoMessage, manualJobCodeWithInfoMessage);
+		LOGGER.info("  Grade: {}, Dept: {}", manualGradeWithInfoMessage, manualDepartmentWithInfoMessage);
+		LOGGER.info("  Func: {}", manualFunctionSubfunctionWithInfoMessage);
+		
+		ExtentCucumberAdapter.addTestStepLog("Extracted job details for Profile " + profileNumber);
 			
 		} catch (Exception e) {
 			LOGGER.error("Error extracting job details from manually mapped profile with Info Message: " + e.getMessage());
@@ -773,77 +745,62 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 	}
 
 	public void click_on_button_for_manually_mapped_profile_with_info_message(String buttonText) throws IOException {
+	try {
+		int profileNumber = getProfileNumber(currentManualRowIndex);
+		
+		// Recovery mechanism in case currentManualRowIndex was reset
+		if (currentManualRowIndex <= 0 && !manualRowIndicesWithInfoMessages.isEmpty()) {
+			currentManualRowIndex = manualRowIndicesWithInfoMessages.get(0);
+			profileNumber = getProfileNumber(currentManualRowIndex);
+			LOGGER.debug("Restored row index for Profile {}", profileNumber);
+		}
+		
+		if (currentManualRowIndex <= 0) {
+			throw new IOException("No valid row index found for manually mapped profile. Call find_manually_mapped_profile_with_missing_data_and_info_message() first.");
+		}
+		
+	// PERFORMANCE: Use JavaScript to find button instantly
+	WebElement searchButton = (WebElement) jsExecutor.executeScript(
+		"var row = document.querySelector('#kf-job-container tbody tr:nth-child(" + currentManualRowIndex + ")');" +
+		"if (!row) return null;" +
+		"var buttons = Array.from(row.querySelectorAll('button'));" +
+		"return buttons.find(b => {" +
+		"  var text = (b.textContent || b.getAttribute('aria-label') || '').toLowerCase();" +
+		"  return text.includes('search') || text.includes('different');" +
+		"});"
+	);
+	
+	if (searchButton == null) {
+		throw new IOException("Could not find '" + buttonText + "' button for the manually mapped profile with Info Message");
+	}
+		
+		// Wait for any loaders to disappear before clicking
 		try {
-			int profileNumber = getProfileNumber(currentManualRowIndex);
-			LOGGER.info("Clicking '{}' button for Manually Mapped Profile {} - {} ({})", 
-				buttonText, profileNumber, manualJobNameWithInfoMessage, manualJobCodeWithInfoMessage);
-			
-			// Recovery mechanism in case currentManualRowIndex was reset
-			if (currentManualRowIndex <= 0 && !manualRowIndicesWithInfoMessages.isEmpty()) {
-				currentManualRowIndex = manualRowIndicesWithInfoMessages.get(0);
-				profileNumber = getProfileNumber(currentManualRowIndex);
-				LOGGER.info("Restored row index for Manually Mapped Profile {} button click", profileNumber);
-			}
-			
-			if (currentManualRowIndex <= 0) {
-				throw new IOException("No valid row index found for manually mapped profile. Call find_manually_mapped_profile_with_missing_data_and_info_message() first.");
-			}
-			
-			// Find the Search a Different Profile button in the corresponding row
-			String[] searchButtonXPaths = {
-				String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(@aria-label,'Search') or contains(text(),'Search')]", currentManualRowIndex),
-				String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(text(),'Different Profile')]", currentManualRowIndex),
-				String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(@class,'search') or contains(@class,'different')]", currentManualRowIndex)
-			};
-			
-			WebElement searchButton = null;
-			
-			for (String xpath : searchButtonXPaths) {
-				try {
-					List<WebElement> buttons = driver.findElements(By.xpath(xpath));
-					for (WebElement button : buttons) {
-						if (button.isDisplayed() && button.isEnabled()) {
-							searchButton = button;
-							break;
-						}
-					}
-					if (searchButton != null) break;
-				} catch (Exception e) {
-					// Continue with next XPath
-				}
-			}
-			
-			if (searchButton == null) {
-				throw new IOException("Could not find '" + buttonText + "' button for the manually mapped profile with Info Message");
-			}
-			
-			// Wait for any loaders to disappear before clicking
-			try {
-				WebDriverWait loaderWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-				loaderWait.until(ExpectedConditions.invisibilityOfElementLocated(
-					By.xpath("//div[@data-testid='loader'] | //div[contains(@class, 'loader')] | //div[contains(@class, 'loading')]")
-				));
-			} catch (Exception e) {
-				LOGGER.debug("No loader found or already hidden for manually mapped profile");
-			}
-			
-			// Scroll button into view and wait for it to be clickable
-			jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", searchButton);
-			safeSleep(1000);
-			
-			// Wait for button to be clickable
-			try {
-				WebDriverWait clickWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-				clickWait.until(ExpectedConditions.elementToBeClickable(searchButton));
-			} catch (Exception e) {
-				LOGGER.debug("Button clickability wait timed out for manually mapped profile, proceeding with click");
-			}
+			WebDriverWait loaderWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+			loaderWait.until(ExpectedConditions.invisibilityOfElementLocated(
+				By.xpath("//div[@data-testid='loader'] | //div[contains(@class, 'loader')] | //div[contains(@class, 'loading')]")
+			));
+		} catch (Exception e) {
+			LOGGER.debug("No loader found or already hidden");
+		}
 		
-		performRobustClick(searchButton, buttonText + " button");
-		safeSleep(1500);
+		// Scroll button into view and wait for it to be clickable
+		jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", searchButton);
+		safeSleep(1000);
 		
-		LOGGER.info("Clicked '{}' button for Manually Mapped Profile {}", buttonText, profileNumber);
-		ExtentCucumberAdapter.addTestStepLog("Clicked '" + buttonText + "' button for Manually Mapped Profile " + profileNumber + " - " + manualJobNameWithInfoMessage);
+		// Wait for button to be clickable
+		try {
+			WebDriverWait clickWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+			clickWait.until(ExpectedConditions.elementToBeClickable(searchButton));
+		} catch (Exception e) {
+			LOGGER.debug("Button clickability wait timed out, proceeding with click");
+		}
+	
+	performRobustClick(searchButton, buttonText + " button");
+	safeSleep(1500);
+	
+	LOGGER.info("Clicked '{}' button for Profile {}", buttonText, profileNumber);
+	ExtentCucumberAdapter.addTestStepLog("Clicked '" + buttonText + "' button for Profile " + profileNumber);
 			
 		} catch (Exception e) {
 			LOGGER.error("Failed to click '{}' button for manually mapped profile: {}", buttonText, e.getMessage());
@@ -971,14 +928,11 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 				}
 			}
 			
-			LOGGER.info("Extracted Job Details from Manual Mapping page:");
-			LOGGER.info("  Job Name: {}", comparisonJobName);
-			LOGGER.info("  Job Code: {}", comparisonJobCode);
-			LOGGER.info("  Grade: {}", comparisonGrade);
-			LOGGER.info("  Department: {}", comparisonDepartment);
-			LOGGER.info("  Function/Sub-function: {}", comparisonFunction);
-			
-			ExtentCucumberAdapter.addTestStepLog("Extracted job details from Manual Mapping page: " + comparisonJobName + " (" + comparisonJobCode + ")");
+		LOGGER.debug("Extracted from Manual Mapping page:");
+		LOGGER.debug("  Job: {} ({}), Grade: {}, Dept: {}, Func: {}", 
+			comparisonJobName, comparisonJobCode, comparisonGrade, comparisonDepartment, comparisonFunction);
+		
+		ExtentCucumberAdapter.addTestStepLog("Extracted job details from Manual Mapping page");
 			
 		} catch (Exception e) {
 			LOGGER.error("Error extracting job details from Manual Mapping page: " + e.getMessage());
@@ -1425,16 +1379,13 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			// Calculate profile number for logging
 			int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
 			
-			// Display extracted job details
-			LOGGER.info("Extracted job details from second manually mapped profile {} (table row {}):", profileNumber, secondCurrentManualRowIndex);
-			LOGGER.info("  Job Name: {}", secondManualJobNameWithInfoMessage);
-			LOGGER.info("  Job Code: {}", secondManualJobCodeWithInfoMessage);
-			LOGGER.info("  Grade: {}", secondManualGradeWithInfoMessage);
-			LOGGER.info("  Department: {}", secondManualDepartmentWithInfoMessage);
-			LOGGER.info("  Function/Sub-function: {}", secondManualFunctionSubfunctionWithInfoMessage);
-			
-			ExtentCucumberAdapter.addTestStepLog("Successfully extracted job details from second manually mapped profile: " + 
-				secondManualJobNameWithInfoMessage + " (" + secondManualJobCodeWithInfoMessage + ")");
+		// Display extracted job details
+		LOGGER.info("Second profile {} details:", profileNumber);
+		LOGGER.info("  Job: {} ({})", secondManualJobNameWithInfoMessage, secondManualJobCodeWithInfoMessage);
+		LOGGER.info("  Grade: {}, Dept: {}", secondManualGradeWithInfoMessage, secondManualDepartmentWithInfoMessage);
+		LOGGER.info("  Func: {}", secondManualFunctionSubfunctionWithInfoMessage);
+		
+		ExtentCucumberAdapter.addTestStepLog("Extracted job details from second profile " + profileNumber);
 			
 		} catch (Exception e) {
 			LOGGER.error("Error extracting job details from second manually mapped profile: " + e.getMessage());
@@ -1444,48 +1395,38 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 
 	public void click_on_button_for_second_manually_mapped_profile_with_info_message(String buttonText) throws IOException {
 		try {
-			LOGGER.info("Clicking '{}' button for second manually mapped profile", buttonText);
-			
-			Assert.assertTrue(secondCurrentManualRowIndex > 0, "Second manually mapped profile row index should be set before clicking button");
-			
-			// Calculate profile number for logging
-			int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
-			
-			// Wait for any loader to disappear before clicking
-			try {
-				wait.until(ExpectedConditions.invisibilityOfElementLocated(
-					By.xpath("//div[@data-testid='loader'] | //div[contains(@class, 'loader')] | //div[contains(@class, 'loading')]")
-				));
-			} catch (Exception e) {
-				// Loader not found or already disappeared
-			}
-			
-			// Find the "Search a Different Profile" button in the matching row
-			WebElement targetButton = null;
-			String[] buttonXPaths = {
-				"//div[@id='kf-job-container']//tbody//tr[" + secondCurrentManualRowIndex + "]//button[contains(text(), '" + buttonText + "')]",
-				"//div[@id='kf-job-container']//tbody//tr[" + secondCurrentManualRowIndex + "]//button[@aria-label='" + buttonText + "']",
-				"//div[@id='kf-job-container']//tbody//tr[" + secondCurrentManualRowIndex + "]//button[contains(@id,'search') or contains(@aria-label,'Search')]"
-			};
-			
-			for (String xpath : buttonXPaths) {
-				try {
-					targetButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
-					if (targetButton.isDisplayed()) {
-						break;
-					}
-				} catch (Exception e) {
-					// Continue to next XPath
-				}
-			}
-			
-			Assert.assertNotNull(targetButton, "Could not find '" + buttonText + "' button for second manually mapped profile in row " + secondCurrentManualRowIndex);
+		Assert.assertTrue(secondCurrentManualRowIndex > 0, "Second manually mapped profile row index should be set before clicking button");
 		
-		// Perform robust click
-		performRobustClick(targetButton, buttonText + " button for second manually mapped profile " + profileNumber);
+		// Calculate profile number for logging
+		int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
 		
-		LOGGER.info("Clicked '{}' button for second manually mapped profile {}", buttonText, profileNumber);
-		ExtentCucumberAdapter.addTestStepLog("Clicked '" + buttonText + "' button for second manually mapped profile " + profileNumber);
+	// Wait for any loader to disappear before clicking
+	try {
+		wait.until(ExpectedConditions.invisibilityOfElementLocated(
+			By.xpath("//div[@data-testid='loader'] | //div[contains(@class, 'loader')] | //div[contains(@class, 'loading')]")
+		));
+	} catch (Exception e) {
+		// Loader not found or already disappeared
+	}
+	
+	// PERFORMANCE: Use JavaScript to find button instantly
+	WebElement targetButton = (WebElement) jsExecutor.executeScript(
+		"var row = document.querySelector('#kf-job-container tbody tr:nth-child(" + secondCurrentManualRowIndex + ")');" +
+		"if (!row) return null;" +
+		"var buttons = Array.from(row.querySelectorAll('button'));" +
+		"return buttons.find(b => {" +
+		"  var text = (b.textContent || b.getAttribute('aria-label') || '').toLowerCase();" +
+		"  return text.includes('search') || text.includes('different');" +
+		"});"
+	);
+	
+	Assert.assertNotNull(targetButton, "Could not find '" + buttonText + "' button for second manually mapped profile in row " + secondCurrentManualRowIndex);
+	
+	// Perform robust click
+	performRobustClick(targetButton, buttonText + " button for second profile");
+	
+	LOGGER.info("Clicked '{}' button for second profile {}", buttonText, profileNumber);
+	ExtentCucumberAdapter.addTestStepLog("Clicked '" + buttonText + "' button for second profile " + profileNumber);
 			
 		} catch (Exception e) {
 			LOGGER.error("Failed to click '{}' button for second manually mapped profile: {}", buttonText, e.getMessage());
@@ -1498,29 +1439,26 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			LOGGER.info("Extracting job details from Manual Mapping page for second manually mapped profile");
 			safeSleep(2000);
 			
-			// Verify we are on Manual Mapping page
-			try {
-				wait.until(ExpectedConditions.presenceOfElementLocated(
-					By.xpath("//h1[contains(text(), 'Manual Mapping')] | //div[contains(@class, 'manual-mapping-container')] | //div[contains(text(), 'Manual Mapping')]")
-				));
-			} catch (Exception e) {
-				LOGGER.warn("Could not confirm Manual Mapping page presence: " + e.getMessage());
-			}
+		// Verify we are on Manual Mapping page
+		try {
+			wait.until(ExpectedConditions.presenceOfElementLocated(
+				By.xpath("//h1[contains(text(), 'Manual Mapping')] | //div[contains(@class, 'manual-mapping-container')] | //div[contains(text(), 'Manual Mapping')]")
+			));
+		} catch (Exception e) {
+			// Page presence check not required, continue with extraction
+		}
 			
 			// Extract job details that should match those from listing page
 			// These are stored in secondManual* fields and should be verified
 			
-			// Calculate profile number for logging
-			int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
-			
-			LOGGER.info("Job details on Manual Mapping page for second manually mapped profile {} should match:", profileNumber);
-			LOGGER.info("  Expected Job Name: {}", secondManualJobNameWithInfoMessage);
-			LOGGER.info("  Expected Job Code: {}", secondManualJobCodeWithInfoMessage);
-			LOGGER.info("  Expected Grade: {}", secondManualGradeWithInfoMessage);
-			LOGGER.info("  Expected Department: {}", secondManualDepartmentWithInfoMessage);
-			LOGGER.info("  Expected Function/Sub-function: {}", secondManualFunctionSubfunctionWithInfoMessage);
-			
-			ExtentCucumberAdapter.addTestStepLog("Extracted job details from Manual Mapping page for second manually mapped profile " + profileNumber);
+		// Calculate profile number for logging
+		int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
+		
+		LOGGER.debug("Expected for profile {}: {} ({}), Grade: {}, Dept: {}, Func: {}", 
+			profileNumber, secondManualJobNameWithInfoMessage, secondManualJobCodeWithInfoMessage,
+			secondManualGradeWithInfoMessage, secondManualDepartmentWithInfoMessage, secondManualFunctionSubfunctionWithInfoMessage);
+		
+		ExtentCucumberAdapter.addTestStepLog("Extracted job details from Manual Mapping page for second profile " + profileNumber);
 			
 		} catch (Exception e) {
 			LOGGER.error("Error extracting job details from Manual Mapping page for second manually mapped profile: " + e.getMessage());
