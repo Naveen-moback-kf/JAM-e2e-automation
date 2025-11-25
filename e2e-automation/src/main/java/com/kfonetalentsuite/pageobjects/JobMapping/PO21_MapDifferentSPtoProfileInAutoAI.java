@@ -695,6 +695,14 @@ public class PO21_MapDifferentSPtoProfileInAutoAI {
 				js.executeScript("arguments[0].scrollIntoView(true);", roleSummary);
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
 				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
+				
+				// Wait for any blocking loader overlays to disappear
+				try {
+					wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@data-testid='loader']")));
+				} catch (Exception e) {
+					// Loader not present or already gone
+				}
+				
 				wait.until(ExpectedConditions.elementToBeClickable(skillsTabButton)).click();
 				LOGGER.info("Clicked on Skills screen");
 				ExtentCucumberAdapter.addTestStepLog("Clicked on Skills screen");
@@ -1198,6 +1206,14 @@ public void click_on_last_saved_profile_name_in_manual_mapping_screen() {
 				js.executeScript("arguments[0].scrollIntoView(true);", manualMappingPageProfileRoleSummary);
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
 				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
+				
+				// Wait for any blocking loader overlays to disappear
+				try {
+					wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@data-testid='loader']")));
+				} catch (Exception e) {
+					// Loader not present or already gone
+				}
+				
 				wait.until(ExpectedConditions.elementToBeClickable(manualMappingPageProfileSkills)).click();
 				LOGGER.info("Clicked on SKILLS screen of Last Saved Profile in Manual Mapping screen");
 				ExtentCucumberAdapter.addTestStepLog("Clicked on SKILLS screen of Last Saved Profile in Manual Mapping screen");
@@ -1781,16 +1797,20 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 		// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
 		PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
 		
-		// Wait for any loaders to disappear before clicking
-		PerformanceUtils.waitForSpinnersToDisappear(driver);
+		// Wait for any blocking loader overlays to disappear
+		try {
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@data-testid='loader']")));
+		} catch (Exception e) {
+			// Loader not present or already gone
+		}
 		
 		// Scroll element into view before clicking
 		WebElement element = wait.until(ExpectedConditions.elementToBeClickable(behaviourCompetenciesTabButton));
 		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
 		try { Thread.sleep(500); } catch (InterruptedException ie) {}
 		
-		// Wait for loaders again after scroll
-		PerformanceUtils.waitForSpinnersToDisappear(driver);
+		// Wait for element to be clickable without any overlay
+		wait.until(ExpectedConditions.elementToBeClickable(behaviourCompetenciesTabButton));
 		
 		try {
 			element.click();
@@ -1853,9 +1873,17 @@ public void click_on_save_selection_button_in_manual_job_mapping_screen() {
 				js.executeScript("arguments[0].scrollIntoView(true);", roleSummary);
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
 				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
+				
+				// Wait for any blocking loader overlays to disappear
+				try {
+					wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//div[@data-testid='loader']")));
+				} catch (Exception e) {
+					// Loader not present or already gone
+				}
+				
 				wait.until(ExpectedConditions.elementToBeClickable(skillsTabButton)).click();
-				LOGGER.info("Clicked on BEHAVIOURAL COMPETENCIES screen in Profiles Details Popup");
-				ExtentCucumberAdapter.addTestStepLog("Clicked on BEHAVIOURAL COMPETENCIES screen in Profiles Details Popup");
+				LOGGER.info("Clicked on SKILLS screen in Profiles Details Popup");
+				ExtentCucumberAdapter.addTestStepLog("Clicked on SKILLS screen in Profiles Details Popup");
 				while(true) {
 					try {
 						if(viewMoreButtonInSkillsTab.isEmpty()) {

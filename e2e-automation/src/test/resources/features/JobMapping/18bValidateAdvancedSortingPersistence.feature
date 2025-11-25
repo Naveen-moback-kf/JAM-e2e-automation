@@ -9,6 +9,8 @@ Feature: Validate Advanced Sorting Persistence in Job Mapping UI
   @ApplyFiltersWithSorting
   Scenario: Apply filters while sorting is active
     When User is in Job Mapping page
+    Then Verify job profiles count is displaying on the page
+    Then Sort Job Profiles by Organization Grade in Ascending order
     Then Click on Filters dropdown button
     Then Click on Mapping Status Filters dropdown button
     And Select one option in Mapping Status Filters dropdown

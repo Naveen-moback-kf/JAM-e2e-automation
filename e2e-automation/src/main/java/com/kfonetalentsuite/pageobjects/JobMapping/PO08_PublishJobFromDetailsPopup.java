@@ -52,19 +52,19 @@ public class PO08_PublishJobFromDetailsPopup {
 
 	public void click_on_publish_profile_button_in_profile_details_popup() {
 		try {
-			// Wait for button to be visible and clickable
-			WebElement publishButton = wait.until(ExpectedConditions.elementToBeClickable(publishProfileBtnInPopup));
+		// Wait for button to be visible and clickable
+		WebElement publishButton = wait.until(ExpectedConditions.elementToBeClickable(publishProfileBtnInPopup));
 
-			// Try regular click first
-			try {
-				publishButton.click();
-			} catch (Exception clickException) {
-				// Fallback: Use JavaScript click if regular click fails
-				LOGGER.warn("Regular click failed, using JavaScript click");
-				js.executeScript("arguments[0].click();", publishButton);
-			}
+		// Try regular click first
+		try {
+			publishButton.click();
+		} catch (Exception clickException) {
+			// Fallback: Use JavaScript click if regular click fails
+			LOGGER.debug("Standard click failed, using JavaScript click for Publish button");
+			js.executeScript("arguments[0].click();", publishButton);
+		}
 
-			PageObjectHelper.log(LOGGER, "Clicked Publish Profile button in Profile Details popup");
+		PageObjectHelper.log(LOGGER, "Clicked Publish Profile button in Profile Details popup");
 
 			// Wait for loading spinner to disappear
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);

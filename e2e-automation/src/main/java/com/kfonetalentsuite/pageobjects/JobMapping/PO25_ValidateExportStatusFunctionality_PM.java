@@ -106,17 +106,13 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	@CacheLookup
 	public WebElement FunctionDropdownofSP;
 	
-	@FindBy(xpath = "//kf-dropdown-item//div//span[contains(text(),'Academic')]")
-	@CacheLookup
-	public WebElement FunctionValue;
+	// REMOVED: Hardcoded function/subfunction values - now dynamically selected from available options
+	// Old elements: FunctionValue ("Academic"), SubFunctionValue ("Academic Medical Affairs")
+	// New approach: Select first available option from dropdown (see modify_function_and_sub_function_values_of_the_success_profile method)
 	
 	@FindBy(xpath = "//label[contains(text(),'Subfunction')]//..//..//button")
 	@CacheLookup
 	public WebElement SubFunctionDropdownofSP;
-	
-	@FindBy(xpath = "//div//span[contains(text(),'Academic Medical Affairs')]")
-	@CacheLookup
-	public WebElement SubFunctionValue;
 	
 	@FindBy(xpath = "//*[contains(text(),'Done')]")
 	@CacheLookup
@@ -139,31 +135,26 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	
 	/**
 	 * Enhanced click method with multiple fallback strategies
+	 * Logs only the element clicked, not the technical strategy used
 	 * @param element The WebElement to click
 	 * @param elementName Name of the element for logging
 	 */
 	private void performEnhancedClick(WebElement element, String elementName) {
 		try {
-			// Strategy 1: Standard WebDriver click
 			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
-			PageObjectHelper.log(LOGGER, "Clicked on " + elementName + " using normal click");
+			PageObjectHelper.log(LOGGER, "Clicked on " + elementName);
 		} catch (ElementNotInteractableException | TimeoutException e1) {
 			try {
-				// Strategy 2: JavaScript click
 				js.executeScript("arguments[0].click();", element);
-				PageObjectHelper.log(LOGGER, "Clicked on " + elementName + " using JavaScript click");
+				PageObjectHelper.log(LOGGER, "Clicked on " + elementName);
 			} catch (Exception e2) {
 				try {
-					// Strategy 3: Utility click
 					utils.jsClick(driver, element);
-					PageObjectHelper.log(LOGGER, "Clicked on " + elementName + " using utility click");
-							} catch (Exception e3) {
-				LOGGER.error("All click strategies failed for: " + elementName);
-				// Capture screenshot for click failure
-				LOGGER.error("Enhanced click failed for element: " + elementName + " - Method: performEnhancedClick", e3);
-				e3.printStackTrace();
-				throw e3;
-			}
+					PageObjectHelper.log(LOGGER, "Clicked on " + elementName);
+				} catch (Exception e3) {
+					LOGGER.error("Click failed for: " + elementName);
+					throw e3;
+				}
 			}
 		}
 	}
@@ -288,60 +279,52 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	private void logAndReport(String message) {
 		PageObjectHelper.log(LOGGER, message);
 	}
-	
 
-	
-	/**
-	 * Helper method to wait for page navigation after click
-	 * Returns true if navigation occurred, false otherwise
-	 */
-	private boolean waitForPageNavigation() {
+	private boolean waitForPageNavigation(int timeoutSeconds) {
 		try {
-			// Strategy 1: Wait for URL change (if applicable)
-			String currentUrl = driver.getCurrentUrl();
+			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 			
-			// Strategy 2: Wait for specific elements that indicate navigation
-			// Check if SP details page elements appear
 			try {
-				wait.until(ExpectedConditions.or(
+				shortWait.until(ExpectedConditions.or(
 					ExpectedConditions.visibilityOf(SPdetailsPageText),
-					ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Select your view')]")),
-					ExpectedConditions.urlContains("profile"),
-					ExpectedConditions.urlContains("details")
+					ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Select your view')]"))
 				));
 				
-				// Additional wait for page stability
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForUIStability(driver, 1);
-			
-				PageObjectHelper.log(LOGGER, "Page navigation detected - SP details page loaded");
-				return true;
-				
-			} catch (Exception e) {
-				// Strategy 3: Check for URL change
-				String newUrl = driver.getCurrentUrl();
-				if (!currentUrl.equals(newUrl)) {
-					PageObjectHelper.log(LOGGER, "Page navigation detected - URL changed from " + currentUrl + " to " + newUrl);
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-					return true;
-				}
-				
-				// Strategy 4: Check for page title change
-				try {
-					wait.until(ExpectedConditions.not(ExpectedConditions.titleIs(driver.getTitle())));
-					PageObjectHelper.log(LOGGER, "Page navigation detected - Title changed");
-					return true;
-				} catch (Exception titleException) {
-					LOGGER.warn("No navigation detected - staying on same page");
+				String currentUrl = driver.getCurrentUrl();
+				if (currentUrl.contains("/search")) {
 					return false;
 				}
+				
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 3);
+				return true;
+				
+			} catch (TimeoutException e) {
+				String currentUrl = driver.getCurrentUrl();
+				
+				if (currentUrl.contains("/search")) {
+					return false;
+				}
+				
+				String urlPath = "";
+				try {
+					java.net.URL url = new java.net.URL(currentUrl);
+					urlPath = url.getPath() + (url.getRef() != null ? "#" + url.getRef() : "");
+				} catch (Exception urlEx) {
+					urlPath = currentUrl;
+				}
+				
+				boolean isDetailsPage = urlPath.contains("/sp/") || 
+				                       urlPath.contains("/success-profile/") ||
+				                       urlPath.contains("/details/");
+				
+				if (isDetailsPage) {
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 3);
+					return true;
+				}
+				return false;
 			}
 			
 		} catch (Exception e) {
-			LOGGER.warn("Error during navigation detection: " + e.getMessage());
-			// Capture screenshot for navigation detection failure
-			LOGGER.error("Navigation detection failed - Method: navigation_detection_failed", e);
-			e.printStackTrace();
 			return false;
 		}
 	}
@@ -516,7 +499,6 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			}
 			
 	performEnhancedClick(checkbox, "checkbox of Success profile with name: " + SPJobName.get());
-	logAndReport("Clicked on checkbox of Success profile with name : " + SPJobName.get() +" in HCM Sync Profiles screen in PM");
 		PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(1);
 			
 		} catch (TimeoutException e) {
@@ -598,16 +580,57 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	}
 	
 	/**
-	 * Helper method to scroll through table rows to ensure they are loaded
+	 * Scroll through table rows to ensure they are loaded
 	 */
 	private void scrollThroughTableRows(int maxRows) {
+		int lastSuccessfulRow = 0;
+		int scrollAttempts = 0;
+		int maxScrollAttempts = 10;
+		
 		for(int j = 1; j <= maxRows; j++) {
 			try {
-				WebElement rowElement = findTableElement(j, 1);
+				String xpath = String.format("//tbody//tr[%d]//td[1]//*", j);
+				WebElement rowElement = driver.findElement(By.xpath(xpath));
 				scrollToElement(rowElement);
+				lastSuccessfulRow = j;
+				scrollAttempts = 0;
+				
+			} catch(NoSuchElementException e) {
+				if (lastSuccessfulRow > 0) {
+					try {
+						String lastRowXpath = String.format("//tbody//tr[%d]//td[1]//*", lastSuccessfulRow);
+						WebElement lastRow = driver.findElement(By.xpath(lastRowXpath));
+						
+						js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'end'});", lastRow);
+						PerformanceUtils.waitForUIStability(driver, 1);
+						js.executeScript("window.scrollBy(0, 500);");
+						PerformanceUtils.waitForUIStability(driver, 1);
+						
+						try {
+							String xpath = String.format("//tbody//tr[%d]//td[1]//*", j);
+							WebElement rowElement = driver.findElement(By.xpath(xpath));
+							scrollToElement(rowElement);
+							lastSuccessfulRow = j;
+							scrollAttempts = 0;
+						} catch (NoSuchElementException retryEx) {
+							scrollAttempts++;
+							if (scrollAttempts >= maxScrollAttempts) {
+								break;
+							}
+							j--;
+						}
+					} catch (Exception scrollEx) {
+						scrollAttempts++;
+						if (scrollAttempts >= maxScrollAttempts) {
+							break;
+						}
+						j--;
+					}
+				} else {
+					break;
+				}
 			} catch(Exception e) {
-				// If row doesn't exist, continue
-				LOGGER.debug("Row {} not found or not accessible", j);
+				LOGGER.debug("Error accessing row {}: {}", j, e.getMessage());
 			}
 		}
 	}
@@ -615,23 +638,23 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 	public void user_should_click_on_recently_exported_success_profile_job_name() {
 		try {
 			// Wait for page to be ready
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		PerformanceUtils.waitForUIStability(driver, 1);
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PerformanceUtils.waitForPageReady(driver, 2);
 		
 	// Enhanced scrolling logic with better element targeting
 	if (rowNumber.get() == 1) {
-		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", showingJobResultsCount);
+		js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", showingJobResultsCount);
 	} else if(rowNumber.get() < 5) {
 		WebElement SP_JobName = wait.until(ExpectedConditions.presenceOfElementLocated(
 			By.xpath("//tbody//tr[1]//td[1]//*")));
-		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", SP_JobName);
+		js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", SP_JobName);
 	} else if(rowNumber.get() > 5) {
 		WebElement SP_JobName = wait.until(ExpectedConditions.presenceOfElementLocated(
 			By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()-5) + "]//td[1]//*")));
-		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", SP_JobName);
+		js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", SP_JobName);
 	}
 	
-PerformanceUtils.waitForUIStability(driver, 1);
+	PerformanceUtils.waitForUIStability(driver, 1);
 
 	// Enhanced element location with multiple fallback strategies
 	WebElement E_SP_JobName = null;
@@ -652,103 +675,155 @@ PerformanceUtils.waitForUIStability(driver, 1);
 		// Verify element text matches expected
 		Assert.assertEquals(E_SP_JobName.getText(), SPJobName.get());
 			
-			// Scroll element into view and ensure it's visible
-		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", E_SP_JobName);
-		PerformanceUtils.waitForUIStability(driver, 1);
+		// Scroll element into view and ensure it's ready
+		js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", E_SP_JobName);
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 		
-		// CRITICAL: Wait for any spinners before clicking
-		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		// Wait for element to be clickable with shorter timeout
+		WebDriverWait clickWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		clickWait.until(ExpectedConditions.elementToBeClickable(E_SP_JobName));
 		
-			// Enhanced click operation with multiple strategies
-			boolean clickSuccessful = false;
-			
+		// Try multiple click strategies
+		boolean navigationSuccessful = false;
+		
+		// Strategy 1: Double-click with Actions
+		if (!navigationSuccessful) {
 			try {
 				org.openqa.selenium.interactions.Actions actions = new org.openqa.selenium.interactions.Actions(driver);
-			actions.doubleClick(E_SP_JobName).perform();
-			PerformanceUtils.waitForUIStability(driver, 1);
-			LOGGER.info("Click successful using double-click approach...");
-				if (waitForPageNavigation()) {
-					LOGGER.info("Navigation successful after double-click");
-					clickSuccessful = true;
+				actions.moveToElement(E_SP_JobName)
+					   .pause(java.time.Duration.ofMillis(200))
+					   .doubleClick()
+					   .pause(java.time.Duration.ofMillis(300))
+					   .build()
+					   .perform();
+				
+				if (waitForPageNavigation(5)) {
+					navigationSuccessful = true;
 				}
 			} catch (Exception e) {
-				LOGGER.warn("Double-click approach failed: " + e.getMessage());
-				// Log double-click failure
-				LOGGER.error("Double-click navigation failed - Method: navigation_doubleclick_failed", e);
+				LOGGER.debug("Strategy 1 failed: {}", e.getMessage());
 			}
-			
-			if (clickSuccessful) {
-			PageObjectHelper.log(LOGGER, "Clicked on Recently Exported Success Profile with name : " + SPJobName.get() +" in HCM Sync Profiles screen in PM");
+		}
+		
+		// Strategy 2: Double-click on direct anchor element
+		if (!navigationSuccessful) {
+			try {
+				WebElement directLink = E_SP_JobName;
+				String tagName = E_SP_JobName.getTagName().toLowerCase();
 				
-				// CRITICAL: Wait for spinners after navigation
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-				
-				// Enhanced post-click navigation handling
-				boolean navigationSuccessful = waitForPageNavigation();
-				
-				if (!navigationSuccessful) {
-					LOGGER.warn("Page navigation didn't occur after click, trying alternative approaches");
-					
-					
-					
-					// Alternative approach 1: JavaScript navigation
-					if (!navigationSuccessful) {
-						try {
-							LOGGER.info("Trying JavaScript navigation approach...");
-						js.executeScript("arguments[0].click(); arguments[0].focus();", E_SP_JobName);
-						PerformanceUtils.waitForUIStability(driver, 1);
-						
-							if (waitForPageNavigation()) {
-								LOGGER.info("Navigation successful via JavaScript focus click");
-								navigationSuccessful = true;
-							}
-											} catch (Exception e) {
-						LOGGER.warn("JavaScript navigation approach failed: " + e.getMessage());
-						// Log JS navigation failure
-						LOGGER.error("JavaScript navigation failed - Method: navigation_javascript_failed", e);
-					}
-					}
-					
-					// Alternative approach 2: Keyboard Enter
-					if (!navigationSuccessful) {
-						try {
-							LOGGER.info("Trying keyboard Enter approach...");
-						E_SP_JobName.sendKeys(org.openqa.selenium.Keys.ENTER);
-						PerformanceUtils.waitForUIStability(driver, 1);
-						
-							if (waitForPageNavigation()) {
-								LOGGER.info("Navigation successful via keyboard Enter");
-								navigationSuccessful = true;
-							}
-											} catch (Exception e) {
-						LOGGER.warn("Keyboard Enter approach failed: " + e.getMessage());
-						// Log keyboard navigation failure
-						LOGGER.error("Keyboard navigation failed - Method: navigation_keyboard_failed", e);
-					}
+				if (!tagName.equals("a")) {
+					try {
+						directLink = E_SP_JobName.findElement(By.xpath(".//a"));
+					} catch (NoSuchElementException nse) {
+						// Use original element
 					}
 				}
 				
-				if (!navigationSuccessful) {
-					LOGGER.error("All navigation attempts failed - page did not open after click");
-					throw new Exception("Page navigation failed after successful click operation");
-				} else {
-					LOGGER.info("Page navigation completed successfully");
+				org.openqa.selenium.interactions.Actions actions = new org.openqa.selenium.interactions.Actions(driver);
+				actions.moveToElement(directLink)
+					   .pause(java.time.Duration.ofMillis(200))
+					   .doubleClick()
+					   .pause(java.time.Duration.ofMillis(300))
+					   .build()
+					   .perform();
+				
+				if (waitForPageNavigation(5)) {
+					navigationSuccessful = true;
 				}
+			} catch (Exception e) {
+				LOGGER.debug("Strategy 2 failed: {}", e.getMessage());
 			}
+		}
 			
-		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e, "Job name element interaction timeout");
-		} catch (NoSuchElementException e) {
-			SimpleErrorHandler.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e, "Job name element not found");
-		} catch (ElementNotInteractableException e) {
-			SimpleErrorHandler.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e, "Job name element not interactable");
-		} catch (StaleElementReferenceException e) {
-			SimpleErrorHandler.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e, "Stale job name element");
+		// Strategy 3: JavaScript double-click event
+		if (!navigationSuccessful) {
+			try {
+				js.executeScript(
+					"var evt = new MouseEvent('dblclick', {" +
+					"  bubbles: true," +
+					"  cancelable: true," +
+					"  view: window" +
+					"});" +
+					"arguments[0].dispatchEvent(evt);",
+					E_SP_JobName
+				);
+				
+				if (waitForPageNavigation(5)) {
+					navigationSuccessful = true;
+				}
+			} catch (Exception e) {
+				LOGGER.debug("Strategy 3 failed: {}", e.getMessage());
+			}
+		}
+		
+		// Strategy 4: JavaScript sequential clicks
+		if (!navigationSuccessful) {
+			try {
+				js.executeScript(
+					"function simulateDoubleClick(element) {" +
+					"  var clickEvent = new MouseEvent('click', {" +
+					"    bubbles: true, cancelable: true, view: window, detail: 1" +
+					"  });" +
+					"  element.dispatchEvent(clickEvent);" +
+					"  setTimeout(function() {" +
+					"    var secondClick = new MouseEvent('click', {" +
+					"      bubbles: true, cancelable: true, view: window, detail: 2" +
+					"    });" +
+					"    element.dispatchEvent(secondClick);" +
+					"  }, 50);" +
+					"}" +
+					"simulateDoubleClick(arguments[0]);",
+					E_SP_JobName
+				);
+				
+				Thread.sleep(300);
+				
+				if (waitForPageNavigation(5)) {
+					navigationSuccessful = true;
+				}
+			} catch (Exception e) {
+				LOGGER.debug("Strategy 4 failed: {}", e.getMessage());
+			}
+		}
+			
+		// Strategy 5: Standard single click
+		if (!navigationSuccessful) {
+			try {
+				E_SP_JobName.click();
+				if (waitForPageNavigation(5)) {
+					navigationSuccessful = true;
+				}
+			} catch (Exception e) {
+				LOGGER.debug("Strategy 5 failed: {}", e.getMessage());
+			}
+		}
+		
+		// Strategy 6: JavaScript single click
+		if (!navigationSuccessful) {
+			try {
+				js.executeScript("arguments[0].click();", E_SP_JobName);
+				if (waitForPageNavigation(5)) {
+					navigationSuccessful = true;
+				}
+			} catch (Exception e) {
+				LOGGER.debug("Strategy 6 failed: {}", e.getMessage());
+			}
+		}
+			
+		// Final validation
+		if (!navigationSuccessful) {
+			LOGGER.error("Navigation failed for profile: {} (row {})", SPJobName.get(), rowNumber.get());
+			throw new Exception("Failed to navigate to Success Profile details page for: " + SPJobName.get());
+		}
+		
+		PageObjectHelper.log(LOGGER, "Clicked on Recently Exported Success Profile with name: " + SPJobName.get());
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			SimpleErrorHandler.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e, "Thread interrupted during click operation");
+			SimpleErrorHandler.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e, "Click operation interrupted");
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e, "Job name click operation");
+			SimpleErrorHandler.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e, "Click operation failed");
 		} 
 	}
 	
@@ -756,35 +831,33 @@ PerformanceUtils.waitForUIStability(driver, 1);
 		try {
 			waitForPageReady();
 			
-			// Check for expected page element first
 			try {
 				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(SPdetailsPageText)).isDisplayed());
 			} catch (TimeoutException e) {
-				// Fallback: Check URL pattern as alternative validation
 				String currentUrl = driver.getCurrentUrl();
-				LOGGER.info("Element not found, checking URL pattern. Current URL: {}", currentUrl);
 				
-				if (!currentUrl.contains("profile") && !currentUrl.contains("details")) {
-					throw new AssertionError("Navigation failed - Expected SP details page but URL does not indicate success: " + currentUrl);
-				} else {
-					LOGGER.warn(" Page element not found but URL suggests navigation worked: {}", currentUrl);
+				String urlPath = "";
+				try {
+					java.net.URL url = new java.net.URL(currentUrl);
+					urlPath = url.getPath() + (url.getRef() != null ? "#" + url.getRef() : "");
+				} catch (Exception urlEx) {
+					urlPath = currentUrl;
+				}
+				
+				boolean isDetailsPage = urlPath.contains("/sp/") || 
+				                       urlPath.contains("/success-profile/") ||
+				                       urlPath.contains("details") ||
+				                       (urlPath.contains("profile") && !urlPath.contains("/search"));
+				
+				if (!isDetailsPage || urlPath.contains("/search")) {
+					throw new AssertionError("Navigation failed - not on SP details page. URL: " + currentUrl);
 				}
 			}
 			
 			logAndReport("SP details page opens as expected on click of Recently Exported Success Profile Job name in HCM Sync Profiles screen in PM....");
 			
-		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext(
-				"user_should_be_navigated_to_sp_details_page", e,
-				"SP details page navigation verification");
-		} catch (AssertionError e) {
-			SimpleErrorHandler.handleWithContext(
-				"user_should_be_navigated_to_sp_details_page", e,
-				"SP details page navigation assertion");
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext(
-				"user_should_be_navigated_to_sp_details_page", e,
-				"SP details page verification");
+			SimpleErrorHandler.handleWithContext("user_should_be_navigated_to_sp_details_page", e, "SP details page verification");
 		}
 	}
 	
@@ -792,7 +865,6 @@ PerformanceUtils.waitForUIStability(driver, 1);
 		try {
 			waitForPageReady();
 			performEnhancedClick(threeDotsinSPdetailsPage, "Three Dots in SP Details Page");
-			logAndReport("Clicked on Three Dots in SP Details Page");
 			waitForPageReady(0); // Wait for spinner only
 		} catch(Exception e) {
 			SimpleErrorHandler.handleWithContext("click_on_three_dots_in_sp_details_page", e, "Three dots menu");
@@ -803,7 +875,6 @@ PerformanceUtils.waitForUIStability(driver, 1);
 		try {
 			waitForPageReady();
 			performEnhancedClick(editSPbuttoninSPdetailsPage, "Edit Success Profile option in SP Details Page");
-			logAndReport("Clicked on Edit Success Profile option in SP Details Page");
 			waitForPageReady(0);
 		} catch(Exception e) {
 			SimpleErrorHandler.handleWithContext("click_on_edit_success_profile_option", e, "Edit Success Profile option");
@@ -814,7 +885,6 @@ PerformanceUtils.waitForUIStability(driver, 1);
 		try {
 			waitForPageReady();
 			performEnhancedClick(editDetailsBtn, "Edit button of Success Profile Details section");
-			logAndReport("Clicked on Edit button of Success Profile Details section");
 			waitForPageReady(0);
 		} catch(Exception e) {
 			SimpleErrorHandler.handleWithContext("click_on_edit_button_of_details_section", e, "Edit button of Details section");
@@ -825,23 +895,69 @@ PerformanceUtils.waitForUIStability(driver, 1);
 		try {
 			waitForPageReady();
 			
-			// Modify Function dropdown
+			// DYNAMIC FIX: Select first available Function option from dropdown
 			performEnhancedClick(FunctionDropdownofSP, "Function dropdown in Success Profile Details section");
-			logAndReport("Clicked on Function dropdown in Success Profile Details section");
 			
-			String functionValue = wait.until(ExpectedConditions.visibilityOf(FunctionValue)).getText();
-			performEnhancedClick(FunctionValue, "Function value: " + functionValue);
-			logAndReport("Function value Modified to " + functionValue +" in Success Profile Details section");
+			// Wait for dropdown options to load and select first available option
+			PerformanceUtils.waitForUIStability(driver, 1);
+			List<WebElement> functionOptions = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+				By.xpath("//kf-dropdown-item//div//span")));
+			
+			if (functionOptions.isEmpty()) {
+				throw new AssertionError("No Function options available in dropdown");
+			}
+			
+			// Get first visible and enabled option
+			WebElement selectedFunctionOption = null;
+			String functionValue = null;
+			for (WebElement option : functionOptions) {
+				if (option.isDisplayed() && option.isEnabled()) {
+					functionValue = option.getText().trim();
+					selectedFunctionOption = option;
+					break;
+				}
+			}
+			
+			if (selectedFunctionOption == null || functionValue == null || functionValue.isEmpty()) {
+				throw new AssertionError("No valid Function option found to select");
+			}
+			
+			performEnhancedClick(selectedFunctionOption, "Function value: " + functionValue);
+			// Only log the business action, not the click (already logged by performEnhancedClick)
+			logAndReport("Function value Modified to '" + functionValue + "' in Success Profile Details section");
 		
-		PerformanceUtils.waitForUIStability(driver, 2);
+			PerformanceUtils.waitForUIStability(driver, 2);
 		
-			// Modify Sub-Function dropdown  
+			// DYNAMIC FIX: Select first available Sub-Function option from dropdown
 			performEnhancedClick(SubFunctionDropdownofSP, "Subfunction dropdown in Success Profile Details section");
-			logAndReport("Clicked on Subfunction dropdown in Success Profile Details section");
 			
-			String subFunctionValue = wait.until(ExpectedConditions.visibilityOf(SubFunctionValue)).getText();
-			performEnhancedClick(SubFunctionValue, "Sub-Function value: " + subFunctionValue);
-			logAndReport("Sub-Function value Modified to " + subFunctionValue +" in Success Profile Details section");
+			// Wait for dropdown options to load and select first available option
+			PerformanceUtils.waitForUIStability(driver, 1);
+			List<WebElement> subFunctionOptions = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+				By.xpath("//kf-dropdown-item//div//span")));
+			
+			if (subFunctionOptions.isEmpty()) {
+				throw new AssertionError("No Sub-Function options available in dropdown");
+			}
+			
+			// Get first visible and enabled option
+			WebElement selectedSubFunctionOption = null;
+			String subFunctionValue = null;
+			for (WebElement option : subFunctionOptions) {
+				if (option.isDisplayed() && option.isEnabled()) {
+					subFunctionValue = option.getText().trim();
+					selectedSubFunctionOption = option;
+					break;
+				}
+			}
+			
+			if (selectedSubFunctionOption == null || subFunctionValue == null || subFunctionValue.isEmpty()) {
+				throw new AssertionError("No valid Sub-Function option found to select");
+			}
+			
+			performEnhancedClick(selectedSubFunctionOption, "Sub-Function value: " + subFunctionValue);
+			// Only log the business action, not the click (already logged by performEnhancedClick)
+			logAndReport("Sub-Function value Modified to '" + subFunctionValue + "' in Success Profile Details section");
 			
 	} catch(TimeoutException e) {
 		SimpleErrorHandler.handleWithContext("modify_function_and_sub_function_values_of_the_success_profile", e, "Function/SubFunction dropdown operations");
@@ -854,7 +970,6 @@ PerformanceUtils.waitForUIStability(driver, 1);
 	try {
 		PerformanceUtils.waitForPageReady(driver, 2);
 		performEnhancedClick(DoneBtnofSP, "Done button of Success Profile Details section");
-		logAndReport("Clicked on Done button of Success Profile Details section");
 		waitForPageReady();
 	} catch(Exception e) {
 		SimpleErrorHandler.handleWithContext("click_on_done_button", e, "Done button operation");
@@ -865,7 +980,6 @@ PerformanceUtils.waitForUIStability(driver, 1);
 		try {
 			waitForPageReady();
 			performEnhancedClick(SaveBtnofSP, "Save button of Success Profile");
-			logAndReport("Clicked on Save button of Success Profile");
 			waitForPageReady();
 		} catch(Exception e) {
 			SimpleErrorHandler.handleWithContext("click_on_save_button", e, "Save button operation");

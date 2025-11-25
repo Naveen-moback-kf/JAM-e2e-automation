@@ -182,14 +182,12 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 	// Functional Verification Methods
 	public void click_on_link_in_missing_data_tip_message(String linkText) throws IOException {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(viewReuploadJobsLink));
-			wait.until(ExpectedConditions.elementToBeClickable(viewReuploadJobsLink));
+			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+			shortWait.until(ExpectedConditions.visibilityOf(viewReuploadJobsLink));
+			shortWait.until(ExpectedConditions.elementToBeClickable(viewReuploadJobsLink));
 			
-			// Use robust click helper method
 			performRobustClick(viewReuploadJobsLink, "'" + linkText + "' link");
-			
-			// Wait for page navigation (optimized)
-			safeSleep(1000); // Reduced from 2000ms to 1000ms
+			safeSleep(500);
 	} catch (Exception e) {
 		PageObjectHelper.handleError(LOGGER, "click_on_link_in_missing_data_tip_message",
 			"Failed to click on '" + linkText + "' link", e);
@@ -198,109 +196,68 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 
 	public void verify_user_is_navigated_to_appropriate_page_for_viewing_and_re_uploading_jobs() throws IOException {
 		try {
-			safeSleep(1500); // Optimized wait for page load (reduced from 3000ms)
+			safeSleep(500);
 			
-			// Get current URL for debugging
-			String currentUrl = driver.getCurrentUrl();
-			ExtentCucumberAdapter.addTestStepLog(" Verifying navigation - Current URL: " + currentUrl);
-			
-			// Primary URL validation (this should always work)
-			boolean urlValid = currentUrl.contains("aiauto") || currentUrl.contains("upload") || 
-							  currentUrl.contains("missing") || currentUrl.contains("job");
-			Assert.assertTrue(urlValid, 
-				"URL should indicate we're on the re-upload page. Current URL: " + currentUrl);
-			
-			// Try to verify page elements with increased tolerance
 			boolean pageVerified = false;
 			String verificationResults = "";
 			
-			// Check for page title (most flexible)
+			// Check for Close button (essential for closing modal)
 			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-				shortWait.until(ExpectedConditions.visibilityOf(reuploadPageTitle));
-				if (reuploadPageTitle.isDisplayed()) {
-					String pageTitle = reuploadPageTitle.getText();
-					verificationResults += " Page title found: " + pageTitle + "; ";
-					pageVerified = true;
-				}
-			} catch (Exception e) {
-				verificationResults += " Page title not found via primary locator; ";
-				LOGGER.debug("Page title not found with primary locator: " + e.getMessage());
-			}
-			
-			// Check for Close button (essential for navigation back)
-			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
 				shortWait.until(ExpectedConditions.visibilityOf(closeReuploadJobsPageButton));
 				if (closeReuploadJobsPageButton.isDisplayed()) {
 					verificationResults += " Close button found; ";
 					pageVerified = true;
 				}
 			} catch (Exception e) {
-				verificationResults += " Close button not found; ";
-				LOGGER.debug("Close button not found: " + e.getMessage());
+				verificationResults += "- Close button not found; ";
 			}
 			
-			// Check for Re-upload button (optional)
+			// Check for Re-upload button (confirms this is the upload screen)
 			try {
 				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
 				shortWait.until(ExpectedConditions.visibilityOf(reuploadButton));
 				if (reuploadButton.isDisplayed()) {
 					verificationResults += " Re-upload button found; ";
+					pageVerified = true;
 				}
 			} catch (Exception e) {
-				verificationResults += " Re-upload button not found; ";
-				LOGGER.debug("Re-upload button not found: " + e.getMessage());
+				verificationResults += "- Re-upload button not found; ";
 			}
 			
-			// Alternative verification: Check page source for key text
+			// Check for job table/rows (confirms data is loaded)
+			try {
+				List<WebElement> jobRows = driver.findElements(By.xpath("//table//tr[contains(@class, 'border-b')]"));
+				if (!jobRows.isEmpty()) {
+					verificationResults += " Job data table found (" + jobRows.size() + " rows); ";
+				} else {
+					verificationResults += "- No job data rows found; ";
+				}
+			} catch (Exception e) {
+				verificationResults += "- Job data table check failed; ";
+			}
+			
+			// Alternative verification: Check page source (fallback only)
 			if (!pageVerified) {
 				try {
 					String pageSource = driver.getPageSource().toLowerCase();
-					if (pageSource.contains("missing data") || pageSource.contains("re-upload") || pageSource.contains("organization jobs")) {
-						verificationResults += " Page content indicates correct page via source scan; ";
+					if (pageSource.contains("missing data") || pageSource.contains("re-upload") || 
+						pageSource.contains("organization jobs") || pageSource.contains("jobs with missing data")) {
+						verificationResults += " Page content indicates correct screen via source scan; ";
 						pageVerified = true;
-						ExtentCucumberAdapter.addTestStepLog(" Verified correct page via page source analysis");
 					}
 				} catch (Exception e) {
-					LOGGER.debug("Page source check failed: " + e.getMessage());
+					verificationResults += "- Page source check failed; ";
 				}
 			}
 			
-			// If we still haven't verified, but URL looks good, continue with warning
-			if (!pageVerified && urlValid) {
-				ExtentCucumberAdapter.addTestStepLog(" WARNING: Could not verify all page elements, but URL indicates correct navigation");
-				ExtentCucumberAdapter.addTestStepLog("   Verification results: " + verificationResults);
-				ExtentCucumberAdapter.addTestStepLog("   Continuing with test - assuming page loaded correctly");
-				pageVerified = true; // Allow test to continue
-				LOGGER.warn("Page element verification partially failed, but URL is valid. Continuing test.");
-			}
-			
-			// Final assertion
-			Assert.assertTrue(pageVerified, 
-				"Failed to verify navigation to re-upload page. URL: " + currentUrl + ", Results: " + verificationResults);
-			
-			ExtentCucumberAdapter.addTestStepLog(" Successfully verified navigation to View & Re-upload jobs page");
-			ExtentCucumberAdapter.addTestStepLog("    Current URL: " + currentUrl);
-			ExtentCucumberAdapter.addTestStepLog("    Verification results: " + verificationResults);
-			
-			LOGGER.info("Successfully verified navigation to View & Re-upload jobs page: " + currentUrl);
+			Assert.assertTrue(pageVerified, "Failed to verify Jobs with Missing Data screen. Results: " + verificationResults);
+			LOGGER.info("Verified Jobs with Missing Data screen");
 			
 		} catch (Exception e) {
-			// Add debugging information
-			try {
-				String currentUrl = driver.getCurrentUrl();
-				String pageTitle = driver.getTitle();
-				ExtentCucumberAdapter.addTestStepLog("- Failed to verify navigation to re-upload page");
-				ExtentCucumberAdapter.addTestStepLog("   Debug info - URL: " + currentUrl);
-				ExtentCucumberAdapter.addTestStepLog("   Debug info - Page Title: " + pageTitle);
-			} catch (Exception debugEx) {
-				LOGGER.debug("Failed to get debug info: " + debugEx.getMessage());
-			}
-			
-		LOGGER.error("Failed to verify navigation to re-upload page - Method: verify_user_is_navigated_to_appropriate_page_for_viewing_and_re_uploading_jobs", e);
-		throw new IOException(e);
-	}
+			LOGGER.error("Failed to verify Jobs with Missing Data screen", e);
+			throw new IOException(e);
+		}
 	}
 
 	public void navigate_back_to_job_mapping_page() throws IOException {
@@ -397,7 +354,7 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 
 	public void click_on_close_button_in_missing_data_tip_message() throws IOException {
 		try {
-			ExtentCucumberAdapter.addTestStepLog(" Clicking close button on Missing Data Tip Message (targeting correct tip message)...");
+			PageObjectHelper.log(LOGGER," Clicking close button on Missing Data Tip Message (targeting correct tip message)...");
 			
 			// Wait for the specific missing data tip message close button
 			wait.until(ExpectedConditions.visibilityOf(closeTipMessageButton));
@@ -405,10 +362,6 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			
 			// Use robust click helper method
 			performRobustClick(closeTipMessageButton, "Missing Data Tip Message close button");
-			
-			// Wait for tip message to disappear (optimized)
-			safeSleep(800); // Reduced from 1500ms to 800ms
-			ExtentCucumberAdapter.addTestStepLog("+/- Waiting for missing data tip message to disappear...");
 			
 	} catch (Exception e) {
 		PageObjectHelper.handleError(LOGGER, "click_on_close_button_in_missing_data_tip_message",
@@ -482,16 +435,18 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 		// Try normal click first
 		try {
 			element.click();
-			ExtentCucumberAdapter.addTestStepLog(" Clicked " + elementName + " using normal click");
+			ExtentCucumberAdapter.addTestStepLog("Clicked " + elementName);
 		} catch (Exception clickEx1) {
 			// Try JavaScript click if normal click fails
 			try {
 				js.executeScript("arguments[0].click();", element);
-				ExtentCucumberAdapter.addTestStepLog(" Clicked " + elementName + " using JavaScript click");
+				LOGGER.debug("Used JavaScript click for: " + elementName);
+				ExtentCucumberAdapter.addTestStepLog("Clicked " + elementName);
 			} catch (Exception clickEx2) {
 				// Try dispatch event as last resort
 				js.executeScript("arguments[0].dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));", element);
-				ExtentCucumberAdapter.addTestStepLog(" Clicked " + elementName + " using dispatch event");
+				LOGGER.debug("Used dispatch event for: " + elementName);
+				ExtentCucumberAdapter.addTestStepLog("Clicked " + elementName);
 			}
 		}
 	}

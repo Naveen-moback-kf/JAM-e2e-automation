@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.CacheLookup;
@@ -61,7 +62,6 @@ public class PO24_ValidatePublishCenter_PM {
 	WebElement publishCenterBtn;
 	
 	@FindBy(xpath = "//*[contains(text(),'Job Profile History')]")
-	@CacheLookup
 	WebElement jphScreenTitle;
 	
 	@FindBy(xpath = "//*/kf-page-content/div[2]/div[2]/div[1]/div[1]/span")
@@ -150,7 +150,8 @@ public class PO24_ValidatePublishCenter_PM {
 	public void click_on_publish_center_button() {
 		try {
 			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Use optimized spinner wait with shorter timeout
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(publishCenterBtn)).isEnabled());
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(publishCenterBtn)).click();
@@ -170,10 +171,23 @@ public class PO24_ValidatePublishCenter_PM {
 	
 	public void verify_user_navigated_to_job_profile_history_screen_succcessfully() {
 	try {
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+		// PERFORMANCE FIX: Use shorter wait for spinners after modal close
+		try {
+			WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(3));
+			shortWait.until(ExpectedConditions.invisibilityOfElementLocated(
+				By.xpath("//*[@class='blocking-loader']//img")));
+		} catch (TimeoutException e) {
+			// Spinner may not appear after closing modal - this is fine
+			LOGGER.debug("Spinner check timed out - continuing");
+		}
+		
 		PerformanceUtils.waitForPageReady(driver, 2);
-		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jphScreenTitle)).isDisplayed());
-		PageObjectHelper.log(LOGGER, "User navigated to " + jphScreenTitle.getText() + " screen successfully....");
+		
+		// Use visibilityOfElementLocated instead of cached element
+		WebElement screenTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(
+			By.xpath("//*[contains(text(),'Job Profile History')]")));
+		Assert.assertTrue(screenTitle.isDisplayed());
+		PageObjectHelper.log(LOGGER, "User navigated to " + screenTitle.getText() + " screen successfully....");
 	} catch(Exception e) {
 		PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_job_profile_history_screen_succcessfully",
 			"Issue in navigating to Job Profile History screen on click of Publish Center button", e);
@@ -246,8 +260,8 @@ public class PO24_ValidatePublishCenter_PM {
 	
 	public void user_should_be_navigated_to_profiles_downloaded_screen() {
 	try {
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
+		// PERFORMANCE FIX: Use optimized spinner wait
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 		PerformanceUtils.waitForPageReady(driver, 2);
 		Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(profilesDownloadedScreenTitle)).isDisplayed());
 		PageObjectHelper.log(LOGGER, "User navigated to " + profilesDownloadedScreenTitle.getText() + " screen successfully....");
@@ -260,8 +274,8 @@ public class PO24_ValidatePublishCenter_PM {
 	
 	public void verify_details_in_profiles_downloaded_screen() {
 	try {
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
+		// PERFORMANCE FIX: Use optimized spinner wait
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 		PerformanceUtils.waitForPageReady(driver, 2);
 		PageObjectHelper.log(LOGGER, "Below are the " + "Header Details" +" of the Recently Downloaded Job Profiles in " + "Profiles Downloaded" +" screen : \n "
 					+ profilesDownloadedScreenHeaderDetails.getText());
@@ -415,7 +429,8 @@ public class PO24_ValidatePublishCenter_PM {
 	
 	public void user_should_be_navigated_to_profiles_exported_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Use optimized spinner wait
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(profilesExportedScreenTitle)).isDisplayed());
 			PageObjectHelper.log(LOGGER, "User navigated to " + profilesExportedScreenTitle.getText() + " screen successfully....");
@@ -474,24 +489,24 @@ public class PO24_ValidatePublishCenter_PM {
 		try {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).isDisplayed());
 			
+			// PERFORMANCE FIX: Use optimized spinner waits with shorter timeouts
 			// First scroll to bottom (headless-compatible)
 			headlessActions.scrollToBottom();
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver, 3);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Second scroll to bottom (headless-compatible)
 			headlessActions.scrollToBottom();
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			String resultsCountText_updated = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
 			PageObjectHelper.log(LOGGER, "Scrolled down till third page and now "+ resultsCountText_updated + " of Job Profiles as expected");	
 			
 			// Scroll to top (headless-compatible)
 			js.executeScript("window.scrollTo(0, 0);");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 3);
+			PerformanceUtils.waitForPageReady(driver, 1);
 	} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "scroll_page_down_two_times_to_view_first_thirty_job_profiles_in_job_profile_history_screen",
 				"Issue in scrolling page down two times to view first thirty job profiles in Job Profile History screen", e);
@@ -500,7 +515,8 @@ public class PO24_ValidatePublishCenter_PM {
 	
 	public void user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting_in_job_profile_history_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Use optimized spinner wait with shorter timeout
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER, "Below are the details of the First 30 Job Profiles in Default Order before applying sorting in Job Profile History screen : ");
 			for(int i=1; i<= 30; i++) {
@@ -535,7 +551,8 @@ public class PO24_ValidatePublishCenter_PM {
 					utils.jsClick(driver, jphHeader1);
 				}
 			}
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Use optimized spinner wait
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER, "Clicked on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in ascending order in Job Profile History screen");
 		} catch (Exception e) {
@@ -546,7 +563,8 @@ public class PO24_ValidatePublishCenter_PM {
 	
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_ascending_order_in_job_profile_history_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Use optimized spinner wait
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER, "Below are the details of the First 30 Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Ascending Order: ");
 			
@@ -599,10 +617,10 @@ public class PO24_ValidatePublishCenter_PM {
 	public void user_should_refresh_job_profile_history_screen_and_verify_job_profiles_are_in_default_order() {
 		try {
 			driver.navigate().refresh();
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Use optimized spinner waits
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			PerformanceUtils.waitForPageReady(driver, 3);
 			PageObjectHelper.log(LOGGER, "Refreshed Job Profile History screen....");
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			wait.until(ExpectedConditions.visibilityOf(jphProfilesCountinRow1));
 			for(int i=1; i<= 10; i++) {
 				WebElement jphProfilesCount = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + Integer.toString(i) + "]/div[1]/span"));
@@ -638,11 +656,10 @@ public class PO24_ValidatePublishCenter_PM {
 				}
 			}
 			
-			// Wait for FIRST sort to complete (critical for headless mode)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Wait for FIRST sort to complete
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			Thread.sleep(2000); // Give UI time to process first sort
 			PerformanceUtils.waitForPageReady(driver, 2);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			Thread.sleep(1000); // Additional buffer for headless mode
 			
 			LOGGER.info("First sort completed. Now clicking second time for descending order...");
@@ -660,11 +677,10 @@ public class PO24_ValidatePublishCenter_PM {
 				}
 			}
 			
-			// Wait for SECOND sort to complete
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Wait for SECOND sort to complete
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			Thread.sleep(2000); // Give UI time to process second sort
 			PerformanceUtils.waitForPageReady(driver, 2);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			
 			PageObjectHelper.log(LOGGER, "Clicked two times on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in descending order in Job Profile History screen");
 		} catch (Exception e) {
@@ -675,7 +691,8 @@ public class PO24_ValidatePublishCenter_PM {
 	
 public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_descending_order_in_job_profile_history_screen() {
 	try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Use optimized spinner wait
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			wait.until(ExpectedConditions.visibilityOf(jphProfilesCountinRow1));
 			LOGGER.info("Below are the details of the First 30 Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Descending Order: ");
@@ -737,7 +754,8 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profile
 					utils.jsClick(driver, jphHeader3);
 				}
 			}
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Use optimized spinner wait
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER, "Clicked on ACCESSED DATE header to Sort Job Profiles by Accessed Date in ascending order in Job Profile History screen");
 		} catch (Exception e) {
@@ -748,7 +766,8 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profile
 	
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_ascending_order_in_job_profile_history_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Use optimized spinner wait
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			LOGGER.info("Below are the details of the First 30 Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Ascending Order: ");
 			
@@ -818,11 +837,10 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profile
 				}
 			}
 			
-			// Wait for FIRST sort to complete (critical for headless mode)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Wait for FIRST sort to complete
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			Thread.sleep(2000); // Give UI time to process first sort
 			PerformanceUtils.waitForPageReady(driver, 2);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			Thread.sleep(1000); // Additional buffer for headless mode
 			
 			LOGGER.info("First sort completed. Now clicking second time for descending order...");
@@ -840,11 +858,10 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profile
 				}
 			}
 			
-			// Wait for SECOND sort to complete
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Wait for SECOND sort to complete
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			Thread.sleep(2000); // Give UI time to process second sort
 			PerformanceUtils.waitForPageReady(driver, 2);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			
 			PageObjectHelper.log(LOGGER, "Clicked two times on ACCESSED DATE header to Sort Job Profiles by Accessed Date in descending order in Job Profile History screen");
 		} catch (Exception e) {
@@ -855,7 +872,8 @@ public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profile
 	
 public void user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_descending_order_in_job_profile_history_screen() {
 	try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			// PERFORMANCE FIX: Use optimized spinner wait
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			wait.until(ExpectedConditions.visibilityOf(jphProfilesCountinRow1));
 			LOGGER.info("Below are the details of the First 30 Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Descending Order: ");

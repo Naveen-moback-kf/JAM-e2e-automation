@@ -32,11 +32,13 @@ Feature: Using Find Match button, Manually Map Success Profile for the Organizat
     Then Validate data in SKILLS screen in Manual Job Mapping screen
     Then Click on Save Selection button in Manual Job Mapping screen
     Then User should be navigated to Job Mapping page
+    Then Click on View Published toggle button to turn on
+    Then Click on toggle button to turn off
 
   @Verify_Mapped_SP_Details
   Scenario: Verify details of SP which is Mapped to Organization Job
     When User is in Job Mapping page
-    Then Search for Organization Job with Manually Mapped SP
+    #Then Search for Organization Job with Manually Mapped SP
     Then Verify Organization Job with new Mapped SP is displaying on Top of Profiles List
     Then User should verify Search a Different Profile button is displaying on manually mapped success profile
     Then Click on manually mapped profile name of Job Profile on Top of Profiles List

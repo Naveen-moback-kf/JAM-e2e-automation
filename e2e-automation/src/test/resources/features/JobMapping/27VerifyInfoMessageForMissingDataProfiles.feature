@@ -10,6 +10,7 @@ Feature: Verify Info Message for Multiple Profiles with Missing Data
   Scenario: Verify Info Message displays on first profile with missing data
     # Validates info message presence on first profile with missing Grade/Department/Function/Subfunction
     When User is in Job Mapping page
+    Then Sort Job Profiles by Organization Grade in Ascending order
     Then Find and verify profile with missing data has Info Message displayed
     And Verify Info Message contains text about reduced match accuracy due to missing data
   

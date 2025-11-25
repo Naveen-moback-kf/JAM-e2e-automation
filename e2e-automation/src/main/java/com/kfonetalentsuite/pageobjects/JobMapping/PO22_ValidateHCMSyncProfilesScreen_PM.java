@@ -402,7 +402,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("User should be Navigated to HCM Sync Profiles screen in Profile Manager");
 			ExtentCucumberAdapter.addTestStepLog("User should be Navigated to HCM Sync Profiles screen in Profile Manager");
 	} catch (Exception e) {
-		LOGGER.error(" Issue navigating to HCM Sync Profiles screen - Method: user_should_be_navigated_to_hcm_sync_profiles_screen", e);
+		LOGGER.error("Issue navigating to HCM Sync Profiles screen", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Navigating to HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Navigating to HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -416,12 +416,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("Title is correctly displaying in HCM Sync Profiles screen in Profile Manager");
 			ExtentCucumberAdapter.addTestStepLog("Title is correctly displaying in HCM Sync Profiles screen in Profile Manager");
 		} catch (AssertionError e) {
-			LOGGER.error(" Assertion failed - Title mismatch in HCM Sync Profiles screen - Method: verify_title_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
+			LOGGER.error("Assertion failed - Title mismatch in HCM Sync Profiles screen", e);
 			e.printStackTrace();
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying title in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			throw e; // Re-throw to fail the test
 	} catch (Exception e) {
-			LOGGER.error(" Issue verifying title - Method: verify_title_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
+			LOGGER.error("Issue verifying title", e);
 			e.printStackTrace();
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying title in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			Assert.fail("Issue in Verifying title in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -435,7 +435,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("Title Description below the title is correctly displaying in HCM Sync Profiles screen in Profile Manager");
 			ExtentCucumberAdapter.addTestStepLog("Title Description below the title is correctly displaying in HCM Sync Profiles screen in Profile Manager");
 	} catch (Exception e) {
-		LOGGER.error(" Issue verifying title description - Method: verify_description_below_the_title_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
+		LOGGER.error("Issue verifying title description", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying title description in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying title description in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -452,9 +452,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
 				shortWait.until(ExpectedConditions.invisibilityOfElementLocated(
 					By.xpath("//div[contains(@class,'blocking-loader')]")));
-				LOGGER.info("✅ Blocking loader disappeared");
 			} catch (TimeoutException e) {
-				LOGGER.warn("⚠️ Blocking loader check timed out (may not be present) - continuing...");
+				LOGGER.debug("Blocking loader check timed out - continuing");
 			}
 			
 			// Scroll search bar into view
@@ -468,7 +467,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("Search bar text box is displayed and clickable in HCM Sync Profiles screen in Profile Manager");
 			ExtentCucumberAdapter.addTestStepLog("Search bar text box is displayed and clickable in HCM Sync Profiles screen in Profile Manager");
 	} catch (Exception e) {
-		LOGGER.error(" Issue verifying search bar clickability - Method: verify_search_bar_text_box_is_clickable_in_hcm_sync_profiles_tab", e);
+		LOGGER.error("Issue verifying search bar clickability", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying Search bar is clickable or not in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Search bar is clickable or not in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -482,7 +481,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info(placeHolderText + " is displaying as Placeholder Text in Search bar in HCM Sync Profiles screen in Profile Manager");
 			ExtentCucumberAdapter.addTestStepLog(placeHolderText + " is displaying as Placeholder Text in Search bar in HCM Sync Profiles screen in Profile Manager");
 	} catch (Exception e) {
-		LOGGER.error(" Issue verifying search bar placeholder text - Method: verify_search_bar_placeholder_text_in_hcm_sync_profiles_tab", e);
+		LOGGER.error("Issue verifying search bar placeholder text", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying Search bar Placeholder Text in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Search bar Placeholder Text in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -506,39 +505,52 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		String selectedProfileName = SEARCH_PROFILE_NAME_OPTIONS[0]; // Default to first option
 		
 		try {
-			LOGGER.info("========================================");
-			LOGGER.info("DYNAMIC SEARCH WITH FALLBACK RETRY - HCM SYNC PROFILES");
-			LOGGER.info("========================================");
-			LOGGER.info("Attempting to find a profile name that returns results...");
+			LOGGER.info("Searching for profile with dynamic fallback retry");
 			ExtentCucumberAdapter.addTestStepLog("Searching with dynamic profile name (with fallback retry until results found)...");
 			
 			int attemptNumber = 0;
 			for (String profileName : SEARCH_PROFILE_NAME_OPTIONS) {
 				try {
-					attemptNumber++;
-					LOGGER.info("🔍 Attempt #{}: Trying profile name: '{}'", attemptNumber, profileName);
-					
-					// Clear and enter profile name
-					wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).clear();
-					wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).sendKeys(profileName);
-					
-					// CRITICAL FIX: Press Enter to trigger search
-					hcmSyncProfilesSearchbar.sendKeys(Keys.ENTER);
-					
-					// CRITICAL: Wait for spinners after search entry before page ready check
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-					
-					// PERFORMANCE: Single comprehensive wait for search results
-					PerformanceUtils.waitForPageReady(driver, 5);
-					
-					// Check if results were found
-					String resultsCountText = "";
+			attemptNumber++;
+			LOGGER.info("Search attempt {}: trying profile name '{}'", attemptNumber, profileName);
+			
+			// Clear and enter profile name
+			wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).clear();
+			wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesSearchbar)).sendKeys(profileName);
+			
+			// CRITICAL FIX: Press Enter to trigger search
+			hcmSyncProfilesSearchbar.sendKeys(Keys.ENTER);
+			
+			// CRITICAL: Wait for loader to APPEAR first (indicates search started)
+			try {
+				WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(2));
+				shortWait.until(ExpectedConditions.visibilityOfElementLocated(
+					By.xpath("//*[@class='blocking-loader']//img | //div[@data-testid='loader']")
+				));
+			} catch (Exception e) {
+				// Loader might have appeared and disappeared too quickly
+			}
+			
+			// Wait for loader to DISAPPEAR (indicates search completed)
+			try {
+				WebDriverWait loaderWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(15));
+				loaderWait.until(ExpectedConditions.invisibilityOfElementLocated(
+					By.xpath("//*[@class='blocking-loader']//img | //div[@data-testid='loader']")
+				));
+			} catch (Exception e) {
+				LOGGER.warn("Loader wait timeout - continuing");
+			}
+			
+			// Additional stability wait for results to render
+			try { Thread.sleep(1000); } catch (InterruptedException ie) {}
+			
+			// Check if results were found
+			String resultsCountText = "";
 					try {
 						resultsCountText = showingJobResultsCount.getText().trim();
-						LOGGER.info("📊 Search results: {}", resultsCountText);
+						LOGGER.debug("Search results: {}", resultsCountText);
 					} catch (Exception e) {
-						LOGGER.info("⚠️  No profiles found with string '{}' (results element not found)", profileName);
-						LOGGER.info("   Looking for profiles with another string...");
+						LOGGER.debug("No profiles found with '{}' - trying next", profileName);
 						continue; // Try next profile name
 					}
 					
@@ -549,51 +561,41 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 							String firstRowText = shortWait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesJobinRow1)).getText();
 							String firstProfileName = firstRowText.split("-", 2)[0].trim();
 							
-							LOGGER.info("📝 First result profile name: '{}'", firstProfileName);
-							
 							if (firstProfileName.toLowerCase().contains(profileName.toLowerCase())) {
 								// Perfect match! First result contains the search term
 								selectedProfileName = profileName;
 								jobProfileName.set(profileName); // Update ThreadLocal variable for other methods to use
 								foundResults = true;
 								
-								LOGGER.info("✅ Found matching result with profile name: '{}'", profileName);
-								LOGGER.info("   First profile: '{}' contains search term", firstProfileName);
-								LOGGER.info("   Results: {}", resultsCountText);
-								ExtentCucumberAdapter.addTestStepLog("✅ Search successful with profile name '" + profileName + "' - " + resultsCountText);
+								LOGGER.info("Search successful with profile name '{}' - {}", profileName, resultsCountText);
+								ExtentCucumberAdapter.addTestStepLog("Search successful with profile name '" + profileName + "' - " + resultsCountText);
 								break; // Stop trying other profile names
 							} else {
-								LOGGER.info("⚠️  First result '{}' does NOT contain search term '{}'", firstProfileName, profileName);
-								LOGGER.info("   Looking for profiles with another string...");
+								LOGGER.debug("First result '{}' does not contain search term '{}' - trying next", firstProfileName, profileName);
 							}
 						} catch (Exception e) {
-							LOGGER.info("⚠️  Could not verify first result, trying next search term...");
+							LOGGER.debug("Could not verify first result, trying next search term");
 						}
 					} else {
-						LOGGER.info("⚠️  No profiles found with string '{}' (0 results)", profileName);
-						LOGGER.info("   Looking for profiles with another string...");
+						LOGGER.debug("No profiles found with '{}' (0 results) - trying next", profileName);
 					}
 					
 				} catch (Exception e) {
-					LOGGER.warn("❌ Error searching with '{}': {}", profileName, e.getMessage());
-					LOGGER.info("   Trying next profile name...");
+					LOGGER.warn("Error searching with '{}': {} - trying next", profileName, e.getMessage());
 					// Continue to next profile name
 				}
 			}
 			
 			if (!foundResults) {
 				// All profile names exhausted, use the last one
-				LOGGER.warn("⚠️  All search profile names exhausted without finding results");
-				LOGGER.warn("   Proceeding with last profile name: '{}'", selectedProfileName);
-				ExtentCucumberAdapter.addTestStepLog("⚠️ No profile name returned results. Using: '" + selectedProfileName + "'");
+				LOGGER.warn("All search profile names exhausted. Proceeding with '{}'", selectedProfileName);
+				ExtentCucumberAdapter.addTestStepLog("No profile name returned results. Using: '" + selectedProfileName + "'");
 			}
 			
-			LOGGER.info("========================================");
-			LOGGER.info("✅ Final selected profile name: '{}'", jobProfileName.get());
-			LOGGER.info("========================================");
+			LOGGER.info("Final selected profile name: '{}'", jobProfileName.get());
 			
 		} catch (Exception e) {
-			LOGGER.error("❌ Issue entering job profile name in search bar - Method: enter_job_profile_name_in_search_bar_in_hcm_sync_profiles_tab", e);
+			LOGGER.error("Issue entering job profile name in search bar", e);
 			e.printStackTrace();
 			Assert.fail("Issue in entering Job Profile Name in Search bar in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in entering Job Profile Name in Search bar in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
@@ -718,7 +720,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on profile with name : " + job1NameText.split("-", 2)[0].trim() + " in Row1 in HCM Sync Profiles screen in PM");
 			PerformanceUtils.waitForSpinnersToDisappear(driver);
 	} catch (Exception e) {
-		LOGGER.error(" Issue clicking on name matching profile - Method: click_on_name_matching_profile_in_hcm_sync_profiles_tab", e);
+		LOGGER.error("Issue clicking on name matching profile", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Clicking on Searched name Matching profile in Row1 in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Clicking on Searched name Matching profile in Row1 in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -732,7 +734,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("User navigated to SP details page as expected on click of Matching Profile Job name in HCM Sync Profiles screen in PM....");
 			ExtentCucumberAdapter.addTestStepLog("User navigated to SP details page as expected on click of Matching Profile Job name in HCM Sync Profiles screen in PM....");
 	} catch (Exception e) {
-		LOGGER.error(" Issue navigating to SP details page - Method: user_should_be_navigated_to_sp_details_page_on_click_of_matching_profile", e);
+		LOGGER.error("Issue navigating to SP details page", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Navigating to SP details Page on click of Matching Profile Job name in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Navigating to SP details Page on click of Matching Profile Job name in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -747,11 +749,11 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			// PARALLEL EXECUTION FIX: Wait for element to be present in DOM (avoid stale element)
 			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
 			
-			WebElement searchBar = extendedWait.until(ExpectedConditions.presenceOfElementLocated(
-				By.xpath("//input[@type='search']")));
+			// STALE ELEMENT FIX: Use visibilityOfElementLocated instead of visibilityOf to avoid stale element
+			By searchBarLocator = By.xpath("//input[@type='search']");
 			
-			// Wait for element visibility
-			searchBar = extendedWait.until(ExpectedConditions.visibilityOf(searchBar));
+			// Wait for element visibility using locator (not WebElement)
+			WebElement searchBar = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(searchBarLocator));
 			
 			Assert.assertTrue(searchBar.isDisplayed(), "Search bar not visible in HCM Sync Profiles screen");
 			
@@ -769,8 +771,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// PARALLEL EXECUTION FIX: Re-fetch element to ensure it's fresh and clickable
-			searchBar = extendedWait.until(ExpectedConditions.elementToBeClickable(
-				By.xpath("//input[@type='search']")));
+			searchBar = extendedWait.until(ExpectedConditions.elementToBeClickable(searchBarLocator));
 			
 			// Try clicking with multiple fallback options
 			try {
@@ -804,7 +805,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("Cleared Search bar in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Cleared Search bar in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
-			LOGGER.error("Issue clearing search bar - Method: clear_search_bar_in_hcm_sync_profiles_tab", e);
+			LOGGER.error("Issue clearing search bar", e);
 			e.printStackTrace();
 			Assert.fail("Issue in clearing search bar in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Issue in clearing search bar in HCM Sync Profiles screen in PM");
@@ -836,7 +837,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 					Thread.sleep(500);
 					retryAttempts++;
 				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					LOGGER.warn("Stale element on attempt " + (retryAttempts + 1) + ", retrying...");
+					LOGGER.debug("Stale element on attempt {}, retrying", retryAttempts + 1);
 					retryAttempts++;
 					try {
 						Thread.sleep(500);
@@ -854,7 +855,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
-			LOGGER.error(" Issue verifying job profiles count - Method: verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab", e);
+			LOGGER.error("Issue verifying job profiles count", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying job profiles results count in on the page in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying job profiles results count in on the page in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -871,7 +872,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("Scrolled page down to view more job profiles in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Scrolled page down to view more job profiles in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
-		LOGGER.error(" Issue scrolling page - Method: scroll_page_to_view_more_job_profiles_in_hcm_sync_profiles_tab", e);
+		LOGGER.error("Issue scrolling page", e);
 			e.printStackTrace();
 			Assert.fail("Issue in scrolling page down to view more job profiles in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in scrolling page down to view more job profiles in in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -925,7 +926,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 					retryAttempts++;
 					
 				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					LOGGER.warn("Stale element on attempt " + (retryAttempts + 1) + ", retrying...");
+					LOGGER.debug("Stale element on attempt {}, retrying", retryAttempts + 1);
 					retryAttempts++;
 					try {
 						Thread.sleep(300);
@@ -961,7 +962,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			ExtentCucumberAdapter.addTestStepLog("Success Profiles Results count updated and Now " + resultsCountText1 + " as expected in HCM Sync Profiles screen in PM");
 			
 		} catch (Exception e) {
-			LOGGER.error(" Issue verifying profiles count after scrolling - Method: user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table_in_hcm_sync_profiles_tab", e);
+			LOGGER.error("Issue verifying profiles count after scrolling", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!! Error: " + e.getMessage());
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1023,7 +1024,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				}
 			}
 	} catch (Exception e) {
-		LOGGER.error(" Issue clicking filters dropdown - Method: click_on_filters_dropdown_button_in_hcm_sync_profiles_tab", e);
+		LOGGER.error("Issue clicking filters dropdown", e);
 			e.printStackTrace();
 			Assert.fail("Issue in clicking filters dropdown button in HCM Sync Profiles screen in PM...Please investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in clicking filters dropdown button in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1031,60 +1032,40 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 	}
 	
 	public void verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab() {
-		long startTime = System.currentTimeMillis();
 		int maxRetries = 3;
 		
 		try {
-			LOGGER.info("═══════════════════════════════════════════════════════════");
-			LOGGER.info("🔍 DEBUG: Verify Filter Options in HCM Sync Profiles");
-			LOGGER.info("═══════════════════════════════════════════════════════════");
-			LOGGER.info("🧵 Thread: " + Thread.currentThread().getName() + " (ID: " + Thread.currentThread().getId() + ")");
-			
-			// PERFORMANCE: Wait for dropdown to be visible
-			long stepStart = System.currentTimeMillis();
+			// Wait for dropdown to be visible
 			wait.until(ExpectedConditions.visibilityOf(filterOptions));
-			LOGGER.info("✅ Filter dropdown visible after " + (System.currentTimeMillis() - stepStart) + "ms");
 			
 			// Wait for spinners to ensure page is stable
-			stepStart = System.currentTimeMillis();
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			long spinnerWait = System.currentTimeMillis() - stepStart;
-			if (spinnerWait > 1000) {
-				LOGGER.info("⏱️  Spinner wait: " + spinnerWait + "ms");
-			}
 			
-			// PARALLEL EXECUTION FIX: Verify filter options with retry mechanism for stale elements
+			// Verify filter options with retry mechanism for stale elements
 			String filterOption1Text = "";
 			String filterOption2Text = "";
 			String filterOption3Text = "";
 			
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
-					LOGGER.info("🔄 Attempt " + attempt + " to read filter options...");
-					
 					// Use visibilityOfElementLocated instead of visibilityOf to avoid stale references
 					filterOption1Text = wait.until(ExpectedConditions.visibilityOfElementLocated(
 						By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][1]//span//div"))).getText();
-					LOGGER.info("   - Option 1: '" + filterOption1Text + "'");
 					
 					filterOption2Text = wait.until(ExpectedConditions.visibilityOfElementLocated(
 						By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][2]//span//div"))).getText();
-					LOGGER.info("   - Option 2: '" + filterOption2Text + "'");
 					
 					filterOption3Text = wait.until(ExpectedConditions.visibilityOfElementLocated(
 						By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div"))).getText();
-					LOGGER.info("   - Option 3: '" + filterOption3Text + "'");
 					
 					// If we got here, all reads were successful
-					LOGGER.info("✅ Successfully read all filter options on attempt " + attempt);
 					break;
 					
 				} catch (org.openqa.selenium.StaleElementReferenceException e) {
 					if (attempt < maxRetries) {
-						LOGGER.warn("⚠️  Stale element on attempt " + attempt + ", retrying...");
+						LOGGER.debug("Stale element on attempt {}, retrying", attempt);
 						Thread.sleep(300);
 					} else {
-						LOGGER.error("❌ Failed after " + maxRetries + " attempts due to stale elements");
 						throw e;
 					}
 				}
@@ -1095,16 +1076,11 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			Assert.assertEquals(filterOption2Text, "Levels", "Option 2 should be 'Levels'");
 			Assert.assertEquals(filterOption3Text, "Functions / Subfunctions", "Option 3 should be 'Functions / Subfunctions'");
 			
-			LOGGER.info("✅ Filter options verified successfully");
+			LOGGER.info("Filter options verified successfully");
 			ExtentCucumberAdapter.addTestStepLog("Options inside Filters dropdown verified successfully in HCM Sync Profiles screen in PM");
 			
 		} catch (Exception e) {
-			long totalDuration = System.currentTimeMillis() - startTime;
-			LOGGER.error("═══════════════════════════════════════════════════════════");
-			LOGGER.error("❌ Filter Options Verification FAILED after " + totalDuration + "ms");
-			LOGGER.error("🧵 Thread: " + Thread.currentThread().getName());
-			LOGGER.error("💥 Error: " + e.getMessage());
-			LOGGER.error("═══════════════════════════════════════════════════════════");
+			LOGGER.error("Filter options verification failed", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying Options inside Filter dropdown in HCM Sync Profiles screen in PM....Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Options inside Filter dropdown in HCM Sync Profiles screen in PM....Please Investigate!!!");
@@ -1112,29 +1088,20 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		
 		// Verify Functions/Subfunctions search bar
 		try {
-			LOGGER.info("🔍 Verifying Functions/Subfunctions search bar...");
-			
-			// PARALLEL EXECUTION FIX: Click with retry for stale elements
+			// Click with retry for stale elements
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
-					long stepStart = System.currentTimeMillis();
-					
 					// Use elementToBeClickable with locator instead of element
 					WebElement option3ToClick = wait.until(ExpectedConditions.elementToBeClickable(
 						By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div")));
 					
 					try {
 						option3ToClick.click();
-						LOGGER.info("✅ Clicked option 3 using WebDriver click in " + (System.currentTimeMillis() - stepStart) + "ms");
 					} catch (Exception e) {
-						LOGGER.warn("⚠️  WebDriver click failed, trying JavaScript...");
 						try {
 							js.executeScript("arguments[0].click();", option3ToClick);
-							LOGGER.info("✅ Clicked option 3 using JavaScript click");
 						} catch (Exception s) {
-							LOGGER.warn("⚠️  JavaScript click failed, trying utility click...");
 							utils.jsClick(driver, option3ToClick);
-							LOGGER.info("✅ Clicked option 3 using utility click");
 						}
 					}
 					
@@ -1143,7 +1110,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 					
 				} catch (org.openqa.selenium.StaleElementReferenceException e) {
 					if (attempt < maxRetries) {
-						LOGGER.warn("⚠️  Stale element on click attempt " + attempt + ", retrying...");
+						LOGGER.debug("Stale element on click attempt {}, retrying", attempt);
 						Thread.sleep(300);
 					} else {
 						throw e;
@@ -1151,21 +1118,17 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				}
 			}
 			
-			// PARALLEL EXECUTION FIX: Verify search bar with retry
+			// Verify search bar with retry
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
-					long stepStart = System.currentTimeMillis();
-					
 					WebElement searchBar = wait.until(ExpectedConditions.visibilityOfElementLocated(
 						By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//input")));
 					searchBar.click();
-					
-					LOGGER.info("✅ Search bar verified and clicked in " + (System.currentTimeMillis() - stepStart) + "ms");
 					break;
 					
 				} catch (org.openqa.selenium.StaleElementReferenceException e) {
 					if (attempt < maxRetries) {
-						LOGGER.warn("⚠️  Stale element on search bar attempt " + attempt + ", retrying...");
+						LOGGER.debug("Stale element on search bar attempt {}, retrying", attempt);
 						Thread.sleep(300);
 					} else {
 						throw e;
@@ -1173,16 +1136,11 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				}
 			}
 			
-			LOGGER.info("Search bar inside Functions / Subfunctions filter option is available and is clickable in HCM Sync Profiles screen in PM...");
+			LOGGER.info("Search bar inside Functions/Subfunctions filter is available and clickable");
 			ExtentCucumberAdapter.addTestStepLog("Search bar inside Functions / Subfunctions filter option is available and is clickable in HCM Sync Profiles screen in PM...");
 			
 		} catch (Exception e) {
-			long totalDuration = System.currentTimeMillis() - startTime;
-			LOGGER.error("═══════════════════════════════════════════════════════════");
-			LOGGER.error("❌ Search Bar Verification FAILED after " + totalDuration + "ms");
-			LOGGER.error("🧵 Thread: " + Thread.currentThread().getName());
-			LOGGER.error("💥 Error: " + e.getMessage());
-			LOGGER.error("═══════════════════════════════════════════════════════════");
+			LOGGER.error("Search bar verification failed", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying Search bar inside Functions / Subfunctions filter option in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying Search bar inside Functions / Subfunctions filter option in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1190,37 +1148,30 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		
 		// Close the dropdown after verification to ensure clean state for next scenario
 		try {
-			LOGGER.info("🔍 Closing filters dropdown...");
-			
-			// PARALLEL EXECUTION FIX: Check visibility with retry
+			// Check visibility with retry
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
 					WebElement filterOptionsElement = driver.findElement(By.xpath("//*[@class='accordion']"));
 					if (filterOptionsElement.isDisplayed()) {
 						utils.jsClick(driver, filtersDropdownBtn);
 						wait.until(ExpectedConditions.invisibilityOf(filterOptionsElement));
-						LOGGER.info("✅ Closed Filters dropdown after verification");
+						LOGGER.info("Closed Filters dropdown after verification");
 						ExtentCucumberAdapter.addTestStepLog("Closed Filters dropdown after verification");
 					}
 					break;
 					
 				} catch (org.openqa.selenium.StaleElementReferenceException e) {
 					if (attempt < maxRetries) {
-						LOGGER.warn("⚠️  Stale element on close attempt " + attempt + ", retrying...");
+						LOGGER.debug("Stale element on close attempt {}, retrying", attempt);
 						Thread.sleep(300);
 					} else {
-						LOGGER.warn("⚠️  Could not close filters dropdown after " + maxRetries + " attempts: " + e.getMessage());
+						LOGGER.warn("Could not close filters dropdown after {} attempts", maxRetries);
 					}
 				}
 			}
 			
-			long totalDuration = System.currentTimeMillis() - startTime;
-			LOGGER.info("═══════════════════════════════════════════════════════════");
-			LOGGER.info("✅ Filter Options Verification COMPLETED in " + totalDuration + "ms");
-			LOGGER.info("═══════════════════════════════════════════════════════════");
-			
 		} catch (Exception e) {
-			LOGGER.warn("⚠️  Could not close filters dropdown after verification: " + e.getMessage());
+			LOGGER.debug("Could not close filters dropdown after verification: {}", e.getMessage());
 		}
 	}
 	
@@ -1242,7 +1193,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				LOGGER.info("Clicked on KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...");
 				ExtentCucumberAdapter.addTestStepLog("Clicked on KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...");
 	} catch (Exception e) {
-		LOGGER.error("Issue clicking KF Grade dropdown - Method: apply_kf_grade_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
+		LOGGER.error("Issue clicking KF Grade dropdown", e);
 				e.printStackTrace();
 				Assert.fail("Issue in clicking KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in clicking KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1280,7 +1231,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 		LOGGER.info("Selected KF Grade Value : " + kfGradeValue + " from Filters dropdown in HCM Sync Profiles screen in PM....");
 		ExtentCucumberAdapter.addTestStepLog("Selected KF Grade Value : " + kfGradeValue + " from Filters dropdown in HCM Sync Profiles screen in PM....");
 	} catch (Exception e) {
-				LOGGER.error(" Issue selecting KF Grade option - Method: apply_kf_grade_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
+				LOGGER.error("Issue selecting KF Grade option", e);
 				e.printStackTrace();
 				Assert.fail("Issue in selecting a option from KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in selecting a option from KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1346,13 +1297,13 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				}
 			}
 	} catch (Exception e) {
-		LOGGER.error(" Issue verifying profiles count after KF Grade filter - Method: apply_kf_grade_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
+		LOGGER.error("Issue verifying profiles count after KF Grade filter", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}
 	} catch (Exception e) {
-		LOGGER.error(" Issue applying KF Grade filter - Method: apply_kf_grade_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
+		LOGGER.error("Issue applying KF Grade filter", e);
 			e.printStackTrace();
 			Assert.fail("Issue in verifying KF Grade Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in verifying KF Grade Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1367,7 +1318,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 			LOGGER.info("Cleared Applied KF Grade Filter in HCM Sync Profiles screen in PM");
 			ExtentCucumberAdapter.addTestStepLog("Cleared Applied KF Grade Filter in HCM Sync Profiles screen in PM");
 	} catch (Exception e) {
-		LOGGER.error(" Issue clearing KF Grade filter - Method: clear_kf_grade_filter_in_hcm_sync_profiles_tab", e);
+		LOGGER.error("Issue clearing KF Grade filter", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Clearing Applied KF Grade Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			ExtentCucumberAdapter.addTestStepLog("Issue in Clearing Applied KF Grade Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
@@ -1383,7 +1334,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 				LOGGER.info("Clicked on Levels dropdown in Filters in HCM Sync Profiles screen in PM...");
 				ExtentCucumberAdapter.addTestStepLog("Clicked on Levels dropdown in Filters in HCM Sync Profiles screen in PM...");
 	} catch (Exception e) {
-		LOGGER.error(" Issue clicking Levels dropdown - Method: apply_levels_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab", e);
+		LOGGER.error("Issue clicking Levels dropdown", e);
 				e.printStackTrace();
 				Assert.fail("Issue in clicking Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 				ExtentCucumberAdapter.addTestStepLog("Issue in clicking Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");

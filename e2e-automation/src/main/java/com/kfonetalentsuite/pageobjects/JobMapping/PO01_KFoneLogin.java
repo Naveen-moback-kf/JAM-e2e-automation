@@ -387,26 +387,28 @@ public class PO01_KFoneLogin {
 		try {
 			// Use short timeout (5 seconds) for cookies banner - if not present, move on
 			// quickly
-			WebDriverWait cookiesWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-			WebElement cookiesButton = cookiesWait.until(ExpectedConditions.elementToBeClickable(acceptAllCookies));
+		WebDriverWait cookiesWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+		WebElement cookiesButton = cookiesWait.until(ExpectedConditions.elementToBeClickable(acceptAllCookies));
 
-			// Try standard click first
+		// Try standard click first
+		try {
+			cookiesButton.click();
+			PageObjectHelper.log(LOGGER, "Closed Cookies Banner by clicking on Accept All button");
+			return;
+		} catch (Exception e) {
+			// If standard click fails, try JS click
 			try {
-				cookiesButton.click();
+				js.executeScript("arguments[0].click();", cookiesButton);
+				LOGGER.debug("Used JavaScript click for cookies banner");
 				PageObjectHelper.log(LOGGER, "Closed Cookies Banner by clicking on Accept All button");
 				return;
-			} catch (Exception e) {
-				// If standard click fails, try JS click
-				try {
-					js.executeScript("arguments[0].click();", cookiesButton);
-					PageObjectHelper.log(LOGGER, "Closed Cookies Banner using JavaScript click");
-					return;
-				} catch (Exception jsError) {
-					// Last resort: utils.jsClick
-					utils.jsClick(driver, cookiesButton);
-					PageObjectHelper.log(LOGGER, "Closed Cookies Banner using utils.jsClick");
-				}
+			} catch (Exception jsError) {
+				// Last resort: utils.jsClick
+				utils.jsClick(driver, cookiesButton);
+				LOGGER.debug("Used utility click for cookies banner");
+				PageObjectHelper.log(LOGGER, "Closed Cookies Banner by clicking on Accept All button");
 			}
+		}
 		} catch (TimeoutException e) {
 			// Cookies banner not present or already accepted - this is normal
 			PageObjectHelper.log(LOGGER, "Cookies Banner is already accepted or not present");
