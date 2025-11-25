@@ -3,7 +3,9 @@ package com.kfonetalentsuite.pageobjects.JobMapping;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -562,58 +564,66 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 	}
 
 	public void find_profile_with_missing_data_and_info_message() throws IOException {
-		LOGGER.info("====================================");
-		LOGGER.info("Looking for AutoMapped profile with missing data and info message...");
-		PageObjectHelper.log(LOGGER, "Searching for AutoMapped profile with missing data and info message");
+		LOGGER.info("==============================================");
+		LOGGER.info("Searching for AutoMapped profile with missing data");
+		PageObjectHelper.log(LOGGER, "Searching for AutoMapped profile with missing data");
 
 		try {
 			safeSleep(2000);
-			
-			// FALLBACK: Search through ALL profiles with lazy loading (no limit)
-			LOGGER.info(" FALLBACK: Searching through ALL profiles with lazy loading to find AutoMapped profile with info message...");
-			PageObjectHelper.log(LOGGER, "Fallback search: checking all profiles with lazy loading...");
 
-			int profilesChecked = 0;
-			int scrollAttempts = 0;
-			int maxScrollAttempts = 50; // Increased scroll attempts for large datasets
-			int lastProcessedRowIndex = 0; // Track which rows we've already processed
-			int previousRowCount = 0; // Track if new rows are being loaded
-			int noNewRowsCount = 0; // Track consecutive scrolls with no new rows
-			int maxNoNewRowsCount = 5; // Allow multiple consecutive scrolls with no new rows before giving up
+		int profilesChecked = 0;
+		int scrollAttempts = 0;
+		int maxScrollAttempts = 50; // Increased scroll attempts for large datasets
+		Set<String> processedJobCodes = new HashSet<>(); // Track which jobs we've already checked (for virtual scrolling)
+		int previousRowCount = 0; // Track if new rows are being loaded
+		int noNewRowsCount = 0; // Track consecutive scrolls with no new rows
+		int maxNoNewRowsCount = 5; // Allow multiple consecutive scrolls with no new rows before giving up
 
-			while (scrollAttempts < maxScrollAttempts) {
-				scrollAttempts++;
+	while (scrollAttempts < maxScrollAttempts) {
+			scrollAttempts++;
 
-				// Get current visible job rows (each profile has 3 rows: job data + function + info/separator)
-				List<WebElement> currentRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
-				LOGGER.info("Current visible rows: " + currentRows.size() + " (Scroll attempt " + scrollAttempts + ") - Expected profiles: " + (currentRows.size() / 3));
+			// Get current visible job rows (each profile has 3 rows: job data + function + info/separator)
+			// Note: Table uses VIRTUAL SCROLLING - only ~30 rows in DOM, so process ALL rows each time
+			List<WebElement> currentRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
+			LOGGER.info("Current visible rows: " + currentRows.size() + " (Scroll attempt " + scrollAttempts + ") - Total profiles checked so far: " + profilesChecked);
 
-				// Process only NEW rows (start from where we left off) - each profile = 3 rows
-				for (int i = lastProcessedRowIndex; i < currentRows.size() - 2; i += 3) {
-					profilesChecked++;
-					lastProcessedRowIndex = i + 3; // Update to next unprocessed row (3 rows per profile)
-
-					try {
-					WebElement jobDataRow = currentRows.get(i);
-					WebElement functionRow = currentRows.get(i + 1);
-					// Note: Row i+2 is gray separator row (not used)
-
-					// Extract job name early for debugging (column 2, same as PO29)
-						String jobName = "Unknown";
-						try {
-							WebElement jobNameElement = jobDataRow.findElement(By.xpath(".//td[2]//div | .//td[position()=2]//div"));
-							String jobNameCodeText = jobNameElement.getText().trim();
-							if (jobNameCodeText.contains(" - (")) {
-								int dashIndex = jobNameCodeText.lastIndexOf(" - (");
-								jobName = jobNameCodeText.substring(0, dashIndex).trim();
-							} else {
-								jobName = jobNameCodeText;
+			// Process ALL visible rows (virtual scrolling means indices reset, so can't use lastProcessedRowIndex)
+			for (int i = 0; i < currentRows.size() - 2; i += 3) {
+				try {
+				WebElement jobDataRow = currentRows.get(i);
+				WebElement functionRow = currentRows.get(i + 1);
+				// Note: Row i+2 is gray separator row (not used)
+				
+				// Extract job code to check if we've already processed this job (virtual scrolling)
+				String jobCode = "";
+				try {
+					List<WebElement> jobNameElements = jobDataRow.findElements(By.xpath(".//td[2]//div"));
+					if (!jobNameElements.isEmpty()) {
+						String jobNameText = jobNameElements.get(0).getAttribute("textContent");
+						if (jobNameText != null && jobNameText.contains("(") && jobNameText.contains(")")) {
+							int startIdx = jobNameText.lastIndexOf("(") + 1;
+							int endIdx = jobNameText.lastIndexOf(")");
+							if (startIdx > 0 && endIdx > startIdx) {
+								jobCode = jobNameText.substring(startIdx, endIdx).trim();
+							}
+						}
 					}
 				} catch (Exception e) {
-							// Continue
-						}
+					// Continue without job code
+				}
+				
+				// Skip if we've already processed this job
+				if (!jobCode.isEmpty() && processedJobCodes.contains(jobCode)) {
+					continue; // Already checked this job
+				}
+				
+				// Mark this job as processed
+				if (!jobCode.isEmpty()) {
+					processedJobCodes.add(jobCode);
+				}
+				profilesChecked++;
 
-					// STEP 1: Check for info message in LEFT table (org-job-container)
+				// STEP 1: Check for info message in LEFT table (org-job-container)
 					// Info message is in the FUNCTION ROW (row i+1), not a separate info row
 					boolean hasInfoMsg = false;
 					try {
@@ -629,53 +639,127 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 					}
 					
 					if (!hasInfoMsg) {
-						if (profilesChecked <= 20) {
-							LOGGER.info("Profile " + profilesChecked + " (" + jobName + ") - InfoMsg=false, skipping");
-						}
-						continue; // Skip - no info message
+						continue; // Skip - no info message (don't log to save time)
 					}
 
-					// STEP 2: Check RIGHT table (kf-job-container) for "View Other Matches" button to determine AutoMapped status
-					// Row mapping: LEFT table row i (0-based) = RIGHT table row i+1 (1-based)
-					// Info message is in function row (i+1 in 0-based), which is row i+2 in 1-based indexing
-					int functionRowIndex1Based = i + 2; // Function row in 1-based indexing for RIGHT table
+				// STEP 2: Check RIGHT table for "View Other Matches" button using SEPARATOR-BASED BOUNDARIES
+				// Simple logic: Each profile bounded by separators has 1 or 2 data rows
+				// - 1 data row = Unmapped (has "Find Match" button)
+				// - 2 data rows with "View Other Matches" button = AutoMapped
+				// - 2 data rows without "View Other Matches" button = Manual Mapping
+				boolean isAutoMapped = false;
+				int foundAtRow = -1;
+				int rightProfileStartRow = -1;
+				int rightProfileEndRow = -1;
+				int rightDataRowCount = 0;
+				
+				// Determine which profile number this is (0-based)
+				int profileNumber = i / 3;  // Profile 0, 1, 2, 3...
+				
+				// Get all rows in RIGHT table (including separators)
+				List<WebElement> rightTableAllRows = driver.findElements(By.xpath("//div[@id='kf-job-container']//tbody//tr"));
+				
+				try {
+					// Find the boundaries of our target profile using separator counting
+					int currentProfile = -1;
+					int startIdx = 0;
 					
-					// Try function row and adjacent rows (button should be in function row)
-					int[] possibleRows = {functionRowIndex1Based, functionRowIndex1Based - 1, functionRowIndex1Based + 1};
-					boolean isAutoMapped = false;
-					int foundAtRow = -1;
-					String buttonText = "";
-					
-					for (int testRow : possibleRows) {
-						List<WebElement> viewOtherMatchesButtons = driver.findElements(
-							By.xpath(String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[@id='view-matches'] | " +
-												  "//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(text(), 'View Other Matches')] | " +
-												  "//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(text(), 'View') and contains(text(), 'Other Matches')]", 
-												  testRow, testRow, testRow))
-						);
+					for (int r = 0; r < rightTableAllRows.size(); r++) {
+						WebElement row = rightTableAllRows.get(r);
+						String rowClass = row.getAttribute("class");
 						
-						if (!viewOtherMatchesButtons.isEmpty() && viewOtherMatchesButtons.get(0).isDisplayed()) {
-							isAutoMapped = true;
-							foundAtRow = testRow;
-							buttonText = viewOtherMatchesButtons.get(0).getText();
-							break;
+						if (rowClass != null && rowClass.contains("bg-gray")) {
+							// Found a separator - marks end of a profile
+							currentProfile++;
+							
+							if (currentProfile == profileNumber) {
+								// This separator ends our target profile
+								rightProfileStartRow = startIdx;
+								rightProfileEndRow = r - 1;
+								break;
+							}
+							// Next profile starts after this separator
+							startIdx = r + 1;
 						}
 					}
 					
-					// Debug log for first 20 profiles
-					if (profilesChecked <= 20) {
-						// Only show row details if profile matches criteria (InfoMsg=true AND AutoMapped=true)
-						if (hasInfoMsg && isAutoMapped) {
-							String debugMsg = "Profile " + profilesChecked + " (" + jobName + ") LEFT rows [" + i + "," + (i+1) + "," + (i+2) + "], RIGHT row " + functionRowIndex1Based + " - InfoMsg=" + hasInfoMsg + ", AutoMapped=" + isAutoMapped;
-							if (foundAtRow > 0) {
-								debugMsg += " @row" + foundAtRow + " btn='" + buttonText + "'";
+					// If we're looking for the last profile and didn't find ending separator
+					if (currentProfile == profileNumber - 1 && rightProfileEndRow == -1) {
+						rightProfileStartRow = startIdx;
+						rightProfileEndRow = rightTableAllRows.size() - 1;
+					}
+					
+					// Now check the profile's data rows
+					if (rightProfileStartRow >= 0 && rightProfileEndRow >= rightProfileStartRow) {
+						// Count non-separator data rows
+						List<WebElement> dataRows = new ArrayList<>();
+						for (int r = rightProfileStartRow; r <= rightProfileEndRow; r++) {
+							WebElement row = rightTableAllRows.get(r);
+							String rowClass = row.getAttribute("class");
+							if (rowClass == null || !rowClass.contains("bg-gray")) {
+								dataRows.add(row);
 							}
-							LOGGER.info(debugMsg);
-						} else if (hasInfoMsg) {
-							// Has info message but not AutoMapped (Manual Mapping)
-							LOGGER.info("Profile " + profilesChecked + " (" + jobName + ") - InfoMsg=true, AutoMapped=false (Manual Mapping)");
 						}
-						// Profiles with InfoMsg=false are already logged in the skip message above
+						
+						rightDataRowCount = dataRows.size();
+						
+						// Rule: Check 2nd row ONLY if profile has 2 data rows
+						if (dataRows.size() == 2) {
+							WebElement secondRow = dataRows.get(1);
+							List<WebElement> buttons = secondRow.findElements(By.xpath(".//button[@id='view-matches']"));
+							if (!buttons.isEmpty()) {
+								// Found "View Other Matches" button
+								isAutoMapped = true;
+								// Find actual row index for logging and clicking
+								for (int r = rightProfileStartRow; r <= rightProfileEndRow; r++) {
+									if (rightTableAllRows.get(r) == secondRow) {
+										foundAtRow = r + 1;  // ✅ Convert to 1-based for XPath position()
+										break;
+									}
+								}
+							}
+							// If no button found in 2nd row = Manual Mapping (has "Search a different profile")
+						}
+						// If 1 data row = Unmapped (has "Find Match" button) - also has info message
+					}
+				} catch (Exception e) {
+					LOGGER.debug("Error checking RIGHT table boundaries: {}", e.getMessage());
+				}
+					
+					// Log profile analysis (extract job name only when needed)
+					if (hasInfoMsg) {
+						// Extract job name only when we need to log it
+						String jobName = "Unknown";
+						try {
+							List<WebElement> jobNameElements = jobDataRow.findElements(By.xpath(".//td[2]//div"));
+							if (!jobNameElements.isEmpty()) {
+								String jobNameCodeText = jobNameElements.get(0).getAttribute("textContent");
+								if (jobNameCodeText != null) {
+									jobNameCodeText = jobNameCodeText.trim();
+									if (jobNameCodeText.contains(" - (")) {
+										int dashIndex = jobNameCodeText.lastIndexOf(" - (");
+										jobName = jobNameCodeText.substring(0, dashIndex).trim();
+									} else {
+										jobName = jobNameCodeText;
+									}
+								}
+							}
+						} catch (Exception e) {
+							// Keep default "Unknown"
+						}
+						
+						// Determine profile type and log cleanly
+						String profileType;
+						if (isAutoMapped) {
+							profileType = "AutoMapped (View Other Matches @row" + foundAtRow + ")";
+						} else if (rightDataRowCount == 2) {
+							profileType = "Manual Mapping (Search different profile)";
+						} else if (rightDataRowCount == 1) {
+							profileType = "Unmapped (Find Match)";
+						} else {
+							profileType = "Unknown";
+						}
+						LOGGER.info("Profile {} ({}) - {}", profilesChecked, jobName, profileType);
 					}
 					
 					// STEP 3: Valid profile = InfoMsg=true AND AutoMapped=true
@@ -684,20 +768,49 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 					}
 
 						// Profile has info message AND is AutoMapped - extract details
+						// PERFORMANCE: Use getAttribute('textContent') instead of getText() for speed
+						
+						// Extract job name for the matching profile
+						String jobName = "Unknown";
+						try {
+							List<WebElement> jobNameElements = jobDataRow.findElements(By.xpath(".//td[2]//div"));
+							if (!jobNameElements.isEmpty()) {
+								String jobNameCodeText = jobNameElements.get(0).getAttribute("textContent");
+								if (jobNameCodeText != null) {
+									jobNameCodeText = jobNameCodeText.trim();
+									if (jobNameCodeText.contains(" - (")) {
+										int dashIndex = jobNameCodeText.lastIndexOf(" - (");
+										jobName = jobNameCodeText.substring(0, dashIndex).trim();
+									} else {
+										jobName = jobNameCodeText;
+									}
+								}
+							}
+						} catch (Exception e) {
+							// Keep default "Unknown"
+						}
 
 						// Extract Grade (column 3 in LEFT table)
 						List<WebElement> gradeElements = jobDataRow.findElements(By.xpath(".//td[3]//div"));
-						String grade = gradeElements.isEmpty() ? "" : gradeElements.get(0).getText().trim();
+						String grade = "";
+						if (!gradeElements.isEmpty()) {
+							String gradeText = gradeElements.get(0).getAttribute("textContent");
+							grade = (gradeText != null) ? gradeText.trim() : "";
+						}
 
 						// Extract Department (column 4 in LEFT table)
 						List<WebElement> deptElements = jobDataRow.findElements(By.xpath(".//td[4]//div"));
-						String department = deptElements.isEmpty() ? "" : deptElements.get(0).getText().trim();
+						String department = "";
+						if (!deptElements.isEmpty()) {
+							String deptText = deptElements.get(0).getAttribute("textContent");
+							department = (deptText != null) ? deptText.trim() : "";
+						}
 
 						// Extract Function/Sub-function from the function row (after "Function / Sub-function: " text)
 						String functionSubfunction = "";
 						try {
-							String fullText = functionRow.getText();
-							if (fullText.contains("Function / Sub-function:")) {
+							String fullText = functionRow.getAttribute("textContent");
+							if (fullText != null && fullText.contains("Function / Sub-function:")) {
 								// Extract text after "Function / Sub-function: " label
 								String[] parts = fullText.split("Function / Sub-function:");
 								if (parts.length > 1) {
@@ -721,10 +834,10 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 							hasMissingData = true;
 						}
 
-						if (hasMissingData) {
-							LOGGER.info("... FALLBACK SUCCESS: Found AutoMapped profile with missing data and info message at position " + profilesChecked + ": " + jobName);
-							LOGGER.info("Profile details - Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction);
-							ExtentCucumberAdapter.addTestStepLog("... Found AutoMapped profile: " + jobName + " (Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction + ")");
+					if (hasMissingData) {
+						LOGGER.info("✓ Found AutoMapped profile: {} (Profile #{})", jobName, profilesChecked);
+						LOGGER.info("  Details - Grade: {}, Dept: {}, Func: {}", grade, department, functionSubfunction);
+						ExtentCucumberAdapter.addTestStepLog("Found AutoMapped profile: " + jobName);
 
 							// Store in scenario context (using existing variable names)
 							jobNameWithInfoMessage = jobName;
@@ -736,9 +849,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 							currentRowIndex = foundAtRow;
 							currentRowIndexStatic = foundAtRow; // Also store in static for persistence
 
-							LOGGER.info("Stored in context: Job Name: " + jobName + ", Row Index: " + currentRowIndex);
-							ExtentCucumberAdapter.addTestStepLog("Found profile with Info Message: " + jobName);
-							return; // Found it - exit method
+						LOGGER.debug("Stored row index: {}", currentRowIndex);
+						return; // Found it - exit method
 						}
 
 					} catch (Exception e) {
@@ -748,38 +860,49 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 				}
 
 			// Scroll down to load next batch of profiles (lazy loading)
-			LOGGER.info("Scrolling down to load more profiles (lazy loading)...");
+			LOGGER.debug("Scrolling to load more profiles...");
 			if (!currentRows.isEmpty()) {
+				// Scroll to last row to trigger lazy loading
 				WebElement lastRow = currentRows.get(currentRows.size() - 1);
-				jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", lastRow);
-				safeSleep(1000);
-				jsExecutor.executeScript("window.scrollBy(0, 500);");
+				jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'end'});", lastRow);
+				safeSleep(500);
+				
+				// Scroll the container itself (not window) to trigger lazy loading
+				jsExecutor.executeScript(
+					"var container = document.getElementById('org-job-container');" +
+					"if (container) { container.scrollTop = container.scrollHeight; }"
+				);
+				
+				// Wait for lazy loading to complete (increased from 1s to 4s total)
+				safeSleep(2000); // Wait for server response
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5); // Wait for loading spinners
+				safeSleep(1000); // Additional buffer for DOM to render
 			} else {
 				jsExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+				safeSleep(2000);
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			}
-			PerformanceUtils.waitForSpinnersToDisappear(driver);
-			safeSleep(2000); // Wait for lazy loading to fetch more data
 
 				// Check if no new rows loaded after scroll (improved detection)
 				List<WebElement> rowsAfterScroll = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
 				int rowsAfterScrollCount = rowsAfterScroll.size();
 				
 				if (rowsAfterScrollCount == previousRowCount && previousRowCount > 0) {
-					noNewRowsCount++;
-					LOGGER.info("No new rows loaded after scroll " + scrollAttempts + " (consecutive no-new-rows: " + noNewRowsCount + "/" + maxNoNewRowsCount + ")");
-					
-					// Only exit if we've had multiple consecutive scrolls with no new rows
-					if (noNewRowsCount >= maxNoNewRowsCount) {
-						LOGGER.info("Reached end of profile list after " + noNewRowsCount + " consecutive scrolls with no new rows (total: " + rowsAfterScrollCount + " rows)");
-						break;
-					}
-				} else {
-					// Reset counter if new rows were loaded
-					noNewRowsCount = 0;
-					LOGGER.info("New rows loaded: " + (rowsAfterScrollCount - previousRowCount) + " additional rows (total: " + rowsAfterScrollCount + ")");
-				}
+				noNewRowsCount++;
+				LOGGER.debug("No new profiles after scroll {} (consecutive: {}/{})", scrollAttempts, noNewRowsCount, maxNoNewRowsCount);
 				
-				previousRowCount = rowsAfterScrollCount;
+				// Only exit if we've had multiple consecutive scrolls with no new rows
+				if (noNewRowsCount >= maxNoNewRowsCount) {
+					LOGGER.info("Reached end - Total profiles checked: {}", profilesChecked);
+					break;
+				}
+			} else {
+				// Reset counter if new rows were loaded
+				noNewRowsCount = 0;
+				LOGGER.debug("More profiles loaded (visible rows: {})", rowsAfterScrollCount);
+			}
+			
+			previousRowCount = rowsAfterScrollCount;
 			}
 
 		// If we reach here, no suitable profile was found
@@ -797,12 +920,12 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 	}
 
 	public void find_second_profile_with_missing_data_and_info_message() throws IOException {
-		LOGGER.info("====================================");
-		LOGGER.info("Looking for SECOND AutoMapped profile with missing data and info message...");
-		ExtentCucumberAdapter.addTestStepLog(" Searching for SECOND AutoMapped profile with missing data and info message");
+		LOGGER.info("==============================================");
+		LOGGER.info("Searching for SECOND AutoMapped profile with missing data");
+		ExtentCucumberAdapter.addTestStepLog("Searching for SECOND AutoMapped profile with missing data");
 
 		String firstJobName = jobNameWithInfoMessage;
-		LOGGER.info("First job name to skip: '" + firstJobName + "'");
+		LOGGER.debug("First job to skip: '{}'", firstJobName);
 		
 		if (firstJobName == null || firstJobName.isEmpty()) {
 			LOGGER.warn("WARNING: First job name is null or empty - cannot skip first profile");
@@ -810,63 +933,83 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 
 		try {
 			safeSleep(2000);
-			
-			// FALLBACK: Search through ALL profiles with lazy loading (no limit)
-			LOGGER.info(" FALLBACK: Searching through ALL profiles with lazy loading to find SECOND AutoMapped profile with info message...");
-			ExtentCucumberAdapter.addTestStepLog(" Fallback search: checking all profiles with lazy loading...");
 
-			int profilesChecked = 0;
-			int scrollAttempts = 0;
-			int maxScrollAttempts = 200; // Increased scroll attempts for large datasets
-			int lastProcessedRowIndex = 0; // Track which rows we've already processed
-			int previousRowCount = 0; // Track if new rows are being loaded
-			int noNewRowsCount = 0; // Track consecutive scrolls with no new rows
-			int maxNoNewRowsCount = 5; // Allow multiple consecutive scrolls with no new rows before giving up
+		int profilesChecked = 0;
+		int scrollAttempts = 0;
+		int maxScrollAttempts = 200; // Increased scroll attempts for large datasets
+		Set<String> processedJobCodes = new HashSet<>(); // Track which jobs we've already checked (for virtual scrolling)
+		int previousRowCount = 0; // Track if new rows are being loaded
+		int noNewRowsCount = 0; // Track consecutive scrolls with no new rows
+		int maxNoNewRowsCount = 5; // Allow multiple consecutive scrolls with no new rows before giving up
 
 			while (scrollAttempts < maxScrollAttempts) {
 				scrollAttempts++;
 
 				// Get current visible job rows (each profile has 3 rows: job data + function + info/separator)
+				// Note: Table uses VIRTUAL SCROLLING - only ~30 rows in DOM, so process ALL rows each time
 				List<WebElement> currentRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
-				LOGGER.info("Current visible rows: " + currentRows.size() + " (Scroll attempt " + scrollAttempts + ") - Expected profiles: " + (currentRows.size() / 3));
+				LOGGER.info("Current visible rows: " + currentRows.size() + " (Scroll attempt " + scrollAttempts + ") - Total profiles checked so far: " + profilesChecked);
 
-				// Process only NEW rows (start from where we left off) - each profile = 3 rows
-				for (int i = lastProcessedRowIndex; i < currentRows.size() - 2; i += 3) {
-					profilesChecked++;
-					lastProcessedRowIndex = i + 3; // Update to next unprocessed row (3 rows per profile)
-
+				// Process ALL visible rows (virtual scrolling means indices reset, so can't use lastProcessedRowIndex)
+				for (int i = 0; i < currentRows.size() - 2; i += 3) {
 					try {
 					WebElement jobDataRow = currentRows.get(i);
 					WebElement functionRow = currentRows.get(i + 1);
 					// Note: Row i+2 is gray separator row (not used)
 
-					// Extract job name early for debugging (column 2, same as PO29)
-						String jobName = "Unknown";
-						try {
-							WebElement jobNameElement = jobDataRow.findElement(By.xpath(".//td[2]//div | .//td[position()=2]//div"));
-							String jobNameCodeText = jobNameElement.getText().trim();
-							if (jobNameCodeText.contains(" - (")) {
-								int dashIndex = jobNameCodeText.lastIndexOf(" - (");
-								jobName = jobNameCodeText.substring(0, dashIndex).trim();
-							} else {
-								jobName = jobNameCodeText;
-				}
-			} catch (Exception e) {
-							// Continue
-						}
-
-						// Skip if this is the first job
-						if (firstJobName != null && !firstJobName.isEmpty() && jobName.equals(firstJobName)) {
-							if (profilesChecked <= 20) {
-								LOGGER.info("Second Profile - Skipping first job (Profile " + profilesChecked + "): '" + jobName + "' (matches firstJobName: '" + firstJobName + "')");
+				// Extract job name AND job code for tracking
+				// Job code used to skip already-processed jobs (virtual scrolling)
+				String jobCode = "";
+					// PERFORMANCE: Use getAttribute('textContent') instead of getText() (much faster)
+					String jobName = "Unknown";
+					try {
+						List<WebElement> jobNameElements = jobDataRow.findElements(By.xpath(".//td[2]//div"));
+						if (!jobNameElements.isEmpty()) {
+							// Use textContent attribute (instant) instead of getText() (slow - waits for visibility)
+							String jobNameCodeText = jobNameElements.get(0).getAttribute("textContent");
+							if (jobNameCodeText != null) {
+								jobNameCodeText = jobNameCodeText.trim();
+								// Extract job name
+								if (jobNameCodeText.contains(" - (")) {
+									int dashIndex = jobNameCodeText.lastIndexOf(" - (");
+									jobName = jobNameCodeText.substring(0, dashIndex).trim();
+								} else {
+									jobName = jobNameCodeText;
+								}
+								// Extract job code
+								if (jobNameCodeText.contains("(") && jobNameCodeText.contains(")")) {
+									int startIdx = jobNameCodeText.lastIndexOf("(") + 1;
+									int endIdx = jobNameCodeText.lastIndexOf(")");
+									if (startIdx > 0 && endIdx > startIdx) {
+										jobCode = jobNameCodeText.substring(startIdx, endIdx).trim();
+									}
+								}
 							}
-							continue;
 						}
+					} catch (Exception e) {
+						// Continue
+					}
+					
+					// Skip if we've already processed this job (virtual scrolling)
+					if (!jobCode.isEmpty() && processedJobCodes.contains(jobCode)) {
+						continue; // Already checked this job
+					}
+					
+				// Skip if this is the first job
+				if (firstJobName != null && !firstJobName.isEmpty() && jobName.equals(firstJobName)) {
+						LOGGER.debug("Skipping first profile: {}", jobName);
+						// Still mark as processed to avoid rechecking
+						if (!jobCode.isEmpty()) {
+							processedJobCodes.add(jobCode);
+						}
+						continue;
+					}
 						
-						// Debug: Log comparison for profile 13
-						if (profilesChecked == 13) {
-							LOGGER.info("Second Profile - Profile 13 comparison: jobName='" + jobName + "', firstJobName='" + firstJobName + "', equals=" + jobName.equals(firstJobName));
+						// Mark this job as processed
+						if (!jobCode.isEmpty()) {
+							processedJobCodes.add(jobCode);
 						}
+						profilesChecked++;
 
 					// STEP 1: Check for info message in LEFT table (org-job-container)
 					// Info message is in the FUNCTION ROW (row i+1), not a separate info row
@@ -883,55 +1026,103 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 						// Continue
 					}
 					
-					if (!hasInfoMsg) {
-						if (profilesChecked <= 20) {
-							LOGGER.info("Second Profile - Profile " + profilesChecked + " (" + jobName + ") - InfoMsg=false, skipping");
-						}
-						continue; // Skip - no info message
-					}
+				if (!hasInfoMsg) {
+					continue; // Skip - no info message (don't log to save time)
+				}
 
-					// STEP 2: Check RIGHT table (kf-job-container) for "View Other Matches" button to determine AutoMapped status
-					// Row mapping: LEFT table row i (0-based) = RIGHT table row i+1 (1-based)
-					// Info message is in function row (i+1 in 0-based), which is row i+2 in 1-based indexing
-					int functionRowIndex1Based = i + 2; // Function row in 1-based indexing for RIGHT table
+				// STEP 2: Check RIGHT table for "View Other Matches" button using SEPARATOR-BASED BOUNDARIES
+				// Same logic as first method: use separators to find exact boundaries
+				boolean isAutoMapped = false;
+				int foundAtRow = -1;
+				int rightProfileStartRow = -1;
+				int rightProfileEndRow = -1;
+				int rightDataRowCount = 0;
+				
+				// Determine which profile number this is (0-based)
+				int profileNumber = i / 3;
+				
+				// Get all rows in RIGHT table (including separators)
+				List<WebElement> rightTableAllRows = driver.findElements(By.xpath("//div[@id='kf-job-container']//tbody//tr"));
+				
+				try {
+					// Find the boundaries of our target profile using separator counting
+					int currentProfile = -1;
+					int startIdx = 0;
 					
-					// Try function row and adjacent rows (button should be in function row)
-					int[] possibleRows = {functionRowIndex1Based, functionRowIndex1Based - 1, functionRowIndex1Based + 1};
-					boolean isAutoMapped = false;
-					int foundAtRow = -1;
-					String buttonText = "";
-					
-					for (int testRow : possibleRows) {
-						List<WebElement> viewOtherMatchesButtons = driver.findElements(
-							By.xpath(String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[@id='view-matches'] | " +
-							                      "//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(text(), 'View Other Matches')] | " +
-							                      "//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(text(), 'View') and contains(text(), 'Other Matches')]", 
-							                      testRow, testRow, testRow))
-						);
+					for (int r = 0; r < rightTableAllRows.size(); r++) {
+						WebElement row = rightTableAllRows.get(r);
+						String rowClass = row.getAttribute("class");
 						
-						if (!viewOtherMatchesButtons.isEmpty() && viewOtherMatchesButtons.get(0).isDisplayed()) {
-							isAutoMapped = true;
-							foundAtRow = testRow;
-							buttonText = viewOtherMatchesButtons.get(0).getText();
-							break;
+						if (rowClass != null && rowClass.contains("bg-gray")) {
+							// Found a separator - marks end of a profile
+							currentProfile++;
+							
+							if (currentProfile == profileNumber) {
+								// This separator ends our target profile
+								rightProfileStartRow = startIdx;
+								rightProfileEndRow = r - 1;
+								break;
+							}
+							// Next profile starts after this separator
+							startIdx = r + 1;
 						}
 					}
 					
-					// Debug log for first 20 profiles
-					if (profilesChecked <= 20) {
-						// Only show row details if profile matches criteria (InfoMsg=true AND AutoMapped=true)
-						if (hasInfoMsg && isAutoMapped) {
-							String debugMsg = "Second Profile - Profile " + profilesChecked + " (" + jobName + ") LEFT rows [" + i + "," + (i+1) + "," + (i+2) + "], RIGHT row " + functionRowIndex1Based + " - InfoMsg=" + hasInfoMsg + ", AutoMapped=" + isAutoMapped;
-							if (foundAtRow > 0) {
-								debugMsg += " @row" + foundAtRow + " btn='" + buttonText + "'";
-							}
-							LOGGER.info(debugMsg);
-						} else if (hasInfoMsg) {
-							// Has info message but not AutoMapped (Manual Mapping)
-							LOGGER.info("Second Profile - Profile " + profilesChecked + " (" + jobName + ") - InfoMsg=true, AutoMapped=false (Manual Mapping)");
-						}
-						// Profiles with InfoMsg=false are already logged in the skip message above
+					// If we're looking for the last profile and didn't find ending separator
+					if (currentProfile == profileNumber - 1 && rightProfileEndRow == -1) {
+						rightProfileStartRow = startIdx;
+						rightProfileEndRow = rightTableAllRows.size() - 1;
 					}
+					
+					// Now check the profile's data rows
+					if (rightProfileStartRow >= 0 && rightProfileEndRow >= rightProfileStartRow) {
+						// Count non-separator data rows
+						List<WebElement> dataRows = new ArrayList<>();
+						for (int r = rightProfileStartRow; r <= rightProfileEndRow; r++) {
+							WebElement row = rightTableAllRows.get(r);
+							String rowClass = row.getAttribute("class");
+							if (rowClass == null || !rowClass.contains("bg-gray")) {
+								dataRows.add(row);
+							}
+						}
+						
+						rightDataRowCount = dataRows.size();
+						
+						// Rule: Check 2nd row ONLY if profile has 2 data rows
+						if (dataRows.size() == 2) {
+							WebElement secondRow = dataRows.get(1);
+							List<WebElement> buttons = secondRow.findElements(By.xpath(".//button[@id='view-matches']"));
+							if (!buttons.isEmpty()) {
+								// Found "View Other Matches" button
+								isAutoMapped = true;
+								// Find actual row index for logging and clicking
+								for (int r = rightProfileStartRow; r <= rightProfileEndRow; r++) {
+									if (rightTableAllRows.get(r) == secondRow) {
+										foundAtRow = r + 1;  // ✅ Convert to 1-based for XPath position()
+										break;
+									}
+								}
+							}
+						}
+					}
+				} catch (Exception e) {
+					LOGGER.debug("Error checking RIGHT table boundaries for second profile: {}", e.getMessage());
+				}
+				
+				// Log profile analysis (cleaner format)
+				if (hasInfoMsg) {
+					String profileType;
+					if (isAutoMapped) {
+						profileType = "AutoMapped (View Other Matches @row" + foundAtRow + ")";
+					} else if (rightDataRowCount == 2) {
+						profileType = "Manual Mapping (Search different profile)";
+					} else if (rightDataRowCount == 1) {
+						profileType = "Unmapped (Find Match)";
+					} else {
+						profileType = "Unknown";
+					}
+					LOGGER.info("Profile {} ({}) - {}", profilesChecked, jobName, profileType);
+				}
 					
 					// STEP 3: Valid profile = InfoMsg=true AND AutoMapped=true
 					if (!isAutoMapped) {
@@ -939,20 +1130,30 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 					}
 
 						// Profile has info message AND is AutoMapped - extract details
+						// PERFORMANCE: Use getAttribute('textContent') instead of getText() for speed
+						// Note: jobName already extracted earlier in the loop for firstJobName comparison
 
 						// Extract Grade (column 3 in LEFT table)
 						List<WebElement> gradeElements = jobDataRow.findElements(By.xpath(".//td[3]//div"));
-						String grade = gradeElements.isEmpty() ? "" : gradeElements.get(0).getText().trim();
+						String grade = "";
+						if (!gradeElements.isEmpty()) {
+							String gradeText = gradeElements.get(0).getAttribute("textContent");
+							grade = (gradeText != null) ? gradeText.trim() : "";
+						}
 
 						// Extract Department (column 4 in LEFT table)
 						List<WebElement> deptElements = jobDataRow.findElements(By.xpath(".//td[4]//div"));
-						String department = deptElements.isEmpty() ? "" : deptElements.get(0).getText().trim();
+						String department = "";
+						if (!deptElements.isEmpty()) {
+							String deptText = deptElements.get(0).getAttribute("textContent");
+							department = (deptText != null) ? deptText.trim() : "";
+						}
 
 						// Extract Function/Sub-function from the function row (after "Function / Sub-function: " text)
 						String functionSubfunction = "";
 						try {
-							String fullText = functionRow.getText();
-							if (fullText.contains("Function / Sub-function:")) {
+							String fullText = functionRow.getAttribute("textContent");
+							if (fullText != null && fullText.contains("Function / Sub-function:")) {
 								// Extract text after "Function / Sub-function: " label
 								String[] parts = fullText.split("Function / Sub-function:");
 								if (parts.length > 1) {
@@ -976,10 +1177,10 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 							hasMissingData = true;
 						}
 
-						if (hasMissingData) {
-							LOGGER.info("... FALLBACK SUCCESS: Found SECOND AutoMapped profile with missing data and info message at position " + profilesChecked + ": " + jobName);
-							LOGGER.info("Profile details - Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction);
-							ExtentCucumberAdapter.addTestStepLog("... Found SECOND AutoMapped profile: " + jobName + " (Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction + ")");
+					if (hasMissingData) {
+						LOGGER.info("✓ Found SECOND AutoMapped profile: {} (Profile #{})", jobName, profilesChecked);
+						LOGGER.info("  Details - Grade: {}, Dept: {}, Func: {}", grade, department, functionSubfunction);
+						ExtentCucumberAdapter.addTestStepLog("Found SECOND AutoMapped profile: " + jobName);
 
 							// Store in scenario context (using existing variable names)
 							secondJobNameWithInfoMessage = jobName;
@@ -991,9 +1192,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 							secondCurrentRowIndex = foundAtRow;
 							secondCurrentRowIndexStatic = foundAtRow; // Also store in static for persistence
 
-							LOGGER.info("Stored in context: Second Job Name: " + jobName + ", Row Index: " + secondCurrentRowIndex);
-							ExtentCucumberAdapter.addTestStepLog("Found second profile with Info Message: " + jobName);
-							return; // Found it - exit method
+						LOGGER.debug("Stored row index: {}", secondCurrentRowIndex);
+						return; // Found it - exit method
 						}
 
 				} catch (Exception e) {
@@ -1002,38 +1202,50 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 					}
 				}
 
-				// Scroll down to load next batch of profiles (lazy loading)
-				LOGGER.info("Scrolling down to load more profiles (lazy loading)...");
-				if (!currentRows.isEmpty()) {
-					WebElement lastRow = currentRows.get(currentRows.size() - 1);
-					jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", lastRow);
-					safeSleep(1000);
-					jsExecutor.executeScript("window.scrollBy(0, 500);");
-				} else {
-					jsExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-				}
-				safeSleep(2000); // Wait for lazy loading to fetch more data
+			// Scroll down to load next batch of profiles (lazy loading)
+			LOGGER.debug("Scrolling to load more profiles...");
+			if (!currentRows.isEmpty()) {
+				// Scroll to last row to trigger lazy loading
+				WebElement lastRow = currentRows.get(currentRows.size() - 1);
+				jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'end'});", lastRow);
+				safeSleep(500);
+				
+				// Scroll the container itself (not window) to trigger lazy loading
+				jsExecutor.executeScript(
+					"var container = document.getElementById('org-job-container');" +
+					"if (container) { container.scrollTop = container.scrollHeight; }"
+				);
+				
+				// Wait for lazy loading to complete (increased from 1s to 4s total)
+				safeSleep(2000); // Wait for server response
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5); // Wait for loading spinners
+				safeSleep(1000); // Additional buffer for DOM to render
+			} else {
+				jsExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+				safeSleep(2000);
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			}
 
 				// Check if no new rows loaded after scroll (improved detection)
 				List<WebElement> rowsAfterScroll = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
 				int rowsAfterScrollCount = rowsAfterScroll.size();
 				
 				if (rowsAfterScrollCount == previousRowCount && previousRowCount > 0) {
-					noNewRowsCount++;
-					LOGGER.info("No new rows loaded after scroll " + scrollAttempts + " (consecutive no-new-rows: " + noNewRowsCount + "/" + maxNoNewRowsCount + ")");
-					
-					// Only exit if we've had multiple consecutive scrolls with no new rows
-					if (noNewRowsCount >= maxNoNewRowsCount) {
-						LOGGER.info("Reached end of profile list after " + noNewRowsCount + " consecutive scrolls with no new rows (total: " + rowsAfterScrollCount + " rows)");
-						break;
-					}
-				} else {
-					// Reset counter if new rows were loaded
-					noNewRowsCount = 0;
-					LOGGER.info("New rows loaded: " + (rowsAfterScrollCount - previousRowCount) + " additional rows (total: " + rowsAfterScrollCount + ")");
-				}
+				noNewRowsCount++;
+				LOGGER.debug("No new profiles after scroll {} (consecutive: {}/{})", scrollAttempts, noNewRowsCount, maxNoNewRowsCount);
 				
-				previousRowCount = rowsAfterScrollCount;
+				// Only exit if we've had multiple consecutive scrolls with no new rows
+				if (noNewRowsCount >= maxNoNewRowsCount) {
+					LOGGER.info("Reached end - Total profiles checked: {}", profilesChecked);
+					break;
+				}
+			} else {
+				// Reset counter if new rows were loaded
+				noNewRowsCount = 0;
+				LOGGER.debug("More profiles loaded (visible rows: {})", rowsAfterScrollCount);
+			}
+			
+			previousRowCount = rowsAfterScrollCount;
 			}
 
 		// If we reach here, no suitable second profile was found
@@ -1398,22 +1610,19 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 
 	private void performRobustClick(WebElement element, String elementName) throws IOException {
 		try {
-			// Scroll element into view with auto behavior for performance
 			jsExecutor.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", element);
 			safeSleep(200);
 			
-			// Try standard click first
 			wait.until(ExpectedConditions.elementToBeClickable(element));
 			element.click();
 			
 		} catch (Exception e) {
-			LOGGER.warn("Standard click failed for " + elementName + ", trying JavaScript click: " + e.getMessage());
+			LOGGER.debug("Standard click failed for {}, using JavaScript click", elementName);
 			try {
-				// Fallback to JavaScript click
 				jsExecutor.executeScript("arguments[0].click();", element);
 			} catch (Exception jsException) {
-				LOGGER.error("Both click methods failed for " + elementName + ": " + jsException.getMessage());
-				throw new IOException("Failed to click " + elementName + " after trying multiple methods");
+				LOGGER.error("Click failed for " + elementName);
+				throw new IOException("Failed to click " + elementName);
 			}
 		}
 	}
