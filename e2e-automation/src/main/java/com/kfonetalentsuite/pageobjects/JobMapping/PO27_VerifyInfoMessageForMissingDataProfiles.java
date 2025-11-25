@@ -527,13 +527,13 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 						"//div[@id='org-job-container']//div[contains(text(), 'Reduced match accuracy due to missing data')]"
 					};
 					
-					for (String xpath : alternativeXPaths) {
-						infoMessages = driver.findElements(By.xpath(xpath));
-						if (!infoMessages.isEmpty()) {
-							LOGGER.info("STATUS: Found {} info messages using alternative XPath: {}", infoMessages.size(), xpath);
-							break;
-						}
+				for (String xpath : alternativeXPaths) {
+					infoMessages = driver.findElements(By.xpath(xpath));
+					if (!infoMessages.isEmpty()) {
+						LOGGER.info("STATUS: Found {} info messages using alternative locator", infoMessages.size());
+						break;
 					}
+				}
 				}
 			}
 			
@@ -584,7 +584,9 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 		// Get current visible job rows (each profile has 3 rows: job data + function + info/separator)
 		// Note: Table uses VIRTUAL SCROLLING - only ~30 rows in DOM, so process ALL rows each time
 		List<WebElement> currentRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
-		LOGGER.info("Current visible rows: " + currentRows.size() + " (Scroll attempt " + scrollAttempts + ") - Total profiles checked so far: " + profilesChecked);
+		if (profilesChecked % 10 == 0 || scrollAttempts == 1) {
+			LOGGER.info("Searching... (checked {} profiles)", profilesChecked);
+		}
 
 		// PERFORMANCE: Get RIGHT table rows ONCE per scroll (not per profile!)
 		List<WebElement> rightTableAllRows = driver.findElements(By.xpath("//div[@id='kf-job-container']//tbody//tr"));
@@ -870,8 +872,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 					}
 				}
 
-			// Scroll down to load next batch of profiles (lazy loading)
-			LOGGER.debug("Scrolling to load more profiles...");
+		// Scroll down to load next batch of profiles (lazy loading)
+		LOGGER.debug("Scrolling...");
 			if (!currentRows.isEmpty()) {
 				// Scroll to last row to trigger lazy loading
 				WebElement lastRow = currentRows.get(currentRows.size() - 1);
@@ -899,18 +901,16 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 				int rowsAfterScrollCount = rowsAfterScroll.size();
 				
 				if (rowsAfterScrollCount == previousRowCount && previousRowCount > 0) {
-				noNewRowsCount++;
-				LOGGER.debug("No new profiles after scroll {} (consecutive: {}/{})", scrollAttempts, noNewRowsCount, maxNoNewRowsCount);
+			noNewRowsCount++;
 				
-				// Only exit if we've had multiple consecutive scrolls with no new rows
-				if (noNewRowsCount >= maxNoNewRowsCount) {
-					LOGGER.info("Reached end - Total profiles checked: {}", profilesChecked);
-					break;
-				}
+			// Only exit if we've had multiple consecutive scrolls with no new rows
+			if (noNewRowsCount >= maxNoNewRowsCount) {
+				LOGGER.info("Checked {} profiles total", profilesChecked);
+				break;
+			}
 			} else {
-				// Reset counter if new rows were loaded
-				noNewRowsCount = 0;
-				LOGGER.debug("More profiles loaded (visible rows: {})", rowsAfterScrollCount);
+			// Reset counter if new rows were loaded
+			noNewRowsCount = 0;
 			}
 			
 			previousRowCount = rowsAfterScrollCount;
@@ -959,7 +959,9 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			// Get current visible job rows (each profile has 3 rows: job data + function + info/separator)
 			// Note: Table uses VIRTUAL SCROLLING - only ~30 rows in DOM, so process ALL rows each time
 			List<WebElement> currentRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
-			LOGGER.info("Current visible rows: " + currentRows.size() + " (Scroll attempt " + scrollAttempts + ") - Total profiles checked so far: " + profilesChecked);
+			if (profilesChecked % 10 == 0 || scrollAttempts == 1) {
+				LOGGER.info("Searching for second profile... (checked {} profiles)", profilesChecked);
+			}
 
 		// PERFORMANCE: Get RIGHT table rows ONCE per scroll (not per profile!)
 		List<WebElement> rightTableAllRows = driver.findElements(By.xpath("//div[@id='kf-job-container']//tbody//tr"));
@@ -1225,8 +1227,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 					}
 				}
 
-			// Scroll down to load next batch of profiles (lazy loading)
-			LOGGER.debug("Scrolling to load more profiles...");
+		// Scroll down to load next batch of profiles (lazy loading)
+		LOGGER.debug("Scrolling...");
 			if (!currentRows.isEmpty()) {
 				// Scroll to last row to trigger lazy loading
 				WebElement lastRow = currentRows.get(currentRows.size() - 1);
@@ -1254,18 +1256,16 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 				int rowsAfterScrollCount = rowsAfterScroll.size();
 				
 				if (rowsAfterScrollCount == previousRowCount && previousRowCount > 0) {
-				noNewRowsCount++;
-				LOGGER.debug("No new profiles after scroll {} (consecutive: {}/{})", scrollAttempts, noNewRowsCount, maxNoNewRowsCount);
+			noNewRowsCount++;
 				
-				// Only exit if we've had multiple consecutive scrolls with no new rows
-				if (noNewRowsCount >= maxNoNewRowsCount) {
-					LOGGER.info("Reached end - Total profiles checked: {}", profilesChecked);
-					break;
-				}
+			// Only exit if we've had multiple consecutive scrolls with no new rows
+			if (noNewRowsCount >= maxNoNewRowsCount) {
+				LOGGER.info("Checked {} profiles total", profilesChecked);
+				break;
+			}
 			} else {
-				// Reset counter if new rows were loaded
-				noNewRowsCount = 0;
-				LOGGER.debug("More profiles loaded (visible rows: {})", rowsAfterScrollCount);
+			// Reset counter if new rows were loaded
+			noNewRowsCount = 0;
 			}
 			
 			previousRowCount = rowsAfterScrollCount;
@@ -1602,17 +1602,17 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			for (String xpath : viewMatchesButtonXPaths) {
 				try {
 					List<WebElement> buttons = driver.findElements(By.xpath(xpath));
-					for (WebElement button : buttons) {
-						if (button.isDisplayed()) {
-							targetButton = button;
-							LOGGER.info("Found '{}' button using XPath: {}", buttonText, xpath);
-							break;
-						}
+				for (WebElement button : buttons) {
+					if (button.isDisplayed()) {
+						targetButton = button;
+						LOGGER.debug("Found '{}' button for profile at row {}", buttonText, currentRowIndex);
+						break;
 					}
-					if (targetButton != null) break;
-				} catch (Exception e) {
-					LOGGER.debug("Could not find button using XPath: {} - {}", xpath, e.getMessage());
 				}
+				if (targetButton != null) break;
+			} catch (Exception e) {
+				LOGGER.debug("Could not find button - {}", e.getMessage());
+			}
 			}
 			
 			if (targetButton == null) {
@@ -1686,17 +1686,17 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			for (String xpath : viewMatchesButtonXPaths) {
 				try {
 					List<WebElement> buttons = driver.findElements(By.xpath(xpath));
-					for (WebElement button : buttons) {
-						if (button.isDisplayed()) {
-							targetButton = button;
-							LOGGER.info("Found '{}' button for second profile using XPath: {}", buttonText, xpath);
-							break;
-						}
+				for (WebElement button : buttons) {
+					if (button.isDisplayed()) {
+						targetButton = button;
+						LOGGER.debug("Found '{}' button for second profile at row {}", buttonText, secondCurrentRowIndex);
+						break;
 					}
-					if (targetButton != null) break;
-				} catch (Exception e) {
-					LOGGER.debug("Could not find button for second profile using XPath: {} - {}", xpath, e.getMessage());
 				}
+				if (targetButton != null) break;
+			} catch (Exception e) {
+				LOGGER.debug("Could not find button for second profile - {}", e.getMessage());
+			}
 			}
 			
 			if (targetButton == null) {
@@ -1718,9 +1718,8 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 	public void verify_user_is_navigated_to_job_comparison_page() throws IOException {
 		try {
 			LOGGER.info("Verifying user is navigated to Job Comparison page");
-			safeSleep(3000); // Allow page transition
 			
-		// Look for Job Comparison page indicators - using working pattern from PO02
+		// Look for Job Comparison page indicators
 		WebElement compareAndSelectHeader = wait.until(ExpectedConditions.presenceOfElementLocated(
 			By.xpath("//h1[@id='compare-desc']")
 		));
@@ -2111,27 +2110,34 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 	public void navigate_back_to_job_mapping_page_from_job_comparison() throws IOException {
 		try {
 			LOGGER.info("Navigating back to Job Mapping page from Job Comparison");
-			safeSleep(2000);
 			
-			// Look for back button or close button
-			List<WebElement> backButtons = driver.findElements(
-				By.xpath("//button[contains(text(), 'Back')] | //button[contains(text(), 'Close')] | //button[@aria-label='Close'] | //button[contains(@class, 'close-button')]")
+			// PERFORMANCE: Use JavaScript to check for back button (instant, no waits)
+			Boolean hasBackButton = (Boolean) jsExecutor.executeScript(
+				"return document.querySelector('button:is([aria-label=\"Back\"], [aria-label=\"Close\"])') !== null || " +
+				"document.querySelector('button') !== null && " +
+				"(document.querySelector('button').textContent.includes('Back') || document.querySelector('button').textContent.includes('Close'));"
 			);
 			
-			if (!backButtons.isEmpty()) {
-				WebElement backButton = backButtons.get(0);
-				performRobustClick(backButton, "Back/Close button");
-				LOGGER.info("SUCCESS: Clicked back button to return to Job Mapping page");
+			if (hasBackButton != null && hasBackButton) {
+				// Find and click the button using JavaScript
+				jsExecutor.executeScript(
+					"var btn = document.querySelector('button:is([aria-label=\"Back\"], [aria-label=\"Close\"])');" +
+					"if (!btn) btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('Back') || b.textContent.includes('Close'));" +
+					"if (btn) btn.click();"
+				);
+				LOGGER.debug("Clicked back button");
 			} else {
-				// Try browser back button as fallback
+				// Use browser back button
 				jsExecutor.executeScript("window.history.back();");
-				LOGGER.info("INFO: Used browser back button to return to Job Mapping page");
+				LOGGER.debug("Used browser back button");
 			}
 			
-			safeSleep(3000); // Allow page transition
+			// Wait for navigation to complete
+			PerformanceUtils.waitForPageReady(driver);
+			safeSleep(500);
 			
-			ExtentCucumberAdapter.addTestStepLog("Successfully navigated back to Job Mapping page from Job Comparison");
-			LOGGER.info("SUCCESS: Navigation back to Job Mapping page completed");
+			ExtentCucumberAdapter.addTestStepLog("Navigated back to Job Mapping page");
+			LOGGER.info("Navigated back to Job Mapping page");
 			
 	} catch (Exception e) {
 		PageObjectHelper.handleError(LOGGER, "navigate_back_to_job_mapping_page_from_job_comparison",
