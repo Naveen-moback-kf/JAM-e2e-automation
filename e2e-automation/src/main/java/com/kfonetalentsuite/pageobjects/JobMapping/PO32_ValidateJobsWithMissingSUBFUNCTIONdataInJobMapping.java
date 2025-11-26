@@ -2,7 +2,6 @@ package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -640,31 +639,48 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 
 	/**
 	 * Search for the extracted job profile by name in Job Mapping page
+	 * Uses full job name for more precise search results
 	 */
 	public void search_for_the_extracted_job_profile_by_name_in_job_mapping_page() throws IOException {
 		try {
 			wait.until(ExpectedConditions.elementToBeClickable(jobSearchInput));
 			
-			// Extract job name without job code for search
-			String searchTerm = extractJobNameForSearch(jobDetailsFromMissingDataScreen.get("jobName"));
+			// Use full job name for search (including timestamp for uniqueness)
+			String fullJobName = jobDetailsFromMissingDataScreen.get("jobName");
+			String searchTerm = fullJobName;
 			
 			jobSearchInput.clear();
 			jobSearchInput.sendKeys(searchTerm);
+			jobSearchInput.sendKeys(Keys.ENTER);
 			
-		// Trigger search by pressing Enter key
-		jobSearchInput.sendKeys(Keys.ENTER);
-		
-		// Wait for search results to load and filter
-		LOGGER.info("Waiting for search results to load...");
-		wait.until(ExpectedConditions.invisibilityOfAllElements(driver.findElements(By.xpath("//div[@data-testid='loader']//img"))));
-		PerformanceUtils.safeSleep(driver, 2000); // Additional wait for results to stabilize
-		PerformanceUtils.waitForPageReady(driver, 3);
-		
-		// Verify that search actually filtered the results
-		verifySearchResultsContainSearchTerm(searchTerm);
+			LOGGER.info("Searching for: {}", searchTerm);
 			
-			LOGGER.info("Searched for job: " + searchTerm);
-			LOGGER.info("Will find specific profile in search results that matches job name AND job code from Missing Data screen");
+			// Wait for loader to disappear
+			wait.until(ExpectedConditions.invisibilityOfAllElements(driver.findElements(By.xpath("//div[@data-testid='loader']//img"))));
+			
+			// Wait for "No data available" message to disappear (temporary loading state)
+			try {
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+				shortWait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//*[contains(text(), 'No data available')]")));
+			} catch (Exception e) {
+				// Message already gone or not present
+			}
+			
+			// Wait for actual job rows to appear
+			try {
+				WebDriverWait rowWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+				rowWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='org-job-container']//tbody//tr[not(contains(@class, 'bg-gray'))]")));
+			} catch (Exception e) {
+				LOGGER.warn("No job rows appeared after search");
+			}
+			
+			// Additional wait for results to stabilize
+			PerformanceUtils.safeSleep(driver, 2000);
+			PerformanceUtils.waitForPageReady(driver, 3);
+			
+			// Verify search results
+			verifySearchResultsContainSearchTerm(searchTerm);
+			
 			ExtentCucumberAdapter.addTestStepLog("Searched for job profile: " + searchTerm);
 			
 		} catch (Exception e) {
@@ -676,6 +692,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 
 	/**
 	 * Verify that search results actually contain the search term (to detect search filtering issues)
+	 * Uses bidirectional contains to handle full job names with timestamps
 	 */
 	private void verifySearchResultsContainSearchTerm(String searchTerm) throws IOException {
 		try {
@@ -687,13 +704,23 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 				return;
 			}
 			
-			// Check if any job row contains the search term
+			// Check if any job row contains the search term - using PO29 approach
 			boolean foundMatchingResult = false;
 			int totalRows = jobRows.size();
+			String searchTermLower = searchTerm.toLowerCase();
+			int rowsChecked = 0;
 			
 			for (int i = 0; i < Math.min(totalRows, 10); i++) {
 				try {
 					WebElement row = jobRows.get(i);
+					
+					// Skip separator rows (gray background)
+					String rowClass = row.getAttribute("class");
+					if (rowClass != null && rowClass.contains("bg-gray")) {
+						continue;
+					}
+					
+					// Use row.getText() like PO29 does (simple and reliable)
 					String rowText = row.getText().trim();
 					
 					// Skip non-job rows
@@ -705,9 +732,29 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 						continue;
 					}
 					
-					// Check if this row contains the search term
-					if (rowText.toLowerCase().contains(searchTerm.toLowerCase())) {
+					rowsChecked++;
+					
+					// Extract job code from row text
+					String jobCodeText = "";
+					String cleanJobName = rowText;
+					if (rowText.contains("(") && rowText.contains(")")) {
+						int startParen = rowText.lastIndexOf("(");
+						int endParen = rowText.lastIndexOf(")");
+						if (startParen > 0 && endParen > startParen) {
+							jobCodeText = rowText.substring(startParen + 1, endParen).trim();
+							cleanJobName = rowText.substring(0, startParen).trim();
+						}
+					}
+					
+					String jobNameLower = cleanJobName.toLowerCase();
+					
+					// Bidirectional contains check (handles partial matches and full names)
+					boolean matchA = searchTermLower.contains(jobNameLower);
+					boolean matchB = jobNameLower.contains(searchTermLower);
+					
+					if (matchA || matchB) {
 						foundMatchingResult = true;
+						LOGGER.info("✓ Search verified: {} ({})", cleanJobName, jobCodeText);
 						break;
 					}
 				} catch (Exception e) {
@@ -716,13 +763,14 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			}
 			
 			if (!foundMatchingResult) {
-				LOGGER.error("Search filtering issue: Search term '" + searchTerm + "' not found in results (Total rows: " + totalRows + ")");
+				LOGGER.error("Search term '{}' not found in {} results", searchTerm, rowsChecked);
 				throw new IOException("Search filtering not working - search term '" + searchTerm + "' not found in results");
-			} else {
-				LOGGER.info("Search filtering working correctly");
 			}
 			
+		} catch (IOException e) {
+			throw e; // Re-throw IOException as-is
 		} catch (Exception e) {
+			LOGGER.error("Unexpected error in search verification: {}", e.getMessage(), e);
 			throw new IOException("Search verification failed: " + e.getMessage());
 		}
 	}
@@ -1182,106 +1230,49 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 	}
 
 	/**
-	 * Verify Info Message is displayed on searched profile indicating missing Subfunction data - Using Features 27/28 proven approach
+	 * Verify Info Message is displayed on searched profile
+	 * Optimized using JavaScript for instant checking
 	 */
 	public void verify_info_message_is_displayed_on_searched_profile_indicating_missing_subfunction_data() throws IOException {
 		try {
-			String searchTerm = extractJobNameForSearch(jobDetailsFromMissingDataScreen.get("jobName"));
-			LOGGER.info("Looking for Info Message on searched profile: " + searchTerm);
+			String fullJobName = jobDetailsFromMissingDataScreen.get("jobName");
+			LOGGER.info("Verifying Info Message for: {}", fullJobName);
 			
 			// Check if we have a matching job row from verification step
 			if (matchingJobRow == null) {
 				throw new IOException("No matching job row available for info message verification");
 			}
 			
-			// Look for info messages specifically associated with our matching job row
-			List<WebElement> infoMessages = new ArrayList<>();
+			// Use JavaScript for faster info message detection
+			boolean infoMessageFound = (Boolean) js.executeScript(
+				"const row = arguments[0];" +
+				// Check same row
+				"if (row.querySelector('div[role=\"button\"][aria-label*=\"Reduced match accuracy\"]')) return true;" +
+				// Check following siblings (N+1, N+2, N+3)
+				"let nextRow = row.nextElementSibling;" +
+				"for (let i = 0; i < 3 && nextRow; i++) {" +
+				"  if (nextRow.querySelector('div[role=\"button\"][aria-label*=\"Reduced match accuracy\"]')) return true;" +
+				"  nextRow = nextRow.nextElementSibling;" +
+				"}" +
+				// Check preceding siblings
+				"let prevRow = row.previousElementSibling;" +
+				"for (let i = 0; i < 2 && prevRow; i++) {" +
+				"  if (prevRow.querySelector('div[role=\"button\"][aria-label*=\"Reduced match accuracy\"]')) return true;" +
+				"  prevRow = prevRow.previousElementSibling;" +
+				"}" +
+				"return false;",
+				matchingJobRow
+			);
 			
-			// Method 1: Look for info messages in the same row as our matching job
-			try {
-				infoMessages = matchingJobRow.findElements(By.xpath(".//div[@role='button' and contains(@aria-label, 'Reduced match accuracy')]"));
-			} catch (Exception e) {
-				// Expected - info messages are usually not in the same row as job data
-			}
+			Assert.assertTrue(infoMessageFound, "Info message not found on searched profile indicating missing Subfunction data");
 			
-			// Method 2: Look for info messages in N+2 row (2 rows after the matching job row)
-			// Structure: Row N = Job data, Row N+1 = Function/Sub-function, Row N+2 = Info message
-			if (infoMessages.isEmpty()) {
-				try {
-					List<WebElement> followingRows = matchingJobRow.findElements(By.xpath(".//following-sibling::tr"));
-					
-					// Check the 2nd following row (N+2) for info messages
-					if (followingRows.size() >= 2) {
-						WebElement infoMessageRow = followingRows.get(1); // N+2 row (0-indexed, so index 1)
-						List<WebElement> rowInfoMessages = infoMessageRow.findElements(By.xpath(".//div[@role='button' and contains(@aria-label, 'Reduced match accuracy')]"));
-						if (!rowInfoMessages.isEmpty()) {
-							infoMessages.addAll(rowInfoMessages);
-						} else {
-							// Fallback: check all following rows
-							for (int i = 0; i < Math.min(followingRows.size(), 3); i++) {
-								WebElement followingRow = followingRows.get(i);
-								List<WebElement> fallbackInfoMessages = followingRow.findElements(By.xpath(".//div[@role='button' and contains(@aria-label, 'Reduced match accuracy')]"));
-								if (!fallbackInfoMessages.isEmpty()) {
-									infoMessages.addAll(fallbackInfoMessages);
-						break;
-					}
-							}
-						}
-					}
-				} catch (Exception e) {
-					// Continue to next method
-				}
-			}
-			
-			// Method 3: Look for info messages in parent rows
-			if (infoMessages.isEmpty()) {
-				try {
-					List<WebElement> parentRows = matchingJobRow.findElements(By.xpath(".//preceding-sibling::tr"));
-					for (WebElement parentRow : parentRows) {
-						List<WebElement> rowInfoMessages = parentRow.findElements(By.xpath(".//div[@role='button' and contains(@aria-label, 'Reduced match accuracy')]"));
-						if (!rowInfoMessages.isEmpty()) {
-							infoMessages.addAll(rowInfoMessages);
-							break; // Stop at first parent row with info messages
-						}
-					}
-				} catch (Exception e) {
-					// Continue to next method
-				}
-			}
-			
-			// Method 4: Fallback to global search with proximity check
-			if (infoMessages.isEmpty()) {
-				List<WebElement> globalInfoMessages = driver.findElements(
-					By.xpath("//div[@id='org-job-container']//div[@role='button' and contains(@aria-label, 'Reduced match accuracy')]")
-				);
-				
-				// Check which global info messages are closest to our matching job row
-				for (WebElement globalInfoMsg : globalInfoMessages) {
-					try {
-						WebElement parentRow = globalInfoMsg.findElement(By.xpath("./ancestor::tr[1]"));
-							String rowText = parentRow.getText().toLowerCase();
-							
-				if (rowText.contains(searchTerm.toLowerCase())) {
-							infoMessages.add(globalInfoMsg);
-						}
-					} catch (Exception e) {
-						// Continue to next info message
-					}
-				}
-			}
-			
-			// Check if we found any info messages associated with our matching job row
-			boolean infoMessageFound = !infoMessages.isEmpty();
-			
-			Assert.assertTrue(infoMessageFound, "Info message not found on searched profile indicating missing Department data");
-			
-			LOGGER.info("Successfully verified Info Message is displayed on searched profile");
-			ExtentCucumberAdapter.addTestStepLog("Successfully verified Info Message is displayed on searched profile indicating missing Department data");
+			LOGGER.info("✓ Info Message verified");
+			ExtentCucumberAdapter.addTestStepLog("Info Message verified for profile with missing Subfunction data");
 			
 		} catch (Exception e) {
-			LOGGER.error("Failed to verify Info Message on searched profile: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to verify Info Message on searched profile: " + e.getMessage());
-			throw new IOException("Failed to verify Info Message on searched profile", e);
+			LOGGER.error("Failed to verify Info Message: {}", e.getMessage());
+			ExtentCucumberAdapter.addTestStepLog("Failed to verify Info Message: " + e.getMessage());
+			throw new IOException("Failed to verify Info Message", e);
 		}
 	}
 
@@ -1493,13 +1484,14 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			LOGGER.info("Sorting Job Profiles by Department in Ascending order");
 			ExtentCucumberAdapter.addTestStepLog("Sorting profiles by Department (ascending) to organize profile list...");
 			
-			// Look for Department column header to sort
-			List<WebElement> departmentHeaders = driver.findElements(By.xpath("//th[contains(text(), 'Department') or contains(text(), 'department')]"));
-			
-			if (departmentHeaders.isEmpty()) {
-				// Try alternative locators for department header
-				departmentHeaders = driver.findElements(By.xpath("//th[contains(@class, 'department') or contains(@data-field, 'department')]"));
-			}
+		// Look for Department column header to sort
+		// Note: Text is nested inside <div> within <th>, so we use . instead of text()
+		List<WebElement> departmentHeaders = driver.findElements(By.xpath("//th[contains(normalize-space(.), 'DEPARTMENT')]"));
+		
+		if (departmentHeaders.isEmpty()) {
+			// Try case-insensitive search
+			departmentHeaders = driver.findElements(By.xpath("//th[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'department')]"));
+		}
 			
 			if (!departmentHeaders.isEmpty()) {
 				WebElement departmentHeader = departmentHeaders.get(0);

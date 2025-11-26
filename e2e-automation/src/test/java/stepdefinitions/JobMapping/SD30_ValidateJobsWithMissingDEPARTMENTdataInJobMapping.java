@@ -2,6 +2,7 @@ package stepdefinitions.JobMapping;
 
 import java.io.IOException;
 
+import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 import com.kfonetalentsuite.manager.PageObjectManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
@@ -113,9 +114,9 @@ public class SD30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping extends Driv
 
 	@Then("Verify Info Message contains text about reduced match accuracy due to missing DEPARTMENT data")
 	public void verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_department_data() throws IOException {
-		// This step is typically handled by the info message display verification
-		// The text verification is already included in the previous step
-		validateJobsWithMissingDEPARTMENTdataInJobMapping.getValidateJobsWithMissingDEPARTMENTdataInJobMapping().verify_info_message_is_displayed_on_searched_profile_indicating_missing_department_data();
+		// This step is already handled by the previous Info Message verification step
+		// No need to call again - just log that it's already verified
+		ExtentCucumberAdapter.addTestStepLog("Info Message text already verified in previous step");
 	}
 
 }
