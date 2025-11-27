@@ -1,6 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -55,17 +56,23 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 	 */
 	public void click_on_header_checkbox_to_unselect_loaded_job_profiles_in_job_mapping_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 		// Store counts before unchecking
-		loadedProfilesBeforeUncheck.set(driver.findElements(
+		List<WebElement> allCheckboxes = driver.findElements(
 			By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input")
-		).size());
+		);
+		loadedProfilesBeforeUncheck.set(allCheckboxes.size());
 		
-		selectedProfilesBeforeUncheck.set(driver.findElements(
-			By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input[@checked]")
-		).size());
+		// Count selected checkboxes using isSelected() instead of @checked attribute
+		int selectedCount = 0;
+		for (WebElement checkbox : allCheckboxes) {
+			if (checkbox.isSelected()) {
+				selectedCount++;
+			}
+		}
+		selectedProfilesBeforeUncheck.set(selectedCount);
 		
 		LOGGER.info("Loaded Profiles on screen (BEFORE unchecking header checkbox): " + loadedProfilesBeforeUncheck.get());
 		LOGGER.info("Selected Profiles (BEFORE unchecking header checkbox): " + selectedProfilesBeforeUncheck.get());
@@ -82,14 +89,18 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 				} catch (Exception s) {
 					utils.jsClick(driver, headerCheckbox);
 				}
-			}
-			
-			Thread.sleep(1000);
-			
-			LOGGER.info("Successfully clicked on header checkbox to unselect loaded profiles");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox to clear selection of loaded profiles");
-			
-		} catch (Exception e) {
+		}
+		
+		Thread.sleep(1000);
+		
+		LOGGER.info("Successfully clicked on header checkbox to unselect loaded profiles");
+		ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox to clear selection of loaded profiles");
+		
+		// Wait for spinners to disappear after unselecting profiles
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PerformanceUtils.waitForPageReady(driver, 2);
+		
+	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_header_checkbox_to_unselect_loaded_job_profiles_in_job_mapping_screen", e);
 			LOGGER.error("Error clicking on header checkbox to unselect profiles - Method: click_on_header_checkbox_to_unselect_loaded_job_profiles_in_job_mapping_screen", e);
 			ExtentCucumberAdapter.addTestStepLog(" Error clicking on header checkbox to unselect profiles");
@@ -106,22 +117,24 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 		int disabledProfilesCount = 0;
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			LOGGER.info("========================================");
-			LOGGER.info("VERIFYING UNSELECTED PROFILES");
-			LOGGER.info("========================================");
-			
-			// Get all checkboxes (first loadedProfilesBeforeUncheck)
-			var allCheckboxes = driver.findElements(
-				By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input")
-			);
-			
-			int checkboxesToCheck = Math.min(allCheckboxes.size(), loadedProfilesBeforeUncheck.get());
-			
-			// Verify loaded profiles are now unselected
-			for (int i = 0; i < checkboxesToCheck; i++) {
+		LOGGER.info("========================================");
+		LOGGER.info("VERIFYING UNSELECTED PROFILES");
+		LOGGER.info("========================================");
+		
+		// Get all checkboxes currently on screen (including newly loaded after scrolling)
+		var allCheckboxes = driver.findElements(
+			By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input")
+		);
+		
+		int totalProfilesOnScreen = allCheckboxes.size();
+		LOGGER.info("Total Profiles on screen (after scrolling): " + totalProfilesOnScreen);
+		LOGGER.info("Original Loaded Profiles (before scrolling): " + loadedProfilesBeforeUncheck.get());
+		
+		// Verify ALL profiles on screen are now unselected (both original 20 + newly loaded 20)
+		for (int i = 0; i < totalProfilesOnScreen; i++) {
 				try {
 					WebElement checkbox = allCheckboxes.get(i);
 					
@@ -145,18 +158,18 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 					LOGGER.debug("Could not verify profile at position " + (i+1) + ": " + e.getMessage());
 					continue;
 				}
-			}
-			
-		int expectedUnselected = loadedProfilesBeforeUncheck.get() - disabledProfilesCount;
+		}
 		
+	int expectedUnselected = totalProfilesOnScreen - disabledProfilesCount;
+	
+	LOGGER.info("========================================");
+	LOGGER.info("VALIDATION RESULTS");
+	LOGGER.info("========================================");
+	LOGGER.info("Total Profiles on Screen: " + totalProfilesOnScreen);
+		LOGGER.info("Disabled Profiles: " + disabledProfilesCount);
+		LOGGER.info("Unselected Profiles: " + unselectedProfilesCount);
+		LOGGER.info("Expected Unselected: " + expectedUnselected);
 		LOGGER.info("========================================");
-		LOGGER.info("VALIDATION RESULTS");
-		LOGGER.info("========================================");
-		LOGGER.info("Loaded Profiles: " + loadedProfilesBeforeUncheck.get());
-			LOGGER.info("Disabled Profiles: " + disabledProfilesCount);
-			LOGGER.info("Unselected Profiles: " + unselectedProfilesCount);
-			LOGGER.info("Expected Unselected: " + expectedUnselected);
-			LOGGER.info("========================================");
 			
 			if (unselectedProfilesCount >= expectedUnselected) {
 				LOGGER.info(" VALIDATION PASSED: All loaded profiles are correctly unselected");
@@ -187,7 +200,7 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 		int disabledInNewlyLoaded = 0;
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Get total profiles now loaded

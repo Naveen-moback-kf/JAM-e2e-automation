@@ -126,12 +126,12 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 				} catch (Exception s) {
 					utils.jsClick(driver, tableHeader1);
 				}
-			}
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver);
-			LOGGER.info("Clicked on Name header to Sort Profiles by Name in ascending order");
+		}
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PerformanceUtils.waitForPageReady(driver);
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PerformanceUtils.waitForPageReady(driver);
+		LOGGER.info("Clicked on Name header to Sort Profiles by Name in ascending order");
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Name header to Sort Profiles by Name in ascending order");
 		} catch (Exception e) {
 			LOGGER.error(" Issue sorting by name ascending - Method: sort_profiles_by_name_in_ascending_order_in_hcm_sync_profiles_screen", e);
@@ -146,11 +146,11 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 	 * Verifies profiles are sorted by Name in ascending order
 	 */
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_name_in_ascending_order() {
-		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver);
-			
-			List<WebElement> allElements = driver.findElements(By.xpath("//tbody//tr//td//div//span[1]//a"));
+	try {
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PerformanceUtils.waitForPageReady(driver);
+		
+		List<WebElement> allElements = driver.findElements(By.xpath("//tbody//tr//td//div//span[1]//a"));
 			LOGGER.info("Below are Profiles After sorting by Name in Ascending Order:");
 			ExtentCucumberAdapter.addTestStepLog("Below are Profiles After sorting by Name in Ascending Order:");
 			
@@ -255,13 +255,13 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 					utils.jsClick(driver, tableHeader4);
 				}
 			}
-			
-			// Wait for FIRST sort to complete (critical for headless mode)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			Thread.sleep(3000); // Increased wait for UI to process first sort
-			PerformanceUtils.waitForPageReady(driver);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			Thread.sleep(1500); // Additional buffer for headless mode
+		
+		// Wait for FIRST sort to complete (critical for headless mode)
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		Thread.sleep(3000); // Increased wait for UI to process first sort
+		PerformanceUtils.waitForPageReady(driver);
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		Thread.sleep(1500); // Additional buffer for headless mode
 			
 			LOGGER.info("First sort completed. Now clicking second time for descending order...");
 			
@@ -283,13 +283,13 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 					utils.jsClick(driver, tableHeader4);
 				}
 			}
-			
-			// Wait for SECOND sort to complete
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			Thread.sleep(3000); // Increased wait for UI to process second sort
-			PerformanceUtils.waitForPageReady(driver);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			Thread.sleep(1500); // Additional buffer
+		
+		// Wait for SECOND sort to complete
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		Thread.sleep(3000); // Increased wait for UI to process second sort
+		PerformanceUtils.waitForPageReady(driver);
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		Thread.sleep(1500); // Additional buffer
 			
 			LOGGER.info("Clicked two times on Level header to Sort Profiles by Level in Descending order");
 			ExtentCucumberAdapter.addTestStepLog("Clicked two times on Level header to Sort Profiles by Level in Descending order");
@@ -418,31 +418,31 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 	}
 	
 	/**
-	 * Sorts profiles by Last Modified in ascending order (single click)
+	 * Sorts profiles by Job Status in ascending order (single click)
 	 */
-	public void sort_profiles_by_last_modified_in_ascending_order_in_hcm_sync_profiles_screen() {
+	public void sort_profiles_by_job_status_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeader7)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(tableHeader2)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", tableHeader7);
+					js.executeScript("arguments[0].click();", tableHeader2);
 				} catch (Exception s) {
-					utils.jsClick(driver, tableHeader7);
+					utils.jsClick(driver, tableHeader2);
 				}
 			}
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver);
-			LOGGER.info("Clicked on Last Modified header to Sort Profiles by Last Modified in ascending order");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Last Modified header to Sort Profiles by Last Modified in ascending order");
+			LOGGER.info("Clicked on Job Status header to Sort Profiles by Job Status in ascending order");
+			ExtentCucumberAdapter.addTestStepLog("Clicked on Job Status header to Sort Profiles by Job Status in ascending order");
 		} catch (Exception e) {
-			LOGGER.error(" Issue sorting by last modified ascending - Method: sort_profiles_by_last_modified_in_ascending_order_in_hcm_sync_profiles_screen", e);
-			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_last_modified_ascending", e);
+			LOGGER.error(" Issue sorting by job status ascending - Method: sort_profiles_by_job_status_in_ascending_order_in_hcm_sync_profiles_screen", e);
+			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_job_status_ascending", e);
 			e.printStackTrace();
-			Assert.fail("Issue in clicking on Last Modified header to Sort Profiles by Last Modified in ascending order...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in sorting by Last Modified in ascending order...Please Investigate!!!");
+			Assert.fail("Issue in clicking on Job Status header to Sort Profiles by Job Status in ascending order...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("Issue in sorting by Job Status in ascending order...Please Investigate!!!");
 		}
 	}
 	
@@ -601,42 +601,42 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 	}
 	
 	/**
-	 * Verifies profiles are sorted by Last Modified in ascending and Function in descending order (multi-level sorting)
+	 * Verifies profiles are sorted by Job Status in ascending and Function in descending order (multi-level sorting)
 	 */
-	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_last_modified_in_ascending_and_function_in_descending_order() {
+	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_in_ascending_and_function_in_descending_order() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver);
 			
 			List<WebElement> profileNameElements = driver.findElements(By.xpath("//tbody//tr//td//div//span[1]//a"));
-			List<WebElement> lastModifiedElements = driver.findElements(By.xpath("//tbody//tr//td[7]//div//span[1]"));
+			List<WebElement> jobStatusElements = driver.findElements(By.xpath("//tbody//tr//td[2]//div//span[1]"));
 			List<WebElement> functionElements = driver.findElements(By.xpath("//tbody//tr//td[5]//div//span[1]"));
 			
-			LOGGER.info("Below are Profiles After sorting by Last Modified in Ascending and Function in Descending Order:");
-			ExtentCucumberAdapter.addTestStepLog("Below are Profiles After sorting by Last Modified in Ascending and Function in Descending Order:");
+			LOGGER.info("Below are Profiles After sorting by Job Status in Ascending and Function in Descending Order:");
+			ExtentCucumberAdapter.addTestStepLog("Below are Profiles After sorting by Job Status in Ascending and Function in Descending Order:");
 			
 			// Collect data for validation
-			ArrayList<String> lastModifiedDates = new ArrayList<String>();
+			ArrayList<String> jobStatuses = new ArrayList<String>();
 			ArrayList<String> functions = new ArrayList<String>();
-			int emptyLastModifiedCount = 0;
+			int emptyJobStatusCount = 0;
 			int emptyFunctionCount = 0;
 			
 			// Limit to first 100 profiles
 			int limit = Math.min(profileNameElements.size(), 100);
-			limit = Math.min(limit, lastModifiedElements.size());
+			limit = Math.min(limit, jobStatusElements.size());
 			limit = Math.min(limit, functionElements.size());
 			
 			for (int i = 0; i < limit; i++) {
 				String profileName = profileNameElements.get(i).getText();
-				String lastModifiedText = lastModifiedElements.get(i).getText();
+				String jobStatusText = jobStatusElements.get(i).getText();
 				String functionText = functionElements.get(i).getText();
 				
 				// Track empty values
-				if (lastModifiedText == null || lastModifiedText.trim().isEmpty() || lastModifiedText.equals("-")) {
-					emptyLastModifiedCount++;
-					lastModifiedText = "[EMPTY]";
+				if (jobStatusText == null || jobStatusText.trim().isEmpty() || jobStatusText.equals("-")) {
+					emptyJobStatusCount++;
+					jobStatusText = "[EMPTY]";
 				} else {
-					lastModifiedDates.add(lastModifiedText);
+					jobStatuses.add(jobStatusText);
 				}
 				
 				if (functionText == null || functionText.trim().isEmpty() || functionText.equals("-")) {
@@ -646,13 +646,13 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 					functions.add(functionText);
 				}
 				
-				LOGGER.info("Profile: " + profileName + " - Last Modified: " + lastModifiedText + " - Function: " + functionText);
-				ExtentCucumberAdapter.addTestStepLog("Profile: " + profileName + " - Last Modified: " + lastModifiedText + " - Function: " + functionText);
+				LOGGER.info("Profile: " + profileName + " - Job Status: " + jobStatusText + " - Function: " + functionText);
+				ExtentCucumberAdapter.addTestStepLog("Profile: " + profileName + " - Job Status: " + jobStatusText + " - Function: " + functionText);
 			}
 			
-			if (emptyLastModifiedCount > 0) {
-				LOGGER.info("ℹ Found " + emptyLastModifiedCount + " profile(s) with empty Last Modified values");
-				ExtentCucumberAdapter.addTestStepLog("ℹ " + emptyLastModifiedCount + " profile(s) have empty Last Modified values");
+			if (emptyJobStatusCount > 0) {
+				LOGGER.info("ℹ Found " + emptyJobStatusCount + " profile(s) with empty Job Status values");
+				ExtentCucumberAdapter.addTestStepLog("ℹ " + emptyJobStatusCount + " profile(s) have empty Job Status values");
 			}
 			if (emptyFunctionCount > 0) {
 				LOGGER.info("ℹ Found " + emptyFunctionCount + " profile(s) with empty Function values");
@@ -660,34 +660,34 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			}
 			
 			// ✅ VALIDATE MULTI-LEVEL SORTING
-			// Primary sort: Last Modified (Ascending)
-			// Secondary sort: Function (Descending) - within same Last Modified date
+			// Primary sort: Job Status (Ascending)
+			// Secondary sort: Function (Descending) - within same Job Status
 			int sortViolations = 0;
 			
 			// For multi-level sorting, we validate that:
-			// 1. Last Modified is in ascending order
-			// 2. For same Last Modified date, Function is in descending order
+			// 1. Job Status is in ascending order
+			// 2. For same Job Status, Function is in descending order
 			for(int i = 0; i < limit - 1; i++) {
-				String currentLastModified = lastModifiedElements.get(i).getText();
-				String nextLastModified = lastModifiedElements.get(i + 1).getText();
+				String currentJobStatus = jobStatusElements.get(i).getText();
+				String nextJobStatus = jobStatusElements.get(i + 1).getText();
 				String currentFunction = functionElements.get(i).getText();
 				String nextFunction = functionElements.get(i + 1).getText();
 				
 				// Skip empty values in validation
-				if (currentLastModified.equals("-") || currentLastModified.trim().isEmpty() ||
-					nextLastModified.equals("-") || nextLastModified.trim().isEmpty()) {
+				if (currentJobStatus.equals("-") || currentJobStatus.trim().isEmpty() ||
+					nextJobStatus.equals("-") || nextJobStatus.trim().isEmpty()) {
 					continue;
 				}
 				
-				// Primary sort check: Last Modified ascending (case-insensitive)
-				int lastModifiedComparison = currentLastModified.compareToIgnoreCase(nextLastModified);
-				if(lastModifiedComparison > 0) {
+				// Primary sort check: Job Status ascending (case-insensitive)
+				int jobStatusComparison = currentJobStatus.compareToIgnoreCase(nextJobStatus);
+				if(jobStatusComparison > 0) {
 					sortViolations++;
-					LOGGER.error("❌ SORT VIOLATION (Last Modified) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + currentLastModified + "' > '" + nextLastModified + "' (NOT in Ascending Order!)");
-					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION (Last Modified): Row " + (i + 1) + " > Row " + (i + 2));
+					LOGGER.error("❌ SORT VIOLATION (Job Status) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + currentJobStatus + "' > '" + nextJobStatus + "' (NOT in Ascending Order!)");
+					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION (Job Status): Row " + (i + 1) + " > Row " + (i + 2));
 				}
-			// Secondary sort check: If Last Modified is same, Function should be descending (normalized comparison)
-			else if(lastModifiedComparison == 0) {
+			// Secondary sort check: If Job Status is same, Function should be descending (normalized comparison)
+			else if(jobStatusComparison == 0) {
 				if (!currentFunction.equals("-") && !currentFunction.trim().isEmpty() &&
 					!nextFunction.equals("-") && !nextFunction.trim().isEmpty()) {
 					// Normalize Function values to match UI sorting behavior
@@ -695,7 +695,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 					String nextFunctionNormalized = nextFunction.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
 					if(currentFunctionNormalized.compareToIgnoreCase(nextFunctionNormalized) < 0) {
 						sortViolations++;
-						LOGGER.error("❌ SORT VIOLATION (Function) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + currentFunction + "' < '" + nextFunction + "' (NOT in Descending Order for same Last Modified!)");
+						LOGGER.error("❌ SORT VIOLATION (Function) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + currentFunction + "' < '" + nextFunction + "' (NOT in Descending Order for same Job Status!)");
 						LOGGER.debug("   Normalized comparison: '" + currentFunctionNormalized + "' vs '" + nextFunctionNormalized + "'");
 						ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION (Function): Row " + (i + 1) + " < Row " + (i + 2));
 					}
@@ -704,62 +704,62 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			}
 			
 			if(sortViolations > 0) {
-				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted by Last Modified (Ascending) and Function (Descending)!";
+				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted by Job Status (Ascending) and Function (Descending)!";
 				LOGGER.error(errorMsg);
 				ExtentCucumberAdapter.addTestStepLog(errorMsg);
 				Assert.fail(errorMsg + " Please check the multi-level sorting implementation!");
 			} else {
-				LOGGER.info("✅ SORT VALIDATION PASSED: All Profiles are correctly sorted by Last Modified (Ascending) and Function (Descending)");
+				LOGGER.info("✅ SORT VALIDATION PASSED: All Profiles are correctly sorted by Job Status (Ascending) and Function (Descending)");
 				ExtentCucumberAdapter.addTestStepLog("✅ Multi-level sorting validation PASSED");
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error(" Issue verifying sorted profiles by last modified and function - Method: user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_last_modified_in_ascending_and_function_in_descending_order", e);
-			ScreenshotHandler.captureFailureScreenshot("verify_profiles_sorted_by_last_modified_and_function", e);
+			LOGGER.error(" Issue verifying sorted profiles by job status and function - Method: user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_in_ascending_and_function_in_descending_order", e);
+			ScreenshotHandler.captureFailureScreenshot("verify_profiles_sorted_by_job_status_and_function", e);
 			e.printStackTrace();
-			Assert.fail("Issue in Verifying Profiles After sorting by Last Modified and Function...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Profiles After sorting by Last Modified and Function...Please Investigate!!!");
+			Assert.fail("Issue in Verifying Profiles After sorting by Job Status and Function...Please Investigate!!!");
+			ExtentCucumberAdapter.addTestStepLog("Issue in Verifying Profiles After sorting by Job Status and Function...Please Investigate!!!");
 		}
 	}
 	
 	/**
-	 * Verifies profiles are sorted by Last Modified (ascending), Export Status (descending), and Function (ascending)
+	 * Verifies profiles are sorted by Job Status (ascending), Export Status (descending), and Function (ascending)
 	 * Three-level sorting validation
 	 */
-	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_last_modified_ascending_export_status_descending_and_function_ascending() {
+	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_ascending_export_status_descending_and_function_ascending() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver);
 			
 			List<WebElement> profileNameElements = driver.findElements(By.xpath("//tbody//tr//td//div//span[1]//a"));
-			List<WebElement> lastModifiedElements = driver.findElements(By.xpath("//tbody//tr//td[7]//div//span[1]"));
+			List<WebElement> jobStatusElements = driver.findElements(By.xpath("//tbody//tr//td[2]//div//span[1]"));
 			List<WebElement> exportStatusElements = driver.findElements(By.xpath("//tbody//tr//td[8]//div//span[1]"));
 			List<WebElement> functionElements = driver.findElements(By.xpath("//tbody//tr//td[5]//div//span[1]"));
 			
-			LOGGER.info("Below are Profiles After 3-level sorting: Last Modified (Ascending), Export Status (Descending), Function (Ascending):");
-			ExtentCucumberAdapter.addTestStepLog("Below are Profiles After 3-level sorting: Last Modified (Ascending), Export Status (Descending), Function (Ascending):");
+			LOGGER.info("Below are Profiles After 3-level sorting: Job Status (Ascending), Export Status (Descending), Function (Ascending):");
+			ExtentCucumberAdapter.addTestStepLog("Below are Profiles After 3-level sorting: Job Status (Ascending), Export Status (Descending), Function (Ascending):");
 			
 			// Collect data for validation
-			int emptyLastModifiedCount = 0;
+			int emptyJobStatusCount = 0;
 			int emptyExportStatusCount = 0;
 			int emptyFunctionCount = 0;
 			
 			// Limit to first 100 profiles
 			int limit = Math.min(profileNameElements.size(), 100);
-			limit = Math.min(limit, lastModifiedElements.size());
+			limit = Math.min(limit, jobStatusElements.size());
 			limit = Math.min(limit, exportStatusElements.size());
 			limit = Math.min(limit, functionElements.size());
 			
 			for (int i = 0; i < limit; i++) {
 				String profileName = profileNameElements.get(i).getText();
-				String lastModifiedText = lastModifiedElements.get(i).getText();
+				String jobStatusText = jobStatusElements.get(i).getText();
 				String exportStatusText = exportStatusElements.get(i).getText();
 				String functionText = functionElements.get(i).getText();
 				
 				// Track empty values
-				if (lastModifiedText == null || lastModifiedText.trim().isEmpty() || lastModifiedText.equals("-")) {
-					emptyLastModifiedCount++;
-					lastModifiedText = "[EMPTY]";
+				if (jobStatusText == null || jobStatusText.trim().isEmpty() || jobStatusText.equals("-")) {
+					emptyJobStatusCount++;
+					jobStatusText = "[EMPTY]";
 				}
 				
 				if (exportStatusText == null || exportStatusText.trim().isEmpty() || exportStatusText.equals("-")) {
@@ -772,13 +772,13 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 					functionText = "[EMPTY]";
 				}
 				
-				LOGGER.info("Profile: " + profileName + " | Last Modified: " + lastModifiedText + " | Export Status: " + exportStatusText + " | Function: " + functionText);
-				ExtentCucumberAdapter.addTestStepLog("Profile: " + profileName + " | Last Modified: " + lastModifiedText + " | Export Status: " + exportStatusText + " | Function: " + functionText);
+				LOGGER.info("Profile: " + profileName + " | Job Status: " + jobStatusText + " | Export Status: " + exportStatusText + " | Function: " + functionText);
+				ExtentCucumberAdapter.addTestStepLog("Profile: " + profileName + " | Job Status: " + jobStatusText + " | Export Status: " + exportStatusText + " | Function: " + functionText);
 			}
 			
-			if (emptyLastModifiedCount > 0) {
-				LOGGER.info("ℹ Found " + emptyLastModifiedCount + " profile(s) with empty Last Modified values");
-				ExtentCucumberAdapter.addTestStepLog("ℹ " + emptyLastModifiedCount + " profile(s) have empty Last Modified values");
+			if (emptyJobStatusCount > 0) {
+				LOGGER.info("ℹ Found " + emptyJobStatusCount + " profile(s) with empty Job Status values");
+				ExtentCucumberAdapter.addTestStepLog("ℹ " + emptyJobStatusCount + " profile(s) have empty Job Status values");
 			}
 			if (emptyExportStatusCount > 0) {
 				LOGGER.info("ℹ Found " + emptyExportStatusCount + " profile(s) with empty Export Status values");
@@ -790,34 +790,34 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			}
 			
 			// ✅ VALIDATE THREE-LEVEL SORTING
-			// Primary sort: Last Modified (Ascending)
-			// Secondary sort: Export Status (Descending) - within same Last Modified
-			// Tertiary sort: Function (Ascending) - within same Last Modified and Export Status
+			// Primary sort: Job Status (Ascending)
+			// Secondary sort: Export Status (Descending) - within same Job Status
+			// Tertiary sort: Function (Ascending) - within same Job Status and Export Status
 			int sortViolations = 0;
 			
 			for(int i = 0; i < limit - 1; i++) {
-				String currentLastModified = lastModifiedElements.get(i).getText();
-				String nextLastModified = lastModifiedElements.get(i + 1).getText();
+				String currentJobStatus = jobStatusElements.get(i).getText();
+				String nextJobStatus = jobStatusElements.get(i + 1).getText();
 				String currentExportStatus = exportStatusElements.get(i).getText();
 				String nextExportStatus = exportStatusElements.get(i + 1).getText();
 				String currentFunction = functionElements.get(i).getText();
 				String nextFunction = functionElements.get(i + 1).getText();
 				
 				// Skip empty values in validation
-				if (currentLastModified.equals("-") || currentLastModified.trim().isEmpty() ||
-					nextLastModified.equals("-") || nextLastModified.trim().isEmpty()) {
+				if (currentJobStatus.equals("-") || currentJobStatus.trim().isEmpty() ||
+					nextJobStatus.equals("-") || nextJobStatus.trim().isEmpty()) {
 					continue;
 				}
 				
-				// Primary sort check: Last Modified ascending (case-insensitive)
-				int lastModifiedComparison = currentLastModified.compareToIgnoreCase(nextLastModified);
-				if(lastModifiedComparison > 0) {
+				// Primary sort check: Job Status ascending (case-insensitive)
+				int jobStatusComparison = currentJobStatus.compareToIgnoreCase(nextJobStatus);
+				if(jobStatusComparison > 0) {
 					sortViolations++;
-					LOGGER.error("❌ PRIMARY SORT VIOLATION (Last Modified) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + currentLastModified + "' > '" + nextLastModified + "' (NOT in Ascending Order!)");
-					ExtentCucumberAdapter.addTestStepLog("❌ PRIMARY SORT VIOLATION (Last Modified): Row " + (i + 1) + " > Row " + (i + 2));
+					LOGGER.error("❌ PRIMARY SORT VIOLATION (Job Status) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + currentJobStatus + "' > '" + nextJobStatus + "' (NOT in Ascending Order!)");
+					ExtentCucumberAdapter.addTestStepLog("❌ PRIMARY SORT VIOLATION (Job Status): Row " + (i + 1) + " > Row " + (i + 2));
 				}
-			// Secondary sort check: If Last Modified is same, Export Status should be descending (normalized comparison)
-			else if(lastModifiedComparison == 0) {
+			// Secondary sort check: If Job Status is same, Export Status should be descending (normalized comparison)
+			else if(jobStatusComparison == 0) {
 				if (!currentExportStatus.equals("-") && !currentExportStatus.trim().isEmpty() &&
 					!nextExportStatus.equals("-") && !nextExportStatus.trim().isEmpty()) {
 					// Normalize Export Status values to match UI sorting behavior
@@ -826,11 +826,11 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 					int exportStatusComparison = currentExportStatusNormalized.compareToIgnoreCase(nextExportStatusNormalized);
 					if(exportStatusComparison < 0) {
 						sortViolations++;
-						LOGGER.error("❌ SECONDARY SORT VIOLATION (Export Status) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + currentExportStatus + "' < '" + nextExportStatus + "' (NOT in Descending Order for same Last Modified!)");
+						LOGGER.error("❌ SECONDARY SORT VIOLATION (Export Status) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + currentExportStatus + "' < '" + nextExportStatus + "' (NOT in Descending Order for same Job Status!)");
 						LOGGER.debug("   Normalized comparison: '" + currentExportStatusNormalized + "' vs '" + nextExportStatusNormalized + "'");
 						ExtentCucumberAdapter.addTestStepLog("❌ SECONDARY SORT VIOLATION (Export Status): Row " + (i + 1) + " < Row " + (i + 2));
 					}
-					// Tertiary sort check: If Last Modified and Export Status are same, Function should be ascending (normalized comparison)
+					// Tertiary sort check: If Job Status and Export Status are same, Function should be ascending (normalized comparison)
 					else if(exportStatusComparison == 0) {
 						if (!currentFunction.equals("-") && !currentFunction.trim().isEmpty() &&
 							!nextFunction.equals("-") && !nextFunction.trim().isEmpty()) {
@@ -839,7 +839,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 							String nextFunctionNormalized = nextFunction.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
 							if(currentFunctionNormalized.compareToIgnoreCase(nextFunctionNormalized) > 0) {
 								sortViolations++;
-								LOGGER.error("❌ TERTIARY SORT VIOLATION (Function) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + currentFunction + "' > '" + nextFunction + "' (NOT in Ascending Order for same Last Modified and Export Status!)");
+								LOGGER.error("❌ TERTIARY SORT VIOLATION (Function) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + currentFunction + "' > '" + nextFunction + "' (NOT in Ascending Order for same Job Status and Export Status!)");
 								LOGGER.debug("   Normalized comparison: '" + currentFunctionNormalized + "' vs '" + nextFunctionNormalized + "'");
 								ExtentCucumberAdapter.addTestStepLog("❌ TERTIARY SORT VIOLATION (Function): Row " + (i + 1) + " > Row " + (i + 2));
 							}
@@ -850,17 +850,17 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			}
 			
 			if(sortViolations > 0) {
-				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted by Last Modified (Asc), Export Status (Desc), and Function (Asc)!";
+				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations + " violation(s). Data is NOT sorted by Job Status (Asc), Export Status (Desc), and Function (Asc)!";
 				LOGGER.error(errorMsg);
 				ExtentCucumberAdapter.addTestStepLog(errorMsg);
 				Assert.fail(errorMsg + " Please check the three-level sorting implementation!");
 			} else {
-				LOGGER.info("✅ THREE-LEVEL SORT VALIDATION PASSED: All Profiles are correctly sorted by Last Modified (Ascending), Export Status (Descending), and Function (Ascending)");
+				LOGGER.info("✅ THREE-LEVEL SORT VALIDATION PASSED: All Profiles are correctly sorted by Job Status (Ascending), Export Status (Descending), and Function (Ascending)");
 				ExtentCucumberAdapter.addTestStepLog("✅ Three-level sorting validation PASSED");
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error(" Issue verifying 3-level sorted profiles - Method: user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_last_modified_ascending_export_status_descending_and_function_ascending", e);
+			LOGGER.error(" Issue verifying 3-level sorted profiles - Method: user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_ascending_export_status_descending_and_function_ascending", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_3level_sorting", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying Profiles After 3-level sorting...Please Investigate!!!");

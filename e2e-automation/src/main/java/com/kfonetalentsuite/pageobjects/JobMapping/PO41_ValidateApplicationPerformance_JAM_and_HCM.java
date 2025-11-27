@@ -357,7 +357,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 		double percentage = (actualTime / (double) threshold) * 100;
 		
 		if (percentage <= 50) return " EXCELLENT";
-		else if (percentage <= 75) return "... GOOD";
+		else if (percentage <= 75) return " GOOD";
 		else if (percentage <= 100) return " ACCEPTABLE";
 		else if (percentage <= 150) return " POOR";
 		else return " VERY POOR";
@@ -406,7 +406,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				// Clean rating for Excel (remove emoji prefixes)
 				String cleanRating = performanceRating
 					.replace(" ", "")
-					.replace("... ", "")
+					.replace(" ", "")
 					.replace(" ", "")
 					.replace(" ", "")
 					.replace(" ", "");
@@ -420,7 +420,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 		}
 		
 		if (actualTime <= threshold) {
-			String successMsg = String.format("... %s: %d ms (%.2f sec) | %s",
+			String successMsg = String.format(" %s: %d ms (%.2f sec) | %s",
 				operationName, actualTime, actualTime / 1000.0, performanceRating);
 			LOGGER.info(successMsg);
 			ExtentCucumberAdapter.addTestStepLog(successMsg);
@@ -641,7 +641,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			String responseMsg;
 			
 			if (totalSearchTime <= instantThreshold) {
-				responseMsg = String.format("... Search UI Responsive: %d ms (Instant)", totalSearchTime);
+				responseMsg = String.format(" Search UI Responsive: %d ms (Instant)", totalSearchTime);
 				LOGGER.info(responseMsg);
 			} else if (totalSearchTime <= SEARCH_THRESHOLD_MS) {
 				responseMsg = String.format(" Search UI Acceptable: %d ms (Not instant)", totalSearchTime);
@@ -797,7 +797,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			String responseMsg;
 			
 			if (totalClearSearchTime <= instantThreshold) {
-				responseMsg = String.format("... Clear UI Responsive: %d ms (Instant)", totalClearSearchTime);
+				responseMsg = String.format(" Clear UI Responsive: %d ms (Instant)", totalClearSearchTime);
 				LOGGER.info(responseMsg);
 			} else if (totalClearSearchTime <= CLEAR_SEARCH_THRESHOLD_MS) {
 				responseMsg = String.format(" Clear UI Acceptable: %d ms (Not instant)", totalClearSearchTime);
@@ -1050,7 +1050,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			String responseMsg;
 			
 			if (totalSingleFilterTime <= instantThreshold) {
-				responseMsg = String.format("... Filter UI Responsive: %d ms (Instant)", totalSingleFilterTime);
+				responseMsg = String.format(" Filter UI Responsive: %d ms (Instant)", totalSingleFilterTime);
 				LOGGER.info(responseMsg);
 			} else if (totalSingleFilterTime <= SINGLE_FILTER_THRESHOLD_MS) {
 				responseMsg = String.format(" Filter UI Acceptable: %d ms (Not instant)", totalSingleFilterTime);
@@ -1269,7 +1269,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			ExtentCucumberAdapter.addTestStepLog(validationMsg);
 			
 			if (resultsDecreased && clearFiltersVisible && resultsCountDisplayed) {
-				ExtentCucumberAdapter.addTestStepLog("... All combined filter validations passed");
+				ExtentCucumberAdapter.addTestStepLog(" All combined filter validations passed");
 			}
 			
 		} catch (Exception e) {
@@ -1288,7 +1288,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			long smoothThreshold = 3000;
 			String responseMsg;
 			if (totalMultipleFiltersTime <= smoothThreshold) {
-				responseMsg = String.format("... UI Responsive: %d ms (Smooth)", totalMultipleFiltersTime);
+				responseMsg = String.format(" UI Responsive: %d ms (Smooth)", totalMultipleFiltersTime);
 			} else {
 				responseMsg = String.format(" UI Acceptable: %d ms (Not instant)", totalMultipleFiltersTime);
 			}
@@ -1578,7 +1578,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			ExtentCucumberAdapter.addTestStepLog(restorationMsg);
 			
 			if (resultsCountAfterClearFilters == resultsCountBeforeFilter) {
-				ExtentCucumberAdapter.addTestStepLog("... All profiles restored to original count");
+				ExtentCucumberAdapter.addTestStepLog(" All profiles restored to original count");
 			} else {
 				int difference = Math.abs(resultsCountAfterClearFilters - resultsCountBeforeFilter);
 				String failMsg = String.format(" Count mismatch: Expected %d, Actual %d (Diff: %d)",
@@ -1605,7 +1605,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			long instantThreshold = 1000;
 			String responseMsg;
 			if (totalClearFiltersTime <= instantThreshold) {
-				responseMsg = String.format("... UI Responsive: %d ms (Instant)", totalClearFiltersTime);
+				responseMsg = String.format(" UI Responsive: %d ms (Instant)", totalClearFiltersTime);
 			} else {
 				responseMsg = String.format(" UI Acceptable: %d ms (Not instant)", totalClearFiltersTime);
 			}
@@ -1648,19 +1648,13 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			for (int i = 0; i < targetScrolls; i++) {
 				long scrollIterationStart = System.currentTimeMillis();
 				
-				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-				totalScrolls++;
-				Thread.sleep(300);
-				
-				try {
-					new WebDriverWait(driver, java.time.Duration.ofSeconds(2)).until(
-						ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2)
-					);
-				} catch (Exception e) {
-					// No spinner
-				}
-				
-				Thread.sleep(500);
+			js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
+			totalScrolls++;
+			Thread.sleep(300);
+			
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 2);
+			
+			Thread.sleep(500);
 				
 				java.util.List<WebElement> currentProfiles = driver.findElements(
 					org.openqa.selenium.By.xpath("//div[@id='org-job-container']//tbody//tr//td[2]//div[contains(text(),'(')]")
@@ -1772,7 +1766,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			ExtentCucumberAdapter.addTestStepLog(renderMsg);
 			
 			if (allWithinThreshold) {
-				LOGGER.info("... All profile render times within acceptable threshold");
+				LOGGER.info(" All profile render times within acceptable threshold");
 			} else {
 				String warnMsg = String.format(
 					" Some lazy load times exceeded threshold (Max: %d ms > %d ms)",
@@ -1821,7 +1815,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			if (totalScrollTime <= SCROLL_OPERATION_THRESHOLD_MS && 
 			    (lazyLoadTimes.isEmpty() || avgLazyLoadTime <= LAZY_LOAD_THRESHOLD_MS)) {
-				LOGGER.info("... Scroll and lazy load performance meets all requirements");
+				LOGGER.info(" Scroll and lazy load performance meets all requirements");
 			} else {
 				LOGGER.warn(" Some performance metrics need attention");
 			}
@@ -1940,8 +1934,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			String headerText = jobComparisonHeader.getText();
 			
 			if (headerText.equals("Which profile do you want to use for this job?")) {
-				LOGGER.info(String.format("... Job Comparison screen loaded successfully | Profile: %s", jobNameForComparison));
-				ExtentCucumberAdapter.addTestStepLog("... Job Comparison screen verified");
+				LOGGER.info(String.format(" Job Comparison screen loaded successfully | Profile: %s", jobNameForComparison));
+				ExtentCucumberAdapter.addTestStepLog(" Job Comparison screen verified");
 			} else {
 				throw new Exception("Job Comparison screen header mismatch. Expected: 'Which profile do you want to use for this job?', Got: '" + headerText + "'");
 			}
@@ -2012,8 +2006,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			String resultsText = resultsCountElement.getText().trim();
 			int profileCount = extractResultsCount(resultsText);
 			
-			LOGGER.info(String.format("... Job Mapping screen loaded successfully | %d profiles available", profileCount));
-			ExtentCucumberAdapter.addTestStepLog("... Job Mapping screen verified after navigation");
+			LOGGER.info(String.format(" Job Mapping screen loaded successfully | %d profiles available", profileCount));
+			ExtentCucumberAdapter.addTestStepLog(" Job Mapping screen verified after navigation");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_mapping_screen_after_nav_failed", e);
@@ -2040,18 +2034,12 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			int currentCount = extractResultsCount(resultsText);
 			
 			int scrollAttempts = 10;
-			for (int i = 0; i < scrollAttempts; i++) {
-				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-				Thread.sleep(500);
-				
-				try {
-					new WebDriverWait(driver, java.time.Duration.ofSeconds(2)).until(
-						ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2)
-					);
-				} catch (Exception e) {
-					// No spinner, continue
-				}
-			}
+		for (int i = 0; i < scrollAttempts; i++) {
+			js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
+			Thread.sleep(500);
+			
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 2);
+		}
 			
 			js.executeScript("window.scrollTo(0, 0);");
 			Thread.sleep(500);
@@ -2167,8 +2155,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				org.openqa.selenium.By.xpath("//div[@id='org-job-container']//tbody//tr//td[2]//div[contains(text(),'(')]")
 			);
 			
-			LOGGER.info(String.format("... Sort completed successfully | %d profiles visible in sorted view", rows.size()));
-			ExtentCucumberAdapter.addTestStepLog("... Sorted results verified (table populated)");
+			LOGGER.info(String.format(" Sort completed successfully | %d profiles visible in sorted view", rows.size()));
+			ExtentCucumberAdapter.addTestStepLog(" Sorted results verified (table populated)");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_sorted_results_failed", e);
@@ -2188,7 +2176,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			String responseMsg;
 			if (maxSortTime <= instantThreshold) {
-				responseMsg = String.format("... Sort operations feel instant (max: %d ms)", maxSortTime);
+				responseMsg = String.format(" Sort operations feel instant (max: %d ms)", maxSortTime);
 				LOGGER.info(responseMsg);
 			} else if (maxSortTime <= SORT_OPERATION_THRESHOLD_MS) {
 				responseMsg = String.format(" Sort operations acceptable but not instant (max: %d ms)", maxSortTime);
@@ -2331,9 +2319,9 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			profilesCountAfterSelectAll = selectedCount / 3;
 			
-			LOGGER.info(String.format("... Selected profiles verified: %d profiles selected (Sample of %d checkboxes checked)", 
+			LOGGER.info(String.format(" Selected profiles verified: %d profiles selected (Sample of %d checkboxes checked)", 
 				profilesCountAfterSelectAll, selectedCount));
-			ExtentCucumberAdapter.addTestStepLog(String.format("... Select All successful: %d profiles selected", profilesCountAfterSelectAll));
+			ExtentCucumberAdapter.addTestStepLog(String.format(" Select All successful: %d profiles selected", profilesCountAfterSelectAll));
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_all_profiles_selected_failed", e);
@@ -2353,7 +2341,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			
 			String responseMsg;
 			if (totalOperationTime <= instantThreshold) {
-				responseMsg = String.format("... Select All operation feels instant (%d ms)", totalOperationTime);
+				responseMsg = String.format(" Select All operation feels instant (%d ms)", totalOperationTime);
 				LOGGER.info(responseMsg);
 			} else if (totalOperationTime <= SELECT_ALL_THRESHOLD_MS) {
 				responseMsg = String.format(" Select All operation acceptable but not instant (%d ms)", totalOperationTime);
@@ -2418,8 +2406,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			wait.until(ExpectedConditions.visibilityOf(profileManagerHeader));
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			LOGGER.info("... Navigated to Profile Manager screen");
-			ExtentCucumberAdapter.addTestStepLog("... Navigated to Profile Manager screen");
+			LOGGER.info(" Navigated to Profile Manager screen");
+			ExtentCucumberAdapter.addTestStepLog(" Navigated to Profile Manager screen");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("navigate_to_profile_manager_failed", e);
@@ -2437,8 +2425,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesHeaderTab)).click();
 			Thread.sleep(500);
 			
-			LOGGER.info("... Clicked on HCM Sync Profiles tab");
-			ExtentCucumberAdapter.addTestStepLog("... Clicked on HCM Sync Profiles tab");
+			LOGGER.info(" Clicked on HCM Sync Profiles tab");
+			ExtentCucumberAdapter.addTestStepLog(" Clicked on HCM Sync Profiles tab");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_hcm_tab_failed", e);
@@ -2497,16 +2485,16 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				);
 				String resultsText = hcmResultsCount.getText().trim();
 				hcmProfilesCount = extractResultsCount(resultsText);
-				LOGGER.info(String.format("... HCM Sync Profiles loaded successfully | %d profiles available", hcmProfilesCount));
+				LOGGER.info(String.format(" HCM Sync Profiles loaded successfully | %d profiles available", hcmProfilesCount));
 			} catch (Exception e) {
 				java.util.List<WebElement> profileCheckboxes = driver.findElements(
 					By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox")
 				);
 				hcmProfilesCount = profileCheckboxes.size();
-				LOGGER.info(String.format("... HCM Sync Profiles loaded successfully | %d profiles found", hcmProfilesCount));
+				LOGGER.info(String.format(" HCM Sync Profiles loaded successfully | %d profiles found", hcmProfilesCount));
 			}
 			
-			ExtentCucumberAdapter.addTestStepLog(String.format("... HCM profiles loaded: %d profiles", hcmProfilesCount));
+			ExtentCucumberAdapter.addTestStepLog(String.format(" HCM profiles loaded: %d profiles", hcmProfilesCount));
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_hcm_profiles_loaded_failed", e);
@@ -2649,14 +2637,14 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	public void user_validates_sync_status_updates_appear_promptly() {
 		try {
 			String successMsg = syncSuccessPopupText.getText().trim();
-			LOGGER.info(String.format("... Sync success message displayed: \"%s\"", successMsg));
-			ExtentCucumberAdapter.addTestStepLog("... Sync success message displayed promptly");
+			LOGGER.info(String.format(" Sync success message displayed: \"%s\"", successMsg));
+			ExtentCucumberAdapter.addTestStepLog(" Sync success message displayed promptly");
 			
 			syncSuccessPopupCloseBtn.click();
 			Thread.sleep(500);
 			
-			LOGGER.info(String.format("... Sync operation completed | %d profiles synced with HCM", selectedProfilesCountBeforeSync));
-			ExtentCucumberAdapter.addTestStepLog(String.format("... Synced %d profiles successfully", selectedProfilesCountBeforeSync));
+			LOGGER.info(String.format(" Sync operation completed | %d profiles synced with HCM", selectedProfilesCountBeforeSync));
+			ExtentCucumberAdapter.addTestStepLog(String.format(" Synced %d profiles successfully", selectedProfilesCountBeforeSync));
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_sync_status_failed", e);

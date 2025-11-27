@@ -55,7 +55,7 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 	 */
 	public void click_on_header_checkbox_to_unselect_loaded_job_profiles_in_hcm_sync_profiles_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 		// Store counts before unchecking
@@ -88,13 +88,17 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 					utils.jsClick(driver, tableHeaderCheckbox);
 				}
 			}
-			
-			Thread.sleep(1000);
-			
-			LOGGER.info("Successfully clicked on header checkbox to unselect loaded profiles");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox to clear selection of loaded profiles");
-			
-		} catch (Exception e) {
+		
+		Thread.sleep(1000);
+		
+		LOGGER.info("Successfully clicked on header checkbox to unselect loaded profiles");
+		ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox to clear selection of loaded profiles");
+		
+		// Wait for spinners to disappear after unselecting profiles
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PerformanceUtils.waitForPageReady(driver, 2);
+		
+	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_header_checkbox_to_unselect_loaded_job_profiles_in_hcm_sync_profiles_screen", e);
 			LOGGER.error("Error clicking on header checkbox to unselect profiles - Method: click_on_header_checkbox_to_unselect_loaded_job_profiles_in_hcm_sync_profiles_screen", e);
 			ExtentCucumberAdapter.addTestStepLog(" Error clicking on header checkbox to unselect profiles");
@@ -111,15 +115,23 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 		int disabledProfilesCount = 0;
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			LOGGER.info("========================================");
-			LOGGER.info("VERIFYING UNSELECTED PROFILES");
-			LOGGER.info("========================================");
-			
-			// Verify loaded profiles are now unselected
-			for (int i = 1; i <= loadedProfilesBeforeUncheck.get(); i++) {
+		LOGGER.info("========================================");
+		LOGGER.info("VERIFYING UNSELECTED PROFILES");
+		LOGGER.info("========================================");
+		
+		// Get total profiles currently on screen (including newly loaded after scrolling)
+		int totalProfilesOnScreen = driver.findElements(
+			By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox")
+		).size();
+		
+		LOGGER.info("Total Profiles on screen (after scrolling): " + totalProfilesOnScreen);
+		LOGGER.info("Original Loaded Profiles (before scrolling): " + loadedProfilesBeforeUncheck.get());
+		
+		// Verify ALL profiles on screen are now unselected (both original + newly loaded)
+		for (int i = 1; i <= totalProfilesOnScreen; i++) {
 				try {
 					WebElement checkbox = driver.findElement(
 						By.xpath("//tbody//tr[" + i + "]//td[1]//div[1]//kf-checkbox//div")
@@ -147,18 +159,18 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 					LOGGER.debug("Could not verify profile at position " + i + ": " + e.getMessage());
 					continue;
 				}
-			}
-			
-			int expectedUnselected = loadedProfilesBeforeUncheck.get() - disabledProfilesCount;
-			
-			LOGGER.info("========================================");
-			LOGGER.info("VALIDATION RESULTS");
-			LOGGER.info("========================================");
-			LOGGER.info("Loaded Profiles: " + loadedProfilesBeforeUncheck.get());
-			LOGGER.info("Disabled Profiles: " + disabledProfilesCount);
-			LOGGER.info("Unselected Profiles: " + unselectedProfilesCount);
-			LOGGER.info("Expected Unselected: " + expectedUnselected);
-			LOGGER.info("========================================");
+		}
+		
+		int expectedUnselected = totalProfilesOnScreen - disabledProfilesCount;
+		
+		LOGGER.info("========================================");
+		LOGGER.info("VALIDATION RESULTS");
+		LOGGER.info("========================================");
+		LOGGER.info("Total Profiles on Screen: " + totalProfilesOnScreen);
+		LOGGER.info("Disabled Profiles: " + disabledProfilesCount);
+		LOGGER.info("Unselected Profiles: " + unselectedProfilesCount);
+		LOGGER.info("Expected Unselected: " + expectedUnselected);
+		LOGGER.info("========================================");
 			
 			if (unselectedProfilesCount >= expectedUnselected) {
 				LOGGER.info(" VALIDATION PASSED: All loaded profiles are correctly unselected");
@@ -189,7 +201,7 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 		int disabledInNewlyLoaded = 0;
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Get total profiles now loaded

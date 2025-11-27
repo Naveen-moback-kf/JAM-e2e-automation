@@ -73,7 +73,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 	
 	public void apply_filter_and_verify_profiles_count_in_job_mapping_screen_for_feature39() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Scroll to top to ensure filter dropdown is in viewport
@@ -152,7 +152,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 						LOGGER.info(" Clicked Grades option using JS click");
 					}
 					
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 2);
 					
 					LOGGER.info(" Applied filter: " + firstFilterType + " = " + firstFilterValue);
@@ -235,7 +235,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 							LOGGER.info(" Clicked Departments option using JS click");
 						}
 						
-						wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+						PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 						PerformanceUtils.waitForPageReady(driver, 2);
 						
 						LOGGER.info(" Applied filter: " + firstFilterType + " = " + firstFilterValue);
@@ -261,7 +261,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 	
 	public void user_should_scroll_down_to_view_last_filtered_result_in_job_mapping_screen_for_feature39() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Parse expected total from "Showing X of Y results"
@@ -307,19 +307,46 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 			}
 			
 			while (scrollAttempts < maxScrollAttempts && !allResultsLoaded) {
+			// ENHANCED SCROLLING STRATEGY for HEADLESS MODE:
+			// Use multiple scroll techniques to ensure lazy loading triggers
+			
+			// Method 1: Scroll using document.body.scrollHeight (more reliable in headless)
+			try {
+				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+			} catch (Exception e1) {
+				// Fallback to documentElement.scrollHeight
+				try {
+					js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
+				} catch (Exception e2) {
+					// Last resort: scroll by large pixel amount
+					js.executeScript("window.scrollBy(0, 10000);");
+				}
+			}
+			
 			scrollAttempts++;
-			js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			LOGGER.debug("Scroll attempt #{} - waiting for content to load...", scrollAttempts);
+			
+			// CRITICAL: Longer wait for HEADLESS MODE (lazy loading needs more time)
+			Thread.sleep(3000); // Increased from 2000 to 3000ms for headless stability
+			
+			// Wait for any spinners to disappear
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			
+			// Wait for page readiness
 			PerformanceUtils.waitForPageReady(driver, 2);
-			Thread.sleep(2000);
+			
+			// Additional wait for DOM updates in headless mode
+			Thread.sleep(1000); // Extra buffer for lazy-loaded content to render
 			
 			// IMPORTANT: Use org-job-container to get ONLY Organization Jobs table rows
 			var allRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr//td[1][contains(@class,'whitespace')]//input"));
 			currentCount = allRows.size();
 			int newlyLoadedProfiles = currentCount - previousCount;
+			
+			LOGGER.debug("Current row count after scroll #{}: {}", scrollAttempts, currentCount);
 				
 				// Debug logging for each scroll attempt
-				LOGGER.debug("Scroll attempt " + scrollAttempts + ": " + previousCount + "  " + 
+				LOGGER.debug("Scroll attempt " + scrollAttempts + ": " + previousCount + " → " + 
 					currentCount + " profiles (+" + newlyLoadedProfiles + " new)");
 				
 				// If we know the expected total, stop as soon as we reach it
@@ -333,13 +360,25 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				if (expectedTotal == 0) {
 					if (currentCount == previousCount) {
 						stableCountAttempts++;
-						LOGGER.debug("   Stable count detected (attempt " + stableCountAttempts + "/" + requiredStableAttempts + ")");
+						LOGGER.debug("No new rows loaded. Stagnation count: {}/{}", stableCountAttempts, requiredStableAttempts);
+						
 						if (stableCountAttempts >= requiredStableAttempts) {
 							allResultsLoaded = true;
 							LOGGER.info("Loaded " + currentCount + " filtered results after " + scrollAttempts + " scrolls (stable count detected)");
 						}
+						
+						// ADDITIONAL: Try forcing scroll to absolute bottom one more time
+						if (stableCountAttempts == 2) {
+							LOGGER.debug("Attempting final aggressive scroll to ensure all content loaded...");
+							js.executeScript("window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight));");
+							Thread.sleep(2000); // Wait after aggressive scroll
+							
+							// Wait for spinners after aggressive scroll
+							PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+						}
 					} else {
 						stableCountAttempts = 0;
+						LOGGER.debug("✓ Loaded {} new rows (total: {}, scroll: #{})", newlyLoadedProfiles, currentCount, scrollAttempts);
 					}
 				}
 				previousCount = currentCount;
@@ -358,7 +397,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 	
 	public void user_should_validate_all_filtered_results_match_the_applied_filter_in_job_mapping_screen_for_feature39() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 1);
 			
 		LOGGER.info("Validating filtered results match applied filter: " + firstFilterType + " = " + firstFilterValue);
@@ -412,7 +451,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 	
 	public void user_is_in_job_mapping_page_with_selected_filter_results_for_feature39() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			Thread.sleep(1000); // Wait for selections to be applied
 			
@@ -466,11 +505,11 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 	
 	public void clear_applied_filter_in_job_mapping_screen_for_feature39() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			utils.jsClick(driver, clearFiltersBtn);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			LOGGER.info("Cleared all filters");
@@ -514,7 +553,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 		boolean maxScrollLimitReached = false;
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			LOGGER.info("========================================");
@@ -559,7 +598,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 				scrollAttempts++;
 				
 			js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			Thread.sleep(1000);
 			
@@ -747,7 +786,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 	
 	public void apply_different_filter_for_alternative_validation_in_job_mapping_screen_for_feature39() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			// Scroll to top to ensure filter controls are in viewport
@@ -917,7 +956,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 					}
 					
 					// Wait for filter to be applied
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 3);
 					Thread.sleep(1000); // Additional wait for filter to fully apply
 					
@@ -1102,7 +1141,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 					}
 					
 					// Wait for filter to be applied
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 3);
 					Thread.sleep(1000); // Additional wait for filter to fully apply
 					
@@ -1246,7 +1285,7 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM {
 		String secondFilterValue = PO39_ValidateSelectAllWithFiltersFunctionality_JAM.secondFilterValue.get();
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			String resultsCountText = showingJobResultsCount.getText().trim();

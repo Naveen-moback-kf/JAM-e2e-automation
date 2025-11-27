@@ -142,7 +142,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 							LOGGER.info(" Clicked KF Grade option using JS click");
 						}
 						
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 				PerformanceUtils.waitForPageReady(driver, 2);
 				
 						LOGGER.info(" Applied filter: " + firstFilterType + " = " + firstFilterValue);
@@ -232,7 +232,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 								LOGGER.info(" Clicked Levels option using JS click");
 							}
 							
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 2);
 					
 							LOGGER.info(" Applied filter: " + firstFilterType + " = " + firstFilterValue);
@@ -300,27 +300,66 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 	int scrollCount = 0;
 	
 	while (scrollCount < maxScrollAttempts) {
-		// Scroll to bottom
-		js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-		scrollCount++;
+		// ENHANCED SCROLLING STRATEGY for HEADLESS MODE:
+		// Use multiple scroll techniques to ensure lazy loading triggers
 		
-		// Wait for content to load
-		Thread.sleep(2000);
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		PerformanceUtils.waitForPageReady(driver, 1);
+		// Method 1: Scroll using document.body.scrollHeight (more reliable in headless)
+		try {
+			js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+		} catch (Exception e1) {
+			// Fallback to documentElement.scrollHeight
+			try {
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
+			} catch (Exception e2) {
+				// Last resort: scroll by large pixel amount
+				js.executeScript("window.scrollBy(0, 10000);");
+			}
+		}
+		
+		scrollCount++;
+		LOGGER.debug("Scroll attempt #{} - waiting for content to load...", scrollCount);
+		
+		// CRITICAL: Longer wait for HEADLESS MODE (lazy loading needs more time)
+		Thread.sleep(3000); // Increased from 2000 to 3000ms for headless stability
+		
+		// Wait for any spinners to disappear
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+		
+		// Wait for page readiness
+		PerformanceUtils.waitForPageReady(driver, 2); // Increased from 1 to 2 seconds
+		
+		// Additional wait for DOM updates in headless mode
+		Thread.sleep(1000); // Extra buffer for lazy-loaded content to render
 		
 		// Check current count
 		currentCount = driver.findElements(By.xpath("//tbody//tr")).size();
 		
+		LOGGER.debug("Current row count after scroll #{}: {}", scrollCount, currentCount);
+		
 		// Check if no new results loaded
 		if (currentCount == previousCount) {
 			noChangeCount++;
+			LOGGER.debug("No new rows loaded. Stagnation count: {}/3", noChangeCount);
+			
 			if (noChangeCount >= 3) {
-				LOGGER.info("... Reached end of filtered results. Total: {}", currentCount);
+				LOGGER.info("... Reached end of filtered results after {} consecutive non-loading scrolls", noChangeCount);
+				LOGGER.info("... Final count: {}", currentCount);
 				break;
+			}
+			
+			// ADDITIONAL: Try forcing scroll to absolute bottom one more time
+			if (noChangeCount == 2) {
+				LOGGER.debug("Attempting final aggressive scroll to ensure all content loaded...");
+				js.executeScript("window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight));");
+				Thread.sleep(2000); // Wait after aggressive scroll
+				
+				// Wait for spinners after aggressive scroll
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			}
 		} else {
 			noChangeCount = 0;
+			int newRows = currentCount - previousCount;
+			LOGGER.debug("✓ Loaded {} new rows (total: {}, scroll: #{})", newRows, currentCount, scrollCount);
 		}
 		
 		previousCount = currentCount;
@@ -491,7 +530,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 				scrollAttempts++;
 				
 				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 				PerformanceUtils.waitForPageReady(driver, 2);
 					Thread.sleep(1000);
 				
@@ -848,7 +887,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 							LOGGER.info(" Clicked KF Grade option using JS click");
 						}
 						
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 2);
 					
 				LOGGER.info(" Applied same filter type with different value: " + secondFilterType + " = " + secondFilterValue + " (first was: " + firstFilterValue + ")");
@@ -1045,7 +1084,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 							LOGGER.info(" Clicked Levels option using JS click");
 						}
 							
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 2);
 					
 							LOGGER.info(" Applied same filter type with different value: " + secondFilterType + " = " + secondFilterValue + " (first was: " + firstFilterValue + ")");

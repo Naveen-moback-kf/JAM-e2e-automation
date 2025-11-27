@@ -70,7 +70,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 	boolean maxScrollLimitReached = false;
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			LOGGER.info("Verifying only searched profiles remain selected (expected: " + searchResultsCount + ")");
@@ -109,27 +109,65 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 	LOGGER.info(" Loading search results by scrolling...");
 	
 	while (scrollAttempts < maxScrollAttempts) {
-		// Scroll to bottom
-		js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-		scrollAttempts++;
+		// ENHANCED SCROLLING STRATEGY for HEADLESS MODE:
+		// Use multiple scroll techniques to ensure lazy loading triggers
 		
-		// Wait for content to load
-		Thread.sleep(2000);
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-		PerformanceUtils.waitForPageReady(driver, 1);
+		// Method 1: Scroll using document.body.scrollHeight (more reliable in headless)
+		try {
+			js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+		} catch (Exception e1) {
+			// Fallback to documentElement.scrollHeight
+			try {
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
+			} catch (Exception e2) {
+				// Last resort: scroll by large pixel amount
+				js.executeScript("window.scrollBy(0, 10000);");
+			}
+		}
+		
+		scrollAttempts++;
+		LOGGER.debug("Scroll attempt #{} - waiting for content to load...", scrollAttempts);
+		
+		// CRITICAL: Longer wait for HEADLESS MODE (lazy loading needs more time)
+		Thread.sleep(3000); // Increased from 2000 to 3000ms for headless stability
+		
+		// Wait for any spinners to disappear
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+		
+		// Wait for page readiness
+		PerformanceUtils.waitForPageReady(driver, 2); // Increased from 1 to 2 seconds
+		
+		// Additional wait for DOM updates in headless mode
+		Thread.sleep(1000); // Extra buffer for lazy-loaded content to render
 		
 		// Get current count
 		totalProfilesVisible = driver.findElements(By.xpath("//tbody//tr")).size();
 		
+		LOGGER.debug("Current row count after scroll #{}: {}", scrollAttempts, totalProfilesVisible);
+		
 		// Check if no new profiles loaded
 		if (totalProfilesVisible == previousTotalProfilesVisible) {
 			stableCountAttempts++;
+			LOGGER.debug("No new rows loaded. Stagnation count: {}/{}", stableCountAttempts, requiredStableAttempts);
+			
 			if (stableCountAttempts >= requiredStableAttempts) {
-				LOGGER.info("... No new profiles loaded after {} attempts. Total: {}", requiredStableAttempts, totalProfilesVisible);
+				LOGGER.info("... No new profiles loaded after {} consecutive attempts. Final total: {}", requiredStableAttempts, totalProfilesVisible);
 				break;
+			}
+			
+			// ADDITIONAL: Try forcing scroll to absolute bottom one more time
+			if (stableCountAttempts == 2) {
+				LOGGER.debug("Attempting final aggressive scroll to ensure all content loaded...");
+				js.executeScript("window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight));");
+				Thread.sleep(2000); // Wait after aggressive scroll
+				
+				// Wait for spinners after aggressive scroll
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			}
 		} else {
 			stableCountAttempts = 0;
+			int newRows = totalProfilesVisible - previousTotalProfilesVisible;
+			LOGGER.debug("✓ Loaded {} new rows (total: {}, scroll: #{})", newRows, totalProfilesVisible, scrollAttempts);
 		}
 		
 		previousTotalProfilesVisible = totalProfilesVisible;
@@ -274,7 +312,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 	
 	public void user_is_in_job_mapping_page_with_selected_search_results() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Count ACTUAL selected profiles (this is the real baseline)
@@ -317,7 +355,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 	String selectedSubstring = "";
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			LOGGER.info("Alternative validation: First search was '" + firstSearchSubstring + "', finding different substring...");
@@ -334,7 +372,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 					searchBar.sendKeys(Keys.CONTROL + "a");
 					searchBar.sendKeys(Keys.DELETE);
 					
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 1);
 					
 					// Enter different substring
@@ -342,7 +380,7 @@ public void verify_only_searched_profiles_are_selected_after_clearing_search_bar
 					wait.until(ExpectedConditions.elementToBeClickable(searchBar)).click();
 					wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(substring);
 					wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(Keys.ENTER);
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 2);
 					
 					String resultsCountText = showingJobResultsCount.getText().trim();
@@ -470,7 +508,7 @@ public void scroll_down_to_load_all_second_search_results() throws InterruptedEx
 	String secondSearchSubstring = alternativeSearchSubstring.get();
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			String resultsCountText = showingJobResultsCount.getText().trim();

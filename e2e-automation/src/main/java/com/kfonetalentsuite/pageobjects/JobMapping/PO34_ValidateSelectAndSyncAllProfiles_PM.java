@@ -204,12 +204,8 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 		// CRITICAL: Longer wait for HEADLESS MODE (lazy loading needs more time)
 		Thread.sleep(3000); // Increased from 2000 to 3000ms for headless stability
 		
-		// Wait for any spinners to disappear
-		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-		} catch (Exception e) {
-			// Spinner might not appear for lazy loading, continue
-		}
+		// Wait for any spinners to disappear (using PerformanceUtils for consistency)
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 		
 		// Wait for page readiness
 		PerformanceUtils.waitForPageReady(driver, 2); // Increased from 1 to 2 seconds
@@ -238,6 +234,9 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 				LOGGER.debug("Attempting final aggressive scroll to ensure all content loaded...");
 				js.executeScript("window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight));");
 				Thread.sleep(2000); // Wait after aggressive scroll
+				
+				// Wait for spinners after aggressive scroll
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			}
 		} else {
 			noChangeCount = 0;

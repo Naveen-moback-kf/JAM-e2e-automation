@@ -63,15 +63,16 @@ public class PO43_ClearProfileSelectionwithNoneButton_PM {
 					utils.jsClick(driver, HCMNoneBtn);
 				}
 			}
-			
-			// Wait for unselection to complete
-			Thread.sleep(1000);
-			PerformanceUtils.waitForPageReady(driver, 2);
-			
-			LOGGER.info("Successfully clicked on None button to unselect all profiles");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on None button in HCM Sync Profiles Screen");
-			
-		} catch (Exception e) {
+		
+		// Wait for unselection to complete
+		Thread.sleep(1000);
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PerformanceUtils.waitForPageReady(driver, 2);
+		
+		LOGGER.info("Successfully clicked on None button to unselect all profiles");
+		ExtentCucumberAdapter.addTestStepLog("Clicked on None button in HCM Sync Profiles Screen");
+		
+	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_none_button_in_hcm_sync_profiles_screen", e);
 			LOGGER.error("Error clicking on None button - Method: click_on_none_button_in_hcm_sync_profiles_screen", e);
 			ExtentCucumberAdapter.addTestStepLog(" Error clicking on None button in HCM Sync Profiles Screen");
@@ -89,7 +90,7 @@ public class PO43_ClearProfileSelectionwithNoneButton_PM {
 		int disabledProfilesCount = 0;
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			LOGGER.info("========================================");

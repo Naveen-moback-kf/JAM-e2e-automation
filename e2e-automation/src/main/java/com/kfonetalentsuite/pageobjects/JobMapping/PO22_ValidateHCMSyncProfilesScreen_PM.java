@@ -2091,7 +2091,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM {
 					// Check 2: Verify 'disabled' attribute is NOT present
 					String disabledAttribute = syncButton.getAttribute("disabled");
 					if (disabledAttribute != null) {
-						LOGGER.debug("Button has 'disabled' attribute - Button still disabled, retrying...");
+//						LOGGER.debug("Button has 'disabled' attribute - Button still disabled, retrying...");
 						return false;
 					}
 					

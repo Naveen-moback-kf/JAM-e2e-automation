@@ -62,7 +62,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 	
 	public void user_should_scroll_down_to_view_last_search_result_in_hcm_sync_profiles_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 		// Scroll to load all search results
@@ -75,27 +75,66 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 		int scrollCount = 0;
 		
 		while (scrollCount < maxScrollAttempts) {
-			// Scroll to bottom
-			js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-			scrollCount++;
+			// ENHANCED SCROLLING STRATEGY for HEADLESS MODE:
+			// Use multiple scroll techniques to ensure lazy loading triggers
 			
-			// Wait for content to load
-			Thread.sleep(2000);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver, 1);
+			// Method 1: Scroll using document.body.scrollHeight (more reliable in headless)
+			try {
+				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+			} catch (Exception e1) {
+				// Fallback to documentElement.scrollHeight
+				try {
+					js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
+				} catch (Exception e2) {
+					// Last resort: scroll by large pixel amount
+					js.executeScript("window.scrollBy(0, 10000);");
+				}
+			}
+			
+			scrollCount++;
+			LOGGER.debug("Scroll attempt #{} - waiting for content to load...", scrollCount);
+			
+			// CRITICAL: Longer wait for HEADLESS MODE (lazy loading needs more time)
+			Thread.sleep(3000); // Increased from 2000 to 3000ms for headless stability
+			
+			// Wait for any spinners to disappear
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			
+			// Wait for page readiness
+			PerformanceUtils.waitForPageReady(driver, 2); // Increased from 1 to 2 seconds
+			
+			// Additional wait for DOM updates in headless mode
+			Thread.sleep(1000); // Extra buffer for lazy-loaded content to render
 			
 			// Check current count
 			currentCount = driver.findElements(By.xpath("//tbody//tr")).size();
 			
+			LOGGER.debug("Current row count after scroll #{}: {}", scrollCount, currentCount);
+			
 			// Check if no new results loaded
 			if (currentCount == previousCount) {
 				noChangeCount++;
+				LOGGER.debug("No new rows loaded. Stagnation count: {}/3", noChangeCount);
+				
 				if (noChangeCount >= 3) {
-					LOGGER.info("... Reached end of search results. Total: {}", currentCount);
+					LOGGER.info("... Reached end of search results after {} consecutive non-loading scrolls", noChangeCount);
+					LOGGER.info("... Final count: {}", currentCount);
 					break;
+				}
+				
+				// ADDITIONAL: Try forcing scroll to absolute bottom one more time
+				if (noChangeCount == 2) {
+					LOGGER.debug("Attempting final aggressive scroll to ensure all content loaded...");
+					js.executeScript("window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight));");
+					Thread.sleep(2000); // Wait after aggressive scroll
+					
+					// Wait for spinners after aggressive scroll
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 				}
 			} else {
 				noChangeCount = 0;
+				int newRows = currentCount - previousCount;
+				LOGGER.debug("✓ Loaded {} new rows (total: {}, scroll: #{})", newRows, currentCount, scrollCount);
 			}
 			
 			previousCount = currentCount;
@@ -112,7 +151,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 	
 	public void user_should_validate_all_search_results_contains_substring_used_for_searching_in_hcm_sync_profiles_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 1);
 		
 		String searchSubstring = PO22_ValidateHCMSyncProfilesScreen_PM.jobProfileName.get().toLowerCase();
@@ -161,7 +200,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 		boolean maxScrollLimitReached = false;
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			LOGGER.info("Verifying only searched profiles remain selected (expected: " + searchResultsCount + ")");
@@ -201,7 +240,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 				scrollAttempts++;
 				
 				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 				PerformanceUtils.waitForPageReady(driver, 2);
 				Thread.sleep(1000);
 				
@@ -365,7 +404,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 	
 	public void user_is_in_hcm_sync_profiles_screen_with_selected_search_results() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Count ACTUAL selected profiles (this is the real baseline)
@@ -438,7 +477,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 		String selectedSubstring = "";
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			LOGGER.info("Alternative validation: First search was '" + firstSearchSubstring + "', finding different substring...");
@@ -469,7 +508,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 					searchBar.sendKeys(Keys.DELETE);
 					
 					// Wait for UI to update after clearing
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 1);
 					
 					// Enter different substring
@@ -485,7 +524,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 					}
 					wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(substring);
 					wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(Keys.ENTER);
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 2);
 					
 					String resultsCountText = showingJobResultsCount.getText().trim();

@@ -1247,6 +1247,10 @@ public class PO04_VerifyJobMappingPageComponents {
 				}
 			}
 			PageObjectHelper.log(LOGGER, "Clicked on Publish Selected Profiles button to publish selected profiles");
+			
+			// Wait for API call to complete
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 30);
+			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_publish_selected_profiles_button",
 					"Issue in clicking Publish Selected Profiles button in Job Mapping page...Please Investigate!!!",

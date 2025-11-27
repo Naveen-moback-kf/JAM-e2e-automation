@@ -40,6 +40,8 @@ Feature: Validate Clear selection of Profiles in HCM Sync Profiles screen with H
     @Uncheck_Header_Checkbox_PM
     Scenario: Uncheck Header Checkbox to clear selection of Loaded Profiles in HCM
     	When User is in HCM Sync Profiles screen
+    	Then Click on header checkbox to select loaded job profiles in HCM Sync Profiles screen
+    	Then User should verify Sync with HCM button is enabled in HCM Sync Profiles screen	
     	Then Click on header checkbox to Unselect loaded job profiles in HCM Sync Profiles screen
     	Then User should verify Sync with HCM button is disabled in HCM Sync Profiles screen	
     	Then Scroll page to view more job profiles in HCM Sync Profiles screen

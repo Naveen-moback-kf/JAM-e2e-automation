@@ -34,9 +34,10 @@ Feature: Validate Clear selection of Profiles in Job Mapping screen with Header 
     @Uncheck_Header_Checkbox_JAM
     Scenario: Uncheck Header Checkbox to clear selection of Loaded Profiles in Job Mapping
     	When User is in Job Mapping page
-    	Then Click on header checkbox to Unselect loaded job profiles in Job Mapping screen
+    	Then Click on header checkbox to select loaded job profiles in Job Mapping screen
     	Then User should verify Publish Selected Profiles button is enabled
+    	Then Click on header checkbox to Unselect loaded job profiles in Job Mapping screen
+    	Then User should verify Publish Selected Profiles button is disabled
+    	Then Scroll page to view more job profiles
+    	Then Scroll page to view more job profiles
     	Then Verify Loaded Profiles are unselected in Job Mapping screen
-    	Then Scroll page to view more job profiles
-    	Then Scroll page to view more job profiles
-    	And Verify newly loaded profiles are still Selected in Job Mapping screen

@@ -63,15 +63,16 @@ public class PO45_ClearProfileSelectionwithNoneButton_JAM {
 					utils.jsClick(driver, noneBtn);
 				}
 			}
-			
-			// Wait for unselection to complete
-			Thread.sleep(1000);
-			PerformanceUtils.waitForPageReady(driver, 2);
-			
-			LOGGER.info("Successfully clicked on None button to unselect all profiles");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on None button in Job Mapping screen");
-			
-		} catch (Exception e) {
+		
+		// Wait for unselection to complete
+		Thread.sleep(1000);
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PerformanceUtils.waitForPageReady(driver, 2);
+		
+		LOGGER.info("Successfully clicked on None button to unselect all profiles");
+		ExtentCucumberAdapter.addTestStepLog("Clicked on None button in Job Mapping screen");
+		
+	} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_none_button_in_job_mapping_screen", e);
 			LOGGER.error("Error clicking on None button - Method: click_on_none_button_in_job_mapping_screen", e);
 			ExtentCucumberAdapter.addTestStepLog(" Error clicking on None button in Job Mapping screen");
@@ -89,7 +90,7 @@ public class PO45_ClearProfileSelectionwithNoneButton_JAM {
 		int disabledProfilesCount = 0;
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			LOGGER.info("========================================");

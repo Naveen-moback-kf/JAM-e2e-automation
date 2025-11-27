@@ -148,7 +148,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	
 	public void click_on_view_published_toggle_button_to_turn_off() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			
 			// Check if toggle is ON, then click to turn OFF
 			if (viewPublishedToggle.isSelected() || viewPublishedToggle.getAttribute("aria-checked").equals("true")) {
@@ -159,7 +159,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 				}
 				LOGGER.info("Clicked on View Published toggle button to turn OFF");
 				ExtentCucumberAdapter.addTestStepLog("Clicked on View Published toggle button to turn OFF");
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 				PerformanceUtils.waitForPageReady(driver, 2);
 			}
 		} catch (Exception e) {
@@ -179,11 +179,14 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			PerformanceUtils.waitForPageReady(driver, 1);
 			
 			// Scroll to top to ensure chevron button is in viewport
-			js.executeScript("window.scrollTo(0, 0);");
-			Thread.sleep(300); // Wait for scroll to complete
-			LOGGER.info("Scrolled to top of page before clicking chevron button");
-			
-			// Scroll chevron button into view
+		js.executeScript("window.scrollTo(0, 0);");
+		Thread.sleep(300); // Wait for scroll to complete
+		LOGGER.info("Scrolled to top of page before clicking chevron button");
+		
+		// Wait for any spinners to disappear after scrolling
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		
+		// Scroll chevron button into view
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", chevronBtninJAM);
 			Thread.sleep(300);
 			
@@ -228,7 +231,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			ExtentCucumberAdapter.addTestStepLog("Clicked on Select All button in Job Mapping Screen");
 			
 			// Wait for selection to complete
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 		} catch(Exception e) {
@@ -254,7 +257,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 		int totalProfiles = 0;
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Step 1: Get total profile count from "Showing X of Y results" text
@@ -289,29 +292,66 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	int scrollAttempts = 0;
 	
 	while (scrollAttempts < maxScrollAttempts) {
-		// Scroll to bottom
-		js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
-		scrollAttempts++;
+		// ENHANCED SCROLLING STRATEGY for HEADLESS MODE:
+		// Use multiple scroll techniques to ensure lazy loading triggers
 		
-		// Wait for content to load
-		Thread.sleep(2000);
-		wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-		PerformanceUtils.waitForPageReady(driver, 1);
+		// Method 1: Scroll using document.body.scrollHeight (more reliable in headless)
+		try {
+			js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+		} catch (Exception e1) {
+			// Fallback to documentElement.scrollHeight
+			try {
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
+			} catch (Exception e2) {
+				// Last resort: scroll by large pixel amount
+				js.executeScript("window.scrollBy(0, 10000);");
+			}
+		}
+		
+		scrollAttempts++;
+		LOGGER.debug("Scroll attempt #{} - waiting for content to load...", scrollAttempts);
+		
+		// CRITICAL: Longer wait for HEADLESS MODE (lazy loading needs more time)
+		Thread.sleep(3000); // Increased from 2000 to 3000ms for headless stability
+		
+		// Wait for any spinners to disappear
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+		
+		// Wait for page readiness
+		PerformanceUtils.waitForPageReady(driver, 2); // Increased from 1 to 2 seconds
+		
+		// Additional wait for DOM updates in headless mode
+		Thread.sleep(1000); // Extra buffer for lazy-loaded content to render
 		
 		// Check current row count
 		currentRowCount = driver.findElements(By.xpath("//tbody//tr//td[1]//input[@type='checkbox']")).size();
 		
+		LOGGER.debug("Current row count after scroll #{}: {}", scrollAttempts, currentRowCount);
+		
 		// Check if no new rows loaded
 		if (currentRowCount == previousRowCount) {
 			noChangeCount++;
-			LOGGER.debug("No new rows loaded. Count: {}/3", noChangeCount);
+			LOGGER.debug("No new rows loaded. Stagnation count: {}/3", noChangeCount);
+			
 			if (noChangeCount >= 3) {
-				LOGGER.info("... Reached end of content. Total rows loaded: {}", currentRowCount);
+				LOGGER.info("... Reached end of content after {} consecutive non-loading scrolls", noChangeCount);
+				LOGGER.info("... Final row count: {}", currentRowCount);
 				break;
+			}
+			
+			// ADDITIONAL: Try forcing scroll to absolute bottom one more time
+			if (noChangeCount == 2) {
+				LOGGER.debug("Attempting final aggressive scroll to ensure all content loaded...");
+				js.executeScript("window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight));");
+				Thread.sleep(2000); // Wait after aggressive scroll
+				
+				// Wait for spinners after aggressive scroll
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			}
 		} else {
 			noChangeCount = 0;
-			LOGGER.debug("Loaded rows: {} (scroll: {})", currentRowCount, scrollAttempts);
+			int newRows = currentRowCount - previousRowCount;
+			LOGGER.debug("✓ Loaded {} new rows (total: {}, scroll: #{})", newRows, currentRowCount, scrollAttempts);
 		}
 		
 		previousRowCount = currentRowCount;
@@ -420,7 +460,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	
 	public void verify_async_functionality_message_is_displayed_on_jam_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 3);
 			
 			if (asyncMessage.isDisplayed()) {
@@ -472,7 +512,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 					}
 				}
 				
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 				PerformanceUtils.waitForPageReady(driver, 2);
 				
 			} catch (Exception popupException) {
@@ -489,7 +529,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			
 			// Perform initial refresh
 			driver.navigate().refresh();
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 3);
 			
 			LOGGER.info(" Page ready for progressive monitoring");
@@ -504,7 +544,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	
 	public void verify_count_of_total_un_published_profiles_after_publishing_selected_profiles() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Get total unpublished profiles count after publishing
@@ -536,7 +576,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	
 	public void get_count_of_published_profiles_in_job_mapping_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 		// Calculate published count
@@ -571,7 +611,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	
 	public void verify_count_of_total_published_profiles_after_publishing_selected_profiles() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Get published profiles count in View Published screen
@@ -597,7 +637,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	
 	public void verify_published_profiles_count_matches_in_view_published_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Verify the counts match
@@ -621,7 +661,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	 */
 	public void user_is_in_job_mapping_page_after_initial_refresh() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			LOGGER.info(" Job Mapping page ready");
 			
@@ -677,7 +717,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 				
 				Thread.sleep(REFRESH_INTERVAL_SECONDS * 1000);
 				driver.navigate().refresh();
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 				PerformanceUtils.waitForPageReady(driver, 2);
 				
 				// Get current unpublished count - Re-find element after refresh to avoid StaleElementReferenceException
@@ -750,7 +790,7 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 	 */
 	public void verify_all_profiles_are_published_successfully() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			// Get final unpublished count - Re-find element to avoid StaleElementReferenceException

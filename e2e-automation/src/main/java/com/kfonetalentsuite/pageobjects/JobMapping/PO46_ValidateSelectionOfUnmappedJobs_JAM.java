@@ -8,7 +8,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.CacheLookup;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
@@ -23,6 +22,7 @@ import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
@@ -62,7 +62,7 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 		skipScenario.set(false);
 		
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			List<WebElement> mappingStatusCheckboxes = driver.findElements(
@@ -94,7 +94,7 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 						}
 					}
 					
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 3);
 					
 					Assert.assertTrue(mappingStatusCheckboxes.get(i).isSelected(), 
@@ -290,42 +290,89 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 					LOGGER.warn(" Checkbox at position {} is NOT disabled", (i + 1));
 				}
 				
-				// Check for tooltip on first checkbox only
-				if (i < samplesToCheck && i < allTooltipContainers.size()) {
+			// Check for tooltip on first checkbox only
+			if (i < samplesToCheck && i < allTooltipContainers.size()) {
+				try {
+					WebElement tooltipContainer = allTooltipContainers.get(i);
+					
+					// Scroll to tooltip container once for first checkbox
+					js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", tooltipContainer);
+					Thread.sleep(200);
+					
+					// HEADLESS MODE FIX: Instead of hover (which doesn't work in headless),
+					// directly check for tooltip attributes or use JavaScript to trigger it
+					
+					// Method 1: Check for tooltip attribute (aria-label, title, data-tooltip, etc.)
+					String tooltipFromAttribute = null;
 					try {
-						WebElement tooltipContainer = allTooltipContainers.get(i);
-						
-						// Scroll to tooltip container once for first checkbox
-						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", tooltipContainer);
-						Thread.sleep(200); // Reduced from 300ms
-						
-						// Hover over the tooltip container to trigger tooltip
-						Actions actions = new Actions(driver);
-						actions.moveToElement(tooltipContainer).perform();
-						Thread.sleep(500); // Reduced from 800ms - tooltip appears quickly
-							
-							// Look for tooltip element
-							List<WebElement> tooltips = driver.findElements(
-								By.xpath("//div[@data-testid='tooltip']")
-							);
-							
-							if (!tooltips.isEmpty()) {
-								String tooltipText = tooltips.get(0).getText();
-								LOGGER.debug("Tooltip found for checkbox {}: {}", (i + 1), tooltipText);
-								
-								if (tooltipText != null && tooltipText.contains(expectedTooltipText)) {
-									checkboxesWithTooltip++;
-									LOGGER.debug("Checkbox {} has correct tooltip: {}", (i + 1), tooltipText);
-								}
-							} else {
-								LOGGER.debug("No tooltip element found for checkbox {}", (i + 1));
-							}
-							
-						} catch (Exception tooltipException) {
-							LOGGER.debug("Could not verify tooltip for checkbox at position {}: {}", 
-								(i + 1), tooltipException.getMessage());
+						tooltipFromAttribute = tooltipContainer.getAttribute("aria-label");
+						if (tooltipFromAttribute == null || tooltipFromAttribute.isEmpty()) {
+							tooltipFromAttribute = tooltipContainer.getAttribute("title");
 						}
+						if (tooltipFromAttribute == null || tooltipFromAttribute.isEmpty()) {
+							tooltipFromAttribute = tooltipContainer.getAttribute("data-tooltip");
+						}
+					} catch (Exception e) {
+						LOGGER.debug("Could not get tooltip from attributes: {}", e.getMessage());
 					}
+					
+					// Method 2: Try to find tooltip element that might be hidden but present in DOM
+					List<WebElement> tooltips = new ArrayList<>();
+					try {
+						// First try: Look for tooltip associated with this container
+						tooltips = tooltipContainer.findElements(
+							By.xpath(".//following-sibling::div[@data-testid='tooltip'] | .//div[@data-testid='tooltip']")
+						);
+						
+						// Second try: Look for any tooltip in the DOM (might be positioned absolutely)
+						if (tooltips.isEmpty()) {
+							tooltips = driver.findElements(By.xpath("//div[@data-testid='tooltip']"));
+						}
+					} catch (Exception e) {
+						LOGGER.debug("Could not find tooltip elements: {}", e.getMessage());
+					}
+					
+					// Method 3: Use JavaScript to trigger tooltip and read its content
+					String tooltipFromJS = null;
+					try {
+						// Dispatch mouseover event to trigger tooltip
+						js.executeScript("arguments[0].dispatchEvent(new MouseEvent('mouseover', {bubbles: true}));", tooltipContainer);
+						Thread.sleep(300); // Wait for tooltip to appear
+						
+						// Try to find and read tooltip
+						tooltips = driver.findElements(By.xpath("//div[@data-testid='tooltip']"));
+						if (!tooltips.isEmpty()) {
+							tooltipFromJS = tooltips.get(0).getText();
+						}
+					} catch (Exception e) {
+						LOGGER.debug("Could not trigger tooltip with JavaScript: {}", e.getMessage());
+					}
+					
+					// Determine which method found the tooltip
+					String tooltipText = null;
+					if (tooltipFromAttribute != null && !tooltipFromAttribute.isEmpty()) {
+						tooltipText = tooltipFromAttribute;
+						LOGGER.debug("Tooltip found from attribute for checkbox {}: {}", (i + 1), tooltipText);
+					} else if (tooltipFromJS != null && !tooltipFromJS.isEmpty()) {
+						tooltipText = tooltipFromJS;
+						LOGGER.debug("Tooltip found from JavaScript for checkbox {}: {}", (i + 1), tooltipText);
+					} else if (!tooltips.isEmpty()) {
+						tooltipText = tooltips.get(0).getText();
+						LOGGER.debug("Tooltip found from DOM for checkbox {}: {}", (i + 1), tooltipText);
+					}
+					
+					if (tooltipText != null && tooltipText.contains(expectedTooltipText)) {
+						checkboxesWithTooltip++;
+						LOGGER.debug("Checkbox {} has correct tooltip: {}", (i + 1), tooltipText);
+					} else {
+						LOGGER.debug("No matching tooltip found for checkbox {}. Found text: {}", (i + 1), tooltipText);
+					}
+					
+				} catch (Exception tooltipException) {
+					LOGGER.debug("Could not verify tooltip for checkbox at position {}: {}", 
+						(i + 1), tooltipException.getMessage());
+				}
+			}
 					
 				} catch (Exception e) {
 					LOGGER.debug("Could not verify checkbox at position {}: {}", (i + 1), e.getMessage());
