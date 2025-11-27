@@ -1513,10 +1513,10 @@ public class PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping extends Driv
 			ExtentCucumberAdapter.addTestStepLog(" FORWARD SCENARIO (Scenario 1): Finding FIRST job with info message and missing Department...");
 			
 		// Progressive search: Check initial batch, then scroll and check new batch if no match
-		LOGGER.info("Starting progressive search: check batch  if no match  scroll  check new batch  repeat (max 5 scrolls)");
+		LOGGER.info("Starting progressive search: check batch  if no match  scroll  check new batch  repeat (max 15 scrolls, up to ~50 profiles)");
 		ExtentCucumberAdapter.addTestStepLog(" Progressive search: checking profiles in batches with on-demand scrolling...");
 		
-		int maxScrollAttempts = 5;
+		int maxScrollAttempts = 15;
 		int scrollAttempt = 0;
 		int lastCheckedIndex = 0;
 		boolean matchFound = false;
@@ -1552,58 +1552,50 @@ public class PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping extends Driv
 				
 				LOGGER.info("Checking Profile " + profileNumber + "...");
 				
-				// Scroll to profile for visibility
-				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", infoMessageRow);
-				PerformanceUtils.safeSleep(driver, 500);
+				// Scroll to profile for visibility (INSTANT scroll - no smooth animation)
+				js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", infoMessageRow);
+				PerformanceUtils.safeSleep(driver, 200);  // Reduced from 500ms to 200ms
 				
 				try {
-					// 1. Extract Function/Subfunction using PROVEN logic from Features 27/28
+					// 1. Extract Function/Subfunction using DIRECT JavaScript text extraction (ULTRA-FAST)
 					String functionSubfunction = "";
 					
 					try {
-						// Feature 28 approach: Look for specific span pattern
-						WebElement functionElement = infoMessageRow.findElement(
-							By.xpath(".//span[contains(text(), 'Function / Sub-function:')]/following-sibling::span | " +
-									".//div[contains(text(), 'Function / Sub-function:')]/span[2] | " +
-									".//span[contains(@class, 'font-semibold') and preceding-sibling::span[contains(text(), 'Function')]]")
-						);
-						functionSubfunction = functionElement.getText().trim();
-						LOGGER.info("Profile " + profileNumber + " - Function extracted (Element approach): '" + functionSubfunction + "'");
-					} catch (Exception e1) {
-						try {
-							// Feature 28 fallback: Text-based parsing
-							String rowText = infoMessageRow.getText().trim();
-							String[] functionPatterns = {
-								"Function / Sub-function:",
-								"Function/Sub-function:",
-								"Function:",
-								"Sub-function:"
-							};
-							
-							for (String pattern : functionPatterns) {
-								if (rowText.contains(pattern)) {
-									String[] parts = rowText.split(pattern);
-									if (parts.length > 1) {
-										String functionPart = parts[1].trim();
-										
-										// Clean up the function part
-										if (functionPart.contains("Reduced match accuracy")) {
-											functionPart = functionPart.split("Reduced match accuracy")[0].trim();
-										}
-										functionPart = functionPart.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
-										
-										if (!functionPart.isEmpty()) {
-											functionSubfunction = functionPart;
-					break;
-				}
-			}
+						// ULTRA-OPTIMIZED: Use JavaScript to extract text directly without any XPath searching
+						String rowText = (String) js.executeScript("return arguments[0].textContent;", infoMessageRow);
+						rowText = rowText.trim();
+						
+						// Parse function from the text using known patterns
+						String[] functionPatterns = {
+							"Function / Sub-function:",
+							"Function/Sub-function:",
+							"Function:",
+							"Sub-function:"
+						};
+						
+						for (String pattern : functionPatterns) {
+							if (rowText.contains(pattern)) {
+								String[] parts = rowText.split(pattern);
+								if (parts.length > 1) {
+									String functionPart = parts[1].trim();
+									
+									// Clean up the function part
+									if (functionPart.contains("Reduced match accuracy")) {
+										functionPart = functionPart.split("Reduced match accuracy")[0].trim();
+									}
+									functionPart = functionPart.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
+									
+									if (!functionPart.isEmpty()) {
+										functionSubfunction = functionPart;
+										break;
+									}
 								}
 							}
-							LOGGER.info("Profile " + profileNumber + " - Function extracted (Text parsing): '" + functionSubfunction + "'");
-							
-						} catch (Exception e2) {
-							// Could not extract function using text parsing
 						}
+						LOGGER.info("Profile " + profileNumber + " - Function extracted: '" + functionSubfunction + "'");
+						
+					} catch (Exception e1) {
+						LOGGER.debug("Could not extract function: " + e1.getMessage());
 					}
 					
 					// 2. Get job data from previous row
@@ -1616,47 +1608,53 @@ public class PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping extends Driv
 						continue;
 					}
 					
-					// 3. Extract job data using PROVEN logic from Features 27/28
+					// 3. Extract job data using PROVEN logic from Features 27/28 (OPTIMIZED)
 					String jobName = "";
 					String jobCode = "";
 					String grade = "";
 					String department = "";
 					
-					// Extract Job Name and Code from column 2 (NAME / JOB CODE column) - Feature 28 approach
+					// Extract Job Name and Code from column 2 (NAME / JOB CODE column) - Feature 28 approach (OPTIMIZED)
 					try {
-						WebElement jobNameElement = jobDataRow.findElement(
+						List<WebElement> jobNameElements = jobDataRow.findElements(
 							By.xpath(".//td[2]//div | .//td[position()=2]//div")
 						);
-						String jobNameCodeText = jobNameElement.getText().trim();
-						
-						// Parse job name and code from format: "Job Name - (JOB-CODE)"
-						if (jobNameCodeText.contains(" - (") && jobNameCodeText.contains(")")) {
-							int dashIndex = jobNameCodeText.lastIndexOf(" - (");
-							jobName = jobNameCodeText.substring(0, dashIndex).trim();
-							jobCode = jobNameCodeText.substring(dashIndex + 4).replace(")", "").trim();
-						} else {
-							jobName = jobNameCodeText;
+						if (!jobNameElements.isEmpty()) {
+							String jobNameCodeText = jobNameElements.get(0).getAttribute("textContent").trim();
+							
+							// Parse job name and code from format: "Job Name - (JOB-CODE)"
+							if (jobNameCodeText.contains(" - (") && jobNameCodeText.contains(")")) {
+								int dashIndex = jobNameCodeText.lastIndexOf(" - (");
+								jobName = jobNameCodeText.substring(0, dashIndex).trim();
+								jobCode = jobNameCodeText.substring(dashIndex + 4).replace(")", "").trim();
+							} else {
+								jobName = jobNameCodeText;
+							}
 						}
 		} catch (Exception e) {
 					// Could not extract job name/code
 				}
 					
-					// Extract Grade from column 3 (GRADE column) - Feature 28 approach
+					// Extract Grade from column 3 (GRADE column) - Feature 28 approach (OPTIMIZED)
 					try {
-						WebElement gradeElement = jobDataRow.findElement(
+						List<WebElement> gradeElements = jobDataRow.findElements(
 							By.xpath(".//td[3]//div | .//td[position()=3]//div")
 						);
-						grade = gradeElement.getText().trim();
+						if (!gradeElements.isEmpty()) {
+							grade = gradeElements.get(0).getAttribute("textContent").trim();
+						}
 			} catch (Exception e) {
 				// Could not extract grade
 			}
 					
-					// Extract Department from column 4 (DEPARTMENT column) - Feature 28 approach
+					// Extract Department from column 4 (DEPARTMENT column) - Feature 28 approach (OPTIMIZED)
 					try {
-						WebElement departmentElement = jobDataRow.findElement(
+						List<WebElement> departmentElements = jobDataRow.findElements(
 							By.xpath(".//td[4]//div | .//td[position()=4]//div")
 						);
-						department = departmentElement.getText().trim();
+						if (!departmentElements.isEmpty()) {
+							department = departmentElements.get(0).getAttribute("textContent").trim();
+						}
 			} catch (Exception e) {
 				// Could not extract department
 			}
@@ -1710,33 +1708,91 @@ public class PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping extends Driv
 				if (lastCheckedIndex == 0) {
 					LOGGER.info("No info messages found yet - performing FULL PAGE scroll to load profiles");
 					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-					PerformanceUtils.safeSleep(driver, 2000); // Wait for lazy loading to start
+					
+					// CRITICAL: Use Thread.sleep for guaranteed waits
+					try {
+						Thread.sleep(2000); // 2 seconds - wait for lazy loading to start
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
 					
 					// Wait for spinner to disappear after scrolling
 					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					
 					// Additional wait for profiles to render
-					PerformanceUtils.safeSleep(driver, 2000);
+					try {
+						Thread.sleep(2000); // 2 seconds
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
 					PerformanceUtils.waitForPageReady(driver, 5);
 					
 					// Scroll back to top to ensure info messages are in viewport
 					js.executeScript("window.scrollTo(0, 0);");
-					PerformanceUtils.safeSleep(driver, 1000);
+					try {
+						Thread.sleep(1000); // 1 second
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+					
+					// CRITICAL: Wait for spinners again after scrolling to top (new spinners may appear!)
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+					
+					// Final wait to ensure data is fully loaded
+					try {
+						Thread.sleep(2000); // 2 seconds
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+					PerformanceUtils.waitForPageReady(driver, 5);
 					
 					LOGGER.info("Full page scroll completed - checking for new profiles...");
 				} else {
 					// Normal incremental scroll when we've already found and checked some profiles
-					List<WebElement> allRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
-					if (!allRows.isEmpty()) {
-						WebElement lastRow = allRows.get(allRows.size() - 1);
-						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", lastRow);
-						PerformanceUtils.safeSleep(driver, 1000);
-						js.executeScript("window.scrollBy(0, 500);");
-						PerformanceUtils.safeSleep(driver, 2000); // Wait for lazy loading
+					// AGGRESSIVE SCROLL: Scroll to bottom to trigger lazy loading of more profiles
+					LOGGER.info("Scrolling to load more profiles...");
+					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+					
+					// CRITICAL: Give page time to start lazy loading BEFORE checking for spinners
+					try {
+						Thread.sleep(5000); // 5 seconds - use Thread.sleep directly
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
 					}
 					
 					// Wait for spinner to disappear after scrolling
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
+					
+					// EXTENDED wait for new profiles to fully render
+					try {
+						Thread.sleep(4000); // 4 seconds - use Thread.sleep directly
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+					PerformanceUtils.waitForPageReady(driver, 10);
+					
+					// Scroll back to top to ensure info messages are in viewport
+					js.executeScript("window.scrollTo(0, 0);");
+					
+					// CRITICAL: Give page time to re-render after scroll to top
+					try {
+						Thread.sleep(3000); // 3 seconds - use Thread.sleep directly
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+					
+					// CRITICAL: Wait for spinners again after scrolling to top (new spinners may appear!)
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
+					
+					// Final wait to ensure data is fully loaded and visible
+					try {
+						Thread.sleep(3000); // 3 seconds - use Thread.sleep directly
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+					PerformanceUtils.waitForPageReady(driver, 10);
+					
+					LOGGER.info("Scroll completed");
 				}
 				
 				scrollAttempt++;
@@ -1828,48 +1884,46 @@ public class PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping extends Driv
 				LOGGER.warn("Could not extract department using Feature 28 logic: " + e.getMessage());
 			}
 			
-			// Extract Function/Subfunction from info message row (Feature 28 multi-strategy approach)
+			// Extract Function/Subfunction from info message row (ULTRA-FAST JavaScript approach)
 			try {
-				// Strategy 1: Span following-sibling approach (Feature 28)
-				try {
-					WebElement functionElement = foundProfile.findElement(
-						By.xpath(".//span[contains(text(), 'Function / Sub-function:')]/following-sibling::span | " +
-								".//div[contains(text(), 'Function / Sub-function:')]/span[2] | " +
-								".//span[contains(@class, 'font-semibold') and preceding-sibling::span[contains(text(), 'Function')]]")
-					);
-					functionSubfunction = normalizeFieldValue(functionElement.getText().trim(), "Function/Subfunction");
-				} catch (Exception e1) {
-					// Strategy 2: Text-based parsing (Feature 28 fallback)
-					String rowText = foundProfile.getText().trim();
-					String[] functionPatterns = {
-						"Function / Sub-function:",
-						"Function/Sub-function:",
-						"Function:",
-						"Sub-function:"
-					};
-					
-					for (String pattern : functionPatterns) {
-						if (rowText.contains(pattern)) {
-							String[] parts = rowText.split(pattern);
-							if (parts.length > 1) {
-								String functionPart = parts[1].trim();
-								
-								// Clean up the function part (Feature 28 approach)
-								if (functionPart.contains("Reduced match accuracy")) {
-									functionPart = functionPart.split("Reduced match accuracy")[0].trim();
-								}
-								functionPart = functionPart.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
-								
-								if (!functionPart.isEmpty()) {
-									functionSubfunction = normalizeFieldValue(functionPart, "Function/Subfunction");
-									break;
-								}
+				// ULTRA-OPTIMIZED: Use JavaScript to extract text directly without any XPath searching
+				JavascriptExecutor js = (JavascriptExecutor) driver;
+				String rowText = (String) js.executeScript("return arguments[0].textContent;", foundProfile);
+				rowText = rowText.trim();
+				
+				// Parse function from the text using known patterns
+				String[] functionPatterns = {
+					"Function / Sub-function:",
+					"Function/Sub-function:",
+					"Function:",
+					"Sub-function:"
+				};
+				
+				for (String pattern : functionPatterns) {
+					if (rowText.contains(pattern)) {
+						String[] parts = rowText.split(pattern);
+						if (parts.length > 1) {
+							String functionPart = parts[1].trim();
+							
+							// Clean up the function part
+							if (functionPart.contains("Reduced match accuracy")) {
+								functionPart = functionPart.split("Reduced match accuracy")[0].trim();
+							}
+							functionPart = functionPart.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
+							
+							if (!functionPart.isEmpty()) {
+								functionSubfunction = functionPart;
+								break;
 							}
 						}
 					}
 				}
+				
+				// Normalize the value
+				functionSubfunction = normalizeFieldValue(functionSubfunction, "Function/Subfunction");
+				
 			} catch (Exception e) {
-				LOGGER.warn("Could not extract function/subfunction using Feature 28 logic: " + e.getMessage());
+				LOGGER.warn("Could not extract function/subfunction: " + e.getMessage());
 			}
 			
 			LOGGER.info("Extracted Job Details: " + jobName + " | Code: " + jobCode + " | Grade: " + grade + " | Dept: " + department + " | Func: " + functionSubfunction);

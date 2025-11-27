@@ -285,7 +285,7 @@ public class KeepAwakeUtil {
             File backupFile = new File(BACKUP_FILE);
             
             if (!backupFile.exists()) {
-                LOGGER.warn(" Backup file not found: " + BACKUP_FILE);
+                LOGGER.debug("Backup file not found: " + BACKUP_FILE);
                 return false;
             }
             
@@ -337,11 +337,11 @@ public class KeepAwakeUtil {
                     removeModificationMarker();
                     cleanupBackupFile();
                 } else {
-                    LOGGER.warn(" Could not restore from backup - please check your power settings manually");
+                    LOGGER.debug("Could not restore from backup - please check your power settings manually");
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn(" Error during safety check: " + e.getMessage());
+            LOGGER.debug("Error during safety check: " + e.getMessage());
         }
     }
     

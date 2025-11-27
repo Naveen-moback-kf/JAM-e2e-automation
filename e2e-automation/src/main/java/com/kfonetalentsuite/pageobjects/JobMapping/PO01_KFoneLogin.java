@@ -347,11 +347,20 @@ public class PO01_KFoneLogin {
 
 			for (int retry = 1; retry <= maxRetries && !pmHeaderFound; retry++) {
 				try {
-					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(15));
-					PerformanceUtils.waitForPageReady(driver, 5);
+					// EXTENDED WAIT: Give page more time to load fully (especially for slow environments)
+					WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
+					
+					// Wait for page ready first (includes spinner wait)
+					PerformanceUtils.waitForPageReady(driver, 10);  // Increased from 5 to 10 seconds
+					
+					// Additional spinner wait to ensure all loaders are gone
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
+					
+					// Small stabilization wait after spinners disappear
+					PerformanceUtils.safeSleep(driver, 2000);
 
 					// Check if PM Header is visible
-					if (shortWait.until(ExpectedConditions.visibilityOf(PMHeader)).isDisplayed()) {
+					if (extendedWait.until(ExpectedConditions.visibilityOf(PMHeader)).isDisplayed()) {
 						pmHeaderFound = true;
 						String MainHeader = PMHeader.getText();
 						PageObjectHelper.log(LOGGER,
@@ -363,7 +372,7 @@ public class PO01_KFoneLogin {
 					if (retry < maxRetries) {
 						LOGGER.warn("Blank page detected (attempt {}/{}) - refreshing page...", retry, maxRetries);
 						driver.navigate().refresh();
-						PerformanceUtils.waitForPageReady(driver, 5); // Wait after refresh
+						PerformanceUtils.waitForPageReady(driver, 10); // Wait after refresh (increased from 5 to 10)
 					}
 				}
 			}
