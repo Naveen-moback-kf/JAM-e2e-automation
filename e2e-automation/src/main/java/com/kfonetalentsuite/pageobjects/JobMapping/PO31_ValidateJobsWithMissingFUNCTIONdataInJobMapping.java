@@ -1526,13 +1526,19 @@ public class PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping extends Driver
 			List<WebElement> infoMessageRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tr[.//div[@role='button' and contains(@aria-label, 'Reduced match accuracy')]]"));
 			int currentCount = infoMessageRows.size();
 			
+			// Debug: Log total job rows to understand the page state
+			int totalJobRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr")).size();
+			LOGGER.debug("Page state - Total job rows: {}, Info message rows: {}", totalJobRows, currentCount);
+			
 			if (scrollAttempt == 0) {
 				LOGGER.info("Batch 0 (Initial): Checking " + currentCount + " profiles with info messages");
 			} else {
 				int newProfiles = currentCount - lastCheckedIndex;
 				LOGGER.info("Batch " + scrollAttempt + " (After scroll " + scrollAttempt + "): Total=" + currentCount + ", New=" + newProfiles);
 				
-				if (newProfiles == 0) {
+				// Only stop if we've already found some profiles and no new ones appear
+				// If lastCheckedIndex == 0 (no profiles found yet), keep scrolling
+				if (newProfiles == 0 && lastCheckedIndex > 0) {
 					LOGGER.info("No new profiles loaded. Stopping search.");
 					break;
 				}
@@ -1699,17 +1705,39 @@ public class PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping extends Driver
 			if (scrollAttempt < maxScrollAttempts) {
 				LOGGER.info("No match in batch " + scrollAttempt + ". Scrolling to load next batch...");
 				
-				List<WebElement> allRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
-				if (!allRows.isEmpty()) {
-					WebElement lastRow = allRows.get(allRows.size() - 1);
-					js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", lastRow);
-					PerformanceUtils.safeSleep(driver, 1000);
-					js.executeScript("window.scrollBy(0, 500);");
-					PerformanceUtils.safeSleep(driver, 2000); // Wait for lazy loading
+				// If no profiles have been checked yet (lastCheckedIndex == 0), do FULL PAGE scroll
+				if (lastCheckedIndex == 0) {
+					LOGGER.info("No info messages found yet - performing FULL PAGE scroll to load profiles");
+					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+					PerformanceUtils.safeSleep(driver, 2000); // Wait for lazy loading to start
 					
 					// Wait for spinner to disappear after scrolling
-					wait.until(ExpectedConditions.invisibilityOfAllElements(driver.findElements(By.xpath("//div[@data-testid='loader']//img"))));
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+					
+					// Additional wait for profiles to render
+					PerformanceUtils.safeSleep(driver, 2000);
+					PerformanceUtils.waitForPageReady(driver, 5);
+					
+					// Scroll back to top to ensure info messages are in viewport
+					js.executeScript("window.scrollTo(0, 0);");
+					PerformanceUtils.safeSleep(driver, 1000);
+					
+					LOGGER.info("Full page scroll completed - checking for new profiles...");
+				} else {
+					// Normal incremental scroll when we've already found and checked some profiles
+					List<WebElement> allRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr"));
+					if (!allRows.isEmpty()) {
+						WebElement lastRow = allRows.get(allRows.size() - 1);
+						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end'});", lastRow);
+						PerformanceUtils.safeSleep(driver, 1000);
+						js.executeScript("window.scrollBy(0, 500);");
+						PerformanceUtils.safeSleep(driver, 2000); // Wait for lazy loading
+					}
+					
+					// Wait for spinner to disappear after scrolling
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 				}
+				
 				scrollAttempt++;
 			} else {
 				LOGGER.info("Reached maximum scroll attempts (" + maxScrollAttempts + "). Stopping search.");

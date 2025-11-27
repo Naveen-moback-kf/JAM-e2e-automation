@@ -22,6 +22,7 @@ Feature: Validate Jobs with Missing SUBFUNCTION Data in Job Mapping UI
   @Forward_Validate_Missing_SUBFUNCTION_Flow
   Scenario: Forward Flow - Find job with missing SUBFUNCTION in Job Mapping first, then validate in Jobs Missing Data screen
     When User is in Job Mapping page
+    Then Sort Job Profiles by Organization Grade in Ascending order
     Then Find job profile in Job Mapping page where Subfunction is missing
     And Extract SUBFUNCTION job details from found profile in Job Mapping page
     Then Click on "View & Re-upload jobs" link in Missing Data Tip Message

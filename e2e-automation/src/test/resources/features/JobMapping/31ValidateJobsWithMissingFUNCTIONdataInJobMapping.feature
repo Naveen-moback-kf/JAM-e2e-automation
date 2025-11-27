@@ -10,6 +10,7 @@ Feature: Validate Jobs with Missing FUNCTION Data in Job Mapping UI
   Scenario: Forward Flow - Find job with missing FUNCTION in Job Mapping first, then validate in Jobs Missing Data screen
     # Forward workflow: Start from Job Mapping page → find missing Function job (- | -) → navigate to Missing Data screen → validate same job exists
     When User is in Job Mapping page
+    Then Sort Job Profiles by Organization Grade in Ascending order
     Then Find job profile in Job Mapping page where Function is missing
     And Extract FUNCTION job details from found profile in Job Mapping page
     Then Click on "View & Re-upload jobs" link in Missing Data Tip Message
