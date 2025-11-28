@@ -275,11 +275,12 @@ public class PO01_KFoneLogin {
 		// PARALLEL EXECUTION FIX: Wait for button to be ready, then click
 		WebElement signInButton = wait.until(ExpectedConditions.elementToBeClickable(kfoneSigninBtn));
 		utils.jsClick(driver, signInButton);
-		
-		// PERFORMANCE FIX: After username submit, wait for PASSWORD field (not spinners!)
+
+		// PERFORMANCE FIX: After username submit, wait for PASSWORD field (not
+		// spinners!)
 		// The page transitions to password screen - no spinners appear here
 		wait.until(ExpectedConditions.elementToBeClickable(passwordTxt));
-		
+
 		PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
 	}
 
@@ -299,10 +300,10 @@ public class PO01_KFoneLogin {
 			// PARALLEL EXECUTION FIX: Disable implicit wait for quick check
 			try {
 				driver.manage().timeouts().implicitlyWait(Duration.ZERO);
-				
+
 				// OPTIMIZED: Check if proceedBtn exists before waiting (instant if not present)
 				List<WebElement> proceedButtons = driver.findElements(By.xpath("//*[text()='Proceed']"));
-				
+
 				if (!proceedButtons.isEmpty()) {
 					driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20)); // Restore for click
 					try {
@@ -319,7 +320,8 @@ public class PO01_KFoneLogin {
 				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
 			}
 
-			// PERFORMANCE: Single comprehensive wait replaces redundant spinner + page load waits
+			// PERFORMANCE: Single comprehensive wait replaces redundant spinner + page load
+			// waits
 			// This handles both spinners and page readiness in one efficient call
 			PerformanceUtils.waitForPageReady(driver, 10);
 
@@ -330,7 +332,7 @@ public class PO01_KFoneLogin {
 
 			PageObjectHelper.log(LOGGER, "Landed on KFONE Clients Page as Expected");
 			PageObjectHelper.log(LOGGER, "KFONE Landing Page Verification is Successful");
-			
+
 			// SESSION MANAGEMENT: Mark session as authenticated after successful login
 			SessionManager.markAuthenticated();
 		} catch (Exception e) {
@@ -347,15 +349,16 @@ public class PO01_KFoneLogin {
 
 			for (int retry = 1; retry <= maxRetries && !pmHeaderFound; retry++) {
 				try {
-					// EXTENDED WAIT: Give page more time to load fully (especially for slow environments)
+					// EXTENDED WAIT: Give page more time to load fully (especially for slow
+					// environments)
 					WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
-					
+
 					// Wait for page ready first (includes spinner wait)
-					PerformanceUtils.waitForPageReady(driver, 10);  // Increased from 5 to 10 seconds
-					
+					PerformanceUtils.waitForPageReady(driver, 10); // Increased from 5 to 10 seconds
+
 					// Additional spinner wait to ensure all loaders are gone
 					PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
-					
+
 					// Small stabilization wait after spinners disappear
 					PerformanceUtils.safeSleep(driver, 2000);
 
@@ -396,28 +399,28 @@ public class PO01_KFoneLogin {
 		try {
 			// Use short timeout (5 seconds) for cookies banner - if not present, move on
 			// quickly
-		WebDriverWait cookiesWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-		WebElement cookiesButton = cookiesWait.until(ExpectedConditions.elementToBeClickable(acceptAllCookies));
+			WebDriverWait cookiesWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+			WebElement cookiesButton = cookiesWait.until(ExpectedConditions.elementToBeClickable(acceptAllCookies));
 
-		// Try standard click first
-		try {
-			cookiesButton.click();
-			PageObjectHelper.log(LOGGER, "Closed Cookies Banner by clicking on Accept All button");
-			return;
-		} catch (Exception e) {
-			// If standard click fails, try JS click
+			// Try standard click first
 			try {
-				js.executeScript("arguments[0].click();", cookiesButton);
-				LOGGER.debug("Used JavaScript click for cookies banner");
+				cookiesButton.click();
 				PageObjectHelper.log(LOGGER, "Closed Cookies Banner by clicking on Accept All button");
 				return;
-			} catch (Exception jsError) {
-				// Last resort: utils.jsClick
-				utils.jsClick(driver, cookiesButton);
-				LOGGER.debug("Used utility click for cookies banner");
-				PageObjectHelper.log(LOGGER, "Closed Cookies Banner by clicking on Accept All button");
+			} catch (Exception e) {
+				// If standard click fails, try JS click
+				try {
+					js.executeScript("arguments[0].click();", cookiesButton);
+					LOGGER.debug("Used JavaScript click for cookies banner");
+					PageObjectHelper.log(LOGGER, "Closed Cookies Banner by clicking on Accept All button");
+					return;
+				} catch (Exception jsError) {
+					// Last resort: utils.jsClick
+					utils.jsClick(driver, cookiesButton);
+					LOGGER.debug("Used utility click for cookies banner");
+					PageObjectHelper.log(LOGGER, "Closed Cookies Banner by clicking on Accept All button");
+				}
 			}
-		}
 		} catch (TimeoutException e) {
 			// Cookies banner not present or already accepted - this is normal
 			PageObjectHelper.log(LOGGER, "Cookies Banner is already accepted or not present");
@@ -441,12 +444,12 @@ public class PO01_KFoneLogin {
 	public void verify_products_that_client_can_access() {
 		try {
 			String targetPamsId = CommonVariable.TARGET_PAMS_ID;
-			
+
 			// CRITICAL: Ensure we're on the clients page before proceeding
 			try {
 				String currentUrl = (String) js.executeScript("return window.location.href;");
 				LOGGER.info("📍 Verifying products on page: " + currentUrl);
-				
+
 				if (!currentUrl.contains("/client")) {
 					LOGGER.error("❌ Not on clients page! Current URL: " + currentUrl);
 					throw new RuntimeException("Cannot verify products: Not on clients page. URL: " + currentUrl);
@@ -850,7 +853,7 @@ public class PO01_KFoneLogin {
 						clientNameElement.click();
 						clientClicked = true;
 						selectedClientName = clientName;
-						
+
 						// CRITICAL FIX: Store client name in ThreadLocal for Excel reporting
 						PO01_KFoneLogin.clientName.set(clientName);
 						LOGGER.info("✅ Stored client name for Excel reporting: {}", clientName);
@@ -913,36 +916,36 @@ public class PO01_KFoneLogin {
 		try {
 			// Scroll to the Your Products section to ensure it's visible
 			js.executeScript("arguments[0].scrollIntoView(true);", yourProductsSection);
-		SmartWaits.shortWait(driver);
+			SmartWaits.shortWait(driver);
 
-		// Wait for Profile Manager application to be visible and clickable
-		wait.until(ExpectedConditions.elementToBeClickable(profileManagerInProductsSection)).isDisplayed();
-		PerformanceUtils.waitForPageReady(driver, 3);
-		PageObjectHelper.log(LOGGER, "Profile Manager application tile is visible in Your Products section");
+			// Wait for Profile Manager application to be visible and clickable
+			wait.until(ExpectedConditions.elementToBeClickable(profileManagerInProductsSection)).isDisplayed();
+			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.log(LOGGER, "Profile Manager application tile is visible in Your Products section");
 
-		// Click on Profile Manager application with fallback for frozen page
-		try {
-			wait.until(ExpectedConditions.elementToBeClickable(profileManagerInProductsSection)).click();
-		} catch (Exception e) {
-			LOGGER.warn("WebDriver click failed, trying JavaScript click: " + e.getMessage().split("\n")[0]);
+			// Click on Profile Manager application with fallback for frozen page
 			try {
-				js.executeScript("arguments[0].click();", profileManagerInProductsSection);
-			} catch (Exception je) {
-				LOGGER.warn("JavaScript click failed, trying utility click: " + je.getMessage().split("\n")[0]);
-				utils.jsClick(driver, profileManagerInProductsSection);
+				wait.until(ExpectedConditions.elementToBeClickable(profileManagerInProductsSection)).click();
+			} catch (Exception e) {
+				LOGGER.warn("WebDriver click failed, trying JavaScript click: " + e.getMessage().split("\n")[0]);
+				try {
+					js.executeScript("arguments[0].click();", profileManagerInProductsSection);
+				} catch (Exception je) {
+					LOGGER.warn("JavaScript click failed, trying utility click: " + je.getMessage().split("\n")[0]);
+					utils.jsClick(driver, profileManagerInProductsSection);
+				}
 			}
-		}
 
-		PageObjectHelper.log(LOGGER,
-				"Successfully clicked on Profile Manager application in Your Products section");
+			PageObjectHelper.log(LOGGER,
+					"Successfully clicked on Profile Manager application in Your Products section");
 
-		// Wait for navigation to complete
-		// OPTIMIZED: Single comprehensive wait (replaces spinner + pageLoad redundancy)
-		PerformanceUtils.waitForPageReady(driver, 5);
+			// Wait for navigation to complete
+			// OPTIMIZED: Single comprehensive wait (replaces spinner + pageLoad redundancy)
+			PerformanceUtils.waitForPageReady(driver, 5);
 
-		// OPTIMIZATION: Handle cookies banner immediately after navigation (with short
-		// timeout)
-		// handleCookiesBanner();
+			// OPTIMIZATION: Handle cookies banner immediately after navigation (with short
+			// timeout)
+			// handleCookiesBanner();
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_profile_manager_application_in_your_products_section",

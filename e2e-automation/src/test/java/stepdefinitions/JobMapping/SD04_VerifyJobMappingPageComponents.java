@@ -83,12 +83,6 @@ public class SD04_VerifyJobMappingPageComponents extends DriverManager{
 		verifyJobMappingPageComponents.getVerifyJobMappingPageComponents().enter_job_name_substring_in_search_bar();
 	}
 
-//	@Then("User should verify job name matching profile is displaying in first row in Organization jobs profile list")
-//	public void user_should_verify_job_name_matching_profile_is_displaying_in_first_row_in_organization_jobs_profile_list() throws Exception {
-//		verifyJobMappingPageComponents.getVerifyJobMappingPageComponents().user_should_verify_job_name_matching_profile_is_displaying_in_first_row_in_organization_jobs_profile_list();
-//	}
-	
-	
 	@Then("Click on matched profile of job in first row")
 	public void click_on_matched_profile_of_job_in_first_row() throws IOException {
 		verifyJobMappingPageComponents.getVerifyJobMappingPageComponents().click_on_matched_profile_of_job_in_first_row();

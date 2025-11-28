@@ -41,9 +41,7 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 	public static ThreadLocal<String> KFONEjobsCountBeforeAddingMoreJobs = ThreadLocal.withInitial(() -> null);
 
 	public PO02_ValidateAddMoreJobsFunctionality() throws IOException {
-		// super();
 		PageFactory.initElements(driver, this);
-		// TODO Auto-generated constructor stub
 	}
 
 	WebDriverWait wait = DriverManager.getWait();
@@ -596,9 +594,9 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 				closeBtn.click();
 			});
 
-		PageObjectHelper.log(LOGGER, "Clicked on Add more jobs Close button");
-		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-	} catch (Exception e) {
+			PageObjectHelper.log(LOGGER, "Clicked on Add more jobs Close button");
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "close_add_job_data_screen", "Issue in closing Add more jobs page", e);
 		}
 	}
@@ -609,10 +607,10 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 			Thread.sleep(120000);
 
 			driver.navigate().refresh();
-		PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
+			PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
 
-		// OPTIMIZED: Single comprehensive wait
-		PerformanceUtils.waitForPageReady(driver, 3);
+			// OPTIMIZED: Single comprehensive wait
+			PerformanceUtils.waitForPageReady(driver, 3);
 
 			String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
 			String ResultsCountAfterAddingMoreJobs = resultsCountText.split(" ")[3];
@@ -640,13 +638,13 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 
 			wait.until(ExpectedConditions.elementToBeClickable(doneBtn)).click();
 			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "click_on_done_button_in_kfone_add_job_data_page",
-				"Issue in clicking Done Button", e);
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "click_on_done_button_in_kfone_add_job_data_page",
+					"Issue in clicking Done Button", e);
+		}
 	}
-}
 
-public void user_is_in_kfone_add_job_data_page_afer_uploading_file() {
+	public void user_is_in_kfone_add_job_data_page_afer_uploading_file() {
 		PageObjectHelper.log(LOGGER, "User is in KFONE Add Job Data page after uploading file");
 	}
 

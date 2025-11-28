@@ -47,7 +47,6 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 	public static String FunctionsOption = "";
 	public static String FunctionsOption1 = "";
 	public static String FunctionsOption2 = "";
-//	public static String FunctionsOption = FunctionsOption;
 
 	// XPATHs
 	@FindBy(xpath = "//div[@data-testid='loader']//img")
@@ -117,18 +116,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			List<WebElement> GradesValues = driver.findElements(
 					By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']//..//label"));
 
-		LOGGER.info("Found {} grade options in dropdown", GradesValues.size());
+			LOGGER.info("Found {} grade options in dropdown", GradesValues.size());
 
-		if (GradesValues.isEmpty()) {
-			throw new Exception("No grade options found in dropdown");
-		}
+			if (GradesValues.isEmpty()) {
+				throw new Exception("No grade options found in dropdown");
+			}
 
-		// Dynamically select the first available option
-		int selectedIndex = 0;
+			// Dynamically select the first available option
+			int selectedIndex = 0;
 
-		WebElement targetCheckbox = GradesCheckboxes.get(selectedIndex);
-		WebElement targetLabel = GradesValues.get(selectedIndex);
-		String gradeValue = targetLabel.getText().trim();
+			WebElement targetCheckbox = GradesCheckboxes.get(selectedIndex);
+			WebElement targetLabel = GradesValues.get(selectedIndex);
+			String gradeValue = targetLabel.getText().trim();
 
 			// Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", targetCheckbox);
@@ -290,20 +289,21 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				if (resultsCountText_split.length > 3 && !resultsCountText_split[1].equals("0")) {
 					int currentShowing = Integer.parseInt(resultsCountText_split[1]);
 					int totalResults = Integer.parseInt(resultsCountText_split[3]);
-					
+
 					LOGGER.debug("Scroll attempt {}: Showing {} of {}", scrollAttempts, currentShowing, totalResults);
-					
+
 					if (currentShowing == totalResults) {
-						PageObjectHelper.log(LOGGER, "Scrolled down till last Search Result and now "
-								+ resultsCountText + " of Job Profiles as expected");
+						PageObjectHelper.log(LOGGER, "Scrolled down till last Search Result and now " + resultsCountText
+								+ " of Job Profiles as expected");
 						break;
 					}
 
-						// Check if count hasn't changed (page might be stuck)
+					// Check if count hasn't changed (page might be stuck)
 					if (currentShowing == Integer.parseInt(resultsCountText_split[1])) {
 						stableCountIterations++;
 						if (stableCountIterations >= 5) {
-							LOGGER.warn("Count unchanged after {} attempts. Current: {} of {}", stableCountIterations, currentShowing, totalResults);
+							LOGGER.warn("Count unchanged after {} attempts. Current: {} of {}", stableCountIterations,
+									currentShowing, totalResults);
 							break;
 						}
 					} else {
@@ -414,18 +414,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			List<WebElement> GradesValues = driver.findElements(
 					By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']//..//label"));
 
-		LOGGER.info("Found {} grade options for multiple selection", GradesValues.size());
+			LOGGER.info("Found {} grade options for multiple selection", GradesValues.size());
 
-		if (GradesValues.size() < 2) {
-			throw new Exception(
-					"Not enough grade options available. Need at least 2, found: " + GradesValues.size());
-		}
+			if (GradesValues.size() < 2) {
+				throw new Exception(
+						"Not enough grade options available. Need at least 2, found: " + GradesValues.size());
+			}
 
-		// Dynamically select two different options
-		int firstIndex = 0;
-		int secondIndex = Math.min(1, GradesValues.size() - 1);
+			// Dynamically select two different options
+			int firstIndex = 0;
+			int secondIndex = Math.min(1, GradesValues.size() - 1);
 
-		// Select first grade
+			// Select first grade
 			WebElement firstCheckbox = GradesCheckboxes.get(firstIndex);
 			WebElement firstLabel = GradesValues.get(firstIndex);
 			String firstGradeValue = firstLabel.getText().trim();
@@ -569,12 +569,12 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				throw new Exception("Failed to click Departments dropdown after all attempts");
 			}
 
-		// CRITICAL: Wait for dropdown to expand and any spinners to disappear
-		Thread.sleep(300);
-		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-		PerformanceUtils.waitForPageReady(driver, 1);
+			// CRITICAL: Wait for dropdown to expand and any spinners to disappear
+			Thread.sleep(300);
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PerformanceUtils.waitForPageReady(driver, 1);
 
-		PageObjectHelper.log(LOGGER, "Clicked on Departments dropdown in Filters");
+			PageObjectHelper.log(LOGGER, "Clicked on Departments dropdown in Filters");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_departments_filters_dropdown_button",
@@ -591,18 +591,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			List<WebElement> DepartmentsValues = driver.findElements(
 					By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']//..//label"));
 
-		LOGGER.info("Found {} department options in dropdown", DepartmentsValues.size());
+			LOGGER.info("Found {} department options in dropdown", DepartmentsValues.size());
 
-		if (DepartmentsValues.isEmpty()) {
-			throw new Exception("No department options found in dropdown");
-		}
+			if (DepartmentsValues.isEmpty()) {
+				throw new Exception("No department options found in dropdown");
+			}
 
-		// Dynamically select the first available option
-		int selectedIndex = 0;
+			// Dynamically select the first available option
+			int selectedIndex = 0;
 
-		WebElement targetCheckbox = DepartmentsCheckboxes.get(selectedIndex);
-		WebElement targetLabel = DepartmentsValues.get(selectedIndex);
-		String departmentValue = targetLabel.getText().trim();
+			WebElement targetCheckbox = DepartmentsCheckboxes.get(selectedIndex);
+			WebElement targetLabel = DepartmentsValues.get(selectedIndex);
+			String departmentValue = targetLabel.getText().trim();
 
 			// Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", targetCheckbox);
@@ -630,7 +630,8 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				throw new Exception("Failed to click department checkbox/label");
 			}
 
-			// CRITICAL: Wait for page to update after selection - spinner must disappear first
+			// CRITICAL: Wait for page to update after selection - spinner must disappear
+			// first
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 1);
 
@@ -696,18 +697,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			List<WebElement> DepartmentsValues = driver.findElements(
 					By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']//..//label"));
 
-		LOGGER.info("Found {} department options for multiple selection", DepartmentsValues.size());
+			LOGGER.info("Found {} department options for multiple selection", DepartmentsValues.size());
 
-		if (DepartmentsValues.size() < 2) {
-			throw new Exception(
-					"Not enough department options available. Need at least 2, found: " + DepartmentsValues.size());
-		}
+			if (DepartmentsValues.size() < 2) {
+				throw new Exception(
+						"Not enough department options available. Need at least 2, found: " + DepartmentsValues.size());
+			}
 
-		// Dynamically select two different options
-		int firstIndex = 0;
-		int secondIndex = Math.min(1, DepartmentsValues.size() - 1);
+			// Dynamically select two different options
+			int firstIndex = 0;
+			int secondIndex = Math.min(1, DepartmentsValues.size() - 1);
 
-		// Select first department
+			// Select first department
 			WebElement firstCheckbox = DepartmentsCheckboxes.get(firstIndex);
 			WebElement firstLabel = DepartmentsValues.get(firstIndex);
 			String firstDepartmentValue = firstLabel.getText().trim();
@@ -1070,7 +1071,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			utils.jsClick(driver, selectedFunctionToggle);
 			LOGGER.info("Clicked toggle to expand subfunctions for: {}", FunctionsOption);
 			Thread.sleep(800); // Wait for expansion animation
-			
+
 			// CRITICAL: Wait for spinner after toggle expansion
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 
@@ -1207,8 +1208,8 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(functionsSubFunctionsSearch)).isDisplayed());
-		PageObjectHelper.log(LOGGER, functionsSubFunctionsSearch.getAttribute("placeholder")
-				+ " is available as expected in Functions Subfunctions dropdown in Filters...");
+			PageObjectHelper.log(LOGGER, functionsSubFunctionsSearch.getAttribute("placeholder")
+					+ " is available as expected in Functions Subfunctions dropdown in Filters...");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_verify_search_bar_is_available_in_functions_subfunctions_filters_dropdown",
@@ -1226,8 +1227,8 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			// FunctionsOption should already be set from the first scenario "User filters
 			// by function and verifies all subfunctions are auto-selected"
 			if (FunctionsOption != null && !FunctionsOption.isEmpty()) {
-			PageObjectHelper.log(LOGGER,
-					"Reusing function name '" + FunctionsOption + "' from previous scenario in Feature 11C");
+				PageObjectHelper.log(LOGGER,
+						"Reusing function name '" + FunctionsOption + "' from previous scenario in Feature 11C");
 			} else {
 				// Fallback: If FunctionsOption is not set, find a function with subfunctions
 				LOGGER.warn(
@@ -1287,7 +1288,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				// Set FunctionsOption if found
 				if (selectedFunctionWithSubfunctions != null && !selectedFunctionWithSubfunctions.isEmpty()) {
 					FunctionsOption = selectedFunctionWithSubfunctions;
-				PageObjectHelper.log(LOGGER, "Selected function with subfunctions: " + FunctionsOption);
+					PageObjectHelper.log(LOGGER, "Selected function with subfunctions: " + FunctionsOption);
 				} else {
 					// Last resort: pick the first function from the list
 					if (!FunctionLabels.isEmpty()) {
@@ -1317,7 +1318,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			wait.until(ExpectedConditions.visibilityOf(functionsSubFunctionsSearch)).sendKeys(FunctionsOption);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-		PageObjectHelper.log(LOGGER, "Clicked inside Search bar and entered function name as: " + FunctionsOption);
+			PageObjectHelper.log(LOGGER, "Clicked inside Search bar and entered function name as: " + FunctionsOption);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_inside_search_bar_and_enter_function_name",
@@ -1348,7 +1349,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				js.executeScript("arguments[0].click();", toggleBtn);
 			}
 
-		PageObjectHelper.log(LOGGER, "Clicked on dropdown button of Searched Function name : " + FunctionsOption);
+			PageObjectHelper.log(LOGGER, "Clicked on dropdown button of Searched Function name : " + FunctionsOption);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_click_on_dropdown_button_of_searched_function_name",
 					"Issue in clicking on dropdown button of Searched Function name", e);
@@ -1453,10 +1454,10 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 							By.xpath("//button[contains(@data-testid,'suboption')]//..//..//div[2]//label"));
 					int subfunctionCount = subfunctions.size() > 0 ? subfunctions.size() - 1 : 0;
 
-				if (subfunctionCount > 0) {
-					FunctionsOption = functionName;
-					PageObjectHelper.log(LOGGER, "Dynamically selected Function '" + functionName + "' (has "
-							+ subfunctionCount + " subfunction(s))");
+					if (subfunctionCount > 0) {
+						FunctionsOption = functionName;
+						PageObjectHelper.log(LOGGER, "Dynamically selected Function '" + functionName + "' (has "
+								+ subfunctionCount + " subfunction(s))");
 
 						// Enter the new function name in the search bar and expand it
 						try {
@@ -1572,14 +1573,15 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 								break;
 							}
 
-						// Method 1: JavaScript click on checkbox (most reliable in headless)
-						js.executeScript("arguments[0].click();", subfunctionCheckbox);
-						Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
+							// Method 1: JavaScript click on checkbox (most reliable in headless)
+							js.executeScript("arguments[0].click();", subfunctionCheckbox);
+							Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
 
-						// PERFORMANCE: Removed redundant spinner wait - checkbox clicks don't trigger spinners
-						// Final verification already handles page readiness
+							// PERFORMANCE: Removed redundant spinner wait - checkbox clicks don't trigger
+							// spinners
+							// Final verification already handles page readiness
 
-						// Verify checkbox is now selected
+							// Verify checkbox is now selected
 							if (subfunctionCheckbox.isSelected()) {
 								clickSucceeded = true;
 							} else {
@@ -1629,8 +1631,8 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 						Assert.fail(errorMsg);
 					}
 
-				PageObjectHelper.log(LOGGER, "Selected SubFunction '" + subfunctionText
-						+ "' from Functions/SubFunctions dropdown of Function '" + FunctionsOption + "'");
+					PageObjectHelper.log(LOGGER, "Selected SubFunction '" + subfunctionText
+							+ "' from Functions/SubFunctions dropdown of Function '" + FunctionsOption + "'");
 				}
 			}
 		} catch (Exception e) {
@@ -1779,14 +1781,15 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 								break;
 							}
 
-						// Method 1: JavaScript click on checkbox (most reliable in headless)
-						js.executeScript("arguments[0].click();", subfunctionCheckbox);
-						Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
+							// Method 1: JavaScript click on checkbox (most reliable in headless)
+							js.executeScript("arguments[0].click();", subfunctionCheckbox);
+							Thread.sleep(300); // PERFORMANCE: Reduced from 500ms
 
-						// PERFORMANCE: Removed redundant spinner wait - checkbox clicks don't trigger spinners
-						// Final verification already handles page readiness
+							// PERFORMANCE: Removed redundant spinner wait - checkbox clicks don't trigger
+							// spinners
+							// Final verification already handles page readiness
 
-						// Verify checkbox is now selected
+							// Verify checkbox is now selected
 							if (subfunctionCheckbox.isSelected()) {
 								clickSucceeded = true;
 							} else {
@@ -1836,9 +1839,8 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 						Assert.fail(errorMsg);
 					}
 
-				PageObjectHelper.log(LOGGER,
-						"Selected SubFunction #" + j + ": '" + subfunctionText
-								+ "' from Functions/SubFunctions Filters dropdown of Function '" + FunctionsOption + "'");
+					PageObjectHelper.log(LOGGER, "Selected SubFunction #" + j + ": '" + subfunctionText
+							+ "' from Functions/SubFunctions Filters dropdown of Function '" + FunctionsOption + "'");
 				}
 			}
 		} catch (Exception e) {
@@ -1955,11 +1957,11 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				try {
 					js.executeScript("arguments[0].click();", mappingStatusFiltersDropdown);
 				} catch (Exception s) {
-				utils.jsClick(driver, mappingStatusFiltersDropdown);
+					utils.jsClick(driver, mappingStatusFiltersDropdown);
+				}
 			}
-		}
-		PageObjectHelper.log(LOGGER, "Clicked on Mapping Status dropdown in Filters...");
-	} catch (Exception e) {
+			PageObjectHelper.log(LOGGER, "Clicked on Mapping Status dropdown in Filters...");
+		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_mapping_status_filters_dropdown_button",
 					"Issue in clicking Mapping Status dropdown in Filters", e);
 			throw e;
@@ -1986,11 +1988,11 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				for (int i = 0; i < MappingStatusValues.size(); i++) {
 					String actualStatusText = MappingStatusValues.get(i).getText();
 
-				// If this option contains the desired status keyword
-				if (actualStatusText.contains(desiredStatus)) {
-					PageObjectHelper.log(LOGGER, "Found matching Mapping Status: " + actualStatusText);
+					// If this option contains the desired status keyword
+					if (actualStatusText.contains(desiredStatus)) {
+						PageObjectHelper.log(LOGGER, "Found matching Mapping Status: " + actualStatusText);
 
-					js.executeScript("arguments[0].scrollIntoView();", MappingStatusValues.get(i));
+						js.executeScript("arguments[0].scrollIntoView();", MappingStatusValues.get(i));
 						try {
 							wait.until(ExpectedConditions.visibilityOf(MappingStatusValues.get(i))).click();
 							PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -2007,11 +2009,11 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 								PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 								PerformanceUtils.waitForPageReady(driver, 1); // PERFORMANCE: Reduced from 3s
 							}
-					}
-					Assert.assertTrue(MappingStatusCheckboxes.get(i).isSelected());
-					DepartmentsOption = MappingStatusValues.get(i).getText().toString();
-					PageObjectHelper.log(LOGGER, "Selected Mapping Status Value: " + DepartmentsOption
-							+ " from Mapping Status Filters dropdown");
+						}
+						Assert.assertTrue(MappingStatusCheckboxes.get(i).isSelected());
+						DepartmentsOption = MappingStatusValues.get(i).getText().toString();
+						PageObjectHelper.log(LOGGER, "Selected Mapping Status Value: " + DepartmentsOption
+								+ " from Mapping Status Filters dropdown");
 						optionSelected = true;
 						break; // Exit inner loop after selecting
 					}

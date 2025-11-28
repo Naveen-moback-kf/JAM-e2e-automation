@@ -248,7 +248,7 @@ public class PO12_ValidatePersistanceOfFilters {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
-			
+
 		}
 		PerformanceUtils.waitForPageReady(driver, 2);
 

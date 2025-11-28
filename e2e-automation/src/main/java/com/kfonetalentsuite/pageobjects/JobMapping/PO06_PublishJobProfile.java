@@ -319,7 +319,7 @@ public class PO06_PublishJobProfile {
 			// PERFORMANCE: Single wait for tab to be clickable
 			WebElement hcmTab = wait.until(ExpectedConditions.elementToBeClickable(HCMSyncProfilesTabinPM));
 			Assert.assertTrue(hcmTab.isDisplayed(), "HCM Sync Profiles tab should be visible");
-			
+
 			// Click with fallback strategies
 			try {
 				hcmTab.click();
@@ -330,7 +330,7 @@ public class PO06_PublishJobProfile {
 					utils.jsClick(driver, HCMSyncProfilesTabinPM);
 				}
 			}
-			
+
 			// PERFORMANCE: Single comprehensive wait for page transition
 			PerformanceUtils.waitForPageReady(driver, 5);
 			WebElement hcmHeader = wait.until(ExpectedConditions.visibilityOf(HCMSyncProfilesHeader));
@@ -349,19 +349,20 @@ public class PO06_PublishJobProfile {
 		try {
 			// Validate that job name is available
 			if (job1OrgName.get() == null || job1OrgName.get().isEmpty()) {
-				throw new IllegalStateException("Job name (job1OrgName) is not set. Ensure the job was published in a previous step.");
+				throw new IllegalStateException(
+						"Job name (job1OrgName) is not set. Ensure the job was published in a previous step.");
 			}
-			
+
 			// PERFORMANCE: Single wait to get search element
 			WebElement searchBox = wait.until(ExpectedConditions.visibilityOf(ProfilesSearch));
 			Assert.assertTrue(searchBox.isDisplayed(), "Profiles search box should be visible");
-			
+
 			// Perform search
 			String searchTerm = job1OrgName.get().split("-", 2)[0].trim();
 			searchBox.clear();
 			searchBox.sendKeys(searchTerm);
 			searchBox.sendKeys(Keys.ENTER);
-			
+
 			// PERFORMANCE: Comprehensive wait for search results
 			PerformanceUtils.waitForPageReady(driver, 5);
 			PageObjectHelper.log(LOGGER, "Searched for job: " + searchTerm + " in HCM Sync Profiles");
@@ -375,11 +376,12 @@ public class PO06_PublishJobProfile {
 		try {
 			// Validate that job name is available
 			if (job1OrgName.get() == null || job1OrgName.get().isEmpty()) {
-				throw new IllegalStateException("Job name (job1OrgName) is not set. Ensure the job was published in a previous step.");
+				throw new IllegalStateException(
+						"Job name (job1OrgName) is not set. Ensure the job was published in a previous step.");
 			}
-			
+
 			String expectedJobName = job1OrgName.get();
-			
+
 			// Wait for spinner and page ready
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner1));
 			PerformanceUtils.waitForPageReady(driver, 2);
@@ -424,8 +426,7 @@ public class PO06_PublishJobProfile {
 					LOGGER.warn("Could not find 'no profiles' message");
 				}
 
-				Assert.fail(
-						"Published job '" + expectedJobName + "' not found in HCM Sync Profiles after 10 seconds");
+				Assert.fail("Published job '" + expectedJobName + "' not found in HCM Sync Profiles after 10 seconds");
 			}
 
 			// Verify the job name matches
@@ -471,7 +472,8 @@ public class PO06_PublishJobProfile {
 
 	public void user_should_verify_sp_details_page_opens_on_click_of_published_job_name() {
 		try {
-			// PERFORMANCE: Direct click on job name - previous step already ensured page is ready
+			// PERFORMANCE: Direct click on job name - previous step already ensured page is
+			// ready
 			WebElement jobLink = wait.until(ExpectedConditions.elementToBeClickable(HCMSyncProfilesJobinRow1));
 			try {
 				jobLink.click();
@@ -483,7 +485,7 @@ public class PO06_PublishJobProfile {
 				}
 			}
 			PageObjectHelper.log(LOGGER, "Clicked Published Job (Org: " + job1OrgName.get() + ") in HCM Sync Profiles");
-			
+
 			// PERFORMANCE: Comprehensive wait for SP details page to load
 			PerformanceUtils.waitForPageReady(driver, 5);
 			WebElement spDetailsText = wait.until(ExpectedConditions.visibilityOf(SPdetailsPageText));
@@ -502,11 +504,11 @@ public class PO06_PublishJobProfile {
 			// This prevents the menu click from being delayed by active loading indicators
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 5);
-			
+
 			// Scroll menu button into view and wait for it to be ready
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", KfoneMenu);
 			PerformanceUtils.waitForElement(driver, KfoneMenu, 3);
-			
+
 			// Click with fallback strategies
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(KfoneMenu)).click();
@@ -520,7 +522,7 @@ public class PO06_PublishJobProfile {
 			}
 
 			PageObjectHelper.log(LOGGER, "Clicked KFONE Global Menu in Job Mapping UI");
-			
+
 			// Wait for page to stabilize after click
 			PerformanceUtils.waitForPageReady(driver, 2);
 		} catch (Exception e) {
@@ -534,25 +536,26 @@ public class PO06_PublishJobProfile {
 			// Wait for spinners and page to be ready after menu opens
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 3);
-			
+
 			// Extended wait with polling for Profile Manager button
 			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
 			extendedWait.pollingEvery(java.time.Duration.ofMillis(200));
-			
+
 			// Wait for button visibility
-			WebElement pmBtn = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(
-				By.xpath("//span[@aria-label='Profile Manager']")));
-			
+			WebElement pmBtn = extendedWait.until(
+					ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@aria-label='Profile Manager']")));
+
 			// Scroll into view
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center', inline: 'center'});", pmBtn);
-			
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center', inline: 'center'});",
+					pmBtn);
+
 			// Wait for clickability
 			pmBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(pmBtn));
-			
+
 			Assert.assertTrue(pmBtn.isDisplayed(), "Profile Manager button not visible in menu");
 			String applicationNameText = pmBtn.getAttribute("aria-label");
 			PageObjectHelper.log(LOGGER, applicationNameText + " application is displaying in KFONE Global Menu");
-			
+
 			// Click with fallback strategies
 			try {
 				pmBtn.click();
@@ -564,8 +567,9 @@ public class PO06_PublishJobProfile {
 					utils.jsClick(driver, pmBtn);
 				}
 			}
-			
-			PageObjectHelper.log(LOGGER, "Successfully clicked Profile Manager application button in KFONE Global Menu");
+
+			PageObjectHelper.log(LOGGER,
+					"Successfully clicked Profile Manager application button in KFONE Global Menu");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_profile_manager_application_button_in_kfone_global_menu",
 					"Issue clicking Profile Manager application button", e);
@@ -591,26 +595,26 @@ public class PO06_PublishJobProfile {
 			// Wait for spinners and page to be ready after menu opens
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 3);
-			
+
 			// Extended wait with polling for Architect button
 			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(30));
 			extendedWait.pollingEvery(java.time.Duration.ofMillis(200));
-			
+
 			// Wait for button visibility
-			WebElement architectBtn = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(
-				By.xpath("//span[@aria-label='Architect']")));
-			
+			WebElement architectBtn = extendedWait
+					.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@aria-label='Architect']")));
+
 			// Scroll into view
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", architectBtn);
 			PerformanceUtils.waitForElement(driver, architectBtn, 2);
-			
+
 			// Wait for clickability
 			architectBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(architectBtn));
-			
+
 			Assert.assertTrue(architectBtn.isDisplayed(), "Architect button not visible in menu");
 			String applicationNameText = architectBtn.getAttribute("aria-label");
 			PageObjectHelper.log(LOGGER, applicationNameText + " application is displaying in KFONE Global Menu");
-			
+
 			// Click with fallback strategies
 			try {
 				architectBtn.click();
@@ -622,7 +626,7 @@ public class PO06_PublishJobProfile {
 					utils.jsClick(driver, architectBtn);
 				}
 			}
-			
+
 			PageObjectHelper.log(LOGGER, "Successfully clicked Architect application button in KFONE Global Menu");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_architect_application_button_in_kfone_global_menu",
@@ -644,8 +648,9 @@ public class PO06_PublishJobProfile {
 	public void user_should_navigate_to_jobs_page_in_architect() {
 		try {
 			// PERFORMANCE: Single wait for Jobs element to be clickable
-			WebElement jobsElement = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[text()='Jobs']")));
-			
+			WebElement jobsElement = wait
+					.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[text()='Jobs']")));
+
 			// Scroll into view and click with fallback strategies
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", jobsElement);
 			try {
@@ -660,10 +665,10 @@ public class PO06_PublishJobProfile {
 
 			// PERFORMANCE: Single comprehensive wait for page transition
 			PerformanceUtils.waitForPageReady(driver, 5);
-			
+
 			// Verify navigation succeeded
-			WebElement jobsHeader = wait.until(ExpectedConditions.visibilityOf(
-					driver.findElement(By.xpath("//span[text()='Jobs']"))));
+			WebElement jobsHeader = wait
+					.until(ExpectedConditions.visibilityOf(driver.findElement(By.xpath("//span[text()='Jobs']"))));
 			Assert.assertEquals("Jobs", jobsHeader.getText(), "Jobs header text mismatch");
 
 			PageObjectHelper.log(LOGGER, "Navigated to Jobs page in Architect");
@@ -679,19 +684,20 @@ public class PO06_PublishJobProfile {
 		try {
 			// Validate that job name is available
 			if (job1OrgName.get() == null || job1OrgName.get().isEmpty()) {
-				throw new IllegalStateException("Job name (job1OrgName) is not set. Ensure the job was published in a previous step.");
+				throw new IllegalStateException(
+						"Job name (job1OrgName) is not set. Ensure the job was published in a previous step.");
 			}
-			
+
 			// PERFORMANCE: Single wait to get search element
 			WebElement searchBox = wait.until(ExpectedConditions.visibilityOf(ProfilesSearch));
 			Assert.assertTrue(searchBox.isDisplayed(), "Profiles search box should be visible");
-			
+
 			// Perform search
 			String searchTerm = job1OrgName.get().split("-", 2)[0].trim();
 			searchBox.clear();
 			searchBox.sendKeys(searchTerm);
 			searchBox.sendKeys(Keys.ENTER);
-			
+
 			// PERFORMANCE: Comprehensive wait for search results
 			PerformanceUtils.waitForPageReady(driver, 5);
 			PageObjectHelper.log(LOGGER, "Searched for job: " + searchTerm + " in Jobs page in Architect");
@@ -705,11 +711,12 @@ public class PO06_PublishJobProfile {
 		try {
 			// Validate that job name is available
 			if (job1OrgName.get() == null || job1OrgName.get().isEmpty()) {
-				throw new IllegalStateException("Job name (job1OrgName) is not set. Ensure the job was published in a previous step.");
+				throw new IllegalStateException(
+						"Job name (job1OrgName) is not set. Ensure the job was published in a previous step.");
 			}
-			
+
 			String expectedJobName = job1OrgName.get();
-			
+
 			// PERFORMANCE: Single wait for job element to be visible
 			WebElement jobElement = wait.until(ExpectedConditions.visibilityOf(ArchitectJobinRow1));
 			String job1NameText = jobElement.getText();
@@ -752,6 +759,3 @@ public class PO06_PublishJobProfile {
 		}
 	}
 }
-
-
-

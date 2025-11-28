@@ -22,11 +22,11 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO37_ValidateSelectAndPublishLoadedProfiles_JAM {
-	
-	WebDriver driver = DriverManager.getDriver();	
+
+	WebDriver driver = DriverManager.getDriver();
 
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
-	
+
 	public PO37_ValidateSelectAndPublishLoadedProfiles_JAM() throws IOException {
 		PageFactory.initElements(driver, this);
 	}
@@ -34,124 +34,137 @@ public class PO37_ValidateSelectAndPublishLoadedProfiles_JAM {
 	WebDriverWait wait = DriverManager.getWait();
 	Utilities utils = new Utilities();
 	JavascriptExecutor js = (JavascriptExecutor) driver;
-	
-	//XPATHs
+
+	// XPATHs
 	@FindBy(xpath = "//*[@class='blocking-loader']//img")
 	@CacheLookup
 	WebElement pageLoadSpinner1;
-	
+
 	@FindBy(xpath = "//div[@data-testid='loader']//img")
 	@CacheLookup
 	WebElement pageLoadSpinner2;
-	
+
 	@FindBy(xpath = "//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]")
 	@CacheLookup
 	public WebElement showingJobResultsCount;
-	
+
 	/**
-	 * Verifies that profiles loaded after clicking the header checkbox are NOT selected in Job Mapping Screen.
+	 * Verifies that profiles loaded after clicking the header checkbox are NOT
+	 * selected in Job Mapping Screen.
 	 * 
-	 * Expected Flow (similar to Feature 33 for HCM Sync Profiles):
-	 * 1. Loaded Profiles on screen (BEFORE Header checkbox is clicked): 100 profiles
-	 * 2. Header checkbox is clicked  Selects all 100 profiles (typically all are selectable in Job Mapping)
-	 * 3. User scrolls  Loads 50 MORE profiles (Total now = 150)
-	 * 4. These 50 newly loaded profiles should NOT be selected
+	 * Expected Flow (similar to Feature 33 for HCM Sync Profiles): 1. Loaded
+	 * Profiles on screen (BEFORE Header checkbox is clicked): 100 profiles 2.
+	 * Header checkbox is clicked Selects all 100 profiles (typically all are
+	 * selectable in Job Mapping) 3. User scrolls Loads 50 MORE profiles (Total now
+	 * = 150) 4. These 50 newly loaded profiles should NOT be selected
 	 * 
-	 * Implementation:
-	 * - Uses stored values from PO04 (loadedProfilesBeforeHeaderCheckboxClick, selectedProfilesAfterHeaderCheckboxClick, disabledProfilesCountInLoadedProfiles)
-	 * - Counts TOTAL profiles currently in DOM
-	 * - Calculates newly loaded = Total - Loaded Before
-	 * - Verifies newly loaded profiles are UNSELECTED
+	 * Implementation: - Uses stored values from PO04
+	 * (loadedProfilesBeforeHeaderCheckboxClick,
+	 * selectedProfilesAfterHeaderCheckboxClick,
+	 * disabledProfilesCountInLoadedProfiles) - Counts TOTAL profiles currently in
+	 * DOM - Calculates newly loaded = Total - Loaded Before - Verifies newly loaded
+	 * profiles are UNSELECTED
 	 * 
-	 * This validates that the "header checkbox select" only selects currently LOADED profiles,
-	 * not profiles that load later via lazy loading/scrolling.
+	 * This validates that the "header checkbox select" only selects currently
+	 * LOADED profiles, not profiles that load later via lazy loading/scrolling.
 	 */
-public void verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen() {
-	int loadedProfilesBeforeHeaderCheckboxClick = PO04_VerifyJobMappingPageComponents.loadedProfilesBeforeHeaderCheckboxClick.get();
-	int selectedProfilesAfterHeaderCheckboxClick = PO04_VerifyJobMappingPageComponents.selectedProfilesAfterHeaderCheckboxClick.get();
-	int disabledProfilesInLoadedProfiles = PO04_VerifyJobMappingPageComponents.disabledProfilesCountInLoadedProfiles.get();
-	int totalProfilesCurrentlyLoaded = 0;
+	public void verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen() {
+		int loadedProfilesBeforeHeaderCheckboxClick = PO04_VerifyJobMappingPageComponents.loadedProfilesBeforeHeaderCheckboxClick
+				.get();
+		int selectedProfilesAfterHeaderCheckboxClick = PO04_VerifyJobMappingPageComponents.selectedProfilesAfterHeaderCheckboxClick
+				.get();
+		int disabledProfilesInLoadedProfiles = PO04_VerifyJobMappingPageComponents.disabledProfilesCountInLoadedProfiles
+				.get();
+		int totalProfilesCurrentlyLoaded = 0;
 		int newlyLoadedProfilesAfterScrolling = 0;
 		int unselectedProfilesCount = 0;
 		int disabledInNewlyLoadedProfiles = 0;
-		
+
 		try {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			
-			// Step 1: Count TOTAL profiles currently in DOM (includes newly loaded after scrolling)
-			totalProfilesCurrentlyLoaded = driver.findElements(
-				By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input")
-			).size();
-			
+
+			// Step 1: Count TOTAL profiles currently in DOM (includes newly loaded after
+			// scrolling)
+			totalProfilesCurrentlyLoaded = driver
+					.findElements(By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input")).size();
+
 			LOGGER.info("Total Profiles Currently loaded on screen: " + totalProfilesCurrentlyLoaded);
-			
+
 			// Step 2: Calculate newly loaded profiles
 			newlyLoadedProfilesAfterScrolling = totalProfilesCurrentlyLoaded - loadedProfilesBeforeHeaderCheckboxClick;
-			
+
 			if (newlyLoadedProfilesAfterScrolling <= 0) {
 				LOGGER.warn(" No newly loaded profiles detected after scrolling");
-				LOGGER.warn("   Total profiles: " + totalProfilesCurrentlyLoaded + ", Loaded before checkbox: " + loadedProfilesBeforeHeaderCheckboxClick);
+				LOGGER.warn("   Total profiles: " + totalProfilesCurrentlyLoaded + ", Loaded before checkbox: "
+						+ loadedProfilesBeforeHeaderCheckboxClick);
 				ExtentCucumberAdapter.addTestStepLog(" No newly loaded profiles to verify");
 				return;
 			}
-			
+
 			LOGGER.info("========================================");
 			LOGGER.info("PROFILE COUNTS SUMMARY");
 			LOGGER.info("========================================");
-			LOGGER.info("Loaded Profiles on screen (BEFORE Header checkbox clicked): " + loadedProfilesBeforeHeaderCheckboxClick);
-			LOGGER.info("Selected Profiles (When header checkbox clicked): " + selectedProfilesAfterHeaderCheckboxClick);
-			LOGGER.info("Disabled profiles (cannot be selected) in loaded profiles: " + disabledProfilesInLoadedProfiles);
-			LOGGER.info("Newly Loaded Profiles on screen (AFTER Header checkbox clicked): " + newlyLoadedProfilesAfterScrolling);
+			LOGGER.info("Loaded Profiles on screen (BEFORE Header checkbox clicked): "
+					+ loadedProfilesBeforeHeaderCheckboxClick);
+			LOGGER.info(
+					"Selected Profiles (When header checkbox clicked): " + selectedProfilesAfterHeaderCheckboxClick);
+			LOGGER.info(
+					"Disabled profiles (cannot be selected) in loaded profiles: " + disabledProfilesInLoadedProfiles);
+			LOGGER.info("Newly Loaded Profiles on screen (AFTER Header checkbox clicked): "
+					+ newlyLoadedProfilesAfterScrolling);
 			LOGGER.info("Total Profiles Currently loaded on screen: " + totalProfilesCurrentlyLoaded);
 			LOGGER.info("========================================");
-			
-			ExtentCucumberAdapter.addTestStepLog("Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
-			
+
+			ExtentCucumberAdapter.addTestStepLog(
+					"Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
+
 			// Step 3: Get all checkboxes and verify newly loaded ones are NOT selected
-			// Get all checkbox elements directly (not by row position, as some rows don't have checkboxes)
-			var allCheckboxes = driver.findElements(
-				By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input")
-			);
-			
-			// Verify checkboxes from index loadedProfilesBeforeHeaderCheckboxClick onwards (newly loaded profiles)
+			// Get all checkbox elements directly (not by row position, as some rows don't
+			// have checkboxes)
+			var allCheckboxes = driver
+					.findElements(By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input"));
+
+			// Verify checkboxes from index loadedProfilesBeforeHeaderCheckboxClick onwards
+			// (newly loaded profiles)
 			for (int i = loadedProfilesBeforeHeaderCheckboxClick; i < allCheckboxes.size(); i++) {
 				try {
 					WebElement checkbox = allCheckboxes.get(i);
-					
+
 					// Scroll to element to ensure it's visible
 					js.executeScript("arguments[0].scrollIntoView(true);", checkbox);
-					
+
 					// Check if checkbox is disabled
 					boolean isDisabled = !checkbox.isEnabled();
-					
+
 					// Count disabled profiles in newly loaded profiles
 					if (isDisabled) {
 						disabledInNewlyLoadedProfiles++;
-						LOGGER.debug("Newly loaded profile at index " + (i+1) + " is disabled");
+						LOGGER.debug("Newly loaded profile at index " + (i + 1) + " is disabled");
 						continue;
 					}
-					
+
 					// Check if profile is selected by examining the parent <tr> class
 					// Selected: tr class = "bg-blue-50 h-24"
 					// Unselected: tr class = "bg-white h-24"
 					WebElement parentTr = checkbox.findElement(By.xpath("./ancestor::tr"));
 					String trClass = parentTr.getAttribute("class");
 					boolean isSelected = trClass != null && trClass.contains("bg-blue-50");
-					
+
 					// Verify that newly loaded profile is NOT selected
 					if (!isSelected) {
 						unselectedProfilesCount++;
 					} else {
-						LOGGER.warn(" Newly loaded profile at index " + (i+1) + " is SELECTED (tr class: " + trClass + ", should be unselected!)");
+						LOGGER.warn(" Newly loaded profile at index " + (i + 1) + " is SELECTED (tr class: " + trClass
+								+ ", should be unselected!)");
 					}
-					
+
 				} catch (Exception e) {
-					LOGGER.debug("Could not verify profile at index " + (i+1) + ": " + e.getMessage());
+					LOGGER.debug("Could not verify profile at index " + (i + 1) + ": " + e.getMessage());
 					continue;
 				}
 			}
-			
+
 			// Step 4: Validate results
 			LOGGER.info("========================================");
 			LOGGER.info("VALIDATION RESULTS");
@@ -161,27 +174,35 @@ public void verify_profiles_loaded_after_clicking_header_checkbox_are_not_select
 			LOGGER.info("Unselected Profiles (From newly loaded profiles): " + unselectedProfilesCount);
 			LOGGER.info("Expected unselected: " + (newlyLoadedProfilesAfterScrolling - disabledInNewlyLoadedProfiles));
 			LOGGER.info("========================================");
-			
-			// Validation logic: All newly loaded profiles (excluding disabled) should be unselected
+
+			// Validation logic: All newly loaded profiles (excluding disabled) should be
+			// unselected
 			int expectedUnselected = newlyLoadedProfilesAfterScrolling - disabledInNewlyLoadedProfiles;
-			
+
 			if (unselectedProfilesCount >= expectedUnselected) {
-				LOGGER.info(" VALIDATION PASSED: All " + unselectedProfilesCount + " newly loaded profiles are correctly unselected");
-				ExtentCucumberAdapter.addTestStepLog(" Validation PASSED: " + unselectedProfilesCount + " newly loaded profiles are NOT selected (as expected)");
+				LOGGER.info(" VALIDATION PASSED: All " + unselectedProfilesCount
+						+ " newly loaded profiles are correctly unselected");
+				ExtentCucumberAdapter.addTestStepLog(" Validation PASSED: " + unselectedProfilesCount
+						+ " newly loaded profiles are NOT selected (as expected)");
 			} else {
 				int missingUnselected = expectedUnselected - unselectedProfilesCount;
-				LOGGER.error(" VALIDATION FAILED: Expected " + expectedUnselected + " unselected, but found only " + unselectedProfilesCount);
+				LOGGER.error(" VALIDATION FAILED: Expected " + expectedUnselected + " unselected, but found only "
+						+ unselectedProfilesCount);
 				LOGGER.error("    " + missingUnselected + " newly loaded profiles are unexpectedly SELECTED");
-				ExtentCucumberAdapter.addTestStepLog(" Validation FAILED: " + missingUnselected + " newly loaded profiles are unexpectedly selected");
-				Assert.fail("Validation FAILED: " + missingUnselected + " newly loaded profiles are selected (should be unselected)");
+				ExtentCucumberAdapter.addTestStepLog(" Validation FAILED: " + missingUnselected
+						+ " newly loaded profiles are unexpectedly selected");
+				Assert.fail("Validation FAILED: " + missingUnselected
+						+ " newly loaded profiles are selected (should be unselected)");
 			}
-			
+
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen", e);
-			LOGGER.error("Error verifying newly loaded profiles - Method: verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen", e);
+			ScreenshotHandler.captureFailureScreenshot(
+					"verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen", e);
+			LOGGER.error(
+					"Error verifying newly loaded profiles - Method: verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen",
+					e);
 			ExtentCucumberAdapter.addTestStepLog(" Error verifying newly loaded profiles are not selected");
 			Assert.fail("Error verifying newly loaded profiles are not selected: " + e.getMessage());
 		}
 	}
 }
-

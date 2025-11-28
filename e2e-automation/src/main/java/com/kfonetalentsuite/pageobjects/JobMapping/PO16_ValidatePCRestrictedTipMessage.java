@@ -32,9 +32,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 	PO16_ValidatePCRestrictedTipMessage validatePCRestrictedTipMessage;
 
 	public PO16_ValidatePCRestrictedTipMessage() throws IOException {
-		// super();
 		PageFactory.initElements(driver, this);
-		// TODO Auto-generated constructor stub
 	}
 
 	WebDriverWait wait = DriverManager.getWait();
@@ -281,52 +279,53 @@ public class PO16_ValidatePCRestrictedTipMessage {
 	public void navigate_to_system_configuration_page_from_kfone_global_menu() {
 		try {
 			int maxRetries = 2;
-			
+
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
 					LOGGER.info("Navigation attempt {}/{}", attempt, maxRetries);
-					
+
 					// Wait for any spinners to disappear before proceeding
 					PerformanceUtils.waitForSpinnersToDisappear(driver, 8);
 					PerformanceUtils.waitForPageReady(driver, 2);
-					
-				LOGGER.info("Clicking KFONE Global Menu...");
-				ExtentCucumberAdapter.addTestStepLog("Clicking KFONE Global Menu...");
 
-				// Click on KFONE Global Menu button - use By locator to avoid stale element
-				By kfoneMenuLocator = By.xpath("//button[@id='global-nav-menu-btn']");
-				WebElement menuButton = wait.until(ExpectedConditions.elementToBeClickable(kfoneMenuLocator));
-				
-				try {
-					menuButton.click();
-					LOGGER.info("Clicked KFONE Global Menu button using regular click");
-				} catch (Exception e) {
-					// Re-find fresh element for JS click
-					menuButton = wait.until(ExpectedConditions.elementToBeClickable(kfoneMenuLocator));
-					js.executeScript("arguments[0].click();", menuButton);
-					LOGGER.info("Clicked KFONE Global Menu button using JavaScript");
-				}
+					LOGGER.info("Clicking KFONE Global Menu...");
+					ExtentCucumberAdapter.addTestStepLog("Clicking KFONE Global Menu...");
 
-				ExtentCucumberAdapter.addTestStepLog("Successfully clicked KFONE Global Menu");
+					// Click on KFONE Global Menu button - use By locator to avoid stale element
+					By kfoneMenuLocator = By.xpath("//button[@id='global-nav-menu-btn']");
+					WebElement menuButton = wait.until(ExpectedConditions.elementToBeClickable(kfoneMenuLocator));
 
-				PerformanceUtils.waitForUIStability(driver, 1);
+					try {
+						menuButton.click();
+						LOGGER.info("Clicked KFONE Global Menu button using regular click");
+					} catch (Exception e) {
+						// Re-find fresh element for JS click
+						menuButton = wait.until(ExpectedConditions.elementToBeClickable(kfoneMenuLocator));
+						js.executeScript("arguments[0].click();", menuButton);
+						LOGGER.info("Clicked KFONE Global Menu button using JavaScript");
+					}
 
-				LOGGER.info("Clicking User Access button in KFONE menu...");
-				ExtentCucumberAdapter.addTestStepLog("Clicking User Access button in KFONE menu...");
+					ExtentCucumberAdapter.addTestStepLog("Successfully clicked KFONE Global Menu");
 
-				// Click on User Access button - use By locator to avoid stale element
-				By userAccessLocator = By.xpath("//button[@aria-label='User Access']");
-				WebElement userAccessButton = wait.until(ExpectedConditions.elementToBeClickable(userAccessLocator));
-				
-				try {
-					userAccessButton.click();
-					LOGGER.info("Clicked User Access button using regular click");
-				} catch (Exception e) {
-					// Re-find fresh element for JS click
-					userAccessButton = wait.until(ExpectedConditions.elementToBeClickable(userAccessLocator));
-					js.executeScript("arguments[0].click();", userAccessButton);
-					LOGGER.info("Clicked User Access button using JavaScript");
-				}
+					PerformanceUtils.waitForUIStability(driver, 1);
+
+					LOGGER.info("Clicking User Access button in KFONE menu...");
+					ExtentCucumberAdapter.addTestStepLog("Clicking User Access button in KFONE menu...");
+
+					// Click on User Access button - use By locator to avoid stale element
+					By userAccessLocator = By.xpath("//button[@aria-label='User Access']");
+					WebElement userAccessButton = wait
+							.until(ExpectedConditions.elementToBeClickable(userAccessLocator));
+
+					try {
+						userAccessButton.click();
+						LOGGER.info("Clicked User Access button using regular click");
+					} catch (Exception e) {
+						// Re-find fresh element for JS click
+						userAccessButton = wait.until(ExpectedConditions.elementToBeClickable(userAccessLocator));
+						js.executeScript("arguments[0].click();", userAccessButton);
+						LOGGER.info("Clicked User Access button using JavaScript");
+					}
 
 					ExtentCucumberAdapter.addTestStepLog("Successfully clicked User Access button in KFONE menu");
 
@@ -338,10 +337,11 @@ public class PO16_ValidatePCRestrictedTipMessage {
 					wait.until(ExpectedConditions.visibilityOf(UAMbutton));
 					if (UAMbutton.isDisplayed()) {
 						LOGGER.info("User landed on the SYSTEM CONFIGURATION page successfully");
-						ExtentCucumberAdapter.addTestStepLog("User landed on the SYSTEM CONFIGURATION page successfully");
+						ExtentCucumberAdapter
+								.addTestStepLog("User landed on the SYSTEM CONFIGURATION page successfully");
 						return; // Success, exit method
 					}
-					
+
 				} catch (Exception retryEx) {
 					if (attempt < maxRetries) {
 						LOGGER.warn("Navigation failed on attempt {}/{} - refreshing page...", attempt, maxRetries);
@@ -349,7 +349,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 						PerformanceUtils.waitForSpinnersToDisappear(driver, 20);
 						PerformanceUtils.waitForPageReady(driver, 5);
 						PerformanceUtils.waitForUIStability(driver, 3);
-						
+
 						// Add explicit sleep to ensure page is fully interactive
 						try {
 							Thread.sleep(5000);
@@ -362,9 +362,10 @@ public class PO16_ValidatePCRestrictedTipMessage {
 					}
 				}
 			}
-			
+
 			// If we reach here, all attempts failed
-			throw new RuntimeException("Failed to navigate to System Configuration page after " + maxRetries + " attempts");
+			throw new RuntimeException(
+					"Failed to navigate to System Configuration page after " + maxRetries + " attempts");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "navigate_to_system_configuration_page_from_kfone_global_menu",
@@ -1301,23 +1302,23 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 3);
-			
+
 			// Click three dots menu
 			wait.until(ExpectedConditions.elementToBeClickable(topRowThreeDots)).click();
 			PerformanceUtils.waitForUIStability(driver, 2);
-			
+
 			// Re-find Delete button after menu opens to avoid stale element
-			WebElement deleteButton = wait.until(ExpectedConditions.elementToBeClickable(
-				By.xpath("//div[@class='item-top-row']//*[contains(text(),'Delete')]")));
+			WebElement deleteButton = wait.until(ExpectedConditions
+					.elementToBeClickable(By.xpath("//div[@class='item-top-row']//*[contains(text(),'Delete')]")));
 			deleteButton.click();
 			PerformanceUtils.waitForUIStability(driver, 2);
-			
+
 			// Re-find Confirm Delete button
 			WebElement confirmButton = wait.until(ExpectedConditions.elementToBeClickable(deleteConfirmbtn));
 			confirmButton.click();
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 3);
-			
+
 			String text = wait.until(ExpectedConditions.visibilityOf(deletionSuccessPopup)).getText();
 			LOGGER.info(text);
 			ExtentCucumberAdapter.addTestStepLog(text);
@@ -1333,17 +1334,17 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			wait.until(ExpectedConditions.visibilityOf(teamsPageSearchbar)).sendKeys(teamName.get());
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 3);
-			
+
 			// Click three dots menu
 			wait.until(ExpectedConditions.elementToBeClickable(topRowThreeDots)).click();
 			PerformanceUtils.waitForUIStability(driver, 2);
-			
+
 			// Re-find Delete button after menu opens to avoid stale element
-			WebElement deleteButton = wait.until(ExpectedConditions.elementToBeClickable(
-				By.xpath("//div[@class='item-top-row']//*[contains(text(),'Delete')]")));
+			WebElement deleteButton = wait.until(ExpectedConditions
+					.elementToBeClickable(By.xpath("//div[@class='item-top-row']//*[contains(text(),'Delete')]")));
 			deleteButton.click();
 			PerformanceUtils.waitForUIStability(driver, 2);
-			
+
 			// Re-find Confirm Delete button
 			WebElement confirmButton = wait.until(ExpectedConditions.elementToBeClickable(deleteConfirmbtn));
 			confirmButton.click();

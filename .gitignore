@@ -1,10 +1,52 @@
-# Eclipse workspace metadata
-.metadata/
+# ========================================
+# Job Mapping - Git Ignore Configuration
+# ========================================
+
+# Build Outputs
+e2e-automation/target/
+e2e-automation/bin/
+
+# Test Outputs
+e2e-automation/test-output/
+e2e-automation/Screenshots/
+e2e-automation/ScreenshotsFailed/
+e2e-automation/Report/
+
+# Excel Reports and Backups
+e2e-automation/ExcelReports/Backup/*.xlsx
+e2e-automation/ExcelReports/Backup/Archive_*.zip
+
+# Job Catalog Backups
+e2e-automation/src/test/resources/JobCatalogBackups/*.csv
+
+# Log files
+e2e-automation/logs/
+*.log
+
+# Chrome profile directories (parallel execution)
+e2e-automation/chrome-profile-*/
+chrome-profile-*/
+
+# Configuration files with sensitive data
+e2e-automation/src/test/resources/config.properties
+
+# Power Settings Backup Files
+system_power_settings_backup.properties
+.power_settings_modified
 
 # IDE specific
 .idea/
 .vscode/
 *.iml
+.project
+.classpath
+.settings/
+.metadata/
+
+# Maven specific
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
 
 # OS specific
 .DS_Store
@@ -14,4 +56,4 @@ Thumbs.db
 *.tmp
 *.temp
 ~$*
-
+~$*.xlsx

@@ -51,334 +51,351 @@ public class PageObjectManager {
 	public PO45_ClearProfileSelectionwithNoneButton_JAM clearProfileSelectionwithNoneButton_JAM;
 	public PO46_ValidateSelectionOfUnmappedJobs_JAM validateSelectionOfUnmappedJobs_JAM;
 	public PO47_ValidateSortingFunctionalityInHCMScreen_PM validateSortingFunctionalityInHCMScreen_PM;
-	
-	
+
 	public PO01_KFoneLogin getKFoneLogin() throws IOException {
-		
-		// Singleton pattern: reuse existing instance to prevent multiple initializations
 		if (kfoneLogin == null) {
 			kfoneLogin = new PO01_KFoneLogin();
 		}
 		return kfoneLogin;
 	}
-	
+
 	public PO02_ValidateAddMoreJobsFunctionality getValidateAddMoreJobsFunctionality() throws IOException {
-		
-		validateAddMoreJobsFunctionality = new PO02_ValidateAddMoreJobsFunctionality();
+		if (validateAddMoreJobsFunctionality == null) {
+			validateAddMoreJobsFunctionality = new PO02_ValidateAddMoreJobsFunctionality();
+		}
 		return validateAddMoreJobsFunctionality;
 	}
-	
+
 	public PO03_ValidateJobmappingHeaderSection getValidateJobmappingHeaderSection() throws IOException {
-		validateJobmappingHeaderSection = new PO03_ValidateJobmappingHeaderSection();
+		if (validateJobmappingHeaderSection == null) {
+			validateJobmappingHeaderSection = new PO03_ValidateJobmappingHeaderSection();
+		}
 		return validateJobmappingHeaderSection;
 	}
-	
+
 	public PO04_VerifyJobMappingPageComponents getVerifyJobMappingPageComponents() throws IOException {
-		
-		// Singleton pattern: reuse existing instance to prevent multiple initializations
 		if (verifyJobMappingPageComponents == null) {
 			verifyJobMappingPageComponents = new PO04_VerifyJobMappingPageComponents();
 		}
 		return verifyJobMappingPageComponents;
-		
+
 	}
-	
+
 	public PO05_ValidateJobProfileDetailsPopup getValidateJobProfileDetailsPopup() throws IOException {
-		
-		validateJobProfileDetailsPopup = new PO05_ValidateJobProfileDetailsPopup();
+		if (validateJobProfileDetailsPopup == null) {
+			validateJobProfileDetailsPopup = new PO05_ValidateJobProfileDetailsPopup();
+		}
 		return validateJobProfileDetailsPopup;
 	}
-	
+
 	public PO06_PublishJobProfile getPublishJobProfile() throws IOException {
-		
-		publishJobProfile = new PO06_PublishJobProfile();
+		if (publishJobProfile == null) {
+			publishJobProfile = new PO06_PublishJobProfile();
+		}
 		return publishJobProfile;
 	}
-	
+
 	public PO07_PublishJobFromComparisonScreen getPublishJobFromComparisonScreen() throws IOException {
-		
-		publishJobFromComparisonScreen = new PO07_PublishJobFromComparisonScreen();
+		if (publishJobFromComparisonScreen == null) {
+			publishJobFromComparisonScreen = new PO07_PublishJobFromComparisonScreen();
+		}
 		return publishJobFromComparisonScreen;
 	}
-	
+
 	public PO08_PublishJobFromDetailsPopup getPublishJobFromDetailsPopup() throws IOException {
-		
-		publishJobFromDetailsPopup = new PO08_PublishJobFromDetailsPopup();
+		if (publishJobFromDetailsPopup == null) {
+			publishJobFromDetailsPopup = new PO08_PublishJobFromDetailsPopup();
+		}
 		return publishJobFromDetailsPopup;
 	}
-	
+
 	public PO09_PublishSelectedProfiles getPublishSelectedProfiles() throws IOException {
-		publishSelectedProfiles = new PO09_PublishSelectedProfiles();
+		if (publishSelectedProfiles == null) {
+			publishSelectedProfiles = new PO09_PublishSelectedProfiles();
+		}
 		return publishSelectedProfiles;
 	}
-	
+
 	public PO10_ValidateScreen1SearchResults getValidateScreen1SearchResults() throws IOException {
-		
-		validateScreen1SearchResults = new PO10_ValidateScreen1SearchResults();
+		if (validateScreen1SearchResults == null) {
+			validateScreen1SearchResults = new PO10_ValidateScreen1SearchResults();
+		}
 		return validateScreen1SearchResults;
 	}
-	
+
 	public PO11_ValidateJobMappingFiltersFunctionality getValidateJobMappingFiltersFunctionality() throws IOException {
-		
-		validateJobMappingFiltersFunctionality = new PO11_ValidateJobMappingFiltersFunctionality();
+		if (validateJobMappingFiltersFunctionality == null) {
+			validateJobMappingFiltersFunctionality = new PO11_ValidateJobMappingFiltersFunctionality();
+		}
 		return validateJobMappingFiltersFunctionality;
 	}
-	
+
 	public PO12_ValidatePersistanceOfFilters getValidatePersistanceOfFilters() throws IOException {
-		
-		validatePersistanceOfFilters = new PO12_ValidatePersistanceOfFilters();
+		if (validatePersistanceOfFilters == null) {
+			validatePersistanceOfFilters = new PO12_ValidatePersistanceOfFilters();
+		}
 		return validatePersistanceOfFilters;
 	}
-	
-	public PO13_AddandVerifyCustomSPinJobComparisonPage getAddandVerifyCustomSPinJobComparisonPage() throws IOException {
-		
-		addandVerifyCustomSPinJobComparisonPage = new PO13_AddandVerifyCustomSPinJobComparisonPage();
+
+	public PO13_AddandVerifyCustomSPinJobComparisonPage getAddandVerifyCustomSPinJobComparisonPage()
+			throws IOException {
+		if (addandVerifyCustomSPinJobComparisonPage == null) {
+			addandVerifyCustomSPinJobComparisonPage = new PO13_AddandVerifyCustomSPinJobComparisonPage();
+		}
 		return addandVerifyCustomSPinJobComparisonPage;
 	}
-	
+
 	public PO14_ValidateProfileLevelFunctionality getValidateProfileLevelFunctionality() throws IOException {
-		
-		validateProfileLevelFunctionality = new PO14_ValidateProfileLevelFunctionality();
+		if (validateProfileLevelFunctionality == null) {
+			validateProfileLevelFunctionality = new PO14_ValidateProfileLevelFunctionality();
+		}
 		return validateProfileLevelFunctionality;
 	}
-	
+
 	public PO15_ValidateRecommendedProfileDetails getValidateRecommendedProfileDetails() throws IOException {
-		validateRecommendedProfileDetails = new PO15_ValidateRecommendedProfileDetails();
+		if (validateRecommendedProfileDetails == null) {
+			validateRecommendedProfileDetails = new PO15_ValidateRecommendedProfileDetails();
+		}
 		return validateRecommendedProfileDetails;
 	}
-	
+
 	public PO16_ValidatePCRestrictedTipMessage getValidatePCRestrictedTipMessage() throws IOException {
-		 
-		validatePCRestrictedTipMessage = new PO16_ValidatePCRestrictedTipMessage();
+		if (validatePCRestrictedTipMessage == null) {
+			validatePCRestrictedTipMessage = new PO16_ValidatePCRestrictedTipMessage();
+		}
 		return validatePCRestrictedTipMessage;
 	}
-	
+
 	public PO17_ValidateSortingFunctionality_JAM getValidateSortingFunctionality_JAM() throws IOException {
-		
-		validateSortingFunctionality_JAM = new PO17_ValidateSortingFunctionality_JAM();
+		if (validateSortingFunctionality_JAM == null) {
+			validateSortingFunctionality_JAM = new PO17_ValidateSortingFunctionality_JAM();
+		}
 		return validateSortingFunctionality_JAM;
 	}
-	
+
 	public PO20_ManualMappingofSPinAutoAI getManualMappingofSPinAutoAI() throws IOException {
-		
-		manualMappingofSPinAutoAI = new PO20_ManualMappingofSPinAutoAI();
+		if (manualMappingofSPinAutoAI == null) {
+			manualMappingofSPinAutoAI = new PO20_ManualMappingofSPinAutoAI();
+		}
 		return manualMappingofSPinAutoAI;
 	}
-	
+
 	public PO21_MapDifferentSPtoProfileInAutoAI getMapDifferentSPtoProfileInAutoAI() throws IOException {
-		
-		mapDifferentSPtoProfileInAutoAI = new PO21_MapDifferentSPtoProfileInAutoAI();
+		if (mapDifferentSPtoProfileInAutoAI == null) {
+			mapDifferentSPtoProfileInAutoAI = new PO21_MapDifferentSPtoProfileInAutoAI();
+		}
 		return mapDifferentSPtoProfileInAutoAI;
 	}
-	
+
 	public PO22_ValidateHCMSyncProfilesScreen_PM getValidateHCMSyncProfilesTab_PM() throws IOException {
-		
-		validateHCMSyncProfilesTab_PM = new PO22_ValidateHCMSyncProfilesScreen_PM();
+		if (validateHCMSyncProfilesTab_PM == null) {
+			validateHCMSyncProfilesTab_PM = new PO22_ValidateHCMSyncProfilesScreen_PM();
+		}
 		return validateHCMSyncProfilesTab_PM;
 	}
-	
+
 	public PO23_VerifyProfileswithNoJobCode_PM getVerifyProfileswithNoJobCode_PM() throws IOException {
-		
-		verifyProfileswithNoJobCode_PM = new PO23_VerifyProfileswithNoJobCode_PM();
+		if (verifyProfileswithNoJobCode_PM == null) {
+			verifyProfileswithNoJobCode_PM = new PO23_VerifyProfileswithNoJobCode_PM();
+		}
 		return verifyProfileswithNoJobCode_PM;
 	}
-	
+
 	public PO24_ValidatePublishCenter_PM getValidatePublishCenter_PM() throws IOException {
-		
-		validatePublishCenter_PM = new PO24_ValidatePublishCenter_PM();
+		if (validatePublishCenter_PM == null) {
+			validatePublishCenter_PM = new PO24_ValidatePublishCenter_PM();
+		}
 		return validatePublishCenter_PM;
 	}
-	
+
 	public PO25_ValidateExportStatusFunctionality_PM getValidateExportStatusFunctionality_PM() throws IOException {
-		
-		validateExportStatusFunctionality_PM = new PO25_ValidateExportStatusFunctionality_PM();
+		if (validateExportStatusFunctionality_PM == null) {
+			validateExportStatusFunctionality_PM = new PO25_ValidateExportStatusFunctionality_PM();
+		}
 		return validateExportStatusFunctionality_PM;
 	}
-	
+
 	public PO26_VerifyJobsMissingDataTipMessage getVerifyJobsMissingDataTipMessage() throws IOException {
-		 
-		verifyJobsMissingDataTipMessage = new PO26_VerifyJobsMissingDataTipMessage();
+		if (verifyJobsMissingDataTipMessage == null) {
+			verifyJobsMissingDataTipMessage = new PO26_VerifyJobsMissingDataTipMessage();
+		}
 		return verifyJobsMissingDataTipMessage;
 	}
-	
-	public PO27_VerifyInfoMessageForMissingDataProfiles getVerifyInfoMessageForMissingDataProfiles() throws IOException {
-		
+
+	public PO27_VerifyInfoMessageForMissingDataProfiles getVerifyInfoMessageForMissingDataProfiles()
+			throws IOException {
 		if (verifyInfoMessageForMissingDataProfiles == null) {
 			verifyInfoMessageForMissingDataProfiles = new PO27_VerifyInfoMessageForMissingDataProfiles();
 		}
 		return verifyInfoMessageForMissingDataProfiles;
 	}
-	
-	public PO28_VerifyInfoMessageForManualMappingProfiles getVerifyInfoMessageForManualMappingProfiles() throws IOException {
-		
-		// Singleton pattern: reuse existing instance to preserve field values between method calls
+
+	public PO28_VerifyInfoMessageForManualMappingProfiles getVerifyInfoMessageForManualMappingProfiles()
+			throws IOException {
 		if (verifyInfoMessageForManualMappingProfiles == null) {
 			verifyInfoMessageForManualMappingProfiles = new PO28_VerifyInfoMessageForManualMappingProfiles();
 		}
 		return verifyInfoMessageForManualMappingProfiles;
 	}
-	
-	public PO29_ValidateJobsWithMissingGRADEdataInJobMapping getValidateJobsWithMissingGRADEdataInJobMapping() throws IOException {
-		
-		// Singleton pattern: reuse existing instance to preserve field values between method calls
+
+	public PO29_ValidateJobsWithMissingGRADEdataInJobMapping getValidateJobsWithMissingGRADEdataInJobMapping()
+			throws IOException {
 		if (validateJobsWithMissingGRADEDataInJobMapping == null) {
 			validateJobsWithMissingGRADEDataInJobMapping = new PO29_ValidateJobsWithMissingGRADEdataInJobMapping();
 		}
 		return validateJobsWithMissingGRADEDataInJobMapping;
 	}
-	
-	public PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping getValidateJobsWithMissingDEPARTMENTdataInJobMapping() throws IOException {
-		
-		// Singleton pattern: reuse existing instance to preserve field values between method calls
+
+	public PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping getValidateJobsWithMissingDEPARTMENTdataInJobMapping()
+			throws IOException {
 		if (validateJobsWithMissingDEPARTMENTDataInJobMapping == null) {
 			validateJobsWithMissingDEPARTMENTDataInJobMapping = new PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping();
 		}
 		return validateJobsWithMissingDEPARTMENTDataInJobMapping;
 	}
-	
-	public PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping getValidateJobsWithMissingFUNCTIONdataInJobMapping() throws IOException {
-		
-		// Singleton pattern: reuse existing instance to preserve field values between method calls
+
+	public PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping getValidateJobsWithMissingFUNCTIONdataInJobMapping()
+			throws IOException {
 		if (validateJobsWithMissingFUNCTIONDataInJobMapping == null) {
 			validateJobsWithMissingFUNCTIONDataInJobMapping = new PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping();
 		}
 		return validateJobsWithMissingFUNCTIONDataInJobMapping;
 	}
-	
-	public PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping getValidateJobsWithMissingSUBFUNCTIONdataInJobMapping() throws IOException {
-		
-		// Singleton pattern: reuse existing instance to preserve field values between method calls
+
+	public PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping getValidateJobsWithMissingSUBFUNCTIONdataInJobMapping()
+			throws IOException {
 		if (validateJobsWithMissingSUBFUNCTIONDataInJobMapping == null) {
 			validateJobsWithMissingSUBFUNCTIONDataInJobMapping = new PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping();
 		}
 		return validateJobsWithMissingSUBFUNCTIONDataInJobMapping;
 	}
-	
-	public PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM getValidateSelectAndHCMSyncLoadedProfiles_PM() throws IOException {
-		
+
+	public PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM getValidateSelectAndHCMSyncLoadedProfiles_PM()
+			throws IOException {
 		if (validateSelectAndHCMSyncLoadedProfiles_PM == null) {
 			validateSelectAndHCMSyncLoadedProfiles_PM = new PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM();
 		}
 		return validateSelectAndHCMSyncLoadedProfiles_PM;
 	}
-	
+
 	public PO34_ValidateSelectAndSyncAllProfiles_PM getValidateSelectAndSyncAllProfiles_PM() throws IOException {
-		
 		if (validateSelectAndSyncAllProfiles_PM == null) {
 			validateSelectAndSyncAllProfiles_PM = new PO34_ValidateSelectAndSyncAllProfiles_PM();
 		}
 		return validateSelectAndSyncAllProfiles_PM;
 	}
-	
-	public PO35_ValidateSelectAllWithSearchFunctionality_PM getValidateSelectAllWithSearchFunctionality_PM() throws IOException {
-		
+
+	public PO35_ValidateSelectAllWithSearchFunctionality_PM getValidateSelectAllWithSearchFunctionality_PM()
+			throws IOException {
 		if (validateSelectAllWithSearchFunctionality_PM == null) {
 			validateSelectAllWithSearchFunctionality_PM = new PO35_ValidateSelectAllWithSearchFunctionality_PM();
 		}
 		return validateSelectAllWithSearchFunctionality_PM;
 	}
-	
-	public PO36_ValidateSelectAllWithFiltersFunctionality_PM getValidateSelectAllWithFiltersFunctionality_PM() throws IOException {
-		
+
+	public PO36_ValidateSelectAllWithFiltersFunctionality_PM getValidateSelectAllWithFiltersFunctionality_PM()
+			throws IOException {
 		if (validateSelectAllWithFiltersFunctionality_PM == null) {
 			validateSelectAllWithFiltersFunctionality_PM = new PO36_ValidateSelectAllWithFiltersFunctionality_PM();
 		}
 		return validateSelectAllWithFiltersFunctionality_PM;
 	}
-	
-	public PO37_ValidateSelectAndPublishLoadedProfiles_JAM getValidateSelectAndPublishLoadedProfiles_JAM() throws IOException {
-		
+
+	public PO37_ValidateSelectAndPublishLoadedProfiles_JAM getValidateSelectAndPublishLoadedProfiles_JAM()
+			throws IOException {
 		if (validateSelectAndPublishLoadedProfiles_JAM == null) {
 			validateSelectAndPublishLoadedProfiles_JAM = new PO37_ValidateSelectAndPublishLoadedProfiles_JAM();
 		}
 		return validateSelectAndPublishLoadedProfiles_JAM;
 	}
-	
-	public PO38_ValidateSelectAllWithSearchFunctionality_JAM getValidateSelectAllWithSearchFunctionality_JAM() throws IOException {
-		
+
+	public PO38_ValidateSelectAllWithSearchFunctionality_JAM getValidateSelectAllWithSearchFunctionality_JAM()
+			throws IOException {
 		if (validateSelectAllWithSearchFunctionality_JAM == null) {
 			validateSelectAllWithSearchFunctionality_JAM = new PO38_ValidateSelectAllWithSearchFunctionality_JAM();
 		}
 		return validateSelectAllWithSearchFunctionality_JAM;
 	}
-	
-	public PO39_ValidateSelectAllWithFiltersFunctionality_JAM getValidateSelectAllWithFiltersFunctionality_JAM() throws IOException {
-		
+
+	public PO39_ValidateSelectAllWithFiltersFunctionality_JAM getValidateSelectAllWithFiltersFunctionality_JAM()
+			throws IOException {
 		if (validateSelectAllWithFiltersFunctionality_JAM == null) {
 			validateSelectAllWithFiltersFunctionality_JAM = new PO39_ValidateSelectAllWithFiltersFunctionality_JAM();
 		}
 		return validateSelectAllWithFiltersFunctionality_JAM;
 	}
-	
-	public PO40_ValidateSelectAndPublishAllJobProfilesinJAM getValidateSelectAndPublishAllJobProfilesinJAM() throws IOException {
-		
+
+	public PO40_ValidateSelectAndPublishAllJobProfilesinJAM getValidateSelectAndPublishAllJobProfilesinJAM()
+			throws IOException {
 		if (validateSelectAndPublishAllJobProfilesinJAM == null) {
 			validateSelectAndPublishAllJobProfilesinJAM = new PO40_ValidateSelectAndPublishAllJobProfilesinJAM();
 		}
 		return validateSelectAndPublishAllJobProfilesinJAM;
 	}
-	
-	public PO41_ValidateApplicationPerformance_JAM_and_HCM getValidateApplicationPerformance_JAM_and_HCM() throws IOException {
-		
+
+	public PO41_ValidateApplicationPerformance_JAM_and_HCM getValidateApplicationPerformance_JAM_and_HCM()
+			throws IOException {
 		if (validateApplicationPerformance_JAM_and_HCM == null) {
 			validateApplicationPerformance_JAM_and_HCM = new PO41_ValidateApplicationPerformance_JAM_and_HCM();
 		}
 		return validateApplicationPerformance_JAM_and_HCM;
 	}
-	
-	public PO42_ClearProfileSelectionwithHeaderCheckbox_PM getClearProfileSelectionwithHeaderCheckbox_PM() throws IOException {
-		
+
+	public PO42_ClearProfileSelectionwithHeaderCheckbox_PM getClearProfileSelectionwithHeaderCheckbox_PM()
+			throws IOException {
 		if (clearProfileSelectionwithHeaderCheckbox_PM == null) {
 			clearProfileSelectionwithHeaderCheckbox_PM = new PO42_ClearProfileSelectionwithHeaderCheckbox_PM();
 		}
 		return clearProfileSelectionwithHeaderCheckbox_PM;
 	}
-	
+
 	public PO43_ClearProfileSelectionwithNoneButton_PM getClearProfileSelectionwithNoneButton_PM() throws IOException {
-		
 		if (clearProfileSelectionwithNoneButton_PM == null) {
 			clearProfileSelectionwithNoneButton_PM = new PO43_ClearProfileSelectionwithNoneButton_PM();
 		}
 		return clearProfileSelectionwithNoneButton_PM;
 	}
-	
-	public PO44_ClearProfileSelectionwithHeaderCheckbox_JAM getClearProfileSelectionwithHeaderCheckbox_JAM() throws IOException {
-		
+
+	public PO44_ClearProfileSelectionwithHeaderCheckbox_JAM getClearProfileSelectionwithHeaderCheckbox_JAM()
+			throws IOException {
 		if (clearProfileSelectionwithHeaderCheckbox_JAM == null) {
 			clearProfileSelectionwithHeaderCheckbox_JAM = new PO44_ClearProfileSelectionwithHeaderCheckbox_JAM();
 		}
 		return clearProfileSelectionwithHeaderCheckbox_JAM;
 	}
-	
-	public PO45_ClearProfileSelectionwithNoneButton_JAM getClearProfileSelectionwithNoneButton_JAM() throws IOException {
-		
+
+	public PO45_ClearProfileSelectionwithNoneButton_JAM getClearProfileSelectionwithNoneButton_JAM()
+			throws IOException {
 		if (clearProfileSelectionwithNoneButton_JAM == null) {
 			clearProfileSelectionwithNoneButton_JAM = new PO45_ClearProfileSelectionwithNoneButton_JAM();
 		}
 		return clearProfileSelectionwithNoneButton_JAM;
 	}
-	
+
 	public PO46_ValidateSelectionOfUnmappedJobs_JAM getValidateSelectionOfUnmappedJobs_JAM() throws IOException {
-		
 		if (validateSelectionOfUnmappedJobs_JAM == null) {
 			validateSelectionOfUnmappedJobs_JAM = new PO46_ValidateSelectionOfUnmappedJobs_JAM();
 		}
 		return validateSelectionOfUnmappedJobs_JAM;
 	}
-	
-	public PO47_ValidateSortingFunctionalityInHCMScreen_PM getValidateSortingFunctionalityInHCMScreen_PM() throws IOException {
-		
+
+	public PO47_ValidateSortingFunctionalityInHCMScreen_PM getValidateSortingFunctionalityInHCMScreen_PM()
+			throws IOException {
 		if (validateSortingFunctionalityInHCMScreen_PM == null) {
 			validateSortingFunctionalityInHCMScreen_PM = new PO47_ValidateSortingFunctionalityInHCMScreen_PM();
 		}
 		return validateSortingFunctionalityInHCMScreen_PM;
 	}
-	
+
 	/**
-	 * Reset all page object instances (useful for cleanup between tests)
+	 * Reset all page object instances (useful for cleanup between tests) This
+	 * ensures a fresh start for each test scenario when needed
 	 */
 	public void resetPageObjects() {
+		// Login Page Object
 		kfoneLogin = null;
+
+		// Job Mapping Core Page Objects (PO02-PO17)
 		validateAddMoreJobsFunctionality = null;
 		validateJobmappingHeaderSection = null;
 		verifyJobMappingPageComponents = null;
@@ -395,25 +412,41 @@ public class PageObjectManager {
 		validateRecommendedProfileDetails = null;
 		validatePCRestrictedTipMessage = null;
 		validateSortingFunctionality_JAM = null;
+
+		// Manual Mapping Page Objects (PO20-PO21)
 		manualMappingofSPinAutoAI = null;
 		mapDifferentSPtoProfileInAutoAI = null;
+
+		// Profile Manager Page Objects (PO22-PO26)
 		validateHCMSyncProfilesTab_PM = null;
 		verifyProfileswithNoJobCode_PM = null;
 		validatePublishCenter_PM = null;
 		validateExportStatusFunctionality_PM = null;
 		verifyJobsMissingDataTipMessage = null;
+
+		// Info Message Page Objects (PO27-PO28)
 		verifyInfoMessageForMissingDataProfiles = null;
 		verifyInfoMessageForManualMappingProfiles = null;
+
+		// Missing Data Validation Page Objects (PO29-PO32)
 		validateJobsWithMissingGRADEDataInJobMapping = null;
 		validateJobsWithMissingDEPARTMENTDataInJobMapping = null;
 		validateJobsWithMissingFUNCTIONDataInJobMapping = null;
 		validateJobsWithMissingSUBFUNCTIONDataInJobMapping = null;
+
+		// Profile Selection PM Page Objects (PO33-PO36)
 		validateSelectAndHCMSyncLoadedProfiles_PM = null;
 		validateSelectAndSyncAllProfiles_PM = null;
+		validateSelectAllWithSearchFunctionality_PM = null;
+		validateSelectAllWithFiltersFunctionality_PM = null;
+
+		// Profile Selection JAM Page Objects (PO37-PO40)
 		validateSelectAndPublishLoadedProfiles_JAM = null;
 		validateSelectAllWithSearchFunctionality_JAM = null;
 		validateSelectAllWithFiltersFunctionality_JAM = null;
 		validateSelectAndPublishAllJobProfilesinJAM = null;
+
+		// Performance & Utility Page Objects (PO41-PO47)
 		validateApplicationPerformance_JAM_and_HCM = null;
 		clearProfileSelectionwithHeaderCheckbox_PM = null;
 		clearProfileSelectionwithNoneButton_PM = null;

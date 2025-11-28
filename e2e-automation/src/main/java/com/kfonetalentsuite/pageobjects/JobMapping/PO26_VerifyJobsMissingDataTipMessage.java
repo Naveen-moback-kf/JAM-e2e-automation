@@ -26,25 +26,23 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO26_VerifyJobsMissingDataTipMessage {
-	
-	WebDriver driver = DriverManager.getDriver();	
+
+	WebDriver driver = DriverManager.getDriver();
 
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	PO26_VerifyJobsMissingDataTipMessage verifyJobsMissingDataTipMessage;
-	
+
 	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
 	public static ThreadLocal<String> initialJobCount = ThreadLocal.withInitial(() -> null);
-	
+
 	public PO26_VerifyJobsMissingDataTipMessage() throws IOException {
-		// super();
 		PageFactory.initElements(driver, this);
-		// TODO Auto-generated constructor stub
 	}
 
 	WebDriverWait wait = DriverManager.getWait();
 	Utilities utils = new Utilities();
 	JavascriptExecutor js = (JavascriptExecutor) driver;
-	
+
 	// XPATHs for Missing Data Tip Message Elements
 	@FindBy(xpath = "//div[@id='warning-message-container']//div[contains(@class, 'inline-flex') and contains(., 'jobs have missing data')]")
 	@CacheLookup
@@ -113,12 +111,12 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			// Tip message not visible, try to refresh page to restore it
 			LOGGER.info("Tip message not visible, refreshing page to restore it");
 			driver.navigate().refresh();
-			
-		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
-			wait.until(ExpectedConditions.visibilityOf(missingDataTipMessageContainer));
-			ExtentCucumberAdapter.addTestStepLog(" Missing Data Tip Message restored after page refresh");
-		} catch (Exception refreshException) {
+
+			try {
+				PerformanceUtils.waitForPageReady(driver, 3);
+				wait.until(ExpectedConditions.visibilityOf(missingDataTipMessageContainer));
+				ExtentCucumberAdapter.addTestStepLog(" Missing Data Tip Message restored after page refresh");
+			} catch (Exception refreshException) {
 				ExtentCucumberAdapter.addTestStepLog(" Unable to restore Missing Data Tip Message after refresh");
 				throw new IOException("Cannot restore tip message for verification");
 			}
@@ -129,55 +127,53 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 	public void verify_missing_data_tip_message_is_displaying_on_job_mapping_page() throws IOException {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(missingDataTipMessageContainer));
-			Assert.assertTrue(missingDataTipMessageContainer.isDisplayed(), 
-				"Missing Data Tip Message should be displayed on Job Mapping page");
+			Assert.assertTrue(missingDataTipMessageContainer.isDisplayed(),
+					"Missing Data Tip Message should be displayed on Job Mapping page");
 			PageObjectHelper.log(LOGGER, "Missing Data Tip Message is successfully displayed on Job Mapping page");
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_is_displaying_on_job_mapping_page",
-			"Failed to verify Missing Data Tip Message display", e);
-	}
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_is_displaying_on_job_mapping_page",
+					"Failed to verify Missing Data Tip Message display", e);
+		}
 	}
 
 	public void verify_missing_data_tip_message_contains_correct_count_of_jobs_with_missing_data() throws IOException {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(missingDataCountAndText));
 			String tipMessageText = missingDataCountAndText.getText();
-			
+
 			// Extract number from the tip message using regex
 			Pattern pattern = Pattern.compile("(\\d+)\\s+jobs have missing data");
 			Matcher matcher = pattern.matcher(tipMessageText);
-			
+
 			if (matcher.find()) {
 				String extractedCount = matcher.group(1);
-				Assert.assertTrue(extractedCount != null && !extractedCount.isEmpty(), 
-					"Job count should be extracted from tip message");
+				Assert.assertTrue(extractedCount != null && !extractedCount.isEmpty(),
+						"Job count should be extracted from tip message");
 				PageObjectHelper.log(LOGGER, "Successfully extracted job count from tip message: " + extractedCount);
 			} else {
 				Assert.fail("Could not extract job count from tip message: " + tipMessageText);
 			}
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_contains_correct_count_of_jobs_with_missing_data",
-			"Failed to verify job count in tip message", e);
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER,
+					"verify_missing_data_tip_message_contains_correct_count_of_jobs_with_missing_data",
+					"Failed to verify job count in tip message", e);
+		}
 	}
-	}
-
 
 	// Component Verification Methods
 	public void verify_link_is_present_in_missing_data_tip_message(String linkText) throws IOException {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(viewReuploadJobsLink));
-			Assert.assertTrue(viewReuploadJobsLink.isDisplayed(), 
-				"'" + linkText + "' link should be present in Missing Data Tip Message");
-			Assert.assertTrue(viewReuploadJobsLink.getText().contains(linkText), 
-				"Link should contain expected text: " + linkText);
+			Assert.assertTrue(viewReuploadJobsLink.isDisplayed(),
+					"'" + linkText + "' link should be present in Missing Data Tip Message");
+			Assert.assertTrue(viewReuploadJobsLink.getText().contains(linkText),
+					"Link should contain expected text: " + linkText);
 			PageObjectHelper.log(LOGGER, "'" + linkText + "' link is present in Missing Data Tip Message");
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "verify_link_is_present_in_missing_data_tip_message",
-			"Failed to verify link presence", e);
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "verify_link_is_present_in_missing_data_tip_message",
+					"Failed to verify link presence", e);
+		}
 	}
-	}
-
-
 
 	// Functional Verification Methods
 	public void click_on_link_in_missing_data_tip_message(String linkText) throws IOException {
@@ -185,22 +181,22 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
 			shortWait.until(ExpectedConditions.visibilityOf(viewReuploadJobsLink));
 			shortWait.until(ExpectedConditions.elementToBeClickable(viewReuploadJobsLink));
-			
+
 			performRobustClick(viewReuploadJobsLink, "'" + linkText + "' link");
 			safeSleep(500);
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "click_on_link_in_missing_data_tip_message",
-			"Failed to click on '" + linkText + "' link", e);
-	}
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "click_on_link_in_missing_data_tip_message",
+					"Failed to click on '" + linkText + "' link", e);
+		}
 	}
 
 	public void verify_user_is_navigated_to_appropriate_page_for_viewing_and_re_uploading_jobs() throws IOException {
 		try {
 			safeSleep(500);
-			
+
 			boolean pageVerified = false;
 			String verificationResults = "";
-			
+
 			// Check for Close button (essential for closing modal)
 			try {
 				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
@@ -212,7 +208,7 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			} catch (Exception e) {
 				verificationResults += "- Close button not found; ";
 			}
-			
+
 			// Check for Re-upload button (confirms this is the upload screen)
 			try {
 				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
@@ -224,7 +220,7 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			} catch (Exception e) {
 				verificationResults += "- Re-upload button not found; ";
 			}
-			
+
 			// Check for job table/rows (confirms data is loaded)
 			try {
 				List<WebElement> jobRows = driver.findElements(By.xpath("//table//tr[contains(@class, 'border-b')]"));
@@ -236,13 +232,14 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			} catch (Exception e) {
 				verificationResults += "- Job data table check failed; ";
 			}
-			
+
 			// Alternative verification: Check page source (fallback only)
 			if (!pageVerified) {
 				try {
 					String pageSource = driver.getPageSource().toLowerCase();
-					if (pageSource.contains("missing data") || pageSource.contains("re-upload") || 
-						pageSource.contains("organization jobs") || pageSource.contains("jobs with missing data")) {
+					if (pageSource.contains("missing data") || pageSource.contains("re-upload")
+							|| pageSource.contains("organization jobs")
+							|| pageSource.contains("jobs with missing data")) {
 						verificationResults += " Page content indicates correct screen via source scan; ";
 						pageVerified = true;
 					}
@@ -250,10 +247,11 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 					verificationResults += "- Page source check failed; ";
 				}
 			}
-			
-			Assert.assertTrue(pageVerified, "Failed to verify Jobs with Missing Data screen. Results: " + verificationResults);
+
+			Assert.assertTrue(pageVerified,
+					"Failed to verify Jobs with Missing Data screen. Results: " + verificationResults);
 			LOGGER.info("Verified Jobs with Missing Data screen");
-			
+
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify Jobs with Missing Data screen", e);
 			throw new IOException(e);
@@ -263,36 +261,40 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 	public void navigate_back_to_job_mapping_page() throws IOException {
 		try {
 			ExtentCucumberAdapter.addTestStepLog(" Attempting to navigate back to Job Mapping page using Close button");
-			
+
 			boolean navigatedSuccessfully = false;
-			
+
 			// Strategy 1: Use the specific Close button
 			try {
 				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
 				shortWait.until(ExpectedConditions.visibilityOf(closeReuploadJobsPageButton));
 				shortWait.until(ExpectedConditions.elementToBeClickable(closeReuploadJobsPageButton));
-				
+
 				// Use robust click helper method
 				performRobustClick(closeReuploadJobsPageButton, "Close button on re-upload page");
 				navigatedSuccessfully = true;
-				
+
 			} catch (Exception e1) {
-				ExtentCucumberAdapter.addTestStepLog(" Strategy 1 failed - Could not find/click specific Close button: " + e1.getMessage());
+				ExtentCucumberAdapter.addTestStepLog(
+						" Strategy 1 failed - Could not find/click specific Close button: " + e1.getMessage());
 				LOGGER.warn("Primary close button strategy failed: " + e1.getMessage());
-				
+
 				// Strategy 2: Try alternative Close button locator
 				try {
-					WebElement alternativeCloseButton = driver.findElement(By.xpath("//button[contains(text(), 'Close')] | //button[@aria-label='Close'] | //*[text()='Close']"));
+					WebElement alternativeCloseButton = driver.findElement(By.xpath(
+							"//button[contains(text(), 'Close')] | //button[@aria-label='Close'] | //*[text()='Close']"));
 					performRobustClick(alternativeCloseButton, "Alternative Close button");
-					
-					ExtentCucumberAdapter.addTestStepLog(" Successfully clicked Close button using alternative locator");
+
+					ExtentCucumberAdapter
+							.addTestStepLog(" Successfully clicked Close button using alternative locator");
 					LOGGER.info("Successfully used alternative Close button locator");
 					navigatedSuccessfully = true;
-					
+
 				} catch (Exception e2) {
-					ExtentCucumberAdapter.addTestStepLog(" Strategy 2 failed - Alternative Close button not found: " + e2.getMessage());
+					ExtentCucumberAdapter.addTestStepLog(
+							" Strategy 2 failed - Alternative Close button not found: " + e2.getMessage());
 					LOGGER.warn("Alternative close button strategy failed: " + e2.getMessage());
-					
+
 					// Strategy 3: Use browser back navigation as last resort
 					try {
 						driver.navigate().back();
@@ -306,11 +308,11 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 					}
 				}
 			}
-			
+
 			if (navigatedSuccessfully) {
 				// Wait for navigation back to Job Mapping page (optimized)
 				safeSleep(1500); // Optimized wait for page transition
-				
+
 				// Verify we're back on Job Mapping page
 				try {
 					wait.until(ExpectedConditions.visibilityOf(pageContainer));
@@ -321,10 +323,11 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 				} catch (Exception verifyException) {
 					ExtentCucumberAdapter.addTestStepLog(" Navigation completed but could not verify page elements");
 					ExtentCucumberAdapter.addTestStepLog("   This may be normal - continuing with test");
-					LOGGER.warn("Could not verify page elements after navigation back: " + verifyException.getMessage());
+					LOGGER.warn(
+							"Could not verify page elements after navigation back: " + verifyException.getMessage());
 				}
 			}
-			
+
 		} catch (Exception e) {
 			// Add debugging information
 			try {
@@ -334,58 +337,63 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			} catch (Exception debugEx) {
 				LOGGER.debug("Failed to get debug URL: " + debugEx.getMessage());
 			}
-			
-		PageObjectHelper.handleError(LOGGER, "navigate_back_to_job_mapping_page",
-			"Failed to navigate back to Job Mapping page", e);
-	}
+
+			PageObjectHelper.handleError(LOGGER, "navigate_back_to_job_mapping_page",
+					"Failed to navigate back to Job Mapping page", e);
+		}
 	}
 
 	public void verify_missing_data_tip_message_is_still_displaying_on_job_mapping_page() throws IOException {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(missingDataTipMessageContainer));
-			Assert.assertTrue(missingDataTipMessageContainer.isDisplayed(), 
-				"Missing Data Tip Message should still be displayed on Job Mapping page after navigation");
-			PageObjectHelper.log(LOGGER, "Missing Data Tip Message is still displaying on Job Mapping page after navigation");
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_is_still_displaying_on_job_mapping_page",
-			"Failed to verify Missing Data Tip Message is still displayed", e);
-	}
+			Assert.assertTrue(missingDataTipMessageContainer.isDisplayed(),
+					"Missing Data Tip Message should still be displayed on Job Mapping page after navigation");
+			PageObjectHelper.log(LOGGER,
+					"Missing Data Tip Message is still displaying on Job Mapping page after navigation");
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER,
+					"verify_missing_data_tip_message_is_still_displaying_on_job_mapping_page",
+					"Failed to verify Missing Data Tip Message is still displayed", e);
+		}
 	}
 
 	public void click_on_close_button_in_missing_data_tip_message() throws IOException {
 		try {
-			PageObjectHelper.log(LOGGER," Clicking close button on Missing Data Tip Message (targeting correct tip message)...");
-			
+			PageObjectHelper.log(LOGGER,
+					" Clicking close button on Missing Data Tip Message (targeting correct tip message)...");
+
 			// Wait for the specific missing data tip message close button
 			wait.until(ExpectedConditions.visibilityOf(closeTipMessageButton));
 			wait.until(ExpectedConditions.elementToBeClickable(closeTipMessageButton));
-			
+
 			// Use robust click helper method
 			performRobustClick(closeTipMessageButton, "Missing Data Tip Message close button");
-			
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "click_on_close_button_in_missing_data_tip_message",
-			"Failed to click on missing data tip message close button", e);
-	}
+
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "click_on_close_button_in_missing_data_tip_message",
+					"Failed to click on missing data tip message close button", e);
+		}
 	}
 
 	public void verify_missing_data_tip_message_is_no_longer_displayed_on_job_mapping_page() throws IOException {
 		try {
 			safeSleep(1000); // Optimized wait for UI update (reduced from 2000ms)
-			
+
 			boolean tipMessageHidden = false;
 			String hiddenReason = "";
-			
+
 			// Strategy 1: Check if element is present in DOM but not visible
 			try {
 				// Check if element exists
-				List<WebElement> tipElements = driver.findElements(By.xpath("//div[@id='warning-message-container']//div[contains(@class, 'inline-flex') and contains(., 'jobs have missing data')]"));
-				
+				List<WebElement> tipElements = driver.findElements(By.xpath(
+						"//div[@id='warning-message-container']//div[contains(@class, 'inline-flex') and contains(., 'jobs have missing data')]"));
+
 				if (tipElements.isEmpty()) {
 					// Element completely removed from DOM
 					tipMessageHidden = true;
 					hiddenReason = "Element removed from DOM";
-					PageObjectHelper.log(LOGGER, "Missing Data Tip Message is no longer displayed - element removed from DOM");
+					PageObjectHelper.log(LOGGER,
+							"Missing Data Tip Message is no longer displayed - element removed from DOM");
 				} else {
 					// Element exists, check if it's visible
 					WebElement tipElement = tipElements.get(0);
@@ -393,45 +401,49 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 						// Element exists but is hidden
 						tipMessageHidden = true;
 						hiddenReason = "Element hidden (display:none or visibility:hidden)";
-						PageObjectHelper.log(LOGGER, "Missing Data Tip Message is no longer displayed - element hidden via CSS");
+						PageObjectHelper.log(LOGGER,
+								"Missing Data Tip Message is no longer displayed - element hidden via CSS");
 					} else {
 						// Element is still visible - this is a failure
 						tipMessageHidden = false;
 						hiddenReason = "Element is still visible";
 					}
 				}
-				
+
 			} catch (Exception e) {
 				// If we get any exception checking for the element, assume it's hidden
 				tipMessageHidden = true;
 				hiddenReason = "Exception occurred while checking element - likely removed: " + e.getMessage();
-				PageObjectHelper.log(LOGGER, "Missing Data Tip Message is no longer displayed - exception indicates element not present");
+				PageObjectHelper.log(LOGGER,
+						"Missing Data Tip Message is no longer displayed - exception indicates element not present");
 			}
-			
+
 			// Final assertion
 			if (tipMessageHidden) {
-				PageObjectHelper.log(LOGGER, "SUCCESS: Missing Data Tip Message is no longer displayed on Job Mapping page - Reason: " + hiddenReason);
+				PageObjectHelper.log(LOGGER,
+						"SUCCESS: Missing Data Tip Message is no longer displayed on Job Mapping page - Reason: "
+								+ hiddenReason);
 			} else {
-				String errorMessage = "Missing Data Tip Message is still displayed when it should be hidden. Reason: " + hiddenReason;
+				String errorMessage = "Missing Data Tip Message is still displayed when it should be hidden. Reason: "
+						+ hiddenReason;
 				LOGGER.error(errorMessage);
 				Assert.fail(errorMessage);
 			}
-			
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_is_no_longer_displayed_on_job_mapping_page",
-			"Failed to verify tip message is hidden", e);
+
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER,
+					"verify_missing_data_tip_message_is_no_longer_displayed_on_job_mapping_page",
+					"Failed to verify tip message is hidden", e);
+		}
 	}
-	}
 
-
-
-	
-	// Helper method for robust element clicking with multiple strategies (optimized for speed)
+	// Helper method for robust element clicking with multiple strategies (optimized
+	// for speed)
 	private void performRobustClick(WebElement element, String elementName) throws IOException {
 		// Scroll element into view with faster behavior
 		js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", element);
 		safeSleep(200); // Reduced from 500ms to 200ms
-		
+
 		// Try normal click first
 		try {
 			element.click();
@@ -444,52 +456,54 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 				ExtentCucumberAdapter.addTestStepLog("Clicked " + elementName);
 			} catch (Exception clickEx2) {
 				// Try dispatch event as last resort
-				js.executeScript("arguments[0].dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));", element);
+				js.executeScript(
+						"arguments[0].dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));",
+						element);
 				LOGGER.debug("Used dispatch event for: " + elementName);
 				ExtentCucumberAdapter.addTestStepLog("Clicked " + elementName);
 			}
 		}
 	}
 
-
-	// Helper method to handle thread sleep with interruption (optimized for shorter waits)
+	// Helper method to handle thread sleep with interruption (optimized for shorter
+	// waits)
 	private void safeSleep(int milliseconds) throws IOException {
-	try {
-		PerformanceUtils.waitForUIStability(driver, milliseconds / 1000);
-	} catch (Exception ie) {
+		try {
+			PerformanceUtils.waitForUIStability(driver, milliseconds / 1000);
+		} catch (Exception ie) {
 			Thread.currentThread().interrupt();
 			throw new IOException("Thread interrupted during sleep", ie);
 		}
 	}
-
-
 
 	// Content and Formatting Verification Methods
 	public void verify_missing_data_tip_message_contains_text_about_jobs_having_missing_data() throws IOException {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(missingDataCountAndText));
 			String tipMessageText = missingDataCountAndText.getText();
-			
-			Assert.assertTrue(tipMessageText.contains("jobs have missing data"), 
-				"Tip message should contain text about jobs having missing data");
+
+			Assert.assertTrue(tipMessageText.contains("jobs have missing data"),
+					"Tip message should contain text about jobs having missing data");
 			PageObjectHelper.log(LOGGER, "Tip message contains text about jobs having missing data");
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_contains_text_about_jobs_having_missing_data",
-			"Failed to verify missing data text", e);
-	}
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER,
+					"verify_missing_data_tip_message_contains_text_about_jobs_having_missing_data",
+					"Failed to verify missing data text", e);
+		}
 	}
 
 	public void verify_missing_data_tip_message_contains_text_about_reduced_match_accuracy() throws IOException {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(missingDataCountAndText));
 			String tipMessageText = missingDataCountAndText.getText();
-			
-			Assert.assertTrue(tipMessageText.contains("reduce match accuracy"), 
-				"Tip message should contain text about reduced match accuracy");
+
+			Assert.assertTrue(tipMessageText.contains("reduce match accuracy"),
+					"Tip message should contain text about reduced match accuracy");
 			PageObjectHelper.log(LOGGER, "Tip message contains text about reduced match accuracy");
-	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_contains_text_about_reduced_match_accuracy",
-			"Failed to verify reduced accuracy text", e);
-	}
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER,
+					"verify_missing_data_tip_message_contains_text_about_reduced_match_accuracy",
+					"Failed to verify reduced accuracy text", e);
+		}
 	}
 }
