@@ -4,7 +4,14 @@ A comprehensive, enterprise-grade end-to-end automation testing framework for Ko
 
 ## 🚀 Latest Enhancements (November 2025)
 
-### **⚡ Parallel Execution Support (NEW - November 2025)**
+### **🧹 Code Quality Optimizations (NEW - November 28, 2025)**
+- **Singleton Pattern Consistency**: Applied consistent Singleton pattern across all 47 Page Object getters in `PageObjectManager`
+- **Dead Code Removal**: Removed ~100+ lines of commented-out code from all Java files
+- **ThreadLocal Memory Cleanup**: Added comprehensive cleanup for 61 ThreadLocal variables in `SuiteHooks.java`
+- **File Consolidation**: Merged duplicate `.gitignore` and `README.md` files to single root-level files
+- **Enhanced Parallel Execution**: Improved memory management prevents leaks in long-running test suites
+
+### **⚡ Parallel Execution Support (November 2025)**
 - **Thread-Safe Architecture**: Complete codebase conversion to support parallel test execution
 - **ThreadLocal State Management**: All shared state converted to thread-safe `ThreadLocal` variables
 - **Atomic Counters**: Test execution statistics use `AtomicInteger` for accurate parallel counting
@@ -1011,8 +1018,8 @@ java -cp "target/classes:lib/*" com.kfonetalentsuite.utils.PDFReportGenerator
 ## 📊 Project Statistics
 
 - **Test Feature Files**: 55 comprehensive feature files covering complete Job Mapping workflows
-- **Page Objects**: 31 enhanced classes with **thread-safe state management** and screenshot functionality
-- **Test Runners**: 55 specialized test runners (Runner01-Runner46 + KFone Login)
+- **Page Objects**: 47 enhanced classes with **thread-safe state management** and screenshot functionality
+- **Test Runners**: 56 specialized test runners (Runner01-Runner47 + KFone Login)
 - **Test Suites**: 3 hierarchical test suites (Sanity: 7 tests, Smoke: 18 tests, Regression: 55 tests)
 - **Execution Performance**: 
   - **Parallel Mode** (3-5 threads): Sanity 2-4 min | Smoke 6-10 min | Regression 20-30 min
@@ -1030,13 +1037,21 @@ java -cp "target/classes:lib/*" com.kfonetalentsuite.utils.PDFReportGenerator
 
 ---
 
-**Last Updated**: November 2025  
-**Framework Version**: 2.3.0-SNAPSHOT  
+**Last Updated**: November 28, 2025  
+**Framework Version**: 2.3.1-SNAPSHOT  
 **Package Namespace**: com.kfonetalentsuite  
 **Maintained By**: QA Automation Team  
 **Execution Mode**: Parallel (3-5 threads) - Sequential mode also supported  
 
 ### 🚀 Release History
+
+#### **v2.3.1 (November 28, 2025)** - Code Quality & Memory Optimization Release
+- 🧹 **Singleton Pattern Consistency**: All 47 Page Object getters now use consistent Singleton pattern
+- 🗑️ **Dead Code Removal**: Removed ~100+ lines of commented-out code across all Java files
+- 🧠 **ThreadLocal Memory Cleanup**: Added cleanup for 61 ThreadLocal variables in `SuiteHooks.java`
+- 📁 **File Consolidation**: Merged duplicate `.gitignore` and `README.md` to root level
+- ⚡ **Memory Leak Prevention**: Enhanced parallel execution with proper resource cleanup
+- 📊 **PageObjectManager Optimization**: Prevents multiple Page Object instantiations for better performance
 
 #### **v2.3.0 (November 2025)** - Parallel Execution & Thread-Safety Release
 - ⚡ **Parallel Execution Support**: Complete framework conversion for safe parallel test execution
