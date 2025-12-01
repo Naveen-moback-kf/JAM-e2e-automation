@@ -41,8 +41,8 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 	@CacheLookup
 	WebElement pageLoadSpinner2;
 
+	// NOTE: Do NOT use @CacheLookup here - element refreshes after search operations and causes StaleElementReferenceException
 	@FindBy(xpath = "//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]")
-	@CacheLookup
 	public WebElement showingJobResultsCount;
 
 	@FindBy(xpath = "//input[@id='search-job-title-input-search-input']")
@@ -74,9 +74,9 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			LOGGER.info("Verifying only searched profiles remain selected (expected: " + searchResultsCount + ")");
+			LOGGER.info("Verifying only searched profiles remain selected (expected: " + searchResultsCount.get() + ")");
 			ExtentCucumberAdapter
-					.addTestStepLog("Verifying only " + searchResultsCount + " profiles remain selected...");
+					.addTestStepLog("Verifying only " + searchResultsCount.get() + " profiles remain selected...");
 
 			if (searchResultsCount.get() == 0) {
 				LOGGER.warn(" Search results count is 0, skipping verification");
@@ -86,7 +86,19 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 
 			// Parse total profile count from "Showing X of Y results" to adjust max scrolls
 			try {
-				String resultsCountText = showingJobResultsCount.getText().trim();
+				// Scroll to top of page first to ensure proper data load
+				js.executeScript("window.scrollTo(0, 0);");
+				Thread.sleep(500);
+				
+				// Wait for spinners to disappear and page to stabilize
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+				PerformanceUtils.waitForPageReady(driver, 3);
+				
+				// Re-find element dynamically to avoid stale element issues after search clear
+				WebElement resultsElement = driver.findElement(By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]"));
+				String resultsCountText = resultsElement.getText().trim();
+				LOGGER.debug("Results count text: '{}'", resultsCountText);
+				
 				if (resultsCountText.contains("of")) {
 					String[] parts = resultsCountText.split("\\s+");
 					for (int i = 0; i < parts.length; i++) {
@@ -106,7 +118,7 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 					}
 				}
 			} catch (Exception e) {
-				LOGGER.debug("Could not parse total profile count: " + e.getMessage());
+				LOGGER.warn("Could not parse total profile count: " + e.getMessage());
 			}
 
 			// Scroll to load all search results
@@ -144,15 +156,15 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 				// Additional wait for DOM updates in headless mode
 				Thread.sleep(1000); // Extra buffer for lazy-loaded content to render
 
-				// Get current count
-				totalProfilesVisible = driver.findElements(By.xpath("//tbody//tr")).size();
+				// Get current count - count only rows with checkboxes (actual profiles)
+				totalProfilesVisible = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]")).size();
 
-				LOGGER.debug("Current row count after scroll #{}: {}", scrollAttempts, totalProfilesVisible);
+				LOGGER.debug("Current profile count after scroll #{}: {}", scrollAttempts, totalProfilesVisible);
 
 				// Check if no new profiles loaded
 				if (totalProfilesVisible == previousTotalProfilesVisible) {
 					stableCountAttempts++;
-					LOGGER.debug("No new rows loaded. Stagnation count: {}/{}", stableCountAttempts,
+					LOGGER.debug("No new profiles loaded. Stagnation count: {}/{}", stableCountAttempts,
 							requiredStableAttempts);
 
 					if (stableCountAttempts >= requiredStableAttempts) {
@@ -173,8 +185,8 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 					}
 				} else {
 					stableCountAttempts = 0;
-					int newRows = totalProfilesVisible - previousTotalProfilesVisible;
-					LOGGER.debug("✓ Loaded {} new rows (total: {}, scroll: #{})", newRows, totalProfilesVisible,
+					int newProfiles = totalProfilesVisible - previousTotalProfilesVisible;
+					LOGGER.debug("✓ Loaded {} new profiles (total: {}, scroll: #{})", newProfiles, totalProfilesVisible,
 							scrollAttempts);
 				}
 
@@ -182,9 +194,14 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 			}
 
 			// Check if selected count increased beyond baseline
-			var currentSelectedRows = driver.findElements(By
-					.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]"));
-			int currentSelectedCount = currentSelectedRows.size();
+			// Use JavaScript for faster counting (same approach as PO40)
+			int currentSelectedCount = 0;
+			try {
+				Object result = js.executeScript("return document.querySelectorAll('#org-job-container tbody tr td:first-child input[type=\"checkbox\"]:checked').length;");
+				currentSelectedCount = ((Long) result).intValue();
+			} catch (Exception e) {
+				currentSelectedCount = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr//td[1]//input[@type='checkbox' and @checked]")).size();
+			}
 			actualSelectedCount = currentSelectedCount;
 
 			LOGGER.info("... Loaded {} profiles using {} scrolls", totalProfilesVisible, scrollAttempts);
@@ -193,7 +210,7 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 			if (currentSelectedCount > searchResultsCount.get()) {
 				int extra = currentSelectedCount - searchResultsCount.get();
 				LOGGER.warn(" Found {} selected profiles (expected {}), {} extra selections", currentSelectedCount,
-						searchResultsCount, extra);
+						searchResultsCount.get(), extra);
 			}
 			maxScrollLimitReached = false;
 
@@ -218,9 +235,12 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 			// After loading all profiles, count selected vs not selected (if not already
 			// counted during fail-fast)
 			if (actualSelectedCount == 0) {
-				var selectedRows = driver.findElements(By.xpath(
-						"//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]"));
-				actualSelectedCount = selectedRows.size();
+				try {
+					Object result = js.executeScript("return document.querySelectorAll('#org-job-container tbody tr td:first-child input[type=\"checkbox\"]:checked').length;");
+					actualSelectedCount = ((Long) result).intValue();
+				} catch (Exception e) {
+					actualSelectedCount = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr//td[1]//input[@type='checkbox' and @checked]")).size();
+				}
 			}
 			int notSelectedProfiles = totalProfilesVisible - actualSelectedCount;
 
@@ -268,13 +288,13 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 				// FEATURE 40 APPROACH: Smart validation for partial data
 				if (actualSelectedCount == 0) {
 					String errorMsg = " FAIL: No selections found in " + totalProfilesVisible
-							+ " loaded profiles (expected " + searchResultsCount + ")";
+							+ " loaded profiles (expected " + searchResultsCount.get() + ")";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
 				} else if (actualSelectedCount > searchResultsCount.get()) {
 					String errorMsg = " FAIL: Found " + actualSelectedCount + " selected (expected "
-							+ searchResultsCount + "), " + extraSelections + " extra profiles incorrectly selected";
+							+ searchResultsCount.get() + "), " + extraSelections + " extra profiles incorrectly selected";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
@@ -295,17 +315,17 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 			} else {
 				// Normal validation when all profiles are loaded
 				if (actualSelectedCount == searchResultsCount.get()) {
-					String successMsg = " PASS: All " + searchResultsCount + " searched profiles remain selected";
+					String successMsg = " PASS: All " + searchResultsCount.get() + " searched profiles remain selected";
 					LOGGER.info(successMsg);
 					ExtentCucumberAdapter.addTestStepLog(successMsg);
 				} else if (actualSelectedCount < searchResultsCount.get()) {
-					String errorMsg = " FAIL: Only " + actualSelectedCount + " selected (expected " + searchResultsCount
+					String errorMsg = " FAIL: Only " + actualSelectedCount + " selected (expected " + searchResultsCount.get()
 							+ "), " + missingSelections + " profiles cannot be selected or lost selection";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
 				} else {
-					String errorMsg = " FAIL: " + actualSelectedCount + " selected (expected " + searchResultsCount
+					String errorMsg = " FAIL: " + actualSelectedCount + " selected (expected " + searchResultsCount.get()
 							+ "), " + extraSelections + " extra profiles incorrectly selected";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
@@ -328,13 +348,27 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			// Count ACTUAL selected profiles (this is the real baseline)
-			var selectedRows = driver.findElements(By
-					.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]"));
-			searchResultsCount.set(selectedRows.size());
-
-			// Get total visible profiles
-			var allProfileRows = driver.findElements(By.xpath("//tbody//tr"));
-			int totalVisibleProfiles = allProfileRows.size();
+			// Use JavaScript for faster and more reliable checkbox counting (same as PO40)
+			String jsSelectedCount = "return document.querySelectorAll('#org-job-container tbody tr td:first-child input[type=\"checkbox\"]:checked').length;";
+			String jsTotalCount = "return document.querySelectorAll('#org-job-container tbody tr td:first-child input[type=\"checkbox\"]').length;";
+			
+			int selectedCount = 0;
+			int totalVisibleProfiles = 0;
+			
+			try {
+				Object selectedResult = js.executeScript(jsSelectedCount);
+				selectedCount = ((Long) selectedResult).intValue();
+				
+				Object totalResult = js.executeScript(jsTotalCount);
+				totalVisibleProfiles = ((Long) totalResult).intValue();
+			} catch (Exception jsEx) {
+				LOGGER.warn("JavaScript counting failed, using XPath fallback: " + jsEx.getMessage());
+				// Fallback to XPath
+				selectedCount = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr//td[1]//input[@type='checkbox' and @checked]")).size();
+				totalVisibleProfiles = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr//td[1]//input[@type='checkbox']")).size();
+			}
+			
+			searchResultsCount.set(selectedCount);
 			int disabledProfiles = totalVisibleProfiles - searchResultsCount.get();
 			int unselectedProfiles = 0; // After "Select All", unselected should be 0 (all selectable profiles are
 										// selected)
@@ -344,12 +378,12 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 			LOGGER.info("BASELINE COUNTS (After First Search + Selection)");
 			LOGGER.info("========================================");
 			LOGGER.info("Total Profiles Loaded: " + totalVisibleProfiles);
-			LOGGER.info("Selected Profiles: " + searchResultsCount);
+			LOGGER.info("Selected Profiles: " + searchResultsCount.get());
 			LOGGER.info("Disabled Profiles (cannot be selected): " + disabledProfiles);
 			LOGGER.info("Unselected Profiles (can be selected but not selected): " + unselectedProfiles);
 			LOGGER.info("========================================");
 
-			ExtentCucumberAdapter.addTestStepLog("Baseline: " + searchResultsCount + " selected profiles");
+			ExtentCucumberAdapter.addTestStepLog("Baseline: " + searchResultsCount.get() + " selected profiles");
 
 		} catch (Exception e) {
 			LOGGER.warn("Error capturing selected profiles count: " + e.getMessage());
@@ -395,7 +429,10 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 					wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(substring);
 					wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(Keys.ENTER);
 					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-					PerformanceUtils.waitForPageReady(driver, 2);
+					PerformanceUtils.waitForPageReady(driver, 5); // Increased from 2 to 5 seconds for search results to load
+					
+					// Additional wait for search results to stabilize
+					Thread.sleep(1000);
 
 					String resultsCountText = showingJobResultsCount.getText().trim();
 
@@ -423,6 +460,23 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 				}
 				LOGGER.warn(" No alternative substring returned results, using: '" + selectedSubstring + "'");
 				ExtentCucumberAdapter.addTestStepLog(" Using: '" + selectedSubstring + "' (no results found)");
+				
+				// Actually apply the fallback search
+				try {
+					wait.until(ExpectedConditions.elementToBeClickable(searchBar)).click();
+					searchBar.sendKeys(Keys.CONTROL + "a");
+					searchBar.sendKeys(Keys.DELETE);
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+					
+					wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(selectedSubstring);
+					wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(Keys.ENTER);
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+					PerformanceUtils.waitForPageReady(driver, 5);
+					Thread.sleep(1000); // Wait for search results to stabilize
+					LOGGER.info(" Applied fallback search: '" + selectedSubstring + "'");
+				} catch (Exception applyEx) {
+					LOGGER.error(" Failed to apply fallback search: " + applyEx.getMessage());
+				}
 			}
 
 		} catch (Exception e) {
@@ -443,12 +497,12 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 		int invalidCount = 0;
 
 		try {
-			// Get ONLY selected rows with checkbox
+			// Get ONLY selected rows with checked checkbox
 			var selectedRows = driver.findElements(By
-					.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]"));
+					.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox' and @checked]]"));
 
 			// Get all rows to determine indices
-			var allRows = driver.findElements(By.xpath("//tbody//tr"));
+			var allRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]"));
 
 			// Check only selected rows in our range
 			for (int i = 0; i < selectedRows.size(); i++) {
@@ -518,7 +572,6 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 	 * Matches original alternative validation design
 	 */
 	public void scroll_down_to_load_all_second_search_results() throws InterruptedException {
-		String firstSearchSubstring = PO04_VerifyJobMappingPageComponents.jobnamesubstring.get();
 		String secondSearchSubstring = alternativeSearchSubstring.get();
 
 		try {
@@ -550,55 +603,115 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM {
 				LOGGER.debug("Could not parse expected total: " + e.getMessage());
 			}
 
-			LOGGER.info("Second search '" + secondSearchSubstring + "': " + expectedTotal
-					+ " profiles total (checking initial visible profiles only)");
-			ExtentCucumberAdapter.addTestStepLog(
-					"Alternative validation: Checking initial visible profiles from '" + secondSearchSubstring + "'");
+			LOGGER.info("Second search '" + secondSearchSubstring + "': " + expectedTotal + " profiles total");
+			ExtentCucumberAdapter.addTestStepLog("Second search '" + secondSearchSubstring + "': " + expectedTotal + " profiles");
 
-			// Get initial visible profiles
-			var initialProfileRows = driver.findElements(By.xpath("//tbody//tr"));
-			int initialCount = initialProfileRows.size();
-			totalSecondSearchResults.set(initialCount);
+			// Get initial profile count (rows with checkboxes)
+			int previousProfileCount = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]")).size();
+			int currentProfileCount = previousProfileCount;
+			int scrollAttempts = 0;
+			int maxScrollAttempts = 50; // Safety limit
+			int noChangeCount = 0;
 
-			var initialSelectedRows = driver.findElements(By
-					.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]"));
-			int initialSelectedCount = initialSelectedRows.size();
+			LOGGER.info("Starting scroll to load all second search results. Initial loaded: " + previousProfileCount);
 
-			LOGGER.info("Validating " + initialCount + " visible profiles (" + initialSelectedCount + " selected)...");
-
-			// Check for invalid selections in visible profiles
-			int invalidCount = checkNewProfilesForInvalidSelections(0, initialCount, firstSearchSubstring,
-					secondSearchSubstring);
-
-			if (invalidCount > 0) {
-				String errorMsg = " FAIL: Found invalid selection in second search results";
-				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
-				Assert.fail(errorMsg);
-				return;
+			// Scroll until all profiles are loaded or max attempts reached
+			while (currentProfileCount < expectedTotal && scrollAttempts < maxScrollAttempts && noChangeCount < 3) {
+				scrollAttempts++;
+				
+				// Scroll down using JavaScript
+				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+				Thread.sleep(500); // Wait for lazy loading
+				
+				// Wait for any spinners
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+				
+				// Get updated profile count
+				currentProfileCount = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]")).size();
+				
+				if (currentProfileCount == previousProfileCount) {
+					noChangeCount++;
+				} else {
+					noChangeCount = 0;
+					previousProfileCount = currentProfileCount;
+				}
+				
+				// Log progress every 5 scrolls
+				if (scrollAttempts % 5 == 0) {
+					LOGGER.info("Scroll attempt {}: Loaded {} of {} profiles", scrollAttempts, currentProfileCount, expectedTotal);
+				}
 			}
 
-			LOGGER.info(" Validation complete: " + initialCount + " visible profiles checked, 0 invalid");
-			ExtentCucumberAdapter.addTestStepLog(" All visible profiles validated successfully (no scrolling needed)");
+			totalSecondSearchResults.set(currentProfileCount);
+			
+			LOGGER.info("Scrolling complete. Loaded {} of {} profiles in {} scroll attempts", 
+					currentProfileCount, expectedTotal, scrollAttempts);
+			ExtentCucumberAdapter.addTestStepLog("Loaded " + currentProfileCount + " of " + expectedTotal + " second search profiles");
+
+			// Scroll back to top for validation
+			js.executeScript("window.scrollTo(0, 0);");
+			Thread.sleep(300);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("scroll_down_to_load_all_second_search_results", e);
-			LOGGER.error("Error validating second search results", e);
-			ExtentCucumberAdapter.addTestStepLog(" Error validating second search results");
-			Assert.fail("Error validating second search results: " + e.getMessage());
+			LOGGER.error("Error loading second search results", e);
+			ExtentCucumberAdapter.addTestStepLog(" Error loading second search results");
+			Assert.fail("Error loading second search results: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * SIMPLIFIED: This method is now a NO-OP because validation is already done in
-	 * the previous step.
-	 * 
-	 * The simplified alternative validation approach validates profiles during the
-	 * scroll step itself, so this final validation is no longer needed and would be
-	 * redundant.
+	 * Verifies that all loaded profiles from the second search are NOT selected.
+	 * These profiles should NOT be selected because they don't match the first search.
 	 */
 	public void verify_all_loaded_profiles_in_second_search_are_not_selected() {
-		LOGGER.info(" Validation already completed in previous step (simplified approach)");
-		ExtentCucumberAdapter.addTestStepLog(" Validation already completed");
+		String firstSearchSubstring = PO04_VerifyJobMappingPageComponents.jobnamesubstring.get();
+		String secondSearchSubstring = alternativeSearchSubstring.get();
+		
+		try {
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			
+			// Get all loaded profiles
+			var allRows = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]"));
+			int totalLoaded = allRows.size();
+			
+			// Count selected profiles using JavaScript
+			int selectedCount = 0;
+			try {
+				Object result = js.executeScript("return document.querySelectorAll('#org-job-container tbody tr td:first-child input[type=\"checkbox\"]:checked').length;");
+				selectedCount = ((Long) result).intValue();
+			} catch (Exception e) {
+				selectedCount = driver.findElements(By.xpath("//div[@id='org-job-container']//tbody//tr//td[1]//input[@type='checkbox' and @checked]")).size();
+			}
+			
+			LOGGER.info("Second search validation: {} total loaded, {} selected", totalLoaded, selectedCount);
+			
+			// If any profiles are selected, check if they belong to first search (valid) or second search (invalid)
+			if (selectedCount > 0) {
+				// Check for invalid selections
+				int invalidCount = checkNewProfilesForInvalidSelections(0, totalLoaded, firstSearchSubstring, secondSearchSubstring);
+				
+				if (invalidCount > 0) {
+					String errorMsg = "FAIL: Found " + invalidCount + " invalid selections in second search results. " +
+							"These profiles match '" + secondSearchSubstring + "' but are selected (should NOT be selected).";
+					LOGGER.error(errorMsg);
+					ExtentCucumberAdapter.addTestStepLog(errorMsg);
+					Assert.fail(errorMsg);
+					return;
+				}
+				
+				LOGGER.info("All {} selected profiles are valid (from first search '{}')", selectedCount, firstSearchSubstring);
+			}
+			
+			LOGGER.info(" Validation PASSED: {} profiles checked, no invalid selections found", totalLoaded);
+			ExtentCucumberAdapter.addTestStepLog("Validation PASSED: " + totalLoaded + " profiles checked, " + 
+					selectedCount + " selected (all valid from first search)");
+			
+		} catch (Exception e) {
+			ScreenshotHandler.captureFailureScreenshot("verify_all_loaded_profiles_in_second_search_are_not_selected", e);
+			LOGGER.error("Error verifying second search profiles", e);
+			ExtentCucumberAdapter.addTestStepLog(" Error verifying second search profiles");
+			Assert.fail("Error verifying second search profiles: " + e.getMessage());
+		}
 	}
 }

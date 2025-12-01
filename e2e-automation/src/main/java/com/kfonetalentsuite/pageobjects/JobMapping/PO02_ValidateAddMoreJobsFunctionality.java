@@ -114,8 +114,8 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 	@FindBy(xpath = "//*[@aria-label='Browse Files']")
 	public WebElement browseFilesBtn;
 
+	// NOTE: Do NOT use @CacheLookup here - element refreshes after file upload and causes StaleElementReferenceException
 	@FindBy(xpath = "//div[contains(@class,'text-ods-font-styles-body-regular-small')]")
-	@CacheLookup
 	public WebElement attachedFileName;
 
 	@FindBy(xpath = "//*[@aria-label='fileclose']//*[@stroke-linejoin='round']")
@@ -295,6 +295,15 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 	public void upload_job_catalog_file_using_browse_files_button() {
 		String uploadFilePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
 				+ File.separator + "resources" + File.separator + "Job Catalog with 100 profiles.csv";
+		upload_file_using_browse_files_button(uploadFilePath);
+	}
+
+	/**
+	 * Overloaded method to upload a custom file (used by Feature 48 for generated CSV)
+	 * @param customFilePath Full path to the file to upload
+	 */
+	public void upload_file_using_browse_files_button(String customFilePath) {
+		String uploadFilePath = customFilePath;
 
 		// Verify file exists before attempting upload
 		File uploadFile = new File(uploadFilePath);
@@ -332,9 +341,12 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 				throw new RuntimeException("All file upload strategies failed");
 			}
 
-			// Verify upload success
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(attachedFileName)).isDisplayed());
-			String uploadedFileNameText = wait.until(ExpectedConditions.visibilityOf(attachedFileName)).getText();
+			// Verify upload success - use dynamic element finding to avoid stale element issues
+			PerformanceUtils.waitForUIStability(driver, 1); // Wait for DOM to stabilize after upload
+			String attachedFileXpath = "//div[contains(@class,'text-ods-font-styles-body-regular-small')]";
+			WebElement uploadedFileElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(attachedFileXpath)));
+			Assert.assertTrue(uploadedFileElement.isDisplayed());
+			String uploadedFileNameText = uploadedFileElement.getText();
 			PageObjectHelper.log(LOGGER, "Job catalog file uploaded successfully. File name: " + uploadedFileNameText);
 
 		} catch (Exception e) {

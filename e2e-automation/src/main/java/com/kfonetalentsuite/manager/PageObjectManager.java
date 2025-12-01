@@ -51,6 +51,7 @@ public class PageObjectManager {
 	public PO45_ClearProfileSelectionwithNoneButton_JAM clearProfileSelectionwithNoneButton_JAM;
 	public PO46_ValidateSelectionOfUnmappedJobs_JAM validateSelectionOfUnmappedJobs_JAM;
 	public PO47_ValidateSortingFunctionalityInHCMScreen_PM validateSortingFunctionalityInHCMScreen_PM;
+	public PO48_ValidateReuploadMissingDataProfiles validateReuploadMissingDataProfiles;
 
 	public PO01_KFoneLogin getKFoneLogin() throws IOException {
 		if (kfoneLogin == null) {
@@ -387,6 +388,14 @@ public class PageObjectManager {
 		return validateSortingFunctionalityInHCMScreen_PM;
 	}
 
+	public PO48_ValidateReuploadMissingDataProfiles getValidateReuploadMissingDataProfiles() throws IOException {
+		// Singleton pattern: reuse existing instance to prevent multiple initializations
+		if (validateReuploadMissingDataProfiles == null) {
+			validateReuploadMissingDataProfiles = new PO48_ValidateReuploadMissingDataProfiles();
+		}
+		return validateReuploadMissingDataProfiles;
+	}
+
 	/**
 	 * Reset all page object instances (useful for cleanup between tests) This
 	 * ensures a fresh start for each test scenario when needed
@@ -454,6 +463,7 @@ public class PageObjectManager {
 		clearProfileSelectionwithNoneButton_JAM = null;
 		validateSelectionOfUnmappedJobs_JAM = null;
 		validateSortingFunctionalityInHCMScreen_PM = null;
+		validateReuploadMissingDataProfiles = null;
 	}
 
 }

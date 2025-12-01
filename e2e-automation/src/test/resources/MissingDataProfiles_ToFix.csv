@@ -1,0 +1,101 @@
+Client Job Code,Client Job Title,Department,Job Family,Job Sub Family,Job Grade,Is Executive
+CTO,Chief Technology Officer,Engineering,Executive Management,Operations,JGL01,FALSE
+P-00675,Regional Sales Manager,Engineering,Sales-Direct Sales,Operations,JGL01,FALSE
+P-00022,"Manager, Accounts Payable",Engineering,FA-Management,Operations,JGL01,FALSE
+P-00388,Consultant,Engineering,SV - Consulting Services,Operations,JGL01,FALSE
+P-00351,Product Developer,Engineering,RD-Product Development,Operations,JGL01,FALSE
+P-00151,Customer Service Representative,Engineering,CS-Customer Service,Operations,JGL01,FALSE
+P-00470,Consultant,Engineering,SV - Consulting Services,Operations,JGL01,FALSE
+P-00134,Office Manager,Engineering,FA-Administration,Operations,JGL01,FALSE
+P-00276,Tax Analyst,Engineering,HR-Payroll,Operations,JGL01,FALSE
+P-00304,Senior Consultant,Engineering,SV - Consulting Services,Operations,JGL01,FALSE
+P-00601,Office Manager,Engineering,FA-Administration,Operations,JGL01,FALSE
+P-00083,Product Manager,Engineering,RD-Product Management,Operations,JGL01,FALSE
+P-00682,Customer Service Representative,Engineering,CS-Customer Service,Operations,JGL01,FALSE
+P-00522,Inside Sales Representative,Engineering,Sales-Inside Sales,Operations,JGL01,FALSE
+3000781,Finance,Engineering,RP,Operations,JGL01,FALSE
+DE,Junior Consultant,Engineering,RP,Operations,JGL01,FALSE
+3000965,Account Executive,Engineering,RP,Operations,JGL01,FALSE
+50014337,Worker's Health & Safety Director,Engineering,RP,Operations,JGL01,FALSE
+50024024,Learning Director,Engineering,RP,Operations,JGL01,FALSE
+50025028,Recruiting Manager,Engineering,RP,Operations,JGL01,FALSE
+50200013,Field Technician,Engineering,RP,Operations,JGL01,FALSE
+50025017,Development Manager,Engineering,RP,Operations,JGL01,FALSE
+90002026,Planner,Engineering,RP,Operations,JGL01,FALSE
+50026028,Recruiting Manager,Engineering,RP,Operations,JGL01,FALSE
+3000431,"Retail, Merchandise Planner",Engineering,RP,Operations,JGL01,FALSE
+3000895,President Czech Republic,Engineering,RP,Operations,JGL01,FALSE
+50023025,Sr. Compensation Analyst,Engineering,RP,Operations,JGL01,FALSE
+90002004,Market Researcher,Engineering,RP,Operations,JGL01,FALSE
+3000342,南関東支社長,Engineering,RP,Operations,JGL01,FALSE
+3000818,Program Management Office Korea,Engineering,RP,Operations,JGL01,FALSE
+41040222,Time Admin - Korea,Engineering,RP,Operations,JGL01,FALSE
+3000367,Engineer I,Engineering,RP,Operations,JGL01,FALSE
+3000007,Assembly Worker,Engineering,RP,Operations,JGL01,FALSE
+3000957,Account Executive,Engineering,RP,Operations,JGL01,FALSE
+50024038,Development Analyst Lead,Engineering,RP,Operations,JGL01,FALSE
+60001004,Sales Representative,Engineering,General,Operations,JGL01,FALSE
+US,Senior Consultant,Engineering,RP,Operations,JGL01,FALSE
+50200015,Service Agent,Engineering,RP,Operations,JGL01,FALSE
+50024028,Recruiting Manager,Engineering,RP,Operations,JGL01,FALSE
+3000929,President Spain,Engineering,RP,Operations,JGL01,FALSE
+3000845,SVP Operations and Management,Engineering,RP,Operations,JGL01,FALSE
+50025008,President Germany,Engineering,RP,Operations,JGL01,FALSE
+50022027,Payroll Admin,Engineering,RP,Operations,JGL01,FALSE
+3000403,Facilities Manager,Engineering,RP,Operations,JGL01,FALSE
+3000832,Program Management Office,Engineering,RP,Operations,JGL01,FALSE
+3000292,Learning Director,Engineering,RP,Operations,JGL01,FALSE
+50021019,Director of Talent Management,Engineering,RP,Operations,JGL01,FALSE
+3000384,Research and Development Manager,Engineering,RP,Operations,JGL01,FALSE
+3000325,HR Administrator,Engineering,General,CORP_SVCS,H-05,FALSE
+50014336,Executive Assistant,Engineering,RP,Operations,JGL01,FALSE
+3000752,Production Director,Engineering,RP,Operations,JGL01,FALSE
+3000772,Client Centre Executive,Engineering,RP,Operations,JGL01,FALSE
+3000280,Engineering Manager,Engineering,RP,Operations,JGL01,FALSE
+50014278,Executive Assistant,Engineering,RP,Operations,JGL01,FALSE
+50026001,QA Administrator,Engineering,RP,Operations,JGL01,FALSE
+50025035,Scheduler,Engineering,RP,Operations,JGL01,FALSE
+50024031,IT Business Partner,Engineering,RP,Operations,JGL01,FALSE
+50021021,Administrator,Engineering,RP,Operations,JGL01,FALSE
+3000803,Senior Designer,Engineering,RP,Operations,JGL01,FALSE
+50025042,Payroll Admin,Engineering,RP,Operations,JGL01,FALSE
+3000888,Analyst,Engineering,RP,Operations,JGL01,FALSE
+3001025,Administrative Support,Engineering,RP,Operations,JGL01,FALSE
+3000821,Purchasing Operator Korea,Engineering,RP,Operations,JGL01,FALSE
+50021006,Recruiter,Engineering,RP,Operations,JGL01,FALSE
+US,Project Manager,Engineering,RP,Operations,JGL01,FALSE
+DE,Assembly Worker,Engineering,RP,Operations,JGL01,FALSE
+50021046,Worker's Health & Safety Manager,Engineering,RP,Operations,JGL01,FALSE
+50024012,Production Director,Engineering,RP,Operations,JGL01,FALSE
+50000203,Assembly Manager,Engineering,RP,Operations,JGL01,FALSE
+3000822,President BestRun Italy,Engineering,RP,Operations,JGL01,FALSE
+3000944,Program Management Office,Engineering,RP,Operations,JGL01,FALSE
+3000789,HR Business Partner Poland,Engineering,General,Operations,JGL01,FALSE
+500300214,Production Technician,Engineering,RP,Operations,JGL01,FALSE
+3000421,Custodian,Engineering,RP,Operations,JGL01,FALSE
+3000943,Production Director,Engineering,RP,Operations,JGL01,FALSE
+50022025,Development Analyst Lead,Engineering,RP,Operations,JGL01,FALSE
+50014346,Administrator,Engineering,RP,Operations,JGL01,FALSE
+3001201,Financial Controller-West,Engineering,RP,Operations,JGL01,FALSE
+30101004,Purchasing Manager,Engineering,RP,Operations,JGL01,FALSE
+3000363,Administrator,Engineering,RP,Operations,JGL01,FALSE
+3000906,Engineering Manager,Engineering,RP,Operations,JGL01,FALSE
+3001000,HR IT Specialist,Engineering,RP,Operations,JGL01,FALSE
+3000754,HR Business Partner Qatar,Engineering,General,Operations,JGL01,FALSE
+5000395,Project Manager,Engineering,RP,Operations,JGL01,FALSE
+3000940,President Best Run Ireland,Engineering,RP,Operations,JGL01,FALSE
+3001076,Project Manager,Engineering,RP,Operations,JGL01,FALSE
+50026041,IT Business Partner,Engineering,RP,Operations,JGL01,FALSE
+3000237,President SEA,Engineering,RP,Operations,JGL01,FALSE
+3000851,President Colombia,Engineering,RP,Operations,JGL01,FALSE
+50014288,European Labor Law,Engineering,RP,Operations,JGL01,FALSE
+50023042,Payroll Admin,Engineering,RP,Operations,JGL01,FALSE
+50006525,Quality Manager,Engineering,General,Operations,JGL01,FALSE
+90002024,Scheduler,Engineering,RP,Operations,JGL01,FALSE
+50000331,Portfolio Management,Engineering,RP,Operations,JGL01,FALSE
+49999999,Executive Assistant to the President,Engineering,RP,Operations,JGL01,FALSE
+3000277,QA Manager,Engineering,RP,Operations,JGL01,FALSE
+50024014,Building Manager,Engineering,RP,Operations,JGL01,FALSE
+3000306,Management & Planning,Engineering,RP,Operations,JGL01,FALSE
+3000259,Quality Assurance Manager,Engineering,RP,Operations,JGL01,FALSE
+50024003,QA Engineer,Engineering,RP,Operations,JGL01,FALSE

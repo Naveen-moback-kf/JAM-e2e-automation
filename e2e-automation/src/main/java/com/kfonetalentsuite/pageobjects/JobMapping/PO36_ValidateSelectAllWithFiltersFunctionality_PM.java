@@ -489,12 +489,12 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 			LOGGER.info("BASELINE COUNTS (After First Filter + Selection)");
 			LOGGER.info("========================================");
 			LOGGER.info("Total Profiles Loaded: " + totalVisibleProfiles);
-			LOGGER.info("Selected Profiles: " + filterResultsCount);
+			LOGGER.info("Selected Profiles: " + filterResultsCount.get());
 			LOGGER.info("Disabled Profiles (cannot be selected): " + disabledProfiles);
 			LOGGER.info("Unselected Profiles (can be selected but not selected): " + unselectedProfiles);
 			LOGGER.info("========================================");
 			PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(filterResultsCount.get());
-			ExtentCucumberAdapter.addTestStepLog("Baseline: " + filterResultsCount + " selected profiles");
+			ExtentCucumberAdapter.addTestStepLog("Baseline: " + filterResultsCount.get() + " selected profiles");
 
 		} catch (Exception e) {
 			LOGGER.warn("Error capturing selected profiles count: " + e.getMessage());
@@ -537,9 +537,9 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			LOGGER.info("Verifying only filtered profiles remain selected (expected: " + filterResultsCount + ")");
+			LOGGER.info("Verifying only filtered profiles remain selected (expected: " + filterResultsCount.get() + ")");
 			ExtentCucumberAdapter
-					.addTestStepLog("Verifying only " + filterResultsCount + " profiles remain selected...");
+					.addTestStepLog("Verifying only " + filterResultsCount.get() + " profiles remain selected...");
 
 			if (filterResultsCount.get() == 0) {
 				LOGGER.warn(" Filter results count is 0, skipping verification");
@@ -599,7 +599,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 				if (currentSelectedCount > filterResultsCount.get()) {
 					int extra = currentSelectedCount - filterResultsCount.get();
 					LOGGER.warn(" FAIL-FAST at scroll " + scrollAttempts + ": Found " + currentSelectedCount
-							+ " selected (expected " + filterResultsCount + "), " + extra
+							+ " selected (expected " + filterResultsCount.get() + "), " + extra
 							+ " extra selections detected");
 					allProfilesLoaded = true; // Break the loop
 					actualSelectedCount = currentSelectedCount; // Store for final validation
@@ -673,7 +673,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 			LOGGER.info("Currently Selected Profiles: " + actualSelectedCount);
 			LOGGER.info("Not Selected Profiles (Disabled + Unselected): " + notSelectedProfiles);
 			LOGGER.info("----------------------------------------");
-			LOGGER.info("Baseline (from first filter): " + filterResultsCount + " profiles");
+			LOGGER.info("Baseline (from first filter): " + filterResultsCount.get() + " profiles");
 			if (missingSelections > 0) {
 				LOGGER.warn("Missing Selections: " + missingSelections + " (disabled or lost selection)");
 			} else if (extraSelections > 0) {
@@ -693,13 +693,13 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 				// FEATURE 40 APPROACH: Smart validation for partial data
 				if (actualSelectedCount == 0) {
 					String errorMsg = " FAIL: No selections found in " + totalProfilesVisible
-							+ " loaded profiles (expected " + filterResultsCount + ")";
+							+ " loaded profiles (expected " + filterResultsCount.get() + ")";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
 				} else if (actualSelectedCount > filterResultsCount.get()) {
 					String errorMsg = " FAIL: Found " + actualSelectedCount + " selected (expected "
-							+ filterResultsCount + "), " + extraSelections + " extra profiles incorrectly selected";
+							+ filterResultsCount.get() + "), " + extraSelections + " extra profiles incorrectly selected";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
@@ -720,7 +720,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 			} else {
 				// Normal validation when all profiles are loaded
 				if (actualSelectedCount == filterResultsCount.get()) {
-					String successMsg = " PASS: All " + filterResultsCount + " filtered profiles remain selected";
+					String successMsg = " PASS: All " + filterResultsCount.get() + " filtered profiles remain selected";
 					LOGGER.info(successMsg);
 					ExtentCucumberAdapter.addTestStepLog(successMsg);
 				} else if (actualSelectedCount < filterResultsCount.get()) {

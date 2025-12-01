@@ -8,7 +8,7 @@
         <listener class-name="hooks.JobMapping.SuiteHooks" />
     </listeners>
     
-    <!-- REGRESSION TESTS - Comprehensive Coverage (All 56 Runners) -->
+    <!-- REGRESSION TESTS - Comprehensive Coverage (All 57 Runners) -->
     <!-- Purpose: Complete test coverage including edge cases. Run nightly/weekly. -->
     <!-- Estimated Time: 60-90 minutes -->
     <!-- ALL RUNNERS IN EXACT NUMERICAL ORDER -->
@@ -340,6 +340,12 @@
     <test name="Runner47 - Validate Sorting Functionality in HCM Screen">
         <classes>
             <class name="testrunners.JobMapping.Runner47_ValidateSortingFunctionalityInHCMScreen_PM" />
+        </classes>
+    </test>
+    
+    <test name="Runner48 - Validate Reupload Missing Data Profiles">
+        <classes>
+            <class name="testrunners.JobMapping.Runner48_ValidateReuploadMissingDataProfiles" />
         </classes>
     </test>
     

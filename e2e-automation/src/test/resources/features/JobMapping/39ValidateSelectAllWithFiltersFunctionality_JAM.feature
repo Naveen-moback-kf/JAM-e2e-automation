@@ -31,9 +31,9 @@ Feature: Validate Select All Profiles with Filters Functionality in Job Mapping 
 		Then Click on Clear Filters button
 		Then User should verify Publish Selected Profiles button is enabled
 		
-	#@Verify_Profiles_Selection
-	#Scenario: Verify only Filtered Profiles are selected after clearing selected filters
-	 	#Then Verify only Filtered Profiles are selected after clearing all filters in Job Mapping screen
+	@Verify_Profiles_Selection
+	Scenario: Verify only Filtered Profiles are selected after clearing selected filters
+	 	Then Verify only Filtered Profiles are selected after clearing all filters in Job Mapping screen
 
 	@Alternative_Validation_With_Different_Filter
 	Scenario: Alternative Validation - Apply different filter and verify those results are NOT selected

@@ -216,9 +216,9 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			LOGGER.info("Verifying only searched profiles remain selected (expected: " + searchResultsCount + ")");
+			LOGGER.info("Verifying only searched profiles remain selected (expected: " + searchResultsCount.get() + ")");
 			ExtentCucumberAdapter
-					.addTestStepLog("Verifying only " + searchResultsCount + " profiles remain selected...");
+					.addTestStepLog("Verifying only " + searchResultsCount.get() + " profiles remain selected...");
 
 			if (searchResultsCount.get() == 0) {
 				LOGGER.warn(" Search results count is 0, skipping verification");
@@ -271,6 +271,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 						+ totalProfilesVisible + " profiles (+" + newlyLoadedProfiles + " new)");
 
 				// Fail-fast: Check if selected count increased beyond baseline
+				// HCM screen uses kf-icon for checkbox display
 				var currentSelectedRows = driver.findElements(By.xpath(
 						"//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]"));
 				int currentSelectedCount = currentSelectedRows.size();
@@ -278,7 +279,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 				if (currentSelectedCount > searchResultsCount.get()) {
 					int extra = currentSelectedCount - searchResultsCount.get();
 					LOGGER.warn(" FAIL-FAST at scroll " + scrollAttempts + ": Found " + currentSelectedCount
-							+ " selected (expected " + searchResultsCount + "), " + extra
+							+ " selected (expected " + searchResultsCount.get() + "), " + extra
 							+ " extra selections detected");
 					allProfilesLoaded = true; // Break the loop
 					actualSelectedCount = currentSelectedCount; // Store for final validation
@@ -321,6 +322,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 
 			// After loading all profiles, count selected vs not selected (if not already
 			// counted during fail-fast)
+			// HCM screen uses kf-icon for checkbox display
 			if (actualSelectedCount == 0) {
 				var selectedRows = driver.findElements(By.xpath(
 						"//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]"));
@@ -352,7 +354,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 			LOGGER.info("Currently Selected Profiles: " + actualSelectedCount);
 			LOGGER.info("Not Selected Profiles (Disabled + Unselected): " + notSelectedProfiles);
 			LOGGER.info("----------------------------------------");
-			LOGGER.info("Baseline (from first search): " + searchResultsCount + " profiles");
+			LOGGER.info("Baseline (from first search): " + searchResultsCount.get() + " profiles");
 			if (missingSelections > 0) {
 				LOGGER.warn("Missing Selections: " + missingSelections + " (disabled or lost selection)");
 			} else if (extraSelections > 0) {
@@ -372,13 +374,13 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 				// FEATURE 40 APPROACH: Smart validation for partial data
 				if (actualSelectedCount == 0) {
 					String errorMsg = " FAIL: No selections found in " + totalProfilesVisible
-							+ " loaded profiles (expected " + searchResultsCount + ")";
+							+ " loaded profiles (expected " + searchResultsCount.get() + ")";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
 				} else if (actualSelectedCount > searchResultsCount.get()) {
 					String errorMsg = " FAIL: Found " + actualSelectedCount + " selected (expected "
-							+ searchResultsCount + "), " + extraSelections + " extra profiles incorrectly selected";
+							+ searchResultsCount.get() + "), " + extraSelections + " extra profiles incorrectly selected";
 					LOGGER.error(errorMsg);
 					ExtentCucumberAdapter.addTestStepLog(errorMsg);
 					Assert.fail(errorMsg);
@@ -399,7 +401,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 			} else {
 				// Normal validation when all profiles are loaded
 				if (actualSelectedCount == searchResultsCount.get()) {
-					String successMsg = " PASS: All " + searchResultsCount + " searched profiles remain selected";
+					String successMsg = " PASS: All " + searchResultsCount.get() + " searched profiles remain selected";
 					LOGGER.info(successMsg);
 					ExtentCucumberAdapter.addTestStepLog(successMsg);
 				} else if (actualSelectedCount < searchResultsCount.get()) {
