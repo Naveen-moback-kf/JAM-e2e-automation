@@ -9,12 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.List;
 
-/**
- * Utility class providing headless-compatible actions for Selenium WebDriver.
- * All methods work reliably in both windowed and headless modes.
- * 
- * @author KF One Talent Suite Automation Team
- */
 public class HeadlessCompatibleActions {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HeadlessCompatibleActions.class);
@@ -28,12 +22,6 @@ public class HeadlessCompatibleActions {
 		this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 	}
 
-	/**
-	 * Scrolls to the bottom of the page in a headless-compatible way. Uses
-	 * document.documentElement.scrollHeight and triggers scroll events.
-	 * 
-	 * @throws InterruptedException if thread sleep is interrupted
-	 */
 	public void scrollToBottom() throws InterruptedException {
 		try {
 			// Use documentElement instead of body (more reliable in headless)
@@ -53,13 +41,6 @@ public class HeadlessCompatibleActions {
 		}
 	}
 
-	/**
-	 * Scrolls to a specific element and brings it into view. Works reliably in
-	 * headless mode by using multiple strategies.
-	 * 
-	 * @param element The element to scroll to
-	 * @throws InterruptedException if thread sleep is interrupted
-	 */
 	public void scrollToElement(WebElement element) throws InterruptedException {
 		try {
 			// Method 1: scrollIntoView with center alignment (best for headless)
@@ -77,14 +58,6 @@ public class HeadlessCompatibleActions {
 		}
 	}
 
-	/**
-	 * Clicks an element using headless-compatible strategies. Tries multiple
-	 * methods: regular click, JS click, and action click. Scrolls element into view
-	 * before clicking.
-	 * 
-	 * @param element The element to click
-	 * @return true if click succeeded, false otherwise
-	 */
 	public boolean clickElement(WebElement element) {
 		try {
 			// Scroll element into view first
@@ -125,13 +98,6 @@ public class HeadlessCompatibleActions {
 		}
 	}
 
-	/**
-	 * Checks if an element is visible in the viewport. More reliable than
-	 * isDisplayed() in headless mode.
-	 * 
-	 * @param element The element to check
-	 * @return true if element is in viewport, false otherwise
-	 */
 	public boolean isElementInViewport(WebElement element) {
 		try {
 			Boolean inViewport = (Boolean) js.executeScript(
@@ -147,14 +113,6 @@ public class HeadlessCompatibleActions {
 		}
 	}
 
-	/**
-	 * Waits for an element to be clickable and then clicks it. Scrolls element into
-	 * view if needed.
-	 * 
-	 * @param element        The element to click
-	 * @param timeoutSeconds Timeout in seconds
-	 * @return true if click succeeded, false otherwise
-	 */
 	public boolean waitAndClick(WebElement element, int timeoutSeconds) {
 		try {
 			WebDriverWait customWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
@@ -166,15 +124,7 @@ public class HeadlessCompatibleActions {
 		}
 	}
 
-	/**
-	 * Scrolls within a specific container element (for scrollable divs). Useful for
-	 * dropdowns, modals, etc.
-	 * 
-	 * @param container    The container element with overflow
-	 * @param scrollAmount Amount to scroll in pixels (negative for up, positive for
-	 *                     down)
-	 * @throws InterruptedException if thread sleep is interrupted
-	 */
+
 	public void scrollWithinContainer(WebElement container, int scrollAmount) throws InterruptedException {
 		try {
 			js.executeScript("arguments[0].scrollTop = arguments[0].scrollTop + arguments[1];", container,
@@ -186,12 +136,7 @@ public class HeadlessCompatibleActions {
 		}
 	}
 
-	/**
-	 * Scrolls a container to the top.
-	 * 
-	 * @param container The container element
-	 * @throws InterruptedException if thread sleep is interrupted
-	 */
+
 	public void scrollContainerToTop(WebElement container) throws InterruptedException {
 		try {
 			js.executeScript("arguments[0].scrollTop = 0;", container);
@@ -202,12 +147,7 @@ public class HeadlessCompatibleActions {
 		}
 	}
 
-	/**
-	 * Scrolls a container to the bottom.
-	 * 
-	 * @param container The container element
-	 * @throws InterruptedException if thread sleep is interrupted
-	 */
+
 	public void scrollContainerToBottom(WebElement container) throws InterruptedException {
 		try {
 			js.executeScript("arguments[0].scrollTop = arguments[0].scrollHeight;", container);
@@ -218,12 +158,7 @@ public class HeadlessCompatibleActions {
 		}
 	}
 
-	/**
-	 * Gets the current scroll height of the page. Uses documentElement for headless
-	 * compatibility.
-	 * 
-	 * @return The scroll height in pixels
-	 */
+
 	public long getScrollHeight() {
 		try {
 			return (Long) js.executeScript("return document.documentElement.scrollHeight;");
@@ -233,13 +168,7 @@ public class HeadlessCompatibleActions {
 		}
 	}
 
-	/**
-	 * Scrolls to the last visible element in a list. Useful for triggering lazy
-	 * loading.
-	 * 
-	 * @param elements List of elements
-	 * @throws InterruptedException if thread sleep is interrupted
-	 */
+
 	public void scrollToLastElement(List<WebElement> elements) throws InterruptedException {
 		if (elements != null && !elements.isEmpty()) {
 			WebElement lastElement = elements.get(elements.size() - 1);
@@ -247,15 +176,6 @@ public class HeadlessCompatibleActions {
 		}
 	}
 
-	/**
-	 * Sends keys to an element with retry logic. Clears the field first if
-	 * specified.
-	 * 
-	 * @param element    The element to send keys to
-	 * @param text       The text to send
-	 * @param clearFirst Whether to clear the field first
-	 * @return true if successful, false otherwise
-	 */
 	public boolean sendKeysWithRetry(WebElement element, String text, boolean clearFirst) {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(element));
@@ -291,12 +211,6 @@ public class HeadlessCompatibleActions {
 		}
 	}
 
-	/**
-	 * Waits for the page to be fully loaded. Checks document.readyState and jQuery
-	 * if available.
-	 * 
-	 * @param timeoutSeconds Timeout in seconds
-	 */
 	public void waitForPageLoad(int timeoutSeconds) {
 		try {
 			WebDriverWait customWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));

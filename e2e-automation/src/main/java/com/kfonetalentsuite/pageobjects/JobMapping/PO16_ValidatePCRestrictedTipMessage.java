@@ -20,7 +20,6 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.SmartWaits;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
@@ -673,7 +672,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 
 		try {
 			// Popup appears while spinners are still showing, so check for popup first
-			SmartWaits.shortWait(driver);
+			PerformanceUtils.shortWait(driver);
 
 			// Try to find either success or failure popup - check both in parallel
 			boolean popupFound = false;
@@ -1264,7 +1263,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 		}
 
 		try {
-			SmartWaits.shortWait(driver);
+			PerformanceUtils.shortWait(driver);
 			wait.until(ExpectedConditions.visibilityOf(pcSuccessPopup)).isDisplayed();
 			String SuccesstText = wait.until(ExpectedConditions.visibilityOf(pcSuccessPopup)).getText();
 			LOGGER.info(SuccesstText);

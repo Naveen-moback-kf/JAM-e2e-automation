@@ -269,7 +269,7 @@ public class ScreenshotHandler {
 			}
 
 			// Log error
-			TestLogger.log(errorMsg);
+			LOGGER.info(errorMsg);
 
 			// Fail the test
 			Assert.fail(errorMsg);
@@ -318,7 +318,7 @@ public class ScreenshotHandler {
 			}
 
 			// Log error
-			TestLogger.log(errorMsg);
+			LOGGER.info(errorMsg);
 
 			// Fail the test
 			Assert.fail(errorMsg);
@@ -348,7 +348,7 @@ public class ScreenshotHandler {
 			}
 
 			// Log error
-			TestLogger.log(errorMsg);
+			LOGGER.info(errorMsg);
 
 			// Fail the test
 			Assert.fail(errorMsg);
@@ -371,11 +371,9 @@ public class ScreenshotHandler {
 			String screenshotPath = captureFailureScreenshot(methodName, logMessage);
 
 			if (screenshotPath != null) {
-				LOGGER.warn(" ISSUE DETECTED - {} | Screenshot saved: {}", methodName, screenshotPath);
-				TestLogger.logWarning(logMessage + " | Screenshot: " + screenshotPath);
+				LOGGER.warn(" ISSUE DETECTED - {} | Screenshot saved: {} | {}", methodName, screenshotPath, logMessage);
 			} else {
-				LOGGER.warn(" ISSUE DETECTED - {} | Screenshot capture failed", methodName);
-				TestLogger.logWarning(logMessage);
+				LOGGER.warn(" ISSUE DETECTED - {} | Screenshot capture failed | {}", methodName, logMessage);
 			}
 
 			return screenshotPath;

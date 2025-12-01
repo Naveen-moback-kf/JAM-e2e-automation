@@ -463,6 +463,50 @@ public class PerformanceUtils {
 	}
 
 	/**
+	 * Short intelligent wait - replaces Thread.sleep(1000-3000)
+	 * Waits for page readiness first, then minimal additional time
+	 * 
+	 * @param driver WebDriver instance
+	 */
+	public static void shortWait(WebDriver driver) {
+		try {
+			waitForPageReady(driver, SHORT_TIMEOUT_SECONDS);
+		} catch (Exception e) {
+			// Acceptable - continue
+		}
+	}
+
+	/**
+	 * Wait for element to be clickable
+	 * 
+	 * @param driver  WebDriver instance
+	 * @param element WebElement to wait for
+	 */
+	public static void waitForElementClickable(WebDriver driver, WebElement element) {
+		waitForElementClickable(driver, element, DEFAULT_TIMEOUT_SECONDS);
+	}
+
+	public static void waitForElementClickable(WebDriver driver, WebElement element, int timeoutSeconds) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		wait.until(ExpectedConditions.elementToBeClickable(element));
+	}
+
+	/**
+	 * Wait for element to become invisible (useful for loading indicators)
+	 * 
+	 * @param driver  WebDriver instance
+	 * @param element WebElement to wait for invisibility
+	 */
+	public static void waitForElementInvisible(WebDriver driver, WebElement element) {
+		waitForElementInvisible(driver, element, DEFAULT_TIMEOUT_SECONDS);
+	}
+
+	public static void waitForElementInvisible(WebDriver driver, WebElement element, int timeoutSeconds) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		wait.until(ExpectedConditions.invisibilityOf(element));
+	}
+
+	/**
 	 * PERFORMANCE: Safe method to get element text with stale element retry logic
 	 * This is specifically useful for dynamic elements like result counts that
 	 * update frequently

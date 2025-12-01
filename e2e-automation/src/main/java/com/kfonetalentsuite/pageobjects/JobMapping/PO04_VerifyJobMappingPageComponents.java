@@ -19,7 +19,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.SmartWaits;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.utils.common.ExcelDataProvider;
@@ -880,7 +879,7 @@ public class PO04_VerifyJobMappingPageComponents {
 			js.executeScript("arguments[0].click();", filtersBtn);
 
 			// Verify dropdown is closed
-			SmartWaits.waitForElementInvisible(driver, filterOptions);
+			PerformanceUtils.waitForElementInvisible(driver, filterOptions);
 			Assert.assertTrue(true); // Dropdown closed successfully
 
 			PageObjectHelper.log(LOGGER, "Closed Filters dropdown");

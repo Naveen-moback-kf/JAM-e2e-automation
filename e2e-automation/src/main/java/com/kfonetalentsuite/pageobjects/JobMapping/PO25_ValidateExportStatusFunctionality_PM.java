@@ -22,7 +22,6 @@ import org.openqa.selenium.StaleElementReferenceException;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
-import com.kfonetalentsuite.utils.JobMapping.SimpleErrorHandler;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
@@ -503,19 +502,19 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(1);
 
 		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext(
+			PageObjectHelper.handleWithContext(
 					"click_on_checkbox_of_success_profile_with_export_status_as_not_exported", e,
 					"Checkbox for profile: " + SPJobName);
 		} catch (ElementNotInteractableException e) {
-			SimpleErrorHandler.handleWithContext(
+			PageObjectHelper.handleWithContext(
 					"click_on_checkbox_of_success_profile_with_export_status_as_not_exported", e,
 					"Checkbox interaction for profile: " + SPJobName);
 		} catch (StaleElementReferenceException e) {
-			SimpleErrorHandler.handleWithContext(
+			PageObjectHelper.handleWithContext(
 					"click_on_checkbox_of_success_profile_with_export_status_as_not_exported", e,
 					"Stale checkbox element for profile: " + SPJobName);
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext(
+			PageObjectHelper.handleWithContext(
 					"click_on_checkbox_of_success_profile_with_export_status_as_not_exported", e,
 					"Checkbox operation for profile: " + SPJobName);
 		}
@@ -527,7 +526,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			waitForPageReady();
 			logAndReport("HCM Sync Profiles screen page is Refreshed....");
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("refresh_hcm_sync_profiles_tab", e, "Page refresh operation");
+			PageObjectHelper.handleWithContext("refresh_hcm_sync_profiles_tab", e, "Page refresh operation");
 		}
 	}
 
@@ -562,16 +561,16 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 					+ " as expected");
 
 		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
+			PageObjectHelper.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
 					"Table elements for profile: " + SPJobName.get());
 		} catch (NoSuchElementException e) {
-			SimpleErrorHandler.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
+			PageObjectHelper.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
 					"Table row " + rowNumber.get());
 		} catch (AssertionError e) {
-			SimpleErrorHandler.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
+			PageObjectHelper.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
 					"Export status assertion for profile: " + SPJobName.get());
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
+			PageObjectHelper.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
 					"Export status verification for profile: " + SPJobName.get());
 		}
 	}
@@ -800,10 +799,10 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			SimpleErrorHandler.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e,
+			PageObjectHelper.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e,
 					"Click operation interrupted");
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e,
+			PageObjectHelper.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e,
 					"Click operation failed");
 		}
 	}
@@ -837,7 +836,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 					"SP details page opens as expected on click of Recently Exported Success Profile Job name in HCM Sync Profiles screen in PM....");
 
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("user_should_be_navigated_to_sp_details_page", e,
+			PageObjectHelper.handleWithContext("user_should_be_navigated_to_sp_details_page", e,
 					"SP details page verification");
 		}
 	}
@@ -848,7 +847,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			performEnhancedClick(threeDotsinSPdetailsPage, "Three Dots in SP Details Page");
 			waitForPageReady(0); // Wait for spinner only
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("click_on_three_dots_in_sp_details_page", e, "Three dots menu");
+			PageObjectHelper.handleWithContext("click_on_three_dots_in_sp_details_page", e, "Three dots menu");
 		}
 	}
 
@@ -858,7 +857,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			performEnhancedClick(editSPbuttoninSPdetailsPage, "Edit Success Profile option in SP Details Page");
 			waitForPageReady(0);
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("click_on_edit_success_profile_option", e,
+			PageObjectHelper.handleWithContext("click_on_edit_success_profile_option", e,
 					"Edit Success Profile option");
 		}
 	}
@@ -869,7 +868,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			performEnhancedClick(editDetailsBtn, "Edit button of Success Profile Details section");
 			waitForPageReady(0);
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("click_on_edit_button_of_details_section", e,
+			PageObjectHelper.handleWithContext("click_on_edit_button_of_details_section", e,
 					"Edit button of Details section");
 		}
 	}
@@ -946,10 +945,10 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 					"Sub-Function value Modified to '" + subFunctionValue + "' in Success Profile Details section");
 
 		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext("modify_function_and_sub_function_values_of_the_success_profile", e,
+			PageObjectHelper.handleWithContext("modify_function_and_sub_function_values_of_the_success_profile", e,
 					"Function/SubFunction dropdown operations");
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("modify_function_and_sub_function_values_of_the_success_profile", e,
+			PageObjectHelper.handleWithContext("modify_function_and_sub_function_values_of_the_success_profile", e,
 					"Function/SubFunction modification");
 		}
 	}
@@ -960,7 +959,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			performEnhancedClick(DoneBtnofSP, "Done button of Success Profile Details section");
 			waitForPageReady();
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("click_on_done_button", e, "Done button operation");
+			PageObjectHelper.handleWithContext("click_on_done_button", e, "Done button operation");
 		}
 	}
 
@@ -970,7 +969,7 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			performEnhancedClick(SaveBtnofSP, "Save button of Success Profile");
 			waitForPageReady();
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("click_on_save_button", e, "Save button operation");
+			PageObjectHelper.handleWithContext("click_on_save_button", e, "Save button operation");
 		}
 	}
 
@@ -980,13 +979,13 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(SPdetailsPageText)).isDisplayed());
 			logAndReport("Navigated to SP details page as expected after Saving SP details....");
 		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext("user_should_be_navigated_to_sp_details_page_after_saving_sp_details",
+			PageObjectHelper.handleWithContext("user_should_be_navigated_to_sp_details_page_after_saving_sp_details",
 					e, "SP details page navigation after save");
 		} catch (AssertionError e) {
-			SimpleErrorHandler.handleWithContext("user_should_be_navigated_to_sp_details_page_after_saving_sp_details",
+			PageObjectHelper.handleWithContext("user_should_be_navigated_to_sp_details_page_after_saving_sp_details",
 					e, "SP details page assertion after save");
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext("user_should_be_navigated_to_sp_details_page_after_saving_sp_details",
+			PageObjectHelper.handleWithContext("user_should_be_navigated_to_sp_details_page_after_saving_sp_details",
 					e, "SP details page verification after save");
 		}
 	}
@@ -999,15 +998,15 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			logAndReport("Recently Modified SP with name " + topJobName.getText()
 					+ " is displaying on the Top of the Profiles List as Expected in HCM Sync Profiles screen");
 		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext(
+			PageObjectHelper.handleWithContext(
 					"user_should_verify_recently_modified_success_profile_is_displaying_on_top_of_the_job_proifles_list",
 					e, "Top profile verification");
 		} catch (AssertionError e) {
-			SimpleErrorHandler.handleWithContext(
+			PageObjectHelper.handleWithContext(
 					"user_should_verify_recently_modified_success_profile_is_displaying_on_top_of_the_job_proifles_list",
 					e, "Profile position assertion");
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext(
+			PageObjectHelper.handleWithContext(
 					"user_should_verify_recently_modified_success_profile_is_displaying_on_top_of_the_job_proifles_list",
 					e, "Profile list verification");
 		}
@@ -1025,15 +1024,15 @@ public class PO25_ValidateExportStatusFunctionality_PM {
 			logAndReport("Export Status of recently Exported and Modfied SP with name " + SPJobName.get()
 					+ " updated as " + exportStatus.getText() + " as expected...");
 		} catch (TimeoutException e) {
-			SimpleErrorHandler.handleWithContext(
+			PageObjectHelper.handleWithContext(
 					"user_should_verify_recently_exported_and_modified_success_profile_export_status_updated_as_exported_modfied",
 					e, "Export status verification after modification");
 		} catch (AssertionError e) {
-			SimpleErrorHandler.handleWithContext(
+			PageObjectHelper.handleWithContext(
 					"user_should_verify_recently_exported_and_modified_success_profile_export_status_updated_as_exported_modfied",
 					e, "Export status assertion for modified profile");
 		} catch (Exception e) {
-			SimpleErrorHandler.handleWithContext(
+			PageObjectHelper.handleWithContext(
 					"user_should_verify_recently_exported_and_modified_success_profile_export_status_updated_as_exported_modfied",
 					e, "Modified profile export status verification");
 		}

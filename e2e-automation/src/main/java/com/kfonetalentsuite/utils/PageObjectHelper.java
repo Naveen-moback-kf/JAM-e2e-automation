@@ -2,56 +2,49 @@ package com.kfonetalentsuite.utils;
 
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.ElementNotInteractableException;
+import org.testng.Assert;
 
 import java.util.function.Supplier;
 
-/**
- * Utility class for common Page Object operations including logging, error
- * handling, and stale element retry logic. All page objects should use these
- * methods instead of duplicating code.
- */
+
 public class PageObjectHelper {
 
-	/**
-	 * Logs a message to Log4j Logger
-	 * 
-	 * @param logger  The Log4j Logger instance from the calling class
-	 * @param message The message to log
-	 */
 	public static void log(Logger logger, String message) {
 		logger.info(message);
 	}
-
-	/**
-	 * Handles errors by capturing screenshot, logging to Log4j Logger,
-	 * then throws RuntimeException
-	 * 
-	 * @param logger           The Log4j Logger instance from the calling class
-	 * @param methodName       The name of the method where the error occurred
-	 * @param issueDescription A description of what went wrong
-	 * @param e                The exception that was caught
-	 * @throws RuntimeException Always throws to fail the test
-	 */
+	
 	public static void handleError(Logger logger, String methodName, String issueDescription, Exception e) {
 		String errorMsg = issueDescription + " - Method: " + methodName;
 		logger.error(errorMsg, e);
-
-		// Capture screenshot before throwing exception
 		ScreenshotHandler.captureFailureScreenshot(methodName, e);
-
 		throw new RuntimeException(errorMsg, e);
 	}
 
-	/**
-	 * Retries an operation up to 3 times if StaleElementReferenceException occurs.
-	 * This is useful when the DOM is refreshing and elements become stale.
-	 * 
-	 * @param logger   The Log4j Logger instance from the calling class
-	 * @param supplier The operation to retry (e.g., () -> element.click())
-	 * @param <T>      The return type of the operation
-	 * @return The result of the operation
-	 * @throws RuntimeException if all retry attempts fail
-	 */
+	public static void handleWithContext(String methodName, Throwable e, String elementContext) {
+		if (e instanceof StaleElementReferenceException || e instanceof ElementNotInteractableException) {
+			
+		}
+		String errorMsg = String.format(" Method: %s | Element: %s | Error: %s", 
+				formatMethodName(methodName), elementContext, e.getMessage());
+
+		String screenshotPath = ScreenshotHandler.captureFailureScreenshot(methodName, e);
+		if (screenshotPath != null) {
+			errorMsg += " | Screenshot: " + screenshotPath;
+		}
+		Assert.fail(errorMsg);
+	}
+
+
+	public static void handleWithContext(String methodName, Throwable e) {
+		handleWithContext(methodName, e, "Unknown element");
+	}
+
+	private static String formatMethodName(String methodName) {
+		return methodName.replaceAll("_", " ").toLowerCase();
+	}
+
 	public static <T> T retryOnStaleElement(Logger logger, Supplier<T> supplier) {
 		int maxRetries = 3;
 		for (int attempt = 1; attempt <= maxRetries; attempt++) {
@@ -74,12 +67,6 @@ public class PageObjectHelper {
 		throw new RuntimeException("Unexpected error in retry logic");
 	}
 
-	/**
-	 * Overloaded version of retryOnStaleElement for void operations (Runnable)
-	 * 
-	 * @param logger    The Log4j Logger instance from the calling class
-	 * @param operation The operation to retry (e.g., () -> element.click())
-	 */
 	public static void retryOnStaleElement(Logger logger, Runnable operation) {
 		retryOnStaleElement(logger, () -> {
 			operation.run();

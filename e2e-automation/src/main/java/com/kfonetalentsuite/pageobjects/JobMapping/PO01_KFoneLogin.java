@@ -19,7 +19,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.SmartWaits;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.SessionManager;
@@ -949,7 +948,7 @@ public class PO01_KFoneLogin {
 						// Scroll element into view
 						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
 								clientNameElement);
-						SmartWaits.waitForElementClickable(driver, clientNameElement);
+						PerformanceUtils.waitForElementClickable(driver, clientNameElement);
 
 						// Click on this client
 						clientNameElement.click();
@@ -1018,7 +1017,7 @@ public class PO01_KFoneLogin {
 		try {
 			// Scroll to the Your Products section to ensure it's visible
 			js.executeScript("arguments[0].scrollIntoView(true);", yourProductsSection);
-			SmartWaits.shortWait(driver);
+			PerformanceUtils.shortWait(driver);
 
 			// Wait for Profile Manager application to be visible and clickable
 			wait.until(ExpectedConditions.elementToBeClickable(profileManagerInProductsSection)).isDisplayed();
