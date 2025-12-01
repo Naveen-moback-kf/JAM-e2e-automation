@@ -19,8 +19,8 @@ import org.testng.SkipException;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,8 +78,7 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 				String statusText = mappingStatusValues.get(i).getText();
 
 				if (statusText.contains("Unmapped")) {
-					LOGGER.info("Found Unmapped option: {}", statusText);
-					ExtentCucumberAdapter.addTestStepLog("Found Unmapped option: " + statusText);
+					PageObjectHelper.log(LOGGER, "Found Unmapped option: " + statusText);
 
 					js.executeScript("arguments[0].scrollIntoView();", mappingStatusValues.get(i));
 
@@ -99,8 +98,7 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 					Assert.assertTrue(mappingStatusCheckboxes.get(i).isSelected(),
 							"Unmapped option should be selected");
 
-					LOGGER.info("Successfully selected Unmapped jobs option from Mapping Status Filters");
-					ExtentCucumberAdapter.addTestStepLog("Selected Unmapped jobs option from Mapping Status Filters");
+					PageObjectHelper.log(LOGGER, "Selected Unmapped jobs option from Mapping Status Filters");
 
 					unmappedFound = true;
 					break;
@@ -110,8 +108,7 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 			if (!unmappedFound) {
 				skipScenario.set(true);
 				String skipMessage = "Unmapped option not found in Mapping Status Filters dropdown - Skipping Feature 46 validation";
-				LOGGER.warn(skipMessage);
-				ExtentCucumberAdapter.addTestStepLog(" " + skipMessage);
+				PageObjectHelper.log(LOGGER, skipMessage);
 				throw new SkipException(skipMessage);
 			}
 
@@ -121,10 +118,7 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("select_unmapped_jobs_option_in_mapping_status_filters_dropdown",
 					e);
-			LOGGER.error(
-					"Error selecting Unmapped jobs option - Method: select_unmapped_jobs_option_in_mapping_status_filters_dropdown",
-					e);
-			ExtentCucumberAdapter.addTestStepLog(" Error selecting Unmapped jobs option");
+			PageObjectHelper.log(LOGGER, "Error selecting Unmapped jobs option");
 			Assert.fail("Error selecting Unmapped jobs option: " + e.getMessage());
 		}
 	}
@@ -152,15 +146,11 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 
 			Assert.assertFalse(isEnabled, "Header Checkbox should be disabled when Unmapped filter is applied");
 
-			LOGGER.info(" Header Checkbox is disabled as expected (Unmapped jobs cannot be selected)");
-			ExtentCucumberAdapter.addTestStepLog(" Header Checkbox is disabled as expected");
+			PageObjectHelper.log(LOGGER, "Header Checkbox is disabled as expected (Unmapped jobs cannot be selected)");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_header_checkbox_is_disabled_in_job_mapping_screen", e);
-			LOGGER.error(
-					"Error verifying header checkbox is disabled - Method: verify_header_checkbox_is_disabled_in_job_mapping_screen",
-					e);
-			ExtentCucumberAdapter.addTestStepLog(" Error verifying header checkbox is disabled");
+			PageObjectHelper.log(LOGGER, "Error verifying header checkbox is disabled");
 			Assert.fail("Error verifying header checkbox is disabled: " + e.getMessage());
 		}
 	}
@@ -232,16 +222,11 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 			Assert.assertTrue(hasOpacity,
 					"Chevron button should have 'opacity-30' class. Found classes: " + classAttribute);
 
-			LOGGER.info(" Chevron button is disabled as expected (has 'cursor-not-allowed' and 'opacity-30' classes)");
-			ExtentCucumberAdapter
-					.addTestStepLog(" Chevron button is disabled as expected (Unmapped jobs cannot be selected)");
+			PageObjectHelper.log(LOGGER, "Chevron button is disabled as expected (Unmapped jobs cannot be selected)");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_chevron_button_is_disabled_in_job_mapping_screen", e);
-			LOGGER.error(
-					"Error verifying chevron button is disabled - Method: verify_chevron_button_is_disabled_in_job_mapping_screen",
-					e);
-			ExtentCucumberAdapter.addTestStepLog(" Error verifying chevron button is disabled");
+			PageObjectHelper.log(LOGGER, "Error verifying chevron button is disabled");
 			Assert.fail("Error verifying chevron button is disabled: " + e.getMessage());
 		}
 	}
@@ -415,19 +400,13 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM {
 								+ expectedTooltipText);
 			}
 
-			LOGGER.info(" VALIDATION PASSED: All {} unmapped job checkboxes are disabled", disabledCheckboxes);
-			LOGGER.info(" First checkbox has correct tooltip with expected text");
-			ExtentCucumberAdapter.addTestStepLog(
-					" Validation PASSED: All " + disabledCheckboxes + " unmapped job checkboxes are disabled");
-			ExtentCucumberAdapter.addTestStepLog(" First checkbox has correct tooltip: '" + expectedTooltipText + "'");
+			PageObjectHelper.log(LOGGER, "Validation PASSED: All " + disabledCheckboxes + " unmapped job checkboxes are disabled");
+			PageObjectHelper.log(LOGGER, "First checkbox has correct tooltip: '" + expectedTooltipText + "'");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_checkbox_of_all_unmapped_jobs_is_disabled_with_tooltip",
 					e);
-			LOGGER.error(
-					"Error verifying unmapped job checkboxes - Method: verify_checkbox_of_all_unmapped_jobs_is_disabled_with_tooltip",
-					e);
-			ExtentCucumberAdapter.addTestStepLog(" Error verifying unmapped job checkboxes");
+			PageObjectHelper.log(LOGGER, "Error verifying unmapped job checkboxes");
 			Assert.fail("Error verifying unmapped job checkboxes: " + e.getMessage());
 		}
 	}

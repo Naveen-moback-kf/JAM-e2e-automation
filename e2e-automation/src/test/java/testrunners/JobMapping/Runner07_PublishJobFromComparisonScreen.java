@@ -25,7 +25,7 @@ import io.cucumber.testng.CucumberOptions;
 		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Publish_Job_From_Comparison_Screen",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
-		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
+		plugin = {"html:target/cucumber-reports/cucumber.html", "json:target/cucumber-reports/cucumber.json"}
 		)
 
 public class Runner07_PublishJobFromComparisonScreen extends CustomizeTestNGCucumberRunner {

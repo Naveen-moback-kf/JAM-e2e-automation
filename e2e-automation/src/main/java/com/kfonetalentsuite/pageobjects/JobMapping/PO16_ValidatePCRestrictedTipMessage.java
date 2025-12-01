@@ -23,7 +23,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.SmartWaits;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO16_ValidatePCRestrictedTipMessage {
 	WebDriver driver = DriverManager.getDriver();
@@ -288,8 +287,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 					PerformanceUtils.waitForSpinnersToDisappear(driver, 8);
 					PerformanceUtils.waitForPageReady(driver, 2);
 
-					LOGGER.info("Clicking KFONE Global Menu...");
-					ExtentCucumberAdapter.addTestStepLog("Clicking KFONE Global Menu...");
+					PageObjectHelper.log(LOGGER, "Clicking KFONE Global Menu...");
 
 					// Click on KFONE Global Menu button - use By locator to avoid stale element
 					By kfoneMenuLocator = By.xpath("//button[@id='global-nav-menu-btn']");
@@ -305,12 +303,11 @@ public class PO16_ValidatePCRestrictedTipMessage {
 						LOGGER.info("Clicked KFONE Global Menu button using JavaScript");
 					}
 
-					ExtentCucumberAdapter.addTestStepLog("Successfully clicked KFONE Global Menu");
+					PageObjectHelper.log(LOGGER, "Successfully clicked KFONE Global Menu");
 
 					PerformanceUtils.waitForUIStability(driver, 1);
 
-					LOGGER.info("Clicking User Access button in KFONE menu...");
-					ExtentCucumberAdapter.addTestStepLog("Clicking User Access button in KFONE menu...");
+					PageObjectHelper.log(LOGGER, "Clicking User Access button in KFONE menu...");
 
 					// Click on User Access button - use By locator to avoid stale element
 					By userAccessLocator = By.xpath("//button[@aria-label='User Access']");
@@ -327,7 +324,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 						LOGGER.info("Clicked User Access button using JavaScript");
 					}
 
-					ExtentCucumberAdapter.addTestStepLog("Successfully clicked User Access button in KFONE menu");
+					PageObjectHelper.log(LOGGER, "Successfully clicked User Access button in KFONE menu");
 
 					// Wait for navigation to complete
 					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -336,9 +333,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 					// Verify navigation success
 					wait.until(ExpectedConditions.visibilityOf(UAMbutton));
 					if (UAMbutton.isDisplayed()) {
-						LOGGER.info("User landed on the SYSTEM CONFIGURATION page successfully");
-						ExtentCucumberAdapter
-								.addTestStepLog("User landed on the SYSTEM CONFIGURATION page successfully");
+						PageObjectHelper.log(LOGGER, "User landed on the SYSTEM CONFIGURATION page successfully");
 						return; // Success, exit method
 					}
 
@@ -387,8 +382,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 					utils.jsClick(driver, UAMbutton);
 				}
 			}
-			LOGGER.info("Clicked on User Admin Module button....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on User Admin Module button....");
+			PageObjectHelper.log(LOGGER, "Clicked on User Admin Module button");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_user_admin_module_button",
@@ -403,9 +397,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String text = wait.until(ExpectedConditions.visibilityOf(clientDashboard)).getText();
 			Assert.assertEquals(text, "DASHBOARD");
 			String clientname = wait.until(ExpectedConditions.visibilityOf(clientNameText)).getText();
-			LOGGER.info("User successfully landed on the Dashboard page of the client : " + clientname);
-			ExtentCucumberAdapter
-					.addTestStepLog("User successfully landed on the Dashboard page of the client : " + clientname);
+			PageObjectHelper.log(LOGGER, "User successfully landed on the Dashboard page of the client : " + clientname);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_be_landed_on_clients_dashboard_page",
 					"Issue in landing on Clients Dashboard page", e);
@@ -416,7 +408,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 	public void user_is_on_clients_dashboard_page() {
 		String clientname = wait.until(ExpectedConditions.visibilityOf(clientNameText)).getText();
 		LOGGER.info("User is on the Dashboard page of the client : " + clientname);
-		ExtentCucumberAdapter.addTestStepLog("User is on the Dashboard page of the client : " + clientname);
+		PageObjectHelper.log(LOGGER, "User is on the Dashboard page of the client : " + clientname);
 	}
 
 	public void click_on_teams_section() {
@@ -433,7 +425,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				}
 			}
 			LOGGER.info("Clicked on Teams section in User Admin Module....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Teams section in User Admin Module....");
+			PageObjectHelper.log(LOGGER, "Clicked on Teams section in User Admin Module....");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_teams_section",
@@ -448,10 +440,10 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String text = wait.until(ExpectedConditions.visibilityOf(teamsPageHeader)).getText();
 			Assert.assertEquals(text, "TEAMS");
 			LOGGER.info("User landed on the " + text + " page successfully");
-			ExtentCucumberAdapter.addTestStepLog("User landed on the " + text + " page successfully");
+			PageObjectHelper.log(LOGGER, "User landed on the " + text + " page successfully");
 			String text1 = wait.until(ExpectedConditions.visibilityOf(teamsPageDesc)).getText();
 			LOGGER.info(text1);
-			ExtentCucumberAdapter.addTestStepLog(text1);
+			PageObjectHelper.log(LOGGER, text1);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_teams_page", "Issue in landing on Teams page",
 					e);
@@ -475,7 +467,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				}
 			}
 			LOGGER.info("Clicked on " + "CREATE TEAMS" + " button in Teams section....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on " + "CREATE TEAMS" + " button in Teams section....");
+			PageObjectHelper.log(LOGGER, "Clicked on " + "CREATE TEAMS" + " button in Teams section....");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_create_teams_button",
@@ -490,9 +482,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String text = wait.until(ExpectedConditions.visibilityOf(createTeamsFirstStepHeader)).getText();
 			Assert.assertEquals(text, "Step 1 of 2: Name and describe your team and select a Profile Collection");
 			LOGGER.info("User successfully navigated to first step of creating a team");
-			ExtentCucumberAdapter.addTestStepLog("User successfully navigated to first step of creating a team");
+			PageObjectHelper.log(LOGGER, "User successfully navigated to first step of creating a team");
 			LOGGER.info(text);
-			ExtentCucumberAdapter.addTestStepLog(text);
+			PageObjectHelper.log(LOGGER, text);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_first_step_of_creating_a_team",
 					"Issue in navigating to first step of creating a team", e);
@@ -520,12 +512,12 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			teamName.set("Team_" + todayDate);
 			wait.until(ExpectedConditions.visibilityOf(teamNameTextbox)).sendKeys(teamName.get());
 			LOGGER.info("Entered Team Name : " + teamName.get());
-			ExtentCucumberAdapter.addTestStepLog("Entered Team Name : " + teamName.get());
+			PageObjectHelper.log(LOGGER, "Entered Team Name : " + teamName.get());
 			js.executeScript("arguments[0].scrollIntoView(true);", teamDescTextbox);
 			wait.until(ExpectedConditions.visibilityOf(teamDescTextbox))
 					.sendKeys("Creating a Team through Automation on " + todayDate);
 			LOGGER.info("Entered Team Description : " + "Creating a Team through Automation on " + todayDate);
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Entered Team Description : " + "Creating a Team through Automation on " + todayDate);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_enter_team_name_and_team_description",
@@ -550,7 +542,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				}
 			}
 			LOGGER.info("Clicked on Next button in Create Teams page....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Next button in Create Teams page....");
+			PageObjectHelper.log(LOGGER, "Clicked on Next button in Create Teams page....");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_next_button_in_create_team_page",
@@ -565,9 +557,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String text = wait.until(ExpectedConditions.visibilityOf(createTeamsSecondStepHeader)).getText();
 			Assert.assertEquals(text, "Step 2 of 2: Select Team Members");
 			LOGGER.info("User successfully navigated to Second step of creating a team");
-			ExtentCucumberAdapter.addTestStepLog("User successfully navigated to Second step of creating a team");
+			PageObjectHelper.log(LOGGER, "User successfully navigated to Second step of creating a team");
 			LOGGER.info(text);
-			ExtentCucumberAdapter.addTestStepLog(text);
+			PageObjectHelper.log(LOGGER, text);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_second_step_of_creating_a_team",
 					"Issue in navigating to Second step of creating a team", e);
@@ -582,7 +574,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			LOGGER.info("Entered User name : " + PO01_KFoneLogin.username.get()
 					+ " in the search bar to add as Team Member");
-			ExtentCucumberAdapter.addTestStepLog("Entered User name : " + PO01_KFoneLogin.username.get()
+			PageObjectHelper.log(LOGGER, "Entered User name : " + PO01_KFoneLogin.username.get()
 					+ " in the search bar to add as Team Member");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_user_to_add_as_team_member",
@@ -607,8 +599,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			PerformanceUtils.waitForUIStability(driver, 1);
 
 			LOGGER.info("User " + PO01_KFoneLogin.username.get() + " is Selected to add as Team Member");
-			ExtentCucumberAdapter
-					.addTestStepLog("User " + PO01_KFoneLogin.username.get() + " is Selected to add as Team Member");
+			PageObjectHelper.log(LOGGER, "User " + PO01_KFoneLogin.username.get() + " is Selected to add as Team Member");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_searched_user_to_add_as_team_member",
@@ -633,7 +624,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			LOGGER.info("Clicked on Team Members header in Create Teams page....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Team Members header in Create Teams page....");
+			PageObjectHelper.log(LOGGER, "Clicked on Team Members header in Create Teams page....");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
@@ -648,8 +639,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String text = wait.until(ExpectedConditions.visibilityOf(userCount)).getText();
 			Assert.assertEquals(text, "Showing 1 of 1 Users");
 			LOGGER.info("User " + PO01_KFoneLogin.username.get() + " successfully added as Team Member");
-			ExtentCucumberAdapter
-					.addTestStepLog("User " + PO01_KFoneLogin.username.get() + " successfully added as Team Member");
+			PageObjectHelper.log(LOGGER, "User " + PO01_KFoneLogin.username.get() + " successfully added as Team Member");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"click_on_team_members_header_and_verify_user_is_added_successfully_as_team_member",
@@ -674,7 +664,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				}
 			}
 			LOGGER.info("Clicked on Save button in Create Teams page....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Save button in Create Teams page....");
+			PageObjectHelper.log(LOGGER, "Clicked on Save button in Create Teams page....");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_save_button_on_team_page_and_verify_success_popup_appears",
 					"Issue in clicking on Save button in Create Teams page", e);
@@ -699,7 +689,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 					if (createTeamsSuccessPopup.isDisplayed()) {
 						popupMessage = createTeamsSuccessPopup.getText();
 						LOGGER.info(popupMessage);
-						ExtentCucumberAdapter.addTestStepLog(popupMessage);
+						PageObjectHelper.log(LOGGER, popupMessage);
 						popupFound = true;
 					}
 				} catch (Exception e) {
@@ -711,7 +701,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 						if (createTeamsFailurePopup.isDisplayed()) {
 							popupMessage = createTeamsFailurePopup.getText();
 							LOGGER.info(popupMessage);
-							ExtentCucumberAdapter.addTestStepLog(popupMessage);
+							PageObjectHelper.log(LOGGER, popupMessage);
 							popupFound = true;
 						}
 					} catch (Exception e) {
@@ -744,7 +734,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String text = wait.until(ExpectedConditions.visibilityOf(teamNameinTopRow)).getText();
 			Assert.assertEquals(text, teamName.get());
 			LOGGER.info("Team with name : " + teamName.get() + " is successfully created");
-			ExtentCucumberAdapter.addTestStepLog("Team with name : " + teamName.get() + " is successfully created");
+			PageObjectHelper.log(LOGGER, "Team with name : " + teamName.get() + " is successfully created");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"search_for_team_name_in_teams_page_and_verify_team_is_created_successfully",
@@ -769,7 +759,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				}
 			}
 			LOGGER.info("Clicked on Profile Collections section in User Admin Module....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Profile Collections section in User Admin Module....");
+			PageObjectHelper.log(LOGGER, "Clicked on Profile Collections section in User Admin Module....");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_profile_collections_section",
@@ -785,10 +775,10 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String text = wait.until(ExpectedConditions.visibilityOf(pcPageHeader)).getText();
 			Assert.assertEquals(text, "MANAGE SUCCESS PROFILES");
 			LOGGER.info("User landed on the " + text + " page successfully");
-			ExtentCucumberAdapter.addTestStepLog("User landed on the " + text + " page successfully");
+			PageObjectHelper.log(LOGGER, "User landed on the " + text + " page successfully");
 			String text1 = wait.until(ExpectedConditions.visibilityOf(pcPageDesc)).getText();
 			LOGGER.info(text1);
-			ExtentCucumberAdapter.addTestStepLog(text1);
+			PageObjectHelper.log(LOGGER, text1);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_manage_success_profiles_page",
 					"Issue in landing on Manage Success Profiles page", e);
@@ -812,8 +802,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				}
 			}
 			LOGGER.info("Clicked on " + "CREATE PRFOILE COLLECTION" + " button in Teams section....");
-			ExtentCucumberAdapter
-					.addTestStepLog("Clicked on " + "CREATE PRFOILE COLLECTION" + " button in Teams section....");
+			PageObjectHelper.log(LOGGER, "Clicked on CREATE PROFILE COLLECTION button in Teams section");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_create_profile_collection_button",
@@ -829,9 +818,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String text = wait.until(ExpectedConditions.visibilityOf(createPCFirstStepHeader)).getText();
 			Assert.assertEquals(text, "Step 1 of 3: Name and describe your Profile Collection");
 			LOGGER.info("User successfully navigated to first step of creating a team");
-			ExtentCucumberAdapter.addTestStepLog("User successfully navigated to first step of creating a team");
+			PageObjectHelper.log(LOGGER, "User successfully navigated to first step of creating a team");
 			LOGGER.info(text);
-			ExtentCucumberAdapter.addTestStepLog(text);
+			PageObjectHelper.log(LOGGER, text);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_navigated_to_first_step_of_creating_a_profile_collection",
 					"Issue in navigating to first step of creating a Profile Collection", e);
@@ -872,7 +861,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			wait.until(ExpectedConditions.visibilityOf(pcNameTextbox)).sendKeys(pcName.get());
 			LOGGER.info("Entered Profile Collection Name : " + pcName.get());
-			ExtentCucumberAdapter.addTestStepLog("Entered Profile Collection Name : " + pcName.get());
+			PageObjectHelper.log(LOGGER, "Entered Profile Collection Name : " + pcName.get());
 			// Scroll element into view before clicking
 			WebElement descElement = wait.until(ExpectedConditions.elementToBeClickable(pcDescTextbox));
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", descElement);
@@ -890,7 +879,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 					.sendKeys("Creating a Profile Collection through Automation on " + todayDate);
 			LOGGER.info("Entered Profile Collection Description : "
 					+ "Creating a Profile Collection through Automation on " + todayDate);
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Entered Profile Collection Description : " + "Creating a Team through Automation on " + todayDate);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
@@ -918,7 +907,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				}
 			}
 			LOGGER.info("Clicked on Next button in Create Profile Collection page....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Next button in Create Profile Collection page....");
+			PageObjectHelper.log(LOGGER, "Clicked on Next button in Create Profile Collection page....");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_next_button_in_create_profile_collection_page",
@@ -933,10 +922,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String text = wait.until(ExpectedConditions.visibilityOf(createPCSecondStepHeader)).getText();
 			Assert.assertEquals(text, "Step 2 of 3: Select Team(s) for your Profile Collection");
 			LOGGER.info("User successfully navigated to Second step of creating a Profile Collection");
-			ExtentCucumberAdapter
-					.addTestStepLog("User successfully navigated to Second step of creating a Profile Collection");
+			PageObjectHelper.log(LOGGER, "User successfully navigated to Second step of creating a Profile Collection");
 			LOGGER.info(text);
-			ExtentCucumberAdapter.addTestStepLog(text);
+			PageObjectHelper.log(LOGGER, text);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
@@ -965,7 +953,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				}
 			}
 			LOGGER.info("Clicked on All Teams button in Create Profile Collection page....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on All Teams button in Create Profile Collection page....");
+			PageObjectHelper.log(LOGGER, "Clicked on All Teams button in Create Profile Collection page....");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_all_teams_header",
@@ -991,7 +979,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			PerformanceUtils.waitForUIStability(driver, 1);
 
 			LOGGER.info("Recently Created Team with name " + teamName.get() + " is Selected for Profile Collection");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Recently Created Team with name " + teamName.get() + " is Selected for Profile Collection");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
@@ -1018,8 +1006,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				}
 			}
 			LOGGER.info("Clicked on Selected Teams button in Create Profile Collection page....");
-			ExtentCucumberAdapter
-					.addTestStepLog("Clicked on Selected Teams button in Create Profile Collection page....");
+			PageObjectHelper.log(LOGGER, "Clicked on Selected Teams button in Create Profile Collection page");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_selected_teams_header",
@@ -1037,7 +1024,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String text = wait.until(ExpectedConditions.visibilityOf(teamCount)).getText();
 			Assert.assertEquals(text, "Page 1 of 1");
 			LOGGER.info("Recently created team " + teamName.get() + " is available in Selected Teams as Expected");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Recently created team " + teamName.get() + " is available in Selected Teams as Expected");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
@@ -1054,10 +1041,9 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String text = wait.until(ExpectedConditions.visibilityOf(createPCThirdStepHeader)).getText();
 			Assert.assertEquals(text, "Step 3 of 3: Select Success Profiles for your Profile Collection");
 			LOGGER.info("User successfully navigated to Third step of creating a Profile Collection");
-			ExtentCucumberAdapter
-					.addTestStepLog("User successfully navigated to Third step of creating a Profile Collection");
+			PageObjectHelper.log(LOGGER, "User successfully navigated to Third step of creating a Profile Collection");
 			LOGGER.info(text);
-			ExtentCucumberAdapter.addTestStepLog(text);
+			PageObjectHelper.log(LOGGER, text);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
@@ -1086,7 +1072,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				}
 			}
 			LOGGER.info("Clicked on ADD ADDITIONAL SUCCESS PROFILES button in Create Profile Collection page....");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Clicked on ADD ADDITIONAL SUCCESS PROFILES button in Create Profile Collection page....");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
 			PerformanceUtils.waitForPageReady(driver, 3);
@@ -1188,7 +1174,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 
 			LOGGER.info("Success Profiles which contains " + spNameString.get()
 					+ " as Sub-string are selected to add to Profile Collection");
-			ExtentCucumberAdapter.addTestStepLog("Success Profiles which contains " + spNameString.get()
+			PageObjectHelper.log(LOGGER, "Success Profiles which contains " + spNameString.get()
 					+ " as Sub-string are selected to add to Profile Collection");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_and_add_success_profiles_to_profile_collection",
@@ -1218,7 +1204,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			}
 			LOGGER.info(
 					"Clicked on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection....");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Clicked on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection....");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
 			PerformanceUtils.waitForPageReady(driver, 3);
@@ -1240,7 +1226,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			String[] resultsCountText_split = resultsCountText.split(" ");
 			LOGGER.info(resultsCountText_split[3] + " Success Profiles " + "which contains " + spNameString.get()
 					+ " as Sub-string are added to Profile Collection");
-			ExtentCucumberAdapter.addTestStepLog(resultsCountText_split[3] + "Success Profiles " + "which contains "
+			PageObjectHelper.log(LOGGER, resultsCountText_split[3] + "Success Profiles " + "which contains "
 					+ spNameString.get() + " as Sub-string are added to Profile Collection");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
@@ -1267,7 +1253,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 				}
 			}
 			LOGGER.info("Clicked on Done button in Create Profile Collections page....");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Done button in Create Profile Collections page....");
+			PageObjectHelper.log(LOGGER, "Clicked on Done button in Create Profile Collections page....");
 //			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
@@ -1282,7 +1268,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			wait.until(ExpectedConditions.visibilityOf(pcSuccessPopup)).isDisplayed();
 			String SuccesstText = wait.until(ExpectedConditions.visibilityOf(pcSuccessPopup)).getText();
 			LOGGER.info(SuccesstText);
-			ExtentCucumberAdapter.addTestStepLog(SuccesstText);
+			PageObjectHelper.log(LOGGER, SuccesstText);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"click_on_done_button_on_create_profile_collection_page_and_verify_success_popup_appears",
@@ -1291,8 +1277,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 					"Issue in verifying appearing of success popup after creating a Profile Collection....Please Investigate!!!");
 		}
 		LOGGER.info("Profile Collection with name " + pcName.get() + " is created successfully");
-		ExtentCucumberAdapter
-				.addTestStepLog("Profile Collection with name " + pcName.get() + " is created successfully");
+		PageObjectHelper.log(LOGGER, "Profile Collection with name " + pcName.get() + " is created successfully");
 	}
 
 	public void search_and_delete_profile_collection() {
@@ -1321,7 +1306,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 
 			String text = wait.until(ExpectedConditions.visibilityOf(deletionSuccessPopup)).getText();
 			LOGGER.info(text);
-			ExtentCucumberAdapter.addTestStepLog(text);
+			PageObjectHelper.log(LOGGER, text);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_and_delete_profile_collection",
 					"Issue in Searching and Deleting Profile Collection", e);
@@ -1352,7 +1337,7 @@ public class PO16_ValidatePCRestrictedTipMessage {
 			PerformanceUtils.waitForPageReady(driver, 3);
 			String text = wait.until(ExpectedConditions.visibilityOf(deletionSuccessPopup)).getText();
 			LOGGER.info(text);
-			ExtentCucumberAdapter.addTestStepLog(text);
+			PageObjectHelper.log(LOGGER, text);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_team_name_in_teams_page_and_delete_team",
 					"Issue in Searching and Deleting Team", e);
@@ -1364,11 +1349,11 @@ public class PO16_ValidatePCRestrictedTipMessage {
 		try {
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(tipMsg2Text)).isDisplayed());
 			String TipMessage2 = tipMsg2Text.getText();
-			ExtentCucumberAdapter.addTestStepLog(TipMessage2);
+			PageObjectHelper.log(LOGGER, TipMessage2);
 			LOGGER.info(TipMessage2);
 			wait.until(ExpectedConditions.visibilityOf(tipMsg2CloseBtn)).click();
 			LOGGER.info("PC Restricted Tip Message verified and closed successfully...");
-			ExtentCucumberAdapter.addTestStepLog("PC Restricted Tip Message verified and closed successfully...");
+			PageObjectHelper.log(LOGGER, "PC Restricted Tip Message verified and closed successfully...");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_pc_restricted_tip_message_is_displaying_on_job_mapping_page",
 					"Issue in verifying PC Restricted Tip Message on Job Mapping page", e);
@@ -1379,42 +1364,42 @@ public class PO16_ValidatePCRestrictedTipMessage {
 	public void user_is_on_teams_page() {
 		PerformanceUtils.waitForPageReady(driver, 1);
 		LOGGER.info("User is on TEAMS page");
-		ExtentCucumberAdapter.addTestStepLog("User is on TEAMS page");
+		PageObjectHelper.log(LOGGER, "User is on TEAMS page");
 	}
 
 	public void user_is_on_second_step_of_creating_a_team() {
 		PerformanceUtils.waitForPageReady(driver, 1);
 		LOGGER.info("User is on second step of creating a team");
-		ExtentCucumberAdapter.addTestStepLog("User is on second step of creating a team");
+		PageObjectHelper.log(LOGGER, "User is on second step of creating a team");
 	}
 
 	public void user_is_on_team_creation_page_with_team_members_added() {
 		PerformanceUtils.waitForPageReady(driver, 1);
 		LOGGER.info("User is on Team creation page with team members added");
-		ExtentCucumberAdapter.addTestStepLog("User is on Team creation page with team members added");
+		PageObjectHelper.log(LOGGER, "User is on Team creation page with team members added");
 	}
 
 	public void user_is_on_manage_success_profiles_page() {
 		PerformanceUtils.waitForPageReady(driver, 1);
 		LOGGER.info("User is on Manage Success Profiles page");
-		ExtentCucumberAdapter.addTestStepLog("User is on Manage Success Profiles page");
+		PageObjectHelper.log(LOGGER, "User is on Manage Success Profiles page");
 	}
 
 	public void user_is_on_second_step_of_creating_a_profile_collection() {
 		PerformanceUtils.waitForPageReady(driver, 1);
 		LOGGER.info("User is on second step of creating a Profile Collection");
-		ExtentCucumberAdapter.addTestStepLog("User is on second step of creating a Profile Collection");
+		PageObjectHelper.log(LOGGER, "User is on second step of creating a Profile Collection");
 	}
 
 	public void user_is_on_third_step_of_creating_a_profile_collection() {
 		PerformanceUtils.waitForPageReady(driver, 1);
 		LOGGER.info("User is on third step of creating a Profile Collection");
-		ExtentCucumberAdapter.addTestStepLog("User is on third step of creating a Profile Collection");
+		PageObjectHelper.log(LOGGER, "User is on third step of creating a Profile Collection");
 	}
 
 	public void user_is_on_profile_collection_page_with_profiles_added() {
 		PerformanceUtils.waitForPageReady(driver, 1);
 		LOGGER.info("User is on Profile Collection creation page with profiles added");
-		ExtentCucumberAdapter.addTestStepLog("User is on Profile Collection creation page with profiles added");
+		PageObjectHelper.log(LOGGER, "User is on Profile Collection creation page with profiles added");
 	}
 }

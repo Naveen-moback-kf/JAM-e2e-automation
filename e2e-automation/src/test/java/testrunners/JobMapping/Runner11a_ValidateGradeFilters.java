@@ -24,7 +24,7 @@ import io.cucumber.testng.CucumberOptions;
 		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Grade_Filters",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
-		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
+		plugin = {"html:target/cucumber-reports/cucumber.html", "json:target/cucumber-reports/cucumber.json"}
 		)
 
 public class Runner11a_ValidateGradeFilters extends CustomizeTestNGCucumberRunner {

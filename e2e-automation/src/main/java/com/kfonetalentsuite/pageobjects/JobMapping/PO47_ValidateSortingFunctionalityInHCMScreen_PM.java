@@ -20,8 +20,8 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 	WebDriver driver = DriverManager.getDriver();
@@ -127,8 +127,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			PerformanceUtils.waitForPageReady(driver);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver);
-			LOGGER.info("Clicked on Name header to Sort Profiles by Name in ascending order");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Name header to Sort Profiles by Name in ascending order");
+			PageObjectHelper.log(LOGGER, "Clicked on Name header to Sort Profiles by Name in ascending order");
 		} catch (Exception e) {
 			LOGGER.error(
 					" Issue sorting by name ascending - Method: sort_profiles_by_name_in_ascending_order_in_hcm_sync_profiles_screen",
@@ -137,7 +136,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			e.printStackTrace();
 			Assert.fail(
 					"Issue in clicking on Name header to Sort Profiles by Name in ascending order...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog("Issue in sorting by Name in ascending order...Please Investigate!!!");
+			PageObjectHelper.log(LOGGER, "Issue in sorting by Name in ascending order...Please Investigate!!!");
 		}
 	}
 
@@ -150,8 +149,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			PerformanceUtils.waitForPageReady(driver);
 
 			List<WebElement> allElements = driver.findElements(By.xpath("//tbody//tr//td//div//span[1]//a"));
-			LOGGER.info("Below are Profiles After sorting by Name in Ascending Order:");
-			ExtentCucumberAdapter.addTestStepLog("Below are Profiles After sorting by Name in Ascending Order:");
+			PageObjectHelper.log(LOGGER, "Profiles After sorting by Name in Ascending Order:");
 
 			// Collect profile names for validation
 			ArrayList<String> profileNames = new ArrayList<String>();
@@ -178,18 +176,17 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 				} else {
 					LOGGER.info("Profile Name : " + text);
 				}
-				ExtentCucumberAdapter.addTestStepLog("Profile Name : " + text);
+				PageObjectHelper.log(LOGGER, "Profile Name : " + text);
 			}
 
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount
 						+ " profile(s) with special characters - these appear at top in Ascending order as expected");
-				ExtentCucumberAdapter.addTestStepLog("ℹ " + specialCharCount
+				PageObjectHelper.log(LOGGER, "ℹ " + specialCharCount
 						+ " profile(s) start with special characters (?, -, etc.) - expected at top");
 			}
 			if (nonAsciiCount > 0) {
-				LOGGER.info("ℹ Found " + nonAsciiCount + " profile(s) with non-ASCII characters (Chinese, etc.)");
-				ExtentCucumberAdapter.addTestStepLog("ℹ " + nonAsciiCount + " profile(s) contain non-ASCII characters");
+				PageObjectHelper.log(LOGGER, nonAsciiCount + " profile(s) contain non-ASCII characters");
 			}
 
 			// ✅ VALIDATE ASCENDING ORDER (using normalized comparison to match UI behavior)
@@ -211,7 +208,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + current + "' > '"
 							+ next + "' (NOT in Ascending Order!)");
 					LOGGER.debug("   Normalized comparison: '" + currentNormalized + "' vs '" + nextNormalized + "'");
-					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Row " + (i + 1) + " > Row " + (i + 2));
+					PageObjectHelper.log(LOGGER, "❌ SORT VIOLATION: Row " + (i + 1) + " > Row " + (i + 2));
 				}
 			}
 
@@ -219,13 +216,12 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
 						+ " violation(s). Data is NOT sorted by Name in Ascending Order!";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else {
 				LOGGER.info("✅ SORT VALIDATION PASSED: All " + profileNames.size()
 						+ " Profiles are correctly sorted by Name in Ascending Order (including special chars and non-ASCII)");
-				ExtentCucumberAdapter
-						.addTestStepLog("✅ Sorting validation PASSED - Data is correctly sorted in Ascending Order");
+				PageObjectHelper.log(LOGGER, "Sorting validation PASSED - Data is correctly sorted in Ascending Order");
 			}
 
 		} catch (Exception e) {
@@ -235,7 +231,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_sorted_by_name_ascending", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying Profiles After sorting by Name in Ascending Order...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Issue in Verifying Profiles After sorting by Name in Ascending Order...Please Investigate!!!");
 		}
 	}
@@ -301,8 +297,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			Thread.sleep(1500); // Additional buffer
 
 			LOGGER.info("Clicked two times on Level header to Sort Profiles by Level in Descending order");
-			ExtentCucumberAdapter
-					.addTestStepLog("Clicked two times on Level header to Sort Profiles by Level in Descending order");
+			PageObjectHelper.log(LOGGER, "Clicked two times on Level header to Sort Profiles by Level in Descending order");
 
 			// Debug: Log first few profile levels to verify sorting
 			LOGGER.info("Verifying sort applied - checking first 5 profile levels...");
@@ -319,8 +314,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			e.printStackTrace();
 			Assert.fail(
 					"Issue in clicking on Level header to Sort Profiles by Level in Descending order...Please Investigate!!!");
-			ExtentCucumberAdapter
-					.addTestStepLog("Issue in sorting by Level in Descending order...Please Investigate!!!");
+			PageObjectHelper.log(LOGGER, "Issue in sorting by Level in Descending order...Please Investigate!!!");
 		}
 	}
 
@@ -336,7 +330,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			List<WebElement> levelElements = driver.findElements(By.xpath("//tbody//tr//td[4]//div//span[1]"));
 
 			LOGGER.info("Below are Profiles After sorting by Level in Descending Order:");
-			ExtentCucumberAdapter.addTestStepLog("Below are Profiles After sorting by Level in Descending Order:");
+			PageObjectHelper.log(LOGGER, "Below are Profiles After sorting by Level in Descending Order:");
 
 			// Collect levels for validation
 			ArrayList<String> levels = new ArrayList<String>();
@@ -356,7 +350,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 				if (levelText == null || levelText.trim().isEmpty() || levelText.equals("-")) {
 					emptyCount++;
 					LOGGER.info("Profile: " + profileName + " - Level: [EMPTY]");
-					ExtentCucumberAdapter.addTestStepLog("Profile: " + profileName + " - Level: [EMPTY]");
+					PageObjectHelper.log(LOGGER, "Profile: " + profileName + " - Level: [EMPTY]");
 				} else {
 					levels.add(levelText); // Store for validation (keep original case for Unicode)
 
@@ -373,24 +367,23 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 					} else {
 						LOGGER.info("Profile: " + profileName + " - Level: " + levelText);
 					}
-					ExtentCucumberAdapter.addTestStepLog("Profile: " + profileName + " - Level: " + levelText);
+					PageObjectHelper.log(LOGGER, "Profile: " + profileName + " - Level: " + levelText);
 				}
 			}
 
 			if (emptyCount > 0) {
 				LOGGER.info("ℹ Found " + emptyCount + " profile(s) with empty Level values");
-				ExtentCucumberAdapter.addTestStepLog("ℹ " + emptyCount + " profile(s) have empty Level values");
+				PageObjectHelper.log(LOGGER, "ℹ " + emptyCount + " profile(s) have empty Level values");
 			}
 			if (nonAsciiCount > 0) {
 				LOGGER.info("ℹ Found " + nonAsciiCount
 						+ " level(s) with non-ASCII characters - these appear at top in Descending order as expected");
-				ExtentCucumberAdapter.addTestStepLog("ℹ " + nonAsciiCount
+				PageObjectHelper.log(LOGGER, "ℹ " + nonAsciiCount
 						+ " level(s) start with non-ASCII characters (Chinese, etc.) - expected at top");
 			}
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount + " level(s) with special characters (?, -, etc.)");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + specialCharCount + " level(s) start with special characters");
+				PageObjectHelper.log(LOGGER, specialCharCount + " level(s) start with special characters");
 			}
 
 			// ✅ VALIDATE DESCENDING ORDER (using normalized comparison to match UI
@@ -412,7 +405,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + current + "' < '"
 							+ next + "' (NOT in Descending Order!)");
 					LOGGER.debug("   Normalized comparison: '" + currentNormalized + "' vs '" + nextNormalized + "'");
-					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Row " + (i + 1) + " < Row " + (i + 2));
+					PageObjectHelper.log(LOGGER, "❌ SORT VIOLATION: Row " + (i + 1) + " < Row " + (i + 2));
 				}
 			}
 
@@ -420,17 +413,16 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
 						+ " violation(s). Data is NOT sorted by Level in Descending Order!";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else if (levels.size() > 1) {
 				LOGGER.info("✅ SORT VALIDATION PASSED: All " + levels.size()
 						+ " Levels are correctly sorted in Descending Order (including special chars and non-ASCII)");
-				ExtentCucumberAdapter
-						.addTestStepLog("✅ Sorting validation PASSED - Data is correctly sorted in Descending Order");
+				PageObjectHelper.log(LOGGER, "Sorting validation PASSED - Data is correctly sorted in Descending Order");
 			} else {
 				LOGGER.info("ℹ VALIDATION SKIPPED: Not enough profiles with Level values to validate sorting ("
 						+ levels.size() + " profile(s) with levels)");
-				ExtentCucumberAdapter.addTestStepLog("ℹ Validation skipped - insufficient data for sorting validation");
+				PageObjectHelper.log(LOGGER, "ℹ Validation skipped - insufficient data for sorting validation");
 			}
 
 		} catch (Exception e) {
@@ -441,7 +433,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			e.printStackTrace();
 			Assert.fail(
 					"Issue in Verifying Profiles After sorting by Level in Descending Order...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Issue in Verifying Profiles After sorting by Level in Descending Order...Please Investigate!!!");
 		}
 	}
@@ -465,8 +457,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver);
 			LOGGER.info("Clicked on Job Status header to Sort Profiles by Job Status in ascending order");
-			ExtentCucumberAdapter
-					.addTestStepLog("Clicked on Job Status header to Sort Profiles by Job Status in ascending order");
+			PageObjectHelper.log(LOGGER, "Clicked on Job Status header to Sort Profiles by Job Status in ascending order");
 		} catch (Exception e) {
 			LOGGER.error(
 					" Issue sorting by job status ascending - Method: sort_profiles_by_job_status_in_ascending_order_in_hcm_sync_profiles_screen",
@@ -475,8 +466,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			e.printStackTrace();
 			Assert.fail(
 					"Issue in clicking on Job Status header to Sort Profiles by Job Status in ascending order...Please Investigate!!!");
-			ExtentCucumberAdapter
-					.addTestStepLog("Issue in sorting by Job Status in ascending order...Please Investigate!!!");
+			PageObjectHelper.log(LOGGER, "Issue in sorting by Job Status in ascending order...Please Investigate!!!");
 		}
 	}
 
@@ -535,7 +525,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 
 			LOGGER.info(
 					"Clicked two times on Export Status header to Sort Profiles by Export Status in Descending order");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Clicked two times on Export Status header to Sort Profiles by Export Status in Descending order");
 		} catch (Exception e) {
 			LOGGER.error(
@@ -545,8 +535,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			e.printStackTrace();
 			Assert.fail(
 					"Issue in clicking on Export Status header to Sort Profiles by Export Status in Descending order...Please Investigate!!!");
-			ExtentCucumberAdapter
-					.addTestStepLog("Issue in sorting by Export Status in Descending order...Please Investigate!!!");
+			PageObjectHelper.log(LOGGER, "Issue in sorting by Export Status in Descending order...Please Investigate!!!");
 		}
 	}
 
@@ -573,8 +562,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 			PerformanceUtils.waitForPageReady(driver);
 			LOGGER.info("Clicked on Function header to Sort Profiles by Function in ascending order");
-			ExtentCucumberAdapter
-					.addTestStepLog("Clicked on Function header to Sort Profiles by Function in ascending order");
+			PageObjectHelper.log(LOGGER, "Clicked on Function header to Sort Profiles by Function in ascending order");
 		} catch (Exception e) {
 			LOGGER.error(
 					" Issue sorting by function ascending - Method: sort_profiles_by_function_in_ascending_order_in_hcm_sync_profiles_screen",
@@ -583,8 +571,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			e.printStackTrace();
 			Assert.fail(
 					"Issue in clicking on Function header to Sort Profiles by Function in ascending order...Please Investigate!!!");
-			ExtentCucumberAdapter
-					.addTestStepLog("Issue in sorting by Function in ascending order...Please Investigate!!!");
+			PageObjectHelper.log(LOGGER, "Issue in sorting by Function in ascending order...Please Investigate!!!");
 		}
 	}
 
@@ -635,7 +622,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 
 			LOGGER.info("Clicked two times on Function header to Sort Profiles by Function in Descending order");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Clicked two times on Function header to Sort Profiles by Function in Descending order");
 		} catch (Exception e) {
 			LOGGER.error(
@@ -645,8 +632,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			e.printStackTrace();
 			Assert.fail(
 					"Issue in clicking on Function header to Sort Profiles by Function in Descending order...Please Investigate!!!");
-			ExtentCucumberAdapter
-					.addTestStepLog("Issue in sorting by Function in Descending order...Please Investigate!!!");
+			PageObjectHelper.log(LOGGER, "Issue in sorting by Function in Descending order...Please Investigate!!!");
 		}
 	}
 
@@ -665,7 +651,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 
 			LOGGER.info(
 					"Below are Profiles After sorting by Job Status in Ascending and Function in Descending Order:");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Below are Profiles After sorting by Job Status in Ascending and Function in Descending Order:");
 
 			// Collect data for validation
@@ -701,19 +687,15 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 
 				LOGGER.info(
 						"Profile: " + profileName + " - Job Status: " + jobStatusText + " - Function: " + functionText);
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"Profile: " + profileName + " - Job Status: " + jobStatusText + " - Function: " + functionText);
 			}
 
 			if (emptyJobStatusCount > 0) {
-				LOGGER.info("ℹ Found " + emptyJobStatusCount + " profile(s) with empty Job Status values");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + emptyJobStatusCount + " profile(s) have empty Job Status values");
+				PageObjectHelper.log(LOGGER, emptyJobStatusCount + " profile(s) have empty Job Status values");
 			}
 			if (emptyFunctionCount > 0) {
-				LOGGER.info("ℹ Found " + emptyFunctionCount + " profile(s) with empty Function values");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + emptyFunctionCount + " profile(s) have empty Function values");
+				PageObjectHelper.log(LOGGER, emptyFunctionCount + " profile(s) have empty Function values");
 			}
 
 			// ✅ VALIDATE MULTI-LEVEL SORTING
@@ -740,10 +722,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 				int jobStatusComparison = currentJobStatus.compareToIgnoreCase(nextJobStatus);
 				if (jobStatusComparison > 0) {
 					sortViolations++;
-					LOGGER.error("❌ SORT VIOLATION (Job Status) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '"
-							+ currentJobStatus + "' > '" + nextJobStatus + "' (NOT in Ascending Order!)");
-					ExtentCucumberAdapter
-							.addTestStepLog("❌ SORT VIOLATION (Job Status): Row " + (i + 1) + " > Row " + (i + 2));
+					PageObjectHelper.log(LOGGER, "SORT VIOLATION (Job Status): Row " + (i + 1) + " > Row " + (i + 2));
 				}
 				// Secondary sort check: If Job Status is same, Function should be descending
 				// (normalized comparison)
@@ -761,7 +740,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 									+ "' (NOT in Descending Order for same Job Status!)");
 							LOGGER.debug("   Normalized comparison: '" + currentFunctionNormalized + "' vs '"
 									+ nextFunctionNormalized + "'");
-							ExtentCucumberAdapter.addTestStepLog(
+							PageObjectHelper.log(LOGGER, 
 									"❌ SORT VIOLATION (Function): Row " + (i + 1) + " < Row " + (i + 2));
 						}
 					}
@@ -772,12 +751,12 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
 						+ " violation(s). Data is NOT sorted by Job Status (Ascending) and Function (Descending)!";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the multi-level sorting implementation!");
 			} else {
 				LOGGER.info(
 						"✅ SORT VALIDATION PASSED: All Profiles are correctly sorted by Job Status (Ascending) and Function (Descending)");
-				ExtentCucumberAdapter.addTestStepLog("✅ Multi-level sorting validation PASSED");
+				PageObjectHelper.log(LOGGER, "✅ Multi-level sorting validation PASSED");
 			}
 
 		} catch (Exception e) {
@@ -787,7 +766,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_sorted_by_job_status_and_function", e);
 			e.printStackTrace();
 			Assert.fail("Issue in Verifying Profiles After sorting by Job Status and Function...Please Investigate!!!");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Issue in Verifying Profiles After sorting by Job Status and Function...Please Investigate!!!");
 		}
 	}
@@ -808,7 +787,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 
 			LOGGER.info(
 					"Below are Profiles After 3-level sorting: Job Status (Ascending), Export Status (Descending), Function (Ascending):");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Below are Profiles After 3-level sorting: Job Status (Ascending), Export Status (Descending), Function (Ascending):");
 
 			// Collect data for validation
@@ -846,24 +825,18 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 
 				LOGGER.info("Profile: " + profileName + " | Job Status: " + jobStatusText + " | Export Status: "
 						+ exportStatusText + " | Function: " + functionText);
-				ExtentCucumberAdapter.addTestStepLog("Profile: " + profileName + " | Job Status: " + jobStatusText
+				PageObjectHelper.log(LOGGER, "Profile: " + profileName + " | Job Status: " + jobStatusText
 						+ " | Export Status: " + exportStatusText + " | Function: " + functionText);
 			}
 
 			if (emptyJobStatusCount > 0) {
-				LOGGER.info("ℹ Found " + emptyJobStatusCount + " profile(s) with empty Job Status values");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + emptyJobStatusCount + " profile(s) have empty Job Status values");
+				PageObjectHelper.log(LOGGER, emptyJobStatusCount + " profile(s) have empty Job Status values");
 			}
 			if (emptyExportStatusCount > 0) {
-				LOGGER.info("ℹ Found " + emptyExportStatusCount + " profile(s) with empty Export Status values");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + emptyExportStatusCount + " profile(s) have empty Export Status values");
+				PageObjectHelper.log(LOGGER, emptyExportStatusCount + " profile(s) have empty Export Status values");
 			}
 			if (emptyFunctionCount > 0) {
-				LOGGER.info("ℹ Found " + emptyFunctionCount + " profile(s) with empty Function values");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + emptyFunctionCount + " profile(s) have empty Function values");
+				PageObjectHelper.log(LOGGER, emptyFunctionCount + " profile(s) have empty Function values");
 			}
 
 			// ✅ VALIDATE THREE-LEVEL SORTING
@@ -893,7 +866,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 					sortViolations++;
 					LOGGER.error("❌ PRIMARY SORT VIOLATION (Job Status) at Row " + (i + 1) + " -> Row " + (i + 2)
 							+ ": '" + currentJobStatus + "' > '" + nextJobStatus + "' (NOT in Ascending Order!)");
-					ExtentCucumberAdapter.addTestStepLog(
+					PageObjectHelper.log(LOGGER, 
 							"❌ PRIMARY SORT VIOLATION (Job Status): Row " + (i + 1) + " > Row " + (i + 2));
 				}
 				// Secondary sort check: If Job Status is same, Export Status should be
@@ -915,7 +888,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 									+ "' (NOT in Descending Order for same Job Status!)");
 							LOGGER.debug("   Normalized comparison: '" + currentExportStatusNormalized + "' vs '"
 									+ nextExportStatusNormalized + "'");
-							ExtentCucumberAdapter.addTestStepLog(
+							PageObjectHelper.log(LOGGER, 
 									"❌ SECONDARY SORT VIOLATION (Export Status): Row " + (i + 1) + " < Row " + (i + 2));
 						}
 						// Tertiary sort check: If Job Status and Export Status are same, Function
@@ -935,7 +908,7 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 											+ "' (NOT in Ascending Order for same Job Status and Export Status!)");
 									LOGGER.debug("   Normalized comparison: '" + currentFunctionNormalized + "' vs '"
 											+ nextFunctionNormalized + "'");
-									ExtentCucumberAdapter.addTestStepLog("❌ TERTIARY SORT VIOLATION (Function): Row "
+									PageObjectHelper.log(LOGGER, "❌ TERTIARY SORT VIOLATION (Function): Row "
 											+ (i + 1) + " > Row " + (i + 2));
 								}
 							}
@@ -948,12 +921,12 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
 						+ " violation(s). Data is NOT sorted by Job Status (Asc), Export Status (Desc), and Function (Asc)!";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the three-level sorting implementation!");
 			} else {
 				LOGGER.info(
 						"✅ THREE-LEVEL SORT VALIDATION PASSED: All Profiles are correctly sorted by Job Status (Ascending), Export Status (Descending), and Function (Ascending)");
-				ExtentCucumberAdapter.addTestStepLog("✅ Three-level sorting validation PASSED");
+				PageObjectHelper.log(LOGGER, "✅ Three-level sorting validation PASSED");
 			}
 
 		} catch (Exception e) {
@@ -962,9 +935,8 @@ public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
 					e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_3level_sorting", e);
 			e.printStackTrace();
+			PageObjectHelper.log(LOGGER, "Issue in Verifying Profiles After 3-level sorting...Please Investigate!!!");
 			Assert.fail("Issue in Verifying Profiles After 3-level sorting...Please Investigate!!!");
-			ExtentCucumberAdapter
-					.addTestStepLog("Issue in Verifying Profiles After 3-level sorting...Please Investigate!!!");
 		}
 	}
 

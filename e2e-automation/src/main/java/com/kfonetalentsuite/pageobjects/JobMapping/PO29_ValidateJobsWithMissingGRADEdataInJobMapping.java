@@ -24,7 +24,6 @@ import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverManager {
 
@@ -158,8 +157,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 							|| pageSource.contains("jobs with missing data")) {
 						verificationResults += " Page content indicates correct screen via source scan; ";
 						pageVerified = true;
-						LOGGER.info("Verified via page source analysis");
-						ExtentCucumberAdapter.addTestStepLog(" Verified via page source analysis");
+						PageObjectHelper.log(LOGGER, " Verified via page source analysis");
 					}
 				} catch (Exception e) {
 					verificationResults += "- Page source check failed; ";
@@ -168,20 +166,18 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 			// Final assertion
 			if (pageVerified) {
-				ExtentCucumberAdapter
-						.addTestStepLog(" Successfully verified Jobs with Missing Data screen is displayed");
-				ExtentCucumberAdapter.addTestStepLog("  Verification results: " + verificationResults);
-				LOGGER.info("Successfully verified Jobs with Missing Data screen is displayed");
+				PageObjectHelper.log(LOGGER, " Successfully verified Jobs with Missing Data screen is displayed");
+				PageObjectHelper.log(LOGGER, "  Verification results: " + verificationResults);
 			} else {
 				String errorMsg = "Failed to verify Jobs with Missing Data screen. Results: " + verificationResults;
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog("- " + errorMsg);
+				PageObjectHelper.log(LOGGER, "- " + errorMsg);
 				Assert.fail(errorMsg);
 			}
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify Jobs with Missing Data screen: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to verify Jobs with Missing Data screen: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "- Failed to verify Jobs with Missing Data screen: " + e.getMessage());
 			throw new IOException("Failed to verify Jobs with Missing Data screen", e);
 		}
 	}
@@ -209,19 +205,12 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 			// Check if Forward scenario found a profile
 			if (!forwardScenarioFoundProfile.get()) {
-				LOGGER.warn(
-						"FORWARD SCENARIO (Scenario 1) did not find a suitable profile - SKIPPING Reverse scenario steps");
-				ExtentCucumberAdapter
-						.addTestStepLog(" SKIPPING Reverse scenario - Forward scenario found no suitable profiles");
+				PageObjectHelper.log(LOGGER, " SKIPPING Reverse scenario - Forward scenario found no suitable profiles");
 				throw new org.testng.SkipException(
 						"SKIPPING Reverse scenario - Forward scenario found no suitable profiles");
 			}
 
-			LOGGER.info(
-					"REVERSE SCENARIO (Scenario 2): Forward scenario found profile - will search for jobs with missing Grade");
-			LOGGER.info("Looking for: Grade missing (ignoring Department & Function data)");
-			ExtentCucumberAdapter
-					.addTestStepLog(" REVERSE SCENARIO (Scenario 2): Finding job with missing Grade data...");
+			PageObjectHelper.log(LOGGER, " REVERSE SCENARIO (Scenario 2): Finding job with missing Grade data...");
 
 			// Get ALL job rows at once (no lazy loading, all jobs are loaded in DOM)
 			LOGGER.info("Getting all job rows from Jobs with Missing Data screen (no lazy loading)");
@@ -298,9 +287,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			// Check if job was found
 			if (preferredJobRow != null) {
 				// Job found - continue with scenario
-				LOGGER.info("SUCCESS: Found job profile where Grade is missing - continuing with scenario");
-				ExtentCucumberAdapter
-						.addTestStepLog("... Found job profile where Grade is missing - proceeding with validation");
+				PageObjectHelper.log(LOGGER, "Found job profile where Grade is missing - proceeding with validation");
 
 				// Scroll to the found job row
 				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
@@ -321,17 +308,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 					// Store the cleaned job name for later use
 					extractedJobName.set(jobName);
 
-					// Log details of the matching profile only
-					LOGGER.info("SUCCESS: Found matching job profile:");
-					LOGGER.info("  Job Name: " + jobName);
-					LOGGER.info("  Grade: " + grade + " (Missing - N/A)");
-					LOGGER.info("  Department: " + department);
-					LOGGER.info("  Function/Subfunction: " + functionSubfunction);
-
-					ExtentCucumberAdapter.addTestStepLog(" Found matching job profile: " + jobName);
-					ExtentCucumberAdapter.addTestStepLog("   Grade: " + grade + " (Missing)");
-					ExtentCucumberAdapter.addTestStepLog("   Department: " + department);
-					ExtentCucumberAdapter.addTestStepLog("   Function/Subfunction: " + functionSubfunction);
+					// Log details of the matching profile
+					PageObjectHelper.log(LOGGER, " Found matching job profile: " + jobName);
+					PageObjectHelper.log(LOGGER, "   Grade: " + grade + " (Missing)");
+					PageObjectHelper.log(LOGGER, "   Department: " + department);
+					PageObjectHelper.log(LOGGER, "   Function/Subfunction: " + functionSubfunction);
 
 				} else {
 					throw new IOException("Found selected job row but could not extract all required cell data");
@@ -343,7 +324,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				String failMsg = "BUG DETECTED: Reverse scenario found suitable profile, but Forward scenario found NO suitable jobs (ONLY Grade=N/A) in "
 						+ allJobRows.size() + " total jobs";
 				LOGGER.error(failMsg);
-				ExtentCucumberAdapter.addTestStepLog(" BUG: " + failMsg);
+				PageObjectHelper.log(LOGGER, " BUG: " + failMsg);
 
 				// This is a BUG - data inconsistency between scenarios
 				throw new IOException("BUG: Data inconsistency - " + failMsg);
@@ -354,7 +335,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Failed to find job with specified criteria: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to find job with specified criteria: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "- Failed to find job with specified criteria: " + e.getMessage());
 			throw new IOException("Failed to find job with specified criteria", e);
 		}
 	}
@@ -410,15 +391,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 					jobDetailsFromMissingDataScreen.put("department", department);
 					jobDetailsFromMissingDataScreen.put("functionSubfunction", functionSubfunction);
 
-					LOGGER.info("Extracted job details from Missing Data screen (using stored row):");
-					LOGGER.info("Job Name: " + cleanedJobName);
-					LOGGER.info("Job Code: " + jobCode);
-					LOGGER.info("Grade: " + grade + " (Missing)");
-					LOGGER.info("Department: " + department);
-					LOGGER.info("Function/Subfunction: " + functionSubfunction);
-
-					ExtentCucumberAdapter
-							.addTestStepLog("Successfully extracted job details from Jobs with Missing Data screen");
+					PageObjectHelper.log(LOGGER, "Extracted job details - Name: " + cleanedJobName + ", Code: " + jobCode);
 					return;
 
 				} else {
@@ -452,7 +425,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 						LOGGER.info("Department: " + department);
 						LOGGER.info("Function/Subfunction: " + functionSubfunction);
 
-						ExtentCucumberAdapter.addTestStepLog(
+						PageObjectHelper.log(LOGGER, 
 								"Successfully extracted job details from Jobs with Missing Data screen");
 						return;
 					}
@@ -463,7 +436,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to extract job details: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to extract job details: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to extract job details: " + e.getMessage());
 			throw new IOException("Failed to extract job details", e);
 		}
 	}
@@ -479,11 +452,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			js.executeScript("arguments[0].click();", closeReuploadJobsPageButton);
 
 			LOGGER.info("Closed Missing Data screen successfully");
-			ExtentCucumberAdapter.addTestStepLog("Closed Missing Data screen - ready for next scenario");
+			PageObjectHelper.log(LOGGER, "Closed Missing Data screen - ready for next scenario");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to close Missing Data screen: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to close Missing Data screen: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to close Missing Data screen: " + e.getMessage());
 			throw new IOException("Failed to close Missing Data screen", e);
 		}
 	}
@@ -677,12 +650,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			Assert.assertTrue(jobSearchInput.isDisplayed(), "Job search input not visible - not on Job Mapping page");
 
 			LOGGER.info("Successfully verified user is back on Job Mapping page");
-			ExtentCucumberAdapter.addTestStepLog("Successfully verified user is back on Job Mapping page");
+			PageObjectHelper.log(LOGGER, "Successfully verified user is back on Job Mapping page");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify user is back on Job Mapping page: " + e.getMessage());
-			ExtentCucumberAdapter
-					.addTestStepLog("Failed to verify user is back on Job Mapping page: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to verify user is back on Job Mapping page: " + e.getMessage());
 			throw new IOException("Failed to verify user is back on Job Mapping page", e);
 		}
 	}
@@ -736,7 +708,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			// Verify search results
 			verifySearchResultsContainSearchTerm(searchTerm);
 
-			ExtentCucumberAdapter.addTestStepLog("Searched for job profile: " + searchTerm);
+			PageObjectHelper.log(LOGGER, "Searched for job profile: " + searchTerm);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_the_extracted_job_profile_by_name_in_job_mapping_page",
@@ -851,7 +823,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			if (jobRows.isEmpty()) {
 				String errorMsg = "No job rows found on Job Mapping page";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				throw new IOException(errorMsg);
 			}
 
@@ -1012,11 +984,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			Assert.assertTrue(jobFound, "No exact matching job profile found in search results with Name='"
 					+ targetJobName + "' AND Code='" + targetJobCode + "'");
 
-			ExtentCucumberAdapter.addTestStepLog("Job profile verified in search results");
+			PageObjectHelper.log(LOGGER, "Job profile verified in search results");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify job profile in search results: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to verify job profile in search results: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to verify job profile in search results: " + e.getMessage());
 			throw new IOException("Failed to verify job profile in search results", e);
 		}
 	}
@@ -1219,14 +1191,14 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 						+ gradeFromMapping + "', Department: '" + departmentFromMapping + "', Function: '"
 						+ functionFromMapping + "'");
 
-				ExtentCucumberAdapter.addTestStepLog("Successfully extracted job details from Job Mapping page");
+				PageObjectHelper.log(LOGGER, "Successfully extracted job details from Job Mapping page");
 			} else {
 				throw new IOException("No matching job row available from verification step");
 			}
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to extract job details from Job Mapping page: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to extract job details: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to extract job details: " + e.getMessage());
 			throw new IOException("Failed to extract job details from Job Mapping page", e);
 		}
 	}
@@ -1303,11 +1275,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			}
 
 			LOGGER.info("Job details verification completed successfully");
-			ExtentCucumberAdapter.addTestStepLog("Successfully verified job details match between both screens");
+			PageObjectHelper.log(LOGGER, "Successfully verified job details match between both screens");
 
 		} catch (Exception e) {
 			LOGGER.error("Job details do not match between screens: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Job details do not match between screens: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Job details do not match between screens: " + e.getMessage());
 			throw new IOException("Job details do not match between screens", e);
 		}
 	}
@@ -1345,11 +1317,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 					"Info message not found on searched profile indicating missing Grade data");
 
 			LOGGER.info("✓ Info Message verified");
-			ExtentCucumberAdapter.addTestStepLog("Info Message verified for profile with missing Grade data");
+			PageObjectHelper.log(LOGGER, "Info Message verified for profile with missing Grade data");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify Info Message: {}", e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to verify Info Message: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to verify Info Message: " + e.getMessage());
 			throw new IOException("Failed to verify Info Message", e);
 		}
 	}
@@ -1420,7 +1392,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 		} else {
 			String errorMsg = fieldName + " mismatch: '" + missingDataValue + "' vs '" + jobMappingValue + "'";
 			LOGGER.error(errorMsg);
-			ExtentCucumberAdapter.addTestStepLog("- " + errorMsg);
+			PageObjectHelper.log(LOGGER, "- " + errorMsg);
 		}
 
 		return matches;
@@ -1545,9 +1517,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 	 */
 	public void sort_job_profiles_by_organization_grade_in_ascending_order() throws IOException {
 		try {
-			LOGGER.info("Sorting Job Profiles by Organization Grade in Ascending order");
-			ExtentCucumberAdapter
-					.addTestStepLog("Sorting profiles by Grade (ascending) to get missing Grade profiles first...");
+			PageObjectHelper.log(LOGGER, "Sorting profiles by Grade (ascending) to get missing Grade profiles first...");
 
 			// Look for Grade column header to sort
 			List<WebElement> gradeHeaders = driver
@@ -1569,19 +1539,15 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				gradeHeader.click();
 				PerformanceUtils.safeSleep(driver, 2000); // Wait for sorting to complete
 
-				LOGGER.info("Successfully sorted by Grade column");
-				ExtentCucumberAdapter
-						.addTestStepLog("... Sorted profiles by Grade - missing Grade profiles should appear first");
+				PageObjectHelper.log(LOGGER, "Sorted profiles by Grade - missing Grade profiles should appear first");
 
 			} else {
-				LOGGER.warn("Grade column header not found, proceeding without sorting");
-				ExtentCucumberAdapter
-						.addTestStepLog(" Grade column not found for sorting, proceeding with current order");
+				PageObjectHelper.log(LOGGER, " Grade column not found for sorting, proceeding with current order");
 			}
 
 		} catch (Exception e) {
 			LOGGER.warn("Failed to sort by Grade column: " + e.getMessage() + ". Proceeding without sorting.");
-			ExtentCucumberAdapter.addTestStepLog(" Sorting failed, proceeding with current order");
+			PageObjectHelper.log(LOGGER, " Sorting failed, proceeding with current order");
 		}
 	}
 
@@ -1608,15 +1574,12 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			LOGGER.info(
 					"FORWARD SCENARIO (Scenario 1): Searching for first job with info message where Grade is missing");
 			LOGGER.info("Looking for: info message + Grade missing (ignoring Department & Function data)");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					" FORWARD SCENARIO (Scenario 1): Finding FIRST job with info message and missing Grade...");
 
 			// Progressive search: Check initial batch, then scroll and check new batch if
 			// no match
-			LOGGER.info(
-					"Starting progressive search: check batch  if no match  scroll  check new batch  repeat (max 15 scrolls, up to ~50 profiles)");
-			ExtentCucumberAdapter
-					.addTestStepLog(" Progressive search: checking profiles in batches with on-demand scrolling...");
+			PageObjectHelper.log(LOGGER, " Progressive search: checking profiles in batches with on-demand scrolling...");
 
 			int maxScrollAttempts = 15;
 			int scrollAttempt = 0;
@@ -1776,11 +1739,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 						// If match found, store and STOP
 						if (gradeIsMissing) {
-							LOGGER.info("... MATCH FOUND in batch " + scrollAttempt + "! Profile " + profileNumber
-									+ " has missing Grade");
-							LOGGER.info("... Selected: " + jobName + " (Code: " + jobCode + ")");
-							ExtentCucumberAdapter
-									.addTestStepLog("... Found suitable profile: " + jobName + " - Grade missing");
+							PageObjectHelper.log(LOGGER, "Found suitable profile: " + jobName + " - Grade missing");
 
 							// Store the found profile
 							foundJobRow = jobDataRow;
@@ -1921,12 +1880,12 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			if (!matchFound) {
 				LOGGER.info(" No profiles with missing Grade found (checked " + lastCheckedIndex + " profiles across "
 						+ scrollAttempt + " batches)");
-				ExtentCucumberAdapter.addTestStepLog(" No profiles found with missing Grade");
+				PageObjectHelper.log(LOGGER, " No profiles found with missing Grade");
 
 				String skipMsg = "SKIPPING SCENARIO: No profiles found with missing Grade (checked " + lastCheckedIndex
 						+ " profiles)";
 				LOGGER.error(skipMsg);
-				ExtentCucumberAdapter.addTestStepLog(" " + skipMsg);
+				PageObjectHelper.log(LOGGER, " " + skipMsg);
 				throw new org.testng.SkipException(skipMsg);
 			}
 
@@ -1934,7 +1893,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			throw e; // Re-throw SkipException
 		} catch (Exception e) {
 			LOGGER.error("Failed to find suitable job profile: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to find suitable job profile: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "- Failed to find suitable job profile: " + e.getMessage());
 			throw new IOException("Failed to find suitable job profile", e);
 		}
 	}
@@ -2061,11 +2020,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			extractedJobName.set(jobName);
 
 			LOGGER.info("Successfully extracted job details: " + jobName);
-			ExtentCucumberAdapter.addTestStepLog("Extracted job details: " + jobName + " (" + jobCode + ")");
+			PageObjectHelper.log(LOGGER, "Extracted job details: " + jobName + " (" + jobCode + ")");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to extract job details from Job Mapping page: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to extract job details: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "- Failed to extract job details: " + e.getMessage());
 			throw new IOException("Failed to extract job details from Job Mapping page", e);
 		}
 	}
@@ -2078,9 +2037,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 	 */
 	public void search_for_the_extracted_job_profile_by_name_in_jobs_missing_data_screen() throws IOException {
 		try {
-			LOGGER.info("Traversing all jobs in Missing Data screen to find: " + extractedJobName.get());
-			ExtentCucumberAdapter
-					.addTestStepLog("Traversing all jobs in Missing Data screen (no search functionality)...");
+			PageObjectHelper.log(LOGGER, "Traversing all jobs in Missing Data screen (no search functionality)...");
 
 			if (extractedJobName.get() == null || extractedJobName.get().isEmpty()) {
 				throw new IOException("No job name available for search");
@@ -2093,7 +2050,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			String expectedJobCode = jobDetailsFromJobMappingPage.get("jobCode");
 			if (expectedJobCode != null && !expectedJobCode.isEmpty()) {
 				LOGGER.info("Expected job code from Job Mapping: " + expectedJobCode);
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"Looking for job with name '" + searchTerm + "' AND code '" + expectedJobCode + "'");
 			} else {
 				LOGGER.warn(
@@ -2200,7 +2157,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 										row);
 								PerformanceUtils.safeSleep(driver, 500);
 
-								ExtentCucumberAdapter.addTestStepLog("FOUND job in Missing Data screen: "
+								PageObjectHelper.log(LOGGER, "FOUND job in Missing Data screen: "
 										+ cleanJobNameInRow + " (position " + totalJobsChecked + ")"
 										+ (jobCodeInRow.isEmpty() ? "" : " - Code: " + jobCodeInRow));
 								return; // Found the job, exit
@@ -2241,7 +2198,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 					LOGGER.error("Job Mapping: Found job '" + searchTerm + "' with code '" + expectedJobCode
 							+ "' and missing Grade + info message");
 					LOGGER.error("Missing Data: Same job with EXACT code NOT FOUND after complete search");
-					ExtentCucumberAdapter.addTestStepLog("BUG: Job name '" + searchTerm + "' with code '"
+					PageObjectHelper.log(LOGGER, "BUG: Job name '" + searchTerm + "' with code '"
 							+ expectedJobCode + "' not found in Missing Data screen");
 				} else {
 					errorMsg = "Job '" + searchTerm
@@ -2250,7 +2207,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 					LOGGER.error("BUG: Data consistency issue between screens");
 					LOGGER.error("Job Mapping: Found job with missing Grade + info message");
 					LOGGER.error("Missing Data: Same job NOT FOUND after complete search");
-					ExtentCucumberAdapter.addTestStepLog("BUG: " + errorMsg);
+					PageObjectHelper.log(LOGGER, "BUG: " + errorMsg);
 				}
 
 				throw new IOException("BUG: Data consistency issue - " + errorMsg);
@@ -2258,11 +2215,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 		} catch (Exception e) {
 			LOGGER.error("REVERSE SCENARIO FAILED: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog(" REVERSE SCENARIO FAILED: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, " REVERSE SCENARIO FAILED: " + e.getMessage());
 
 			// Force close Missing Data screen to ensure next scenario can run
 			LOGGER.warn("Force closing Missing Data screen to ensure next scenario can start properly");
-			ExtentCucumberAdapter.addTestStepLog(" Force closing Missing Data screen for next scenario");
+			PageObjectHelper.log(LOGGER, " Force closing Missing Data screen for next scenario");
 			force_close_missing_data_screen_for_next_scenario();
 
 			// Set flag to indicate scenario failed but don't stop execution
@@ -2282,7 +2239,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			if (foundJobRow == null) {
 				String errorMsg = " BUG: No job row found in Missing Data screen - job should exist since it was found with missing data in Job Mapping screen";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(" " + errorMsg);
+				PageObjectHelper.log(LOGGER, " " + errorMsg);
 				throw new IOException(errorMsg);
 			}
 
@@ -2310,12 +2267,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 					// Validate job code match if both are available
 					if (expectedJobCode != null && !expectedJobCode.isEmpty() && !jobCodeInRow.isEmpty()) {
 						if (expectedJobCode.equals(jobCodeInRow)) {
-							LOGGER.info(
-									"... Job profile is displayed in Missing Data screen search results --- Automation Found "
-											+ cleanJobNameInRow + " (" + jobCodeInRow
-											+ ") as correct match with matching job code");
-							ExtentCucumberAdapter
-									.addTestStepLog("... Job profile verified in Missing Data screen - Name: "
+							PageObjectHelper.log(LOGGER, "Job profile verified in Missing Data screen - Name: "
 											+ cleanJobNameInRow + ", Code: " + jobCodeInRow + " (EXACT MATCH)");
 						} else {
 							String errorMsg = " BUG: Job found but job code mismatch - Expected: " + expectedJobCode
@@ -2323,7 +2275,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 							LOGGER.error(errorMsg);
 							LOGGER.error(
 									"This indicates multiple jobs with same name but different codes exist in the system");
-							ExtentCucumberAdapter.addTestStepLog(" " + errorMsg);
+							PageObjectHelper.log(LOGGER, " " + errorMsg);
 							throw new IOException(errorMsg);
 						}
 					} else {
@@ -2331,7 +2283,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 								"... Job profile is displayed in Missing Data screen search results --- but in Missing data screen Automation Found "
 										+ cleanJobNameInRow + " (" + jobCodeInRow
 										+ ") as correct match but here Job Code is different...Could you please fix this issue?");
-						ExtentCucumberAdapter.addTestStepLog("... Job profile verified in Missing Data screen - Name: "
+						PageObjectHelper.log(LOGGER, "... Job profile verified in Missing Data screen - Name: "
 								+ cleanJobNameInRow + (jobCodeInRow.isEmpty() ? "" : ", Code: " + jobCodeInRow)
 								+ " (Code validation not possible)");
 					}
@@ -2339,13 +2291,13 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			} else {
 				String errorMsg = " BUG: Found job row exists but is not visible - display issue in Missing Data screen";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(" " + errorMsg);
+				PageObjectHelper.log(LOGGER, " " + errorMsg);
 				throw new IOException(errorMsg);
 			}
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify job profile in Missing Data screen: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to verify job profile: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to verify job profile: " + e.getMessage());
 
 			// Force close Missing Data screen to ensure next scenario can run
 			LOGGER.warn("Force closing Missing Data screen due to verification failure");
@@ -2397,7 +2349,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 				LOGGER.info("Successfully extracted job details from Missing Data screen: " + jobName
 						+ (jobCode.isEmpty() ? "" : " (Code: " + jobCode + ")"));
-				ExtentCucumberAdapter.addTestStepLog("Successfully extracted job details from Missing Data screen"
+				PageObjectHelper.log(LOGGER, "Successfully extracted job details from Missing Data screen"
 						+ (jobCode.isEmpty() ? "" : " - Code: " + jobCode));
 
 			} else {
@@ -2406,7 +2358,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to extract job details from Missing Data screen: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to extract job details: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "- Failed to extract job details: " + e.getMessage());
 
 			// Force close Missing Data screen to ensure next scenario can run
 			LOGGER.warn("Force closing Missing Data screen due to extraction failure");
@@ -2481,20 +2433,17 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			if (!codeFromJobMapping.isEmpty() && !codeFromMissingData.isEmpty()) {
 				if (codeFromJobMapping.equals(codeFromMissingData)) {
 					LOGGER.info("... Job Code matches: " + codeFromJobMapping);
-					ExtentCucumberAdapter.addTestStepLog("... Job Code verification passed: " + codeFromJobMapping);
+					PageObjectHelper.log(LOGGER, "... Job Code verification passed: " + codeFromJobMapping);
 				} else {
 					String errorMsg = " BUG: Job Code mismatch - JobMapping='" + codeFromJobMapping
 							+ "' vs MissingData='" + codeFromMissingData
 							+ "' - This indicates multiple jobs with same name but different codes";
 					LOGGER.error(errorMsg);
-					ExtentCucumberAdapter.addTestStepLog(" " + errorMsg);
+					PageObjectHelper.log(LOGGER, " " + errorMsg);
 					Assert.fail(errorMsg);
 				}
 			} else {
-				LOGGER.warn("Job Code comparison skipped - one or both values are empty (JobMapping: '"
-						+ codeFromJobMapping + "', MissingData: '" + codeFromMissingData + "')");
-				ExtentCucumberAdapter
-						.addTestStepLog(" Job Code validation not possible - codes not available in both screens");
+				PageObjectHelper.log(LOGGER, " Job Code validation not possible - codes not available in both screens");
 			}
 
 			// Compare all fields using unified N/A "-" mapping logic (reverse order)
@@ -2514,11 +2463,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			}
 
 			LOGGER.info("Job details verification completed successfully");
-			ExtentCucumberAdapter.addTestStepLog("Successfully verified job details match between screens");
+			PageObjectHelper.log(LOGGER, "Successfully verified job details match between screens");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify job details match: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to verify job details match: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "- Failed to verify job details match: " + e.getMessage());
 			throw new IOException("Failed to verify job details match", e);
 		}
 	}

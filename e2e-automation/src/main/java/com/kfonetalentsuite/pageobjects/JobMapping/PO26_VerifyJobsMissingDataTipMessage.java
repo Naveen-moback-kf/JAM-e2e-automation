@@ -23,7 +23,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO26_VerifyJobsMissingDataTipMessage {
 
@@ -104,7 +103,7 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 		try {
 			// Check if tip message is already visible
 			if (missingDataTipMessageContainer.isDisplayed()) {
-				ExtentCucumberAdapter.addTestStepLog(" Missing Data Tip Message is already present");
+				PageObjectHelper.log(LOGGER, " Missing Data Tip Message is already present");
 				return;
 			}
 		} catch (Exception e) {
@@ -115,9 +114,9 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			try {
 				PerformanceUtils.waitForPageReady(driver, 3);
 				wait.until(ExpectedConditions.visibilityOf(missingDataTipMessageContainer));
-				ExtentCucumberAdapter.addTestStepLog(" Missing Data Tip Message restored after page refresh");
+				PageObjectHelper.log(LOGGER, " Missing Data Tip Message restored after page refresh");
 			} catch (Exception refreshException) {
-				ExtentCucumberAdapter.addTestStepLog(" Unable to restore Missing Data Tip Message after refresh");
+				PageObjectHelper.log(LOGGER, " Unable to restore Missing Data Tip Message after refresh");
 				throw new IOException("Cannot restore tip message for verification");
 			}
 		}
@@ -260,7 +259,7 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 
 	public void navigate_back_to_job_mapping_page() throws IOException {
 		try {
-			ExtentCucumberAdapter.addTestStepLog(" Attempting to navigate back to Job Mapping page using Close button");
+			PageObjectHelper.log(LOGGER, " Attempting to navigate back to Job Mapping page using Close button");
 
 			boolean navigatedSuccessfully = false;
 
@@ -275,7 +274,7 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 				navigatedSuccessfully = true;
 
 			} catch (Exception e1) {
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						" Strategy 1 failed - Could not find/click specific Close button: " + e1.getMessage());
 				LOGGER.warn("Primary close button strategy failed: " + e1.getMessage());
 
@@ -285,24 +284,23 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 							"//button[contains(text(), 'Close')] | //button[@aria-label='Close'] | //*[text()='Close']"));
 					performRobustClick(alternativeCloseButton, "Alternative Close button");
 
-					ExtentCucumberAdapter
-							.addTestStepLog(" Successfully clicked Close button using alternative locator");
+					PageObjectHelper.log(LOGGER, " Successfully clicked Close button using alternative locator");
 					LOGGER.info("Successfully used alternative Close button locator");
 					navigatedSuccessfully = true;
 
 				} catch (Exception e2) {
-					ExtentCucumberAdapter.addTestStepLog(
+					PageObjectHelper.log(LOGGER, 
 							" Strategy 2 failed - Alternative Close button not found: " + e2.getMessage());
 					LOGGER.warn("Alternative close button strategy failed: " + e2.getMessage());
 
 					// Strategy 3: Use browser back navigation as last resort
 					try {
 						driver.navigate().back();
-						ExtentCucumberAdapter.addTestStepLog(" Used browser back navigation as fallback");
+						PageObjectHelper.log(LOGGER, " Used browser back navigation as fallback");
 						LOGGER.info("Used browser back navigation as fallback");
 						navigatedSuccessfully = true;
 					} catch (Exception e3) {
-						ExtentCucumberAdapter.addTestStepLog("- All navigation strategies failed");
+						PageObjectHelper.log(LOGGER, "- All navigation strategies failed");
 						LOGGER.error("All navigation strategies failed", e3);
 						throw new IOException("Failed to navigate back using any strategy", e3);
 					}
@@ -317,12 +315,12 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 				try {
 					wait.until(ExpectedConditions.visibilityOf(pageContainer));
 					String currentUrl = driver.getCurrentUrl();
-					ExtentCucumberAdapter.addTestStepLog(" Successfully navigated back to Job Mapping page");
-					ExtentCucumberAdapter.addTestStepLog("   Current URL after navigation: " + currentUrl);
+					PageObjectHelper.log(LOGGER, " Successfully navigated back to Job Mapping page");
+					PageObjectHelper.log(LOGGER, "   Current URL after navigation: " + currentUrl);
 					LOGGER.info("Successfully navigated back to Job Mapping page. URL: " + currentUrl);
 				} catch (Exception verifyException) {
-					ExtentCucumberAdapter.addTestStepLog(" Navigation completed but could not verify page elements");
-					ExtentCucumberAdapter.addTestStepLog("   This may be normal - continuing with test");
+					PageObjectHelper.log(LOGGER, " Navigation completed but could not verify page elements");
+					PageObjectHelper.log(LOGGER, "   This may be normal - continuing with test");
 					LOGGER.warn(
 							"Could not verify page elements after navigation back: " + verifyException.getMessage());
 				}
@@ -332,8 +330,8 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 			// Add debugging information
 			try {
 				String currentUrl = driver.getCurrentUrl();
-				ExtentCucumberAdapter.addTestStepLog("- Failed to navigate back to Job Mapping page");
-				ExtentCucumberAdapter.addTestStepLog("   Current URL: " + currentUrl);
+				PageObjectHelper.log(LOGGER, "- Failed to navigate back to Job Mapping page");
+				PageObjectHelper.log(LOGGER, "   Current URL: " + currentUrl);
 			} catch (Exception debugEx) {
 				LOGGER.debug("Failed to get debug URL: " + debugEx.getMessage());
 			}
@@ -447,20 +445,20 @@ public class PO26_VerifyJobsMissingDataTipMessage {
 		// Try normal click first
 		try {
 			element.click();
-			ExtentCucumberAdapter.addTestStepLog("Clicked " + elementName);
+			PageObjectHelper.log(LOGGER, "Clicked " + elementName);
 		} catch (Exception clickEx1) {
 			// Try JavaScript click if normal click fails
 			try {
 				js.executeScript("arguments[0].click();", element);
 				LOGGER.debug("Used JavaScript click for: " + elementName);
-				ExtentCucumberAdapter.addTestStepLog("Clicked " + elementName);
+				PageObjectHelper.log(LOGGER, "Clicked " + elementName);
 			} catch (Exception clickEx2) {
 				// Try dispatch event as last resort
 				js.executeScript(
 						"arguments[0].dispatchEvent(new MouseEvent('click', {bubbles: true, cancelable: true, view: window}));",
 						element);
 				LOGGER.debug("Used dispatch event for: " + elementName);
-				ExtentCucumberAdapter.addTestStepLog("Clicked " + elementName);
+				PageObjectHelper.log(LOGGER, "Clicked " + elementName);
 			}
 		}
 	}

@@ -38,13 +38,6 @@
 			<version>${cucumber.version}</version>
 		</dependency>
 
-		<!-- UPDATED: Latest ExtentReports for Cucumber 7 -->
-		<dependency>
-			<groupId>tech.grasshopper</groupId>
-			<artifactId>extentreports-cucumber7-adapter</artifactId>
-			<version>1.14.0</version>
-		</dependency>
-
 		<!-- UPDATED: Latest Selenium with Security Fixes -->
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>

@@ -20,7 +20,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManager {
 
@@ -432,8 +431,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 
 	public void user_is_in_job_mapping_page_with_manual_mapping_filters_applied() throws IOException {
 		safeSleep(2000);
-		LOGGER.info("User is in Job Mapping page with Manual Mapping filters applied");
-		ExtentCucumberAdapter.addTestStepLog("User is in Job Mapping page with Manual Mapping filters applied");
+		PageObjectHelper.log(LOGGER, "User is in Job Mapping page with Manual Mapping filters applied");
 	}
 
 	// Manual Profile Validation Methods
@@ -514,7 +512,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			Assert.assertTrue(correctTextFound,
 					"Info Message should contain text about 'Reduced match accuracy due to missing data' for manual mapping");
 
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Successfully verified Info Message contains correct text about reduced match accuracy for manual mapping");
 			LOGGER.info("Successfully verified Info Message text for manual mapping");
 
@@ -611,7 +609,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 							"... SUCCESS: No profiles with missing data found after complete search of all {} attempts",
 							searchAttempts);
 					LOGGER.info(" RESULT: All profiles have complete data - no info messages present");
-					ExtentCucumberAdapter.addTestStepLog(
+					PageObjectHelper.log(LOGGER, 
 							"SUCCESS: No profiles with missing data found - all profiles have complete data");
 					return; // Exit successfully - no missing data is a positive outcome!
 				} else {
@@ -627,7 +625,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 				}
 			}
 
-			ExtentCucumberAdapter.addTestStepLog("Found Manual Mapping profile with Info Message: "
+			PageObjectHelper.log(LOGGER, "Found Manual Mapping profile with Info Message: "
 					+ manualJobNameWithInfoMessage + " (" + manualJobCodeWithInfoMessage + ")");
 
 		} catch (Exception e) {
@@ -773,7 +771,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			LOGGER.info("  Grade: {}, Dept: {}", manualGradeWithInfoMessage, manualDepartmentWithInfoMessage);
 			LOGGER.info("  Func: {}", manualFunctionSubfunctionWithInfoMessage);
 
-			ExtentCucumberAdapter.addTestStepLog("Extracted job details for Profile " + profileNumber);
+			PageObjectHelper.log(LOGGER, "Extracted job details for Profile " + profileNumber);
 
 		} catch (Exception e) {
 			LOGGER.error(
@@ -837,7 +835,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			safeSleep(1500);
 
 			LOGGER.info("Clicked '{}' button for Profile {}", buttonText, profileNumber);
-			ExtentCucumberAdapter.addTestStepLog("Clicked '" + buttonText + "' button for Profile " + profileNumber);
+			PageObjectHelper.log(LOGGER, "Clicked '" + buttonText + "' button for Profile " + profileNumber);
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to click '{}' button for manually mapped profile: {}", buttonText, e.getMessage());
@@ -858,7 +856,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 
 			Assert.assertTrue(urlIndicatesManualMapping, "URL should indicate Manual Mapping page");
 
-			ExtentCucumberAdapter.addTestStepLog("Successfully verified user is navigated to Manual Mapping page");
+			PageObjectHelper.log(LOGGER, "Successfully verified user is navigated to Manual Mapping page");
 			LOGGER.info("Successfully verified navigation to Manual Mapping page");
 
 		} catch (Exception e) {
@@ -970,7 +968,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			LOGGER.debug("  Job: {} ({}), Grade: {}, Dept: {}, Func: {}", comparisonJobName, comparisonJobCode,
 					comparisonGrade, comparisonDepartment, comparisonFunction);
 
-			ExtentCucumberAdapter.addTestStepLog("Extracted job details from Manual Mapping page");
+			PageObjectHelper.log(LOGGER, "Extracted job details from Manual Mapping page");
 
 		} catch (Exception e) {
 			LOGGER.error("Error extracting job details from Manual Mapping page: " + e.getMessage());
@@ -987,7 +985,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			// For now, implementing basic verification structure
 
 			LOGGER.info("Successfully verified job details match between Job Mapping and Manual Mapping pages");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Successfully verified job details match between Job Mapping and Manual Mapping pages");
 
 		} catch (Exception e) {
@@ -1017,7 +1015,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 
 			Assert.assertTrue(infoMessageFound, "Info Message should be displayed in Manual Mapping page");
 
-			ExtentCucumberAdapter.addTestStepLog("Verified Info Message is displayed in Manual Mapping page");
+			PageObjectHelper.log(LOGGER, "Verified Info Message is displayed in Manual Mapping page");
 
 		} catch (Exception e) {
 			LOGGER.error("Error verifying Info Message in Manual Mapping page: " + e.getMessage());
@@ -1048,7 +1046,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			Assert.assertTrue(expectedTextFound,
 					"Info Message should contain expected text about reduced match accuracy in Manual Mapping");
 
-			ExtentCucumberAdapter.addTestStepLog("Verified Info Message contains expected text in Manual Mapping page");
+			PageObjectHelper.log(LOGGER, "Verified Info Message contains expected text in Manual Mapping page");
 
 		} catch (Exception e) {
 			LOGGER.error("Error verifying Info Message text for Manual Mapping: " + e.getMessage());
@@ -1084,7 +1082,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 
 			Assert.assertTrue(backOnJobMapping, "Should be back on Job Mapping page");
 
-			ExtentCucumberAdapter.addTestStepLog("Successfully navigated back to Job Mapping page from Manual Mapping");
+			PageObjectHelper.log(LOGGER, "Successfully navigated back to Job Mapping page from Manual Mapping");
 			LOGGER.info("Successfully navigated back to Job Mapping page from Manual Mapping");
 
 		} catch (Exception e) {
@@ -1162,7 +1160,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			Assert.assertTrue(infoMessageDisplayed,
 					"Info Message should be displayed for manually mapped profiles with missing data in second profile validation");
 
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Successfully verified second manually mapped profile with missing data has Info Message displayed");
 			LOGGER.info(
 					"Successfully verified manually mapped profile with missing data has Info Message displayed for second profile validation");
@@ -1226,7 +1224,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			Assert.assertTrue(correctTextFound,
 					"Info Message should contain text about 'Reduced match accuracy due to missing data' for second manually mapped profile validation");
 
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Successfully verified second manually mapped profile Info Message contains correct text");
 			LOGGER.info("Successfully verified Info Message text for second manually mapped profile validation");
 
@@ -1406,7 +1404,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 						" SINGLE PROFILE MODE: Using GLOBAL first profile for validation (GLOBAL row: {}, profile: {})",
 						globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
 
-				ExtentCucumberAdapter.addTestStepLog("Single Manual Mapping profile validation: "
+				PageObjectHelper.log(LOGGER, "Single Manual Mapping profile validation: "
 						+ globalFirstManualJobNameWithInfoMessage + " (" + globalFirstManualJobCodeWithInfoMessage
 						+ ") - No second unique Manual Mapping profile available after extensive search");
 				return; // Exit gracefully - single profile mode
@@ -1450,7 +1448,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			Assert.assertTrue(secondCurrentManualRowIndex > 0,
 					"Could not find valid second Manual Mapping profile after aggressive search");
 
-			ExtentCucumberAdapter.addTestStepLog("AGGRESSIVE SEARCH SUCCESS: Found second Manual Mapping profile: "
+			PageObjectHelper.log(LOGGER, "AGGRESSIVE SEARCH SUCCESS: Found second Manual Mapping profile: "
 					+ secondManualJobNameWithInfoMessage + " (" + secondManualJobCodeWithInfoMessage
 					+ ") - Different from first profile");
 
@@ -1482,7 +1480,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 					secondManualDepartmentWithInfoMessage);
 			LOGGER.info("  Func: {}", secondManualFunctionSubfunctionWithInfoMessage);
 
-			ExtentCucumberAdapter.addTestStepLog("Extracted job details from second profile " + profileNumber);
+			PageObjectHelper.log(LOGGER, "Extracted job details from second profile " + profileNumber);
 
 		} catch (Exception e) {
 			LOGGER.error("Error extracting job details from second manually mapped profile: " + e.getMessage());
@@ -1523,8 +1521,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			performRobustClick(targetButton, buttonText + " button for second profile");
 
 			LOGGER.info("Clicked '{}' button for second profile {}", buttonText, profileNumber);
-			ExtentCucumberAdapter
-					.addTestStepLog("Clicked '" + buttonText + "' button for second profile " + profileNumber);
+			PageObjectHelper.log(LOGGER, "Clicked '" + buttonText + "' button for second profile " + profileNumber);
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to click '{}' button for second manually mapped profile: {}", buttonText,
@@ -1558,7 +1555,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 					secondManualGradeWithInfoMessage, secondManualDepartmentWithInfoMessage,
 					secondManualFunctionSubfunctionWithInfoMessage);
 
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Extracted job details from Manual Mapping page for second profile " + profileNumber);
 
 		} catch (Exception e) {
@@ -1816,7 +1813,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			}
 
 			LOGGER.info("Successfully verified second manually mapped profile job details match between both pages");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Successfully verified job details match between Job Mapping and Manual Mapping pages for Manually Mapped Profile "
 							+ profileNumber + " (Second)");
 
@@ -1851,7 +1848,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 					"Info Message should be displayed in Manual Mapping page for second manually mapped profile");
 
 			int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Verified Info Message is displayed in Manual Mapping page for Manually Mapped Profile "
 							+ profileNumber + " (Second)");
 
@@ -1911,7 +1908,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			Assert.assertTrue(correctTextFound,
 					"Info Message should contain text about 'Reduced match accuracy due to missing data' in Manual Mapping page for second manually mapped profile");
 
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Successfully verified second manually mapped profile Info Message contains correct text in Manual Mapping page");
 			LOGGER.info(
 					"Successfully verified Info Message text in Manual Mapping page for second manually mapped profile");

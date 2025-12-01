@@ -17,8 +17,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 	WebDriver driver = DriverManager.getDriver();
@@ -60,9 +60,7 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 					utils.jsClick(driver, HCMchevronBtn);
 				}
 			}
-			LOGGER.info("Clicked on Chevron Button beside Header Checbox in HCM Sync Profiles Screen");
-			ExtentCucumberAdapter
-					.addTestStepLog("Clicked on Chevron Button beside Header Checbox in HCM Sync Profiles Screen");
+			PageObjectHelper.log(LOGGER, "Clicked on Chevron Button beside Header Checbox in HCM Sync Profiles Screen");
 			PerformanceUtils.waitForPageReady(driver, 2);
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot(
@@ -71,7 +69,7 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 					"Issue in clicking Chevron Button beside Header Checbox in HCM Sync Profiles Screen - Method: click_on_chevron_button_beside_header_checkbox_in_hcm_sync_profiles_screen",
 					e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Issue in clicking Chevron Button beside Header Checbox in HCM Sync Profiles Screen...Please Investigate!!!");
 		}
 	}
@@ -95,8 +93,7 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 					utils.jsClick(driver, HCMSelectAllBtn);
 				}
 			}
-			LOGGER.info("Clicked on Select All button in HCM Sync Profiles Screen");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on Select All button in HCM Sync Profiles Screen");
+			PageObjectHelper.log(LOGGER, "Clicked on Select All button in HCM Sync Profiles Screen");
 			PerformanceUtils.waitForPageReady(driver, 2);
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_select_all_button_in_hcm_sync_profiles_screen", e);
@@ -104,7 +101,7 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 					"Issue in clicking Select All button in HCM Sync Profiles Screen - Method: click_on_select_all_button_in_hcm_sync_profiles_screen",
 					e);
 			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Issue in clicking Select All button in HCM Sync Profiles Screen...Please Investigate!!!");
 		}
 	}
@@ -142,8 +139,7 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 
 					if (!totalCountStr.isEmpty()) {
 						totalProfiles = Integer.parseInt(totalCountStr);
-						LOGGER.info("Total profiles to process: " + totalProfiles);
-						ExtentCucumberAdapter.addTestStepLog("Total profiles to process: " + totalProfiles);
+						PageObjectHelper.log(LOGGER, "Total profiles to process: " + totalProfiles);
 					}
 				}
 			} catch (Exception e) {
@@ -152,13 +148,12 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 
 			if (totalProfiles == 0) {
 				LOGGER.warn("Could not determine total profile count. Will scroll until no more data loads.");
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						" Could not determine total profile count. Scrolling through all available profiles...");
 			}
 
 			// Step 2: Scroll to load all profiles (ENHANCED FOR HEADLESS MODE)
-			LOGGER.info(" Starting to scroll and load all profiles...");
-			ExtentCucumberAdapter.addTestStepLog("Loading all profiles by scrolling...");
+			PageObjectHelper.log(LOGGER, "Loading all profiles by scrolling...");
 
 			// DYNAMIC maxScrollAttempts calculation based on total profiles
 			int maxScrollAttempts;
@@ -173,13 +168,13 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 
 				LOGGER.info("Dynamic maxScrollAttempts calculated: {} (based on {} total profiles)", maxScrollAttempts,
 						totalProfiles);
-				ExtentCucumberAdapter.addTestStepLog("Max scroll attempts set to: " + maxScrollAttempts
+				PageObjectHelper.log(LOGGER, "Max scroll attempts set to: " + maxScrollAttempts
 						+ " (dynamically calculated for " + totalProfiles + " profiles)");
 			} else {
 				// Fallback if total count unavailable
 				maxScrollAttempts = 60;
 				LOGGER.info("Using default maxScrollAttempts: {} (total profile count unavailable)", maxScrollAttempts);
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"Max scroll attempts: " + maxScrollAttempts + " (default - profile count unknown)");
 			}
 
@@ -269,13 +264,13 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 						scrollCount, maxScrollAttempts);
 				LOGGER.warn("⚠️ Profile count may be INCOMPLETE. Current rows loaded: {} (Expected: ~{})",
 						currentRowCount, totalProfiles);
-				ExtentCucumberAdapter.addTestStepLog("⚠️ WARNING: Reached max scroll limit (" + maxScrollAttempts
+				PageObjectHelper.log(LOGGER, "⚠️ WARNING: Reached max scroll limit (" + maxScrollAttempts
 						+ " scrolls). Profile count may be incomplete!");
 			}
 
 			LOGGER.info("... Scrolling complete. Total rows loaded: {}, Scrolls performed: {}", currentRowCount,
 					scrollCount);
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"... Total rows loaded: " + currentRowCount + " (using " + scrollCount + " scrolls)");
 
 			// Step 3: Count selected checkboxes (enabled ones only, excluding disabled)
@@ -321,16 +316,8 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 						+ disabledCount + ", Selected: " + selectedCount);
 			}
 
-			LOGGER.info("Found " + (selectedCount + disabledCount) + " total checkbox elements");
-			LOGGER.info("Disabled checkboxes: " + disabledCount);
-			LOGGER.info("Enabled (selected) checkboxes: " + selectedCount);
-
-			LOGGER.info(" Successfully counted selected profiles: " + selectedCount + " out of " + currentRowCount
-					+ " profiles in HCM Sync Profiles screen");
-			LOGGER.info(" Disabled profiles (skipped): " + disabledCount);
-			ExtentCucumberAdapter.addTestStepLog(" Total rows loaded: " + currentRowCount);
-			ExtentCucumberAdapter
-					.addTestStepLog(" Selected profiles: " + selectedCount + " | Disabled: " + disabledCount);
+			PageObjectHelper.log(LOGGER, " Total rows loaded: " + currentRowCount);
+			PageObjectHelper.log(LOGGER, " Selected profiles: " + selectedCount + " | Disabled: " + disabledCount);
 
 			// Store the count and flag indicating if count is complete
 			CountOfProfilesSelectedToExport = selectedCount;
@@ -339,14 +326,9 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 
 			// Log the count completeness status
 			if (reachedMaxScrollLimit) {
-				LOGGER.warn("⚠️ INCOMPLETE COUNT FLAG SET: isProfilesCountComplete = false");
-				LOGGER.warn("⚠️ Counted {} profiles, but max scroll limit reached. Actual total may be higher.",
-						selectedCount);
-				ExtentCucumberAdapter.addTestStepLog("⚠️ Count Status: INCOMPLETE (max scroll limit reached)");
+				PageObjectHelper.log(LOGGER, "⚠️ Count Status: INCOMPLETE (max scroll limit reached)");
 			} else {
-				LOGGER.info("✅ COMPLETE COUNT FLAG SET: isProfilesCountComplete = true");
-				LOGGER.info("✅ Successfully loaded and counted all {} profiles", selectedCount);
-				ExtentCucumberAdapter.addTestStepLog("✅ Count Status: COMPLETE (all profiles loaded and counted)");
+				PageObjectHelper.log(LOGGER, "✅ Count Status: COMPLETE (all profiles loaded and counted)");
 			}
 
 		} catch (Exception e) {
@@ -355,7 +337,7 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 			LOGGER.error(
 					"Error getting selected profiles count in HCM Sync Profiles screen - Method: verify_count_of_selected_profiles_by_scrolling_through_all_profiles",
 					e);
-			ExtentCucumberAdapter.addTestStepLog(" Error getting selected profiles count");
+			PageObjectHelper.log(LOGGER, " Error getting selected profiles count");
 		}
 	}
 }

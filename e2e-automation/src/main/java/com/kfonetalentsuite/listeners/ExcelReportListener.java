@@ -34,22 +34,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 				|| !CommonVariable.EXCEL_REPORTING_ENABLED.equalsIgnoreCase("false");
 	}
 
-	/**
-	 * Configure Extent Reporting based on extent.reporting.enabled flag This runs
-	 * at the very start of test execution (before any tests run)
-	 */
-	private static void configureExtentReporting() {
-		try {
-			boolean extentEnabled = CommonVariable.EXTENT_REPORTING_ENABLED == null
-					|| !CommonVariable.EXTENT_REPORTING_ENABLED.trim().equalsIgnoreCase("false");
-
-			System.setProperty("extent.reporter.spark.start", String.valueOf(extentEnabled));
-			LOGGER.info("Extent reports: {}", extentEnabled ? "ENABLED" : "DISABLED");
-
-		} catch (Exception e) {
-			LOGGER.error("Failed to configure Extent reporting: {}", e.getMessage());
-		}
-	}
 
 	// Execution statistics - Thread-safe counters for parallel execution
 	private static final AtomicInteger totalTestMethods = new AtomicInteger(0);
@@ -168,9 +152,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 
 	@Override
 	public void onExecutionStart() {
-		// EXTENT REPORTING CONFIGURATION: Configure Extent before anything else
-		configureExtentReporting();
-
 		// SYSTEM POWER MANAGEMENT: Initialize Keep System Awake at suite level (ONCE
 		// for entire execution)
 		KeepAwakeUtil.initialize();

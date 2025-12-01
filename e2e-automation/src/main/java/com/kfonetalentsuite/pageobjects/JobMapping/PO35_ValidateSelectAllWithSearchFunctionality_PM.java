@@ -19,8 +19,8 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 
@@ -144,8 +144,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 				previousCount = currentCount;
 			}
 
-			LOGGER.info("... Loaded {} search results using {} scrolls", currentCount, scrollCount);
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"... Loaded " + currentCount + " search results (using " + scrollCount + " scrolls)");
 		} catch (Exception e) {
 			LOGGER.error(
@@ -176,14 +175,11 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 			}
 
 			if (nonMatchingResults == 0) {
-				LOGGER.info(" All " + totalResults + " results contain '" + searchSubstring + "'");
-				ExtentCucumberAdapter
-						.addTestStepLog(" All " + totalResults + " results contain '" + searchSubstring + "'");
+				PageObjectHelper.log(LOGGER, " All " + totalResults + " results contain '" + searchSubstring + "'");
 			} else {
 				LOGGER.warn(" " + nonMatchingResults + " of " + totalResults + " results do NOT contain '"
 						+ searchSubstring + "'");
-				ExtentCucumberAdapter
-						.addTestStepLog(" " + nonMatchingResults + " results do not contain '" + searchSubstring + "'");
+				PageObjectHelper.log(LOGGER, " " + nonMatchingResults + " results do not contain '" + searchSubstring + "'");
 			}
 
 		} catch (Exception e) {
@@ -216,13 +212,11 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			LOGGER.info("Verifying only searched profiles remain selected (expected: " + searchResultsCount.get() + ")");
-			ExtentCucumberAdapter
-					.addTestStepLog("Verifying only " + searchResultsCount.get() + " profiles remain selected...");
+			PageObjectHelper.log(LOGGER, "Verifying only " + searchResultsCount.get() + " profiles remain selected...");
 
 			if (searchResultsCount.get() == 0) {
 				LOGGER.warn(" Search results count is 0, skipping verification");
-				ExtentCucumberAdapter.addTestStepLog(" No search results to verify");
+				PageObjectHelper.log(LOGGER, " No search results to verify");
 				return;
 			}
 
@@ -313,7 +307,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 					LOGGER.warn(" INCOMPLETE VALIDATION: Only loaded " + totalProfilesVisible + " of "
 							+ expectedTotalProfiles + " profiles (" + missingProfiles + " not loaded)");
 					LOGGER.warn(" Validation will be based on loaded profiles only - results may not be complete!");
-					ExtentCucumberAdapter.addTestStepLog(" WARNING: Partial validation (" + totalProfilesVisible
+					PageObjectHelper.log(LOGGER, " WARNING: Partial validation (" + totalProfilesVisible
 							+ " of " + expectedTotalProfiles + " profiles loaded)");
 				} else {
 					LOGGER.info("Proceeding with validation of " + totalProfilesVisible + " loaded profiles");
@@ -376,13 +370,13 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 					String errorMsg = " FAIL: No selections found in " + totalProfilesVisible
 							+ " loaded profiles (expected " + searchResultsCount.get() + ")";
 					LOGGER.error(errorMsg);
-					ExtentCucumberAdapter.addTestStepLog(errorMsg);
+					PageObjectHelper.log(LOGGER, errorMsg);
 					Assert.fail(errorMsg);
 				} else if (actualSelectedCount > searchResultsCount.get()) {
 					String errorMsg = " FAIL: Found " + actualSelectedCount + " selected (expected "
 							+ searchResultsCount.get() + "), " + extraSelections + " extra profiles incorrectly selected";
 					LOGGER.error(errorMsg);
-					ExtentCucumberAdapter.addTestStepLog(errorMsg);
+					PageObjectHelper.log(LOGGER, errorMsg);
 					Assert.fail(errorMsg);
 				} else if (actualSelectedCount < searchResultsCount.get()) {
 					// PASS: Remaining selections likely in unloaded profiles
@@ -390,31 +384,31 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 							+ " selected profiles in loaded data (remaining " + missingSelections
 							+ " likely in unloaded profiles)";
 					LOGGER.info(successMsg);
-					ExtentCucumberAdapter.addTestStepLog(successMsg);
+					PageObjectHelper.log(LOGGER, successMsg);
 				} else {
 					// actualSelectedCount == searchResultsCount
 					String successMsg = " PASS: All " + searchResultsCount
 							+ " searched profiles found selected in loaded data";
 					LOGGER.info(successMsg);
-					ExtentCucumberAdapter.addTestStepLog(successMsg);
+					PageObjectHelper.log(LOGGER, successMsg);
 				}
 			} else {
 				// Normal validation when all profiles are loaded
 				if (actualSelectedCount == searchResultsCount.get()) {
 					String successMsg = " PASS: All " + searchResultsCount.get() + " searched profiles remain selected";
 					LOGGER.info(successMsg);
-					ExtentCucumberAdapter.addTestStepLog(successMsg);
+					PageObjectHelper.log(LOGGER, successMsg);
 				} else if (actualSelectedCount < searchResultsCount.get()) {
 					String errorMsg = " FAIL: Only " + actualSelectedCount + " selected (expected " + searchResultsCount
 							+ "), " + missingSelections + " profiles cannot be selected or lost selection";
 					LOGGER.error(errorMsg);
-					ExtentCucumberAdapter.addTestStepLog(errorMsg);
+					PageObjectHelper.log(LOGGER, errorMsg);
 					Assert.fail(errorMsg);
 				} else {
 					String errorMsg = " FAIL: " + actualSelectedCount + " selected (expected " + searchResultsCount
 							+ "), " + extraSelections + " extra profiles incorrectly selected";
 					LOGGER.error(errorMsg);
-					ExtentCucumberAdapter.addTestStepLog(errorMsg);
+					PageObjectHelper.log(LOGGER, errorMsg);
 					Assert.fail(errorMsg);
 				}
 			}
@@ -426,7 +420,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 			LOGGER.error(
 					"Error verifying searched profiles selection - Method: verify_only_searched_profiles_are_selected_after_clearing_search_bar_in_hcm_sync_profiles_screen",
 					e);
-			ExtentCucumberAdapter.addTestStepLog(" Error verifying searched profiles are selected");
+			PageObjectHelper.log(LOGGER, " Error verifying searched profiles are selected");
 			Assert.fail("Error verifying only searched profiles are selected: " + e.getMessage());
 		}
 	}
@@ -458,7 +452,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 			LOGGER.info("Unselected Profiles (can be selected but not selected): " + unselectedProfiles);
 			LOGGER.info("========================================");
 			PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(searchResultsCount.get());
-			ExtentCucumberAdapter.addTestStepLog("Baseline: " + searchResultsCount.get() + " selected profiles");
+			PageObjectHelper.log(LOGGER, "Baseline: " + searchResultsCount.get() + " selected profiles");
 
 		} catch (Exception e) {
 			LOGGER.warn("Error capturing selected profiles count: " + e.getMessage());
@@ -508,7 +502,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 
 			LOGGER.info("Alternative validation: First search was '" + firstSearchSubstring
 					+ "', finding different substring...");
-			ExtentCucumberAdapter.addTestStepLog("Alternative validation: Searching different substring...");
+			PageObjectHelper.log(LOGGER, "Alternative validation: Searching different substring...");
 
 			for (String substring : PO22_ValidateHCMSyncProfilesScreen_PM.SEARCH_PROFILE_NAME_OPTIONS) {
 				if (substring.equalsIgnoreCase(firstSearchSubstring)) {
@@ -561,7 +555,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 						alternativeSearchSubstring.set(substring);
 						foundResults = true;
 						LOGGER.info(" Using '" + substring + "': " + resultsCountText);
-						ExtentCucumberAdapter.addTestStepLog(" Second search: '" + substring + "'");
+						PageObjectHelper.log(LOGGER, " Second search: '" + substring + "'");
 						break;
 					}
 
@@ -579,7 +573,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 					}
 				}
 				LOGGER.warn(" No alternative substring returned results, using: '" + selectedSubstring + "'");
-				ExtentCucumberAdapter.addTestStepLog(" Using: '" + selectedSubstring + "' (no results found)");
+				PageObjectHelper.log(LOGGER, " Using: '" + selectedSubstring + "' (no results found)");
 			}
 
 		} catch (Exception e) {
@@ -591,7 +585,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 					e);
 			e.printStackTrace();
 			Assert.fail("Failed to enter different job name substring in search bar for alternative validation");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Failed to enter different job name substring in search bar for alternative validation");
 		}
 	}
@@ -691,7 +685,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 
 			if (resultsCountText.matches(".*Showing\\s+0\\s+of.*")) {
 				LOGGER.warn(" Second search returned 0 results, skipping");
-				ExtentCucumberAdapter.addTestStepLog(" Second search returned 0 results");
+				PageObjectHelper.log(LOGGER, " Second search returned 0 results");
 				totalSecondSearchResults.set(0);
 				return;
 			}
@@ -714,7 +708,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 
 			LOGGER.info("Second search '" + secondSearchSubstring + "': " + expectedTotal
 					+ " profiles total (checking initial visible profiles only)");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Alternative validation: Checking initial visible profiles from '" + secondSearchSubstring + "'");
 
 			// Get initial visible profiles
@@ -735,19 +729,19 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 			if (invalidCount > 0) {
 				String errorMsg = " FAIL: Found invalid selection in second search results";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg);
 				return;
 			}
 
 			LOGGER.info(" Validation complete: " + initialCount + " visible profiles checked, 0 invalid");
-			ExtentCucumberAdapter.addTestStepLog(" All visible profiles validated successfully (no scrolling needed)");
+			PageObjectHelper.log(LOGGER, " All visible profiles validated successfully (no scrolling needed)");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot(
 					"scroll_down_to_load_all_second_search_results_in_hcm_sync_profiles_screen", e);
 			LOGGER.error("Error validating second search results", e);
-			ExtentCucumberAdapter.addTestStepLog(" Error validating second search results");
+			PageObjectHelper.log(LOGGER, " Error validating second search results");
 			Assert.fail("Error validating second search results: " + e.getMessage());
 		}
 	}
@@ -762,6 +756,6 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM {
 	 */
 	public void verify_all_loaded_profiles_in_second_search_are_not_selected_in_hcm_sync_profiles_screen() {
 		LOGGER.info(" Validation already completed in previous step (simplified approach)");
-		ExtentCucumberAdapter.addTestStepLog(" Validation already completed");
+		PageObjectHelper.log(LOGGER, " Validation already completed");
 	}
 }

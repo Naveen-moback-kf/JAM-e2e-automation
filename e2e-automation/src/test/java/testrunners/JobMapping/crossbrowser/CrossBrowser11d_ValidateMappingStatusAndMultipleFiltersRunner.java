@@ -30,7 +30,7 @@ import io.cucumber.testng.TestNGCucumberRunner;
     tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Mapping_Status_And_Multiple_Filters",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
     dryRun = false,
-    plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"}
+    plugin = {"html:target/cucumber-reports/cucumber.html", "json:target/cucumber-reports/cucumber.json"}
 )
 public class CrossBrowser11d_ValidateMappingStatusAndMultipleFiltersRunner extends CustomizeTestNGCucumberRunner {
     

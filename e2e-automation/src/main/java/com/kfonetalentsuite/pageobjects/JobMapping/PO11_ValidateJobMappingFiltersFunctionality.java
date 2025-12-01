@@ -20,8 +20,10 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.ExcelDataProvider;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
+
+import java.util.Map;
 
 public class PO11_ValidateJobMappingFiltersFunctionality {
 	WebDriver driver = DriverManager.getDriver();
@@ -178,6 +180,113 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 			PageObjectHelper.handleError(LOGGER, "select_one_option_in_grades_filters_dropdown",
 					"Issue selecting option from Grades dropdown", e);
 			throw e;
+		}
+	}
+
+	// ============================================
+	// DATA-DRIVEN FILTER METHODS
+	// ============================================
+
+	/**
+	 * DATA-DRIVEN: Apply filter using data from Excel TestData.xlsx
+	 * Sheet: FilterData
+	 * 
+	 * @param testId The TestID from FilterData sheet
+	 */
+	public void apply_filter_using_excel_data(String testId) {
+		try {
+			Map<String, String> testData = ExcelDataProvider.getTestData("FilterData", testId);
+			String filterType = testData.get("FilterType");
+			String filterValue = testData.get("FilterValue");
+			
+			PageObjectHelper.log(LOGGER, "Applying " + filterType + " filter with value: " + filterValue);
+			
+			// Click on the appropriate filter dropdown based on type
+			switch (filterType.toLowerCase()) {
+				case "grades":
+					click_on_grades_filters_dropdown_button();
+					select_filter_option_by_value(filterValue, "Grades");
+					GradesOption = filterValue;
+					break;
+				case "departments":
+					click_on_departments_filters_dropdown_button();
+					select_filter_option_by_value(filterValue, "Departments");
+					DepartmentsOption = filterValue;
+					break;
+				case "functions":
+				case "functions_subfunctions":
+					click_on_functions_subfunctions_filters_dropdown_button();
+					select_filter_option_by_value(filterValue, "Functions_SubFunctions");
+					FunctionsOption = filterValue;
+					break;
+				case "mappingstatus":
+				case "mapping status":
+					click_on_mapping_status_filters_dropdown_button();
+					select_filter_option_by_value(filterValue, "MappingStatus");
+					break;
+				default:
+					throw new IllegalArgumentException("Unknown filter type: " + filterType);
+			}
+			
+			// Close filter dropdown by pressing Escape or clicking outside
+			try {
+				driver.findElement(By.tagName("body")).sendKeys(Keys.ESCAPE);
+			} catch (Exception ex) {
+				// If escape doesn't work, try clicking outside
+				js.executeScript("document.body.click();");
+			}
+			
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PerformanceUtils.waitForPageReady(driver, 2);
+			
+			PageObjectHelper.log(LOGGER, "Successfully applied " + filterType + " filter with value: " + filterValue);
+			
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "apply_filter_using_excel_data",
+					"Failed to apply filter using Excel data for TestID: " + testId, e);
+		}
+	}
+
+	/**
+	 * Helper method to select a filter option by its value/text
+	 */
+	private void select_filter_option_by_value(String filterValue, String filterType) {
+		try {
+			// Build XPath to find checkbox by label text
+			String checkboxXpath = "//div[@data-testid='dropdown-" + filterType + 
+					"']//..//label[contains(text(),'" + filterValue + "')]//input[@type='checkbox']";
+			
+			List<WebElement> checkboxes = driver.findElements(By.xpath(checkboxXpath));
+			
+			if (checkboxes.isEmpty()) {
+				// Try alternative: find by partial match
+				checkboxXpath = "//div[@data-testid='dropdown-" + filterType + 
+						"']//..//input[@type='checkbox']";
+				List<WebElement> allCheckboxes = driver.findElements(By.xpath(checkboxXpath));
+				
+				if (!allCheckboxes.isEmpty()) {
+					// Select first available option
+					WebElement checkbox = allCheckboxes.get(0);
+					js.executeScript("arguments[0].scrollIntoView({block: 'center'});", checkbox);
+					Thread.sleep(300);
+					js.executeScript("arguments[0].click();", checkbox);
+					PageObjectHelper.log(LOGGER, "Selected first available filter option");
+					return;
+				}
+				throw new RuntimeException("No filter options found for: " + filterValue);
+			}
+			
+			WebElement checkbox = checkboxes.get(0);
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", checkbox);
+			Thread.sleep(300);
+			js.executeScript("arguments[0].click();", checkbox);
+			
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			
+			PageObjectHelper.log(LOGGER, "Selected filter option: " + filterValue);
+			
+		} catch (Exception e) {
+			LOGGER.warn("Could not select exact filter value '{}', selecting first available", filterValue);
 		}
 	}
 
@@ -355,9 +464,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				String text = grade.getText();
 				if (text.contentEquals(GradesOption) || text.contentEquals(GradesOption1)
 						|| text.contentEquals(GradesOption2)) {
-					LOGGER.info("Organization Job Mapping Profile with Grade : " + text
-							+ " is correctly filtered with applied grades options");
-					ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Grade : " + text
+					PageObjectHelper.log(LOGGER, "Organization Job Mapping Profile with Grade : " + text
 							+ " is correctly filtered with applied grades options");
 				} else {
 					LOGGER.info("Organization Job Mapping Profile with Grade : " + text
@@ -667,9 +774,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 				String text = department.getText();
 				if (text.contentEquals(DepartmentsOption) || text.contentEquals(DepartmentsOption1)
 						|| text.contentEquals(DepartmentsOption2)) {
-					LOGGER.info("Organization Job Mapping Profile with Department : " + text
-							+ " is correctly filtered with applied departments options");
-					ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Department : " + text
+					PageObjectHelper.log(LOGGER, "Organization Job Mapping Profile with Department : " + text
 							+ " is correctly filtered with applied departments options");
 				} else {
 					Assert.fail("Organization Job Mapping Profile with Department : " + text
@@ -1152,16 +1257,10 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 
 					if (function.contentEquals(FunctionsOption) || function.contentEquals(FunctionsOption1)
 							|| function.contentEquals(FunctionsOption2)) {
-						LOGGER.info("Organization Job Mapping Profile with Function : " + function
-								+ " and Sub-Function value : " + subfunction
-								+ " is correctly filtered with applied functions / subfunctions options");
-						ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Function : "
+						PageObjectHelper.log(LOGGER, "Organization Job Mapping Profile with Function : "
 								+ function + " and Sub-Function value : " + subfunction
 								+ " is correctly filtered with applied functions / subfunctions options");
 					} else {
-						LOGGER.info("Organization Job Mapping Profile with Function : " + function
-								+ " and Sub-Function value : " + subfunction
-								+ " from Filters results DOES NOT match with applied functions / subfunctions options");
 						PageObjectHelper.log(LOGGER, "Organization Job Mapping Profile with Function : " + function
 								+ " and Sub-Function value : " + subfunction
 								+ " from Filters results DOES NOT match with applied functions / subfunctions options...Please Investigate!!!");
@@ -1175,10 +1274,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality {
 
 					if (function.contentEquals(FunctionsOption) || function.contentEquals(FunctionsOption1)
 							|| function.contentEquals(FunctionsOption2)) {
-						LOGGER.info("Organization Job Mapping Profile with Function : " + function
-								+ " and Sub-Function value : " + subfunction
-								+ " is correctly filtered with applied functions / subfunctions options");
-						ExtentCucumberAdapter.addTestStepLog("Organization Job Mapping Profile with Function : "
+						PageObjectHelper.log(LOGGER, "Organization Job Mapping Profile with Function : "
 								+ function + " and Sub-Function value : " + subfunction
 								+ " is correctly filtered with applied functions / subfunctions options");
 					} else {

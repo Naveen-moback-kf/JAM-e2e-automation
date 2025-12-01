@@ -23,7 +23,7 @@ import io.cucumber.testng.CucumberOptions;
 		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Add_and_Verify_CustomSP_In_Job_Comparison_Page",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
-		plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:" }
+		plugin = {"html:target/cucumber-reports/cucumber.html", "json:target/cucumber-reports/cucumber.json"}
 		)
 
 public class Runner13_AddandVerifyCustomSPinJobComparsionPage extends CustomizeTestNGCucumberRunner {

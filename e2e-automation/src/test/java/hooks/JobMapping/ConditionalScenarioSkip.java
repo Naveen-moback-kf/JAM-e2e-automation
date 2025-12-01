@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.SkipException;
 
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -62,7 +62,7 @@ public class ConditionalScenarioSkip {
 					scenarioName);
 
 			LOGGER.warn(skipMessage);
-			ExtentCucumberAdapter.addTestStepLog(" " + skipMessage);
+			PageObjectHelper.log(LOGGER, " " + skipMessage);
 
 			// Skip this scenario
 			throw new SkipException(skipMessage);
@@ -99,7 +99,7 @@ public class ConditionalScenarioSkip {
 						+ "All remaining scenarios in '%s' will be skipped.", TARGET_FEATURE);
 
 				LOGGER.warn(message);
-				ExtentCucumberAdapter.addTestStepLog(" " + message);
+				PageObjectHelper.log(LOGGER, " " + message);
 
 				// Log which scenarios will be skipped
 				LOGGER.info(" SCENARIOS TO BE SKIPPED:");
@@ -110,12 +110,12 @@ public class ConditionalScenarioSkip {
 				LOGGER.info(" SCENARIOS THAT WILL STILL EXECUTE:");
 				LOGGER.info(
 						"    Close the Browser after Validation (@CloseBrowser scenarios always execute for cleanup)");
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						" Remaining functional scenarios will be skipped, but cleanup scenarios will still execute");
 
 			} else {
 				LOGGER.info(" PROFILES AVAILABLE: Found unmapped profiles - manual mapping scenarios will proceed");
-				ExtentCucumberAdapter.addTestStepLog(" Found unmapped profiles - proceeding with manual mapping tests");
+				PageObjectHelper.log(LOGGER, " Found unmapped profiles - proceeding with manual mapping tests");
 			}
 		}
 	}

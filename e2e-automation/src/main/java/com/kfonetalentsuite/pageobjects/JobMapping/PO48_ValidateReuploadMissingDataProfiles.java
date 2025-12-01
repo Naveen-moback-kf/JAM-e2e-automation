@@ -26,7 +26,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 /**
  * Page Object for Feature 48: Validate Re-uploading Jobs with Missing Data
@@ -218,14 +217,10 @@ public class PO48_ValidateReuploadMissingDataProfiles {
 
 			// If less than 100 profiles, fetch all available profiles
 			if (totalAvailable < 100) {
-				LOGGER.info("Less than 100 profiles available ({}). Fetching ALL profiles.", totalAvailable);
-				ExtentCucumberAdapter.addTestStepLog(
-						"Found " + totalAvailable + " profiles (less than 100). Fetching all available profiles.");
+				PageObjectHelper.log(LOGGER, "Found " + totalAvailable + " profiles (less than 100). Fetching all available profiles.");
 				maxProfiles = totalAvailable;
 			} else {
-				LOGGER.info("100+ profiles available. Fetching top 100 profiles.");
-				ExtentCucumberAdapter
-						.addTestStepLog("Found " + totalAvailable + " profiles. Fetching top 100 profiles.");
+				PageObjectHelper.log(LOGGER, "Found " + totalAvailable + " profiles. Fetching top 100 profiles.");
 			}
 
 			LOGGER.info("Extracting details of {} profiles from Missing Data screen", maxProfiles);
@@ -361,7 +356,7 @@ public class PO48_ValidateReuploadMissingDataProfiles {
 			extractedProfiles.set(profiles);
 			PageObjectHelper.log(LOGGER,
 					"Successfully extracted " + profiles.size() + " profiles from Missing Data screen");
-			ExtentCucumberAdapter.addTestStepLog("Extracted " + profiles.size() + " profiles for CSV export");
+			PageObjectHelper.log(LOGGER, "Extracted " + profiles.size() + " profiles for CSV export");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "extract_top_100_profiles",
@@ -482,7 +477,7 @@ public class PO48_ValidateReuploadMissingDataProfiles {
 			}
 
 			PageObjectHelper.log(LOGGER, "CSV file created with " + profiles.size() + " profiles at: " + filePath);
-			ExtentCucumberAdapter.addTestStepLog("CSV file created with " + profiles.size() + " profiles");
+			PageObjectHelper.log(LOGGER, "CSV file created with " + profiles.size() + " profiles");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "create_csv_file", "Failed to create CSV file", e);
@@ -740,7 +735,7 @@ public class PO48_ValidateReuploadMissingDataProfiles {
 			}
 
 			PageObjectHelper.log(LOGGER, "Updated CSV file saved with " + profiles.size() + " profiles");
-			ExtentCucumberAdapter.addTestStepLog("CSV file updated with filled missing data");
+			PageObjectHelper.log(LOGGER, "CSV file updated with filled missing data");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "save_updated_csv", "Failed to save updated CSV file", e);
@@ -859,7 +854,7 @@ public class PO48_ValidateReuploadMissingDataProfiles {
 
 			int decreased = before - after;
 			PageObjectHelper.log(LOGGER, "Missing data count decreased by " + decreased + " profiles");
-			ExtentCucumberAdapter.addTestStepLog("✓ Missing data count decreased from " + before + " to " + after);
+			PageObjectHelper.log(LOGGER, "✓ Missing data count decreased from " + before + " to " + after);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_count_decreased",
@@ -879,7 +874,7 @@ public class PO48_ValidateReuploadMissingDataProfiles {
 	public void wait_and_refresh_job_mapping_page_after_upload() throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Waiting for 2 minutes for backend to process uploaded data...");
-			ExtentCucumberAdapter.addTestStepLog("Waiting 2 minutes for data processing...");
+			PageObjectHelper.log(LOGGER, "Waiting 2 minutes for data processing...");
 			Thread.sleep(120000); // 2 minutes
 
 			PageObjectHelper.log(LOGGER, "Refreshing Job Mapping page...");
@@ -889,7 +884,7 @@ public class PO48_ValidateReuploadMissingDataProfiles {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
 
 			PageObjectHelper.log(LOGGER, "Job Mapping page refreshed successfully");
-			ExtentCucumberAdapter.addTestStepLog("Page refreshed - ready for verification");
+			PageObjectHelper.log(LOGGER, "Page refreshed - ready for verification");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "wait_and_refresh", "Failed to wait and refresh Job Mapping page", e);
@@ -969,12 +964,12 @@ public class PO48_ValidateReuploadMissingDataProfiles {
 				String errorMsg = "ERROR: Profile NOT found in search results for Job Name: " + jobName
 						+ ". This is a BUG - we are updating the profile, not deleting it!";
 				PageObjectHelper.log(LOGGER, errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg);
 			} else {
 				PageObjectHelper.log(LOGGER,
 						"✓ Profile found in Job Mapping search results (" + resultCount + " results)");
-				ExtentCucumberAdapter.addTestStepLog("Profile found with " + resultCount + " search results");
+				PageObjectHelper.log(LOGGER, "Profile found with " + resultCount + " search results");
 			}
 
 		} catch (Exception e) {
@@ -1013,7 +1008,7 @@ public class PO48_ValidateReuploadMissingDataProfiles {
 			Assert.assertTrue(infoIcons.isEmpty(), "Profile should NOT display Missing Data info icon after re-upload");
 
 			PageObjectHelper.log(LOGGER, "✓ Profile no longer displays Missing Data info icon");
-			ExtentCucumberAdapter.addTestStepLog("✓ Profile successfully fixed - no missing data warning");
+			PageObjectHelper.log(LOGGER, "✓ Profile successfully fixed - no missing data warning");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_no_missing_data_icon",
@@ -1079,7 +1074,7 @@ public class PO48_ValidateReuploadMissingDataProfiles {
 			Assert.assertFalse(profileFound, "Profile should NOT be found in Jobs Missing Data screen after re-upload");
 
 			PageObjectHelper.log(LOGGER, "✓ Profile removed from Jobs Missing Data screen");
-			ExtentCucumberAdapter.addTestStepLog("✓ Profile no longer appears in Missing Data screen");
+			PageObjectHelper.log(LOGGER, "✓ Profile no longer appears in Missing Data screen");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_profile_not_in_missing_data",

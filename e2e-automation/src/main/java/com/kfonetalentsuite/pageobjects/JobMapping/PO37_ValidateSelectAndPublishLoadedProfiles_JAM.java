@@ -18,8 +18,8 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO37_ValidateSelectAndPublishLoadedProfiles_JAM {
 
@@ -95,10 +95,7 @@ public class PO37_ValidateSelectAndPublishLoadedProfiles_JAM {
 			newlyLoadedProfilesAfterScrolling = totalProfilesCurrentlyLoaded - loadedProfilesBeforeHeaderCheckboxClick;
 
 			if (newlyLoadedProfilesAfterScrolling <= 0) {
-				LOGGER.warn(" No newly loaded profiles detected after scrolling");
-				LOGGER.warn("   Total profiles: " + totalProfilesCurrentlyLoaded + ", Loaded before checkbox: "
-						+ loadedProfilesBeforeHeaderCheckboxClick);
-				ExtentCucumberAdapter.addTestStepLog(" No newly loaded profiles to verify");
+				PageObjectHelper.log(LOGGER, "No newly loaded profiles to verify");
 				return;
 			}
 
@@ -116,8 +113,7 @@ public class PO37_ValidateSelectAndPublishLoadedProfiles_JAM {
 			LOGGER.info("Total Profiles Currently loaded on screen: " + totalProfilesCurrentlyLoaded);
 			LOGGER.info("========================================");
 
-			ExtentCucumberAdapter.addTestStepLog(
-					"Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
+			PageObjectHelper.log(LOGGER, "Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
 
 			// Step 3: Get all checkboxes and verify newly loaded ones are NOT selected
 			// Get all checkbox elements directly (not by row position, as some rows don't
@@ -180,16 +176,11 @@ public class PO37_ValidateSelectAndPublishLoadedProfiles_JAM {
 			int expectedUnselected = newlyLoadedProfilesAfterScrolling - disabledInNewlyLoadedProfiles;
 
 			if (unselectedProfilesCount >= expectedUnselected) {
-				LOGGER.info(" VALIDATION PASSED: All " + unselectedProfilesCount
-						+ " newly loaded profiles are correctly unselected");
-				ExtentCucumberAdapter.addTestStepLog(" Validation PASSED: " + unselectedProfilesCount
+				PageObjectHelper.log(LOGGER, "Validation PASSED: " + unselectedProfilesCount
 						+ " newly loaded profiles are NOT selected (as expected)");
 			} else {
 				int missingUnselected = expectedUnselected - unselectedProfilesCount;
-				LOGGER.error(" VALIDATION FAILED: Expected " + expectedUnselected + " unselected, but found only "
-						+ unselectedProfilesCount);
-				LOGGER.error("    " + missingUnselected + " newly loaded profiles are unexpectedly SELECTED");
-				ExtentCucumberAdapter.addTestStepLog(" Validation FAILED: " + missingUnselected
+				PageObjectHelper.log(LOGGER, "Validation FAILED: " + missingUnselected
 						+ " newly loaded profiles are unexpectedly selected");
 				Assert.fail("Validation FAILED: " + missingUnselected
 						+ " newly loaded profiles are selected (should be unselected)");
@@ -198,10 +189,7 @@ public class PO37_ValidateSelectAndPublishLoadedProfiles_JAM {
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot(
 					"verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen", e);
-			LOGGER.error(
-					"Error verifying newly loaded profiles - Method: verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen",
-					e);
-			ExtentCucumberAdapter.addTestStepLog(" Error verifying newly loaded profiles are not selected");
+			PageObjectHelper.log(LOGGER, "Error verifying newly loaded profiles are not selected");
 			Assert.fail("Error verifying newly loaded profiles are not selected: " + e.getMessage());
 		}
 	}

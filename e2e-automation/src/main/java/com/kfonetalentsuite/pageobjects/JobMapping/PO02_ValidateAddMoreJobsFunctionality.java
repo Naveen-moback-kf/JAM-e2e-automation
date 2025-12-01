@@ -27,7 +27,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import org.openqa.selenium.interactions.Actions;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO02_ValidateAddMoreJobsFunctionality {
 	WebDriver driver = DriverManager.getDriver();
@@ -309,14 +308,12 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 		File uploadFile = new File(uploadFilePath);
 		if (!uploadFile.exists()) {
 			String errorMsg = "Upload file does not exist at path: " + uploadFilePath;
-			LOGGER.error(errorMsg);
-			ExtentCucumberAdapter.addTestStepLog(errorMsg);
+			PageObjectHelper.log(LOGGER, errorMsg);
 			Assert.fail(errorMsg);
 		}
 
 		try {
-			LOGGER.info("Starting file upload process for headless execution...");
-			ExtentCucumberAdapter.addTestStepLog("Starting file upload process for headless execution...");
+			PageObjectHelper.log(LOGGER, "Starting file upload process for headless execution...");
 
 			// Strategy 1: Try to find hidden file input element directly
 			boolean uploadSuccess = tryDirectFileInput(uploadFilePath);

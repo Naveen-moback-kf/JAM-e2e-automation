@@ -2,15 +2,13 @@ package com.kfonetalentsuite.utils.JobMapping;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 /**
  * Enhanced logging utility to replace System.out.println and printStackTrace
- * calls Provides consistent logging across the framework with ExtentReports
- * integration
+ * calls. Provides consistent logging across the framework.
  * 
  * @author QA Automation Team
- * @version 2.1.0
+ * @version 3.0 (Extent Reports removed)
  */
 public class EnhancedLogger {
 	private static final Logger LOGGER = LogManager.getLogger(EnhancedLogger.class);
@@ -22,13 +20,6 @@ public class EnhancedLogger {
 	 */
 	public static void info(String message) {
 		LOGGER.info(message);
-		// Also add to ExtentReports for test visibility
-		try {
-			ExtentCucumberAdapter.addTestStepLog(message);
-		} catch (Exception e) {
-			// Silently handle if ExtentReports is not available
-			LOGGER.debug("ExtentReports not available for logging: {}", e.getMessage());
-		}
 	}
 
 	/**
@@ -48,12 +39,6 @@ public class EnhancedLogger {
 	 */
 	public static void error(String message, Exception e) {
 		LOGGER.error(message, e);
-		// Add error to ExtentReports with full context
-		try {
-			ExtentCucumberAdapter.addTestStepLog(" " + message + ": " + e.getMessage());
-		} catch (Exception ex) {
-			LOGGER.debug("ExtentReports not available for error logging: {}", ex.getMessage());
-		}
 	}
 
 	/**
@@ -63,25 +48,15 @@ public class EnhancedLogger {
 	 */
 	public static void warn(String message) {
 		LOGGER.warn(message);
-		try {
-			ExtentCucumberAdapter.addTestStepLog(" Warning: " + message);
-		} catch (Exception e) {
-			LOGGER.debug("ExtentReports not available for warning logging: {}", e.getMessage());
-		}
 	}
 
 	/**
-	 * Success logging with green indicator
+	 * Success logging with indicator
 	 * 
 	 * @param message - The success message
 	 */
 	public static void success(String message) {
 		LOGGER.info("... " + message);
-		try {
-			ExtentCucumberAdapter.addTestStepLog("... " + message);
-		} catch (Exception e) {
-			LOGGER.debug("ExtentReports not available for success logging: {}", e.getMessage());
-		}
 	}
 
 	/**
@@ -109,10 +84,5 @@ public class EnhancedLogger {
 	public static void step(String stepDescription) {
 		String message = " Step: " + stepDescription;
 		LOGGER.info(message);
-		try {
-			ExtentCucumberAdapter.addTestStepLog(message);
-		} catch (Exception e) {
-			LOGGER.debug("ExtentReports not available for step logging: {}", e.getMessage());
-		}
 	}
 }

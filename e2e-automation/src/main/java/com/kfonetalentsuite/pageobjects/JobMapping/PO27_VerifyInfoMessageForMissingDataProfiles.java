@@ -23,7 +23,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager {
 
@@ -884,7 +883,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 							LOGGER.info("✓ Found AutoMapped profile: {} (Profile #{})", jobName, profilesChecked);
 							LOGGER.info("  Details - Grade: {}, Dept: {}, Func: {}", grade, department,
 									functionSubfunction);
-							ExtentCucumberAdapter.addTestStepLog("Found AutoMapped profile: " + jobName);
+							PageObjectHelper.log(LOGGER, "Found AutoMapped profile: " + jobName);
 
 							// Store in scenario context (using existing variable names)
 							jobNameWithInfoMessage = jobName;
@@ -953,8 +952,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			// If we reach here, no suitable profile was found
 			LOGGER.info(" Fallback search complete: Checked ALL " + profilesChecked
 					+ " profiles, none have missing data with info message");
-			ExtentCucumberAdapter
-					.addTestStepLog(" No AutoMapped profiles found with missing data and info message (checked all "
+			PageObjectHelper.log(LOGGER, " No AutoMapped profiles found with missing data and info message (checked all "
 							+ profilesChecked + " profiles)");
 			LOGGER.warn(
 					"SKIPPING SCENARIO: No AutoMapped profiles with missing data and info message found (checked all "
@@ -975,7 +973,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 	public void find_second_profile_with_missing_data_and_info_message() throws IOException {
 		LOGGER.info("==============================================");
 		LOGGER.info("Searching for SECOND AutoMapped profile with missing data");
-		ExtentCucumberAdapter.addTestStepLog("Searching for SECOND AutoMapped profile with missing data");
+		PageObjectHelper.log(LOGGER, "Searching for SECOND AutoMapped profile with missing data");
 
 		String firstJobName = jobNameWithInfoMessage;
 		LOGGER.debug("First job to skip: '{}'", firstJobName);
@@ -1260,7 +1258,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 									profilesChecked);
 							LOGGER.info("  Details - Grade: {}, Dept: {}, Func: {}", grade, department,
 									functionSubfunction);
-							ExtentCucumberAdapter.addTestStepLog("Found SECOND AutoMapped profile: " + jobName);
+							PageObjectHelper.log(LOGGER, "Found SECOND AutoMapped profile: " + jobName);
 
 							// Store in scenario context (using existing variable names)
 							secondJobNameWithInfoMessage = jobName;
@@ -1329,7 +1327,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			// If we reach here, no suitable second profile was found
 			LOGGER.info(" Fallback search complete: Checked ALL " + profilesChecked
 					+ " profiles, no SECOND profile found with missing data and info message");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					" No SECOND AutoMapped profile found with missing data and info message (checked all "
 							+ profilesChecked + " profiles)");
 			LOGGER.warn(
@@ -1453,7 +1451,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			Assert.assertTrue(correctTextFound,
 					"Info Message should contain text about 'Reduced match accuracy due to missing data'");
 
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Successfully verified Info Message contains correct text about reduced match accuracy due to missing data");
 			LOGGER.info("Successfully verified Info Message text");
 
@@ -1499,7 +1497,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			Assert.assertTrue(infoMessageDisplayed,
 					"Info Message should be displayed for second profile with missing data");
 
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Successfully found and verified second profile with missing data has Info Message displayed");
 			LOGGER.info("SUCCESS: Successfully verified second profile with missing data has Info Message displayed");
 
@@ -1550,7 +1548,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			Assert.assertTrue(infoMessageDisplayed,
 					"Info Message should be visible in Job Comparison page for first profile");
 
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Successfully verified Info Message persists in Job Comparison page for first profile");
 			LOGGER.info("SUCCESS: Info Message persistence verified for first profile");
 
@@ -1584,7 +1582,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			Assert.assertTrue(infoMessageDisplayed,
 					"Info Message should be visible in Job Comparison page for second profile");
 
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Successfully verified Info Message persists in Job Comparison page for second profile");
 			LOGGER.info("SUCCESS: Info Message persistence verified for second profile");
 
@@ -1632,8 +1630,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			Assert.assertTrue(correctTextFound,
 					"Info Message should contain text about 'Reduced match accuracy due to missing data' for second profile validation");
 
-			ExtentCucumberAdapter
-					.addTestStepLog("Successfully verified Info Message contains correct text for second profile");
+			PageObjectHelper.log(LOGGER, "Successfully verified Info Message contains correct text for second profile");
 			LOGGER.info("Successfully verified Info Message text for second profile");
 
 		} catch (Exception e) {
@@ -1707,7 +1704,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			// Perform robust click
 			performRobustClick(targetButton, buttonText + " button");
 
-			ExtentCucumberAdapter.addTestStepLog("Clicked '" + buttonText + "' button for profile with Info Message");
+			PageObjectHelper.log(LOGGER, "Clicked '" + buttonText + "' button for profile with Info Message");
 			LOGGER.info("Clicked '{}' button", buttonText);
 
 		} catch (Exception e) {
@@ -1800,8 +1797,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			// Perform robust click
 			performRobustClick(targetButton, buttonText + " button for second profile");
 
-			ExtentCucumberAdapter
-					.addTestStepLog("Clicked '" + buttonText + "' button for second profile with Info Message");
+			PageObjectHelper.log(LOGGER, "Clicked '" + buttonText + "' button for second profile with Info Message");
 			LOGGER.info("Clicked '{}' button for second profile", buttonText);
 
 		} catch (Exception e) {
@@ -1827,7 +1823,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 
 			LOGGER.info("SUCCESS: Job Comparison page detected with header text: {}", compareAndSelectHeaderText);
 
-			ExtentCucumberAdapter.addTestStepLog("Successfully verified navigation to Job Comparison page");
+			PageObjectHelper.log(LOGGER, "Successfully verified navigation to Job Comparison page");
 			LOGGER.info("SUCCESS: User is successfully navigated to Job Comparison page");
 
 		} catch (Exception e) {
@@ -1974,12 +1970,12 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 
 			if (allMatch) {
 				LOGGER.info("... SUCCESS: All job details match between Job Mapping and Job Comparison pages");
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"... Job details match verified between Job Mapping and Job Comparison pages for: "
 								+ jobNameWithInfoMessage);
 			} else {
 				LOGGER.error(" MISMATCH: Job details do NOT match between pages:" + mismatchDetails.toString());
-				ExtentCucumberAdapter.addTestStepLog(" Job details mismatch: " + mismatchDetails.toString());
+				PageObjectHelper.log(LOGGER, " Job details mismatch: " + mismatchDetails.toString());
 				Assert.fail("Job details do NOT match between Job Mapping and Job Comparison pages:"
 						+ mismatchDetails.toString());
 			}
@@ -2132,14 +2128,13 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			if (allMatch) {
 				LOGGER.info(
 						"... SUCCESS: All job details match between Job Mapping and Job Comparison pages for second profile");
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"... Job details match verified between Job Mapping and Job Comparison pages for second profile: "
 								+ secondJobNameWithInfoMessage);
 			} else {
 				LOGGER.error(" MISMATCH: Job details do NOT match between pages for second profile:"
 						+ mismatchDetails.toString());
-				ExtentCucumberAdapter
-						.addTestStepLog(" Job details mismatch for second profile: " + mismatchDetails.toString());
+				PageObjectHelper.log(LOGGER, " Job details mismatch for second profile: " + mismatchDetails.toString());
 				Assert.fail("Job details do NOT match between Job Mapping and Job Comparison pages for second profile:"
 						+ mismatchDetails.toString());
 			}
@@ -2192,8 +2187,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			Assert.assertTrue(correctTextFound,
 					"Info Message should contain same text about reduced match accuracy in Job Comparison page");
 
-			ExtentCucumberAdapter
-					.addTestStepLog("Successfully verified Info Message contains same text in Job Comparison page");
+			PageObjectHelper.log(LOGGER, "Successfully verified Info Message contains same text in Job Comparison page");
 			LOGGER.info("SUCCESS: Info Message text consistency verified in Job Comparison page");
 
 		} catch (Exception e) {
@@ -2232,7 +2226,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			Assert.assertTrue(correctTextFound,
 					"Info Message should contain same text about reduced match accuracy in Job Comparison page for second profile");
 
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					"Successfully verified Info Message contains same text in Job Comparison page for second profile");
 			LOGGER.info("SUCCESS: Info Message text consistency verified in Job Comparison page for second profile");
 
@@ -2271,7 +2265,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends DriverManager 
 			PerformanceUtils.waitForPageReady(driver);
 			safeSleep(500);
 
-			ExtentCucumberAdapter.addTestStepLog("Navigated back to Job Mapping page");
+			PageObjectHelper.log(LOGGER, "Navigated back to Job Mapping page");
 			LOGGER.info("Navigated back to Job Mapping page");
 
 		} catch (Exception e) {

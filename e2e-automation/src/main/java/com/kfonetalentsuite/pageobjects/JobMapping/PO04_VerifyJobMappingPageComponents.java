@@ -22,8 +22,10 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.SmartWaits;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.ExcelDataProvider;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
+
+import java.util.Map;
 
 public class PO04_VerifyJobMappingPageComponents {
 	WebDriver driver = DriverManager.getDriver();
@@ -599,6 +601,40 @@ public class PO04_VerifyJobMappingPageComponents {
 		}
 	}
 
+	/**
+	 * DATA-DRIVEN: Search using test data from Excel
+	 * 
+	 * @param testId The TestID from SearchData sheet in TestData.xlsx
+	 */
+	public void search_using_excel_data(String testId) {
+		try {
+			// Get search term from Excel
+			Map<String, String> testData = ExcelDataProvider.getTestData("SearchData", testId);
+			String searchTerm = testData.get("SearchTerm");
+			
+			PageObjectHelper.log(LOGGER, "Data-Driven Search: TestID=" + testId + ", SearchTerm=" + searchTerm);
+			
+			// Clear and enter search term
+			wait.until(ExpectedConditions.visibilityOf(searchBar)).clear();
+			wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(searchTerm);
+			wait.until(ExpectedConditions.visibilityOf(searchBar)).sendKeys(Keys.ENTER);
+			
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PerformanceUtils.waitForPageReady(driver, 2);
+			
+			// Store the search term for validation
+			jobnamesubstring.set(searchTerm);
+			
+			// Log results
+			String resultsText = showingJobResultsCount.getText().trim();
+			PageObjectHelper.log(LOGGER, "Searched for '" + searchTerm + "' - " + resultsText);
+			
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "search_using_excel_data",
+					"Failed to search using Excel data for TestID: " + testId, e);
+		}
+	}
+
 	public void user_should_verify_organization_job_name_and_job_code_values_of_first_profile() {
 		try {
 			// OPTIMIZED: Single comprehensive wait
@@ -607,19 +643,10 @@ public class PO04_VerifyJobMappingPageComponents {
 			String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobNameofProfile1)).getText();
 			orgJobNameInRow1.set(jobname1.split("-", 2)[0].trim());
 			orgJobCodeInRow1.set(jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length() - 2));
-			ExtentCucumberAdapter
-					.addTestStepLog("Job name of the first profile in organization table : " + orgJobNameInRow1.get());
-			LOGGER.info("Job name of the first profile in organization table : " + orgJobNameInRow1.get());
-			ExtentCucumberAdapter
-					.addTestStepLog("Job code of the first profile in organization table : " + orgJobCodeInRow1.get());
-			LOGGER.info("Job code of the first profile in organization table : " + orgJobCodeInRow1.get());
+			PageObjectHelper.log(LOGGER, "Job name of the first profile in organization table : " + orgJobNameInRow1.get());
+			PageObjectHelper.log(LOGGER, "Job code of the first profile in organization table : " + orgJobCodeInRow1.get());
 		} catch (Exception e) {
-			LOGGER.error(
-					"Issue in verifying job name and job code values in Row1 - Method: user_should_verify_organization_job_name_and_job_code_values_of_first_profile",
-					e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(
-					"Issue in verifying job name matching profile in Row1 of Organization jobs profile list...Please Investigate!!!");
+			PageObjectHelper.log(LOGGER, "Issue in verifying job name matching profile in Row1 of Organization jobs profile list...Please Investigate!!!");
 			Assert.fail(
 					"Issue in verifying job name matching profile in Row1 of Organization jobs profile list...Please Investigate!!!");
 		}
@@ -634,16 +661,9 @@ public class PO04_VerifyJobMappingPageComponents {
 				orgJobGradeInRow1.set(jobGrade);
 			}
 			orgJobGradeInRow1.set(jobGrade);
-			ExtentCucumberAdapter
-					.addTestStepLog("Grade value of Organization Job first profile : " + orgJobGradeInRow1.get());
-			LOGGER.info("Grade value of Organization Job first profile : " + orgJobGradeInRow1.get());
+			PageObjectHelper.log(LOGGER, "Grade value of Organization Job first profile : " + orgJobGradeInRow1.get());
 		} catch (Exception e) {
-			LOGGER.error(
-					"Issue in Verifying Organization Job Grade value first profile - Method: user_should_verify_organization_job_grade_in_first_row",
-					e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(
-					"Issue in Verifying Organization Job Grade value first profile...Please Investigate!!!");
+			PageObjectHelper.log(LOGGER, "Issue in Verifying Organization Job Grade value first profile...Please Investigate!!!");
 			Assert.fail("Issue in Verifying Organization Job Grade value first profile...Please Investigate!!!");
 		}
 
@@ -655,16 +675,9 @@ public class PO04_VerifyJobMappingPageComponents {
 				orgJobDepartmentInRow1.set(jobDepartment);
 			}
 			orgJobDepartmentInRow1.set(jobDepartment);
-			ExtentCucumberAdapter.addTestStepLog(
-					"Department value of Organization Job first profile : " + orgJobDepartmentInRow1.get());
-			LOGGER.info("Department value of Organization Job first profile : " + orgJobDepartmentInRow1.get());
+			PageObjectHelper.log(LOGGER, "Department value of Organization Job first profile : " + orgJobDepartmentInRow1.get());
 		} catch (Exception e) {
-			LOGGER.error(
-					"Issue in Verifying Organization Job Department value first profile - Method: user_should_verify_organization_job_department_in_first_row",
-					e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(
-					"Issue in Verifying Organization Job Department value first profile...Please Investigate!!!");
+			PageObjectHelper.log(LOGGER, "Issue in Verifying Organization Job Department value first profile...Please Investigate!!!");
 			Assert.fail("Issue in Verifying Organization Job Department value first profile...Please Investigate!!!");
 		}
 
@@ -870,8 +883,7 @@ public class PO04_VerifyJobMappingPageComponents {
 			SmartWaits.waitForElementInvisible(driver, filterOptions);
 			Assert.assertTrue(true); // Dropdown closed successfully
 
-			LOGGER.info(" Filters dropdown closed successfully");
-			ExtentCucumberAdapter.addTestStepLog("Closed Filters dropdown");
+			PageObjectHelper.log(LOGGER, "Closed Filters dropdown");
 
 			// MINIMAL WAIT: Just enough for dropdown close animation
 			// Don't wait for page updates here - let the next step handle it
@@ -1091,20 +1103,13 @@ public class PO04_VerifyJobMappingPageComponents {
 			// Step 4: Store selected profiles count
 			selectedProfilesAfterHeaderCheckboxClick.set(profilesCount);
 
-			LOGGER.info("Clicked on header checkbox and selected " + selectedProfilesAfterHeaderCheckboxClick.get()
-					+ " job profiles in Job Mapping screen");
+			PageObjectHelper.log(LOGGER, "Clicked on header checkbox and selected "
+					+ selectedProfilesAfterHeaderCheckboxClick.get() + " job profiles in Job Mapping screen");
 			LOGGER.info("    Loaded profiles (before click): " + loadedProfilesBeforeHeaderCheckboxClick.get());
 			LOGGER.info("    Selected profiles: " + selectedProfilesAfterHeaderCheckboxClick.get());
 			LOGGER.info("    Disabled profiles: " + disabledProfilesCountInLoadedProfiles.get());
-			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox and selected "
-					+ selectedProfilesAfterHeaderCheckboxClick.get() + " job profiles in Job Mapping screen");
 		} catch (Exception e) {
-			LOGGER.error(
-					"Issue in clicking on header checkbox to select loaded job profiles in Job Mapping screen - Method: click_on_header_checkbox_to_select_loaded_job_profiles_in_job_mapping_screen",
-					e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog(
-					"Issue in clicking on header checkbox to select loaded job profiles in Job Mapping page...Please Investigate!!!");
+			PageObjectHelper.log(LOGGER, "Issue in clicking on header checkbox to select loaded job profiles in Job Mapping page...Please Investigate!!!");
 			Assert.fail(
 					"Issue in clicking on header checkbox to select loaded job profiles in Job Mapping page...Please Investigate!!!");
 		}
@@ -1297,9 +1302,7 @@ public class PO04_VerifyJobMappingPageComponents {
 					+ "This usually indicates: 1) Results count element not loading, 2) Page stuck loading, or 3) No results to display.",
 					retryAttempts, 20, e.getClass().getSimpleName(), e.getMessage());
 
-			LOGGER.error(errorDetails, e);
-			e.printStackTrace();
-			ExtentCucumberAdapter.addTestStepLog("FAILURE: " + errorDetails);
+			PageObjectHelper.log(LOGGER, "FAILURE: " + errorDetails);
 			Assert.fail(errorDetails);
 		}
 	}
@@ -1595,15 +1598,9 @@ public class PO04_VerifyJobMappingPageComponents {
 		try {
 			String table2TitleText = wait.until(ExpectedConditions.visibilityOf(table2Title)).getText();
 			Assert.assertEquals(table2TitleText, "Matched success profiles");
-			ExtentCucumberAdapter.addTestStepLog("Matched success profiles table title verified successfully");
-			LOGGER.info("Matched success profiles table title verified successfully");
+			PageObjectHelper.log(LOGGER, "Matched success profiles table title verified successfully");
 		} catch (Exception e) {
-			LOGGER.error(
-					"Issue in verifying Matched success profiles table title - Method: user_should_verify_matched_success_profiles_table_title_and_headers",
-					e);
-			e.printStackTrace();
-			ExtentCucumberAdapter
-					.addTestStepLog("Issue in verifying organization jobs table title....Please Investigate!!!");
+			PageObjectHelper.log(LOGGER, "Issue in verifying organization jobs table title....Please Investigate!!!");
 			Assert.fail("Issue in verifying Matched success profiles table title....Please Investigate!!!");
 		}
 		try {

@@ -24,8 +24,8 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.ExcelDataProvider;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO17_ValidateSortingFunctionality_JAM {
 	WebDriver driver = DriverManager.getDriver();
@@ -143,6 +143,80 @@ public class PO17_ValidateSortingFunctionality_JAM {
 		}
 	}
 
+	// ============================================
+	// DATA-DRIVEN SORTING METHODS
+	// ============================================
+
+	/**
+	 * DATA-DRIVEN: Apply sorting using data from Excel TestData.xlsx
+	 * Sheet: SortingData
+	 * 
+	 * @param testId The TestID from SortingData sheet
+	 */
+	public void apply_sorting_using_excel_data(String testId) {
+		try {
+			java.util.Map<String, String> testData = ExcelDataProvider.getTestData("SortingData", testId);
+			String column = testData.get("Column");
+			String sortOrder = testData.get("SortOrder");
+			
+			PageObjectHelper.log(LOGGER, "Data-Driven Sorting: TestID=" + testId + 
+					", Column=" + column + ", Order=" + sortOrder);
+			PageObjectHelper.log(LOGGER, "Sorting by " + column + " in " + sortOrder + " order");
+			
+			// Determine which header to click based on column name
+			WebElement headerElement = null;
+			
+			switch (column.toLowerCase()) {
+				case "organization job name":
+				case "org job name":
+					headerElement = orgJobNameHeader;
+					break;
+				case "organization grade":
+				case "org grade":
+					headerElement = orgJobGradeHeader;
+					break;
+				case "matched success profile grade":
+				case "matched sp grade":
+					headerElement = matchedSPGradeHeader;
+					break;
+				case "matched success profile name":
+				case "matched sp name":
+					headerElement = matcheSPNameHeader;
+					break;
+				default:
+					throw new IllegalArgumentException("Unknown sort column: " + column);
+			}
+			
+			// Click header to sort (first click = ascending)
+			try {
+				wait.until(ExpectedConditions.visibilityOf(headerElement)).click();
+			} catch (Exception e) {
+				js.executeScript("arguments[0].click();", headerElement);
+			}
+			
+			waitForLoaderToDisappear();
+			PerformanceUtils.waitForPageReady(driver, 3);
+			
+			// If descending order requested, click again
+			if ("descending".equalsIgnoreCase(sortOrder)) {
+				Thread.sleep(1000);
+				try {
+					headerElement.click();
+				} catch (Exception e) {
+					js.executeScript("arguments[0].click();", headerElement);
+				}
+				waitForLoaderToDisappear();
+				PerformanceUtils.waitForPageReady(driver, 3);
+			}
+			
+			PageObjectHelper.log(LOGGER, "Applied sorting: " + column + " " + sortOrder);
+			
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "apply_sorting_using_excel_data",
+					"Failed to apply sorting using Excel data for TestID: " + testId, e);
+		}
+	}
+
 	public void user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver);
@@ -252,8 +326,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					unmappedCount++;
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " - UNMAPPED (has Find Match button) - SKIPPED from sort validation");
-					ExtentCucumberAdapter
-							.addTestStepLog("Organization Job Profile: " + text + " - UNMAPPED - Appears at top");
+					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED - Appears at top");
 					continue; // Skip this job from sort validation
 				}
 
@@ -273,24 +346,23 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				} else {
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text);
 				}
-				ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Name Job Name / Code : " + text);
+				PageObjectHelper.log(LOGGER, "Organization Job Profile with Name Job Name / Code : " + text);
 			}
 
 			if (unmappedCount > 0) {
 				LOGGER.info("ℹ Found " + unmappedCount
 						+ " unmapped job(s) - these appear at top and are EXCLUDED from sort validation");
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"ℹ " + unmappedCount + " unmapped job(s) excluded from sort validation (appear at top)");
 			}
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount
 						+ " job(s) with special characters - these appear at top in Ascending order as expected");
-				ExtentCucumberAdapter.addTestStepLog("ℹ " + specialCharCount
+				PageObjectHelper.log(LOGGER, "ℹ " + specialCharCount
 						+ " job(s) start with special characters (?, -, etc.) - expected at top");
 			}
 			if (nonAsciiCount > 0) {
-				LOGGER.info("ℹ Found " + nonAsciiCount + " job(s) with non-ASCII characters (Chinese, etc.)");
-				ExtentCucumberAdapter.addTestStepLog("ℹ " + nonAsciiCount + " job(s) contain non-ASCII characters");
+				PageObjectHelper.log(LOGGER, nonAsciiCount + " job(s) contain non-ASCII characters");
 			}
 
 			// ✅ VALIDATE ASCENDING ORDER (using case-insensitive comparison to match UI
@@ -307,7 +379,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + current + "' > '"
 							+ next + "' (NOT in Ascending Order!)");
-					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Row " + (i + 1) + " > Row " + (i + 2));
+					PageObjectHelper.log(LOGGER, "❌ SORT VIOLATION: Row " + (i + 1) + " > Row " + (i + 2));
 				}
 			}
 
@@ -315,12 +387,12 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
 						+ " violation(s). Data is NOT sorted by Job Name in Ascending Order!";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else {
 				LOGGER.info("✅ SORT VALIDATION PASSED: All " + jobNames.size()
 						+ " MAPPED Job Profiles are correctly sorted by Job Name in Ascending Order (including special chars and non-ASCII)");
-				ExtentCucumberAdapter.addTestStepLog("✅ Sorting validation PASSED - " + jobNames.size()
+				PageObjectHelper.log(LOGGER, "✅ Sorting validation PASSED - " + jobNames.size()
 						+ " mapped job(s) correctly sorted in Ascending Order");
 			}
 
@@ -465,8 +537,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					unmappedCount++;
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " - UNMAPPED (has Find Match button) - SKIPPED from sort validation");
-					ExtentCucumberAdapter
-							.addTestStepLog("Organization Job Profile: " + text + " - UNMAPPED - Appears at top");
+					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED - Appears at top");
 					continue; // Skip this job from sort validation
 				}
 
@@ -486,24 +557,24 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				} else {
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text);
 				}
-				ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Name Job Name / Code : " + text);
+				PageObjectHelper.log(LOGGER, "Organization Job Profile with Name Job Name / Code : " + text);
 			}
 
 			if (unmappedCount > 0) {
 				LOGGER.info("ℹ Found " + unmappedCount
 						+ " unmapped job(s) - these appear at top and are EXCLUDED from sort validation");
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"ℹ " + unmappedCount + " unmapped job(s) excluded from sort validation (appear at top)");
 			}
 			if (nonAsciiCount > 0) {
 				LOGGER.info("ℹ Found " + nonAsciiCount
 						+ " job(s) with non-ASCII characters - these appear at top in Descending order as expected");
-				ExtentCucumberAdapter.addTestStepLog("ℹ " + nonAsciiCount
+				PageObjectHelper.log(LOGGER, "ℹ " + nonAsciiCount
 						+ " job(s) start with non-ASCII characters (Chinese, etc.) - expected at top");
 			}
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount + " job(s) with special characters (?, -, etc.)");
-				ExtentCucumberAdapter.addTestStepLog("ℹ " + specialCharCount + " job(s) start with special characters");
+				PageObjectHelper.log(LOGGER, "ℹ " + specialCharCount + " job(s) start with special characters");
 			}
 
 			// ✅ VALIDATE DESCENDING ORDER (using case-insensitive comparison to match UI
@@ -520,7 +591,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + current + "' < '"
 							+ next + "' (NOT in Descending Order!)");
-					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Row " + (i + 1) + " < Row " + (i + 2));
+					PageObjectHelper.log(LOGGER, "❌ SORT VIOLATION: Row " + (i + 1) + " < Row " + (i + 2));
 				}
 			}
 
@@ -528,12 +599,12 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
 						+ " violation(s). Data is NOT sorted by Job Name in Descending Order!";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else {
 				LOGGER.info("✅ SORT VALIDATION PASSED: All " + jobNames.size()
 						+ " MAPPED Job Profiles are correctly sorted by Job Name in Descending Order (including special chars and non-ASCII)");
-				ExtentCucumberAdapter.addTestStepLog("✅ Sorting validation PASSED - " + jobNames.size()
+				PageObjectHelper.log(LOGGER, "✅ Sorting validation PASSED - " + jobNames.size()
 						+ " mapped job(s) correctly sorted in Descending Order");
 			}
 
@@ -621,8 +692,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					unmappedCount++;
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " - UNMAPPED (has Find Match button) - SKIPPED from sort validation");
-					ExtentCucumberAdapter
-							.addTestStepLog("Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
+					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
 					continue; // Skip to next job, don't increment gradeIndex
 				}
 
@@ -656,14 +726,13 @@ public class PO17_ValidateSortingFunctionality_JAM {
 						LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 								+ " with Matched SP Grade : " + gradeText);
 					}
-					ExtentCucumberAdapter.addTestStepLog(
+					PageObjectHelper.log(LOGGER, 
 							"Organization Job Profile: " + text + " with Matched SP Grade : " + gradeText);
 				} else {
 					unmappedCount++;
 					LOGGER.info(
 							"Organization Job Profile with Job Name / Code : " + text + " - UNMAPPED (No SP Grade)");
-					ExtentCucumberAdapter
-							.addTestStepLog("Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
+					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
 				}
 			}
 
@@ -693,7 +762,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 						sortViolations++;
 						LOGGER.error("❌ SORT VIOLATION: SP Grade at position " + (i + 1) + " (" + current
 								+ ") > position " + (i + 2) + " (" + next + ") - NOT in Ascending Order!");
-						ExtentCucumberAdapter.addTestStepLog(
+						PageObjectHelper.log(LOGGER, 
 								"❌ SORT VIOLATION: SP Grade position " + (i + 1) + " > position " + (i + 2));
 					}
 				} catch (NumberFormatException e) {
@@ -702,7 +771,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 						sortViolations++;
 						LOGGER.error("❌ SORT VIOLATION: SP Grade at position " + (i + 1) + " (" + current
 								+ ") > position " + (i + 2) + " (" + next + ") - NOT in Ascending Order!");
-						ExtentCucumberAdapter.addTestStepLog(
+						PageObjectHelper.log(LOGGER, 
 								"❌ SORT VIOLATION: SP Grade position " + (i + 1) + " > position " + (i + 2));
 					}
 				}
@@ -712,17 +781,17 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
 						+ " violation(s). SP Grades are NOT sorted in Ascending Order!";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else if (spGrades.size() > 1) {
 				LOGGER.info("✅ SORT VALIDATION PASSED: " + spGrades.size()
 						+ " SP Grades are correctly sorted in Ascending Order");
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"✅ Sorting validation PASSED - SP Grades are correctly sorted in Ascending Order");
 			} else {
 				LOGGER.info("ℹ VALIDATION SKIPPED: Not enough mapped jobs with SP grades to validate sorting ("
 						+ spGrades.size() + " job(s) with grades)");
-				ExtentCucumberAdapter.addTestStepLog("ℹ Validation skipped - insufficient data for sorting validation");
+				PageObjectHelper.log(LOGGER, "ℹ Validation skipped - insufficient data for sorting validation");
 			}
 
 		} catch (Exception e) {
@@ -838,8 +907,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					unmappedCount++;
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " - UNMAPPED (has Find Match button) - SKIPPED from sort validation");
-					ExtentCucumberAdapter
-							.addTestStepLog("Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
+					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
 					continue; // Skip to next job, don't increment gradeIndex
 				}
 
@@ -873,14 +941,13 @@ public class PO17_ValidateSortingFunctionality_JAM {
 						LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 								+ " with Matched SP Grade : " + gradeText);
 					}
-					ExtentCucumberAdapter.addTestStepLog(
+					PageObjectHelper.log(LOGGER, 
 							"Organization Job Profile: " + text + " with Matched SP Grade : " + gradeText);
 				} else {
 					unmappedCount++;
 					LOGGER.info(
 							"Organization Job Profile with Job Name / Code : " + text + " - UNMAPPED (No SP Grade)");
-					ExtentCucumberAdapter
-							.addTestStepLog("Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
+					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
 				}
 			}
 
@@ -890,13 +957,11 @@ public class PO17_ValidateSortingFunctionality_JAM {
 			if (nonAsciiCount > 0) {
 				LOGGER.info("ℹ Found " + nonAsciiCount
 						+ " SP grade(s) with non-ASCII characters - expected at top in Descending order");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + nonAsciiCount + " SP grade(s) start with non-ASCII characters");
+				PageObjectHelper.log(LOGGER, nonAsciiCount + " SP grade(s) start with non-ASCII characters");
 			}
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount + " SP grade(s) with special characters");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + specialCharCount + " SP grade(s) start with special characters");
+				PageObjectHelper.log(LOGGER, specialCharCount + " SP grade(s) start with special characters");
 			}
 
 			// ✅ VALIDATE DESCENDING ORDER (only for mapped jobs) - NUMERIC comparison
@@ -913,7 +978,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 						sortViolations++;
 						LOGGER.error("❌ SORT VIOLATION: SP Grade at position " + (i + 1) + " (" + current
 								+ ") < position " + (i + 2) + " (" + next + ") - NOT in Descending Order!");
-						ExtentCucumberAdapter.addTestStepLog(
+						PageObjectHelper.log(LOGGER, 
 								"❌ SORT VIOLATION: SP Grade position " + (i + 1) + " < position " + (i + 2));
 					}
 				} catch (NumberFormatException e) {
@@ -922,7 +987,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 						sortViolations++;
 						LOGGER.error("❌ SORT VIOLATION: SP Grade at position " + (i + 1) + " (" + current
 								+ ") < position " + (i + 2) + " (" + next + ") - NOT in Descending Order!");
-						ExtentCucumberAdapter.addTestStepLog(
+						PageObjectHelper.log(LOGGER, 
 								"❌ SORT VIOLATION: SP Grade position " + (i + 1) + " < position " + (i + 2));
 					}
 				}
@@ -932,17 +997,17 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
 						+ " violation(s). SP Grades are NOT sorted in Descending Order!";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else if (spGrades.size() > 1) {
 				LOGGER.info("✅ SORT VALIDATION PASSED: " + spGrades.size()
 						+ " SP Grades are correctly sorted in Descending Order");
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"✅ Sorting validation PASSED - SP Grades are correctly sorted in Descending Order");
 			} else {
 				LOGGER.info("ℹ VALIDATION SKIPPED: Not enough mapped jobs with SP grades to validate sorting ("
 						+ spGrades.size() + " job(s) with grades)");
-				ExtentCucumberAdapter.addTestStepLog("ℹ Validation skipped - insufficient data for sorting validation");
+				PageObjectHelper.log(LOGGER, "ℹ Validation skipped - insufficient data for sorting validation");
 			}
 
 		} catch (Exception e) {
@@ -1013,8 +1078,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				if (NameText == null || NameText.trim().isEmpty() || NameText.equals("-")) {
 					unmappedCount++;
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text + " - UNMAPPED (No SP Name)");
-					ExtentCucumberAdapter
-							.addTestStepLog("Organization Job Profile: " + text + " - UNMAPPED (No SP Name)");
+					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED (No SP Name)");
 				} else {
 					spNames.add(NameText); // Store for validation (keep original case for Unicode)
 
@@ -1033,25 +1097,23 @@ public class PO17_ValidateSortingFunctionality_JAM {
 						LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 								+ " with Matched SP Name : " + NameText);
 					}
-					ExtentCucumberAdapter.addTestStepLog(
+					PageObjectHelper.log(LOGGER, 
 							"Organization Job Profile: " + text + " with Matched SP Name : " + NameText);
 				}
 			}
 
 			if (unmappedCount > 0) {
 				LOGGER.info("Found {} unmapped job(s) without SP name details", unmappedCount);
-				ExtentCucumberAdapter
-						.addTestStepLog("Found " + unmappedCount + " unmapped job(s) without SP name details");
+				PageObjectHelper.log(LOGGER, "Found " + unmappedCount + " unmapped job(s) without SP name details");
 			}
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount
 						+ " SP name(s) with special characters - expected at top in Ascending order");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + specialCharCount + " SP name(s) start with special characters");
+				PageObjectHelper.log(LOGGER, specialCharCount + " SP name(s) start with special characters");
 			}
 			if (nonAsciiCount > 0) {
 				LOGGER.info("ℹ Found " + nonAsciiCount + " SP name(s) with non-ASCII characters");
-				ExtentCucumberAdapter.addTestStepLog("ℹ " + nonAsciiCount + " SP name(s) contain non-ASCII characters");
+				PageObjectHelper.log(LOGGER, "ℹ " + nonAsciiCount + " SP name(s) contain non-ASCII characters");
 			}
 
 			// ✅ VALIDATE ASCENDING ORDER (only for mapped jobs) - case-insensitive
@@ -1063,8 +1125,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION: SP Name at position " + (i + 1) + " (" + current + ") > position "
 							+ (i + 2) + " (" + next + ") - NOT in Ascending Order!");
-					ExtentCucumberAdapter
-							.addTestStepLog("❌ SORT VIOLATION: SP Name position " + (i + 1) + " > position " + (i + 2));
+					PageObjectHelper.log(LOGGER, "SORT VIOLATION: SP Name position " + (i + 1) + " > position " + (i + 2));
 				}
 			}
 
@@ -1072,17 +1133,17 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
 						+ " violation(s). SP Names are NOT sorted in Ascending Order!";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else if (spNames.size() > 1) {
 				LOGGER.info("✅ SORT VALIDATION PASSED: " + spNames.size()
 						+ " SP Names are correctly sorted in Ascending Order");
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"✅ Sorting validation PASSED - SP Names are correctly sorted in Ascending Order");
 			} else {
 				LOGGER.info("ℹ VALIDATION SKIPPED: Not enough mapped jobs with SP names to validate sorting ("
 						+ spNames.size() + " job(s) with names)");
-				ExtentCucumberAdapter.addTestStepLog("ℹ Validation skipped - insufficient data for sorting validation");
+				PageObjectHelper.log(LOGGER, "ℹ Validation skipped - insufficient data for sorting validation");
 			}
 
 		} catch (Exception e) {
@@ -1164,20 +1225,18 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " with Organization Job Grade : " + GradeText);
 				}
-				ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Job Name / Code : " + text
+				PageObjectHelper.log(LOGGER, "Organization Job Profile with Job Name / Code : " + text
 						+ " with Organization Job Grade : " + GradeText);
 			}
 
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount
 						+ " org grade(s) with special characters - expected at top in Ascending order");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + specialCharCount + " org grade(s) start with special characters");
+				PageObjectHelper.log(LOGGER, specialCharCount + " org grade(s) start with special characters");
 			}
 			if (nonAsciiCount > 0) {
 				LOGGER.info("ℹ Found " + nonAsciiCount + " org grade(s) with non-ASCII characters");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + nonAsciiCount + " org grade(s) contain non-ASCII characters");
+				PageObjectHelper.log(LOGGER, nonAsciiCount + " org grade(s) contain non-ASCII characters");
 			}
 
 			// ✅ VALIDATE MULTI-LEVEL SORTING: Grade (ASC) → Job Name (ASC within each grade
@@ -1207,8 +1266,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION: Grade at position " + (i + 1) + " (" + currentGrade
 							+ ") > position " + (i + 2) + " (" + nextGrade + ") - NOT in Ascending Order!");
-					ExtentCucumberAdapter
-							.addTestStepLog("❌ SORT VIOLATION: Grade position " + (i + 1) + " > position " + (i + 2));
+					PageObjectHelper.log(LOGGER, "SORT VIOLATION: Grade position " + (i + 1) + " > position " + (i + 2));
 				}
 				// Secondary sort: If grades are equal, job names must be ascending
 				else if (gradeComparison == 0 && currentName.compareToIgnoreCase(nextName) > 0) {
@@ -1216,7 +1274,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					LOGGER.error("❌ SORT VIOLATION: Within Grade '" + currentGrade + "', Job Name at position "
 							+ (i + 1) + " ('" + currentName + "') > position " + (i + 2) + " ('" + nextName
 							+ "') - NOT in Ascending Order!");
-					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Job Name position " + (i + 1)
+					PageObjectHelper.log(LOGGER, "❌ SORT VIOLATION: Job Name position " + (i + 1)
 							+ " > position " + (i + 2) + " within same grade");
 				}
 			}
@@ -1225,13 +1283,12 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				String errorMsg = "❌ MULTI-LEVEL SORTING FAILED: Found " + sortViolations
 						+ " violation(s). Data is NOT sorted by Grade→Job Name in Ascending Order!";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else if (jobData.size() > 1) {
 				LOGGER.info("✅ MULTI-LEVEL SORT VALIDATION PASSED: " + jobData.size()
 						+ " jobs correctly sorted by Grade (ASC) → Job Name (ASC)");
-				ExtentCucumberAdapter
-						.addTestStepLog("✅ Multi-level sorting validation PASSED - Grade→Job Name correctly sorted");
+				PageObjectHelper.log(LOGGER, "Multi-level sorting validation PASSED - Grade to Job Name correctly sorted");
 			}
 
 		} catch (Exception e) {
@@ -1341,20 +1398,18 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " with Organization Job Grade : " + GradeText);
 				}
-				ExtentCucumberAdapter.addTestStepLog("Organization Job Profile with Job Name / Code : " + text
+				PageObjectHelper.log(LOGGER, "Organization Job Profile with Job Name / Code : " + text
 						+ " with Organization Job Grade : " + GradeText);
 			}
 
 			if (nonAsciiCount > 0) {
 				LOGGER.info("ℹ Found " + nonAsciiCount
 						+ " org grade(s) with non-ASCII characters - expected at top in Descending order");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + nonAsciiCount + " org grade(s) start with non-ASCII characters");
+				PageObjectHelper.log(LOGGER, nonAsciiCount + " org grade(s) start with non-ASCII characters");
 			}
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount + " org grade(s) with special characters");
-				ExtentCucumberAdapter
-						.addTestStepLog("ℹ " + specialCharCount + " org grade(s) start with special characters");
+				PageObjectHelper.log(LOGGER, specialCharCount + " org grade(s) start with special characters");
 			}
 
 			// ✅ VALIDATE MULTI-LEVEL SORTING: Grade (DESC) → Job Name (ASC within each
@@ -1389,8 +1444,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					sortViolations++;
 					LOGGER.error("❌ SORT VIOLATION: Grade at position " + (i + 1) + " (" + currentGrade
 							+ ") < position " + (i + 2) + " (" + nextGrade + ") - NOT in Descending Order!");
-					ExtentCucumberAdapter
-							.addTestStepLog("❌ SORT VIOLATION: Grade position " + (i + 1) + " < position " + (i + 2));
+					PageObjectHelper.log(LOGGER, "SORT VIOLATION: Grade position " + (i + 1) + " < position " + (i + 2));
 				}
 				// Secondary sort: If grades are equal, job names must be ascending
 				else if (gradeComparison == 0 && currentName.compareToIgnoreCase(nextName) > 0) {
@@ -1398,7 +1452,7 @@ public class PO17_ValidateSortingFunctionality_JAM {
 					LOGGER.error("❌ SORT VIOLATION: Within Grade '" + currentGrade + "', Job Name at position "
 							+ (i + 1) + " ('" + currentName + "') > position " + (i + 2) + " ('" + nextName
 							+ "') - NOT in Ascending Order!");
-					ExtentCucumberAdapter.addTestStepLog("❌ SORT VIOLATION: Job Name position " + (i + 1)
+					PageObjectHelper.log(LOGGER, "❌ SORT VIOLATION: Job Name position " + (i + 1)
 							+ " > position " + (i + 2) + " within same grade");
 				}
 			}
@@ -1407,12 +1461,12 @@ public class PO17_ValidateSortingFunctionality_JAM {
 				String errorMsg = "❌ MULTI-LEVEL SORTING FAILED: Found " + sortViolations
 						+ " violation(s). Data is NOT sorted by Grade (DESC) → Job Name (ASC)!";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(errorMsg);
+				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg + " Please check the sorting implementation!");
 			} else if (jobData.size() > 1) {
 				LOGGER.info("✅ MULTI-LEVEL SORT VALIDATION PASSED: " + jobData.size()
 						+ " jobs correctly sorted by Grade (DESC) → Job Name (ASC)");
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"✅ Multi-level sorting validation PASSED - Grade (DESC) → Job Name (ASC) correctly sorted");
 			}
 

@@ -8,11 +8,11 @@ import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.ElementNotInteractableException;
 import org.testng.Assert;
 
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
-
 /**
- * Simplified error handler - middle ground between basic and complex Provides
- * better error context without overwhelming complexity
+ * Simplified error handler - middle ground between basic and complex.
+ * Provides better error context without overwhelming complexity.
+ * 
+ * @version 2.0 (Extent Reports removed)
  */
 public class SimpleErrorHandler {
 
@@ -28,12 +28,10 @@ public class SimpleErrorHandler {
 	public static void handleWithContext(String methodName, Throwable e, String elementContext) {
 		// Simple retry for common transient issues
 		if (e instanceof StaleElementReferenceException || e instanceof ElementNotInteractableException) {
-
 			LOGGER.warn(" Retryable error in {} for {}: {}", methodName, elementContext, e.getMessage());
 
 			try {
 				Thread.sleep(1000); // Simple 1-second wait
-				// Could add one simple retry here if needed
 			} catch (InterruptedException ie) {
 				Thread.currentThread().interrupt();
 			}
@@ -57,9 +55,6 @@ public class SimpleErrorHandler {
 		} else {
 			LOGGER.error(" ERROR - {}", errorMsg);
 		}
-
-		// Add to report
-		ExtentCucumberAdapter.addTestStepLog(errorMsg);
 
 		// Fail test
 		Assert.fail(errorMsg);

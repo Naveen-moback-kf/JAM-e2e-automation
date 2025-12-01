@@ -18,8 +18,8 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 
@@ -90,10 +90,7 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 			newlyLoadedProfilesAfterScrolling = totalProfilesCurrentlyLoaded - loadedProfilesBeforeHeaderCheckboxClick;
 
 			if (newlyLoadedProfilesAfterScrolling <= 0) {
-				LOGGER.warn(" No newly loaded profiles detected after scrolling");
-				LOGGER.warn("   Total profiles: " + totalProfilesCurrentlyLoaded + ", Loaded before checkbox: "
-						+ loadedProfilesBeforeHeaderCheckboxClick);
-				ExtentCucumberAdapter.addTestStepLog(" No newly loaded profiles to verify");
+				PageObjectHelper.log(LOGGER, "No newly loaded profiles to verify");
 				return;
 			}
 
@@ -111,8 +108,7 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 			LOGGER.info("Total Profiles Currently loaded on screen: " + totalProfilesCurrentlyLoaded);
 			LOGGER.info("========================================");
 
-			ExtentCucumberAdapter.addTestStepLog(
-					"Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
+			PageObjectHelper.log(LOGGER, "Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
 
 			// Step 3: Verify that newly loaded profiles (from position
 			// loadedProfilesBeforeHeaderCheckboxClick+1 onwards) are NOT selected
@@ -165,16 +161,11 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 			int expectedUnselected = newlyLoadedProfilesAfterScrolling - disabledInNewlyLoadedProfiles;
 
 			if (unselectedProfilesCount >= expectedUnselected) {
-				LOGGER.info(" VALIDATION PASSED: All " + unselectedProfilesCount
-						+ " newly loaded profiles are correctly unselected");
-				ExtentCucumberAdapter.addTestStepLog(" Validation PASSED: " + unselectedProfilesCount
+				PageObjectHelper.log(LOGGER, "Validation PASSED: " + unselectedProfilesCount
 						+ " newly loaded profiles are NOT selected (as expected)");
 			} else {
 				int missingUnselected = expectedUnselected - unselectedProfilesCount;
-				LOGGER.error(" VALIDATION FAILED: Expected " + expectedUnselected + " unselected, but found only "
-						+ unselectedProfilesCount);
-				LOGGER.error("    " + missingUnselected + " newly loaded profiles are unexpectedly SELECTED");
-				ExtentCucumberAdapter.addTestStepLog(" Validation FAILED: " + missingUnselected
+				PageObjectHelper.log(LOGGER, "Validation FAILED: " + missingUnselected
 						+ " newly loaded profiles are unexpectedly selected");
 				Assert.fail("Validation FAILED: " + missingUnselected
 						+ " newly loaded profiles are selected (should be unselected)");
@@ -184,11 +175,7 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 			ScreenshotHandler.captureFailureScreenshot(
 					"verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen",
 					e);
-			LOGGER.error(
-					"Error verifying newly loaded profiles in HCM Sync Profiles Screen - Method: verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen",
-					e);
-			ExtentCucumberAdapter.addTestStepLog(
-					" Error verifying newly loaded profiles are not selected in HCM Sync Profiles Screen");
+			PageObjectHelper.log(LOGGER, "Error verifying newly loaded profiles are not selected in HCM Sync Profiles Screen");
 			Assert.fail("Error verifying newly loaded profiles are not selected: " + e.getMessage());
 		}
 	}

@@ -24,7 +24,6 @@ import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends DriverManager {
 
@@ -159,7 +158,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 						verificationResults += " Page content indicates correct screen via source scan; ";
 						pageVerified = true;
 						LOGGER.info("Verified via page source analysis");
-						ExtentCucumberAdapter.addTestStepLog(" Verified via page source analysis");
+						PageObjectHelper.log(LOGGER, " Verified via page source analysis");
 					}
 				} catch (Exception e) {
 					verificationResults += "- Page source check failed; ";
@@ -168,14 +167,13 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 
 			// Final assertion
 			if (pageVerified) {
-				ExtentCucumberAdapter
-						.addTestStepLog(" Successfully verified Jobs with Missing Data screen is displayed");
-				ExtentCucumberAdapter.addTestStepLog("  Verification results: " + verificationResults);
+				PageObjectHelper.log(LOGGER, " Successfully verified Jobs with Missing Data screen is displayed");
+				PageObjectHelper.log(LOGGER, "  Verification results: " + verificationResults);
 				LOGGER.info("Successfully verified Jobs with Missing Data screen is displayed");
 			} else {
 				String errorMsg = "Failed to verify Jobs with Missing Data screen. Results: " + verificationResults;
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog("- " + errorMsg);
+				PageObjectHelper.log(LOGGER, "- " + errorMsg);
 				Assert.fail(errorMsg);
 			}
 
@@ -203,11 +201,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			foundJobRow = null;
 			foundProfile = null;
 
-			LOGGER.info(
-					"REVERSE SCENARIO (Scenario 2): Running independently - will search for jobs with missing Subfunction");
-			LOGGER.info("Looking for: Subfunction missing (ignoring Grade & Department data)");
-			ExtentCucumberAdapter
-					.addTestStepLog(" REVERSE SCENARIO (Scenario 2): Finding job with missing Subfunction data...");
+			PageObjectHelper.log(LOGGER, " REVERSE SCENARIO (Scenario 2): Finding job with missing Subfunction data...");
 
 			// Get ALL job rows at once (no lazy loading, all jobs are loaded in DOM)
 			LOGGER.info("Getting all job rows from Jobs with Missing Data screen (no lazy loading)");
@@ -292,7 +286,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			if (preferredJobRow != null) {
 				// Job found - continue with scenario
 				LOGGER.info("SUCCESS: Found job profile where Subfunction is missing - continuing with scenario");
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"... Found job profile where Subfunction is missing - proceeding with validation");
 
 				// Scroll to the found job row
@@ -314,17 +308,11 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 					// Store the cleaned job name for later use
 					extractedJobName.set(jobName);
 
-					// Log details of the matching profile only
-					LOGGER.info("SUCCESS: Found matching job profile:");
-					LOGGER.info("  Job Name: " + jobName);
-					LOGGER.info("  Grade: " + grade);
-					LOGGER.info("  Department: " + department);
-					LOGGER.info("  Function/Subfunction: " + functionSubfunction + " (Subfunction Missing - N/A)");
-
-					ExtentCucumberAdapter.addTestStepLog(" Found matching job profile: " + jobName);
-					ExtentCucumberAdapter.addTestStepLog("   Grade: " + grade);
-					ExtentCucumberAdapter.addTestStepLog("   Department: " + department);
-					ExtentCucumberAdapter.addTestStepLog(
+					// Log details of the matching profile
+					PageObjectHelper.log(LOGGER, " Found matching job profile: " + jobName);
+					PageObjectHelper.log(LOGGER, "   Grade: " + grade);
+					PageObjectHelper.log(LOGGER, "   Department: " + department);
+					PageObjectHelper.log(LOGGER, 
 							"   Function/Subfunction: " + functionSubfunction + " (Subfunction Missing)");
 
 				} else {
@@ -336,7 +324,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 				String skipMsg = "SKIPPING REVERSE SCENARIO: No jobs found with missing Subfunction in "
 						+ allJobRows.size() + " total jobs";
 				LOGGER.warn(skipMsg);
-				ExtentCucumberAdapter.addTestStepLog(" " + skipMsg);
+				PageObjectHelper.log(LOGGER, " " + skipMsg);
 				throw new org.testng.SkipException(skipMsg);
 			}
 
@@ -345,7 +333,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Failed to find job with specified criteria: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to find job with specified criteria: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "- Failed to find job with specified criteria: " + e.getMessage());
 			throw new IOException("Failed to find job with specified criteria", e);
 		}
 	}
@@ -401,15 +389,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 					jobDetailsFromMissingDataScreen.put("department", department);
 					jobDetailsFromMissingDataScreen.put("functionSubfunction", functionSubfunction);
 
-					LOGGER.info("Extracted job details from Missing Data screen (using stored row):");
-					LOGGER.info("Job Name: " + cleanedJobName);
-					LOGGER.info("Job Code: " + jobCode);
-					LOGGER.info("Grade: " + grade);
-					LOGGER.info("Department: " + department);
-					LOGGER.info("Function/Subfunction: " + functionSubfunction + " (Subfunction Missing - N/A)");
-
-					ExtentCucumberAdapter
-							.addTestStepLog("Successfully extracted job details from Jobs with Missing Data screen");
+					PageObjectHelper.log(LOGGER, "Extracted job details - Name: " + cleanedJobName + ", Code: " + jobCode);
 					return;
 
 				} else {
@@ -443,7 +423,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 						LOGGER.info("Department: " + department);
 						LOGGER.info("Function/Subfunction: " + functionSubfunction);
 
-						ExtentCucumberAdapter.addTestStepLog(
+						PageObjectHelper.log(LOGGER, 
 								"Successfully extracted job details from Jobs with Missing Data screen");
 						return;
 					}
@@ -454,7 +434,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to extract job details: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to extract job details: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to extract job details: " + e.getMessage());
 			throw new IOException("Failed to extract job details", e);
 		}
 	}
@@ -470,11 +450,11 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			js.executeScript("arguments[0].click();", closeReuploadJobsPageButton);
 
 			LOGGER.info("Closed Missing Data screen successfully");
-			ExtentCucumberAdapter.addTestStepLog("Closed Missing Data screen - ready for next scenario");
+			PageObjectHelper.log(LOGGER, "Closed Missing Data screen - ready for next scenario");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to close Missing Data screen: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to close Missing Data screen: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to close Missing Data screen: " + e.getMessage());
 			throw new IOException("Failed to close Missing Data screen", e);
 		}
 	}
@@ -650,12 +630,11 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			Assert.assertTrue(jobSearchInput.isDisplayed(), "Job search input not visible - not on Job Mapping page");
 
 			LOGGER.info("Successfully verified user is back on Job Mapping page");
-			ExtentCucumberAdapter.addTestStepLog("Successfully verified user is back on Job Mapping page");
+			PageObjectHelper.log(LOGGER, "Successfully verified user is back on Job Mapping page");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify user is back on Job Mapping page: " + e.getMessage());
-			ExtentCucumberAdapter
-					.addTestStepLog("Failed to verify user is back on Job Mapping page: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to verify user is back on Job Mapping page: " + e.getMessage());
 			throw new IOException("Failed to verify user is back on Job Mapping page", e);
 		}
 	}
@@ -707,11 +686,11 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			// Verify search results
 			verifySearchResultsContainSearchTerm(searchTerm);
 
-			ExtentCucumberAdapter.addTestStepLog("Searched for job profile: " + searchTerm);
+			PageObjectHelper.log(LOGGER, "Searched for job profile: " + searchTerm);
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to search for job profile: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to search for job profile: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to search for job profile: " + e.getMessage());
 			throw new IOException("Failed to search for job profile", e);
 		}
 	}
@@ -832,7 +811,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 				LOGGER.error(errorMsg);
 				LOGGER.error("Current URL: " + driver.getCurrentUrl());
 				LOGGER.error("Page title: " + driver.getTitle());
-				ExtentCucumberAdapter.addTestStepLog(" " + errorMsg);
+				PageObjectHelper.log(LOGGER, " " + errorMsg);
 				throw new IOException(errorMsg);
 			}
 
@@ -992,12 +971,11 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 							+ " rows (scrolled through all search results)");
 
 			LOGGER.info("Successfully verified exact matching job profile is found in search results");
-			ExtentCucumberAdapter
-					.addTestStepLog("Successfully verified exact matching job profile is found in search results");
+			PageObjectHelper.log(LOGGER, "Successfully verified exact matching job profile is found in search results");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify job profile in search results: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to verify job profile in search results: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to verify job profile in search results: " + e.getMessage());
 			throw new IOException("Failed to verify job profile in search results", e);
 		}
 	}
@@ -1200,14 +1178,14 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 						+ gradeFromMapping + "', Department: '" + departmentFromMapping + "', Function: '"
 						+ functionFromMapping + "'");
 
-				ExtentCucumberAdapter.addTestStepLog("Successfully extracted job details from Job Mapping page");
+				PageObjectHelper.log(LOGGER, "Successfully extracted job details from Job Mapping page");
 			} else {
 				throw new IOException("No matching job row available from verification step");
 			}
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to extract job details from Job Mapping page: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to extract job details: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to extract job details: " + e.getMessage());
 			throw new IOException("Failed to extract job details from Job Mapping page", e);
 		}
 	}
@@ -1284,11 +1262,11 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			}
 
 			LOGGER.info("Job details verification completed successfully");
-			ExtentCucumberAdapter.addTestStepLog("Successfully verified job details match between both screens");
+			PageObjectHelper.log(LOGGER, "Successfully verified job details match between both screens");
 
 		} catch (Exception e) {
 			LOGGER.error("Job details do not match between screens: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Job details do not match between screens: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Job details do not match between screens: " + e.getMessage());
 			throw new IOException("Job details do not match between screens", e);
 		}
 	}
@@ -1326,11 +1304,11 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 					"Info message not found on searched profile indicating missing Subfunction data");
 
 			LOGGER.info("✓ Info Message verified");
-			ExtentCucumberAdapter.addTestStepLog("Info Message verified for profile with missing Subfunction data");
+			PageObjectHelper.log(LOGGER, "Info Message verified for profile with missing Subfunction data");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify Info Message: {}", e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to verify Info Message: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to verify Info Message: " + e.getMessage());
 			throw new IOException("Failed to verify Info Message", e);
 		}
 	}
@@ -1401,7 +1379,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 		} else {
 			String errorMsg = fieldName + " mismatch: '" + missingDataValue + "' vs '" + jobMappingValue + "'";
 			LOGGER.error(errorMsg);
-			ExtentCucumberAdapter.addTestStepLog("- " + errorMsg);
+			PageObjectHelper.log(LOGGER, "- " + errorMsg);
 		}
 
 		return matches;
@@ -1553,8 +1531,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 	public void sort_job_profiles_by_department_in_ascending_order() throws IOException {
 		try {
 			LOGGER.info("Sorting Job Profiles by Department in Ascending order");
-			ExtentCucumberAdapter
-					.addTestStepLog("Sorting profiles by Department (ascending) to organize profile list...");
+			PageObjectHelper.log(LOGGER, "Sorting profiles by Department (ascending) to organize profile list...");
 
 			// Look for Department column header to sort
 			// Note: Text is nested inside <div> within <th>, so we use . instead of text()
@@ -1579,17 +1556,16 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 				PerformanceUtils.safeSleep(driver, 2000); // Wait for sorting to complete
 
 				LOGGER.info("Successfully sorted by Department column");
-				ExtentCucumberAdapter.addTestStepLog("... Sorted profiles by Department - profile list organized");
+				PageObjectHelper.log(LOGGER, "... Sorted profiles by Department - profile list organized");
 
 			} else {
 				LOGGER.warn("Department column header not found, proceeding without sorting");
-				ExtentCucumberAdapter
-						.addTestStepLog(" Department column not found for sorting, proceeding with current order");
+				PageObjectHelper.log(LOGGER, " Department column not found for sorting, proceeding with current order");
 			}
 
 		} catch (Exception e) {
 			LOGGER.warn("Failed to sort by Department column: " + e.getMessage() + ". Proceeding without sorting.");
-			ExtentCucumberAdapter.addTestStepLog(" Sorting failed, proceeding with current order");
+			PageObjectHelper.log(LOGGER, " Sorting failed, proceeding with current order");
 		}
 	}
 
@@ -1618,15 +1594,14 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 					"SEARCH CRITERIA: Function Missing = FALSE (Function must be present) AND SubFunction Missing = TRUE");
 			LOGGER.info(
 					"Looking for: info message + Function present + Subfunction missing (ignoring Grade & Department data)");
-			ExtentCucumberAdapter.addTestStepLog(
+			PageObjectHelper.log(LOGGER, 
 					" FORWARD SCENARIO (Scenario 1): Finding FIRST job with Function present but SubFunction missing...");
 
 			// Progressive search: Check initial batch, then scroll and check new batch if
 			// no match
 			LOGGER.info(
 					"Starting progressive search: check batch  if no match  scroll  check new batch  repeat (max 15 scrolls, up to ~50 profiles)");
-			ExtentCucumberAdapter
-					.addTestStepLog(" Progressive search: checking profiles in batches with on-demand scrolling...");
+			PageObjectHelper.log(LOGGER, " Progressive search: checking profiles in batches with on-demand scrolling...");
 
 			int maxScrollAttempts = 15;
 			int scrollAttempt = 0;
@@ -1790,7 +1765,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 							LOGGER.info("... MATCH FOUND in batch " + scrollAttempt + "! Profile " + profileNumber
 									+ " has Function present but SubFunction missing");
 							LOGGER.info("... Selected: " + jobName + " (Code: " + jobCode + ")");
-							ExtentCucumberAdapter.addTestStepLog("... Found suitable profile: " + jobName
+							PageObjectHelper.log(LOGGER, "... Found suitable profile: " + jobName
 									+ " - Function present, SubFunction missing");
 
 							// Store the found profile
@@ -1932,13 +1907,12 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			if (!matchFound) {
 				LOGGER.info(" No profiles with Function present but SubFunction missing found (checked "
 						+ lastCheckedIndex + " profiles across " + scrollAttempt + " batches)");
-				ExtentCucumberAdapter
-						.addTestStepLog(" No profiles found with Function present but SubFunction missing");
+				PageObjectHelper.log(LOGGER, " No profiles found with Function present but SubFunction missing");
 
 				String skipMsg = "SKIPPING SCENARIO: No profiles found with Function present but SubFunction missing (checked "
 						+ lastCheckedIndex + " profiles)";
 				LOGGER.error(skipMsg);
-				ExtentCucumberAdapter.addTestStepLog(" " + skipMsg);
+				PageObjectHelper.log(LOGGER, " " + skipMsg);
 				throw new org.testng.SkipException(skipMsg);
 			}
 
@@ -1946,7 +1920,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			throw e; // Re-throw SkipException
 		} catch (Exception e) {
 			LOGGER.error("Failed to find suitable job profile: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to find suitable job profile: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "- Failed to find suitable job profile: " + e.getMessage());
 			throw new IOException("Failed to find suitable job profile", e);
 		}
 	}
@@ -2065,11 +2039,11 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			extractedJobName.set(jobName);
 
 			LOGGER.info("Successfully extracted job details: " + jobName);
-			ExtentCucumberAdapter.addTestStepLog("Extracted job details: " + jobName + " (" + jobCode + ")");
+			PageObjectHelper.log(LOGGER, "Extracted job details: " + jobName + " (" + jobCode + ")");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to extract job details from Job Mapping page: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to extract job details: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "- Failed to extract job details: " + e.getMessage());
 			throw new IOException("Failed to extract job details from Job Mapping page", e);
 		}
 	}
@@ -2083,8 +2057,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 	public void search_for_the_extracted_job_profile_by_name_in_jobs_missing_data_screen() throws IOException {
 		try {
 			LOGGER.info("Traversing all jobs in Missing Data screen to find: " + extractedJobName.get());
-			ExtentCucumberAdapter
-					.addTestStepLog("Traversing all jobs in Missing Data screen (no search functionality)...");
+			PageObjectHelper.log(LOGGER, "Traversing all jobs in Missing Data screen (no search functionality)...");
 
 			if (extractedJobName.get() == null || extractedJobName.get().isEmpty()) {
 				throw new IOException("No job name available for search");
@@ -2097,7 +2070,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			String expectedJobCode = jobDetailsFromJobMappingPage.get("jobCode");
 			if (expectedJobCode != null && !expectedJobCode.isEmpty()) {
 				LOGGER.info("Expected job code from Job Mapping: " + expectedJobCode);
-				ExtentCucumberAdapter.addTestStepLog(
+				PageObjectHelper.log(LOGGER, 
 						"Looking for job with name '" + searchTerm + "' AND code '" + expectedJobCode + "'");
 			} else {
 				LOGGER.warn(
@@ -2204,7 +2177,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 										row);
 								PerformanceUtils.safeSleep(driver, 500);
 
-								ExtentCucumberAdapter.addTestStepLog("FOUND job in Missing Data screen: "
+								PageObjectHelper.log(LOGGER, "FOUND job in Missing Data screen: "
 										+ cleanJobNameInRow + " (position " + totalJobsChecked + ")"
 										+ (jobCodeInRow.isEmpty() ? "" : " - Code: " + jobCodeInRow));
 								return; // Found the job, exit
@@ -2242,17 +2215,17 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 				LOGGER.error("Job Mapping: Found job with missing Grade + info message");
 				LOGGER.error("Missing Data: Same job NOT FOUND after complete search");
 
-				ExtentCucumberAdapter.addTestStepLog("BUG: " + errorMsg);
+				PageObjectHelper.log(LOGGER, "BUG: " + errorMsg);
 				throw new IOException("BUG: Data consistency issue - " + errorMsg);
 			}
 
 		} catch (Exception e) {
 			LOGGER.error("REVERSE SCENARIO FAILED: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog(" REVERSE SCENARIO FAILED: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, " REVERSE SCENARIO FAILED: " + e.getMessage());
 
 			// Force close Missing Data screen to ensure next scenario can run
 			LOGGER.warn("Force closing Missing Data screen to ensure next scenario can start properly");
-			ExtentCucumberAdapter.addTestStepLog(" Force closing Missing Data screen for next scenario");
+			PageObjectHelper.log(LOGGER, " Force closing Missing Data screen for next scenario");
 			force_close_missing_data_screen_for_next_scenario();
 
 			// Set flag to indicate scenario failed but don't stop execution
@@ -2272,24 +2245,24 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			if (foundJobRow == null) {
 				String errorMsg = " BUG: No job row found in Missing Data screen - job should exist since it was found with missing data in Job Mapping screen";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(" " + errorMsg);
+				PageObjectHelper.log(LOGGER, " " + errorMsg);
 				throw new IOException(errorMsg);
 			}
 
 			// Verify the found row is visible and contains expected data
 			if (foundJobRow.isDisplayed()) {
 				LOGGER.info("... Job profile is displayed in Missing Data screen search results");
-				ExtentCucumberAdapter.addTestStepLog("... Job profile verified in Missing Data screen");
+				PageObjectHelper.log(LOGGER, "... Job profile verified in Missing Data screen");
 			} else {
 				String errorMsg = " BUG: Found job row exists but is not visible - display issue in Missing Data screen";
 				LOGGER.error(errorMsg);
-				ExtentCucumberAdapter.addTestStepLog(" " + errorMsg);
+				PageObjectHelper.log(LOGGER, " " + errorMsg);
 				throw new IOException(errorMsg);
 			}
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify job profile in Missing Data screen: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("Failed to verify job profile: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "Failed to verify job profile: " + e.getMessage());
 
 			// Force close Missing Data screen to ensure next scenario can run
 			LOGGER.warn("Force closing Missing Data screen due to verification failure");
@@ -2329,7 +2302,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 				jobDetailsFromMissingDataScreen.put("functionSubfunction", functionSubfunction);
 
 				LOGGER.info("Successfully extracted job details from Missing Data screen (reverse scenario)");
-				ExtentCucumberAdapter.addTestStepLog("Successfully extracted job details from Missing Data screen");
+				PageObjectHelper.log(LOGGER, "Successfully extracted job details from Missing Data screen");
 
 			} else {
 				throw new IOException("Insufficient cells found for job detail extraction in Missing Data screen");
@@ -2337,7 +2310,7 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to extract job details from Missing Data screen: " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to extract job details: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "- Failed to extract job details: " + e.getMessage());
 
 			// Force close Missing Data screen to ensure next scenario can run
 			LOGGER.warn("Force closing Missing Data screen due to extraction failure");
@@ -2418,14 +2391,11 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Dri
 			if (!compareFieldValues("Function/Sub-function", funcFromJobMapping, funcFromMissingData)) {
 				Assert.fail("Function/Sub-function comparison failed - see logs for details");
 			}
-
-			LOGGER.info("Job details verification completed successfully (reverse scenario)");
-			ExtentCucumberAdapter
-					.addTestStepLog("Successfully verified job details match between screens (reverse flow)");
+			PageObjectHelper.log(LOGGER, "Successfully verified job details match between screens (reverse flow)");
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify job details match (reverse scenario): " + e.getMessage());
-			ExtentCucumberAdapter.addTestStepLog("- Failed to verify job details match: " + e.getMessage());
+			PageObjectHelper.log(LOGGER, "- Failed to verify job details match: " + e.getMessage());
 			throw new IOException("Failed to verify job details match (reverse scenario)", e);
 		}
 	}

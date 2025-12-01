@@ -1,8 +1,7 @@
 package com.kfonetalentsuite.utils;
 
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.util.function.Supplier;
 
@@ -14,19 +13,18 @@ import java.util.function.Supplier;
 public class PageObjectHelper {
 
 	/**
-	 * Logs a message to both Log4j Logger and Extent Report
+	 * Logs a message to Log4j Logger
 	 * 
 	 * @param logger  The Log4j Logger instance from the calling class
 	 * @param message The message to log
 	 */
 	public static void log(Logger logger, String message) {
 		logger.info(message);
-		ExtentCucumberAdapter.addTestStepLog(message);
 	}
 
 	/**
-	 * Handles errors by capturing screenshot, logging to both Log4j Logger and
-	 * Extent Report, then throws RuntimeException
+	 * Handles errors by capturing screenshot, logging to Log4j Logger,
+	 * then throws RuntimeException
 	 * 
 	 * @param logger           The Log4j Logger instance from the calling class
 	 * @param methodName       The name of the method where the error occurred
@@ -37,7 +35,6 @@ public class PageObjectHelper {
 	public static void handleError(Logger logger, String methodName, String issueDescription, Exception e) {
 		String errorMsg = issueDescription + " - Method: " + methodName;
 		logger.error(errorMsg, e);
-		ExtentCucumberAdapter.addTestStepLog(errorMsg + " - " + e.getMessage());
 
 		// Capture screenshot before throwing exception
 		ScreenshotHandler.captureFailureScreenshot(methodName, e);

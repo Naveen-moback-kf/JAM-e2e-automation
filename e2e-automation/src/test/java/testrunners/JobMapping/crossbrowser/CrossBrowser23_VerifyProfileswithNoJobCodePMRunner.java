@@ -32,7 +32,7 @@ import io.cucumber.testng.TestNGCucumberRunner;
     tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Verify_Profiles_with_No_JobCode_in_PM",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
     dryRun = false,
-    plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"}
+    plugin = {"html:target/cucumber-reports/cucumber.html", "json:target/cucumber-reports/cucumber.json"}
 )
 public class CrossBrowser23_VerifyProfileswithNoJobCodePMRunner extends CustomizeTestNGCucumberRunner {
     

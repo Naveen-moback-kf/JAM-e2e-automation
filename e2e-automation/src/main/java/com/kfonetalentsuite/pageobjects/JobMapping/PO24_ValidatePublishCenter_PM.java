@@ -26,7 +26,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO24_ValidatePublishCenter_PM {
 	WebDriver driver = DriverManager.getDriver();
@@ -425,17 +424,9 @@ public class PO24_ValidatePublishCenter_PM {
 						+ ", Actual: " + jphProfilesCountinRow1.getText());
 			} else {
 				// Count is INCOMPLETE - Skip assertion with clear logging
-				LOGGER.warn(
-						"SKIPPING PROFILE COUNT ASSERTION: Profile count is INCOMPLETE due to max scroll limit reached");
-				LOGGER.warn("Counted profiles from scrolling: "
-						+ PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get());
-				LOGGER.warn("Actual exported profiles in Publish Center: " + jphProfilesCountinRow1.getText());
-				LOGGER.warn("This is NOT a test failure - it's a limitation of scrolling with large datasets");
-				ExtentCucumberAdapter
-						.addTestStepLog("SKIPPED: Profile count assertion (incomplete count due to max scroll limit)");
-				ExtentCucumberAdapter.addTestStepLog(
-						"Counted: " + PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get() + " | Actual exported: "
-								+ jphProfilesCountinRow1.getText() + " (discrepancy expected)");
+				PageObjectHelper.log(LOGGER, "SKIPPED: Profile count assertion (incomplete count due to max scroll limit)");
+				PageObjectHelper.log(LOGGER, "Counted: " + PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get() 
+						+ " | Actual exported: " + jphProfilesCountinRow1.getText() + " (discrepancy expected)");
 			}
 
 			// Reset profile count and flag for future test runs

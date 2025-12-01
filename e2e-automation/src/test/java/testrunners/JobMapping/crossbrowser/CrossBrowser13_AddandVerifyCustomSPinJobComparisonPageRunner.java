@@ -32,7 +32,7 @@ import io.cucumber.testng.TestNGCucumberRunner;
     tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Add_and_Verify_CustomSP_In_Job_Comparison_Page",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
     dryRun = false,
-    plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"}
+    plugin = {"html:target/cucumber-reports/cucumber.html", "json:target/cucumber-reports/cucumber.json"}
 )
 public class CrossBrowser13_AddandVerifyCustomSPinJobComparisonPageRunner extends CustomizeTestNGCucumberRunner {
     

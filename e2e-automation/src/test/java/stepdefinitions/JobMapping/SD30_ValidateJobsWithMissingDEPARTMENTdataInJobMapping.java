@@ -2,14 +2,17 @@ package stepdefinitions.JobMapping;
 
 import java.io.IOException;
 
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 import com.kfonetalentsuite.manager.PageObjectManager;
+import com.kfonetalentsuite.utils.PageObjectHelper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 public class SD30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping extends DriverManager {
+	private static final Logger LOGGER = LogManager.getLogger(SD30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping.class);
 	PageObjectManager validateJobsWithMissingDEPARTMENTdataInJobMapping = new PageObjectManager();
 	
 	public SD30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping() {
@@ -116,7 +119,7 @@ public class SD30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping extends Driv
 	public void verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_department_data() throws IOException {
 		// This step is already handled by the previous Info Message verification step
 		// No need to call again - just log that it's already verified
-		ExtentCucumberAdapter.addTestStepLog("Info Message text already verified in previous step");
+		PageObjectHelper.log(LOGGER, "Info Message text already verified in previous step");
 	}
 
 }

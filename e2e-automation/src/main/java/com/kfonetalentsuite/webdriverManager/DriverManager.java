@@ -63,8 +63,9 @@ public class DriverManager {
 		}
 
 		try {
+			// Get browser config from config.properties
 			boolean isHeadless = Boolean
-					.parseBoolean(CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "true");
+					.parseBoolean(CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "false");
 
 			// Launch browser based on configuration with retry mechanism
 			int maxRetries = 3;

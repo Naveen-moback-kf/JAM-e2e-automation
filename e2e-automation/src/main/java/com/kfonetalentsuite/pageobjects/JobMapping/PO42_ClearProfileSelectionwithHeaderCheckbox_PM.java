@@ -18,8 +18,8 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 
@@ -93,8 +93,7 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 
 			Thread.sleep(1000);
 
-			LOGGER.info("Successfully clicked on header checkbox to unselect loaded profiles");
-			ExtentCucumberAdapter.addTestStepLog("Clicked on header checkbox to clear selection of loaded profiles");
+			PageObjectHelper.log(LOGGER, "Clicked on header checkbox to clear selection of loaded profiles");
 
 			// Wait for spinners to disappear after unselecting profiles
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -103,10 +102,7 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot(
 					"click_on_header_checkbox_to_unselect_loaded_job_profiles_in_hcm_sync_profiles_screen", e);
-			LOGGER.error(
-					"Error clicking on header checkbox to unselect profiles - Method: click_on_header_checkbox_to_unselect_loaded_job_profiles_in_hcm_sync_profiles_screen",
-					e);
-			ExtentCucumberAdapter.addTestStepLog(" Error clicking on header checkbox to unselect profiles");
+			PageObjectHelper.log(LOGGER, "Error clicking on header checkbox to unselect profiles");
 			Assert.fail("Error clicking on header checkbox to unselect profiles: " + e.getMessage());
 		}
 	}
@@ -178,23 +174,16 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 			LOGGER.info("========================================");
 
 			if (unselectedProfilesCount >= expectedUnselected) {
-				LOGGER.info(" VALIDATION PASSED: All loaded profiles are correctly unselected");
-				ExtentCucumberAdapter.addTestStepLog(
-						" Validation PASSED: " + unselectedProfilesCount + " loaded profiles are unselected");
+				PageObjectHelper.log(LOGGER, "Validation PASSED: " + unselectedProfilesCount + " loaded profiles are unselected");
 			} else {
-				LOGGER.error(" VALIDATION FAILED: Expected " + expectedUnselected + " unselected, but found only "
-						+ unselectedProfilesCount);
-				ExtentCucumberAdapter.addTestStepLog(" Validation FAILED: Not all loaded profiles are unselected");
+				PageObjectHelper.log(LOGGER, "Validation FAILED: Not all loaded profiles are unselected");
 				Assert.fail("Validation FAILED: Not all loaded profiles are unselected");
 			}
 
 		} catch (Exception e) {
 			ScreenshotHandler
 					.captureFailureScreenshot("verify_loaded_profiles_are_unselected_in_hcm_sync_profiles_screen", e);
-			LOGGER.error(
-					"Error verifying loaded profiles are unselected - Method: verify_loaded_profiles_are_unselected_in_hcm_sync_profiles_screen",
-					e);
-			ExtentCucumberAdapter.addTestStepLog(" Error verifying loaded profiles are unselected");
+			PageObjectHelper.log(LOGGER, "Error verifying loaded profiles are unselected");
 			Assert.fail("Error verifying loaded profiles are unselected: " + e.getMessage());
 		}
 	}
@@ -221,8 +210,7 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 			newlyLoadedProfiles = totalProfilesNow - loadedProfilesBeforeUncheck.get();
 
 			if (newlyLoadedProfiles <= 0) {
-				LOGGER.warn(" No newly loaded profiles detected after scrolling");
-				ExtentCucumberAdapter.addTestStepLog(" No newly loaded profiles to verify");
+				PageObjectHelper.log(LOGGER, "No newly loaded profiles to verify");
 				return;
 			}
 
@@ -274,23 +262,16 @@ public class PO42_ClearProfileSelectionwithHeaderCheckbox_PM {
 			LOGGER.info("========================================");
 
 			if (selectedInNewlyLoaded >= expectedSelected) {
-				LOGGER.info(" VALIDATION PASSED: All newly loaded profiles are still selected");
-				ExtentCucumberAdapter.addTestStepLog(
-						" Validation PASSED: " + selectedInNewlyLoaded + " newly loaded profiles are still selected");
+				PageObjectHelper.log(LOGGER, "Validation PASSED: " + selectedInNewlyLoaded + " newly loaded profiles are still selected");
 			} else {
-				LOGGER.error(" VALIDATION FAILED: Expected " + expectedSelected + " selected, but found only "
-						+ selectedInNewlyLoaded);
-				ExtentCucumberAdapter.addTestStepLog(" Validation FAILED: Not all newly loaded profiles are selected");
+				PageObjectHelper.log(LOGGER, "Validation FAILED: Not all newly loaded profiles are selected");
 				Assert.fail("Validation FAILED: Not all newly loaded profiles are selected");
 			}
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot(
 					"verify_newly_loaded_profiles_are_still_selected_in_hcm_sync_profiles_screen", e);
-			LOGGER.error(
-					"Error verifying newly loaded profiles are still selected - Method: verify_newly_loaded_profiles_are_still_selected_in_hcm_sync_profiles_screen",
-					e);
-			ExtentCucumberAdapter.addTestStepLog(" Error verifying newly loaded profiles are still selected");
+			PageObjectHelper.log(LOGGER, "Error verifying newly loaded profiles are still selected");
 			Assert.fail("Error verifying newly loaded profiles are still selected: " + e.getMessage());
 		}
 	}

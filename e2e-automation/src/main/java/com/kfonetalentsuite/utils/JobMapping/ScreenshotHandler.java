@@ -19,13 +19,13 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
  * 
  * FUNCTIONALITY: - Captures screenshots on test failures with enhanced context
  * - Provides both low-level and high-level interfaces - Standardizes error
- * handling and logging across test methods - Integrates with ExtentReports for
- * visual test reporting - Organizes screenshots in structured directories
+ * handling and logging across test methods - Organizes screenshots in structured directories
  * 
  * CONSOLIDATED FEATURES: - Screenshot capture with descriptive names and
  * timestamps - Easy-to-use helper methods for test failure scenarios -
- * Automatic ExtentReports integration - Configurable screenshot directory
- * structure - Backward compatibility with existing code
+ * Configurable screenshot directory structure - Backward compatibility with existing code
+ * 
+ * @version 2.0 (Extent Reports removed)
  * 
  * USAGE EXAMPLES:
  * 
@@ -149,9 +149,6 @@ public class ScreenshotHandler {
 			// Log screenshot capture
 			LOGGER.info(" SCREENSHOT CAPTURED - Method: {} | Path: {}", methodName, screenshotPath);
 
-			// Add screenshot to ExtentReports
-			addScreenshotToExtentReport(screenshotPath, methodName, errorMessage);
-
 			return screenshotPath;
 
 		} catch (Exception e) {
@@ -170,10 +167,6 @@ public class ScreenshotHandler {
 			// Quick screenshot capture
 			TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
 			File sourceFile = takesScreenshot.getScreenshotAs(OutputType.FILE);
-
-			// IMPORTANT: Add to ExtentReports SYNCHRONOUSLY (before async processing)
-			// ExtentReports uses ThreadLocal which doesn't work in async threads
-			addScreenshotToExtentReport(screenshotPath, methodName, errorMessage);
 
 			// Process screenshot file operations in background thread (non-blocking)
 			java.util.concurrent.CompletableFuture.runAsync(() -> {
@@ -275,7 +268,7 @@ public class ScreenshotHandler {
 				LOGGER.error(" TEST FAILED - {} | Screenshot capture failed", methodName);
 			}
 
-			// Add to Extent Reports (if enabled)
+			// Log error
 			TestLogger.log(errorMsg);
 
 			// Fail the test
@@ -324,7 +317,7 @@ public class ScreenshotHandler {
 				LOGGER.error(" TEST FAILED - {} | Screenshot capture failed", methodName);
 			}
 
-			// Add to Extent Reports (if enabled)
+			// Log error
 			TestLogger.log(errorMsg);
 
 			// Fail the test
@@ -354,7 +347,7 @@ public class ScreenshotHandler {
 				LOGGER.error(" TEST FAILED - {} | Screenshot saved: {}", methodName, screenshotPath);
 			}
 
-			// Add to Extent Reports (if enabled)
+			// Log error
 			TestLogger.log(errorMsg);
 
 			// Fail the test
@@ -465,25 +458,6 @@ public class ScreenshotHandler {
 		return result.toString().trim();
 	}
 
-	/**
-	 * Add screenshot to ExtentReports for visual reporting
-	 */
-	private static void addScreenshotToExtentReport(String screenshotPath, String methodName, String errorMessage) {
-		try {
-			// Add to Extent Reports (if enabled)
-			String logMessage = String.format(" FAILURE SCREENSHOT - Method: %s", methodName);
-			if (errorMessage != null && !errorMessage.trim().isEmpty()) {
-				logMessage += String.format(" | Error: %s", errorMessage);
-			}
-
-			TestLogger.addScreenshot(screenshotPath, logMessage);
-
-			LOGGER.debug("Screenshot added to Extent Reports (if enabled): {}", screenshotPath);
-
-		} catch (Exception e) {
-			LOGGER.warn("Could not add screenshot to Extent Reports", e);
-		}
-	}
 
 	// ========================================
 	// CONFIGURATION AND MANAGEMENT METHODS

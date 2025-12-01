@@ -32,7 +32,7 @@ import io.cucumber.testng.TestNGCucumberRunner;
     tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Sorting_Functionality",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
     dryRun = false,
-    plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"}
+    plugin = {"html:target/cucumber-reports/cucumber.html", "json:target/cucumber-reports/cucumber.json"}
 )
 public class CrossBrowser17_ValidateSortingFunctionalityRunner extends CustomizeTestNGCucumberRunner {
     

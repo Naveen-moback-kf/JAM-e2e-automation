@@ -32,7 +32,7 @@ import io.cucumber.testng.TestNGCucumberRunner;
     tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Map_Different_SP_in_AutoAI",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
     dryRun = false,
-    plugin = {"com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"}
+    plugin = {"html:target/cucumber-reports/cucumber.html", "json:target/cucumber-reports/cucumber.json"}
 )
 public class CrossBrowser21_MapDifferentSPtoProfileInAutoAIRunner extends CustomizeTestNGCucumberRunner {
     

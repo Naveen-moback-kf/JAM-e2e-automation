@@ -25,7 +25,11 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.SessionManager;
 import com.kfonetalentsuite.utils.PageObjectHelper;
 import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.ExcelConfigProvider;
+import com.kfonetalentsuite.utils.common.ExcelDataProvider;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
+
+import java.util.Map;
 
 public class PO01_KFoneLogin {
 	WebDriver driver;
@@ -182,54 +186,67 @@ public class PO01_KFoneLogin {
 				throw new RuntimeException("Cannot launch KFONE application - WebDriver is null");
 			}
 
-			switch (CommonVariable.ENVIRONMENT) {
-			case "Stage":
-				driver.get(CommonVariable.KFONE_STAGEURL);
-				PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
-						+ " Environment URL: " + CommonVariable.KFONE_STAGEURL);
-				break;
-
-			case "ProdEU":
-				driver.get(CommonVariable.KFONE_PRODEUURL);
-				PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
-						+ " Environment URL: " + CommonVariable.KFONE_PRODEUURL);
-				break;
-			case "ProdUS":
-				driver.get(CommonVariable.KFONE_PRODUSURL);
-				PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
-						+ " Environment URL: " + CommonVariable.KFONE_PRODUSURL);
-				break;
-			case "Test":
-				driver.get(CommonVariable.KFONE_QAURL);
-				PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
-						+ " Environment URL: " + CommonVariable.KFONE_QAURL);
-				break;
-			case "Dev":
-				driver.get(CommonVariable.KFONE_DEVURL);
-				PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + CommonVariable.ENVIRONMENT
-						+ " Environment URL: " + CommonVariable.KFONE_DEVURL);
-				break;
-			default:
-				driver.get(CommonVariable.KFONE_QAURL);
-				PageObjectHelper.log(LOGGER, "Launched KFONE (DEFAULT) " + CommonVariable.ENVIRONMENT
-						+ " Environment URL: " + CommonVariable.KFONE_QAURL);
-			}
+			// Get Environment: Excel (Execute=YES row) -> config.properties
+			String environment = getEnvironmentFromExcelOrConfig();
+			String url = getUrlForEnvironment(environment);
+			
+			driver.get(url);
+			PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + environment + " Environment URL: " + url);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "launch_the_kfone_application",
-					"Issue in launching KFONE application in environment: " + CommonVariable.ENVIRONMENT, e);
+					"Issue in launching KFONE application", e);
+		}
+	}
+	
+	/**
+	 * Get Environment from Excel (Execute=YES row) or fall back to config.properties
+	 */
+	private String getEnvironmentFromExcelOrConfig() {
+		// Get from Excel first (cached)
+		Map<String, String> login = ExcelConfigProvider.getDefaultLogin();
+		if (login != null) {
+			String env = login.get("Environment");
+			if (env != null && !env.isEmpty()) {
+				return env.trim();
+			}
+		}
+		// Fallback to config.properties
+		return CommonVariable.ENVIRONMENT != null ? CommonVariable.ENVIRONMENT : "QA";
+	}
+	
+	/**
+	 * Get the KFONE URL for a given environment
+	 */
+	private String getUrlForEnvironment(String environment) {
+		switch (environment) {
+			case "Stage":
+				return CommonVariable.KFONE_STAGEURL;
+			case "ProdEU":
+				return CommonVariable.KFONE_PRODEUURL;
+			case "ProdUS":
+				return CommonVariable.KFONE_PRODUSURL;
+			case "Dev":
+				return CommonVariable.KFONE_DEVURL;
+			case "QA":
+			case "Test":
+			default:
+				return CommonVariable.KFONE_QAURL;
 		}
 	}
 
 	public void provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page() {
 		try {
 			handleCookiesBanner();
-			wait.until(ExpectedConditions.elementToBeClickable(userNameTxt)).sendKeys(CommonVariable.SSO_USERNAME);
-			PageObjectHelper.log(LOGGER, "Provided SSO Login Username: " + CommonVariable.SSO_USERNAME);
-			username.set(CommonVariable.SSO_USERNAME);
+			
+			// Get SSO credentials from Excel
+			String ssoUsername = getCredentialFromExcel("SSO", "Username");
+			
+			wait.until(ExpectedConditions.elementToBeClickable(userNameTxt)).sendKeys(ssoUsername);
+			username.set(ssoUsername);
 			utils.jsClick(driver, kfoneSigninBtn);
 			Thread.sleep(2000);
-			PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
+			PageObjectHelper.log(LOGGER, "Entered SSO username and proceeded to Microsoft login");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page",
@@ -240,7 +257,7 @@ public class PO01_KFoneLogin {
 	public void user_should_navigate_to_microsoft_login_page() {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(MicrosoftPasswordPageHeader)).isDisplayed();
-			PageObjectHelper.log(LOGGER, "User successfully navigated to Microsoft Login page");
+			PageObjectHelper.log(LOGGER, "Navigated to Microsoft Login page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_navigate_to_microsoft_login_page",
 					"Issue in navigating to Microsoft Login page", e);
@@ -249,16 +266,17 @@ public class PO01_KFoneLogin {
 
 	public void provide_sso_login_password_and_click_sign_in() {
 		try {
+			// Get SSO password from Excel
+			String ssoPassword = getCredentialFromExcel("SSO", "Password");
+			
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(MicrosoftPasswordPageHeader)).isDisplayed());
 			wait.until(ExpectedConditions.elementToBeClickable(MicrosoftPasswordTxt))
-					.sendKeys(CommonVariable.SSO_PASSWORD);
-			PageObjectHelper.log(LOGGER, "Provided SSO Login Password in Microsoft Login Page");
+					.sendKeys(ssoPassword);
 
 			utils.jsClick(driver, MicrosoftSignInBtn);
-			PageObjectHelper.log(LOGGER, "Clicked on Signin Button in Microsoft Login Page");
-
 			wait.until(ExpectedConditions.elementToBeClickable(MicrosoftYesBtn)).click();
-			PageObjectHelper.log(LOGGER, "Clicked on Yes Button in Microsoft Login Page");
+			
+			PageObjectHelper.log(LOGGER, "Entered SSO password and completed Microsoft login");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "provide_sso_login_password_and_click_sign_in",
 					"Issue in providing SSO login password and clicking sign in", e);
@@ -268,31 +286,117 @@ public class PO01_KFoneLogin {
 	public void provide_non_sso_login_username_and_click_sign_in_button_in_kfone_login_page() {
 		handleCookiesBanner();
 
-		wait.until(ExpectedConditions.elementToBeClickable(userNameTxt)).sendKeys(CommonVariable.NON_SSO_USERNAME);
-		PageObjectHelper.log(LOGGER, "Provided NON-SSO Login Username: " + CommonVariable.NON_SSO_USERNAME);
-		username.set(CommonVariable.NON_SSO_USERNAME);
+		// Get NON-SSO credentials from Excel
+		String nonSsoUsername = getCredentialFromExcel("NON_SSO", "Username");
+		
+		wait.until(ExpectedConditions.elementToBeClickable(userNameTxt)).sendKeys(nonSsoUsername);
+		username.set(nonSsoUsername);
 
-		// PARALLEL EXECUTION FIX: Wait for button to be ready, then click
 		WebElement signInButton = wait.until(ExpectedConditions.elementToBeClickable(kfoneSigninBtn));
 		utils.jsClick(driver, signInButton);
 
-		// PERFORMANCE FIX: After username submit, wait for PASSWORD field (not
-		// spinners!)
-		// The page transitions to password screen - no spinners appear here
+		// Wait for password field to appear
 		wait.until(ExpectedConditions.elementToBeClickable(passwordTxt));
 
-		PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
+		PageObjectHelper.log(LOGGER, "Entered username and proceeded to password screen");
 	}
 
 	public void provide_non_sso_login_password_and_click_sign_in_button_in_kfone_login_page() {
-		wait.until(ExpectedConditions.elementToBeClickable(passwordTxt)).sendKeys(CommonVariable.NON_SSO_PASSWORD);
-		PageObjectHelper.log(LOGGER, "Provided NON-SSO Login Password in KFONE Login Page");
+		// Get NON-SSO password from Excel
+		String nonSsoPassword = getCredentialFromExcel("NON_SSO", "Password");
+		
+		wait.until(ExpectedConditions.elementToBeClickable(passwordTxt)).sendKeys(nonSsoPassword);
 
-		// PARALLEL EXECUTION FIX: Ensure Sign In button is ready before clicking
 		WebElement signInButton = wait.until(ExpectedConditions.elementToBeClickable(kfoneSigninBtn));
 		utils.jsClick(driver, signInButton);
-		PageObjectHelper.log(LOGGER, "Clicked on Sign in Button in KFONE Login Page");
 		PerformanceUtils.waitForPageReady(driver, 10);
+
+		PageObjectHelper.log(LOGGER, "Entered password and submitted login");
+	}
+
+	// ============================================
+	// DATA-DRIVEN LOGIN METHODS
+	// ============================================
+
+	/**
+	 * DATA-DRIVEN: Login using credentials from Excel TestData.xlsx
+	 * Sheet: LoginData
+	 * 
+	 * @param testId The TestID from LoginData sheet
+	 */
+	public void login_using_excel_data(String testId) {
+		try {
+			Map<String, String> testData = ExcelDataProvider.getTestData("LoginData", testId);
+			String userType = testData.get("UserType");
+			String excelUsername = testData.get("Username");
+			String excelPassword = testData.get("Password");
+			
+			PageObjectHelper.log(LOGGER, "Data-Driven Login: TestID=" + testId + ", UserType=" + userType);
+			
+			handleCookiesBanner();
+			
+			// Enter username
+			wait.until(ExpectedConditions.elementToBeClickable(userNameTxt)).sendKeys(excelUsername);
+			PageObjectHelper.log(LOGGER, "Entered username from Excel: " + excelUsername);
+			username.set(excelUsername);
+			
+			// Click Sign In
+			utils.jsClick(driver, kfoneSigninBtn);
+			
+			if ("SSO".equalsIgnoreCase(userType)) {
+				// SSO Login flow
+				wait.until(ExpectedConditions.visibilityOf(MicrosoftPasswordPageHeader));
+				wait.until(ExpectedConditions.elementToBeClickable(MicrosoftPasswordTxt)).sendKeys(excelPassword);
+				utils.jsClick(driver, MicrosoftSignInBtn);
+				wait.until(ExpectedConditions.elementToBeClickable(MicrosoftYesBtn)).click();
+				PageObjectHelper.log(LOGGER, "Completed SSO login flow");
+			} else {
+				// NON-SSO Login flow
+				wait.until(ExpectedConditions.elementToBeClickable(passwordTxt));
+				wait.until(ExpectedConditions.elementToBeClickable(passwordTxt)).sendKeys(excelPassword);
+				utils.jsClick(driver, kfoneSigninBtn);
+				PageObjectHelper.log(LOGGER, "Completed NON-SSO login flow");
+			}
+			
+			PerformanceUtils.waitForPageReady(driver, 10);
+			
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "login_using_excel_data",
+					"Failed to login using Excel data for TestID: " + testId, e);
+		}
+	}
+
+	/**
+	 * Get credentials from Excel (Execute=YES row) or config.properties fallback
+	 */
+	private String getCredentialFromExcel(String userType, String field) {
+		try {
+			Map<String, String> login = ExcelConfigProvider.getLoginByType(userType);
+			if (login != null) {
+				return login.get(field);
+			}
+		} catch (Exception e) {
+			LOGGER.debug("Excel read failed: {}", e.getMessage());
+		}
+		
+		// Fallback to config.properties
+		if ("SSO".equalsIgnoreCase(userType)) {
+			return "Username".equals(field) ? CommonVariable.SSO_USERNAME : CommonVariable.SSO_PASSWORD;
+		} else {
+			return "Username".equals(field) ? CommonVariable.NON_SSO_USERNAME : CommonVariable.NON_SSO_PASSWORD;
+		}
+	}
+
+	/**
+	 * Get PAMS_ID from Excel (Execute=YES row) or config.properties fallback
+	 */
+	private String getPamsIdFromExcel() {
+		String excelPamsId = ExcelConfigProvider.getActivePamsId();
+		if (excelPamsId != null && !excelPamsId.trim().isEmpty()) {
+			return excelPamsId.trim();
+		}
+		// Fallback to config.properties
+		return CommonVariable.TARGET_PAMS_ID;
 	}
 
 	public void verify_the_kfone_landing_page() {
@@ -443,7 +547,7 @@ public class PO01_KFoneLogin {
 
 	public void verify_products_that_client_can_access() {
 		try {
-			String targetPamsId = CommonVariable.TARGET_PAMS_ID;
+			String targetPamsId = getPamsIdFromExcel();
 
 			// CRITICAL: Ensure we're on the clients page before proceeding
 			try {
@@ -606,7 +710,7 @@ public class PO01_KFoneLogin {
 	 */
 	public void verify_client_name_based_on_pams_id() {
 		try {
-			String targetPamsId = CommonVariable.TARGET_PAMS_ID;
+			String targetPamsId = getPamsIdFromExcel();
 
 			// If no specific PAMS ID is configured, skip this verification
 			if (targetPamsId == null || targetPamsId.trim().isEmpty()) {
@@ -693,12 +797,11 @@ public class PO01_KFoneLogin {
 	 */
 	public void search_for_client_with_pams_id() {
 		try {
-			String targetPamsId = CommonVariable.TARGET_PAMS_ID;
+			String targetPamsId = getPamsIdFromExcel();
 
 			// If no specific PAMS ID is configured, skip search
 			if (targetPamsId == null || targetPamsId.trim().isEmpty()) {
-				PageObjectHelper.log(LOGGER,
-						" SKIPPING: No PAMS ID configured in config.properties - search step skipped");
+				PageObjectHelper.log(LOGGER, "SKIPPING: No PAMS ID configured - search step skipped");
 				return; // Continue to next step without search
 			}
 
@@ -769,8 +872,7 @@ public class PO01_KFoneLogin {
 				// FAIL TEST if no clients found with the searched PAMS ID
 				LOGGER.error(" No clients found matching PAMS ID: " + targetPamsId);
 				LOGGER.info("========================================");
-				Assert.fail("No clients found with PAMS ID: " + targetPamsId
-						+ ". Please verify the PAMS ID is correct in config.properties");
+				Assert.fail("No clients found with PAMS ID: " + targetPamsId);
 			}
 
 			LOGGER.info("========================================");
@@ -783,7 +885,7 @@ public class PO01_KFoneLogin {
 
 	public void click_on_client_with_access_to_profile_manager_application() {
 		try {
-			String targetPamsId = CommonVariable.TARGET_PAMS_ID;
+			String targetPamsId = getPamsIdFromExcel();
 
 			// Wait for clients table to be visible
 			wait.until(ExpectedConditions.visibilityOf(clientsTableBody)).isDisplayed();
