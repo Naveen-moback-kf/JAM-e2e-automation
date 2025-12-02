@@ -678,13 +678,13 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			// Verify the counts match
-			if (publishedProfilesCountAfter == totalPublishedCount) {
-				LOGGER.info(" Published profiles count matches! Expected: " + totalPublishedCount + ", Actual: "
-						+ publishedProfilesCountAfter);
+			if (publishedProfilesCountAfter.get().equals(totalPublishedCount.get())) {
+				LOGGER.info(" Published profiles count matches! Expected: " + totalPublishedCount.get() + ", Actual: "
+						+ publishedProfilesCountAfter.get());
 				PageObjectHelper.log(LOGGER, " Published profiles count matches successfully");
 			} else {
-				LOGGER.warn(" Count mismatch! Expected: " + totalPublishedCount + ", Actual: "
-						+ publishedProfilesCountAfter);
+				LOGGER.warn(" Count mismatch! Expected: " + totalPublishedCount.get() + ", Actual: "
+						+ publishedProfilesCountAfter.get());
 				PageObjectHelper.log(LOGGER, " Published profiles count mismatch");
 			}
 
@@ -884,9 +884,9 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM {
 			int remainingToPublish = finalUnpublishedCount - expectedTargetUnpublished;
 
 			if (finalUnpublishedCount <= expectedTargetUnpublished) {
-				PageObjectHelper.log(LOGGER, " SUCCESS! All " + selectedProfilesCount.get() + " profiles published");
+				PageObjectHelper.log(LOGGER, " SUCCESS! All " + actualPublished + " profiles published");
 			} else {
-				PageObjectHelper.log(LOGGER, " Incomplete! " + remainingToPublish + " profiles still pending");
+				PageObjectHelper.log(LOGGER, " Incomplete! " + remainingToPublish + " of " + actualPublished + " profiles still pending");
 			}
 
 		} catch (Exception e) {

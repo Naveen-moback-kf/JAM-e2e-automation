@@ -38,19 +38,11 @@ public class KeepAwakeUtil {
 	private static final String BACKUP_MARKER_FILE = ".power_settings_modified";
 
 	/**
-	 * Initialize keep awake functionality for INDIVIDUAL RUNNER execution Sets
+	 * Initialize keep awake functionality for test execution Sets
 	 * timeouts to 30 minutes when keepSystemAwake=true
 	 */
 	public static void initialize() {
 		initializeInternal(false);
-	}
-
-	/**
-	 * Initialize keep awake functionality for TEST SUITE execution Sets timeouts to
-	 * Never (0) when keepSystemAwake=true
-	 */
-	public static void initializeForSuite() {
-		initializeInternal(true);
 	}
 
 	/**
@@ -507,10 +499,4 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * Get current keep awake status
-	 */
-	public static boolean isKeepAwakeActive() {
-		return isInitialized && isKeepAwakeEnabled();
-	}
 }

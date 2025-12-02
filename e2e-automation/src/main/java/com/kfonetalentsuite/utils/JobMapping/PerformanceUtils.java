@@ -355,47 +355,6 @@ public class PerformanceUtils {
 	}
 
 	/**
-	 * PERFORMANCE: Smart wait with custom condition
-	 */
-	public static <T> T waitForCondition(WebDriver driver,
-			org.openqa.selenium.support.ui.ExpectedCondition<T> condition) {
-		return waitForCondition(driver, condition, DEFAULT_TIMEOUT_SECONDS);
-	}
-
-	public static <T> T waitForCondition(WebDriver driver,
-			org.openqa.selenium.support.ui.ExpectedCondition<T> condition, int timeoutSeconds) {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
-
-		try {
-			return wait.until(condition);
-		} catch (Exception e) {
-			LOGGER.warn(" Custom condition wait timeout: {}", e.getMessage());
-			throw e;
-		}
-	}
-
-	/**
-	 * PERFORMANCE: Smart wait for attribute to have specific value Useful for
-	 * waiting for form fields to be cleared or populated
-	 */
-	public static void waitForAttributeValue(WebDriver driver, WebElement element, String attribute,
-			String expectedValue) {
-		waitForAttributeValue(driver, element, attribute, expectedValue, DEFAULT_TIMEOUT_SECONDS);
-	}
-
-	public static void waitForAttributeValue(WebDriver driver, WebElement element, String attribute,
-			String expectedValue, int timeoutSeconds) {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
-
-		try {
-			wait.until(ExpectedConditions.attributeToBe(element, attribute, expectedValue));
-			// Attribute has expected value - no need to log (expected behavior)
-		} catch (Exception e) {
-			LOGGER.warn(" Attribute value wait timeout: {}", e.getMessage());
-		}
-	}
-
-	/**
 	 * PERFORMANCE: Optimized wait for UI stability after actions Replaces
 	 * Thread.sleep(1000-3000) with smart condition checking
 	 */
@@ -425,31 +384,6 @@ public class PerformanceUtils {
 
 		} catch (Exception e) {
 			// UI stability check timeout - acceptable, continuing
-		}
-	}
-
-	/**
-	 * PERFORMANCE: Log performance improvement statistics
-	 */
-	public static void logPerformanceGain(String methodName, long threadSleepMs) {
-		LOGGER.info(" PERFORMANCE GAIN: {} - Eliminated {}ms Thread.sleep with smart wait", methodName, threadSleepMs);
-	}
-
-	/**
-	 * PERFORMANCE: Batch wait for multiple conditions (replaces multiple
-	 * Thread.sleep calls)
-	 */
-	public static void waitForMultipleConditions(WebDriver driver,
-			org.openqa.selenium.support.ui.ExpectedCondition<?>... conditions) {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(DEFAULT_TIMEOUT_SECONDS));
-
-		try {
-			for (org.openqa.selenium.support.ui.ExpectedCondition<?> condition : conditions) {
-				wait.until(condition);
-			}
-			// All conditions met - no need to log (expected behavior)
-		} catch (Exception e) {
-			LOGGER.warn(" Multiple conditions wait failed: {}", e.getMessage());
 		}
 	}
 
@@ -504,47 +438,6 @@ public class PerformanceUtils {
 	public static void waitForElementInvisible(WebDriver driver, WebElement element, int timeoutSeconds) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 		wait.until(ExpectedConditions.invisibilityOf(element));
-	}
-
-	/**
-	 * PERFORMANCE: Safe method to get element text with stale element retry logic
-	 * This is specifically useful for dynamic elements like result counts that
-	 * update frequently
-	 * 
-	 * @param driver  WebDriver instance
-	 * @param locator By locator for the element
-	 * @return Element text content
-	 */
-	public static String getElementTextSafely(WebDriver driver, By locator) {
-		return getElementTextSafely(driver, locator, DEFAULT_TIMEOUT_SECONDS, 3);
-	}
-
-	public static String getElementTextSafely(WebDriver driver, By locator, int timeoutSeconds, int maxRetries) {
-		int retryAttempts = 0;
-		String elementText = "";
-
-		while (retryAttempts < maxRetries) {
-			try {
-				WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
-				elementText = wait.until(ExpectedConditions.presenceOfElementLocated(locator)).getText();
-				return elementText; // Success - return text
-			} catch (org.openqa.selenium.StaleElementReferenceException e) {
-				retryAttempts++;
-				if (retryAttempts >= maxRetries) {
-					LOGGER.error("StaleElementReferenceException after {} attempts for locator: {}", maxRetries,
-							locator);
-					throw e; // Re-throw if max retries reached
-				}
-				LOGGER.warn("StaleElementReferenceException on attempt {}, retrying... (locator: {})", retryAttempts,
-						locator);
-				waitForPageReady(driver, 1);
-			} catch (Exception e) {
-				LOGGER.error("Failed to get element text for locator: {} - {}", locator, e.getMessage());
-				throw e;
-			}
-		}
-
-		return elementText;
 	}
 
 }

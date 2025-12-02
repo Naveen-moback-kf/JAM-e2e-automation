@@ -232,20 +232,6 @@ public class ProgressBarUtil {
 	}
 
 	/**
-	 * Get current progress information
-	 */
-	public static ProgressInfo getProgressInfo() {
-		return new ProgressInfo(completedRunners, totalRunners);
-	}
-
-	/**
-	 * Check if progress bar is enabled
-	 */
-	public static boolean isProgressBarEnabled() {
-		return PROGRESS_BAR_ENABLED;
-	}
-
-	/**
 	 * Reset progress tracking (for cleanup)
 	 */
 	public static synchronized void resetProgress() {
@@ -253,41 +239,4 @@ public class ProgressBarUtil {
 		completedRunners = 0;
 	}
 
-	/**
-	 * Display a simple progress update without full bar (for quick updates)
-	 */
-	public static synchronized void quickUpdate(String message) {
-		if (!PROGRESS_BAR_ENABLED || totalRunners <= 0) {
-			return;
-		}
-
-		double progressPercent = (double) completedRunners / totalRunners;
-
-		if (supportsColors()) {
-			LOGGER.info(" {} {} {}({}/{} - {:.0f}%){}", ANSI_GREEN, message, ANSI_CYAN, completedRunners, totalRunners,
-					progressPercent * 100, ANSI_RESET);
-		} else {
-			LOGGER.info(" {} ({}/{} - {:.0f}%)", message, completedRunners, totalRunners, progressPercent * 100);
-		}
-	}
-
-	/**
-	 * Data class for progress information
-	 */
-	public static class ProgressInfo {
-		public final int completed;
-		public final int total;
-		public final double percentage;
-
-		public ProgressInfo(int completed, int total) {
-			this.completed = completed;
-			this.total = total;
-			this.percentage = total > 0 ? (double) completed / total * 100 : 0;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("ProgressInfo{%d/%d (%.1f%%)}", completed, total, percentage);
-		}
-	}
 }
