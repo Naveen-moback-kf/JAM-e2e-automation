@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.SkipException;
 
-import com.kfonetalentsuite.utils.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -16,17 +16,17 @@ import io.cucumber.java.Scenario;
 /**
  * Conditional Scenario Skip Manager
  * 
- * SPECIFIC USE CASE: ManualMappingofSPinAutoAI Feature - Detects when "All
- * Profiles are Mapped with BIC Profiles" condition occurs - Automatically skips
- * remaining scenarios in the feature file - Completely safe - doesn't affect
- * other test execution
+ * SPECIFIC USE CASE: ManualMappingofSPinAutoAI Feature (Feature 20 & 21)
+ * - Detects when "All Profiles are Mapped with BIC Profiles" condition occurs
+ * - Automatically skips remaining scenarios in the feature file
+ * - Completely safe - doesn't affect other test execution
  * 
- * TRIGGER CONDITION: When log message contains: "Currently, All Profiles in Job
- * Mapping are Mapped with BIC Profiles"
+ * TRIGGER CONDITION: When PO21_MapDifferentSPtoProfileInAutoAI.mapSP is set to false
+ * (indicating all profiles are already mapped with BIC profiles)
  * 
  * BEHAVIOR: First scenario runs normally and checks for unmapped profiles
- * ERROR: If no unmapped profiles found -> Skip all remaining scenarios in that
- * feature Other features continue to run normally
+ * If no unmapped profiles found -> Skip all remaining scenarios in that feature
+ * Other features continue to run normally
  */
 public class ConditionalScenarioSkip {
 
@@ -35,17 +35,18 @@ public class ConditionalScenarioSkip {
 	// Thread-safe storage for skip conditions per feature file
 	private static final Set<String> skipEnabledFeatures = ConcurrentHashMap.newKeySet();
 
-	// The feature file that this applies to
-	private static final String TARGET_FEATURE = "18ManualMappingofSPinAutoAI.feature";
+	// The feature files that this applies to (Feature 20 and 21)
+	private static final String TARGET_FEATURE_20 = "20ManualMappingofSPinAutoAI.feature";
+	private static final String TARGET_FEATURE_21 = "21MapDifferentSPtoProfileInAutoAI.feature";
 
 	@Before(order = 10) // Run after other hooks
 	public void checkConditionalSkip(Scenario scenario) {
 		String scenarioName = scenario.getName();
 		String featureName = extractFeatureName(scenario.getUri().toString());
 
-		// Only apply to the specific feature file
-		if (!featureName.equals(TARGET_FEATURE)) {
-			return; // Not the target feature - no action needed
+		// Only apply to Feature 20 and 21
+		if (!isTargetFeature(featureName)) {
+			return; // Not a target feature - no action needed
 		}
 
 		// ENHANCED: Always allow @CloseBrowser scenarios to execute for proper cleanup
@@ -55,14 +56,14 @@ public class ConditionalScenarioSkip {
 		}
 
 		// Check if skip condition is enabled for this feature
-		if (skipEnabledFeatures.contains(TARGET_FEATURE)) {
+		if (skipEnabledFeatures.contains(featureName) || skipEnabledFeatures.contains("ALL_MAPPED")) {
 			String skipMessage = String.format(
-					" CONDITIONAL SKIP: Scenario '%s' skipped because all profiles are already mapped with BIC profiles. "
+					"CONDITIONAL SKIP: Scenario '%s' skipped because all profiles are already mapped with BIC profiles. "
 							+ "No unmapped jobs available for manual mapping in this test run.",
 					scenarioName);
 
 			LOGGER.warn(skipMessage);
-			PageObjectHelper.log(LOGGER, " " + skipMessage);
+			PageObjectHelper.log(LOGGER, skipMessage);
 
 			// Skip this scenario
 			throw new SkipException(skipMessage);
@@ -77,71 +78,72 @@ public class ConditionalScenarioSkip {
 		String scenarioName = scenario.getName();
 		String featureName = extractFeatureName(scenario.getUri().toString());
 
-		// Only monitor the first scenario in the target feature
-		if (!featureName.equals(TARGET_FEATURE)) {
+		// Only monitor scenarios in target features (Feature 20 and 21)
+		if (!isTargetFeature(featureName)) {
 			return;
 		}
 
-		// Check if this was the sorting/checking scenario
+		// Check if this was the sorting/checking scenario (first scenario in Feature 20)
 		if (scenarioName.toLowerCase().contains("descending") || scenarioName.toLowerCase().contains("sorting")
-				|| scenarioName.toLowerCase().contains("bic mapping")) {
+				|| scenarioName.toLowerCase().contains("bic mapping") || scenarioName.toLowerCase().contains("no bic")) {
 
-			// This scenario should have detected the condition
-			// The actual detection happens through monitoring logs/static flags
-			// Let's check if the condition was detected
+			// Check if the condition was detected via the mapSP flag
 			boolean allMapped = checkIfAllProfilesMapped();
 
 			if (allMapped) {
-				// Enable skip for all remaining scenarios in this feature
-				skipEnabledFeatures.add(TARGET_FEATURE);
+				// Enable skip for all remaining scenarios in Feature 20 and 21
+				skipEnabledFeatures.add(TARGET_FEATURE_20);
+				skipEnabledFeatures.add(TARGET_FEATURE_21);
+				skipEnabledFeatures.add("ALL_MAPPED"); // Global flag
 
-				String message = String.format(" SKIP CONDITION DETECTED: All profiles are mapped with BIC profiles. "
-						+ "All remaining scenarios in '%s' will be skipped.", TARGET_FEATURE);
+				String message = String.format("SKIP CONDITION DETECTED: All profiles are mapped with BIC profiles. "
+						+ "All remaining scenarios in Feature 20 and 21 will be skipped.");
 
 				LOGGER.warn(message);
-				PageObjectHelper.log(LOGGER, " " + message);
+				PageObjectHelper.log(LOGGER, message);
 
 				// Log which scenarios will be skipped
-				LOGGER.info(" SCENARIOS TO BE SKIPPED:");
-				LOGGER.info("    Click on Find Match button and Search for SP in Manual Mapping screen");
-				LOGGER.info("    Validate and Manually Map SP to Organization Job in Auto AI");
-				LOGGER.info("    Verify details of SP which is Mapped to Organization Job");
-				LOGGER.info("    Validate content in manually mapped Job profile details popup");
+				LOGGER.info(" SCENARIOS TO BE SKIPPED in Feature 20:");
+				LOGGER.info("    - Click on Find Match button and Search for SP in Manual Mapping screen");
+				LOGGER.info("    - Validate and Manually Map SP to Organization Job in Auto AI");
+				LOGGER.info(" SCENARIOS TO BE SKIPPED in Feature 21:");
+				LOGGER.info("    - All scenarios related to mapping different SP to profile");
 				LOGGER.info(" SCENARIOS THAT WILL STILL EXECUTE:");
-				LOGGER.info(
-						"    Close the Browser after Validation (@CloseBrowser scenarios always execute for cleanup)");
+				LOGGER.info("    - @CloseBrowser scenarios (always execute for cleanup)");
 				PageObjectHelper.log(LOGGER, 
-						" Remaining functional scenarios will be skipped, but cleanup scenarios will still execute");
+						"Remaining functional scenarios will be skipped, but cleanup scenarios will still execute");
 
 			} else {
 				LOGGER.info(" PROFILES AVAILABLE: Found unmapped profiles - manual mapping scenarios will proceed");
-				PageObjectHelper.log(LOGGER, " Found unmapped profiles - proceeding with manual mapping tests");
+				PageObjectHelper.log(LOGGER, "Found unmapped profiles - proceeding with manual mapping tests");
 			}
 		}
 	}
 
 	/**
 	 * Check if all profiles are mapped by looking for the static flag set by
-	 * ManualMappingofSPinAutoAI This integrates with your existing code without any
-	 * modifications
+	 * PO21_MapDifferentSPtoProfileInAutoAI.mapSP ThreadLocal variable.
+	 * This integrates with your existing code without any modifications.
 	 */
 	private boolean checkIfAllProfilesMapped() {
 		try {
-			// Access the static flag set by MapDifferentSPtoProfileInAutoAI class
+			// Access the ThreadLocal flag set by PO21_MapDifferentSPtoProfileInAutoAI class
 			// This flag is set to false when all profiles are mapped
-			Class<?> mapClass = Class.forName("com.kfonetalentsuite.pageobjects.MapDifferentSPtoProfileInAutoAI");
+			Class<?> mapClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO21_MapDifferentSPtoProfileInAutoAI");
 			java.lang.reflect.Field mapSPField = mapClass.getDeclaredField("mapSP");
 			mapSPField.setAccessible(true);
-			Boolean mapSPValue = (Boolean) mapSPField.get(null);
+			
+			@SuppressWarnings("unchecked")
+			ThreadLocal<Boolean> mapSPThreadLocal = (ThreadLocal<Boolean>) mapSPField.get(null);
+			Boolean mapSPValue = mapSPThreadLocal.get();
 
-			// If mapSP is false, it means all profiles are mapped
-			boolean allMapped = (mapSPValue != null && !mapSPValue);
+			// If mapSP is false (or null), it means all profiles are mapped
+			boolean allMapped = (mapSPValue == null || !mapSPValue);
 
 			if (allMapped) {
-				LOGGER.info(" CONDITION CHECK: MapDifferentSPtoProfileInAutoAI.mapSP = false (All profiles mapped)");
+				LOGGER.info("CONDITION CHECK: PO21_MapDifferentSPtoProfileInAutoAI.mapSP = {} (All profiles mapped)", mapSPValue);
 			} else {
-				LOGGER.info(
-						" CONDITION CHECK: MapDifferentSPtoProfileInAutoAI.mapSP = true (Unmapped profiles available)");
+				LOGGER.info("CONDITION CHECK: PO21_MapDifferentSPtoProfileInAutoAI.mapSP = true (Unmapped profiles available)");
 			}
 
 			return allMapped;
@@ -153,13 +155,21 @@ public class ConditionalScenarioSkip {
 	}
 
 	/**
+	 * Check if the feature is one of the target features (Feature 20 or 21)
+	 */
+	private boolean isTargetFeature(String featureName) {
+		return TARGET_FEATURE_20.equals(featureName) || TARGET_FEATURE_21.equals(featureName)
+				|| featureName.contains("ManualMapping") || featureName.contains("MapDifferentSP");
+	}
+
+	/**
 	 * Check if scenario is a browser cleanup scenario that should always execute
 	 */
 	private boolean isCloseBrowserScenario(Scenario scenario) {
 		// Check if scenario has @CloseBrowser tag
 		return scenario.getSourceTagNames().contains("@CloseBrowser")
-				|| scenario.getName().toLowerCase().contains("close")
-						&& scenario.getName().toLowerCase().contains("browser");
+				|| (scenario.getName().toLowerCase().contains("close")
+						&& scenario.getName().toLowerCase().contains("browser"));
 	}
 
 	/**

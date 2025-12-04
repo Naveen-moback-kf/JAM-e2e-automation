@@ -1,30 +1,31 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
-
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
-	WebDriver driver = DriverManager.getDriver();
+/**
+ * Page Object for validating application performance across JAM (Job Mapping) and HCM screens.
+ * Measures and validates performance metrics for various operations including:
+ * - Page load times
+ * - Search operations
+ * - Filter operations
+ * - Scroll and lazy loading
+ * - Navigation between screens
+ * - Sorting operations
+ * - Select All operations
+ * - HCM Sync operations
+ */
+public class PO41_ValidateApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
+	private static final Logger LOGGER = LogManager.getLogger(PO41_ValidateApplicationPerformance_JAM_and_HCM.class);
 
 	// Performance thresholds (in milliseconds)
 	// NOTE: These thresholds should be adjusted based on your application's
@@ -32,8 +33,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	// Run multiple tests to establish average load times, then set threshold =
 	// average + 20% buffer
 	// Current threshold is set based on initial test runs - adjust as needed
-	private static final long PAGE_LOAD_THRESHOLD_MS = 12000; // 12 seconds for page load (updated based on actual
-																// performance)
+	private static final long PAGE_LOAD_THRESHOLD_MS = 12000; // 12 seconds for page load (updated based on actual performance)
 	private static final long SEARCH_THRESHOLD_MS = 6000; // 6 seconds for search operation
 	private static final long CLEAR_SEARCH_THRESHOLD_MS = 9000; // 9 seconds for clear search operation
 	private static final long SINGLE_FILTER_THRESHOLD_MS = 9000; // 9 seconds for single filter application
@@ -47,273 +47,217 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	private static final long HCM_PAGE_LOAD_THRESHOLD_MS = 10000; // 10 seconds for HCM page load
 	private static final long SYNC_OPERATION_THRESHOLD_MS = 10000; // 10 seconds for sync operation
 
+	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
 	// Performance metrics storage
-	private static long pageLoadStartTime = 0;
-	private static long pageLoadEndTime = 0;
-	private static long totalPageLoadTime = 0;
+	private static ThreadLocal<Long> pageLoadStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> pageLoadEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalPageLoadTime = ThreadLocal.withInitial(() -> 0L);
 
-	private static long searchStartTime = 0;
-	private static long searchEndTime = 0;
-	private static long totalSearchTime = 0;
+	private static ThreadLocal<Long> searchStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> searchEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalSearchTime = ThreadLocal.withInitial(() -> 0L);
 
-	private static long clearSearchStartTime = 0;
-	private static long clearSearchEndTime = 0;
-	private static long totalClearSearchTime = 0;
+	private static ThreadLocal<Long> clearSearchStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> clearSearchEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalClearSearchTime = ThreadLocal.withInitial(() -> 0L);
 
-	private static long filterDropdownOpenStartTime = 0;
-	private static long filterDropdownOpenEndTime = 0;
-	private static long totalFilterDropdownOpenTime = 0;
+	private static ThreadLocal<Long> filterDropdownOpenStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> filterDropdownOpenEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalFilterDropdownOpenTime = ThreadLocal.withInitial(() -> 0L);
 
-	private static long singleFilterStartTime = 0;
-	private static long singleFilterEndTime = 0;
-	private static long totalSingleFilterTime = 0;
+	private static ThreadLocal<Long> singleFilterStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> singleFilterEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalSingleFilterTime = ThreadLocal.withInitial(() -> 0L);
 
-	private static long multipleFiltersStartTime = 0;
-	private static long multipleFiltersEndTime = 0;
-	private static long totalMultipleFiltersTime = 0;
+	private static ThreadLocal<Long> multipleFiltersStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> multipleFiltersEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalMultipleFiltersTime = ThreadLocal.withInitial(() -> 0L);
 
-	private static long clearFiltersStartTime = 0;
-	private static long clearFiltersEndTime = 0;
-	private static long totalClearFiltersTime = 0;
+	private static ThreadLocal<Long> clearFiltersStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> clearFiltersEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalClearFiltersTime = ThreadLocal.withInitial(() -> 0L);
 
 	// Search related variables
-	private static String searchKeyword = "";
-	private static int resultsCountBeforeSearch = 0;
-	private static int resultsCountAfterSearch = 0;
-	private static int resultsCountAfterClear = 0;
+	private static ThreadLocal<String> searchKeyword = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<Integer> resultsCountBeforeSearch = ThreadLocal.withInitial(() -> 0);
+	private static ThreadLocal<Integer> resultsCountAfterSearch = ThreadLocal.withInitial(() -> 0);
+	private static ThreadLocal<Integer> resultsCountAfterClear = ThreadLocal.withInitial(() -> 0);
 
 	// Filter related variables
-	private static String appliedFilterType = "";
-	private static String appliedFilterValue = "";
-	private static int resultsCountBeforeFilter = 0;
-	private static int resultsCountAfterFilter = 0;
-	private static int resultsCountAfterClearFilters = 0;
-	private static int numberOfFiltersApplied = 0;
+	private static ThreadLocal<String> appliedFilterType = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> appliedFilterValue = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<Integer> resultsCountBeforeFilter = ThreadLocal.withInitial(() -> 0);
+	private static ThreadLocal<Integer> resultsCountAfterFilter = ThreadLocal.withInitial(() -> 0);
+	private static ThreadLocal<Integer> resultsCountAfterClearFilters = ThreadLocal.withInitial(() -> 0);
+	private static ThreadLocal<Integer> numberOfFiltersApplied = ThreadLocal.withInitial(() -> 0);
 
 	// Scroll and lazy load related variables
-	private static long totalScrollTime = 0;
-	private static long scrollStartTime = 0;
-	private static long scrollEndTime = 0;
-	private static int totalScrolls = 0;
-	private static int initialProfileCount = 0;
-	private static int finalProfileCount = 0;
-	private static java.util.List<Long> lazyLoadTimes = new java.util.ArrayList<>();
-	private static long avgLazyLoadTime = 0;
+	private static ThreadLocal<Long> totalScrollTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> scrollStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> scrollEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Integer> totalScrolls = ThreadLocal.withInitial(() -> 0);
+	private static ThreadLocal<Integer> initialProfileCount = ThreadLocal.withInitial(() -> 0);
+	private static ThreadLocal<Integer> finalProfileCount = ThreadLocal.withInitial(() -> 0);
+	private static ThreadLocal<java.util.List<Long>> lazyLoadTimes = ThreadLocal.withInitial(java.util.ArrayList::new);
+	private static ThreadLocal<Long> avgLazyLoadTime = ThreadLocal.withInitial(() -> 0L);
 
 	// Navigation related variables
-	private static long navigationToComparisonStartTime = 0;
-	private static long navigationToComparisonEndTime = 0;
-	private static long totalNavigationToComparisonTime = 0;
-	private static long navigationBackToMappingStartTime = 0;
-	private static long navigationBackToMappingEndTime = 0;
-	private static long totalNavigationBackToMappingTime = 0;
+	private static ThreadLocal<Long> navigationToComparisonStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> navigationToComparisonEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalNavigationToComparisonTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> navigationBackToMappingStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> navigationBackToMappingEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalNavigationBackToMappingTime = ThreadLocal.withInitial(() -> 0L);
 
 	// Sort related variables
-	private static long sortByJobTitleStartTime = 0;
-	private static long sortByJobTitleEndTime = 0;
-	private static long totalSortByJobTitleTime = 0;
-	private static long sortByGradeStartTime = 0;
-	private static long sortByGradeEndTime = 0;
-	private static long totalSortByGradeTime = 0;
+	private static ThreadLocal<Long> sortByJobTitleStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> sortByJobTitleEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalSortByJobTitleTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> sortByGradeStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> sortByGradeEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalSortByGradeTime = ThreadLocal.withInitial(() -> 0L);
 
 	// Select All related variables
-	private static long chevronClickStartTime = 0;
-	private static long chevronClickEndTime = 0;
-	private static long totalChevronClickTime = 0;
-	private static long selectAllClickStartTime = 0;
-	private static long selectAllClickEndTime = 0;
-	private static long totalSelectAllClickTime = 0;
-	private static int profilesCountAfterSelectAll = 0;
+	private static ThreadLocal<Long> chevronClickStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> chevronClickEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalChevronClickTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> selectAllClickStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> selectAllClickEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalSelectAllClickTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Integer> profilesCountAfterSelectAll = ThreadLocal.withInitial(() -> 0);
 
 	// HCM Page Load related variables
-	private static long hcmPageLoadStartTime = 0;
-	private static long hcmPageLoadEndTime = 0;
-	private static long totalHCMPageLoadTime = 0;
-	private static int hcmProfilesCount = 0;
+	private static ThreadLocal<Long> hcmPageLoadStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> hcmPageLoadEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalHCMPageLoadTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Integer> hcmProfilesCount = ThreadLocal.withInitial(() -> 0);
 
 	// HCM Sync related variables
-	private static long syncClickStartTime = 0;
-	private static long syncClickEndTime = 0;
-	private static long totalSyncClickTime = 0;
-	private static long syncProcessStartTime = 0;
-	private static long syncProcessEndTime = 0;
-	private static long totalSyncProcessTime = 0;
-	private static int selectedProfilesCountBeforeSync = 0;
+	private static ThreadLocal<Long> syncClickStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> syncClickEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalSyncClickTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> syncProcessStartTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> syncProcessEndTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Long> totalSyncProcessTime = ThreadLocal.withInitial(() -> 0L);
+	private static ThreadLocal<Integer> selectedProfilesCountBeforeSync = ThreadLocal.withInitial(() -> 0);
 
 	// Navigation helper variables
-	private static int rowNumberForViewOtherMatches = 0;
-	private static String jobNameForComparison = "";
+	private static ThreadLocal<Integer> rowNumberForViewOtherMatches = ThreadLocal.withInitial(() -> 0);
+	private static ThreadLocal<String> jobNameForComparison = ThreadLocal.withInitial(() -> "");
 
-	public PO41_ValidateApplicationPerformance_JAM_and_HCM() throws IOException {
-		PageFactory.initElements(driver, this);
+	// Locators (static final By for better performance and thread safety)
+	private static final By JAM_LOGO = By.xpath("//div[@id='header-logo']");
+	private static final By JOB_MAPPING_PAGE_CONTAINER = By.xpath("//div[@id='org-job-container']");
+	private static final By PAGE_TITLE_HEADER = By.xpath("//div[@id='page-heading']//h1");
+	private static final By PAGE_TITLE_DESC = By.xpath("//div[@id='page-title']//p[1]");
+	private static final By SEARCH_BAR = By.xpath("//input[contains(@id,'search-job-title')]");
+	// Locators.JobMappingResults.SHOWING_JOB_RESULTS is available via Locators.JobMappingResults.SHOWING_JOB_RESULTS
+	private static final By FILTERS_DROPDOWN_BUTTON = By.xpath("//button[@id='filters-btn']");
+	
+	// Navigation XPaths (Job Comparison)
+	private static final By JOB_COMPARISON_HEADER = By.xpath("//h1[@id='compare-desc']");
+	
+	// Sort XPaths
+	private static final By ORG_JOB_NAME_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[2]/div");
+	private static final By ORG_JOB_GRADE_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div");
+	
+	// Select All XPaths (Job Mapping)
+	private static final By CHEVRON_BTN_IN_JAM = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]");
+	// SELECT_ALL_BTN is available via Locators.Table.SELECT_ALL_BTN
+	
+	// KFONE Global Menu XPaths
+	// KFONE_MENU is available via Locators.Navigation.GLOBAL_NAV_MENU_BTN
+	private static final By KFONE_MENU_PM_BTN = By.xpath("//span[@aria-label='Profile Manager']");
+	
+	// HCM Navigation XPaths
+	private static final By PROFILE_MANAGER_HEADER = By.xpath("//h1[contains(text(),'Profile Manager')]");
+	private static final By HCM_SYNC_PROFILES_HEADER_TAB = By.xpath("//span[contains(text(),'HCM Sync Profiles')]");
+	private static final By HCM_SYNC_PROFILES_TITLE = By.xpath("//h1[contains(text(),'Sync Profiles')]");
+	
+	// HCM Sync XPaths
+	private static final By HCM_TABLE_HEADER_CHECKBOX = By.xpath("//thead//tr//div//kf-checkbox");
+	private static final By SYNC_WITH_HCM_BTN = By.xpath("//button[contains(@class,'custom-export')]");
+	private static final By SYNC_SUCCESS_POPUP_TEXT = By.xpath("//div[@class='p-toast-detail']");
+	private static final By SYNC_SUCCESS_POPUP_CLOSE_BTN = By.xpath("//button[contains(@class,'p-toast-icon-close')]");
+	
+	// Additional common locators
+	private static final By FIRST_PROFILE_ELEMENT = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
+	private static final By PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr//td[2]//div[contains(text(),'(')]");
+	private static final By ALL_CHECKBOXES = By.xpath("//div[@id='org-job-container']//tbody//tr//td[1]//input[@type='checkbox']");
+	private static final By HCM_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing')]");
+	private static final By HCM_PROFILE_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
+
+	public PO41_ValidateApplicationPerformance_JAM_and_HCM() {
+		super();
 	}
 
-	WebDriverWait wait = DriverManager.getWait();
-	Utilities utils = new Utilities();
-	JavascriptExecutor js = (JavascriptExecutor) driver;
-
-	// XPATHs
-	@FindBy(xpath = "//*[@class='blocking-loader']//img")
-	@CacheLookup
-	WebElement pageLoadSpinner1;
-
-	@FindBy(xpath = "//div[@data-testid='loader']//img")
-	@CacheLookup
-	WebElement pageLoadSpinner2;
-
-	@FindBy(xpath = "//div[@id='header-logo']")
-	@CacheLookup
-	public WebElement JAMLogo;
-
-	@FindBy(xpath = "//div[@id='org-job-container']")
-	@CacheLookup
-	public WebElement jobMappingPageContainer;
-
-	@FindBy(xpath = "//div[@id='page-heading']//h1")
-	@CacheLookup
-	public WebElement pageTitleHeader;
-
-	@FindBy(xpath = "//div[@id='page-title']//p[1]")
-	@CacheLookup
-	public WebElement pageTitleDesc;
-
-	@FindBy(xpath = "//input[contains(@id,'search-job-title')]")
-	@CacheLookup
-	public WebElement searchBar;
-
-	@FindBy(xpath = "//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]")
-	@CacheLookup
-	public WebElement showingJobResultsCount;
-
-	@FindBy(xpath = "//button[@id='filters-btn']")
-	@CacheLookup
-	public WebElement filtersDropdownButton;
-
-	// Navigation XPaths (Job Comparison)
-	// Note: Job Comparison is accessed via "View Other Matches" button on a profile
-
-	@FindBy(xpath = "//h1[@id='compare-desc']")
-	public WebElement jobComparisonHeader;
-
-	// Sort XPaths (from PO17)
-	@FindBy(xpath = "//*[@id='org-job-container']/div/table/thead/tr/th[2]/div")
-	public WebElement orgJobNameHeader;
-
-	@FindBy(xpath = "//*[@id='org-job-container']/div/table/thead/tr/th[3]/div")
-	public WebElement orgJobGradeHeader;
-
-	@FindBy(xpath = "//button[@data-testid='Clear Filters']")
-	@CacheLookup
-	public WebElement clearFiltersBtn;
-
-	// Select All XPaths (Job Mapping)
-	@FindBy(xpath = "//th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]")
-	public WebElement chevronBtninJAM;
-
-	@FindBy(xpath = "//*[contains(text(),'Select All')]")
-	public WebElement selectAllBtn;
-
-	// KFONE Global Menu XPaths
-	@FindBy(xpath = "//button[@id='global-nav-menu-btn']")
-	@CacheLookup
-	public WebElement KfoneMenu;
-
-	@FindBy(xpath = "//span[@aria-label='Profile Manager']")
-	@CacheLookup
-	public WebElement KfoneMenuPMBtn;
-
-	// HCM Navigation XPaths
-	@FindBy(xpath = "//h1[contains(text(),'Profile Manager')]")
-	public WebElement profileManagerHeader;
-
-	@FindBy(xpath = "//span[contains(text(),'HCM Sync Profiles')]")
-	public WebElement hcmSyncProfilesHeaderTab;
-
-	@FindBy(xpath = "//h1[contains(text(),'Sync Profiles')]")
-	public WebElement hcmSyncProfilesTitle;
-
-	// HCM Sync XPaths
-	@FindBy(xpath = "//thead//tr//div//kf-checkbox")
-	public WebElement hcmTableHeaderCheckbox;
-
-	@FindBy(xpath = "//button[contains(@class,'custom-export')]")
-	public WebElement syncWithHCMBtn;
-
-	@FindBy(xpath = "//div[@class='p-toast-detail']")
-	public WebElement syncSuccessPopupText;
-
-	@FindBy(xpath = "//button[contains(@class,'p-toast-icon-close')]")
-	public WebElement syncSuccessPopupCloseBtn;
-
 	/**
-	 * Measures the time taken to load Job Mapping page Captures both navigation
-	 * time and page ready time
+	 * Measures the time taken to load Job Mapping page.
+	 * Captures both navigation time and page ready time.
 	 */
 	public void user_measures_the_time_taken_to_load_job_mapping_page() {
 		try {
 			// Start measuring
-			pageLoadStartTime = System.currentTimeMillis();
+			pageLoadStartTime.set(System.currentTimeMillis());
 
 			// Wait for page to be fully loaded
 			try {
-				wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner1, pageLoadSpinner2));
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			} catch (Exception e) {
 				// Spinners not found or already invisible
 			}
 
 			PerformanceUtils.waitForPageReady(driver, 3);
-			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='org-job-container']")));
-			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='header-logo']")));
+			wait.until(ExpectedConditions.presenceOfElementLocated(JOB_MAPPING_PAGE_CONTAINER));
+			wait.until(ExpectedConditions.presenceOfElementLocated(JAM_LOGO));
 
 			// End measuring
-			pageLoadEndTime = System.currentTimeMillis();
-			totalPageLoadTime = pageLoadEndTime - pageLoadStartTime;
+			pageLoadEndTime.set(System.currentTimeMillis());
+			totalPageLoadTime.set(pageLoadEndTime.get() - pageLoadStartTime.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_page_load_time_failed", e);
-			LOGGER.error(" Failed to measure page load time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure page load time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates that page load time is within acceptable threshold Fails the test
-	 * if performance is below expectations
+	 * Validates that page load time is within acceptable threshold.
+	 * Fails the test if performance is below expectations.
 	 */
 	public void user_validates_page_load_time_is_within_acceptable_threshold() {
 		try {
-			validateThreshold(totalPageLoadTime, PAGE_LOAD_THRESHOLD_MS, "Page Load", "page_load");
+			validateThreshold(totalPageLoadTime.get(), PAGE_LOAD_THRESHOLD_MS, "Page Load", "page_load");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_page_load_threshold_failed", e);
-			LOGGER.error(" Failed to validate page load threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate page load threshold: " + e.getMessage());
 			Assert.fail("Failed to validate page load threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies that all critical page components are loaded correctly Validates
-	 * presence and visibility of key UI elements
+	 * Verifies that all critical page components are loaded correctly.
+	 * Validates presence and visibility of key UI elements.
 	 */
 	public void user_verifies_all_critical_page_components_are_loaded() {
 		try {
 			int totalComponents = 7;
 			int loadedComponents = 0;
 
-			// Verify critical components
-			if (verifyComponent("Logo", JAMLogo))
+			// Verify critical components using By locators
+			if (verifyComponentByLocator("Logo", JAM_LOGO))
 				loadedComponents++;
-			if (verifyComponent("Container", jobMappingPageContainer))
+			if (verifyComponentByLocator("Container", JOB_MAPPING_PAGE_CONTAINER))
 				loadedComponents++;
-			if (verifyComponent("Title", pageTitleHeader))
+			if (verifyComponentByLocator("Title", PAGE_TITLE_HEADER))
 				loadedComponents++;
-			if (verifyComponent("Description", pageTitleDesc))
+			if (verifyComponentByLocator("Description", PAGE_TITLE_DESC))
 				loadedComponents++;
-			if (verifyComponent("Search", searchBar))
+			if (verifyComponentByLocator("Search", SEARCH_BAR))
 				loadedComponents++;
-			if (verifyComponent("Results Count", showingJobResultsCount))
+			if (verifyComponentByLocator("Results Count", Locators.JobMappingResults.SHOWING_JOB_RESULTS))
 				loadedComponents++;
-			if (verifyComponent("Filters", filtersDropdownButton))
+			if (verifyComponentByLocator("Filters", FILTERS_DROPDOWN_BUTTON))
 				loadedComponents++;
 
 			// Summary
@@ -329,17 +273,17 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_critical_components_failed", e);
-			LOGGER.error(" Failed to verify critical components", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify critical components: " + e.getMessage());
 			Assert.fail("Failed to verify critical components: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Helper method to verify individual component
+	 * Helper method to verify individual component by locator.
 	 */
-	private boolean verifyComponent(String componentName, WebElement element) {
+	private boolean verifyComponentByLocator(String componentName, By locator) {
 		try {
+			WebElement element = driver.findElement(locator);
 			return element != null && element.isDisplayed();
 		} catch (Exception e) {
 			LOGGER.warn(" " + componentName + " not found");
@@ -403,7 +347,6 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	private void validateThreshold(long actualTime, long threshold, String operationName, String screenshotPrefix) {
 		if (actualTime == 0) {
 			String errorMsg = " TECHNICAL FAILURE: " + operationName + " time was not measured";
-			LOGGER.error(errorMsg);
 			PageObjectHelper.log(LOGGER, errorMsg);
 			Assert.fail(errorMsg);
 		}
@@ -444,80 +387,81 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	}
 
 	/**
-	 * Reset performance metrics for next test
+	 * Reset performance metrics for next test.
+	 * Uses ThreadLocal.remove() to clear values for the current thread.
 	 */
 	public static void resetPerformanceMetrics() {
-		pageLoadStartTime = 0;
-		pageLoadEndTime = 0;
-		totalPageLoadTime = 0;
-		searchStartTime = 0;
-		searchEndTime = 0;
-		totalSearchTime = 0;
-		clearSearchStartTime = 0;
-		clearSearchEndTime = 0;
-		totalClearSearchTime = 0;
-		filterDropdownOpenStartTime = 0;
-		filterDropdownOpenEndTime = 0;
-		totalFilterDropdownOpenTime = 0;
-		singleFilterStartTime = 0;
-		singleFilterEndTime = 0;
-		totalSingleFilterTime = 0;
-		multipleFiltersStartTime = 0;
-		multipleFiltersEndTime = 0;
-		totalMultipleFiltersTime = 0;
-		clearFiltersStartTime = 0;
-		clearFiltersEndTime = 0;
-		totalClearFiltersTime = 0;
-		searchKeyword = "";
-		resultsCountBeforeSearch = 0;
-		resultsCountAfterSearch = 0;
-		resultsCountAfterClear = 0;
-		appliedFilterType = "";
-		appliedFilterValue = "";
-		resultsCountBeforeFilter = 0;
-		resultsCountAfterFilter = 0;
-		resultsCountAfterClearFilters = 0;
-		numberOfFiltersApplied = 0;
-		totalScrollTime = 0;
-		scrollStartTime = 0;
-		scrollEndTime = 0;
-		totalScrolls = 0;
-		initialProfileCount = 0;
-		finalProfileCount = 0;
-		lazyLoadTimes.clear();
-		avgLazyLoadTime = 0;
-		navigationToComparisonStartTime = 0;
-		navigationToComparisonEndTime = 0;
-		totalNavigationToComparisonTime = 0;
-		navigationBackToMappingStartTime = 0;
-		navigationBackToMappingEndTime = 0;
-		totalNavigationBackToMappingTime = 0;
-		sortByJobTitleStartTime = 0;
-		sortByJobTitleEndTime = 0;
-		totalSortByJobTitleTime = 0;
-		sortByGradeStartTime = 0;
-		sortByGradeEndTime = 0;
-		totalSortByGradeTime = 0;
-		chevronClickStartTime = 0;
-		chevronClickEndTime = 0;
-		totalChevronClickTime = 0;
-		selectAllClickStartTime = 0;
-		selectAllClickEndTime = 0;
-		totalSelectAllClickTime = 0;
-		profilesCountAfterSelectAll = 0;
-		hcmPageLoadStartTime = 0;
-		hcmPageLoadEndTime = 0;
-		totalHCMPageLoadTime = 0;
-		hcmProfilesCount = 0;
-		syncClickStartTime = 0;
-		syncClickEndTime = 0;
-		totalSyncClickTime = 0;
-		syncProcessStartTime = 0;
-		syncProcessEndTime = 0;
-		totalSyncProcessTime = 0;
-		selectedProfilesCountBeforeSync = 0;
-		rowNumberForViewOtherMatches = 0;
-		jobNameForComparison = "";
+		pageLoadStartTime.remove();
+		pageLoadEndTime.remove();
+		totalPageLoadTime.remove();
+		searchStartTime.remove();
+		searchEndTime.remove();
+		totalSearchTime.remove();
+		clearSearchStartTime.remove();
+		clearSearchEndTime.remove();
+		totalClearSearchTime.remove();
+		filterDropdownOpenStartTime.remove();
+		filterDropdownOpenEndTime.remove();
+		totalFilterDropdownOpenTime.remove();
+		singleFilterStartTime.remove();
+		singleFilterEndTime.remove();
+		totalSingleFilterTime.remove();
+		multipleFiltersStartTime.remove();
+		multipleFiltersEndTime.remove();
+		totalMultipleFiltersTime.remove();
+		clearFiltersStartTime.remove();
+		clearFiltersEndTime.remove();
+		totalClearFiltersTime.remove();
+		searchKeyword.remove();
+		resultsCountBeforeSearch.remove();
+		resultsCountAfterSearch.remove();
+		resultsCountAfterClear.remove();
+		appliedFilterType.remove();
+		appliedFilterValue.remove();
+		resultsCountBeforeFilter.remove();
+		resultsCountAfterFilter.remove();
+		resultsCountAfterClearFilters.remove();
+		numberOfFiltersApplied.remove();
+		totalScrollTime.remove();
+		scrollStartTime.remove();
+		scrollEndTime.remove();
+		totalScrolls.remove();
+		initialProfileCount.remove();
+		finalProfileCount.remove();
+		lazyLoadTimes.get().clear();
+		avgLazyLoadTime.remove();
+		navigationToComparisonStartTime.remove();
+		navigationToComparisonEndTime.remove();
+		totalNavigationToComparisonTime.remove();
+		navigationBackToMappingStartTime.remove();
+		navigationBackToMappingEndTime.remove();
+		totalNavigationBackToMappingTime.remove();
+		sortByJobTitleStartTime.remove();
+		sortByJobTitleEndTime.remove();
+		totalSortByJobTitleTime.remove();
+		sortByGradeStartTime.remove();
+		sortByGradeEndTime.remove();
+		totalSortByGradeTime.remove();
+		chevronClickStartTime.remove();
+		chevronClickEndTime.remove();
+		totalChevronClickTime.remove();
+		selectAllClickStartTime.remove();
+		selectAllClickEndTime.remove();
+		totalSelectAllClickTime.remove();
+		profilesCountAfterSelectAll.remove();
+		hcmPageLoadStartTime.remove();
+		hcmPageLoadEndTime.remove();
+		totalHCMPageLoadTime.remove();
+		hcmProfilesCount.remove();
+		syncClickStartTime.remove();
+		syncClickEndTime.remove();
+		totalSyncClickTime.remove();
+		syncProcessStartTime.remove();
+		syncProcessEndTime.remove();
+		totalSyncProcessTime.remove();
+		selectedProfilesCountBeforeSync.remove();
+		rowNumberForViewOtherMatches.remove();
+		jobNameForComparison.remove();
 		LOGGER.debug("Performance metrics reset for next test");
 	}
 
@@ -526,99 +470,95 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	// ========================================
 
 	/**
-	 * Validates user is on Job Mapping page with loaded profiles Ensures page is
-	 * ready for search performance testing
+	 * Validates user is on Job Mapping page with loaded profiles.
+	 * Ensures page is ready for search performance testing.
 	 */
 	public void user_is_on_job_mapping_page_with_loaded_profiles() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
-			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='org-job-container']")));
-			wait.until(ExpectedConditions.elementToBeClickable(searchBar));
+			wait.until(ExpectedConditions.presenceOfElementLocated(JOB_MAPPING_PAGE_CONTAINER));
+			wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BAR));
 
-			String resultsText = showingJobResultsCount.getText().trim();
-			resultsCountBeforeSearch = extractResultsCount(resultsText);
+			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			resultsCountBeforeSearch.set(extractResultsCount(resultsText));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("job_mapping_page_not_ready", e);
-			LOGGER.error(" Job Mapping page not ready", e);
 			PageObjectHelper.log(LOGGER, " Job Mapping page not ready: " + e.getMessage());
 			Assert.fail("Job Mapping page not ready: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Measures time to perform search with dynamic keyword Extracts a job name
-	 * substring from visible profiles and performs search
+	 * Measures time to perform search with dynamic keyword.
+	 * Extracts a job name substring from visible profiles and performs search.
 	 */
 	public void user_measures_time_to_perform_search_with_dynamic_keyword() {
 		try {
 			// Extract dynamic search keyword
-			wait.until(ExpectedConditions
-					.presenceOfElementLocated(By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]")));
-			var firstProfileElement = driver.findElement(By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]"));
+			wait.until(ExpectedConditions.presenceOfElementLocated(FIRST_PROFILE_ELEMENT));
+			WebElement firstProfileElement = findElement(FIRST_PROFILE_ELEMENT);
 			String fullJobName = firstProfileElement.getText().trim();
 
 			if (fullJobName.length() >= 3) {
-				searchKeyword = fullJobName.substring(0, 3);
+				searchKeyword.set(fullJobName.substring(0, 3));
 			} else if (fullJobName.contains(" ")) {
-				searchKeyword = fullJobName.split(" ")[0];
+				searchKeyword.set(fullJobName.split(" ")[0]);
 			} else {
-				searchKeyword = fullJobName;
+				searchKeyword.set(fullJobName);
 			}
 
 			// Measure search performance
-			searchBar.clear();
-			Thread.sleep(300);
+			WebElement searchBarElement = findElement(SEARCH_BAR);
+			searchBarElement.clear();
+			safeSleep(300);
 
-			searchStartTime = System.currentTimeMillis();
-			searchBar.sendKeys(searchKeyword);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			searchStartTime.set(System.currentTimeMillis());
+			searchBarElement.sendKeys(searchKeyword.get());
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
-			Thread.sleep(500);
-			searchEndTime = System.currentTimeMillis();
-			totalSearchTime = searchEndTime - searchStartTime;
+			safeSleep(500);
+			searchEndTime.set(System.currentTimeMillis());
+			totalSearchTime.set(searchEndTime.get() - searchStartTime.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_search_time_failed", e);
-			LOGGER.error(" Failed to measure search time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure search time: " + e.getMessage());
 			Assert.fail("Failed to measure search time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates that search response time is within acceptable threshold Fails the
-	 * test if search performance is below expectations
+	 * Validates that search response time is within acceptable threshold.
+	 * Fails the test if search performance is below expectations.
 	 */
 	public void user_validates_search_response_time_is_within_acceptable_threshold() {
 		try {
-			validateThreshold(totalSearchTime, SEARCH_THRESHOLD_MS, "Search", "search");
+			validateThreshold(totalSearchTime.get(), SEARCH_THRESHOLD_MS, "Search", "search");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_search_threshold_failed", e);
-			LOGGER.error(" Failed to validate search threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate search threshold: " + e.getMessage());
 			Assert.fail("Failed to validate search threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies search results information (informational only for performance
-	 * testing) For performance tests, we don't care if search returns 0 or 100
-	 * results We only measure how FAST the search executes, not the accuracy
+	 * Verifies search results information (informational only for performance testing).
+	 * For performance tests, we don't care if search returns 0 or 100 results.
+	 * We only measure how FAST the search executes, not the accuracy.
 	 */
 	public void user_verifies_search_results_are_accurate() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 1);
 
-			String resultsText = showingJobResultsCount.getText().trim();
-			resultsCountAfterSearch = extractResultsCount(resultsText);
+			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			resultsCountAfterSearch.set(extractResultsCount(resultsText));
 
-			var visibleProfiles = driver.findElements(
-					By.xpath("//div[@id='org-job-container']//tbody//tr//td[2]//div[contains(text(),'(')]"));
+			java.util.List<WebElement> visibleProfiles = findElements(PROFILE_ROWS);
 			int matchingResults = 0;
-			String searchKeywordLower = searchKeyword.toLowerCase();
+			String searchKeywordLower = searchKeyword.get().toLowerCase();
 
 			for (WebElement profile : visibleProfiles) {
 				String jobName = profile.getText().toLowerCase();
@@ -627,43 +567,42 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				}
 			}
 
-			String accuracyMsg = String.format(" Search '%s': %d matching | %d  %d profiles", searchKeyword,
-					matchingResults, resultsCountBeforeSearch, resultsCountAfterSearch);
+			String accuracyMsg = String.format(" Search '%s': %d matching | %d  %d profiles", searchKeyword.get(),
+					matchingResults, resultsCountBeforeSearch.get(), resultsCountAfterSearch.get());
 
 			PageObjectHelper.log(LOGGER, accuracyMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_search_results_failed", e);
-			LOGGER.error(" Failed to verify search results", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify search results: " + e.getMessage());
 			Assert.fail("Failed to verify search results: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates that search suggestions appear instantly Verifies UI responsiveness
-	 * during search operation
+	 * Validates that search suggestions appear instantly.
+	 * Verifies UI responsiveness during search operation.
 	 */
 	public void user_validates_search_suggestions_appear_instantly() {
 		try {
 			long instantThreshold = 1000;
 			String responseMsg;
+			long searchTime = totalSearchTime.get();
 
-			if (totalSearchTime <= instantThreshold) {
-				responseMsg = String.format(" Search UI Responsive: %d ms (Instant)", totalSearchTime);
+			if (searchTime <= instantThreshold) {
+				responseMsg = String.format(" Search UI Responsive: %d ms (Instant)", searchTime);
 				LOGGER.info(responseMsg);
-			} else if (totalSearchTime <= SEARCH_THRESHOLD_MS) {
-				responseMsg = String.format(" Search UI Acceptable: %d ms (Not instant)", totalSearchTime);
+			} else if (searchTime <= SEARCH_THRESHOLD_MS) {
+				responseMsg = String.format(" Search UI Acceptable: %d ms (Not instant)", searchTime);
 				LOGGER.warn(responseMsg);
 			} else {
-				responseMsg = String.format(" Search UI Slow: %d ms", totalSearchTime);
+				responseMsg = String.format(" Search UI Slow: %d ms", searchTime);
 				LOGGER.error(responseMsg);
 			}
 			PageObjectHelper.log(LOGGER, responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_search_suggestions_failed", e);
-			LOGGER.error(" Failed to validate search UI responsiveness", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate search UI: " + e.getMessage());
 			Assert.fail("Failed to validate search UI: " + e.getMessage());
 		}
@@ -674,115 +613,109 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	// ==========================================
 
 	/**
-	 * Validates that user has performed search operation with filtered results
-	 * Ensures search is already performed and ready for clear operation
+	 * Validates that user has performed search operation with filtered results.
+	 * Ensures search is already performed and ready for clear operation.
 	 */
 	public void user_has_performed_search_operation_with_filtered_results() {
 		try {
-			if (searchKeyword == null || searchKeyword.isEmpty() || resultsCountAfterSearch == 0) {
+			if (searchKeyword.get() == null || searchKeyword.get().isEmpty() || resultsCountAfterSearch.get() == 0) {
 				user_is_on_job_mapping_page_with_loaded_profiles();
 				user_measures_time_to_perform_search_with_dynamic_keyword();
 			}
 
-			String currentSearchText = searchBar.getAttribute("value");
+			String currentSearchText = findElement(SEARCH_BAR).getAttribute("value");
 			if (currentSearchText == null || currentSearchText.trim().isEmpty()) {
 				String errorMsg = " Search bar is empty";
-				LOGGER.error(errorMsg);
 				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg);
 			}
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("search_not_performed", e);
-			LOGGER.error(" Failed to verify search state", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify search state: " + e.getMessage());
 			Assert.fail("Failed to verify search state: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Measures time to clear search Clears search bar and waits for all profiles to
-	 * be restored
+	 * Measures time to clear search.
+	 * Clears search bar and waits for all profiles to be restored.
 	 */
 	public void user_measures_time_to_clear_search() {
 		try {
-			wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//input[contains(@id,'search-job-title')]")));
-			WebElement searchBarFresh = driver.findElement(By.xpath("//input[contains(@id,'search-job-title')]"));
+			wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BAR));
+			WebElement searchBarFresh = findElement(SEARCH_BAR);
 
 			// Measure clear search performance
-			clearSearchStartTime = System.currentTimeMillis();
+			clearSearchStartTime.set(System.currentTimeMillis());
 
 			wait.until(ExpectedConditions.elementToBeClickable(searchBarFresh)).click();
-			Thread.sleep(200);
+			safeSleep(200);
 
-			searchBarFresh = driver.findElement(By.xpath("//input[contains(@id,'search-job-title')]"));
+			searchBarFresh = findElement(SEARCH_BAR);
 			searchBarFresh.sendKeys(org.openqa.selenium.Keys.CONTROL + "a");
-			Thread.sleep(100);
+			safeSleep(100);
 
-			searchBarFresh = driver.findElement(By.xpath("//input[contains(@id,'search-job-title')]"));
+			searchBarFresh = findElement(SEARCH_BAR);
 			searchBarFresh.sendKeys(org.openqa.selenium.Keys.DELETE);
-			Thread.sleep(100);
+			safeSleep(100);
 
-			searchBarFresh = driver.findElement(By.xpath("//input[contains(@id,'search-job-title')]"));
+			searchBarFresh = findElement(SEARCH_BAR);
 			searchBarFresh.sendKeys(org.openqa.selenium.Keys.ENTER);
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
-			Thread.sleep(500);
+			safeSleep(500);
 
-			clearSearchEndTime = System.currentTimeMillis();
-			totalClearSearchTime = clearSearchEndTime - clearSearchStartTime;
+			clearSearchEndTime.set(System.currentTimeMillis());
+			totalClearSearchTime.set(clearSearchEndTime.get() - clearSearchStartTime.get());
 
-			String resultsText = showingJobResultsCount.getText().trim();
-			resultsCountAfterClear = extractResultsCount(resultsText);
+			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			resultsCountAfterClear.set(extractResultsCount(resultsText));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_clear_search_time_failed", e);
-			LOGGER.error(" Failed to measure clear search time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure clear search time: " + e.getMessage());
 			Assert.fail("Failed to measure clear search time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates that clear search time is within acceptable threshold Fails the
-	 * test if clear search performance is below expectations
+	 * Validates that clear search time is within acceptable threshold.
+	 * Fails the test if clear search performance is below expectations.
 	 */
 	public void user_validates_clear_search_time_is_within_acceptable_threshold() {
 		try {
-			validateThreshold(totalClearSearchTime, CLEAR_SEARCH_THRESHOLD_MS, "Clear Search", "clear_search");
+			validateThreshold(totalClearSearchTime.get(), CLEAR_SEARCH_THRESHOLD_MS, "Clear Search", "clear_search");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_clear_search_threshold_failed", e);
-			LOGGER.error(" Failed to validate clear search threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate clear search threshold: " + e.getMessage());
 			Assert.fail("Failed to validate clear search threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies that all profiles are restored correctly after clearing search
-	 * Validates that profile count matches the original count before search
+	 * Verifies that all profiles are restored correctly after clearing search.
+	 * Validates that profile count matches the original count before search.
 	 */
 	public void user_verifies_all_profiles_are_restored_correctly() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 1);
 
-			WebElement searchBarFresh = wait.until(
-					ExpectedConditions.presenceOfElementLocated(By.xpath("//input[contains(@id,'search-job-title')]")));
+			WebElement searchBarFresh = wait.until(ExpectedConditions.presenceOfElementLocated(SEARCH_BAR));
 			String currentSearchText = searchBarFresh.getAttribute("value");
 			boolean isSearchBarEmpty = (currentSearchText == null || currentSearchText.trim().isEmpty());
-			boolean countsMatch = (resultsCountAfterClear == resultsCountBeforeSearch);
+			boolean countsMatch = (resultsCountAfterClear.get().equals(resultsCountBeforeSearch.get()));
 
 			String restorationMsg = String.format(" Restoration: %d  %d  %d profiles | Empty: %s | Match: %s",
-					resultsCountBeforeSearch, resultsCountAfterSearch, resultsCountAfterClear,
+					resultsCountBeforeSearch.get(), resultsCountAfterSearch.get(), resultsCountAfterClear.get(),
 					isSearchBarEmpty ? "" : "-", countsMatch ? "" : "-");
 			PageObjectHelper.log(LOGGER, restorationMsg);
 
 			if (!countsMatch) {
 				String failMsg = String.format(" Profile count mismatch: Expected %d, Actual %d",
-						resultsCountBeforeSearch, resultsCountAfterClear);
-				LOGGER.error(failMsg);
+						resultsCountBeforeSearch.get(), resultsCountAfterClear.get());
 				PageObjectHelper.log(LOGGER, failMsg);
 				ScreenshotHandler.captureFailureScreenshot("profiles_not_restored", new Exception(failMsg));
 				Assert.fail(failMsg);
@@ -790,36 +723,35 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_restoration_failed", e);
-			LOGGER.error(" Failed to verify profile restoration", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify profile restoration: " + e.getMessage());
 			Assert.fail("Failed to verify profile restoration: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates that UI remains responsive during clear operation Verifies no
-	 * freeze or lag during clear search
+	 * Validates that UI remains responsive during clear operation.
+	 * Verifies no freeze or lag during clear search.
 	 */
 	public void user_validates_ui_remains_responsive_during_clear_operation() {
 		try {
 			long instantThreshold = 1000;
 			String responseMsg;
+			long clearTime = totalClearSearchTime.get();
 
-			if (totalClearSearchTime <= instantThreshold) {
-				responseMsg = String.format(" Clear UI Responsive: %d ms (Instant)", totalClearSearchTime);
+			if (clearTime <= instantThreshold) {
+				responseMsg = String.format(" Clear UI Responsive: %d ms (Instant)", clearTime);
 				LOGGER.info(responseMsg);
-			} else if (totalClearSearchTime <= CLEAR_SEARCH_THRESHOLD_MS) {
-				responseMsg = String.format(" Clear UI Acceptable: %d ms (Not instant)", totalClearSearchTime);
+			} else if (clearTime <= CLEAR_SEARCH_THRESHOLD_MS) {
+				responseMsg = String.format(" Clear UI Acceptable: %d ms (Not instant)", clearTime);
 				LOGGER.warn(responseMsg);
 			} else {
-				responseMsg = String.format(" Clear UI Slow: %d ms", totalClearSearchTime);
+				responseMsg = String.format(" Clear UI Slow: %d ms", clearTime);
 				LOGGER.error(responseMsg);
 			}
 			PageObjectHelper.log(LOGGER, responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_clear_ui_responsiveness_failed", e);
-			LOGGER.error(" Failed to validate clear UI responsiveness", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate clear UI: " + e.getMessage());
 			Assert.fail("Failed to validate clear UI: " + e.getMessage());
 		}
@@ -830,46 +762,45 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	// =========================================
 
 	/**
-	 * Measures time to open filters dropdown
+	 * Measures time to open filters dropdown.
 	 */
 	public void user_measures_time_to_open_filters_dropdown() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
-			String resultsText = showingJobResultsCount.getText().trim();
-			resultsCountBeforeFilter = extractResultsCount(resultsText);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			resultsCountBeforeFilter.set(extractResultsCount(resultsText));
 
 			js.executeScript("window.scrollTo(0, 0);");
-			Thread.sleep(300);
+			safeSleep(300);
 
-			filterDropdownOpenStartTime = System.currentTimeMillis();
-			wait.until(ExpectedConditions.elementToBeClickable(filtersDropdownButton)).click();
+			filterDropdownOpenStartTime.set(System.currentTimeMillis());
+			wait.until(ExpectedConditions.elementToBeClickable(FILTERS_DROPDOWN_BUTTON)).click();
 			wait.until(ExpectedConditions
 					.presenceOfElementLocated(By.xpath("//div[starts-with(@data-testid,'dropdown-')]")));
-			filterDropdownOpenEndTime = System.currentTimeMillis();
-			totalFilterDropdownOpenTime = filterDropdownOpenEndTime - filterDropdownOpenStartTime;
+			filterDropdownOpenEndTime.set(System.currentTimeMillis());
+			totalFilterDropdownOpenTime.set(filterDropdownOpenEndTime.get() - filterDropdownOpenStartTime.get());
 
-			String performanceLog = String.format(" Dropdown Open: %d ms (%.2f sec)", totalFilterDropdownOpenTime,
-					totalFilterDropdownOpenTime / 1000.0);
+			String performanceLog = String.format(" Dropdown Open: %d ms (%.2f sec)", totalFilterDropdownOpenTime.get(),
+					totalFilterDropdownOpenTime.get() / 1000.0);
 			PageObjectHelper.log(LOGGER, performanceLog);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_filter_dropdown_open_failed", e);
-			LOGGER.error(" Failed to measure filter dropdown open time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure filter dropdown open time: " + e.getMessage());
 			Assert.fail("Failed to measure filter dropdown open time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Measures time to apply single filter dynamically Uses dynamic filter
-	 * selection from available filter options
+	 * Measures time to apply single filter dynamically.
+	 * Uses dynamic filter selection from available filter options.
 	 */
 	public void user_measures_time_to_apply_single_filter_dynamically() {
 		try {
 			logSectionHeader("PERFORMANCE MEASUREMENT: Apply Single Filter");
 
 			// Start measuring filter application time
-			singleFilterStartTime = System.currentTimeMillis();
+			singleFilterStartTime.set(System.currentTimeMillis());
 
 			boolean filterApplied = false;
 			// Map display names to data-testid values
@@ -887,7 +818,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 					// Look for the filter category header using data-testid
 					java.util.List<WebElement> filterHeaders = driver
-							.findElements(org.openqa.selenium.By.xpath("//div[@data-testid='" + dataTestId + "']"));
+							.findElements(By.xpath("//div[@data-testid='" + dataTestId + "']"));
 
 					if (filterHeaders.isEmpty()) {
 						LOGGER.debug(filterType + " filter not found, trying next...");
@@ -898,7 +829,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 					WebElement filterHeader = filterHeaders.get(0);
 					try {
 						WebElement parentDiv = filterHeader.findElement(
-								org.openqa.selenium.By.xpath("./ancestor::div[contains(@class,'p-4')][1]"));
+								By.xpath("./ancestor::div[contains(@class,'p-4')][1]"));
 						String parentClass = parentDiv.getAttribute("class");
 						if (parentClass != null && parentClass.contains("pointer-events-none")) {
 							LOGGER.debug(filterType + " filter is disabled, trying next...");
@@ -910,19 +841,19 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 					// Click to expand the filter category
 					filterHeader.click();
-					Thread.sleep(800); // Increased wait for checkboxes to render
+					safeSleep(800); // Increased wait for checkboxes to render
 					LOGGER.debug(" Expanded " + filterType + " filter category");
 
 					// Find available filter options (checkboxes) for this category
 					// Try multiple XPath strategies to find checkboxes
 					java.util.List<WebElement> filterOptions = driver
-							.findElements(org.openqa.selenium.By.xpath("//div[@data-testid='" + dataTestId
+							.findElements(By.xpath("//div[@data-testid='" + dataTestId
 									+ "']/following-sibling::div//input[@type='checkbox']"));
 
 					// If not found using following-sibling, try parent-based approach
 					if (filterOptions.isEmpty()) {
 						LOGGER.debug("Trying parent-based XPath for " + filterType);
-						filterOptions = driver.findElements(org.openqa.selenium.By.xpath("//div[@data-testid='"
+						filterOptions = driver.findElements(By.xpath("//div[@data-testid='"
 								+ dataTestId + "']/ancestor::div[contains(@class,'p-4')]//input[@type='checkbox']"));
 					}
 
@@ -938,8 +869,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 						if (!filterOption.isSelected()) {
 							// Get the filter value from the label
 							WebElement labelElement = filterOption
-									.findElement(org.openqa.selenium.By.xpath("./following-sibling::label"));
-							appliedFilterValue = labelElement.getText().trim();
+									.findElement(By.xpath("./following-sibling::label"));
+							appliedFilterValue.set(labelElement.getText().trim());
 
 							// Click the checkbox directly
 							try {
@@ -948,12 +879,12 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 								js.executeScript("arguments[0].click();", filterOption);
 							}
 
-							appliedFilterType = filterType;
-							LOGGER.info(" Applied filter: " + filterType + " = " + appliedFilterValue);
+							appliedFilterType.set(filterType);
+							LOGGER.info(" Applied filter: " + filterType + " = " + appliedFilterValue.get());
 
 							// Wait for results to update
-							Thread.sleep(1500);
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+							safeSleep(1500);
+							PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 							PerformanceUtils.waitForPageReady(driver, 1);
 
 							filterApplied = true;
@@ -978,46 +909,44 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			// Close the filters dropdown after applying filter
 			try {
 				LOGGER.debug("Closing filters dropdown after applying filter");
-				wait.until(ExpectedConditions.elementToBeClickable(filtersDropdownButton)).click();
-				Thread.sleep(500);
+				wait.until(ExpectedConditions.elementToBeClickable(FILTERS_DROPDOWN_BUTTON)).click();
+				safeSleep(500);
 				LOGGER.debug(" Filters dropdown closed");
 			} catch (Exception e) {
 				LOGGER.debug("Could not close filters dropdown: " + e.getMessage());
 			}
 
 			// End measuring filter application time
-			singleFilterEndTime = System.currentTimeMillis();
-			totalSingleFilterTime = singleFilterEndTime - singleFilterStartTime;
+			singleFilterEndTime.set(System.currentTimeMillis());
+			totalSingleFilterTime.set(singleFilterEndTime.get() - singleFilterStartTime.get());
 
 			// Get results count after filtering using helper method
-			wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
-			String resultsText = showingJobResultsCount.getText().trim();
-			resultsCountAfterFilter = extractResultsCount(resultsText);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			resultsCountAfterFilter.set(extractResultsCount(resultsText));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_single_filter_failed", e);
-			LOGGER.error(" Failed to measure single filter time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure single filter time: " + e.getMessage());
 			Assert.fail("Failed to measure single filter time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates filter application time is within acceptable threshold
+	 * Validates filter application time is within acceptable threshold.
 	 */
 	public void user_validates_filter_application_time_is_within_acceptable_threshold() {
 		try {
-			validateThreshold(totalSingleFilterTime, SINGLE_FILTER_THRESHOLD_MS, "Single Filter", "filter");
+			validateThreshold(totalSingleFilterTime.get(), SINGLE_FILTER_THRESHOLD_MS, "Single Filter", "filter");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_filter_threshold_failed", e);
-			LOGGER.error(" Failed to validate filter threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate filter threshold: " + e.getMessage());
 			Assert.fail("Failed to validate filter threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies filtered results are displayed correctly
+	 * Verifies filtered results are displayed correctly.
 	 */
 	public void user_verifies_filtered_results_are_displayed_correctly() {
 		try {
@@ -1034,42 +963,41 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				// Clear button check skipped
 			}
 
-			String validationMsg = String.format(" Filter %s=%s: %d  %d profiles | Clear Btn: %s", appliedFilterType,
-					appliedFilterValue, resultsCountBeforeFilter, resultsCountAfterFilter,
+			String validationMsg = String.format(" Filter %s=%s: %d  %d profiles | Clear Btn: %s", appliedFilterType.get(),
+					appliedFilterValue.get(), resultsCountBeforeFilter.get(), resultsCountAfterFilter.get(),
 					clearFiltersVisible ? "" : "-");
 			PageObjectHelper.log(LOGGER, validationMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_filtered_results_failed", e);
-			LOGGER.error(" Failed to verify filtered results", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify filtered results: " + e.getMessage());
 			Assert.fail("Failed to verify filtered results: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates UI remains responsive during filter operation
+	 * Validates UI remains responsive during filter operation.
 	 */
 	public void user_validates_ui_remains_responsive_during_filter_operation() {
 		try {
 			long instantThreshold = 2000;
 			String responseMsg;
+			long filterTime = totalSingleFilterTime.get();
 
-			if (totalSingleFilterTime <= instantThreshold) {
-				responseMsg = String.format(" Filter UI Responsive: %d ms (Instant)", totalSingleFilterTime);
+			if (filterTime <= instantThreshold) {
+				responseMsg = String.format(" Filter UI Responsive: %d ms (Instant)", filterTime);
 				LOGGER.info(responseMsg);
-			} else if (totalSingleFilterTime <= SINGLE_FILTER_THRESHOLD_MS) {
-				responseMsg = String.format(" Filter UI Acceptable: %d ms (Not instant)", totalSingleFilterTime);
+			} else if (filterTime <= SINGLE_FILTER_THRESHOLD_MS) {
+				responseMsg = String.format(" Filter UI Acceptable: %d ms (Not instant)", filterTime);
 				LOGGER.warn(responseMsg);
 			} else {
-				responseMsg = String.format(" Filter UI Slow: %d ms", totalSingleFilterTime);
+				responseMsg = String.format(" Filter UI Slow: %d ms", filterTime);
 				LOGGER.error(responseMsg);
 			}
 			PageObjectHelper.log(LOGGER, responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_filter_ui_responsiveness_failed", e);
-			LOGGER.error(" Failed to validate filter UI responsiveness", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate filter UI: " + e.getMessage());
 			Assert.fail("Failed to validate filter UI: " + e.getMessage());
 		}
@@ -1080,30 +1008,29 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	// ==========================================
 
 	/**
-	 * Measures time to apply multiple filters dynamically from available options
+	 * Measures time to apply multiple filters dynamically from available options.
 	 */
 	public void user_measures_time_to_apply_multiple_filters_dynamically_from_available_options() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
-			String resultsText = showingJobResultsCount.getText().trim();
-			resultsCountBeforeFilter = Integer.parseInt(
-					resultsText.replaceAll("[^0-9]", "").substring(resultsText.replaceAll("[^0-9]", "").length() - 2));
+			wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			resultsCountBeforeFilter.set(extractResultsCount(resultsText));
 
 			js.executeScript("window.scrollTo(0, 0);");
-			Thread.sleep(300);
+			safeSleep(300);
 
 			java.util.List<WebElement> existingDropdowns = driver
-					.findElements(org.openqa.selenium.By.xpath("//div[starts-with(@data-testid,'dropdown-')]"));
+					.findElements(By.xpath("//div[starts-with(@data-testid,'dropdown-')]"));
 
 			if (existingDropdowns.isEmpty()) {
-				wait.until(ExpectedConditions.elementToBeClickable(filtersDropdownButton)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(FILTERS_DROPDOWN_BUTTON)).click();
 				wait.until(ExpectedConditions.presenceOfElementLocated(
-						org.openqa.selenium.By.xpath("//div[starts-with(@data-testid,'dropdown-')]")));
-				Thread.sleep(500);
+						By.xpath("//div[starts-with(@data-testid,'dropdown-')]")));
+				safeSleep(500);
 			}
 
-			multipleFiltersStartTime = System.currentTimeMillis();
-			numberOfFiltersApplied = 0;
+			multipleFiltersStartTime.set(System.currentTimeMillis());
+			numberOfFiltersApplied.set(0);
 
 			String[][] filterTypes = { { "Grades", "dropdown-Grades" },
 					{ "Functions", "dropdown-Functions_SubFunctions" },
@@ -1111,7 +1038,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			StringBuilder appliedFiltersLog = new StringBuilder();
 
 			for (String[] filterInfo : filterTypes) {
-				if (numberOfFiltersApplied >= 2) {
+				if (numberOfFiltersApplied.get() >= 2) {
 					break;
 				}
 
@@ -1120,7 +1047,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 				try {
 					java.util.List<WebElement> filterHeaders = driver
-							.findElements(org.openqa.selenium.By.xpath("//div[@data-testid='" + dataTestId + "']"));
+							.findElements(By.xpath("//div[@data-testid='" + dataTestId + "']"));
 
 					if (filterHeaders.isEmpty()) {
 						continue;
@@ -1129,7 +1056,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 					WebElement filterHeader = filterHeaders.get(0);
 					try {
 						WebElement parentDiv = filterHeader.findElement(
-								org.openqa.selenium.By.xpath("./ancestor::div[contains(@class,'p-4')][1]"));
+								By.xpath("./ancestor::div[contains(@class,'p-4')][1]"));
 						String parentClass = parentDiv.getAttribute("class");
 						if (parentClass != null && parentClass.contains("pointer-events-none")) {
 							continue;
@@ -1139,14 +1066,14 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 					}
 
 					filterHeader.click();
-					Thread.sleep(800);
+					safeSleep(800);
 
 					java.util.List<WebElement> filterOptions = driver
-							.findElements(org.openqa.selenium.By.xpath("//div[@data-testid='" + dataTestId
+							.findElements(By.xpath("//div[@data-testid='" + dataTestId
 									+ "']/following-sibling::div//input[@type='checkbox']"));
 
 					if (filterOptions.isEmpty()) {
-						filterOptions = driver.findElements(org.openqa.selenium.By.xpath("//div[@data-testid='"
+						filterOptions = driver.findElements(By.xpath("//div[@data-testid='"
 								+ dataTestId + "']/ancestor::div[contains(@class,'p-4')]//input[@type='checkbox']"));
 					}
 
@@ -1157,7 +1084,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 					for (WebElement filterOption : filterOptions) {
 						if (!filterOption.isSelected()) {
 							WebElement labelElement = filterOption
-									.findElement(org.openqa.selenium.By.xpath("./following-sibling::label"));
+									.findElement(By.xpath("./following-sibling::label"));
 							String filterValue = labelElement.getText().trim();
 
 							try {
@@ -1166,13 +1093,13 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 								js.executeScript("arguments[0].click();", filterOption);
 							}
 
-							numberOfFiltersApplied++;
+							numberOfFiltersApplied.set(numberOfFiltersApplied.get() + 1);
 							appliedFiltersLog.append(String.format("    %s = %s%n", filterType, filterValue));
-							LOGGER.info(" Applied filter " + numberOfFiltersApplied + ": " + filterType + " = "
+							LOGGER.info(" Applied filter " + numberOfFiltersApplied.get() + ": " + filterType + " = "
 									+ filterValue);
 
-							Thread.sleep(1500);
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+							safeSleep(1500);
+							PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 							PerformanceUtils.waitForPageReady(driver, 1);
 
 							break;
@@ -1184,69 +1111,66 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				}
 			}
 
-			if (numberOfFiltersApplied < 2) {
+			if (numberOfFiltersApplied.get() < 2) {
 				throw new Exception(
-						"Could not apply at least 2 filters dynamically - only applied " + numberOfFiltersApplied);
+						"Could not apply at least 2 filters dynamically - only applied " + numberOfFiltersApplied.get());
 			}
 
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(filtersDropdownButton)).click();
-				Thread.sleep(500);
+				wait.until(ExpectedConditions.elementToBeClickable(FILTERS_DROPDOWN_BUTTON)).click();
+				safeSleep(500);
 			} catch (Exception e) {
 				// Continue if dropdown close fails
 			}
 
-			multipleFiltersEndTime = System.currentTimeMillis();
-			totalMultipleFiltersTime = multipleFiltersEndTime - multipleFiltersStartTime;
+			multipleFiltersEndTime.set(System.currentTimeMillis());
+			totalMultipleFiltersTime.set(multipleFiltersEndTime.get() - multipleFiltersStartTime.get());
 
-			wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
-			resultsText = showingJobResultsCount.getText().trim();
-			resultsCountAfterFilter = Integer.parseInt(
-					resultsText.replaceAll("[^0-9]", "").substring(resultsText.replaceAll("[^0-9]", "").length() - 2));
+			wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+			resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			resultsCountAfterFilter.set(extractResultsCount(resultsText));
 
 			String performanceLog = String.format(
 					" Performance Metrics:%n" + "    Filters Applied: %d%n" + "%s"
 							+ "    Total Time: %d ms (%.2f sec)%n" + "    Results: %d  %d profiles",
-					numberOfFiltersApplied, appliedFiltersLog.toString(), totalMultipleFiltersTime,
-					totalMultipleFiltersTime / 1000.0, resultsCountBeforeFilter, resultsCountAfterFilter);
+					numberOfFiltersApplied.get(), appliedFiltersLog.toString(), totalMultipleFiltersTime.get(),
+					totalMultipleFiltersTime.get() / 1000.0, resultsCountBeforeFilter.get(), resultsCountAfterFilter.get());
 			PageObjectHelper.log(LOGGER, performanceLog);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_multiple_filters_failed", e);
-			LOGGER.error(" Failed to measure multiple filters time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure multiple filters time: " + e.getMessage());
 			Assert.fail("Failed to measure multiple filters time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates multiple filter application time is within acceptable threshold
+	 * Validates multiple filter application time is within acceptable threshold.
 	 */
 	public void user_validates_multiple_filter_application_time_is_within_acceptable_threshold() {
 		try {
-			validateThreshold(totalMultipleFiltersTime, MULTIPLE_FILTERS_THRESHOLD_MS,
-					"Multiple Filters (" + numberOfFiltersApplied + " filters)", "multiple_filters");
+			validateThreshold(totalMultipleFiltersTime.get(), MULTIPLE_FILTERS_THRESHOLD_MS,
+					"Multiple Filters (" + numberOfFiltersApplied.get() + " filters)", "multiple_filters");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_multiple_filters_threshold_failed", e);
-			LOGGER.error(" Failed to validate multiple filters threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate multiple filters threshold: " + e.getMessage());
 			Assert.fail("Failed to validate multiple filters threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies combined filtered results are displayed correctly
+	 * Verifies combined filtered results are displayed correctly.
 	 */
 	public void user_verifies_combined_filtered_results_are_displayed_correctly() {
 		try {
-			boolean resultsDecreased = resultsCountAfterFilter <= resultsCountBeforeFilter;
+			boolean resultsDecreased = resultsCountAfterFilter.get() <= resultsCountBeforeFilter.get();
 
 			boolean clearFiltersVisible = false;
 			try {
 				java.util.List<WebElement> clearButtons = driver
-						.findElements(org.openqa.selenium.By.xpath("//button[@data-testid='Clear Filters']"));
+						.findElements(By.xpath("//button[@data-testid='Clear Filters']"));
 				if (clearButtons.isEmpty()) {
-					clearButtons = driver.findElements(org.openqa.selenium.By
+					clearButtons = driver.findElements(By
 							.xpath("//button[contains(text(),'Clear') and contains(text(),'Filter')]"));
 				}
 				clearFiltersVisible = !clearButtons.isEmpty() && clearButtons.get(0).isDisplayed();
@@ -1254,12 +1178,12 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				// Clear Filters button check failed
 			}
 
-			String resultsText = showingJobResultsCount.getText().trim();
+			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
 			boolean resultsCountDisplayed = !resultsText.isEmpty();
 
 			String validationMsg = String.format(
 					" Combined Filter Results: %d filters applied | %d  %d profiles | Clear button: %s",
-					numberOfFiltersApplied, resultsCountBeforeFilter, resultsCountAfterFilter,
+					numberOfFiltersApplied.get(), resultsCountBeforeFilter.get(), resultsCountAfterFilter.get(),
 					clearFiltersVisible ? "Visible " : "Not visible -");
 			PageObjectHelper.log(LOGGER, validationMsg);
 
@@ -1269,30 +1193,28 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_combined_filtered_results_failed", e);
-			LOGGER.error(" Failed to verify combined filtered results", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify combined filtered results: " + e.getMessage());
 			Assert.fail("Failed to verify combined filtered results: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates no UI lag during multi-filter operation
+	 * Validates no UI lag during multi-filter operation.
 	 */
 	public void user_validates_no_ui_lag_during_multi_filter_operation() {
 		try {
 			long smoothThreshold = 3000;
 			String responseMsg;
-			if (totalMultipleFiltersTime <= smoothThreshold) {
-				responseMsg = String.format(" UI Responsive: %d ms (Smooth)", totalMultipleFiltersTime);
+			long filterTime = totalMultipleFiltersTime.get();
+			if (filterTime <= smoothThreshold) {
+				responseMsg = String.format(" UI Responsive: %d ms (Smooth)", filterTime);
 			} else {
-				responseMsg = String.format(" UI Acceptable: %d ms (Not instant)", totalMultipleFiltersTime);
+				responseMsg = String.format(" UI Acceptable: %d ms (Not instant)", filterTime);
 			}
-			LOGGER.info(responseMsg);
 			PageObjectHelper.log(LOGGER, responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_multi_filter_ui_lag_failed", e);
-			LOGGER.error(" Failed to validate UI lag", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate UI lag: " + e.getMessage());
 			Assert.fail("Failed to validate UI lag: " + e.getMessage());
 		}
@@ -1303,54 +1225,53 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	// ==========================================
 
 	/**
-	 * User has applied filters and has filtered results (prerequisite for clear
-	 * filters scenario) IMPORTANT: Clears any existing filters first to capture
-	 * true baseline count
+	 * User has applied filters and has filtered results (prerequisite for clear filters scenario).
+	 * IMPORTANT: Clears any existing filters first to capture true baseline count.
 	 */
 	public void user_has_applied_filters_and_has_filtered_results() {
 		try {
 			// Clear any existing filters from previous scenarios
 			try {
 				java.util.List<WebElement> clearButtons = driver
-						.findElements(org.openqa.selenium.By.xpath("//button[@data-testid='Clear Filters']"));
+						.findElements(By.xpath("//button[@data-testid='Clear Filters']"));
 				if (clearButtons.isEmpty()) {
-					clearButtons = driver.findElements(org.openqa.selenium.By
+					clearButtons = driver.findElements(By
 							.xpath("//button[contains(text(),'Clear') and contains(text(),'Filter')]"));
 				}
 
 				if (!clearButtons.isEmpty() && clearButtons.get(0).isDisplayed()) {
 					js.executeScript("window.scrollTo(0, 0);");
-					Thread.sleep(300);
+					safeSleep(300);
 					clearButtons.get(0).click();
-					Thread.sleep(500);
-					wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+					safeSleep(500);
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 2);
-					Thread.sleep(1000);
+					safeSleep(1000);
 				}
 			} catch (Exception e) {
 				// No existing filters
 			}
 
-			wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
-			Thread.sleep(1000);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+			safeSleep(1000);
 
 			int maxRetries = 10;
 			int retryCount = 0;
 			String resultsText = "";
 
 			while (retryCount < maxRetries) {
-				resultsText = showingJobResultsCount.getText().trim();
-				resultsCountBeforeFilter = extractResultsCount(resultsText);
+				resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+				resultsCountBeforeFilter.set(extractResultsCount(resultsText));
 
-				if (resultsCountBeforeFilter > 0) {
+				if (resultsCountBeforeFilter.get() > 0) {
 					break;
 				}
 
-				Thread.sleep(500);
+				safeSleep(500);
 				retryCount++;
 			}
 
-			if (resultsCountBeforeFilter <= 0) {
+			if (resultsCountBeforeFilter.get() <= 0) {
 				String errorMsg = " Failed to capture valid profile count before filtering after " + maxRetries
 						+ " attempts";
 				LOGGER.error(errorMsg);
@@ -1360,16 +1281,16 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			}
 
 			js.executeScript("window.scrollTo(0, 0);");
-			Thread.sleep(300);
+			safeSleep(300);
 
 			java.util.List<WebElement> existingDropdowns = driver
-					.findElements(org.openqa.selenium.By.xpath("//div[starts-with(@data-testid,'dropdown-')]"));
+					.findElements(By.xpath("//div[starts-with(@data-testid,'dropdown-')]"));
 
 			if (existingDropdowns.isEmpty()) {
-				wait.until(ExpectedConditions.elementToBeClickable(filtersDropdownButton)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(FILTERS_DROPDOWN_BUTTON)).click();
 				wait.until(ExpectedConditions.presenceOfElementLocated(
-						org.openqa.selenium.By.xpath("//div[starts-with(@data-testid,'dropdown-')]")));
-				Thread.sleep(500);
+						By.xpath("//div[starts-with(@data-testid,'dropdown-')]")));
+				safeSleep(500);
 			}
 
 			boolean filterApplied = false;
@@ -1383,7 +1304,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 				try {
 					java.util.List<WebElement> filterHeaders = driver
-							.findElements(org.openqa.selenium.By.xpath("//div[@data-testid='" + dataTestId + "']"));
+							.findElements(By.xpath("//div[@data-testid='" + dataTestId + "']"));
 
 					if (filterHeaders.isEmpty()) {
 						continue;
@@ -1392,7 +1313,7 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 					WebElement filterHeader = filterHeaders.get(0);
 					try {
 						WebElement parentDiv = filterHeader.findElement(
-								org.openqa.selenium.By.xpath("./ancestor::div[contains(@class,'p-4')][1]"));
+								By.xpath("./ancestor::div[contains(@class,'p-4')][1]"));
 						String parentClass = parentDiv.getAttribute("class");
 						if (parentClass != null && parentClass.contains("pointer-events-none")) {
 							continue;
@@ -1402,14 +1323,14 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 					}
 
 					filterHeader.click();
-					Thread.sleep(800);
+					safeSleep(800);
 
 					java.util.List<WebElement> filterOptions = driver
-							.findElements(org.openqa.selenium.By.xpath("//div[@data-testid='" + dataTestId
+							.findElements(By.xpath("//div[@data-testid='" + dataTestId
 									+ "']/following-sibling::div//input[@type='checkbox']"));
 
 					if (filterOptions.isEmpty()) {
-						filterOptions = driver.findElements(org.openqa.selenium.By.xpath("//div[@data-testid='"
+						filterOptions = driver.findElements(By.xpath("//div[@data-testid='"
 								+ dataTestId + "']/ancestor::div[contains(@class,'p-4')]//input[@type='checkbox']"));
 					}
 
@@ -1420,8 +1341,8 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 					for (WebElement filterOption : filterOptions) {
 						if (!filterOption.isSelected()) {
 							WebElement labelElement = filterOption
-									.findElement(org.openqa.selenium.By.xpath("./following-sibling::label"));
-							appliedFilterValue = labelElement.getText().trim();
+									.findElement(By.xpath("./following-sibling::label"));
+							appliedFilterValue.set(labelElement.getText().trim());
 
 							try {
 								wait.until(ExpectedConditions.elementToBeClickable(filterOption)).click();
@@ -1429,11 +1350,11 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 								js.executeScript("arguments[0].click();", filterOption);
 							}
 
-							appliedFilterType = filterType;
-							LOGGER.info(" Applied filter: " + filterType + " = " + appliedFilterValue);
+							appliedFilterType.set(filterType);
+							LOGGER.info(" Applied filter: " + filterType + " = " + appliedFilterValue.get());
 
-							Thread.sleep(1500);
-							wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+							safeSleep(1500);
+							PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 							PerformanceUtils.waitForPageReady(driver, 1);
 
 							filterApplied = true;
@@ -1455,51 +1376,48 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			}
 
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(filtersDropdownButton)).click();
-				Thread.sleep(500);
+				wait.until(ExpectedConditions.elementToBeClickable(FILTERS_DROPDOWN_BUTTON)).click();
+				safeSleep(500);
 			} catch (Exception e) {
 				// Continue if dropdown close fails
 			}
 
-			wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
-			resultsText = showingJobResultsCount.getText().trim();
-			resultsCountAfterFilter = Integer.parseInt(
-					resultsText.replaceAll("[^0-9]", "").substring(resultsText.replaceAll("[^0-9]", "").length() - 2));
+			wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+			resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			resultsCountAfterFilter.set(extractResultsCount(resultsText));
 
-			String setupMsg = String.format(" Filter applied: %s = %s | %d  %d profiles", appliedFilterType,
-					appliedFilterValue, resultsCountBeforeFilter, resultsCountAfterFilter);
-			LOGGER.info(setupMsg);
+			String setupMsg = String.format(" Filter applied: %s = %s | %d  %d profiles", appliedFilterType.get(),
+					appliedFilterValue.get(), resultsCountBeforeFilter.get(), resultsCountAfterFilter.get());
 			PageObjectHelper.log(LOGGER, setupMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("apply_filter_for_clear_test_failed", e);
-			LOGGER.error(" Failed to apply filter for clear test", e);
 			PageObjectHelper.log(LOGGER, " Failed to apply filter for clear test: " + e.getMessage());
 			Assert.fail("Failed to apply filter for clear test: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Measures time to click Clear All Filters button
+	 * Measures time to click Clear All Filters button.
 	 */
 	public void user_measures_time_to_click_clear_all_filters_button() {
 		try {
 			js.executeScript("window.scrollTo(0, 0);");
-			Thread.sleep(300);
+			safeSleep(300);
 
 			WebElement clearFiltersButton = null;
 			try {
 				clearFiltersButton = wait.until(ExpectedConditions.visibilityOfElementLocated(
-						org.openqa.selenium.By.xpath("//button[@data-testid='Clear Filters']")));
+						By.xpath("//button[@data-testid='Clear Filters']")));
 			} catch (Exception e) {
-				clearFiltersButton = wait.until(ExpectedConditions.visibilityOfElementLocated(org.openqa.selenium.By
+				clearFiltersButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By
 						.xpath("//button[contains(text(),'Clear') and contains(text(),'Filter')]")));
 			}
 
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", clearFiltersButton);
-			Thread.sleep(500);
+			safeSleep(500);
 
-			clearFiltersStartTime = System.currentTimeMillis();
+			clearFiltersStartTime.set(System.currentTimeMillis());
 
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(clearFiltersButton)).click();
@@ -1507,68 +1425,64 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				js.executeScript("arguments[0].click();", clearFiltersButton);
 			}
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			clearFiltersEndTime = System.currentTimeMillis();
-			totalClearFiltersTime = clearFiltersEndTime - clearFiltersStartTime;
+			clearFiltersEndTime.set(System.currentTimeMillis());
+			totalClearFiltersTime.set(clearFiltersEndTime.get() - clearFiltersStartTime.get());
 
 			WebElement resultsCountElement = wait
-					.until(ExpectedConditions.visibilityOfElementLocated(org.openqa.selenium.By
-							.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]")));
+					.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
 			String resultsText = resultsCountElement.getText().trim();
-			resultsCountAfterClearFilters = extractResultsCount(resultsText);
+			resultsCountAfterClearFilters.set(extractResultsCount(resultsText));
 
 			String performanceLog = String.format(
 					" Performance Metrics:%n" + "    Clear Filters Time: %d ms (%.2f sec)%n"
 							+ "    Results: %d  %d profiles%n" + "    Restored to original: %s",
-					totalClearFiltersTime, totalClearFiltersTime / 1000.0, resultsCountAfterFilter,
-					resultsCountAfterClearFilters,
-					resultsCountAfterClearFilters == resultsCountBeforeFilter ? "Yes " : "No -");
+					totalClearFiltersTime.get(), totalClearFiltersTime.get() / 1000.0, resultsCountAfterFilter.get(),
+					resultsCountAfterClearFilters.get(),
+					resultsCountAfterClearFilters.get().equals(resultsCountBeforeFilter.get()) ? "Yes " : "No -");
 			PageObjectHelper.log(LOGGER, performanceLog);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_clear_filters_failed", e);
-			LOGGER.error(" Failed to measure clear filters time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure clear filters time: " + e.getMessage());
 			Assert.fail("Failed to measure clear filters time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates clear filters operation time is within acceptable threshold
+	 * Validates clear filters operation time is within acceptable threshold.
 	 */
 	public void user_validates_clear_filters_operation_time_is_within_acceptable_threshold() {
 		try {
-			validateThreshold(totalClearFiltersTime, CLEAR_FILTERS_THRESHOLD_MS, "Clear Filters", "clear_filters");
+			validateThreshold(totalClearFiltersTime.get(), CLEAR_FILTERS_THRESHOLD_MS, "Clear Filters", "clear_filters");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_clear_filters_threshold_failed", e);
-			LOGGER.error(" Failed to validate clear filters threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate clear filters threshold: " + e.getMessage());
 			Assert.fail("Failed to validate clear filters threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies all profiles are restored correctly after clearing filters
+	 * Verifies all profiles are restored correctly after clearing filters.
 	 */
 	public void user_verifies_all_profiles_are_restored_correctly_after_clearing_filters() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 1);
 
 			String restorationMsg = String.format(" Restored profiles: %d  %d  %d | Match: %s",
-					resultsCountBeforeFilter, resultsCountAfterFilter, resultsCountAfterClearFilters,
-					resultsCountAfterClearFilters == resultsCountBeforeFilter ? "Yes " : "No -");
+					resultsCountBeforeFilter.get(), resultsCountAfterFilter.get(), resultsCountAfterClearFilters.get(),
+					resultsCountAfterClearFilters.get().equals(resultsCountBeforeFilter.get()) ? "Yes " : "No -");
 			PageObjectHelper.log(LOGGER, restorationMsg);
 
-			if (resultsCountAfterClearFilters == resultsCountBeforeFilter) {
+			if (resultsCountAfterClearFilters.get().equals(resultsCountBeforeFilter.get())) {
 				PageObjectHelper.log(LOGGER, " All profiles restored to original count");
 			} else {
-				int difference = Math.abs(resultsCountAfterClearFilters - resultsCountBeforeFilter);
+				int difference = Math.abs(resultsCountAfterClearFilters.get() - resultsCountBeforeFilter.get());
 				String failMsg = String.format(" Count mismatch: Expected %d, Actual %d (Diff: %d)",
-						resultsCountBeforeFilter, resultsCountAfterClearFilters, difference);
-				LOGGER.error(failMsg);
+						resultsCountBeforeFilter.get(), resultsCountAfterClearFilters.get(), difference);
 				PageObjectHelper.log(LOGGER, failMsg);
 				ScreenshotHandler.captureFailureScreenshot("profiles_not_restored_after_clear_filters",
 						new Exception(failMsg));
@@ -1577,30 +1491,28 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_restoration_after_clear_filters_failed", e);
-			LOGGER.error(" Failed to verify profile restoration", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify profile restoration: " + e.getMessage());
 			Assert.fail("Failed to verify profile restoration: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates no UI freeze during filter clearing
+	 * Validates no UI freeze during filter clearing.
 	 */
 	public void user_validates_no_ui_freeze_during_filter_clearing() {
 		try {
 			long instantThreshold = 1000;
 			String responseMsg;
-			if (totalClearFiltersTime <= instantThreshold) {
-				responseMsg = String.format(" UI Responsive: %d ms (Instant)", totalClearFiltersTime);
+			long clearTime = totalClearFiltersTime.get();
+			if (clearTime <= instantThreshold) {
+				responseMsg = String.format(" UI Responsive: %d ms (Instant)", clearTime);
 			} else {
-				responseMsg = String.format(" UI Acceptable: %d ms (Not instant)", totalClearFiltersTime);
+				responseMsg = String.format(" UI Acceptable: %d ms (Not instant)", clearTime);
 			}
-			LOGGER.info(responseMsg);
 			PageObjectHelper.log(LOGGER, responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_clear_filters_ui_freeze_failed", e);
-			LOGGER.error(" Failed to validate UI freeze", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate UI freeze: " + e.getMessage());
 			Assert.fail("Failed to validate UI freeze: " + e.getMessage());
 		}
@@ -1611,39 +1523,36 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	// =========================================
 
 	/**
-	 * Measures time to scroll through 3-4 pages to check lazy load performance
-	 * Focused on lazy load performance testing rather than loading all profiles
+	 * Measures time to scroll through 3-4 pages to check lazy load performance.
+	 * Focused on lazy load performance testing rather than loading all profiles.
 	 */
 	public void user_measures_time_to_scroll_through_all_profiles() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount));
-			String resultsText = showingJobResultsCount.getText().trim();
-			initialProfileCount = extractResultsCount(resultsText);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			initialProfileCount.set(extractResultsCount(resultsText));
 
-			java.util.List<WebElement> initialProfiles = driver.findElements(org.openqa.selenium.By
-					.xpath("//div[@id='org-job-container']//tbody//tr//td[2]//div[contains(text(),'(')]"));
+			java.util.List<WebElement> initialProfiles = findElements(PROFILE_ROWS);
 			int previousProfileCount = initialProfiles.size();
 
-			scrollStartTime = System.currentTimeMillis();
-			totalScrolls = 0;
-			lazyLoadTimes.clear();
+			scrollStartTime.set(System.currentTimeMillis());
+			totalScrolls.set(0);
+			lazyLoadTimes.get().clear();
 
 			int targetScrolls = 4;
 
 			for (int i = 0; i < targetScrolls; i++) {
 				long scrollIterationStart = System.currentTimeMillis();
 
-				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN
-																								// (headless-compatible)
-				totalScrolls++;
-				Thread.sleep(300);
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
+				totalScrolls.set(totalScrolls.get() + 1);
+				safeSleep(300);
 
 				PerformanceUtils.waitForSpinnersToDisappear(driver, 2);
 
-				Thread.sleep(500);
+				safeSleep(500);
 
-				java.util.List<WebElement> currentProfiles = driver.findElements(org.openqa.selenium.By
-						.xpath("//div[@id='org-job-container']//tbody//tr//td[2]//div[contains(text(),'(')]"));
+				java.util.List<WebElement> currentProfiles = findElements(PROFILE_ROWS);
 				int currentProfileCount = currentProfiles.size();
 
 				long scrollIterationEnd = System.currentTimeMillis();
@@ -1651,100 +1560,94 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 				if (currentProfileCount > previousProfileCount) {
 					int newProfilesLoaded = currentProfileCount - previousProfileCount;
-					lazyLoadTimes.add(lazyLoadTime);
-					LOGGER.info(String.format("Scroll #%d: Loaded %d new profiles in %d ms", totalScrolls,
+					lazyLoadTimes.get().add(lazyLoadTime);
+					LOGGER.info(String.format("Scroll #%d: Loaded %d new profiles in %d ms", totalScrolls.get(),
 							newProfilesLoaded, lazyLoadTime));
 					previousProfileCount = currentProfileCount;
 				} else {
-					lazyLoadTimes.add(lazyLoadTime);
+					lazyLoadTimes.get().add(lazyLoadTime);
 				}
 			}
 
-			scrollEndTime = System.currentTimeMillis();
-			totalScrollTime = scrollEndTime - scrollStartTime;
+			scrollEndTime.set(System.currentTimeMillis());
+			totalScrollTime.set(scrollEndTime.get() - scrollStartTime.get());
 
-			java.util.List<WebElement> finalProfiles = driver.findElements(org.openqa.selenium.By
-					.xpath("//div[@id='org-job-container']//tbody//tr//td[2]//div[contains(text(),'(')]"));
-			finalProfileCount = finalProfiles.size();
+			java.util.List<WebElement> finalProfiles = findElements(PROFILE_ROWS);
+			finalProfileCount.set(finalProfiles.size());
 
-			if (!lazyLoadTimes.isEmpty()) {
-				avgLazyLoadTime = lazyLoadTimes.stream().mapToLong(Long::longValue).sum() / lazyLoadTimes.size();
+			if (!lazyLoadTimes.get().isEmpty()) {
+				avgLazyLoadTime.set(lazyLoadTimes.get().stream().mapToLong(Long::longValue).sum() / lazyLoadTimes.get().size());
 			}
 
 			String performanceLog = String.format(
-					" Scroll Metrics: %d scrolls | %d  %d profiles | Avg lazy load: %d ms | Total: %d ms", totalScrolls,
-					initialProfileCount, finalProfileCount, avgLazyLoadTime, totalScrollTime);
+					" Scroll Metrics: %d scrolls | %d  %d profiles | Avg lazy load: %d ms | Total: %d ms", totalScrolls.get(),
+					initialProfileCount.get(), finalProfileCount.get(), avgLazyLoadTime.get(), totalScrollTime.get());
 			PageObjectHelper.log(LOGGER, performanceLog);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_scroll_time_failed", e);
-			LOGGER.error(" Failed to measure scroll time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure scroll time: " + e.getMessage());
 			Assert.fail("Failed to measure scroll time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates that lazy loading triggers at appropriate intervals Verifies lazy
-	 * load performance is consistent
+	 * Validates that lazy loading triggers at appropriate intervals.
+	 * Verifies lazy load performance is consistent.
 	 */
 	public void user_validates_lazy_loading_triggers_at_appropriate_intervals() {
 		try {
-			if (lazyLoadTimes.isEmpty()) {
+			if (lazyLoadTimes.get().isEmpty()) {
 				LOGGER.warn(" No lazy loading detected");
 				PageObjectHelper.log(LOGGER, " No lazy loading detected");
 				return;
 			}
 
-			boolean lazyLoadPerformanceGood = avgLazyLoadTime <= LAZY_LOAD_THRESHOLD_MS;
+			boolean lazyLoadPerformanceGood = avgLazyLoadTime.get() <= LAZY_LOAD_THRESHOLD_MS;
 			String validationMsg = String.format(" Lazy Load: %d triggers | Avg: %d ms | Status: %s",
-					lazyLoadTimes.size(), avgLazyLoadTime, lazyLoadPerformanceGood ? "" : "-");
+					lazyLoadTimes.get().size(), avgLazyLoadTime.get(), lazyLoadPerformanceGood ? "" : "-");
 			PageObjectHelper.log(LOGGER, validationMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_lazy_loading_failed", e);
-			LOGGER.error(" Failed to validate lazy loading", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate lazy loading: " + e.getMessage());
 			Assert.fail("Failed to validate lazy loading: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies scroll performance is smooth without lag Validates no significant
-	 * delays or UI freezes during scrolling
+	 * Verifies scroll performance is smooth without lag.
+	 * Validates no significant delays or UI freezes during scrolling.
 	 */
 	public void user_verifies_scroll_performance_is_smooth_without_lag() {
 		try {
-			validateThreshold(totalScrollTime, SCROLL_OPERATION_THRESHOLD_MS, "Scroll Operation", "scroll");
+			validateThreshold(totalScrollTime.get(), SCROLL_OPERATION_THRESHOLD_MS, "Scroll Operation", "scroll");
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_scroll_performance_failed", e);
-			LOGGER.error(" Failed to verify scroll performance", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify scroll performance: " + e.getMessage());
 			Assert.fail("Failed to verify scroll performance: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates newly loaded profiles render within acceptable time Checks
-	 * individual lazy load render times
+	 * Validates newly loaded profiles render within acceptable time.
+	 * Checks individual lazy load render times.
 	 */
 	public void user_validates_newly_loaded_profiles_render_within_acceptable_time() {
 		try {
-			if (lazyLoadTimes.isEmpty()) {
-				LOGGER.info(" All profiles loaded initially - no lazy loading required");
+			if (lazyLoadTimes.get().isEmpty()) {
 				PageObjectHelper.log(LOGGER, " No lazy loading - all profiles available on page load");
 				return;
 			}
 
-			long maxLazyLoadTime = lazyLoadTimes.stream().mapToLong(Long::longValue).max().orElse(0);
-			long minLazyLoadTime = lazyLoadTimes.stream().mapToLong(Long::longValue).min().orElse(0);
+			long maxLazyLoadTime = lazyLoadTimes.get().stream().mapToLong(Long::longValue).max().orElse(0);
+			long minLazyLoadTime = lazyLoadTimes.get().stream().mapToLong(Long::longValue).min().orElse(0);
 			boolean allWithinThreshold = maxLazyLoadTime <= LAZY_LOAD_THRESHOLD_MS;
 
 			String renderMsg = String.format(
 					" Render Times: Min %d ms | Avg %d ms | Max %d ms | Threshold: %d ms | Status: %s", minLazyLoadTime,
-					avgLazyLoadTime, maxLazyLoadTime, LAZY_LOAD_THRESHOLD_MS, allWithinThreshold ? "" : "-");
+					avgLazyLoadTime.get(), maxLazyLoadTime, LAZY_LOAD_THRESHOLD_MS, allWithinThreshold ? "" : "-");
 
-			LOGGER.info(renderMsg);
 			PageObjectHelper.log(LOGGER, renderMsg);
 
 			if (allWithinThreshold) {
@@ -1758,15 +1661,14 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_render_time_failed", e);
-			LOGGER.error(" Failed to validate render time", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate render time: " + e.getMessage());
 			Assert.fail("Failed to validate render time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies total time to load profiles via scrolling (3-4 pages test) Provides
-	 * comprehensive scroll and lazy load performance summary
+	 * Verifies total time to load profiles via scrolling (3-4 pages test).
+	 * Provides comprehensive scroll and lazy load performance summary.
 	 */
 	public void user_verifies_total_time_to_load_all_profiles_via_scrolling() {
 		try {
@@ -1776,14 +1678,14 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 							+ "    Final Profiles: %d%n" + "    New Profiles Loaded: %d%n"
 							+ "    Lazy Load Operations: %d%n" + "    Avg Lazy Load Time: %d ms%n"
 							+ "    Performance Rating: %s%n" + "",
-					totalScrollTime, totalScrollTime / 1000.0, initialProfileCount, finalProfileCount,
-					(finalProfileCount - initialProfileCount), lazyLoadTimes.size(), avgLazyLoadTime,
-					getPerformanceRating(totalScrollTime, SCROLL_OPERATION_THRESHOLD_MS));
+					totalScrollTime.get(), totalScrollTime.get() / 1000.0, initialProfileCount.get(), finalProfileCount.get(),
+					(finalProfileCount.get() - initialProfileCount.get()), lazyLoadTimes.get().size(), avgLazyLoadTime.get(),
+					getPerformanceRating(totalScrollTime.get(), SCROLL_OPERATION_THRESHOLD_MS));
 
 			PageObjectHelper.log(LOGGER, summaryMsg);
 
-			if (totalScrollTime <= SCROLL_OPERATION_THRESHOLD_MS
-					&& (lazyLoadTimes.isEmpty() || avgLazyLoadTime <= LAZY_LOAD_THRESHOLD_MS)) {
+			if (totalScrollTime.get() <= SCROLL_OPERATION_THRESHOLD_MS
+					&& (lazyLoadTimes.get().isEmpty() || avgLazyLoadTime.get() <= LAZY_LOAD_THRESHOLD_MS)) {
 				LOGGER.info(" Scroll and lazy load performance meets all requirements");
 			} else {
 				LOGGER.warn(" Some performance metrics need attention");
@@ -1791,7 +1693,6 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_total_scroll_time_failed", e);
-			LOGGER.error(" Failed to verify total scroll time", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify total scroll time: " + e.getMessage());
 			Assert.fail("Failed to verify total scroll time: " + e.getMessage());
 		}
@@ -1808,12 +1709,12 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	 */
 
 	/**
-	 * Measures time to navigate to Job Comparison screen from Job Mapping Note: Job
-	 * Comparison is accessed via "View Other Matches" button on a profile
+	 * Measures time to navigate to Job Comparison screen from Job Mapping.
+	 * Note: Job Comparison is accessed via "View Other Matches" button on a profile.
 	 */
 	public void user_measures_time_to_navigate_to_job_comparison_screen_from_job_mapping() {
 		try {
-			navigationToComparisonStartTime = System.currentTimeMillis();
+			navigationToComparisonStartTime.set(System.currentTimeMillis());
 
 			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//tbody")));
 			PerformanceUtils.waitForPageReady(driver, 2);
@@ -1825,17 +1726,17 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 							.xpath("//tbody//tr[" + Integer.toString(i) + "]//button[not(contains(@id,'publish'))]")));
 
 					js.executeScript("arguments[0].scrollIntoView(true);", button);
-					Thread.sleep(300);
+					safeSleep(300);
 
 					wait.until(ExpectedConditions.visibilityOf(button));
 					String buttonText = button.getText();
 
 					if (buttonText.contains("Other Matches")) {
-						rowNumberForViewOtherMatches = i;
+						rowNumberForViewOtherMatches.set(i);
 						WebElement jobNameElement = driver.findElement(
-								By.xpath("//tbody//tr[" + Integer.toString(rowNumberForViewOtherMatches - 1)
+								By.xpath("//tbody//tr[" + Integer.toString(rowNumberForViewOtherMatches.get() - 1)
 										+ "]//td[2]//div[contains(text(),'(')]"));
-						jobNameForComparison = jobNameElement.getText().split("-", 2)[0].trim();
+						jobNameForComparison.set(jobNameElement.getText().split("-", 2)[0].trim());
 						foundViewOtherMatchesButton = true;
 						break;
 					}
@@ -1849,11 +1750,11 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 			}
 
 			WebElement viewOtherMatchesBtn = wait.until(ExpectedConditions
-					.presenceOfElementLocated(By.xpath("//tbody//tr[" + Integer.toString(rowNumberForViewOtherMatches)
+					.presenceOfElementLocated(By.xpath("//tbody//tr[" + Integer.toString(rowNumberForViewOtherMatches.get())
 							+ "]//button[not(contains(@id,'publish'))]")));
 
 			js.executeScript("arguments[0].scrollIntoView(true);", viewOtherMatchesBtn);
-			Thread.sleep(300);
+			safeSleep(300);
 
 			wait.until(ExpectedConditions.visibilityOf(viewOtherMatchesBtn));
 
@@ -1863,52 +1764,50 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				try {
 					js.executeScript("arguments[0].click();", viewOtherMatchesBtn);
 				} catch (Exception s) {
-					utils.jsClick(driver, viewOtherMatchesBtn);
+					jsClick(viewOtherMatchesBtn);
 				}
 			}
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			wait.until(ExpectedConditions.visibilityOf(jobComparisonHeader));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(JOB_COMPARISON_HEADER));
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			navigationToComparisonEndTime = System.currentTimeMillis();
-			totalNavigationToComparisonTime = navigationToComparisonEndTime - navigationToComparisonStartTime;
+			navigationToComparisonEndTime.set(System.currentTimeMillis());
+			totalNavigationToComparisonTime.set(navigationToComparisonEndTime.get() - navigationToComparisonStartTime.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_navigation_to_comparison_failed", e);
-			LOGGER.error(" Failed to measure navigation time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure navigation time: " + e.getMessage());
 			Assert.fail("Failed to measure navigation time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates navigation time is within acceptable threshold
+	 * Validates navigation time is within acceptable threshold.
 	 */
 	public void user_validates_navigation_time_is_within_acceptable_threshold() {
 		try {
-			validateThreshold(totalNavigationToComparisonTime, NAVIGATION_THRESHOLD_MS, "Navigation to Job Comparison",
+			validateThreshold(totalNavigationToComparisonTime.get(), NAVIGATION_THRESHOLD_MS, "Navigation to Job Comparison",
 					"navigation_to_comparison");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_navigation_threshold_failed", e);
-			LOGGER.error(" Failed to validate navigation threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate navigation threshold: " + e.getMessage());
 			Assert.fail("Failed to validate navigation threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies Job Comparison screen loads without delay
+	 * Verifies Job Comparison screen loads without delay.
 	 */
 	public void user_verifies_job_comparison_screen_loads_without_delay() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(jobComparisonHeader));
-			String headerText = jobComparisonHeader.getText();
+			WebElement headerElement = wait.until(ExpectedConditions.visibilityOfElementLocated(JOB_COMPARISON_HEADER));
+			String headerText = headerElement.getText();
 
 			if (headerText.equals("Which profile do you want to use for this job?")) {
 				LOGGER.info(String.format(" Job Comparison screen loaded successfully | Profile: %s",
-						jobNameForComparison));
+						jobNameForComparison.get()));
 				PageObjectHelper.log(LOGGER, " Job Comparison screen verified");
 			} else {
 				throw new Exception(
@@ -1918,72 +1817,66 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_comparison_screen_failed", e);
-			LOGGER.error(" Failed to verify Job Comparison screen", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify Job Comparison screen: " + e.getMessage());
 			Assert.fail("Failed to verify Job Comparison screen: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Measures time to navigate back to Job Mapping screen Uses browser back
-	 * navigation
+	 * Measures time to navigate back to Job Mapping screen.
+	 * Uses browser back navigation.
 	 */
 	public void user_measures_time_to_navigate_back_to_job_mapping_screen() {
 		try {
-			navigationBackToMappingStartTime = System.currentTimeMillis();
+			navigationBackToMappingStartTime.set(System.currentTimeMillis());
 
 			driver.navigate().back();
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='org-job-container']")));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			wait.until(ExpectedConditions.presenceOfElementLocated(JOB_MAPPING_PAGE_CONTAINER));
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			navigationBackToMappingEndTime = System.currentTimeMillis();
-			totalNavigationBackToMappingTime = navigationBackToMappingEndTime - navigationBackToMappingStartTime;
+			navigationBackToMappingEndTime.set(System.currentTimeMillis());
+			totalNavigationBackToMappingTime.set(navigationBackToMappingEndTime.get() - navigationBackToMappingStartTime.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_navigation_back_failed", e);
-			LOGGER.error(" Failed to measure back navigation time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure back navigation time: " + e.getMessage());
 			Assert.fail("Failed to measure back navigation time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates back navigation time is within acceptable threshold
+	 * Validates back navigation time is within acceptable threshold.
 	 */
 	public void user_validates_back_navigation_time_is_within_acceptable_threshold() {
 		try {
-			validateThreshold(totalNavigationBackToMappingTime, NAVIGATION_THRESHOLD_MS,
+			validateThreshold(totalNavigationBackToMappingTime.get(), NAVIGATION_THRESHOLD_MS,
 					"Navigation Back to Job Mapping", "navigation_back");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_back_navigation_threshold_failed", e);
-			LOGGER.error(" Failed to validate back navigation threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate back navigation threshold: " + e.getMessage());
 			Assert.fail("Failed to validate back navigation threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies Job Mapping screen loads correctly after navigation
+	 * Verifies Job Mapping screen loads correctly after navigation.
 	 */
 	public void user_verifies_job_mapping_screen_loads_correctly_after_navigation() {
 		try {
-			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='org-job-container']")));
+			wait.until(ExpectedConditions.presenceOfElementLocated(JOB_MAPPING_PAGE_CONTAINER));
 
-			WebElement resultsCountElement = driver
-					.findElement(By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]"));
+			WebElement resultsCountElement = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS);
 			wait.until(ExpectedConditions.visibilityOf(resultsCountElement));
 			String resultsText = resultsCountElement.getText().trim();
 			int profileCount = extractResultsCount(resultsText);
 
-			LOGGER.info(String.format(" Job Mapping screen loaded successfully | %d profiles available", profileCount));
-			PageObjectHelper.log(LOGGER, " Job Mapping screen verified after navigation");
+			PageObjectHelper.log(LOGGER, "Job Mapping screen verified - " + profileCount + " profiles loaded");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_mapping_screen_after_nav_failed", e);
-			LOGGER.error(" Failed to verify Job Mapping screen", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify Job Mapping screen: " + e.getMessage());
 			Assert.fail("Failed to verify Job Mapping screen: " + e.getMessage());
 		}
@@ -1994,30 +1887,30 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	// =========================================
 
 	/**
-	 * Prerequisite: User is on Job Mapping page with maximum loaded profiles
-	 * Scrolls to load maximum profiles before testing sort performance
+	 * Prerequisite: User is on Job Mapping page with maximum loaded profiles.
+	 * Scrolls to load maximum profiles before testing sort performance.
 	 */
 	public void user_is_on_job_mapping_page_with_maximum_loaded_profiles() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			String resultsText = showingJobResultsCount.getText().trim();
+			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
 			int currentCount = extractResultsCount(resultsText);
 
 			int scrollAttempts = 10;
 			for (int i = 0; i < scrollAttempts; i++) {
 				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN
 																								// (headless-compatible)
-				Thread.sleep(500);
+				safeSleep(500);
 
 				PerformanceUtils.waitForSpinnersToDisappear(driver, 2);
 			}
 
 			js.executeScript("window.scrollTo(0, 0);");
-			Thread.sleep(500);
+			safeSleep(500);
 
-			resultsText = showingJobResultsCount.getText().trim();
+			resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
 			int finalCount = extractResultsCount(resultsText);
 
 			LOGGER.info(String.format(" Maximum profiles loaded: %d profiles (%d initial  %d final)", finalCount,
@@ -2026,106 +1919,103 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("load_max_profiles_failed", e);
-			LOGGER.error(" Failed to load maximum profiles", e);
 			PageObjectHelper.log(LOGGER, " Failed to load maximum profiles: " + e.getMessage());
 			Assert.fail("Failed to load maximum profiles: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Measures time to sort profiles by Job Title
+	 * Measures time to sort profiles by Job Title.
 	 */
 	public void user_measures_time_to_sort_profiles_by_job_title() {
 		try {
-			sortByJobTitleStartTime = System.currentTimeMillis();
+			sortByJobTitleStartTime.set(System.currentTimeMillis());
 
+			WebElement sortHeader = findElement(ORG_JOB_NAME_HEADER);
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(orgJobNameHeader)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(sortHeader)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", orgJobNameHeader);
+					js.executeScript("arguments[0].click();", sortHeader);
 				} catch (Exception s) {
-					utils.jsClick(driver, orgJobNameHeader);
+					jsClick(sortHeader);
 				}
 			}
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 1);
-			Thread.sleep(500);
+			safeSleep(500);
 
-			sortByJobTitleEndTime = System.currentTimeMillis();
-			totalSortByJobTitleTime = sortByJobTitleEndTime - sortByJobTitleStartTime;
+			sortByJobTitleEndTime.set(System.currentTimeMillis());
+			totalSortByJobTitleTime.set(sortByJobTitleEndTime.get() - sortByJobTitleStartTime.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sort_by_title_failed", e);
-			LOGGER.error(" Failed to measure sort by Job Title", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure sort by Job Title: " + e.getMessage());
 			Assert.fail("Failed to measure sort by Job Title: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Measures time to sort profiles by Grade
+	 * Measures time to sort profiles by Grade.
 	 */
 	public void user_measures_time_to_sort_profiles_by_grade() {
 		try {
-			sortByGradeStartTime = System.currentTimeMillis();
+			sortByGradeStartTime.set(System.currentTimeMillis());
 
+			WebElement sortHeader = findElement(ORG_JOB_GRADE_HEADER);
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(orgJobGradeHeader)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(sortHeader)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", orgJobGradeHeader);
+					js.executeScript("arguments[0].click();", sortHeader);
 				} catch (Exception s) {
-					utils.jsClick(driver, orgJobGradeHeader);
+					jsClick(sortHeader);
 				}
 			}
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 1);
-			Thread.sleep(500);
+			safeSleep(500);
 
-			sortByGradeEndTime = System.currentTimeMillis();
-			totalSortByGradeTime = sortByGradeEndTime - sortByGradeStartTime;
+			sortByGradeEndTime.set(System.currentTimeMillis());
+			totalSortByGradeTime.set(sortByGradeEndTime.get() - sortByGradeStartTime.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sort_by_grade_failed", e);
-			LOGGER.error(" Failed to measure sort by Grade", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure sort by Grade: " + e.getMessage());
 			Assert.fail("Failed to measure sort by Grade: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates sorting operation time is within acceptable threshold
+	 * Validates sorting operation time is within acceptable threshold.
 	 */
 	public void user_validates_sorting_operation_time_is_within_acceptable_threshold() {
 		try {
-			validateThreshold(totalSortByJobTitleTime, SORT_OPERATION_THRESHOLD_MS, "Sort by Job Title",
+			validateThreshold(totalSortByJobTitleTime.get(), SORT_OPERATION_THRESHOLD_MS, "Sort by Job Title",
 					"sort_by_title");
-			validateThreshold(totalSortByGradeTime, SORT_OPERATION_THRESHOLD_MS, "Sort by Grade", "sort_by_grade");
+			validateThreshold(totalSortByGradeTime.get(), SORT_OPERATION_THRESHOLD_MS, "Sort by Grade", "sort_by_grade");
 
-			long avgSortTime = (totalSortByJobTitleTime + totalSortByGradeTime) / 2;
+			long avgSortTime = (totalSortByJobTitleTime.get() + totalSortByGradeTime.get()) / 2;
 			LOGGER.info(String.format(" Average Sort Time: %d ms (%.2f sec)", avgSortTime, avgSortTime / 1000.0));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_sort_threshold_failed", e);
-			LOGGER.error(" Failed to validate sort threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate sort threshold: " + e.getMessage());
 			Assert.fail("Failed to validate sort threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies sorted results are accurate (informational check)
+	 * Verifies sorted results are accurate (informational check).
 	 */
 	public void user_verifies_sorted_results_are_accurate() {
 		try {
 			wait.until(ExpectedConditions.presenceOfElementLocated(
-					org.openqa.selenium.By.xpath("//div[@id='org-job-container']//tbody//tr")));
+					By.xpath("//div[@id='org-job-container']//tbody//tr")));
 
-			java.util.List<WebElement> rows = driver.findElements(org.openqa.selenium.By
-					.xpath("//div[@id='org-job-container']//tbody//tr//td[2]//div[contains(text(),'(')]"));
+			java.util.List<WebElement> rows = findElements(PROFILE_ROWS);
 
 			LOGGER.info(
 					String.format(" Sort completed successfully | %d profiles visible in sorted view", rows.size()));
@@ -2133,18 +2023,17 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_sorted_results_failed", e);
-			LOGGER.error(" Failed to verify sorted results", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify sorted results: " + e.getMessage());
 			Assert.fail("Failed to verify sorted results: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates UI remains responsive during sorting
+	 * Validates UI remains responsive during sorting.
 	 */
 	public void user_validates_ui_remains_responsive_during_sorting() {
 		try {
-			long maxSortTime = Math.max(totalSortByJobTitleTime, totalSortByGradeTime);
+			long maxSortTime = Math.max(totalSortByJobTitleTime.get(), totalSortByGradeTime.get());
 			long instantThreshold = 2000;
 
 			String responseMsg;
@@ -2162,7 +2051,6 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_sort_ui_responsiveness_failed", e);
-			LOGGER.error(" Failed to validate UI responsiveness", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate UI responsiveness: " + e.getMessage());
 			Assert.fail("Failed to validate UI responsiveness: " + e.getMessage());
 		}
@@ -2174,115 +2062,113 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 	/**
 	 * Prerequisite: User is on Job Mapping page with maximum loaded profiles
-	 * (reuses existing method) Uses
-	 * user_is_on_job_mapping_page_with_maximum_loaded_profiles() from Scenario 9
+	 * (reuses existing method). Uses
+	 * user_is_on_job_mapping_page_with_maximum_loaded_profiles() from Scenario 9.
 	 */
 
 	/**
-	 * Measures time to click chevron button beside header checkbox
+	 * Measures time to click chevron button beside header checkbox.
 	 */
 	public void user_measures_time_to_click_chevron_button_beside_header_checkbox() {
 		try {
 			js.executeScript("window.scrollTo(0, 0);");
-			Thread.sleep(500);
+			safeSleep(500);
 
-			chevronClickStartTime = System.currentTimeMillis();
+			chevronClickStartTime.set(System.currentTimeMillis());
 
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", chevronBtninJAM);
-			Thread.sleep(300);
+			WebElement chevronBtn = findElement(CHEVRON_BTN_IN_JAM);
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", chevronBtn);
+			safeSleep(300);
 
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(chevronBtninJAM)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(chevronBtn)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", chevronBtninJAM);
+					js.executeScript("arguments[0].click();", chevronBtn);
 				} catch (Exception s) {
-					utils.jsClick(driver, chevronBtninJAM);
+					jsClick(chevronBtn);
 				}
 			}
 
 			PerformanceUtils.waitForPageReady(driver, 1);
-			Thread.sleep(300);
+			safeSleep(300);
 
-			chevronClickEndTime = System.currentTimeMillis();
-			totalChevronClickTime = chevronClickEndTime - chevronClickStartTime;
+			chevronClickEndTime.set(System.currentTimeMillis());
+			totalChevronClickTime.set(chevronClickEndTime.get() - chevronClickStartTime.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_chevron_click_failed", e);
-			LOGGER.error(" Failed to measure chevron click time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure chevron click time: " + e.getMessage());
 			Assert.fail("Failed to measure chevron click time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Measures time to click Select All option
+	 * Measures time to click Select All option.
 	 */
 	public void user_measures_time_to_click_select_all_option() {
 		try {
-			selectAllClickStartTime = System.currentTimeMillis();
+			selectAllClickStartTime.set(System.currentTimeMillis());
 
+			WebElement selectAllButton = findElement(Locators.Table.SELECT_ALL_BTN);
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(selectAllBtn)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(selectAllButton)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", selectAllBtn);
+					js.executeScript("arguments[0].click();", selectAllButton);
 				} catch (Exception s) {
-					utils.jsClick(driver, selectAllBtn);
+					jsClick(selectAllButton);
 				}
 			}
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
-			Thread.sleep(500);
+			safeSleep(500);
 
-			selectAllClickEndTime = System.currentTimeMillis();
-			totalSelectAllClickTime = selectAllClickEndTime - selectAllClickStartTime;
+			selectAllClickEndTime.set(System.currentTimeMillis());
+			totalSelectAllClickTime.set(selectAllClickEndTime.get() - selectAllClickStartTime.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_select_all_click_failed", e);
-			LOGGER.error(" Failed to measure Select All click time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure Select All click time: " + e.getMessage());
 			Assert.fail("Failed to measure Select All click time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates select all operation time is within acceptable threshold
+	 * Validates select all operation time is within acceptable threshold.
 	 */
 	public void user_validates_select_all_operation_time_is_within_acceptable_threshold() {
 		try {
-			long totalSelectAllOperationTime = totalChevronClickTime + totalSelectAllClickTime;
+			long totalSelectAllOperationTime = totalChevronClickTime.get() + totalSelectAllClickTime.get();
 
 			validateThreshold(totalSelectAllOperationTime, SELECT_ALL_THRESHOLD_MS,
 					"Select All Operation (Chevron + Select All)", "select_all_operation");
 
 			LOGGER.info(String.format(" Breakdown: Chevron (%d ms) + Select All (%d ms) = Total (%d ms)",
-					totalChevronClickTime, totalSelectAllClickTime, totalSelectAllOperationTime));
+					totalChevronClickTime.get(), totalSelectAllClickTime.get(), totalSelectAllOperationTime));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_select_all_threshold_failed", e);
-			LOGGER.error(" Failed to validate Select All threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate Select All threshold: " + e.getMessage());
 			Assert.fail("Failed to validate Select All threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies all profiles are selected after Select All operation
+	 * Verifies all profiles are selected after Select All operation.
 	 */
 	public void user_verifies_all_profiles_are_selected() {
 		try {
 			for (int i = 0; i < 3; i++) {
 				js.executeScript("window.scrollBy(0, 800);");
-				Thread.sleep(300);
+				safeSleep(300);
 			}
 
 			js.executeScript("window.scrollTo(0, 0);");
-			Thread.sleep(500);
+			safeSleep(500);
 
-			java.util.List<WebElement> allCheckboxes = driver.findElements(
-					By.xpath("//div[@id='org-job-container']//tbody//tr//td[1]//input[@type='checkbox']"));
+			java.util.List<WebElement> allCheckboxes = findElements(ALL_CHECKBOXES);
 
 			int selectedCount = 0;
 			for (WebElement checkbox : allCheckboxes) {
@@ -2291,28 +2177,27 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 				}
 			}
 
-			profilesCountAfterSelectAll = selectedCount / 3;
+			profilesCountAfterSelectAll.set(selectedCount / 3);
 
 			LOGGER.info(
 					String.format(" Selected profiles verified: %d profiles selected (Sample of %d checkboxes checked)",
-							profilesCountAfterSelectAll, selectedCount));
+							profilesCountAfterSelectAll.get(), selectedCount));
 			PageObjectHelper.log(LOGGER, 
-					String.format(" Select All successful: %d profiles selected", profilesCountAfterSelectAll));
+					String.format(" Select All successful: %d profiles selected", profilesCountAfterSelectAll.get()));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_all_profiles_selected_failed", e);
-			LOGGER.error(" Failed to verify all profiles selected", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify all profiles selected: " + e.getMessage());
 			Assert.fail("Failed to verify all profiles selected: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates UI remains responsive during bulk selection
+	 * Validates UI remains responsive during bulk selection.
 	 */
 	public void user_validates_ui_remains_responsive_during_bulk_selection() {
 		try {
-			long totalOperationTime = totalChevronClickTime + totalSelectAllClickTime;
+			long totalOperationTime = totalChevronClickTime.get() + totalSelectAllClickTime.get();
 			long instantThreshold = 1500;
 
 			String responseMsg;
@@ -2331,7 +2216,6 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_bulk_selection_ui_responsiveness_failed", e);
-			LOGGER.error(" Failed to validate UI responsiveness", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate UI responsiveness: " + e.getMessage());
 			Assert.fail("Failed to validate UI responsiveness: " + e.getMessage());
 		}
@@ -2342,139 +2226,133 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	// =========================================
 
 	/**
-	 * Prerequisite: User is on Job Mapping page (reuses existing condition)
+	 * Prerequisite: User is on Job Mapping page (reuses existing condition).
 	 */
 
 	/**
-	 * Navigates to Profile Manager screen from KFone Global Menu
+	 * Navigates to Profile Manager screen from KFone Global Menu.
 	 */
 	public void user_navigates_to_profile_manager_screen() {
 		try {
 			// Wait for page to be ready
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 1);
 
 			// Click on KFONE Global Menu button
+			WebElement kfoneMenuBtn = findElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(KfoneMenu)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(kfoneMenuBtn)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", KfoneMenu);
+					js.executeScript("arguments[0].click();", kfoneMenuBtn);
 				} catch (Exception s) {
-					utils.jsClick(driver, KfoneMenu);
+					jsClick(kfoneMenuBtn);
 				}
 			}
 
 			PerformanceUtils.waitForPageReady(driver, 1);
 
 			// Click on Profile Manager button in KFONE menu
+			WebElement pmBtn = findElement(KFONE_MENU_PM_BTN);
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(KfoneMenuPMBtn)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(pmBtn)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", KfoneMenuPMBtn);
+					js.executeScript("arguments[0].click();", pmBtn);
 				} catch (Exception s) {
-					utils.jsClick(driver, KfoneMenuPMBtn);
+					jsClick(pmBtn);
 				}
 			}
 
 			// Wait for Profile Manager page to load
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			wait.until(ExpectedConditions.visibilityOf(profileManagerHeader));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(PROFILE_MANAGER_HEADER));
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			LOGGER.info(" Navigated to Profile Manager screen");
 			PageObjectHelper.log(LOGGER, " Navigated to Profile Manager screen");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("navigate_to_profile_manager_failed", e);
-			LOGGER.error(" Failed to navigate to Profile Manager", e);
 			PageObjectHelper.log(LOGGER, " Failed to navigate to Profile Manager: " + e.getMessage());
 			Assert.fail("Failed to navigate to Profile Manager: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Clicks on HCM Sync Profiles tab
+	 * Clicks on HCM Sync Profiles tab.
 	 */
 	public void user_clicks_on_hcm_sync_profiles_tab() {
 		try {
-			wait.until(ExpectedConditions.elementToBeClickable(hcmSyncProfilesHeaderTab)).click();
-			Thread.sleep(500);
+			wait.until(ExpectedConditions.elementToBeClickable(HCM_SYNC_PROFILES_HEADER_TAB)).click();
+			safeSleep(500);
 
-			LOGGER.info(" Clicked on HCM Sync Profiles tab");
 			PageObjectHelper.log(LOGGER, " Clicked on HCM Sync Profiles tab");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_hcm_tab_failed", e);
-			LOGGER.error(" Failed to click HCM tab", e);
 			PageObjectHelper.log(LOGGER, " Failed to click HCM tab: " + e.getMessage());
 			Assert.fail("Failed to click HCM tab: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Measures time to load HCM Sync Profiles page
+	 * Measures time to load HCM Sync Profiles page.
 	 */
 	public void user_measures_time_to_load_hcm_sync_profiles_page() {
 		try {
-			hcmPageLoadStartTime = System.currentTimeMillis();
+			hcmPageLoadStartTime.set(System.currentTimeMillis());
 
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
-			wait.until(ExpectedConditions.visibilityOf(hcmSyncProfilesTitle));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			wait.until(ExpectedConditions.visibilityOfElementLocated(HCM_SYNC_PROFILES_TITLE));
 			PerformanceUtils.waitForPageReady(driver, 2);
-			Thread.sleep(1000);
+			safeSleep(1000);
 
-			hcmPageLoadEndTime = System.currentTimeMillis();
-			totalHCMPageLoadTime = hcmPageLoadEndTime - hcmPageLoadStartTime;
+			hcmPageLoadEndTime.set(System.currentTimeMillis());
+			totalHCMPageLoadTime.set(hcmPageLoadEndTime.get() - hcmPageLoadStartTime.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_hcm_page_load_failed", e);
-			LOGGER.error(" Failed to measure HCM page load time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure HCM page load time: " + e.getMessage());
 			Assert.fail("Failed to measure HCM page load time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates HCM page load time is within acceptable threshold
+	 * Validates HCM page load time is within acceptable threshold.
 	 */
 	public void user_validates_hcm_page_load_time_is_within_acceptable_threshold() {
 		try {
-			validateThreshold(totalHCMPageLoadTime, HCM_PAGE_LOAD_THRESHOLD_MS, "HCM Page Load", "hcm_page_load");
+			validateThreshold(totalHCMPageLoadTime.get(), HCM_PAGE_LOAD_THRESHOLD_MS, "HCM Page Load", "hcm_page_load");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_hcm_page_load_threshold_failed", e);
-			LOGGER.error(" Failed to validate HCM page load threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate HCM page load threshold: " + e.getMessage());
 			Assert.fail("Failed to validate HCM page load threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies all HCM profiles are loaded correctly
+	 * Verifies all HCM profiles are loaded correctly.
 	 */
 	public void user_verifies_all_hcm_profiles_are_loaded_correctly() {
 		try {
 			try {
-				WebElement hcmResultsCount = driver.findElement(By.xpath("//div[contains(text(),'Showing')]"));
-				String resultsText = hcmResultsCount.getText().trim();
-				hcmProfilesCount = extractResultsCount(resultsText);
+				WebElement hcmResultsCountElement = findElement(HCM_RESULTS_COUNT);
+				String resultsText = hcmResultsCountElement.getText().trim();
+				hcmProfilesCount.set(extractResultsCount(resultsText));
 				LOGGER.info(String.format(" HCM Sync Profiles loaded successfully | %d profiles available",
-						hcmProfilesCount));
+						hcmProfilesCount.get()));
 			} catch (Exception e) {
-				java.util.List<WebElement> profileCheckboxes = driver
-						.findElements(By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox"));
-				hcmProfilesCount = profileCheckboxes.size();
+				java.util.List<WebElement> profileCheckboxes = findElements(HCM_PROFILE_CHECKBOXES);
+				hcmProfilesCount.set(profileCheckboxes.size());
 				LOGGER.info(
-						String.format(" HCM Sync Profiles loaded successfully | %d profiles found", hcmProfilesCount));
+						String.format(" HCM Sync Profiles loaded successfully | %d profiles found", hcmProfilesCount.get()));
 			}
 
-			PageObjectHelper.log(LOGGER, String.format(" HCM profiles loaded: %d profiles", hcmProfilesCount));
+			PageObjectHelper.log(LOGGER, String.format(" HCM profiles loaded: %d profiles", hcmProfilesCount.get()));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_hcm_profiles_loaded_failed", e);
-			LOGGER.error(" Failed to verify HCM profiles loaded", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify HCM profiles loaded: " + e.getMessage());
 			Assert.fail("Failed to verify HCM profiles loaded: " + e.getMessage());
 		}
@@ -2485,147 +2363,142 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM {
 	// =========================================
 
 	/**
-	 * Prerequisite: User is on HCM Sync Profiles page with selected profiles
-	 * Selects profiles using header checkbox
+	 * Prerequisite: User is on HCM Sync Profiles page with selected profiles.
+	 * Selects profiles using header checkbox.
 	 */
 	public void user_is_on_hcm_sync_profiles_page_with_selected_profiles() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner2));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			// Get profiles count before selection
 			try {
-				WebElement hcmResultsCount = driver.findElement(By.xpath("//div[contains(text(),'Showing')]"));
-				String resultsText = hcmResultsCount.getText().trim();
-				selectedProfilesCountBeforeSync = extractResultsCount(resultsText);
+				WebElement hcmResultsCountElement = findElement(HCM_RESULTS_COUNT);
+				String resultsText = hcmResultsCountElement.getText().trim();
+				selectedProfilesCountBeforeSync.set(extractResultsCount(resultsText));
 			} catch (Exception e) {
 				// If results count not available, count checkboxes
-				java.util.List<WebElement> checkboxes = driver
-						.findElements(By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox"));
-				selectedProfilesCountBeforeSync = checkboxes.size();
+				java.util.List<WebElement> checkboxes = findElements(HCM_PROFILE_CHECKBOXES);
+				selectedProfilesCountBeforeSync.set(checkboxes.size());
 			}
 
 			// Click header checkbox to select all loaded profiles
+			WebElement hcmHeaderCheckbox = findElement(HCM_TABLE_HEADER_CHECKBOX);
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(hcmTableHeaderCheckbox)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(hcmHeaderCheckbox)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", hcmTableHeaderCheckbox);
+					js.executeScript("arguments[0].click();", hcmHeaderCheckbox);
 				} catch (Exception s) {
-					utils.jsClick(driver, hcmTableHeaderCheckbox);
+					jsClick(hcmHeaderCheckbox);
 				}
 			}
 
-			Thread.sleep(500);
+			safeSleep(500);
 			PerformanceUtils.waitForPageReady(driver, 1);
 
 			LOGGER.info(String.format(" Selected profiles using header checkbox: %d profiles ready for sync",
-					selectedProfilesCountBeforeSync));
+					selectedProfilesCountBeforeSync.get()));
 			PageObjectHelper.log(LOGGER, 
-					String.format(" %d profiles selected for sync test", selectedProfilesCountBeforeSync));
+					String.format(" %d profiles selected for sync test", selectedProfilesCountBeforeSync.get()));
 
 			// Verify Sync button is enabled
-			wait.until(ExpectedConditions.visibilityOf(syncWithHCMBtn));
-			if (!syncWithHCMBtn.isEnabled()) {
+			WebElement syncBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(SYNC_WITH_HCM_BTN));
+			if (!syncBtn.isEnabled()) {
 				LOGGER.warn(" Sync with HCM button is not enabled, profiles may not be selected");
 			}
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_selected_profiles_for_sync_failed", e);
-			LOGGER.error(" Failed to verify selected profiles for sync", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify selected profiles for sync: " + e.getMessage());
 			Assert.fail("Failed to verify selected profiles for sync: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Measures time to click Sync Selected Profiles button
+	 * Measures time to click Sync Selected Profiles button.
 	 */
 	public void user_measures_time_to_click_sync_selected_profiles_button() {
 		try {
-			syncClickStartTime = System.currentTimeMillis();
+			syncClickStartTime.set(System.currentTimeMillis());
 
+			WebElement syncBtn = findElement(SYNC_WITH_HCM_BTN);
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(syncWithHCMBtn)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(syncBtn)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", syncWithHCMBtn);
+					js.executeScript("arguments[0].click();", syncBtn);
 				} catch (Exception s) {
-					utils.jsClick(driver, syncWithHCMBtn);
+					jsClick(syncBtn);
 				}
 			}
 
-			syncClickEndTime = System.currentTimeMillis();
-			totalSyncClickTime = syncClickEndTime - syncClickStartTime;
+			syncClickEndTime.set(System.currentTimeMillis());
+			totalSyncClickTime.set(syncClickEndTime.get() - syncClickStartTime.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sync_click_failed", e);
-			LOGGER.error(" Failed to measure sync click time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure sync click time: " + e.getMessage());
 			Assert.fail("Failed to measure sync click time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates sync operation processing time
+	 * Validates sync operation processing time.
 	 */
 	public void user_validates_sync_operation_processing_time() {
 		try {
-			syncProcessStartTime = System.currentTimeMillis();
+			syncProcessStartTime.set(System.currentTimeMillis());
 
-			wait.until(ExpectedConditions.visibilityOf(syncSuccessPopupText));
+			wait.until(ExpectedConditions.visibilityOfElementLocated(SYNC_SUCCESS_POPUP_TEXT));
 
-			syncProcessEndTime = System.currentTimeMillis();
-			totalSyncProcessTime = syncProcessEndTime - syncProcessStartTime;
+			syncProcessEndTime.set(System.currentTimeMillis());
+			totalSyncProcessTime.set(syncProcessEndTime.get() - syncProcessStartTime.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sync_process_failed", e);
-			LOGGER.error(" Failed to measure sync process time", e);
 			PageObjectHelper.log(LOGGER, " Failed to measure sync process time: " + e.getMessage());
 			Assert.fail("Failed to measure sync process time: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies sync operation completes within acceptable threshold
+	 * Verifies sync operation completes within acceptable threshold.
 	 */
 	public void user_verifies_sync_operation_completes_within_acceptable_threshold() {
 		try {
-			long totalSyncTime = totalSyncClickTime + totalSyncProcessTime;
+			long totalSyncTime = totalSyncClickTime.get() + totalSyncProcessTime.get();
 
 			validateThreshold(totalSyncTime, SYNC_OPERATION_THRESHOLD_MS, "Sync Operation (Click + Process)",
 					"sync_operation");
 
-			LOGGER.info(String.format(" Breakdown: Click (%d ms) + Process (%d ms) = Total (%d ms)", totalSyncClickTime,
-					totalSyncProcessTime, totalSyncTime));
+			LOGGER.info(String.format(" Breakdown: Click (%d ms) + Process (%d ms) = Total (%d ms)", totalSyncClickTime.get(),
+					totalSyncProcessTime.get(), totalSyncTime));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_sync_threshold_failed", e);
-			LOGGER.error(" Failed to validate sync threshold", e);
 			PageObjectHelper.log(LOGGER, " Failed to validate sync threshold: " + e.getMessage());
 			Assert.fail("Failed to validate sync threshold: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Validates sync status updates appear promptly
+	 * Validates sync status updates appear promptly.
 	 */
 	public void user_validates_sync_status_updates_appear_promptly() {
 		try {
-			String successMsg = syncSuccessPopupText.getText().trim();
-			LOGGER.info(String.format(" Sync success message displayed: \"%s\"", successMsg));
-			PageObjectHelper.log(LOGGER, " Sync success message displayed promptly");
+			String successMsg = findElement(SYNC_SUCCESS_POPUP_TEXT).getText().trim();
+			PageObjectHelper.log(LOGGER, "Sync success message displayed: " + successMsg);
 
-			syncSuccessPopupCloseBtn.click();
-			Thread.sleep(500);
+			findElement(SYNC_SUCCESS_POPUP_CLOSE_BTN).click();
+			safeSleep(500);
 
 			LOGGER.info(String.format(" Sync operation completed | %d profiles synced with HCM",
-					selectedProfilesCountBeforeSync));
-			PageObjectHelper.log(LOGGER, String.format(" Synced %d profiles successfully", selectedProfilesCountBeforeSync));
+					selectedProfilesCountBeforeSync.get()));
+			PageObjectHelper.log(LOGGER, String.format(" Synced %d profiles successfully", selectedProfilesCountBeforeSync.get()));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_sync_status_failed", e);
-			LOGGER.error(" Failed to verify sync status", e);
 			PageObjectHelper.log(LOGGER, " Failed to verify sync status: " + e.getMessage());
 			Assert.fail("Failed to verify sync status: " + e.getMessage());
 		}

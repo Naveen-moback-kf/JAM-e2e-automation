@@ -34,7 +34,7 @@ public class DriverManager {
 	private static ThreadLocal<WebDriverWait> wait = ThreadLocal.withInitial(() -> null);
 
 	@BeforeMethod
-	public void CreateDriver() {
+	public void initializeDriver() {
 		if (DriverManager.getDriver() == null) {
 			try {
 				DriverManager.launchBrowser();
@@ -42,7 +42,6 @@ public class DriverManager {
 				LOGGER.error("Exception in DriverManager initialization: {}", e.getMessage(), e);
 			}
 		}
-
 	}
 
 	@BeforeTest
@@ -146,62 +145,61 @@ public class DriverManager {
 		}
 	}
 
-	// Static flag to ensure driver is downloaded only once
-	private static volatile boolean driverDownloaded = false;
-	private static final Object driverLock = new Object();
+	// Static flags to ensure drivers are downloaded only once (volatile for thread visibility)
+	private static volatile boolean chromeDriverDownloaded = false;
+	private static volatile boolean firefoxDriverDownloaded = false;
+	private static volatile boolean edgeDriverDownloaded = false;
 
 	/**
-	 * Setup ChromeDriver with parallel execution optimization Synchronized to
-	 * prevent race conditions during parallel test execution
+	 * Setup ChromeDriver with parallel execution optimization.
+	 * Uses volatile flag + synchronized method for thread-safe double-check pattern.
 	 */
 	private static synchronized void setupChromeDriver() {
-		// If driver already downloaded, skip setup
-		if (driverDownloaded) {
+		if (chromeDriverDownloaded) {
 			return;
 		}
 
-		synchronized (driverLock) {
-			// Double-check after acquiring lock
-			if (driverDownloaded) {
-				return;
-			}
+		try {
+			String cacheDir = System.getProperty("user.home") + File.separator + ".cache" + File.separator + "selenium";
+			WebDriverManager.chromedriver()
+					.cachePath(cacheDir)
+					.timeout(180)
+					.avoidShutdownHook()
+					.setup();
 
+			chromeDriverDownloaded = true;
+			LOGGER.info("✓ ChromeDriver setup completed");
+		} catch (Exception e) {
+			LOGGER.warn("ChromeDriver setup failed, retrying...: {}", e.getMessage());
 			try {
-				// Determine cache path (handle both Linux and Windows)
-				String cacheDir = System.getProperty("user.home") + File.separator + ".cache" + File.separator
-						+ "selenium";
-
-				WebDriverManager.chromedriver().cachePath(cacheDir) // Use explicit cache path
-						.timeout(180) // Increased timeout for slow networks/CI
-						.avoidShutdownHook() // Prevent shutdown conflicts in parallel execution
-						.setup();
-
-				driverDownloaded = true;
-				LOGGER.info("✓ ChromeDriver setup completed");
-			} catch (Exception e) {
-				LOGGER.warn("ChromeDriver setup failed, retrying...: {}", e.getMessage());
-
-				// Fallback: Try with default settings
-				try {
-					Thread.sleep(2000); // Brief pause before retry
-					WebDriverManager.chromedriver().timeout(180).avoidShutdownHook().setup();
-					driverDownloaded = true;
-					LOGGER.info("✓ ChromeDriver setup completed with fallback");
-				} catch (Exception fallbackException) {
-					LOGGER.error("✗ ChromeDriver setup failed", fallbackException);
-					throw new RuntimeException("Failed to setup ChromeDriver after retry", fallbackException);
-				}
+				Thread.sleep(2000);
+				WebDriverManager.chromedriver().timeout(180).avoidShutdownHook().setup();
+				chromeDriverDownloaded = true;
+				LOGGER.info("✓ ChromeDriver setup completed with fallback");
+			} catch (Exception fallbackException) {
+				LOGGER.error("✗ ChromeDriver setup failed", fallbackException);
+				throw new RuntimeException("Failed to setup ChromeDriver after retry", fallbackException);
 			}
 		}
 	}
 
 	/**
-	 * Setup FirefoxDriver with parallel execution optimization
+	 * Setup FirefoxDriver with parallel execution optimization.
+	 * Uses volatile flag to ensure driver is downloaded only once.
 	 */
 	private static synchronized void setupFirefoxDriver() {
+		if (firefoxDriverDownloaded) {
+			return;
+		}
+
 		try {
 			String cacheDir = System.getProperty("user.home") + File.separator + ".cache" + File.separator + "selenium";
-			WebDriverManager.firefoxdriver().cachePath(cacheDir).timeout(180).avoidShutdownHook().setup();
+			WebDriverManager.firefoxdriver()
+					.cachePath(cacheDir)
+					.timeout(180)
+					.avoidShutdownHook()
+					.setup();
+			firefoxDriverDownloaded = true;
 			LOGGER.info("✓ FirefoxDriver setup completed");
 		} catch (Exception e) {
 			LOGGER.error("✗ FirefoxDriver setup failed", e);
@@ -210,12 +208,22 @@ public class DriverManager {
 	}
 
 	/**
-	 * Setup EdgeDriver with parallel execution optimization
+	 * Setup EdgeDriver with parallel execution optimization.
+	 * Uses volatile flag to ensure driver is downloaded only once.
 	 */
 	private static synchronized void setupEdgeDriver() {
+		if (edgeDriverDownloaded) {
+			return;
+		}
+
 		try {
 			String cacheDir = System.getProperty("user.home") + File.separator + ".cache" + File.separator + "selenium";
-			WebDriverManager.edgedriver().cachePath(cacheDir).timeout(180).avoidShutdownHook().setup();
+			WebDriverManager.edgedriver()
+					.cachePath(cacheDir)
+					.timeout(180)
+					.avoidShutdownHook()
+					.setup();
+			edgeDriverDownloaded = true;
 			LOGGER.info("✓ EdgeDriver setup completed");
 		} catch (Exception e) {
 			LOGGER.error("✗ EdgeDriver setup failed", e);
@@ -230,12 +238,6 @@ public class DriverManager {
 	private static ChromeOptions configureChromeOptions(boolean isHeadless) {
 		ChromeOptions options = new ChromeOptions();
 
-		// CRITICAL FOR PARALLEL EXECUTION: Isolate user data directory per thread
-		// This prevents port conflicts and profile locking issues
-		long threadId = Thread.currentThread().getId();
-		String userDataDir = System.getProperty("user.dir") + File.separator + "chrome-profile-" + threadId;
-		options.addArguments("--user-data-dir=" + userDataDir);
-
 		// Download directory configuration
 		Map<String, Object> prefs = new HashMap<>();
 		prefs.put("download.default_directory",
@@ -245,19 +247,41 @@ public class DriverManager {
 		prefs.put("download.prompt_for_download", false);
 		options.setExperimentalOption("prefs", prefs);
 
-		// Core Chrome arguments (deduplicated)
-		options.addArguments("--remote-allow-origins=*", "--incognito", // Clean state between runs
-				"--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--disable-extensions",
-				"--disable-hang-monitor", "--disable-prompt-on-repost", "--disable-default-apps",
-				"--disable-popup-blocking", "--disable-translate", "--disable-infobars", "--disable-web-security",
-				"--disable-features=TranslateUI", "--disable-background-timer-throttling",
-				"--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding",
-				"--disable-background-media-audio", "--ignore-ssl-errors=yes", "--ignore-certificate-errors",
-				"--ignore-certificate-errors-spki-list", "--allow-running-insecure-content");
+		// Core Chrome arguments for stability
+		options.addArguments(
+				"--remote-allow-origins=*",
+				"--no-sandbox",
+				"--disable-dev-shm-usage",
+				"--disable-gpu",
+				"--disable-extensions",
+				"--disable-hang-monitor",
+				"--disable-prompt-on-repost",
+				"--disable-default-apps",
+				"--disable-popup-blocking",
+				"--disable-translate",
+				"--disable-infobars",
+				"--disable-web-security",
+				"--disable-features=TranslateUI",
+				"--disable-background-timer-throttling",
+				"--disable-backgrounding-occluded-windows",
+				"--disable-renderer-backgrounding",
+				"--disable-background-media-audio",
+				"--ignore-ssl-errors=yes",
+				"--ignore-certificate-errors",
+				"--ignore-certificate-errors-spki-list",
+				"--allow-running-insecure-content",
+				"--disable-crash-reporter",
+				"--disable-in-process-stack-traces"
+		);
 
 		// Headless-specific configuration
 		if (isHeadless) {
-			options.addArguments("--headless=new", "--window-size=1920,1080", "--disable-software-rasterizer");
+			options.addArguments(
+					"--headless=new",
+					"--window-size=1920,1080",
+					"--disable-software-rasterizer"
+			);
+			// Note: --disable-gpu, --no-sandbox, --disable-dev-shm-usage already added above
 		} else {
 			options.addArguments("--start-maximized");
 		}

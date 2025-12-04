@@ -1,63 +1,34 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManager {
+public class PO28_VerifyInfoMessageForManualMappingProfiles extends BasePageObject {
 
-	private static final Logger LOGGER = (Logger) LogManager
-			.getLogger(PO28_VerifyInfoMessageForManualMappingProfiles.class);
+	private static final Logger LOGGER = LogManager.getLogger(PO28_VerifyInfoMessageForManualMappingProfiles.class);
 
-	WebDriver driver;
-	WebDriverWait wait;
-	JavascriptExecutor jsExecutor;
+	private JavascriptExecutor jsExecutor;
 
-	public PO28_VerifyInfoMessageForManualMappingProfiles() {
-		this.driver = getDriver();
-		this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	public PO28_VerifyInfoMessageForManualMappingProfiles() throws IOException {
+		super();
 		this.jsExecutor = (JavascriptExecutor) driver;
-		PageFactory.initElements(driver, this);
 	}
 
-	// Page Elements
-	@FindBy(xpath = "//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']")
-	private List<WebElement> infoMessageContainers;
-
-	@FindBy(xpath = "//button[contains(text(), 'Filters')]")
-	private WebElement filtersButton;
-
-	@FindBy(xpath = "//span[text()='Mapping Status']")
-	private WebElement mappingStatusFilter;
-
-	@FindBy(xpath = "//div[contains(@class, 'checkbox')]//span[text()='Manually mapped']")
-	private WebElement manuallyMappedCheckbox;
-
-	@FindBy(xpath = "//button[contains(text(), 'Apply')]")
-	private WebElement applyFiltersButton;
-
-	@FindBy(xpath = "//button[contains(text(), 'Search a Different Profile') or @aria-label='Search a Different Profile']")
-	private List<WebElement> searchDifferentProfileButtons;
-
-	@FindBy(xpath = "//h1[contains(text(), 'Manual Mapping')] | //div[contains(@class, 'manual-mapping-container')] | //div[contains(text(), 'Manual Mapping')]")
-	private WebElement manualMappingPageIndicator;
+	// ==================== LOCATORS ====================
+	// Note: This file uses dynamic XPath construction, so locators are defined inline in methods
 
 	// Fields for dynamic row-based approach
 	private List<WebElement> manualProfilesWithInfoMessages = new ArrayList<>();
@@ -86,15 +57,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 	private String secondManualFunctionSubfunctionWithInfoMessage = "";
 	private int secondCurrentManualRowIndex = -1;
 
-	// Helper Methods
-	private void safeSleep(int milliseconds) {
-		try {
-			PerformanceUtils.waitForUIStability(driver, milliseconds / 1000);
-		} catch (Exception e) {
-			Thread.currentThread().interrupt();
-			LOGGER.warn("Sleep interrupted: " + e.getMessage());
-		}
-	}
+	// Helper Methods moved to BasePageObject
 
 	// OLD METHOD REMOVED - Replaced by optimized
 	// scrollDownAndFindMoreManualMappingProfiles()
@@ -121,26 +84,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 		}
 	}
 
-	/**
-	 * Get the row index (1-based) of a table row element within its tbody
-	 */
-	private int getRowIndex(WebElement rowElement) {
-		try {
-			// Find all tr elements in the same tbody
-			WebElement tbody = rowElement.findElement(By.xpath("./ancestor::tbody"));
-			List<WebElement> allRows = tbody.findElements(By.xpath("./tr"));
-
-			// Find the index of our row (1-based)
-			for (int i = 0; i < allRows.size(); i++) {
-				if (allRows.get(i).equals(rowElement)) {
-					return i + 1; // Return 1-based index
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.warn("Could not determine row index: " + e.getMessage());
-		}
-		return -1;
-	}
+	// getRowIndex method moved to BasePageObject
 
 	/**
 	 * Calculate profile number based on row index (each profile spans 3 rows)
@@ -605,11 +549,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 						"//div[@id='org-job-container']//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']"));
 
 				if (allInfoMessages.isEmpty()) {
-					LOGGER.info(
-							"... SUCCESS: No profiles with missing data found after complete search of all {} attempts",
-							searchAttempts);
-					LOGGER.info(" RESULT: All profiles have complete data - no info messages present");
-					PageObjectHelper.log(LOGGER, 
+										PageObjectHelper.log(LOGGER, 
 							"SUCCESS: No profiles with missing data found - all profiles have complete data");
 					return; // Exit successfully - no missing data is a positive outcome!
 				} else {
@@ -766,12 +706,9 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			}
 
 			int profileNumber = getProfileNumber(currentManualRowIndex);
-			LOGGER.info("Profile {} details:", profileNumber);
-			LOGGER.info("  Job: {} ({})", manualJobNameWithInfoMessage, manualJobCodeWithInfoMessage);
-			LOGGER.info("  Grade: {}, Dept: {}", manualGradeWithInfoMessage, manualDepartmentWithInfoMessage);
-			LOGGER.info("  Func: {}", manualFunctionSubfunctionWithInfoMessage);
-
-			PageObjectHelper.log(LOGGER, "Extracted job details for Profile " + profileNumber);
+			PageObjectHelper.log(LOGGER, "Extracted job details for Profile " + profileNumber + 
+					" - Job: " + manualJobNameWithInfoMessage + " (" + manualJobCodeWithInfoMessage + 
+					"), Grade: " + manualGradeWithInfoMessage + ", Dept: " + manualDepartmentWithInfoMessage);
 
 		} catch (Exception e) {
 			LOGGER.error(
@@ -834,7 +771,6 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			performRobustClick(searchButton, buttonText + " button");
 			safeSleep(1500);
 
-			LOGGER.info("Clicked '{}' button for Profile {}", buttonText, profileNumber);
 			PageObjectHelper.log(LOGGER, "Clicked '" + buttonText + "' button for Profile " + profileNumber);
 
 		} catch (Exception e) {
@@ -984,7 +920,6 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			// validation
 			// For now, implementing basic verification structure
 
-			LOGGER.info("Successfully verified job details match between Job Mapping and Manual Mapping pages");
 			PageObjectHelper.log(LOGGER, 
 					"Successfully verified job details match between Job Mapping and Manual Mapping pages");
 
@@ -1474,13 +1409,9 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
 
 			// Display extracted job details
-			LOGGER.info("Second profile {} details:", profileNumber);
-			LOGGER.info("  Job: {} ({})", secondManualJobNameWithInfoMessage, secondManualJobCodeWithInfoMessage);
-			LOGGER.info("  Grade: {}, Dept: {}", secondManualGradeWithInfoMessage,
-					secondManualDepartmentWithInfoMessage);
-			LOGGER.info("  Func: {}", secondManualFunctionSubfunctionWithInfoMessage);
-
-			PageObjectHelper.log(LOGGER, "Extracted job details from second profile " + profileNumber);
+			PageObjectHelper.log(LOGGER, "Extracted job details from second profile " + profileNumber + 
+					" - Job: " + secondManualJobNameWithInfoMessage + " (" + secondManualJobCodeWithInfoMessage + 
+					"), Grade: " + secondManualGradeWithInfoMessage + ", Dept: " + secondManualDepartmentWithInfoMessage);
 
 		} catch (Exception e) {
 			LOGGER.error("Error extracting job details from second manually mapped profile: " + e.getMessage());
@@ -1520,7 +1451,6 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 			// Perform robust click
 			performRobustClick(targetButton, buttonText + " button for second profile");
 
-			LOGGER.info("Clicked '{}' button for second profile {}", buttonText, profileNumber);
 			PageObjectHelper.log(LOGGER, "Clicked '" + buttonText + "' button for second profile " + profileNumber);
 
 		} catch (Exception e) {
@@ -1812,7 +1742,6 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends DriverManage
 						"Second Manually Mapped Profile Function/Sub-function comparison skipped - one or both values are empty");
 			}
 
-			LOGGER.info("Successfully verified second manually mapped profile job details match between both pages");
 			PageObjectHelper.log(LOGGER, 
 					"Successfully verified job details match between Job Mapping and Manual Mapping pages for Manually Mapped Profile "
 							+ profileNumber + " (Second)");

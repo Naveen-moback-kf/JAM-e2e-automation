@@ -1,88 +1,66 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
-
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
+/**
+ * Page Object for validating select and HCM sync loaded profiles in PM screen.
+ * Verifies that profiles loaded after clicking header checkbox are NOT selected.
+ */
+public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM extends BasePageObject {
 
-	WebDriver driver = DriverManager.getDriver();
+	private static final Logger LOGGER = LogManager.getLogger(PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM.class);
 
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
+	// Locators - Uses centralized locators from BasePageObject.Locators where available
+	// PAGE_LOAD_SPINNER is available via Locators.Spinners.PAGE_LOAD_SPINNER
+	private static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
 
-	public PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM() throws IOException {
-		PageFactory.initElements(driver, this);
+	public PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM() {
+		super();
 	}
 
-	WebDriverWait wait = DriverManager.getWait();
-	Utilities utils = new Utilities();
-	JavascriptExecutor js = (JavascriptExecutor) driver;
-
-	// XPATHs
-	@FindBy(xpath = "//*[@class='blocking-loader']//img")
-	@CacheLookup
-	WebElement pageLoadSpinner;
-
-	@FindBy(xpath = "//div[contains(text(),'Showing')]")
-	@CacheLookup
-	WebElement showingJobResultsCount;
-
 	/**
-	 * Verifies that profiles loaded after clicking the header checkbox are NOT
-	 * selected.
+	 * Verifies that profiles loaded after clicking the header checkbox are NOT selected.
 	 * 
-	 * Expected Flow: 1. Loaded Profiles on screen (BEFORE Header checkbox is
-	 * clicked): 100 profiles 2. Header checkbox is clicked Selects 61 profiles (39
-	 * are disabled, cannot be selected) 3. User scrolls Loads 50 MORE profiles
-	 * (Total now = 150) 4. These 50 newly loaded profiles should NOT be selected
+	 * Expected Flow:
+	 * 1. Loaded Profiles on screen (BEFORE Header checkbox is clicked): 100 profiles
+	 * 2. Header checkbox is clicked - Selects 61 profiles (39 are disabled, cannot be selected)
+	 * 3. User scrolls - Loads 50 MORE profiles (Total now = 150)
+	 * 4. These 50 newly loaded profiles should NOT be selected
 	 * 
-	 * Implementation: - Uses stored values from PO22
-	 * (loadedProfilesBeforeHeaderCheckboxClick,
-	 * selectedProfilesAfterHeaderCheckboxClick,
-	 * disabledProfilesCountInLoadedProfiles) - Counts TOTAL profiles currently in
-	 * DOM - Calculates newly loaded = Total - Loaded Before - Verifies newly loaded
-	 * profiles are UNSELECTED
+	 * Implementation:
+	 * - Uses stored values from PO22 (loadedProfilesBeforeHeaderCheckboxClick,
+	 *   selectedProfilesAfterHeaderCheckboxClick, disabledProfilesCountInLoadedProfiles)
+	 * - Counts TOTAL profiles currently in DOM
+	 * - Calculates newly loaded = Total - Loaded Before
+	 * - Verifies newly loaded profiles are UNSELECTED
 	 * 
 	 * This validates that the "header checkbox select" only selects currently
 	 * LOADED profiles, not profiles that load later via lazy loading/scrolling.
 	 */
 	public void verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen() {
-		int loadedProfilesBeforeHeaderCheckboxClick = PO22_ValidateHCMSyncProfilesScreen_PM.loadedProfilesBeforeHeaderCheckboxClick
-				.get();
-		int selectedProfilesAfterHeaderCheckboxClick = PO22_ValidateHCMSyncProfilesScreen_PM.selectedProfilesAfterHeaderCheckboxClick
-				.get();
-		int disabledProfilesInLoadedProfiles = PO22_ValidateHCMSyncProfilesScreen_PM.disabledProfilesCountInLoadedProfiles
-				.get();
+		int loadedProfilesBeforeHeaderCheckboxClick = PO22_ValidateHCMSyncProfilesScreen_PM.loadedProfilesBeforeHeaderCheckboxClick.get();
+		int selectedProfilesAfterHeaderCheckboxClick = PO22_ValidateHCMSyncProfilesScreen_PM.selectedProfilesAfterHeaderCheckboxClick.get();
+		int disabledProfilesInLoadedProfiles = PO22_ValidateHCMSyncProfilesScreen_PM.disabledProfilesCountInLoadedProfiles.get();
 		int totalProfilesCurrentlyLoaded = 0;
 		int newlyLoadedProfilesAfterScrolling = 0;
 		int unselectedProfilesCount = 0;
 		int disabledInNewlyLoadedProfiles = 0;
 
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.PAGE_LOAD_SPINNER));
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			// Step 1: Count TOTAL profiles currently in DOM (includes newly loaded after
-			// scrolling)
-			totalProfilesCurrentlyLoaded = driver.findElements(By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox"))
-					.size();
+			// Step 1: Count TOTAL profiles currently in DOM (includes newly loaded after scrolling)
+			totalProfilesCurrentlyLoaded = findElements(ALL_CHECKBOXES).size();
 
 			LOGGER.info("Total Profiles Currently loaded on screen: " + totalProfilesCurrentlyLoaded);
 
@@ -90,32 +68,24 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 			newlyLoadedProfilesAfterScrolling = totalProfilesCurrentlyLoaded - loadedProfilesBeforeHeaderCheckboxClick;
 
 			if (newlyLoadedProfilesAfterScrolling <= 0) {
-				PageObjectHelper.log(LOGGER, "No newly loaded profiles to verify");
+				PageObjectHelper.log(LOGGER, "No newly loaded profiles to verify (Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
+						", Selected: " + selectedProfilesAfterHeaderCheckboxClick + 
+						", Disabled: " + disabledProfilesInLoadedProfiles + 
+						", Total Now: " + totalProfilesCurrentlyLoaded + ")");
 				return;
 			}
 
-			LOGGER.info("========================================");
-			LOGGER.info("PROFILE COUNTS SUMMARY");
-			LOGGER.info("========================================");
-			LOGGER.info("Loaded Profiles on screen (BEFORE Header checkbox clicked): "
-					+ loadedProfilesBeforeHeaderCheckboxClick);
-			LOGGER.info(
-					"Selected Profiles (When header checkbox clicked): " + selectedProfilesAfterHeaderCheckboxClick);
-			LOGGER.info(
-					"Disabled profiles (cannot be selected) in loaded profiles: " + disabledProfilesInLoadedProfiles);
-			LOGGER.info("Newly Loaded Profiles on screen (AFTER Header checkbox clicked): "
-					+ newlyLoadedProfilesAfterScrolling);
-			LOGGER.info("Total Profiles Currently loaded on screen: " + totalProfilesCurrentlyLoaded);
-			LOGGER.info("========================================");
-
+			PageObjectHelper.log(LOGGER, "Profile Summary - Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
+					", Selected: " + selectedProfilesAfterHeaderCheckboxClick + 
+					", Disabled: " + disabledProfilesInLoadedProfiles + 
+					", Total Now: " + totalProfilesCurrentlyLoaded + 
+					", Newly Loaded: " + newlyLoadedProfilesAfterScrolling);
 			PageObjectHelper.log(LOGGER, "Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
 
-			// Step 3: Verify that newly loaded profiles (from position
-			// loadedProfilesBeforeHeaderCheckboxClick+1 onwards) are NOT selected
+			// Step 3: Verify that newly loaded profiles (from position loadedProfilesBeforeHeaderCheckboxClick+1 onwards) are NOT selected
 			for (int i = loadedProfilesBeforeHeaderCheckboxClick + 1; i <= totalProfilesCurrentlyLoaded; i++) {
 				try {
-					WebElement checkbox = driver
-							.findElement(By.xpath("//tbody//tr[" + i + "]//td[1]//div[1]//kf-checkbox//div"));
+					WebElement checkbox = driver.findElement(By.xpath("//tbody//tr[" + i + "]//td[1]//div[1]//kf-checkbox//div"));
 
 					// Scroll to element to ensure it's visible
 					js.executeScript("arguments[0].scrollIntoView(true);", checkbox);
@@ -156,8 +126,7 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 			LOGGER.info("Expected unselected: " + (newlyLoadedProfilesAfterScrolling - disabledInNewlyLoadedProfiles));
 			LOGGER.info("========================================");
 
-			// Validation logic: All newly loaded profiles (excluding disabled) should be
-			// unselected
+			// Validation logic: All newly loaded profiles (excluding disabled) should be unselected
 			int expectedUnselected = newlyLoadedProfilesAfterScrolling - disabledInNewlyLoadedProfiles;
 
 			if (unselectedProfilesCount >= expectedUnselected) {
@@ -173,9 +142,10 @@ public class PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot(
+					"verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen", e);
+			PageObjectHelper.handleError(LOGGER, 
 					"verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen",
-					e);
-			PageObjectHelper.log(LOGGER, "Error verifying newly loaded profiles are not selected in HCM Sync Profiles Screen");
+					"Error verifying newly loaded profiles are not selected in HCM Sync Profiles Screen", e);
 			Assert.fail("Error verifying newly loaded profiles are not selected: " + e.getMessage());
 		}
 	}

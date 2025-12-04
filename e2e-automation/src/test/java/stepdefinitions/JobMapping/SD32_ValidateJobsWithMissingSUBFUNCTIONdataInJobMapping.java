@@ -6,7 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kfonetalentsuite.manager.PageObjectManager;
-import com.kfonetalentsuite.utils.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.cucumber.java.en.Then;

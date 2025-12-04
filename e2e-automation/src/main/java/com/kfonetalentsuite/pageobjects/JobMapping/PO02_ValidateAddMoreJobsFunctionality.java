@@ -1,608 +1,247 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.awt.Robot;
-import java.awt.Toolkit;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
-import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
-import org.openqa.selenium.interactions.Actions;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO02_ValidateAddMoreJobsFunctionality {
-	WebDriver driver = DriverManager.getDriver();
+public class PO02_ValidateAddMoreJobsFunctionality extends BasePageObject {
 
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
-	PO02_ValidateAddMoreJobsFunctionality validateAddMoreJobsFunctionality;
+	private static final Logger LOGGER = LogManager.getLogger(PO02_ValidateAddMoreJobsFunctionality.class);
 
-	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
-	public static ThreadLocal<String> lastSyncedInfo1 = ThreadLocal.withInitial(() -> null);
-	public static ThreadLocal<String> ResultsCountBeforeAddingMoreJobs = ThreadLocal.withInitial(() -> null);
-	public static ThreadLocal<String> KFONEjobsCountBeforeAddingMoreJobs = ThreadLocal.withInitial(() -> null);
+	public static ThreadLocal<String> lastSyncedInfo1 = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> ResultsCountBeforeAddingMoreJobs = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> KFONEjobsCountBeforeAddingMoreJobs = ThreadLocal.withInitial(() -> "NOT_SET");
 
-	public PO02_ValidateAddMoreJobsFunctionality() throws IOException {
-		PageFactory.initElements(driver, this);
+	// SHOWING_JOB_RESULTS_COUNT is available via Locators.JobMappingResults.SHOWING_JOB_RESULTS
+	private static final By ADD_MORE_JOBS_PAGE_HEADER = By.xpath("//*[contains(text(),'Add Job Data')]");
+	private static final By MANUAL_UPLOAD_BTN = By.xpath("//button[@data-testid='manual-upload-btn']");
+	private static final By KFONE_JOBS_COUNT = By.xpath("//span[contains(@class,'regular-small')]");
+	private static final By BROWSE_FILES_BTN = By.xpath("//*[@aria-label='Browse Files']");
+	private static final By ATTACHED_FILE_NAME = By.xpath("//div[contains(@class,'text-ods-font-styles-body-regular-small')]");
+	private static final By FILE_CLOSE_BTN = By.xpath("//*[@aria-label='fileclose']//*[@stroke-linejoin='round']");
+	private static final By CONTINUE_BTN = By.xpath("//button[@id='btnContinue']");
+	private static final By UPLOAD_PROGRESS_TEXT = By.xpath("//p[contains(text(),'Upload in progress')]");
+	private static final By CLICK_HERE_BTN = By.xpath("//a[@id='clickHere']");
+	private static final By LAST_SYNCED_INFO = By.xpath("//div[contains(text(),'Last Synced')]");
+	private static final By UPLOAD_SUCCESS_MESSAGE = By.xpath("//p[text()='Upload complete!']");
+	private static final By ADD_MORE_JOBS_CLOSE_BTN = By.xpath("//*[@data-testid='x-mark-icon']//*");
+	private static final By DONE_BTN = By.xpath("//button[@id='btnDone']");
+	private static final By NOTHING_TO_SEE_MESSAGE = By.xpath("//span[contains(@class,'font-proxima') and contains(@class,'text-[24px]') and contains(@class,'font-semibold') and contains(text(),'Nothing to see here... yet!')]");
+
+	public PO02_ValidateAddMoreJobsFunctionality() {
+		super();
 	}
 
-	WebDriverWait wait = DriverManager.getWait();
-	Utilities utils = new Utilities();
-	JavascriptExecutor js = (JavascriptExecutor) driver;
-
-	/**
-	 * Helper method to try multiple click strategies for an element
-	 */
-	private boolean tryClickElement(WebElement element, String elementName) {
-		try {
-			// Strategy 1: Regular click
-			if (element.isDisplayed() && element.isEnabled()) {
-				element.click();
-				// PERFORMANCE: Replaced Thread.sleep(1000) with UI stability wait
-				PerformanceUtils.waitForUIStability(driver, 2);
-				return true;
-			}
-		} catch (Exception e) {
-			// Strategy failed, try next
-		}
-
-		try {
-			// Strategy 2: JavaScript click
-			js.executeScript("arguments[0].click();", element);
-			// PERFORMANCE: Replaced Thread.sleep(1000) with UI stability wait
-			PerformanceUtils.waitForUIStability(driver, 2);
-			return true;
-		} catch (Exception e) {
-			// Strategy failed, try next
-		}
-
-		try {
-			// Strategy 3: Actions click
-			new Actions(driver).moveToElement(element).click().perform();
-			// PERFORMANCE: Replaced Thread.sleep(1000) with UI stability wait
-			PerformanceUtils.waitForUIStability(driver, 2);
-			return true;
-		} catch (Exception e) {
-			// All strategies failed
-		}
-
-		return false;
-	}
-
-	// XPATHs
-	@FindBy(xpath = "//div[@data-testid='loader']//img")
-	@CacheLookup
-	WebElement pageLoadSpinner2;
-
-	@FindBy(xpath = "//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]")
-	@CacheLookup
-	public WebElement showingJobResultsCount;
-
-	@FindBy(xpath = "//*[contains(text(),'Add Job Data')]")
-	// @CacheLookup removed - element becomes stale after page refresh
-	public WebElement addMoreJobsPageHeader;
-
-	@FindBy(xpath = "//button[@data-testid='manual-upload-btn']")
-	public WebElement manualUploadBtn;
-
-	@FindBy(xpath = "//a[@id='jobDownload']")
-	@CacheLookup
-	public WebElement downloadTemplateBtn;
-
-	@FindBy(xpath = "//span[contains(@class,'regular-small')]")
-	@CacheLookup
-	public WebElement KFONEjobsCount;
-
-	@FindBy(xpath = "//*[@aria-label='Browse Files']")
-	public WebElement browseFilesBtn;
-
-	// NOTE: Do NOT use @CacheLookup here - element refreshes after file upload and causes StaleElementReferenceException
-	@FindBy(xpath = "//div[contains(@class,'text-ods-font-styles-body-regular-small')]")
-	public WebElement attachedFileName;
-
-	@FindBy(xpath = "//*[@aria-label='fileclose']//*[@stroke-linejoin='round']")
-	@CacheLookup
-	public WebElement fileCloseBtn;
-
-	@FindBy(xpath = "//button[@id='btnContinue']")
-	public WebElement continueBtn;
-
-	@FindBy(xpath = "//p[contains(text(),'Upload in progress')]")
-	@CacheLookup
-	public WebElement uploadProgressText;
-
-	@FindBy(xpath = "//strong[contains(text(),'refresh')]//..")
-	@CacheLookup
-	public WebElement refreshMessageInfo;
-
-	@FindBy(xpath = "//a[@id='clickHere']")
-	@CacheLookup
-	public WebElement clickHereBtn;
-
-	@FindBy(xpath = "//div[contains(text(),'Last Synced')]")
-	@CacheLookup
-	public WebElement lastsyncedInfo;
-
-	@FindBy(xpath = "//span[contains(text(),'jobs')]")
-	@CacheLookup
-	public WebElement uploadedJobsCountInfo;
-
-	@FindBy(xpath = "//strong[contains(text(),'Try uploading')]//..")
-	@CacheLookup
-	public WebElement uploadFailedWarningMessage;
-
-	@FindBy(xpath = "//a[@id='btnClose']")
-	@CacheLookup
-	public WebElement messageCloseBtn;
-
-	@FindBy(xpath = "//p[text()='Upload complete!']")
-	@CacheLookup
-	public WebElement uploadSuccessMessage;
-
-	@FindBy(xpath = "//span[@title='Try Again']//..")
-	@CacheLookup
-	public WebElement tryAgainBtn;
-
-	@FindBy(xpath = "//*[@data-testid='x-mark-icon']//*")
-	@CacheLookup
-	public WebElement addMoreJobsCloseBtn;
-
-	@FindBy(xpath = "//button[@id='ensAcceptAll']")
-	@CacheLookup
-	WebElement acceptAllCookies;
-
-	@FindBy(xpath = "//button[@id='btnDone']")
-	public WebElement doneBtn;
-
-	// METHODs
 	public void verify_unpublished_jobs_count_before_adding_more_jobs() {
 		try {
-			// OPTIMIZED: Single comprehensive wait
 			PerformanceUtils.waitForPageReady(driver, 5);
-
 			try {
-				String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-				ResultsCountBeforeAddingMoreJobs.set(resultsCountText.split(" ")[3]);
-				PageObjectHelper.log(LOGGER, "Unpublished Job Profiles Count before Adding More Jobs: "
-						+ ResultsCountBeforeAddingMoreJobs.get());
+				WebElement resultsCount = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+				ResultsCountBeforeAddingMoreJobs.set(resultsCount.getText().split(" ")[3]);
+				PageObjectHelper.log(LOGGER, "Unpublished Job Profiles Count before Adding More Jobs: " + ResultsCountBeforeAddingMoreJobs.get());
 			} catch (Exception e) {
 				try {
-					WebElement nothingToSeeElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
-							"//span[contains(@class,'font-proxima') and contains(@class,'text-[24px]') and contains(@class,'font-semibold') and contains(text(),'Nothing to see here... yet!')]")));
-
-					if (nothingToSeeElement.isDisplayed()) {
+					WebElement emptyState = wait.until(ExpectedConditions.presenceOfElementLocated(NOTHING_TO_SEE_MESSAGE));
+					if (emptyState.isDisplayed()) {
 						ResultsCountBeforeAddingMoreJobs.set("0");
-						PageObjectHelper.log(LOGGER,
-								"No unpublished jobs found - Count set to 0 (Empty state message displayed)");
-					} else {
-						throw new Exception("Neither results count nor empty state message found");
+						PageObjectHelper.log(LOGGER, "No unpublished jobs found - Count set to 0");
 					}
-				} catch (Exception emptyStateException) {
+				} catch (Exception ex) {
 					throw e;
 				}
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_unpublished_jobs_count_before_adding_more_jobs",
-					"Issue in verifying Unpublished job profiles count", e);
+			PageObjectHelper.handleError(LOGGER, "verify_unpublished_jobs_count_before_adding_more_jobs", "Issue in verifying Unpublished job profiles count", e);
 		}
 	}
 
 	public void user_should_be_landed_on_kfone_add_job_data_page() {
 		try {
 			String headerText = PageObjectHelper.retryOnStaleElement(LOGGER, () -> {
-				WebElement header = wait.until(ExpectedConditions.visibilityOf(addMoreJobsPageHeader));
-				return header.getText();
+				return wait.until(ExpectedConditions.visibilityOfElementLocated(ADD_MORE_JOBS_PAGE_HEADER)).getText();
 			});
-
 			Assert.assertEquals(headerText, "Add Job Data");
 			PageObjectHelper.log(LOGGER, "User landed on KFONE Add Job Data page Successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_be_landed_on_kfone_add_job_data_page",
-					"Issue in landing KFONE Add Job Data page", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_be_landed_on_kfone_add_job_data_page", "Issue in landing KFONE Add Job Data page", e);
 		}
 	}
 
 	public void user_is_in_kfone_add_job_data_page() {
 		try {
-			WebElement header = wait.until(ExpectedConditions.visibilityOf(addMoreJobsPageHeader));
+			WebElement header = wait.until(ExpectedConditions.visibilityOfElementLocated(ADD_MORE_JOBS_PAGE_HEADER));
 			Assert.assertTrue(header.isDisplayed());
 			Assert.assertEquals(header.getText(), "Add Job Data");
 			PageObjectHelper.log(LOGGER, "User is in KFONE Add Job Data page - Page header verified");
-
-			// Handle cookies banner if present
-			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-				WebElement cookiesBtn = shortWait.until(ExpectedConditions.elementToBeClickable(acceptAllCookies));
-
-				if (!tryClickElement(cookiesBtn, "cookies accept button")) {
-					js.executeScript("arguments[0].click();", acceptAllCookies);
-				}
-				PageObjectHelper.log(LOGGER, "Closed Cookies Banner");
-			} catch (Exception e) {
-				PageObjectHelper.log(LOGGER, "Cookies Banner already accepted or not present");
-			}
-
+			handleCookiesBanner();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_is_in_kfone_add_job_data_page",
-					"Issue in validating KFONE Add Job Data page", e);
+			PageObjectHelper.handleError(LOGGER, "user_is_in_kfone_add_job_data_page", "Issue in validating KFONE Add Job Data page", e);
 		}
 	}
 
 	public void user_should_click_on_manual_upload_button() {
 		try {
 			String buttonText = PageObjectHelper.retryOnStaleElement(LOGGER, () -> {
-				WebElement element = wait.until(ExpectedConditions.visibilityOf(manualUploadBtn));
-				return element.getText();
+				return wait.until(ExpectedConditions.visibilityOfElementLocated(MANUAL_UPLOAD_BTN)).getText();
 			});
-
-			wait.until(ExpectedConditions.elementToBeClickable(manualUploadBtn)).click();
+			wait.until(ExpectedConditions.elementToBeClickable(MANUAL_UPLOAD_BTN)).click();
 			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_click_on_manual_upload_button",
-					"Issue in clicking Manual upload Button", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_click_on_manual_upload_button", "Issue in clicking Manual upload Button", e);
 		}
 	}
-
-	// REMOVED: Unused method - corresponding step is commented out in feature file
 
 	public void verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
-			KFONEjobsCountBeforeAddingMoreJobs
-					.set(wait.until(ExpectedConditions.visibilityOf(KFONEjobsCount)).getText());
-			PageObjectHelper.log(LOGGER,
-					"Jobs count before Adding More Jobs: " + KFONEjobsCountBeforeAddingMoreJobs.get());
+			WebElement jobsCount = wait.until(ExpectedConditions.visibilityOfElementLocated(KFONE_JOBS_COUNT));
+			KFONEjobsCountBeforeAddingMoreJobs.set(jobsCount.getText());
+			PageObjectHelper.log(LOGGER, "Jobs count before Adding More Jobs: " + KFONEjobsCountBeforeAddingMoreJobs.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs",
-					"Issue in verifying Jobs count before adding", e);
+			PageObjectHelper.handleError(LOGGER, "verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs", "Issue in verifying Jobs count", e);
 		}
 	}
 
 	public void verify_last_synced_info_on_add_job_data_screen_before_adding_more_jobs() {
 		try {
-			js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+			scrollToBottom();
 			PerformanceUtils.waitForUIStability(driver, 2);
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(lastsyncedInfo)).isDisplayed());
-			String lastSyncedInfoText1 = lastsyncedInfo.getText();
-			lastSyncedInfo1.set(lastSyncedInfoText1);
-			PageObjectHelper.log(LOGGER, "Last Synced Info before adding More Jobs: " + lastSyncedInfoText1);
+			WebElement lastSynced = wait.until(ExpectedConditions.visibilityOfElementLocated(LAST_SYNCED_INFO));
+			Assert.assertTrue(lastSynced.isDisplayed());
+			lastSyncedInfo1.set(lastSynced.getText());
+			PageObjectHelper.log(LOGGER, "Last Synced Info before adding More Jobs: " + lastSyncedInfo1.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"verify_last_synced_info_on_add_job_data_screen_before_adding_more_jobs",
-					"Issue in verifying Last Synced Info before adding", e);
+			PageObjectHelper.handleError(LOGGER, "verify_last_synced_info_on_add_job_data_screen_before_adding_more_jobs", "Issue in verifying Last Synced Info", e);
 		}
 	}
 
 	public void upload_job_catalog_file_using_browse_files_button() {
-		String uploadFilePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
+		String filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
 				+ File.separator + "resources" + File.separator + "Job Catalog with 100 profiles.csv";
-		upload_file_using_browse_files_button(uploadFilePath);
+		upload_file_using_browse_files_button(filePath);
 	}
 
-	/**
-	 * Overloaded method to upload a custom file (used by Feature 48 for generated CSV)
-	 * @param customFilePath Full path to the file to upload
-	 */
-	public void upload_file_using_browse_files_button(String customFilePath) {
-		String uploadFilePath = customFilePath;
-
-		// Verify file exists before attempting upload
-		File uploadFile = new File(uploadFilePath);
+	public void upload_file_using_browse_files_button(String filePath) {
+		File uploadFile = new File(filePath);
 		if (!uploadFile.exists()) {
-			String errorMsg = "Upload file does not exist at path: " + uploadFilePath;
-			PageObjectHelper.log(LOGGER, errorMsg);
-			Assert.fail(errorMsg);
+			Assert.fail("Upload file does not exist at path: " + filePath);
 		}
 
 		try {
-			PageObjectHelper.log(LOGGER, "Starting file upload process for headless execution...");
-
-			// Strategy 1: Try to find hidden file input element directly
-			boolean uploadSuccess = tryDirectFileInput(uploadFilePath);
-
-			// Strategy 2: If direct approach fails, try clicking upload button and finding
-			// input
-			if (!uploadSuccess) {
-				uploadSuccess = tryClickAndFindInput(uploadFilePath);
-			}
-
-			// Strategy 3: If both fail, try JavaScript approach
-			if (!uploadSuccess) {
-				uploadSuccess = tryJavaScriptUpload(uploadFilePath);
-			}
-
-			// Strategy 4: Last resort - try Robot class for non-headless environments
-			if (!uploadSuccess && !isHeadlessMode()) {
-				uploadSuccess = tryRobotClassUpload(uploadFilePath);
-			}
-
-			if (!uploadSuccess) {
+			PageObjectHelper.log(LOGGER, "Starting file upload process...");
+			boolean success = Utilities.uploadFile(driver, filePath, BROWSE_FILES_BTN);
+			if (!success) {
 				throw new RuntimeException("All file upload strategies failed");
 			}
 
-			// Verify upload success - use dynamic element finding to avoid stale element issues
-			PerformanceUtils.waitForUIStability(driver, 1); // Wait for DOM to stabilize after upload
-			String attachedFileXpath = "//div[contains(@class,'text-ods-font-styles-body-regular-small')]";
-			WebElement uploadedFileElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(attachedFileXpath)));
-			Assert.assertTrue(uploadedFileElement.isDisplayed());
-			String uploadedFileNameText = uploadedFileElement.getText();
-			PageObjectHelper.log(LOGGER, "Job catalog file uploaded successfully. File name: " + uploadedFileNameText);
-
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "upload_job_catalog_file_using_attach_file_button",
-					"Issue in uploading Job Catalog file: " + e.getMessage(), e);
-		}
-	}
-
-	/**
-	 * Strategy 1: Try to find file input element directly without clicking upload
-	 * button
-	 */
-	private boolean tryDirectFileInput(String uploadFilePath) {
-		try {
-			String[] inputSelectors = { "//input[@type='file']", "//input[contains(@id,'upload')]",
-					"//input[contains(@class,'upload')]", "//input[contains(@name,'file')]",
-					"//input[contains(@accept,'.csv')]" };
-
-			for (String selector : inputSelectors) {
-				try {
-					List<WebElement> fileInputs = driver.findElements(By.xpath(selector));
-					for (WebElement input : fileInputs) {
-						if (input.isEnabled()) {
-							input.sendKeys(uploadFilePath);
-							PerformanceUtils.waitForUIStability(driver, 2);
-							return true;
-						}
-					}
-				} catch (Exception e) {
-					continue;
-				}
-			}
-			return false;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Strategy 2: Click upload button and then find the file input element
-	 */
-	private boolean tryClickAndFindInput(String uploadFilePath) {
-		try {
-			wait.until(ExpectedConditions.elementToBeClickable(browseFilesBtn)).click();
-			PageObjectHelper.log(LOGGER, "Clicked Browse Files button");
 			PerformanceUtils.waitForUIStability(driver, 1);
-
-			String[] inputSelectors = { "//input[@type='file']",
-					"//input[contains(@style,'opacity: 0') or contains(@style,'display: none')][@type='file']",
-					"//input[contains(@id,'upload')]", "//input[contains(@class,'upload')]",
-					"//input[contains(@name,'file')]" };
-
-			for (String selector : inputSelectors) {
-				try {
-					WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
-					List<WebElement> fileInputs = shortWait
-							.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(selector)));
-
-					for (WebElement input : fileInputs) {
-						try {
-							js.executeScript(
-									"arguments[0].style.display = 'block'; arguments[0].style.visibility = 'visible'; arguments[0].style.opacity = '1';",
-									input);
-							input.sendKeys(uploadFilePath);
-							PerformanceUtils.waitForUIStability(driver, 2);
-							return true;
-						} catch (Exception e) {
-							continue;
-						}
-					}
-				} catch (Exception e) {
-					continue;
-				}
-			}
-			return false;
+			WebElement uploadedFile = wait.until(ExpectedConditions.visibilityOfElementLocated(ATTACHED_FILE_NAME));
+			Assert.assertTrue(uploadedFile.isDisplayed());
+			PageObjectHelper.log(LOGGER, "Job catalog file uploaded successfully. File name: " + uploadedFile.getText());
 		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Strategy 3: Use JavaScript to handle file upload
-	 */
-	private boolean tryJavaScriptUpload(String uploadFilePath) {
-		try {
-			String script = """
-						var fileInput = document.createElement('input');
-						fileInput.type = 'file';
-						fileInput.style.display = 'none';
-						document.body.appendChild(fileInput);
-
-						var uploadBtn = document.getElementById('btnUpload');
-						if (uploadBtn) {
-							uploadBtn.onclick = function() {
-								fileInput.click();
-								return false;
-							};
-						}
-						return fileInput;
-					""";
-
-			WebElement dynamicInput = (WebElement) js.executeScript(script);
-			if (dynamicInput != null) {
-				dynamicInput.sendKeys(uploadFilePath);
-				PerformanceUtils.waitForUIStability(driver, 2);
-				return true;
-			}
-			return false;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Strategy 4: Fallback to Robot class for non-headless environments
-	 */
-	private boolean tryRobotClassUpload(String uploadFilePath) {
-		try {
-			wait.until(ExpectedConditions.elementToBeClickable(browseFilesBtn)).click();
-
-			Robot rb = new Robot();
-			rb.delay(2000);
-
-			StringSelection ss = new StringSelection(uploadFilePath);
-			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
-
-			rb.keyPress(KeyEvent.VK_CONTROL);
-			rb.keyPress(KeyEvent.VK_V);
-			rb.delay(2000);
-
-			rb.keyRelease(KeyEvent.VK_CONTROL);
-			rb.keyRelease(KeyEvent.VK_V);
-			rb.delay(2000);
-
-			rb.keyPress(KeyEvent.VK_ENTER);
-			rb.keyRelease(KeyEvent.VK_ENTER);
-			rb.delay(2000);
-
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Check if browser is running in headless mode
-	 */
-	private boolean isHeadlessMode() {
-		try {
-			return js.executeScript("return navigator.webdriver === true").toString().equals("true")
-					|| System.getProperty("java.awt.headless", "false").equals("true")
-					|| System.getProperty("webdriver.chrome.args", "").contains("--headless")
-					|| System.getProperty("webdriver.firefox.args", "").contains("--headless");
-		} catch (Exception e) {
-			return true;
+			PageObjectHelper.handleError(LOGGER, "upload_file_using_browse_files_button", "Issue in uploading Job Catalog file", e);
 		}
 	}
 
 	public void user_should_verify_file_close_button_displaying_and_clickable() {
 		try {
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(fileCloseBtn)).isDisplayed());
-			wait.until(ExpectedConditions.visibilityOf(fileCloseBtn)).click();
+			WebElement closeBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(FILE_CLOSE_BTN));
+			Assert.assertTrue(closeBtn.isDisplayed());
+			closeBtn.click();
 			PageObjectHelper.log(LOGGER, "File Close button clicked successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_file_close_button_displaying_and_clickable",
-					"Issue in verifying File Close Button", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_file_close_button_displaying_and_clickable", "Issue in verifying File Close Button", e);
 		}
 	}
 
 	public void click_on_continue_button_in_add_job_data_screen() {
 		try {
 			String buttonText = PageObjectHelper.retryOnStaleElement(LOGGER, () -> {
-				WebElement element = wait.until(ExpectedConditions.visibilityOf(continueBtn));
-				return element.getText();
+				return wait.until(ExpectedConditions.visibilityOfElementLocated(CONTINUE_BTN)).getText();
 			});
-
-			wait.until(ExpectedConditions.elementToBeClickable(continueBtn)).click();
+			wait.until(ExpectedConditions.elementToBeClickable(CONTINUE_BTN)).click();
 			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_continue_button_in_add_job_data_screen",
-					"Issue in clicking Continue Button", e);
+			PageObjectHelper.handleError(LOGGER, "click_on_continue_button_in_add_job_data_screen", "Issue in clicking Continue Button", e);
 		}
 	}
 
 	public void user_should_validate_job_data_upload_is_in_progress() {
 		try {
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(uploadProgressText)).isDisplayed());
-			PageObjectHelper.log(LOGGER, "Upload in progress - " + uploadProgressText.getText());
+			WebElement uploadProgress = wait.until(ExpectedConditions.visibilityOfElementLocated(UPLOAD_PROGRESS_TEXT));
+			Assert.assertTrue(uploadProgress.isDisplayed());
+			PageObjectHelper.log(LOGGER, "Upload in progress - " + uploadProgress.getText());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_validate_job_data_upload_is_in_progress",
-					"Issue in validating Upload in Progress", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_validate_job_data_upload_is_in_progress", "Issue in validating Upload in Progress", e);
 		}
 	}
 
 	public void user_should_validate_job_data_added_successfully() {
 		try {
 			PageObjectHelper.log(LOGGER, "Waiting for 2 minutes before refreshing page...");
-			Thread.sleep(120000);
-
-			wait.until(ExpectedConditions.elementToBeClickable(clickHereBtn)).click();
+			safeSleep(120000);
+			wait.until(ExpectedConditions.elementToBeClickable(CLICK_HERE_BTN)).click();
 			PageObjectHelper.log(LOGGER, "Clicked on Click Here button to refresh the page");
 
 			PerformanceUtils.waitForUIStability(driver, 2);
-			PageObjectHelper.log(LOGGER, uploadSuccessMessage.getText() + " - Job data added successfully");
+			WebElement successMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(UPLOAD_SUCCESS_MESSAGE));
+			PageObjectHelper.log(LOGGER, successMsg.getText() + " - Job data added successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_validate_job_data_added_successfully",
-					"Issue in validating Job data added successfully", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_validate_job_data_added_successfully", "Issue in validating Job data added", e);
 		}
 	}
 
 	public void verify_jobs_count_in_kfone_add_job_data_screen_after_adding_more_jobs() {
 		try {
 			PerformanceUtils.waitForUIStability(driver, 2);
-			js.executeScript("window.scrollTo(document.body.scrollHeight, 0)");
-			String KFONEjobsCountAfterAddingMoreJobs = wait.until(ExpectedConditions.visibilityOf(KFONEjobsCount))
-					.getText();
-			PageObjectHelper.log(LOGGER, "Jobs count after Adding More Jobs: " + KFONEjobsCountAfterAddingMoreJobs);
+			scrollToTop();
+			WebElement jobsCount = wait.until(ExpectedConditions.visibilityOfElementLocated(KFONE_JOBS_COUNT));
+			String countAfter = jobsCount.getText();
+			PageObjectHelper.log(LOGGER, "Jobs count after Adding More Jobs: " + countAfter);
 
-			if (!KFONEjobsCountBeforeAddingMoreJobs.get().equals(KFONEjobsCountAfterAddingMoreJobs)) {
+			if (!KFONEjobsCountBeforeAddingMoreJobs.get().equals(countAfter)) {
 				PageObjectHelper.log(LOGGER, "KFONE Jobs count UPDATED as expected");
 			} else {
-				throw new Exception("KFONE Jobs count NOT UPDATED after adding More Jobs (Before: "
-						+ KFONEjobsCountBeforeAddingMoreJobs.get() + ", After: " + KFONEjobsCountAfterAddingMoreJobs
-						+ ")");
+				throw new Exception("KFONE Jobs count NOT UPDATED (Before: " + KFONEjobsCountBeforeAddingMoreJobs.get() + ", After: " + countAfter + ")");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"verify_jobs_count_in_kfone_add_job_data_screen_after_adding_more_jobs",
-					"Issue in verifying Jobs count after adding", e);
+			PageObjectHelper.handleError(LOGGER, "verify_jobs_count_in_kfone_add_job_data_screen_after_adding_more_jobs", "Issue in verifying Jobs count", e);
 		}
 	}
 
 	public void verify_last_synced_info_on_add_job_data_screen_after_adding_more_jobs() {
 		try {
 			PerformanceUtils.waitForUIStability(driver, 2);
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(lastsyncedInfo)).isDisplayed());
-			String lastSyncedInfoText2 = lastsyncedInfo.getText();
-			PageObjectHelper.log(LOGGER, "Last Synced Info after adding More Jobs: " + lastSyncedInfoText2);
+			WebElement lastSynced = wait.until(ExpectedConditions.visibilityOfElementLocated(LAST_SYNCED_INFO));
+			Assert.assertTrue(lastSynced.isDisplayed());
+			String infoAfter = lastSynced.getText();
+			PageObjectHelper.log(LOGGER, "Last Synced Info after adding More Jobs: " + infoAfter);
 
-			if (!lastSyncedInfo1.get().equals(lastSyncedInfoText2)) {
+			if (!lastSyncedInfo1.get().equals(infoAfter)) {
 				PageObjectHelper.log(LOGGER, "Last Synced Info UPDATED as expected");
 			} else {
-				throw new Exception("Last Synced Info NOT UPDATED after adding More Jobs (Before: "
-						+ lastSyncedInfo1.get() + ", After: " + lastSyncedInfoText2 + ")");
+				throw new Exception("Last Synced Info NOT UPDATED (Before: " + lastSyncedInfo1.get() + ", After: " + infoAfter + ")");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"verify_last_synced_info_on_add_job_data_screen_after_adding_more_jobs",
-					"Issue in verifying Last Synced Info after adding", e);
+			PageObjectHelper.handleError(LOGGER, "verify_last_synced_info_on_add_job_data_screen_after_adding_more_jobs", "Issue in verifying Last Synced Info", e);
 		}
 	}
 
 	public void close_add_job_data_screen() {
 		try {
 			PageObjectHelper.retryOnStaleElement(LOGGER, () -> {
-				WebElement closeBtn = wait.until(ExpectedConditions.elementToBeClickable(addMoreJobsCloseBtn));
+				WebElement closeBtn = wait.until(ExpectedConditions.elementToBeClickable(ADD_MORE_JOBS_CLOSE_BTN));
 				closeBtn.click();
 			});
-
 			PageObjectHelper.log(LOGGER, "Clicked on Add more jobs Close button");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
@@ -613,48 +252,37 @@ public class PO02_ValidateAddMoreJobsFunctionality {
 	public void verify_unpublished_jobs_count_after_adding_more_jobs() {
 		try {
 			PageObjectHelper.log(LOGGER, "Waiting for 2 minutes before validating uploaded jobs count...");
-			Thread.sleep(120000);
-
-			driver.navigate().refresh();
+			safeSleep(120000);
+			refreshPage();
 			PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
 
-			// OPTIMIZED: Single comprehensive wait
-			PerformanceUtils.waitForPageReady(driver, 3);
+			WebElement resultsCount = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+			String countAfter = resultsCount.getText().split(" ")[3];
+			PageObjectHelper.log(LOGGER, "Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
 
-			String resultsCountText = wait.until(ExpectedConditions.visibilityOf(showingJobResultsCount)).getText();
-			String ResultsCountAfterAddingMoreJobs = resultsCountText.split(" ")[3];
-			PageObjectHelper.log(LOGGER,
-					"Unpublished Job Profiles Count after Adding More Jobs: " + ResultsCountAfterAddingMoreJobs);
-
-			if (!ResultsCountBeforeAddingMoreJobs.get().equals(ResultsCountAfterAddingMoreJobs)) {
+			if (!ResultsCountBeforeAddingMoreJobs.get().equals(countAfter)) {
 				PageObjectHelper.log(LOGGER, "Unpublished Jobs count UPDATED as expected");
 			} else {
-				throw new Exception("Unpublished Jobs count NOT UPDATED (Before: "
-						+ ResultsCountBeforeAddingMoreJobs.get() + ", After: " + ResultsCountAfterAddingMoreJobs + ")");
+				throw new Exception("Unpublished Jobs count NOT UPDATED (Before: " + ResultsCountBeforeAddingMoreJobs.get() + ", After: " + countAfter + ")");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_unpublished_jobs_count_after_adding_more_jobs",
-					"Issue in verifying Unpublished job profiles count after adding", e);
+			PageObjectHelper.handleError(LOGGER, "verify_unpublished_jobs_count_after_adding_more_jobs", "Issue in verifying Unpublished jobs count", e);
 		}
 	}
 
 	public void click_on_done_button_in_kfone_add_job_data_page() {
 		try {
 			String buttonText = PageObjectHelper.retryOnStaleElement(LOGGER, () -> {
-				WebElement element = wait.until(ExpectedConditions.visibilityOf(doneBtn));
-				return element.getText();
+				return wait.until(ExpectedConditions.visibilityOfElementLocated(DONE_BTN)).getText();
 			});
-
-			wait.until(ExpectedConditions.elementToBeClickable(doneBtn)).click();
+			wait.until(ExpectedConditions.elementToBeClickable(DONE_BTN)).click();
 			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_done_button_in_kfone_add_job_data_page",
-					"Issue in clicking Done Button", e);
+			PageObjectHelper.handleError(LOGGER, "click_on_done_button_in_kfone_add_job_data_page", "Issue in clicking Done Button", e);
 		}
 	}
 
 	public void user_is_in_kfone_add_job_data_page_afer_uploading_file() {
 		PageObjectHelper.log(LOGGER, "User is in KFONE Add Job Data page after uploading file");
 	}
-
 }

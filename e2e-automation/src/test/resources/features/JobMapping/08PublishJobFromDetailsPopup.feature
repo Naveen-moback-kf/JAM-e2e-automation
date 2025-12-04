@@ -14,7 +14,7 @@ Feature: Publishing job profiles from Job profile details popup
    	Then Click on matched profile of Job Profile with View Other Matches button
     When User is on profile details popup
     Then Click on Publish Profile button in profile details popup
-    #Then User should verify publish success popup appears on screen
+    Then User should verify publish success popup appears on screen
 
   @VerifyPublishedJobInViewPublished
   Scenario: Verify Published Job Profile moved to View Published screen

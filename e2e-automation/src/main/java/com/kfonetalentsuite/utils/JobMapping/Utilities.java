@@ -1,6 +1,11 @@
 package com.kfonetalentsuite.utils.JobMapping;
 
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.KeyEvent;
 import java.time.Duration;
+import java.util.List;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -28,6 +33,142 @@ public class Utilities {
 			LOGGER.debug("Could not read text from element: {}", e.getMessage());
 		}
 		return text;
+	}
+
+	// =============================================
+	// FILE UPLOAD UTILITIES
+	// =============================================
+
+	public static boolean uploadFile(WebDriver driver, String filePath, By browseButtonLocator) {
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		
+		if (tryDirectFileInput(driver, filePath)) return true;
+		if (tryClickAndFindInput(driver, js, filePath, browseButtonLocator)) return true;
+		if (tryJavaScriptUpload(js, filePath)) return true;
+		if (!isHeadlessMode(js) && tryRobotUpload(driver, filePath, browseButtonLocator)) return true;
+		
+		return false;
+	}
+
+	public static boolean tryDirectFileInput(WebDriver driver, String filePath) {
+		String[] selectors = {
+			"//input[@type='file']",
+			"//input[contains(@id,'upload')]",
+			"//input[contains(@class,'upload')]",
+			"//input[contains(@name,'file')]",
+			"//input[contains(@accept,'.csv')]"
+		};
+
+		for (String selector : selectors) {
+			try {
+				List<WebElement> inputs = driver.findElements(By.xpath(selector));
+				for (WebElement input : inputs) {
+					if (input.isEnabled()) {
+						input.sendKeys(filePath);
+						PerformanceUtils.waitForUIStability(driver, 2);
+						return true;
+					}
+				}
+			} catch (Exception e) {
+				continue;
+			}
+		}
+		return false;
+	}
+
+	public static boolean tryClickAndFindInput(WebDriver driver, JavascriptExecutor js, String filePath, By browseBtn) {
+		try {
+			WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+			wait.until(ExpectedConditions.elementToBeClickable(browseBtn)).click();
+			PerformanceUtils.waitForUIStability(driver, 1);
+
+			String[] selectors = {
+				"//input[@type='file']",
+				"//input[contains(@style,'opacity: 0') or contains(@style,'display: none')][@type='file']",
+				"//input[contains(@id,'upload')]",
+				"//input[contains(@class,'upload')]"
+			};
+
+			for (String selector : selectors) {
+				try {
+					WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
+					List<WebElement> inputs = shortWait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath(selector)));
+
+					for (WebElement input : inputs) {
+						try {
+							js.executeScript("arguments[0].style.display='block'; arguments[0].style.visibility='visible'; arguments[0].style.opacity='1';", input);
+							input.sendKeys(filePath);
+							PerformanceUtils.waitForUIStability(driver, 2);
+							return true;
+						} catch (Exception e) {
+							continue;
+						}
+					}
+				} catch (Exception e) {
+					continue;
+				}
+			}
+		} catch (Exception e) {
+		}
+		return false;
+	}
+
+	public static boolean tryJavaScriptUpload(JavascriptExecutor js, String filePath) {
+		try {
+			String script = """
+				var fileInput = document.createElement('input');
+				fileInput.type = 'file';
+				fileInput.style.display = 'none';
+				document.body.appendChild(fileInput);
+				return fileInput;
+			""";
+
+			WebElement input = (WebElement) js.executeScript(script);
+			if (input != null) {
+				input.sendKeys(filePath);
+				return true;
+			}
+		} catch (Exception e) {
+		}
+		return false;
+	}
+
+	public static boolean tryRobotUpload(WebDriver driver, String filePath, By browseBtn) {
+		try {
+			WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+			wait.until(ExpectedConditions.elementToBeClickable(browseBtn)).click();
+
+			Robot rb = new Robot();
+			rb.delay(2000);
+
+			StringSelection ss = new StringSelection(filePath);
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
+
+			rb.keyPress(KeyEvent.VK_CONTROL);
+			rb.keyPress(KeyEvent.VK_V);
+			rb.delay(1000);
+			rb.keyRelease(KeyEvent.VK_V);
+			rb.keyRelease(KeyEvent.VK_CONTROL);
+			rb.delay(1000);
+
+			rb.keyPress(KeyEvent.VK_ENTER);
+			rb.keyRelease(KeyEvent.VK_ENTER);
+			rb.delay(2000);
+
+			return true;
+		} catch (Exception e) {
+		}
+		return false;
+	}
+
+	public static boolean isHeadlessMode(JavascriptExecutor js) {
+		try {
+			return js.executeScript("return navigator.webdriver === true").toString().equals("true")
+				|| System.getProperty("java.awt.headless", "false").equals("true")
+				|| System.getProperty("webdriver.chrome.args", "").contains("--headless");
+		} catch (Exception e) {
+			return true;
+		}
 	}
 
 

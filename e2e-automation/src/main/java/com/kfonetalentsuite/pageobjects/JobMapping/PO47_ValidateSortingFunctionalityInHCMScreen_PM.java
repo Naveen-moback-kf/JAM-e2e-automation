@@ -1,943 +1,498 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO47_ValidateSortingFunctionalityInHCMScreen_PM {
-	WebDriver driver = DriverManager.getDriver();
+/**
+ * Page Object for validating Sorting functionality in HCM Sync Profiles (PM) screen.
+ * Handles single-level and multi-level sorting validation by various columns.
+ * 
+ * Enhanced to extend BasePageObject for consistency and code reuse.
+ */
+public class PO47_ValidateSortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
-	PO47_ValidateSortingFunctionalityInHCMScreen_PM validateSortingFunctionalityInHCMScreen;
+	private static final Logger LOGGER = LogManager.getLogger(PO47_ValidateSortingFunctionalityInHCMScreen_PM.class);
 
-	public PO47_ValidateSortingFunctionalityInHCMScreen_PM() throws IOException {
-		PageFactory.initElements(driver, this);
+	public PO47_ValidateSortingFunctionalityInHCMScreen_PM() {
+		super();
 	}
 
-	WebDriverWait wait = DriverManager.getWait();
-	Utilities utils = new Utilities();
-	JavascriptExecutor js = (JavascriptExecutor) driver;
+	// ==================== LOCATORS ====================
+	// PAGE_LOAD_SPINNER is available via Locators.Spinners.PAGE_LOAD_SPINNER
 
-	// XPATHS
-	@FindBy(xpath = "//*[@class='blocking-loader']//img")
-	@CacheLookup
-	WebElement pageLoadSpinner;
+	// Table Headers (used for sorting)
+	private static final By TABLE_HEADER_NAME = By.xpath("//thead//tr//div[@kf-sort-header='name']//div");
+	private static final By TABLE_HEADER_STATUS = By.xpath("//thead//tr//div//div[text()=' Status ']");
+	private static final By TABLE_HEADER_LEVEL = By.xpath("//thead//tr//div//div[text()=' Level ']");
+	private static final By TABLE_HEADER_FUNCTION = By.xpath("//thead//tr//div//div[text()=' Function ']");
+	private static final By TABLE_HEADER_EXPORT_STATUS = By.xpath("//thead//tr//div//div[text()=' Export status ']");
 
-	@FindBy(xpath = "//span[contains(text(),'Hi')]//following::img[1]")
-	@CacheLookup
-	public WebElement MenuBtn;
-
-	@FindBy(xpath = "//*[*[contains(text(),'Hi, ')]]/div[2]/img")
-	@CacheLookup
-	WebElement homeMenuBtn1;
-
-	@FindBy(xpath = "//a[contains(text(),'Profile Manager')]")
-	@CacheLookup
-	public WebElement PMBtn;
-
-	@FindBy(xpath = "//h1[contains(text(),'Profile Manager')]")
-	@CacheLookup
-	public WebElement PMHeader;
-
-	@FindBy(xpath = "//span[contains(text(),'HCM Sync Profiles')]")
-	@CacheLookup
-	public WebElement hcmSyncProfilesHeader;
-
-	@FindBy(xpath = "//h1[contains(text(),'Sync Profiles')]")
-	@CacheLookup
-	public WebElement hcmSyncProfilesTitle;
-
-	@FindBy(xpath = "//p[contains(text(),'Select a job profile')]")
-	@CacheLookup
-	public WebElement hcmSyncProfilesTitleDesc;
-
-	@FindBy(xpath = "//input[@type='search']")
-	@CacheLookup
-	public WebElement hcmSyncProfilesSearchbar;
-
-	// Table Headers for HCM Sync Profiles Screen
-	@FindBy(xpath = "//thead//tr//div[@kf-sort-header='name']//div")
-	@CacheLookup
-	WebElement tableHeader1;
-
-	@FindBy(xpath = "//thead//tr//div//div[text()=' Status ']")
-	@CacheLookup
-	WebElement tableHeader2;
-
-	@FindBy(xpath = "//thead//tr//div//div[text()=' kf grade ']")
-	@CacheLookup
-	WebElement tableHeader3;
-
-	@FindBy(xpath = "//thead//tr//div//div[text()=' Level ']")
-	@CacheLookup
-	WebElement tableHeader4;
-
-	@FindBy(xpath = "//thead//tr//div//div[text()=' Function ']")
-	@CacheLookup
-	WebElement tableHeader5;
-
-	@FindBy(xpath = "//thead//tr//div//div[text()=' Created By ']")
-	@CacheLookup
-	WebElement tableHeader6;
-
-	@FindBy(xpath = "//thead//tr//div//div[text()=' Last Modified ']")
-	@CacheLookup
-	WebElement tableHeader7;
-
-	@FindBy(xpath = "//thead//tr//div//div[text()=' Export status ']")
-	@CacheLookup
-	WebElement tableHeader8;
-
-	// METHODs
+	// Data elements
+	private static final By PROFILE_NAME_ELEMENTS = By.xpath("//tbody//tr//td//div//span[1]//a");
+	private static final By LEVEL_ELEMENTS = By.xpath("//tbody//tr//td[4]//div//span[1]");
+	private static final By JOB_STATUS_ELEMENTS = By.xpath("//tbody//tr//td[2]//div//span[1]");
+	private static final By FUNCTION_ELEMENTS = By.xpath("//tbody//tr//td[5]//div//span[1]");
+	private static final By EXPORT_STATUS_ELEMENTS = By.xpath("//tbody//tr//td[8]//div//span[1]");
 
 	/**
-	 * Sorts profiles by Name in ascending order (single click)
+	 * Sorts profiles by Name in ascending order (single click).
 	 */
 	public void sort_profiles_by_name_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeader1)).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", tableHeader1);
-				} catch (Exception s) {
-					utils.jsClick(driver, tableHeader1);
-				}
-			}
+			clickElement(TABLE_HEADER_NAME);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver);
-			PageObjectHelper.log(LOGGER, "Clicked on Name header to Sort Profiles by Name in ascending order");
+			PageObjectHelper.log(LOGGER, "Clicked on Name header to Sort Profiles in ascending order");
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue sorting by name ascending - Method: sort_profiles_by_name_in_ascending_order_in_hcm_sync_profiles_screen",
-					e);
+			PageObjectHelper.handleError(LOGGER, "sort_by_name_ascending", "Issue sorting by name ascending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_name_ascending", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking on Name header to Sort Profiles by Name in ascending order...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, "Issue in sorting by Name in ascending order...Please Investigate!!!");
+			Assert.fail("Issue in sorting by Name in ascending order...Please Investigate!!!");
 		}
 	}
 
 	/**
-	 * Verifies profiles are sorted by Name in ascending order
+	 * Verifies profiles are sorted by Name in ascending order.
 	 */
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_name_in_ascending_order() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver);
 
-			List<WebElement> allElements = driver.findElements(By.xpath("//tbody//tr//td//div//span[1]//a"));
+			List<WebElement> allElements = findElements(PROFILE_NAME_ELEMENTS);
 			PageObjectHelper.log(LOGGER, "Profiles After sorting by Name in Ascending Order:");
 
-			// Collect profile names for validation
-			ArrayList<String> profileNames = new ArrayList<String>();
+			ArrayList<String> profileNames = new ArrayList<>();
 			int specialCharCount = 0;
 			int nonAsciiCount = 0;
-
-			// Limit to first 100 profiles
 			int limit = Math.min(allElements.size(), 100);
 
 			for (int i = 0; i < limit; i++) {
-				WebElement element = allElements.get(i);
-				String text = element.getText();
-				profileNames.add(text); // Store original case for proper comparison
+				String text = allElements.get(i).getText();
+				profileNames.add(text);
 
-				// Detect special characters at start (expected at top in ascending)
 				if (!text.isEmpty() && !Character.isLetterOrDigit(text.charAt(0))) {
 					specialCharCount++;
-					LOGGER.info("Profile Name : " + text + " [SPECIAL CHAR at start - expected at top in Ascending]");
-				}
-				// Detect non-ASCII characters (Chinese, etc.)
-				else if (!text.isEmpty() && text.charAt(0) > 127) {
+				} else if (!text.isEmpty() && text.charAt(0) > 127) {
 					nonAsciiCount++;
-					LOGGER.info("Profile Name : " + text + " [NON-ASCII detected]");
-				} else {
-					LOGGER.info("Profile Name : " + text);
 				}
 				PageObjectHelper.log(LOGGER, "Profile Name : " + text);
 			}
 
 			if (specialCharCount > 0) {
-				LOGGER.info("ℹ Found " + specialCharCount
-						+ " profile(s) with special characters - these appear at top in Ascending order as expected");
-				PageObjectHelper.log(LOGGER, "ℹ " + specialCharCount
-						+ " profile(s) start with special characters (?, -, etc.) - expected at top");
+				PageObjectHelper.log(LOGGER, specialCharCount + " profile(s) start with special characters");
 			}
 			if (nonAsciiCount > 0) {
 				PageObjectHelper.log(LOGGER, nonAsciiCount + " profile(s) contain non-ASCII characters");
 			}
 
-			// ✅ VALIDATE ASCENDING ORDER (using normalized comparison to match UI behavior)
-			// UI ignores hyphens and special chars in sorting, so we normalize strings
-			// before comparison
-			int sortViolations = 0;
-			for (int i = 0; i < profileNames.size() - 1; i++) {
-				String current = profileNames.get(i);
-				String next = profileNames.get(i + 1);
-
-				// Normalize strings to match UI sorting: remove hyphens and other punctuation
-				// UI treats "AI-Ready" same as "AIReady" for sorting purposes
-				String currentNormalized = current.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
-				String nextNormalized = next.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
-
-				// Use normalized strings for comparison (case-insensitive)
-				if (currentNormalized.compareToIgnoreCase(nextNormalized) > 0) {
-					sortViolations++;
-					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + current + "' > '"
-							+ next + "' (NOT in Ascending Order!)");
-					LOGGER.debug("   Normalized comparison: '" + currentNormalized + "' vs '" + nextNormalized + "'");
-					PageObjectHelper.log(LOGGER, "❌ SORT VIOLATION: Row " + (i + 1) + " > Row " + (i + 2));
-				}
-			}
+			// Validate ascending order
+			int sortViolations = validateAscendingOrder(profileNames);
 
 			if (sortViolations > 0) {
-				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
-						+ " violation(s). Data is NOT sorted by Name in Ascending Order!";
-				LOGGER.error(errorMsg);
+				String errorMsg = "SORTING FAILED: Found " + sortViolations + " violation(s). NOT in Ascending Order!";
 				PageObjectHelper.log(LOGGER, errorMsg);
-				Assert.fail(errorMsg + " Please check the sorting implementation!");
+				Assert.fail(errorMsg);
 			} else {
-				LOGGER.info("✅ SORT VALIDATION PASSED: All " + profileNames.size()
-						+ " Profiles are correctly sorted by Name in Ascending Order (including special chars and non-ASCII)");
 				PageObjectHelper.log(LOGGER, "Sorting validation PASSED - Data is correctly sorted in Ascending Order");
 			}
 
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue verifying sorted profiles by name ascending - Method: user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_name_in_ascending_order",
-					e);
+			PageObjectHelper.handleError(LOGGER, "verify_sorted_by_name_ascending", 
+					"Issue verifying sorted profiles", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_sorted_by_name_ascending", e);
-			e.printStackTrace();
-			Assert.fail("Issue in Verifying Profiles After sorting by Name in Ascending Order...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in Verifying Profiles After sorting by Name in Ascending Order...Please Investigate!!!");
+			Assert.fail("Issue in Verifying Profiles sorted by Name in Ascending Order...Please Investigate!!!");
 		}
 	}
 
 	/**
-	 * Sorts profiles by Level in descending order (clicks header twice) Enhanced
-	 * with proper waits for HEADLESS MODE compatibility
+	 * Sorts profiles by Level in descending order (clicks header twice).
 	 */
 	public void sort_profiles_by_level_in_descending_order_in_hcm_sync_profiles_screen() {
 		try {
-			// Scroll to ensure Level header is in view and clickable
-			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", tableHeader4);
-			Thread.sleep(500);
+			WebElement levelHeader = findElement(TABLE_HEADER_LEVEL);
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", levelHeader);
+			safeSleep(500);
 
-			// FIRST CLICK - Sort Ascending
-			LOGGER.info("First click on Level header to sort ascending...");
-			LOGGER.info("Level header text: " + tableHeader4.getText());
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeader4)).click();
-			} catch (Exception e) {
-				try {
-					LOGGER.warn("Standard click failed, trying JavaScript click...");
-					js.executeScript("arguments[0].click();", tableHeader4);
-				} catch (Exception s) {
-					LOGGER.warn("JavaScript click failed, trying utils click...");
-					utils.jsClick(driver, tableHeader4);
-				}
-			}
-
-			// Wait for FIRST sort to complete (critical for headless mode)
+			// First click - ascending
+			clickElement(TABLE_HEADER_LEVEL);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			Thread.sleep(3000); // Increased wait for UI to process first sort
+			safeSleep(3000);
 			PerformanceUtils.waitForPageReady(driver);
+			safeSleep(1500);
+
+			// Second click - descending
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", levelHeader);
+			safeSleep(500);
+			clickElement(TABLE_HEADER_LEVEL);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			Thread.sleep(1500); // Additional buffer for headless mode
-
-			LOGGER.info("First sort completed. Now clicking second time for descending order...");
-
-			// Ensure header is still in view
-			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", tableHeader4);
-			Thread.sleep(500);
-
-			// SECOND CLICK - Sort Descending
-			// Ensure element is clickable again before second click
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeader4)).click();
-			} catch (Exception e) {
-				try {
-					Thread.sleep(500); // Brief pause before retry
-					LOGGER.warn("Second standard click failed, trying JavaScript click...");
-					js.executeScript("arguments[0].click();", tableHeader4);
-				} catch (Exception s) {
-					LOGGER.warn("Second JavaScript click failed, trying utils click...");
-					utils.jsClick(driver, tableHeader4);
-				}
-			}
-
-			// Wait for SECOND sort to complete
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			Thread.sleep(3000); // Increased wait for UI to process second sort
+			safeSleep(3000);
 			PerformanceUtils.waitForPageReady(driver);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			Thread.sleep(1500); // Additional buffer
 
-			LOGGER.info("Clicked two times on Level header to Sort Profiles by Level in Descending order");
-			PageObjectHelper.log(LOGGER, "Clicked two times on Level header to Sort Profiles by Level in Descending order");
-
-			// Debug: Log first few profile levels to verify sorting
-			LOGGER.info("Verifying sort applied - checking first 5 profile levels...");
-			List<WebElement> firstFiveLevels = driver.findElements(By.xpath("//tbody//tr//td[4]//div//span[1]"));
-			for (int i = 0; i < Math.min(5, firstFiveLevels.size()); i++) {
-				LOGGER.info("Level at row " + (i + 1) + ": " + firstFiveLevels.get(i).getText());
-			}
+			PageObjectHelper.log(LOGGER, "Clicked twice on Level header to Sort in Descending order");
 
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue sorting by level descending - Method: sort_profiles_by_level_in_descending_order_in_hcm_sync_profiles_screen",
-					e);
+			PageObjectHelper.handleError(LOGGER, "sort_by_level_descending", "Issue sorting by level descending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_level_descending", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking on Level header to Sort Profiles by Level in Descending order...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, "Issue in sorting by Level in Descending order...Please Investigate!!!");
+			Assert.fail("Issue in sorting by Level in Descending order...Please Investigate!!!");
 		}
 	}
 
 	/**
-	 * Verifies profiles are sorted by Level in descending order
+	 * Verifies profiles are sorted by Level in descending order.
 	 */
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_level_in_descending_order() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2);
 			PerformanceUtils.waitForPageReady(driver);
 
-			List<WebElement> profileNameElements = driver.findElements(By.xpath("//tbody//tr//td//div//span[1]//a"));
-			List<WebElement> levelElements = driver.findElements(By.xpath("//tbody//tr//td[4]//div//span[1]"));
+			List<WebElement> profileNameElements = findElements(PROFILE_NAME_ELEMENTS);
+			List<WebElement> levelElements = findElements(LEVEL_ELEMENTS);
 
-			LOGGER.info("Below are Profiles After sorting by Level in Descending Order:");
-			PageObjectHelper.log(LOGGER, "Below are Profiles After sorting by Level in Descending Order:");
+			PageObjectHelper.log(LOGGER, "Profiles After sorting by Level in Descending Order:");
 
-			// Collect levels for validation
-			ArrayList<String> levels = new ArrayList<String>();
-			int specialCharCount = 0;
-			int nonAsciiCount = 0;
+			ArrayList<String> levels = new ArrayList<>();
 			int emptyCount = 0;
-
-			// Limit to first 100 profiles
-			int limit = Math.min(profileNameElements.size(), 100);
-			limit = Math.min(limit, levelElements.size());
+			int limit = Math.min(Math.min(profileNameElements.size(), levelElements.size()), 100);
 
 			for (int i = 0; i < limit; i++) {
 				String profileName = profileNameElements.get(i).getText();
 				String levelText = levelElements.get(i).getText();
 
-				// Check if level is empty or null
 				if (levelText == null || levelText.trim().isEmpty() || levelText.equals("-")) {
 					emptyCount++;
-					LOGGER.info("Profile: " + profileName + " - Level: [EMPTY]");
 					PageObjectHelper.log(LOGGER, "Profile: " + profileName + " - Level: [EMPTY]");
 				} else {
-					levels.add(levelText); // Store for validation (keep original case for Unicode)
-
-					// Detect non-ASCII characters at start (expected at top in descending)
-					if (!levelText.isEmpty() && levelText.charAt(0) > 127) {
-						nonAsciiCount++;
-						LOGGER.info("Profile: " + profileName + " - Level: " + levelText
-								+ " [NON-ASCII at start - expected at top in Descending]");
-					}
-					// Detect special characters
-					else if (!levelText.isEmpty() && !Character.isLetterOrDigit(levelText.charAt(0))) {
-						specialCharCount++;
-						LOGGER.info("Profile: " + profileName + " - Level: " + levelText + " [SPECIAL CHAR detected]");
-					} else {
-						LOGGER.info("Profile: " + profileName + " - Level: " + levelText);
-					}
+					levels.add(levelText);
 					PageObjectHelper.log(LOGGER, "Profile: " + profileName + " - Level: " + levelText);
 				}
 			}
 
 			if (emptyCount > 0) {
-				LOGGER.info("ℹ Found " + emptyCount + " profile(s) with empty Level values");
-				PageObjectHelper.log(LOGGER, "ℹ " + emptyCount + " profile(s) have empty Level values");
-			}
-			if (nonAsciiCount > 0) {
-				LOGGER.info("ℹ Found " + nonAsciiCount
-						+ " level(s) with non-ASCII characters - these appear at top in Descending order as expected");
-				PageObjectHelper.log(LOGGER, "ℹ " + nonAsciiCount
-						+ " level(s) start with non-ASCII characters (Chinese, etc.) - expected at top");
-			}
-			if (specialCharCount > 0) {
-				LOGGER.info("ℹ Found " + specialCharCount + " level(s) with special characters (?, -, etc.)");
-				PageObjectHelper.log(LOGGER, specialCharCount + " level(s) start with special characters");
+				PageObjectHelper.log(LOGGER, emptyCount + " profile(s) have empty Level values");
 			}
 
-			// ✅ VALIDATE DESCENDING ORDER (using normalized comparison to match UI
-			// behavior)
-			// UI ignores hyphens and special chars in sorting, so we normalize strings
-			// before comparison
-			int sortViolations = 0;
-			for (int i = 0; i < levels.size() - 1; i++) {
-				String current = levels.get(i);
-				String next = levels.get(i + 1);
-
-				// Normalize strings to match UI sorting: remove hyphens and other punctuation
-				String currentNormalized = current.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
-				String nextNormalized = next.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
-
-				// Use normalized strings for comparison (case-insensitive)
-				if (currentNormalized.compareToIgnoreCase(nextNormalized) < 0) {
-					sortViolations++;
-					LOGGER.error("❌ SORT VIOLATION at Row " + (i + 1) + " -> Row " + (i + 2) + ": '" + current + "' < '"
-							+ next + "' (NOT in Descending Order!)");
-					LOGGER.debug("   Normalized comparison: '" + currentNormalized + "' vs '" + nextNormalized + "'");
-					PageObjectHelper.log(LOGGER, "❌ SORT VIOLATION: Row " + (i + 1) + " < Row " + (i + 2));
-				}
-			}
+			// Validate descending order
+			int sortViolations = validateDescendingOrder(levels);
 
 			if (sortViolations > 0) {
-				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
-						+ " violation(s). Data is NOT sorted by Level in Descending Order!";
-				LOGGER.error(errorMsg);
+				String errorMsg = "SORTING FAILED: Found " + sortViolations + " violation(s). NOT in Descending Order!";
 				PageObjectHelper.log(LOGGER, errorMsg);
-				Assert.fail(errorMsg + " Please check the sorting implementation!");
+				Assert.fail(errorMsg);
 			} else if (levels.size() > 1) {
-				LOGGER.info("✅ SORT VALIDATION PASSED: All " + levels.size()
-						+ " Levels are correctly sorted in Descending Order (including special chars and non-ASCII)");
 				PageObjectHelper.log(LOGGER, "Sorting validation PASSED - Data is correctly sorted in Descending Order");
 			} else {
-				LOGGER.info("ℹ VALIDATION SKIPPED: Not enough profiles with Level values to validate sorting ("
-						+ levels.size() + " profile(s) with levels)");
-				PageObjectHelper.log(LOGGER, "ℹ Validation skipped - insufficient data for sorting validation");
+				PageObjectHelper.log(LOGGER, "Validation skipped - insufficient data for sorting validation");
 			}
 
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue verifying sorted profiles by level descending - Method: user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_level_in_descending_order",
-					e);
+			PageObjectHelper.handleError(LOGGER, "verify_sorted_by_level_descending", 
+					"Issue verifying sorted profiles", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_sorted_by_level_descending", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in Verifying Profiles After sorting by Level in Descending Order...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in Verifying Profiles After sorting by Level in Descending Order...Please Investigate!!!");
+			Assert.fail("Issue in Verifying Profiles sorted by Level in Descending Order...Please Investigate!!!");
 		}
 	}
 
 	/**
-	 * Sorts profiles by Job Status in ascending order (single click)
+	 * Sorts profiles by Job Status in ascending order (single click).
 	 */
 	public void sort_profiles_by_job_status_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeader2)).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", tableHeader2);
-				} catch (Exception s) {
-					utils.jsClick(driver, tableHeader2);
-				}
-			}
+			clickElement(TABLE_HEADER_STATUS);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver);
-			LOGGER.info("Clicked on Job Status header to Sort Profiles by Job Status in ascending order");
-			PageObjectHelper.log(LOGGER, "Clicked on Job Status header to Sort Profiles by Job Status in ascending order");
+			PageObjectHelper.log(LOGGER, "Clicked on Job Status header to Sort in ascending order");
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue sorting by job status ascending - Method: sort_profiles_by_job_status_in_ascending_order_in_hcm_sync_profiles_screen",
-					e);
+			PageObjectHelper.handleError(LOGGER, "sort_by_job_status_ascending", 
+					"Issue sorting by job status ascending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_job_status_ascending", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking on Job Status header to Sort Profiles by Job Status in ascending order...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, "Issue in sorting by Job Status in ascending order...Please Investigate!!!");
+			Assert.fail("Issue in sorting by Job Status in ascending order...Please Investigate!!!");
 		}
 	}
 
 	/**
-	 * Sorts profiles by Export Status in descending order (clicks header twice)
-	 * Enhanced with proper waits for HEADLESS MODE compatibility
+	 * Sorts profiles by Export Status in descending order (clicks header twice).
 	 */
 	public void sort_profiles_by_export_status_in_descending_order_in_hcm_sync_profiles_screen() {
 		try {
-			// Scroll to ensure Export Status header is in view and clickable
-			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", tableHeader8);
-			Thread.sleep(500);
+			WebElement exportStatusHeader = findElement(TABLE_HEADER_EXPORT_STATUS);
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", exportStatusHeader);
+			safeSleep(500);
 
-			// FIRST CLICK - Sort Ascending
-			LOGGER.info("First click on Export Status header to sort ascending...");
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeader8)).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", tableHeader8);
-				} catch (Exception s) {
-					utils.jsClick(driver, tableHeader8);
-				}
-			}
-
-			// Wait for FIRST sort to complete (critical for headless mode)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			Thread.sleep(3000); // Give UI time to process first sort
+			// First click - ascending
+			clickElement(TABLE_HEADER_EXPORT_STATUS);
+			waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2);
+			safeSleep(3000);
 			PerformanceUtils.waitForPageReady(driver);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			Thread.sleep(1500); // Additional buffer for headless mode
+			safeSleep(1500);
 
-			LOGGER.info("First sort completed. Now clicking second time for descending order...");
-
-			// Ensure header is still in view
-			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", tableHeader8);
-			Thread.sleep(500);
-
-			// SECOND CLICK - Sort Descending
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeader8)).click();
-			} catch (Exception e) {
-				try {
-					Thread.sleep(500); // Brief pause before retry
-					js.executeScript("arguments[0].click();", tableHeader8);
-				} catch (Exception s) {
-					utils.jsClick(driver, tableHeader8);
-				}
-			}
-
-			// Wait for SECOND sort to complete
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			Thread.sleep(3000); // Give UI time to process second sort
+			// Second click - descending
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", exportStatusHeader);
+			safeSleep(500);
+			clickElement(TABLE_HEADER_EXPORT_STATUS);
+			waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2);
+			safeSleep(3000);
 			PerformanceUtils.waitForPageReady(driver);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 
-			LOGGER.info(
-					"Clicked two times on Export Status header to Sort Profiles by Export Status in Descending order");
-			PageObjectHelper.log(LOGGER, 
-					"Clicked two times on Export Status header to Sort Profiles by Export Status in Descending order");
+			PageObjectHelper.log(LOGGER, "Clicked twice on Export Status header to Sort in Descending order");
+
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue sorting by export status descending - Method: sort_profiles_by_export_status_in_descending_order_in_hcm_sync_profiles_screen",
-					e);
+			PageObjectHelper.handleError(LOGGER, "sort_by_export_status_descending", 
+					"Issue sorting by export status descending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_export_status_descending", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking on Export Status header to Sort Profiles by Export Status in Descending order...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, "Issue in sorting by Export Status in Descending order...Please Investigate!!!");
+			Assert.fail("Issue in sorting by Export Status in Descending order...Please Investigate!!!");
 		}
 	}
 
 	/**
-	 * Sorts profiles by Function in ascending order (single click)
+	 * Sorts profiles by Function in ascending order (single click).
 	 */
 	public void sort_profiles_by_function_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
-			// Scroll to ensure Function header is in view and clickable
-			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", tableHeader5);
-			Thread.sleep(500);
+			WebElement functionHeader = findElement(TABLE_HEADER_FUNCTION);
+			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", functionHeader);
+			safeSleep(500);
 
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeader5)).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", tableHeader5);
-				} catch (Exception s) {
-					utils.jsClick(driver, tableHeader5);
-				}
-			}
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			clickElement(TABLE_HEADER_FUNCTION);
+			waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2);
 			PerformanceUtils.waitForPageReady(driver);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			PerformanceUtils.waitForPageReady(driver);
-			LOGGER.info("Clicked on Function header to Sort Profiles by Function in ascending order");
-			PageObjectHelper.log(LOGGER, "Clicked on Function header to Sort Profiles by Function in ascending order");
+			PageObjectHelper.log(LOGGER, "Clicked on Function header to Sort in ascending order");
+
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue sorting by function ascending - Method: sort_profiles_by_function_in_ascending_order_in_hcm_sync_profiles_screen",
-					e);
+			PageObjectHelper.handleError(LOGGER, "sort_by_function_ascending", 
+					"Issue sorting by function ascending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_function_ascending", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking on Function header to Sort Profiles by Function in ascending order...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, "Issue in sorting by Function in ascending order...Please Investigate!!!");
+			Assert.fail("Issue in sorting by Function in ascending order...Please Investigate!!!");
 		}
 	}
 
 	/**
-	 * Sorts profiles by Function in descending order (clicks header twice) Enhanced
-	 * with proper waits for HEADLESS MODE compatibility
+	 * Sorts profiles by Function in descending order (clicks header twice).
 	 */
 	public void sort_profiles_by_function_in_descending_order_in_hcm_sync_profiles_screen() {
 		try {
-			// FIRST CLICK - Sort Ascending
-			LOGGER.info("First click on Function header to sort ascending...");
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeader5)).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", tableHeader5);
-				} catch (Exception s) {
-					utils.jsClick(driver, tableHeader5);
-				}
-			}
-
-			// Wait for FIRST sort to complete (critical for headless mode)
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			Thread.sleep(2000); // Give UI time to process first sort
+			// First click - ascending
+			clickElement(TABLE_HEADER_FUNCTION);
+			waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2);
+			safeSleep(2000);
 			PerformanceUtils.waitForPageReady(driver);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			Thread.sleep(1000); // Additional buffer for headless mode
+			safeSleep(1000);
 
-			LOGGER.info("First sort completed. Now clicking second time for descending order...");
-
-			// SECOND CLICK - Sort Descending
-			// Ensure element is clickable again before second click
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(tableHeader5)).click();
-			} catch (Exception e) {
-				try {
-					Thread.sleep(500); // Brief pause before retry
-					js.executeScript("arguments[0].click();", tableHeader5);
-				} catch (Exception s) {
-					utils.jsClick(driver, tableHeader5);
-				}
-			}
-
-			// Wait for SECOND sort to complete
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
-			Thread.sleep(2000); // Give UI time to process second sort
+			// Second click - descending
+			clickElement(TABLE_HEADER_FUNCTION);
+			waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2);
+			safeSleep(2000);
 			PerformanceUtils.waitForPageReady(driver);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
 
-			LOGGER.info("Clicked two times on Function header to Sort Profiles by Function in Descending order");
-			PageObjectHelper.log(LOGGER, 
-					"Clicked two times on Function header to Sort Profiles by Function in Descending order");
+			PageObjectHelper.log(LOGGER, "Clicked twice on Function header to Sort in Descending order");
+
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue sorting by function descending - Method: sort_profiles_by_function_in_descending_order_in_hcm_sync_profiles_screen",
-					e);
+			PageObjectHelper.handleError(LOGGER, "sort_by_function_descending", 
+					"Issue sorting by function descending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_function_descending", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking on Function header to Sort Profiles by Function in Descending order...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, "Issue in sorting by Function in Descending order...Please Investigate!!!");
+			Assert.fail("Issue in sorting by Function in Descending order...Please Investigate!!!");
 		}
 	}
 
 	/**
-	 * Verifies profiles are sorted by Job Status in ascending and Function in
-	 * descending order (multi-level sorting)
+	 * Verifies profiles are sorted by Job Status (ascending) and Function (descending).
 	 */
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_in_ascending_and_function_in_descending_order() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver);
 
-			List<WebElement> profileNameElements = driver.findElements(By.xpath("//tbody//tr//td//div//span[1]//a"));
-			List<WebElement> jobStatusElements = driver.findElements(By.xpath("//tbody//tr//td[2]//div//span[1]"));
-			List<WebElement> functionElements = driver.findElements(By.xpath("//tbody//tr//td[5]//div//span[1]"));
+			List<WebElement> profileNameElements = findElements(PROFILE_NAME_ELEMENTS);
+			List<WebElement> jobStatusElements = findElements(JOB_STATUS_ELEMENTS);
+			List<WebElement> functionElements = findElements(FUNCTION_ELEMENTS);
 
-			LOGGER.info(
-					"Below are Profiles After sorting by Job Status in Ascending and Function in Descending Order:");
-			PageObjectHelper.log(LOGGER, 
-					"Below are Profiles After sorting by Job Status in Ascending and Function in Descending Order:");
+			PageObjectHelper.log(LOGGER, "Profiles sorted by Job Status (Asc) and Function (Desc):");
 
-			// Collect data for validation
-			ArrayList<String> jobStatuses = new ArrayList<String>();
-			ArrayList<String> functions = new ArrayList<String>();
-			int emptyJobStatusCount = 0;
-			int emptyFunctionCount = 0;
-
-			// Limit to first 100 profiles
-			int limit = Math.min(profileNameElements.size(), 100);
-			limit = Math.min(limit, jobStatusElements.size());
+			int limit = Math.min(Math.min(profileNameElements.size(), jobStatusElements.size()), 100);
 			limit = Math.min(limit, functionElements.size());
 
 			for (int i = 0; i < limit; i++) {
 				String profileName = profileNameElements.get(i).getText();
-				String jobStatusText = jobStatusElements.get(i).getText();
-				String functionText = functionElements.get(i).getText();
+				String jobStatusText = getValueOrEmpty(jobStatusElements.get(i).getText());
+				String functionText = getValueOrEmpty(functionElements.get(i).getText());
 
-				// Track empty values
-				if (jobStatusText == null || jobStatusText.trim().isEmpty() || jobStatusText.equals("-")) {
-					emptyJobStatusCount++;
-					jobStatusText = "[EMPTY]";
-				} else {
-					jobStatuses.add(jobStatusText);
-				}
-
-				if (functionText == null || functionText.trim().isEmpty() || functionText.equals("-")) {
-					emptyFunctionCount++;
-					functionText = "[EMPTY]";
-				} else {
-					functions.add(functionText);
-				}
-
-				LOGGER.info(
-						"Profile: " + profileName + " - Job Status: " + jobStatusText + " - Function: " + functionText);
-				PageObjectHelper.log(LOGGER, 
-						"Profile: " + profileName + " - Job Status: " + jobStatusText + " - Function: " + functionText);
+				PageObjectHelper.log(LOGGER, "Profile: " + profileName + " - Job Status: " + 
+						jobStatusText + " - Function: " + functionText);
 			}
 
-			if (emptyJobStatusCount > 0) {
-				PageObjectHelper.log(LOGGER, emptyJobStatusCount + " profile(s) have empty Job Status values");
-			}
-			if (emptyFunctionCount > 0) {
-				PageObjectHelper.log(LOGGER, emptyFunctionCount + " profile(s) have empty Function values");
-			}
-
-			// ✅ VALIDATE MULTI-LEVEL SORTING
-			// Primary sort: Job Status (Ascending)
-			// Secondary sort: Function (Descending) - within same Job Status
-			int sortViolations = 0;
-
-			// For multi-level sorting, we validate that:
-			// 1. Job Status is in ascending order
-			// 2. For same Job Status, Function is in descending order
-			for (int i = 0; i < limit - 1; i++) {
-				String currentJobStatus = jobStatusElements.get(i).getText();
-				String nextJobStatus = jobStatusElements.get(i + 1).getText();
-				String currentFunction = functionElements.get(i).getText();
-				String nextFunction = functionElements.get(i + 1).getText();
-
-				// Skip empty values in validation
-				if (currentJobStatus.equals("-") || currentJobStatus.trim().isEmpty() || nextJobStatus.equals("-")
-						|| nextJobStatus.trim().isEmpty()) {
-					continue;
-				}
-
-				// Primary sort check: Job Status ascending (case-insensitive)
-				int jobStatusComparison = currentJobStatus.compareToIgnoreCase(nextJobStatus);
-				if (jobStatusComparison > 0) {
-					sortViolations++;
-					PageObjectHelper.log(LOGGER, "SORT VIOLATION (Job Status): Row " + (i + 1) + " > Row " + (i + 2));
-				}
-				// Secondary sort check: If Job Status is same, Function should be descending
-				// (normalized comparison)
-				else if (jobStatusComparison == 0) {
-					if (!currentFunction.equals("-") && !currentFunction.trim().isEmpty() && !nextFunction.equals("-")
-							&& !nextFunction.trim().isEmpty()) {
-						// Normalize Function values to match UI sorting behavior
-						String currentFunctionNormalized = currentFunction.replaceAll("[-'\"()\\[\\].,:;!?]", "")
-								.trim();
-						String nextFunctionNormalized = nextFunction.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
-						if (currentFunctionNormalized.compareToIgnoreCase(nextFunctionNormalized) < 0) {
-							sortViolations++;
-							LOGGER.error("❌ SORT VIOLATION (Function) at Row " + (i + 1) + " -> Row " + (i + 2) + ": '"
-									+ currentFunction + "' < '" + nextFunction
-									+ "' (NOT in Descending Order for same Job Status!)");
-							LOGGER.debug("   Normalized comparison: '" + currentFunctionNormalized + "' vs '"
-									+ nextFunctionNormalized + "'");
-							PageObjectHelper.log(LOGGER, 
-									"❌ SORT VIOLATION (Function): Row " + (i + 1) + " < Row " + (i + 2));
-						}
-					}
-				}
-			}
+			// Validate multi-level sorting
+			int sortViolations = validateMultiLevelSort(jobStatusElements, functionElements, limit, true, false);
 
 			if (sortViolations > 0) {
-				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
-						+ " violation(s). Data is NOT sorted by Job Status (Ascending) and Function (Descending)!";
-				LOGGER.error(errorMsg);
+				String errorMsg = "SORTING FAILED: Found " + sortViolations + " violation(s)!";
 				PageObjectHelper.log(LOGGER, errorMsg);
-				Assert.fail(errorMsg + " Please check the multi-level sorting implementation!");
+				Assert.fail(errorMsg);
 			} else {
-				LOGGER.info(
-						"✅ SORT VALIDATION PASSED: All Profiles are correctly sorted by Job Status (Ascending) and Function (Descending)");
-				PageObjectHelper.log(LOGGER, "✅ Multi-level sorting validation PASSED");
+				PageObjectHelper.log(LOGGER, "Multi-level sorting validation PASSED");
 			}
 
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue verifying sorted profiles by job status and function - Method: user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_in_ascending_and_function_in_descending_order",
-					e);
+			PageObjectHelper.handleError(LOGGER, "verify_sorted_by_job_status_and_function", 
+					"Issue verifying sorted profiles", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_sorted_by_job_status_and_function", e);
-			e.printStackTrace();
-			Assert.fail("Issue in Verifying Profiles After sorting by Job Status and Function...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in Verifying Profiles After sorting by Job Status and Function...Please Investigate!!!");
+			Assert.fail("Issue in Verifying Profiles sorted by Job Status and Function...Please Investigate!!!");
 		}
 	}
 
 	/**
-	 * Verifies profiles are sorted by Job Status (ascending), Export Status
-	 * (descending), and Function (ascending) Three-level sorting validation
+	 * Verifies three-level sorting: Job Status (asc), Export Status (desc), Function (asc).
 	 */
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_ascending_export_status_descending_and_function_ascending() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver);
 
-			List<WebElement> profileNameElements = driver.findElements(By.xpath("//tbody//tr//td//div//span[1]//a"));
-			List<WebElement> jobStatusElements = driver.findElements(By.xpath("//tbody//tr//td[2]//div//span[1]"));
-			List<WebElement> exportStatusElements = driver.findElements(By.xpath("//tbody//tr//td[8]//div//span[1]"));
-			List<WebElement> functionElements = driver.findElements(By.xpath("//tbody//tr//td[5]//div//span[1]"));
+			List<WebElement> profileNameElements = findElements(PROFILE_NAME_ELEMENTS);
+			List<WebElement> jobStatusElements = findElements(JOB_STATUS_ELEMENTS);
+			List<WebElement> exportStatusElements = findElements(EXPORT_STATUS_ELEMENTS);
+			List<WebElement> functionElements = findElements(FUNCTION_ELEMENTS);
 
-			LOGGER.info(
-					"Below are Profiles After 3-level sorting: Job Status (Ascending), Export Status (Descending), Function (Ascending):");
-			PageObjectHelper.log(LOGGER, 
-					"Below are Profiles After 3-level sorting: Job Status (Ascending), Export Status (Descending), Function (Ascending):");
+			PageObjectHelper.log(LOGGER, "Profiles sorted by Job Status (Asc), Export Status (Desc), Function (Asc):");
 
-			// Collect data for validation
-			int emptyJobStatusCount = 0;
-			int emptyExportStatusCount = 0;
-			int emptyFunctionCount = 0;
-
-			// Limit to first 100 profiles
-			int limit = Math.min(profileNameElements.size(), 100);
-			limit = Math.min(limit, jobStatusElements.size());
-			limit = Math.min(limit, exportStatusElements.size());
-			limit = Math.min(limit, functionElements.size());
+			int limit = Math.min(Math.min(profileNameElements.size(), jobStatusElements.size()), 100);
+			limit = Math.min(limit, Math.min(exportStatusElements.size(), functionElements.size()));
 
 			for (int i = 0; i < limit; i++) {
 				String profileName = profileNameElements.get(i).getText();
-				String jobStatusText = jobStatusElements.get(i).getText();
-				String exportStatusText = exportStatusElements.get(i).getText();
-				String functionText = functionElements.get(i).getText();
+				String jobStatus = getValueOrEmpty(jobStatusElements.get(i).getText());
+				String exportStatus = getValueOrEmpty(exportStatusElements.get(i).getText());
+				String function = getValueOrEmpty(functionElements.get(i).getText());
 
-				// Track empty values
-				if (jobStatusText == null || jobStatusText.trim().isEmpty() || jobStatusText.equals("-")) {
-					emptyJobStatusCount++;
-					jobStatusText = "[EMPTY]";
-				}
-
-				if (exportStatusText == null || exportStatusText.trim().isEmpty() || exportStatusText.equals("-")) {
-					emptyExportStatusCount++;
-					exportStatusText = "[EMPTY]";
-				}
-
-				if (functionText == null || functionText.trim().isEmpty() || functionText.equals("-")) {
-					emptyFunctionCount++;
-					functionText = "[EMPTY]";
-				}
-
-				LOGGER.info("Profile: " + profileName + " | Job Status: " + jobStatusText + " | Export Status: "
-						+ exportStatusText + " | Function: " + functionText);
-				PageObjectHelper.log(LOGGER, "Profile: " + profileName + " | Job Status: " + jobStatusText
-						+ " | Export Status: " + exportStatusText + " | Function: " + functionText);
+				PageObjectHelper.log(LOGGER, "Profile: " + profileName + " | Job Status: " + jobStatus +
+						" | Export Status: " + exportStatus + " | Function: " + function);
 			}
 
-			if (emptyJobStatusCount > 0) {
-				PageObjectHelper.log(LOGGER, emptyJobStatusCount + " profile(s) have empty Job Status values");
-			}
-			if (emptyExportStatusCount > 0) {
-				PageObjectHelper.log(LOGGER, emptyExportStatusCount + " profile(s) have empty Export Status values");
-			}
-			if (emptyFunctionCount > 0) {
-				PageObjectHelper.log(LOGGER, emptyFunctionCount + " profile(s) have empty Function values");
-			}
-
-			// ✅ VALIDATE THREE-LEVEL SORTING
-			// Primary sort: Job Status (Ascending)
-			// Secondary sort: Export Status (Descending) - within same Job Status
-			// Tertiary sort: Function (Ascending) - within same Job Status and Export
-			// Status
-			int sortViolations = 0;
-
-			for (int i = 0; i < limit - 1; i++) {
-				String currentJobStatus = jobStatusElements.get(i).getText();
-				String nextJobStatus = jobStatusElements.get(i + 1).getText();
-				String currentExportStatus = exportStatusElements.get(i).getText();
-				String nextExportStatus = exportStatusElements.get(i + 1).getText();
-				String currentFunction = functionElements.get(i).getText();
-				String nextFunction = functionElements.get(i + 1).getText();
-
-				// Skip empty values in validation
-				if (currentJobStatus.equals("-") || currentJobStatus.trim().isEmpty() || nextJobStatus.equals("-")
-						|| nextJobStatus.trim().isEmpty()) {
-					continue;
-				}
-
-				// Primary sort check: Job Status ascending (case-insensitive)
-				int jobStatusComparison = currentJobStatus.compareToIgnoreCase(nextJobStatus);
-				if (jobStatusComparison > 0) {
-					sortViolations++;
-					LOGGER.error("❌ PRIMARY SORT VIOLATION (Job Status) at Row " + (i + 1) + " -> Row " + (i + 2)
-							+ ": '" + currentJobStatus + "' > '" + nextJobStatus + "' (NOT in Ascending Order!)");
-					PageObjectHelper.log(LOGGER, 
-							"❌ PRIMARY SORT VIOLATION (Job Status): Row " + (i + 1) + " > Row " + (i + 2));
-				}
-				// Secondary sort check: If Job Status is same, Export Status should be
-				// descending (normalized comparison)
-				else if (jobStatusComparison == 0) {
-					if (!currentExportStatus.equals("-") && !currentExportStatus.trim().isEmpty()
-							&& !nextExportStatus.equals("-") && !nextExportStatus.trim().isEmpty()) {
-						// Normalize Export Status values to match UI sorting behavior
-						String currentExportStatusNormalized = currentExportStatus
-								.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
-						String nextExportStatusNormalized = nextExportStatus.replaceAll("[-'\"()\\[\\].,:;!?]", "")
-								.trim();
-						int exportStatusComparison = currentExportStatusNormalized
-								.compareToIgnoreCase(nextExportStatusNormalized);
-						if (exportStatusComparison < 0) {
-							sortViolations++;
-							LOGGER.error("❌ SECONDARY SORT VIOLATION (Export Status) at Row " + (i + 1) + " -> Row "
-									+ (i + 2) + ": '" + currentExportStatus + "' < '" + nextExportStatus
-									+ "' (NOT in Descending Order for same Job Status!)");
-							LOGGER.debug("   Normalized comparison: '" + currentExportStatusNormalized + "' vs '"
-									+ nextExportStatusNormalized + "'");
-							PageObjectHelper.log(LOGGER, 
-									"❌ SECONDARY SORT VIOLATION (Export Status): Row " + (i + 1) + " < Row " + (i + 2));
-						}
-						// Tertiary sort check: If Job Status and Export Status are same, Function
-						// should be ascending (normalized comparison)
-						else if (exportStatusComparison == 0) {
-							if (!currentFunction.equals("-") && !currentFunction.trim().isEmpty()
-									&& !nextFunction.equals("-") && !nextFunction.trim().isEmpty()) {
-								// Normalize Function values to match UI sorting behavior
-								String currentFunctionNormalized = currentFunction
-										.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
-								String nextFunctionNormalized = nextFunction.replaceAll("[-'\"()\\[\\].,:;!?]", "")
-										.trim();
-								if (currentFunctionNormalized.compareToIgnoreCase(nextFunctionNormalized) > 0) {
-									sortViolations++;
-									LOGGER.error("❌ TERTIARY SORT VIOLATION (Function) at Row " + (i + 1) + " -> Row "
-											+ (i + 2) + ": '" + currentFunction + "' > '" + nextFunction
-											+ "' (NOT in Ascending Order for same Job Status and Export Status!)");
-									LOGGER.debug("   Normalized comparison: '" + currentFunctionNormalized + "' vs '"
-											+ nextFunctionNormalized + "'");
-									PageObjectHelper.log(LOGGER, "❌ TERTIARY SORT VIOLATION (Function): Row "
-											+ (i + 1) + " > Row " + (i + 2));
-								}
-							}
-						}
-					}
-				}
-			}
+			// Validate three-level sorting
+			int sortViolations = validateThreeLevelSort(jobStatusElements, exportStatusElements, 
+					functionElements, limit);
 
 			if (sortViolations > 0) {
-				String errorMsg = "❌ SORTING FAILED: Found " + sortViolations
-						+ " violation(s). Data is NOT sorted by Job Status (Asc), Export Status (Desc), and Function (Asc)!";
-				LOGGER.error(errorMsg);
+				String errorMsg = "SORTING FAILED: Found " + sortViolations + " violation(s)!";
 				PageObjectHelper.log(LOGGER, errorMsg);
-				Assert.fail(errorMsg + " Please check the three-level sorting implementation!");
+				Assert.fail(errorMsg);
 			} else {
-				LOGGER.info(
-						"✅ THREE-LEVEL SORT VALIDATION PASSED: All Profiles are correctly sorted by Job Status (Ascending), Export Status (Descending), and Function (Ascending)");
-				PageObjectHelper.log(LOGGER, "✅ Three-level sorting validation PASSED");
+				PageObjectHelper.log(LOGGER, "Three-level sorting validation PASSED");
 			}
 
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue verifying 3-level sorted profiles - Method: user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_ascending_export_status_descending_and_function_ascending",
-					e);
+			PageObjectHelper.handleError(LOGGER, "verify_3level_sorting", 
+					"Issue verifying 3-level sorted profiles", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_3level_sorting", e);
-			e.printStackTrace();
-			PageObjectHelper.log(LOGGER, "Issue in Verifying Profiles After 3-level sorting...Please Investigate!!!");
 			Assert.fail("Issue in Verifying Profiles After 3-level sorting...Please Investigate!!!");
 		}
 	}
 
+	// ==================== HELPER METHODS (File-specific multi-level sort validation) ====================
+
+	/**
+	 * Validates multi-level sorting with primary and secondary columns.
+	 * Uses inherited normalizeForSorting() and shouldSkipInSortValidation() from BasePageObject.
+	 */
+	private int validateMultiLevelSort(List<WebElement> primaryElements, List<WebElement> secondaryElements,
+			int limit, boolean primaryAscending, boolean secondaryAscending) {
+		int violations = 0;
+
+		for (int i = 0; i < limit - 1; i++) {
+			String currentPrimary = primaryElements.get(i).getText();
+			String nextPrimary = primaryElements.get(i + 1).getText();
+			String currentSecondary = secondaryElements.get(i).getText();
+			String nextSecondary = secondaryElements.get(i + 1).getText();
+
+			if (shouldSkipInSortValidation(currentPrimary) || shouldSkipInSortValidation(nextPrimary)) {
+				continue;
+			}
+
+			int primaryComparison = currentPrimary.compareToIgnoreCase(nextPrimary);
+			
+			if ((primaryAscending && primaryComparison > 0) || (!primaryAscending && primaryComparison < 0)) {
+				violations++;
+				LOGGER.error("PRIMARY SORT VIOLATION at Row {} -> Row {}", (i + 1), (i + 2));
+			}
+			else if (primaryComparison == 0 && !shouldSkipInSortValidation(currentSecondary) && 
+					!shouldSkipInSortValidation(nextSecondary)) {
+				
+				String currentNormalized = normalizeForSorting(currentSecondary);
+				String nextNormalized = normalizeForSorting(nextSecondary);
+				int secondaryComparison = currentNormalized.compareToIgnoreCase(nextNormalized);
+				
+				if ((secondaryAscending && secondaryComparison > 0) || 
+						(!secondaryAscending && secondaryComparison < 0)) {
+					violations++;
+					LOGGER.error("SECONDARY SORT VIOLATION at Row {} -> Row {}", (i + 1), (i + 2));
+				}
+			}
+		}
+
+		return violations;
+	}
+
+	/**
+	 * Validates three-level sorting: L1 (asc), L2 (desc), L3 (asc).
+	 * Uses inherited methods from BasePageObject.
+	 */
+	private int validateThreeLevelSort(List<WebElement> level1Elements, List<WebElement> level2Elements,
+			List<WebElement> level3Elements, int limit) {
+		int violations = 0;
+
+		for (int i = 0; i < limit - 1; i++) {
+			String currentL1 = level1Elements.get(i).getText();
+			String nextL1 = level1Elements.get(i + 1).getText();
+			String currentL2 = level2Elements.get(i).getText();
+			String nextL2 = level2Elements.get(i + 1).getText();
+			String currentL3 = level3Elements.get(i).getText();
+			String nextL3 = level3Elements.get(i + 1).getText();
+
+			if (shouldSkipInSortValidation(currentL1) || shouldSkipInSortValidation(nextL1)) {
+				continue;
+			}
+
+			int l1Comparison = currentL1.compareToIgnoreCase(nextL1);
+			
+			// Level 1: Ascending
+			if (l1Comparison > 0) {
+				violations++;
+				LOGGER.error("L1 SORT VIOLATION at Row {} -> Row {}", (i + 1), (i + 2));
+			}
+			// Level 2: Descending when L1 same
+			else if (l1Comparison == 0 && !shouldSkipInSortValidation(currentL2) && 
+					!shouldSkipInSortValidation(nextL2)) {
+				
+				String l2Current = normalizeForSorting(currentL2);
+				String l2Next = normalizeForSorting(nextL2);
+				int l2Comparison = l2Current.compareToIgnoreCase(l2Next);
+				
+				if (l2Comparison < 0) {
+					violations++;
+					LOGGER.error("L2 SORT VIOLATION at Row {} -> Row {}", (i + 1), (i + 2));
+				}
+				// Level 3: Ascending when L1 and L2 same
+				else if (l2Comparison == 0 && !shouldSkipInSortValidation(currentL3) && 
+						!shouldSkipInSortValidation(nextL3)) {
+					
+					if (normalizeForSorting(currentL3).compareToIgnoreCase(normalizeForSorting(nextL3)) > 0) {
+						violations++;
+						LOGGER.error("L3 SORT VIOLATION at Row {} -> Row {}", (i + 1), (i + 2));
+					}
+				}
+			}
+		}
+
+		return violations;
+	}
 }

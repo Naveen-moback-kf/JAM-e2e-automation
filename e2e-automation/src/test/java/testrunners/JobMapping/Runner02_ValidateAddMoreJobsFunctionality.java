@@ -39,7 +39,7 @@ public class Runner02_ValidateAddMoreJobsFunctionality extends CustomizeTestNGCu
 	@BeforeClass(alwaysRun = true)
 	public void refreshJobCatalogBeforeTests() {
 		try {
-			LOGGER.info("  Runner02: Refreshing Job Catalog Before Execution    ");
+			LOGGER.info("Runner02: Refreshing Job Catalog Before Execution    ");
 			
 			boolean success = JobCatalogRefresher.refreshJobCatalog();
 			
@@ -63,7 +63,7 @@ public class Runner02_ValidateAddMoreJobsFunctionality extends CustomizeTestNGCu
 	@Override
 	protected String resolveLoginTag() {
 		String loginTag = DynamicTagResolver.getKFoneLoginTag();
-		LOGGER.info(" degrees Using KFone login tag: " + loginTag);
+		LOGGER.info("Using KFone login tag: " + loginTag);
 		return loginTag;
 	}
 	

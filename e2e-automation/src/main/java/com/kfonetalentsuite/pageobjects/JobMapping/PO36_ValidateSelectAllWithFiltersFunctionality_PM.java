@@ -5,54 +5,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
+public class PO36_ValidateSelectAllWithFiltersFunctionality_PM extends BasePageObject {
 
-	WebDriver driver = DriverManager.getDriver();
+	private static final Logger LOGGER = LogManager.getLogger(PO36_ValidateSelectAllWithFiltersFunctionality_PM.class);
 
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
+	// ==================== LOCATORS ====================
+	private static final By SHOWING_JOB_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing')]");
+	private static final By CLEAR_ALL_FILTERS_BTN = By.xpath("//a[contains(text(),'Clear All')]");
+
+	private JavascriptExecutor js;
 
 	public PO36_ValidateSelectAllWithFiltersFunctionality_PM() throws IOException {
-		PageFactory.initElements(driver, this);
+		super();
+		this.js = (JavascriptExecutor) driver;
 	}
-
-	WebDriverWait wait = DriverManager.getWait();
-	Utilities utils = new Utilities();
-	JavascriptExecutor js = (JavascriptExecutor) driver;
-
-	// XPATHs
-	@FindBy(xpath = "//*[@class='blocking-loader']//img")
-	@CacheLookup
-	WebElement pageLoadSpinner;
-
-	@FindBy(xpath = "//div[contains(text(),'Showing')]")
-	@CacheLookup
-	public WebElement showingJobResultsCount;
-
-	@FindBy(xpath = "//span[text()='Filters']")
-	@CacheLookup
-	public WebElement filtersDropdownBtn;
-
-	@FindBy(xpath = "//a[contains(text(),'Clear All')]")
-	@CacheLookup
-	public WebElement clearAllFiltersBtn;
 
 	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
 	// Static variables to store filter results count
@@ -61,13 +38,13 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 																							// "Levels", "Functions"
 	public static ThreadLocal<String> firstFilterValue = ThreadLocal.withInitial(() -> ""); // e.g., "M3", "Individual
 																							// Contributor", "HR"
-	public static ThreadLocal<String> secondFilterType = ThreadLocal.withInitial(() -> "");
-	public static ThreadLocal<String> secondFilterValue = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> secondFilterType = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> secondFilterValue = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<Integer> totalSecondFilterResults = ThreadLocal.withInitial(() -> 0);
 
 	public void apply_filter_and_verify_profiles_count_in_hcm_sync_profiles_screen_for_feature36() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			// Try to apply KF Grade filter (most common)
@@ -81,7 +58,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 
 				if (!kfGradeHeader.isEmpty()) {
 					LOGGER.info("Found KF Grade expansion panel, clicking to expand...");
-					utils.jsClick(driver, kfGradeHeader.get(0));
+					jsClick(kfGradeHeader.get(0));
 					PerformanceUtils.waitForPageReady(driver, 1);
 					Thread.sleep(500);
 					LOGGER.info(" Expanded KF Grade filter dropdown");
@@ -182,7 +159,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 
 					if (!levelsHeader.isEmpty()) {
 						LOGGER.info("Found Levels expansion panel, clicking to expand...");
-						utils.jsClick(driver, levelsHeader.get(0));
+						jsClick(levelsHeader.get(0));
 						PerformanceUtils.waitForPageReady(driver, 1);
 						Thread.sleep(500);
 						LOGGER.info(" Expanded Levels filter dropdown");
@@ -290,13 +267,13 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 
 	public void user_should_scroll_down_to_view_last_filtered_result_in_hcm_sync_profiles_screen_for_feature36() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			// Parse expected total from "Showing X of Y results"
 			int expectedTotal = 0;
 			try {
-				String resultsCountText = showingJobResultsCount.getText().trim();
+				String resultsCountText = getElementText(SHOWING_JOB_RESULTS_COUNT).trim();
 				LOGGER.info("Results count text: " + resultsCountText);
 
 				if (resultsCountText.contains("of")) {
@@ -394,7 +371,6 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 				previousCount = currentCount;
 			}
 
-			LOGGER.info("... Loaded {} filtered results using {} scrolls", currentCount, scrollCount);
 			PageObjectHelper.log(LOGGER, 
 					"... Loaded " + currentCount + " filtered results (using " + scrollCount + " scrolls)");
 		} catch (Exception e) {
@@ -408,7 +384,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 
 	public void user_should_validate_all_filtered_results_match_the_applied_filter_in_hcm_sync_profiles_screen_for_feature36() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 1);
 
 			LOGGER.info(
@@ -444,9 +420,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 			}
 
 			if (nonMatchingResults == 0) {
-				LOGGER.info(" All " + totalResults + " results validated for filter: " + firstFilterType + " = "
-						+ firstFilterValue);
-				PageObjectHelper.log(LOGGER, " All " + totalResults + " results validated for filter: "
+								PageObjectHelper.log(LOGGER, " All " + totalResults + " results validated for filter: "
 						+ firstFilterType + " = " + firstFilterValue);
 			} else {
 				LOGGER.warn(" " + nonMatchingResults + " of " + totalResults
@@ -465,7 +439,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 
 	public void user_is_in_hcm_sync_profiles_screen_with_selected_filter_results_for_feature36() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			// Count ACTUAL selected profiles (this is the real baseline)
@@ -500,14 +474,13 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 
 	public void clear_applied_filter_in_hcm_sync_profiles_screen_for_feature36() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			utils.jsClick(driver, clearAllFiltersBtn);
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			jsClick(findElement(CLEAR_ALL_FILTERS_BTN));
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			LOGGER.info("Cleared all filters");
 			PageObjectHelper.log(LOGGER, "Cleared all filters");
 
 		} catch (Exception e) {
@@ -530,10 +503,9 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 		boolean maxScrollLimitReached = false;
 
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			LOGGER.info("Verifying only filtered profiles remain selected (expected: " + filterResultsCount.get() + ")");
 			PageObjectHelper.log(LOGGER, "Verifying only " + filterResultsCount.get() + " profiles remain selected...");
 
 			if (filterResultsCount.get() == 0) {
@@ -544,7 +516,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 
 			// Parse total profile count from "Showing X of Y results" to adjust max scrolls
 			try {
-				String resultsCountText = showingJobResultsCount.getText().trim();
+				String resultsCountText = getElementText(SHOWING_JOB_RESULTS_COUNT).trim();
 				if (resultsCountText.contains("of")) {
 					String[] parts = resultsCountText.split("\\s+");
 					for (int i = 0; i < parts.length; i++) {
@@ -642,7 +614,6 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 						"//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]"));
 				actualSelectedCount = selectedRows.size();
 			}
-			int notSelectedProfiles = totalProfilesVisible - actualSelectedCount;
 
 			// Calculate missing/extra selections
 			int missingSelections = 0;
@@ -665,8 +636,13 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 			} else {
 				LOGGER.info("Total Profiles Loaded: " + totalProfilesVisible);
 			}
+			// Count disabled profiles separately
+			int disabledProfiles = countDisabledCheckboxes("tbody tr");
+			int unselectedProfiles = totalProfilesVisible - actualSelectedCount - disabledProfiles;
+			
 			LOGGER.info("Currently Selected Profiles: " + actualSelectedCount);
-			LOGGER.info("Not Selected Profiles (Disabled + Unselected): " + notSelectedProfiles);
+			LOGGER.info("Unselected Profiles (enabled but not selected): " + unselectedProfiles);
+			LOGGER.info("Disabled Profiles (cannot be selected): " + disabledProfiles);
 			LOGGER.info("----------------------------------------");
 			LOGGER.info("Baseline (from first filter): " + filterResultsCount.get() + " profiles");
 			if (missingSelections > 0) {
@@ -689,13 +665,11 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 				if (actualSelectedCount == 0) {
 					String errorMsg = " FAIL: No selections found in " + totalProfilesVisible
 							+ " loaded profiles (expected " + filterResultsCount.get() + ")";
-					LOGGER.error(errorMsg);
 					PageObjectHelper.log(LOGGER, errorMsg);
 					Assert.fail(errorMsg);
 				} else if (actualSelectedCount > filterResultsCount.get()) {
 					String errorMsg = " FAIL: Found " + actualSelectedCount + " selected (expected "
 							+ filterResultsCount.get() + "), " + extraSelections + " extra profiles incorrectly selected";
-					LOGGER.error(errorMsg);
 					PageObjectHelper.log(LOGGER, errorMsg);
 					Assert.fail(errorMsg);
 				} else if (actualSelectedCount < filterResultsCount.get()) {
@@ -703,31 +677,26 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 					String successMsg = " PASS: Found " + actualSelectedCount + " of " + filterResultsCount
 							+ " selected profiles in loaded data (remaining " + missingSelections
 							+ " likely in unloaded profiles)";
-					LOGGER.info(successMsg);
 					PageObjectHelper.log(LOGGER, successMsg);
 				} else {
 					// actualSelectedCount == filterResultsCount
 					String successMsg = " PASS: All " + filterResultsCount
 							+ " filtered profiles found selected in loaded data";
-					LOGGER.info(successMsg);
 					PageObjectHelper.log(LOGGER, successMsg);
 				}
 			} else {
 				// Normal validation when all profiles are loaded
 				if (actualSelectedCount == filterResultsCount.get()) {
 					String successMsg = " PASS: All " + filterResultsCount.get() + " filtered profiles remain selected";
-					LOGGER.info(successMsg);
 					PageObjectHelper.log(LOGGER, successMsg);
 				} else if (actualSelectedCount < filterResultsCount.get()) {
 					String errorMsg = " FAIL: Only " + actualSelectedCount + " selected (expected " + filterResultsCount
 							+ "), " + missingSelections + " profiles cannot be selected or lost selection";
-					LOGGER.error(errorMsg);
 					PageObjectHelper.log(LOGGER, errorMsg);
 					Assert.fail(errorMsg);
 				} else {
 					String errorMsg = " FAIL: " + actualSelectedCount + " selected (expected " + filterResultsCount
 							+ "), " + extraSelections + " extra profiles incorrectly selected";
-					LOGGER.error(errorMsg);
 					PageObjectHelper.log(LOGGER, errorMsg);
 					Assert.fail(errorMsg);
 				}
@@ -737,10 +706,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 			ScreenshotHandler.captureFailureScreenshot(
 					"verify_only_filtered_profiles_are_selected_after_clearing_all_filters_in_hcm_sync_profiles_screen",
 					e);
-			LOGGER.error(
-					"Error verifying filtered profiles selection - Method: verify_only_filtered_profiles_are_selected_after_clearing_all_filters_in_hcm_sync_profiles_screen",
-					e);
-			PageObjectHelper.log(LOGGER, " Error verifying filtered profiles are selected");
+						PageObjectHelper.log(LOGGER, " Error verifying filtered profiles are selected");
 			Assert.fail("Error verifying only filtered profiles are selected: " + e.getMessage());
 		}
 	}
@@ -752,7 +718,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 
 	public void apply_different_filter_for_alternative_validation_in_hcm_sync_profiles_screen_for_feature36() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			LOGGER.info("Alternative validation: Applying SAME filter type with DIFFERENT value (first filter: "
@@ -772,7 +738,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 					var filtersBtn = driver.findElements(
 							By.xpath("//button[contains(@class,'filters') or contains(text(),'Filters')]"));
 					if (!filtersBtn.isEmpty()) {
-						utils.jsClick(driver, filtersBtn.get(0));
+						jsClick(filtersBtn.get(0));
 						PerformanceUtils.waitForPageReady(driver, 1);
 						Thread.sleep(500);
 						LOGGER.info(" Opened Filters dropdown");
@@ -813,14 +779,14 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 						if (isExpanded) {
 							LOGGER.info(
 									"KF Grade panel is already expanded, collapsing first to force fresh render...");
-							utils.jsClick(driver, kfGradeHeader.get(0));
+							jsClick(kfGradeHeader.get(0));
 							Thread.sleep(500); // Wait for collapse animation
 							LOGGER.info(" Collapsed KF Grade panel");
 						}
 
 						// Now expand it (fresh render)
 						LOGGER.info("Expanding KF Grade panel for fresh option rendering...");
-						utils.jsClick(driver, kfGradeHeader.get(0));
+						jsClick(kfGradeHeader.get(0));
 						PerformanceUtils.waitForPageReady(driver, 1);
 						Thread.sleep(1000); // Wait for options to render
 						LOGGER.info(" Expanded KF Grade filter dropdown with fresh options");
@@ -1008,7 +974,7 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 							var filtersBtn = driver.findElements(
 									By.xpath("//button[contains(@class,'filters') or contains(text(),'Filters')]"));
 							if (!filtersBtn.isEmpty()) {
-								utils.jsClick(driver, filtersBtn.get(0));
+								jsClick(filtersBtn.get(0));
 								PerformanceUtils.waitForPageReady(driver, 1);
 								Thread.sleep(500);
 								LOGGER.info(" Opened Filters dropdown");
@@ -1038,14 +1004,14 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 						// If already expanded, collapse it first to force re-render
 						if (isExpanded) {
 							LOGGER.info("Levels panel is already expanded, collapsing first to force fresh render...");
-							utils.jsClick(driver, levelsHeader.get(0));
+							jsClick(levelsHeader.get(0));
 							Thread.sleep(500); // Wait for collapse animation
 							LOGGER.info(" Collapsed Levels panel");
 						}
 
 						// Now expand it (fresh render)
 						LOGGER.info("Expanding Levels panel for fresh option rendering...");
-						utils.jsClick(driver, levelsHeader.get(0));
+						jsClick(levelsHeader.get(0));
 						PerformanceUtils.waitForPageReady(driver, 1);
 						Thread.sleep(1000); // Wait for options to render
 						LOGGER.info(" Expanded Levels filter dropdown with fresh options");
@@ -1317,10 +1283,10 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 		String secondFilterValue = PO36_ValidateSelectAllWithFiltersFunctionality_PM.secondFilterValue.get();
 
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			String resultsCountText = showingJobResultsCount.getText().trim();
+			String resultsCountText = getElementText(SHOWING_JOB_RESULTS_COUNT).trim();
 
 			if (resultsCountText.matches(".*Showing\\s+0\\s+of.*")) {
 				LOGGER.warn(" Second filter returned 0 results, skipping");
@@ -1366,18 +1332,15 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 
 			if (invalidCount > 0) {
 				String errorMsg = " FAIL: Found invalid selection in second filter results";
-				LOGGER.error(errorMsg);
 				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg);
 				return;
 			}
 
-			LOGGER.info(" Validation complete: " + initialCount + " visible profiles checked, 0 invalid");
 			PageObjectHelper.log(LOGGER, " All visible profiles validated successfully (no scrolling needed)");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("scroll_second_filter_results", e);
-			LOGGER.error("Error scrolling to load second filter results", e);
 			PageObjectHelper.log(LOGGER, " Error scrolling to load second filter results");
 			Assert.fail("Error scrolling to load all second filter results: " + e.getMessage());
 		}
@@ -1392,7 +1355,6 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM {
 	 * redundant.
 	 */
 	public void verify_all_loaded_profiles_in_second_filter_are_not_selected_in_hcm_sync_profiles_screen_for_feature36() {
-		LOGGER.info(" Validation already completed in previous step (simplified approach)");
 		PageObjectHelper.log(LOGGER, " Validation already completed");
 	}
 }

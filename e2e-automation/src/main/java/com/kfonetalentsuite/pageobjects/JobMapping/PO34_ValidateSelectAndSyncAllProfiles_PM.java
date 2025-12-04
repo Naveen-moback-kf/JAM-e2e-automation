@@ -1,119 +1,102 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO34_ValidateSelectAndSyncAllProfiles_PM {
-	WebDriver driver = DriverManager.getDriver();
+/**
+ * Page Object for validating Select All and Sync All profiles in HCM Sync Profiles (PM) screen.
+ * Handles clicking chevron/Select All buttons and scrolling through all profiles to count selected.
+ */
+public class PO34_ValidateSelectAndSyncAllProfiles_PM extends BasePageObject {
 
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
-
-	public PO34_ValidateSelectAndSyncAllProfiles_PM() throws IOException {
-		PageFactory.initElements(driver, this);
-	}
-
-	WebDriverWait wait = DriverManager.getWait();
-	Utilities utils = new Utilities();
-	JavascriptExecutor js = (JavascriptExecutor) driver;
+	private static final Logger LOGGER = LogManager.getLogger(PO34_ValidateSelectAndSyncAllProfiles_PM.class);
 
 	public static int CountOfProfilesSelectedToExport;
 
-	// XAPTHs
-	@FindBy(xpath = "//*[@class='blocking-loader']//img")
-	@CacheLookup
-	WebElement pageLoadSpinner;
+	// Locators - Uses centralized locators from BasePageObject.Locators where available
+	// PAGE_LOAD_SPINNER is available via Locators.Spinners.PAGE_LOAD_SPINNER
+	// HCM_SELECT_ALL_BTN is available via Locators.Actions.SELECT_ALL_BTN
+	private static final By HCM_CHEVRON_BTN = By.xpath("//*[contains(@class,'kf-icon-arrow-down')]");
+	private static final By SHOWING_COUNT = By.xpath("//div[contains(@class, 'body-text') and contains(text(), 'Showing')]");
+	private static final By ALL_ROWS = By.xpath("//tbody//tr");
 
-	@FindBy(xpath = "//*[contains(@class,'kf-icon-arrow-down')]")
-	@CacheLookup
-	WebElement HCMchevronBtn;
+	public PO34_ValidateSelectAndSyncAllProfiles_PM() {
+		super();
+	}
 
-	@FindBy(xpath = "//*[contains(text(),'Select All')]")
-	@CacheLookup
-	WebElement HCMSelectAllBtn;
-
+	/**
+	 * Clicks on Chevron Button beside Header Checkbox in HCM Sync Profiles screen.
+	 */
 	public void click_on_chevron_button_beside_header_checkbox_in_hcm_sync_profiles_screen() {
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.PAGE_LOAD_SPINNER));
+			
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(HCMchevronBtn)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(HCM_CHEVRON_BTN)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", HCMchevronBtn);
+					jsClick(findElement(HCM_CHEVRON_BTN));
 				} catch (Exception s) {
-					utils.jsClick(driver, HCMchevronBtn);
+					clickElement(HCM_CHEVRON_BTN);
 				}
 			}
-			PageObjectHelper.log(LOGGER, "Clicked on Chevron Button beside Header Checbox in HCM Sync Profiles Screen");
+			
+			PageObjectHelper.log(LOGGER, "Clicked on Chevron Button beside Header Checkbox in HCM Sync Profiles Screen");
 			PerformanceUtils.waitForPageReady(driver, 2);
+			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot(
 					"click_on_chevron_button_beside_header_checkbox_in_hcm_sync_profiles_screen", e);
-			LOGGER.error(
-					"Issue in clicking Chevron Button beside Header Checbox in HCM Sync Profiles Screen - Method: click_on_chevron_button_beside_header_checkbox_in_hcm_sync_profiles_screen",
-					e);
-			e.printStackTrace();
-			PageObjectHelper.log(LOGGER, 
-					"Issue in clicking Chevron Button beside Header Checbox in HCM Sync Profiles Screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER,
+					"click_on_chevron_button_beside_header_checkbox_in_hcm_sync_profiles_screen",
+					"Issue in clicking Chevron Button beside Header Checkbox in HCM Sync Profiles Screen", e);
 		}
 	}
 
 	/**
-	 * Clicks on Select All button in HCM Sync Profiles screen The dropdown appears
-	 * immediately after chevron click without page load spinner
+	 * Clicks on Select All button in HCM Sync Profiles screen.
+	 * The dropdown appears immediately after chevron click without page load spinner.
 	 */
 	public void click_on_select_all_button_in_hcm_sync_profiles_screen() {
 		try {
-			// Wait directly for Select All button to be clickable (dropdown appears
-			// immediately after chevron click)
+			// Wait directly for Select All button to be clickable (dropdown appears immediately after chevron click)
 			// No need to wait for spinner as dropdown shows without page reload
-
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(HCMSelectAllBtn)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(Locators.Table.SELECT_ALL_BTN)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", HCMSelectAllBtn);
+					jsClick(findElement(Locators.Table.SELECT_ALL_BTN));
 				} catch (Exception s) {
-					utils.jsClick(driver, HCMSelectAllBtn);
+					clickElement(Locators.Table.SELECT_ALL_BTN);
 				}
 			}
+			
 			PageObjectHelper.log(LOGGER, "Clicked on Select All button in HCM Sync Profiles Screen");
 			PerformanceUtils.waitForPageReady(driver, 2);
+			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_select_all_button_in_hcm_sync_profiles_screen", e);
-			LOGGER.error(
-					"Issue in clicking Select All button in HCM Sync Profiles Screen - Method: click_on_select_all_button_in_hcm_sync_profiles_screen",
-					e);
-			e.printStackTrace();
-			PageObjectHelper.log(LOGGER, 
-					"Issue in clicking Select All button in HCM Sync Profiles Screen...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_select_all_button_in_hcm_sync_profiles_screen",
+					"Issue in clicking Select All button in HCM Sync Profiles Screen", e);
 		}
 	}
 
 	/**
-	 * Scrolls through all profiles and counts the number of selected profiles based
-	 * on checkbox state. This method handles lazy loading by scrolling to the
-	 * bottom with increased wait times.
+	 * Scrolls through all profiles and counts the number of selected profiles based on checkbox state.
+	 * This method handles lazy loading by scrolling to the bottom with increased wait times.
 	 * 
-	 * Process: 1. Get total profile count from "Showing X of Y" text 2. Scroll to
-	 * bottom repeatedly with longer waits to load all profiles 3. Count checkboxes
-	 * that are enabled (excluding disabled ones)
+	 * Process:
+	 * 1. Get total profile count from "Showing X of Y" text
+	 * 2. Scroll to bottom repeatedly with longer waits to load all profiles
+	 * 3. Count checkboxes that are enabled (excluding disabled ones)
 	 * 
 	 * Example: If 2842 total profiles exist and 42 are disabled, this returns 2800
 	 */
@@ -123,13 +106,12 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 		int disabledCount = 0;
 
 		try {
-			wait.until(ExpectedConditions.invisibilityOfAllElements(pageLoadSpinner));
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.PAGE_LOAD_SPINNER));
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			// Step 1: Get total profile count from "Showing X of Y Success Profiles" text
 			try {
-				WebElement countElement = driver
-						.findElement(By.xpath("//div[contains(@class, 'body-text') and contains(text(), 'Showing')]"));
+				WebElement countElement = findElement(SHOWING_COUNT);
 				String countText = countElement.getText().trim();
 
 				// Parse text like "Showing 50 of 2842 Success Profiles"
@@ -148,196 +130,142 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM {
 
 			if (totalProfiles == 0) {
 				LOGGER.warn("Could not determine total profile count. Will scroll until no more data loads.");
-				PageObjectHelper.log(LOGGER, 
-						" Could not determine total profile count. Scrolling through all available profiles...");
+				PageObjectHelper.log(LOGGER, "Could not determine total profile count. Scrolling through all available profiles...");
 			}
 
 			// Step 2: Scroll to load all profiles (ENHANCED FOR HEADLESS MODE)
 			PageObjectHelper.log(LOGGER, "Loading all profiles by scrolling...");
 
 			// DYNAMIC maxScrollAttempts calculation based on total profiles
+			// ~50 profiles load per scroll, add small buffer for safety
 			int maxScrollAttempts;
 			if (totalProfiles > 0) {
-				// Estimate scrolls needed: Assume ~50 rows load per scroll on average
-				// Add 25% buffer to account for varying load sizes + add 5 for safety
 				int estimatedScrolls = (int) Math.ceil(totalProfiles / 50.0);
-				maxScrollAttempts = (int) (estimatedScrolls * 1.25) + 5;
-
-				// Set reasonable bounds: minimum 15, maximum 100
+				maxScrollAttempts = estimatedScrolls + 10; // Add 10 scrolls buffer
 				maxScrollAttempts = Math.max(15, Math.min(100, maxScrollAttempts));
 
-				LOGGER.info("Dynamic maxScrollAttempts calculated: {} (based on {} total profiles)", maxScrollAttempts,
-						totalProfiles);
-				PageObjectHelper.log(LOGGER, "Max scroll attempts set to: " + maxScrollAttempts
-						+ " (dynamically calculated for " + totalProfiles + " profiles)");
+				LOGGER.info("maxScrollAttempts: {} (estimated {} scrolls for {} profiles + 10 buffer)", 
+						maxScrollAttempts, estimatedScrolls, totalProfiles);
 			} else {
-				// Fallback if total count unavailable
 				maxScrollAttempts = 60;
 				LOGGER.info("Using default maxScrollAttempts: {} (total profile count unavailable)", maxScrollAttempts);
-				PageObjectHelper.log(LOGGER, 
-						"Max scroll attempts: " + maxScrollAttempts + " (default - profile count unknown)");
 			}
 
 			int currentRowCount = 0;
 			int previousRowCount = 0;
 			int noChangeCount = 0;
 			int scrollCount = 0;
-
-			// Track if we reached max scroll attempts (incomplete count scenario)
 			boolean reachedMaxScrollLimit = false;
 
 			while (scrollCount < maxScrollAttempts) {
-				// ENHANCED SCROLLING STRATEGY for HEADLESS MODE:
-				// Use multiple scroll techniques to ensure lazy loading triggers
-
-				// Method 1: Scroll using document.body.scrollHeight (more reliable in headless)
 				try {
 					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 				} catch (Exception e1) {
-					// Fallback to documentElement.scrollHeight
 					try {
 						js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
 					} catch (Exception e2) {
-						// Last resort: scroll by large pixel amount
 						js.executeScript("window.scrollBy(0, 10000);");
 					}
 				}
 
 				scrollCount++;
-				LOGGER.debug("Scroll attempt #{} - waiting for content to load...", scrollCount);
-
-				// CRITICAL: Longer wait for HEADLESS MODE (lazy loading needs more time)
-				Thread.sleep(3000); // Increased from 2000 to 3000ms for headless stability
-
-				// Wait for any spinners to disappear (using PerformanceUtils for consistency)
+				safeSleep(3000);
 				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+				PerformanceUtils.waitForPageReady(driver, 2);
+				safeSleep(1000);
 
-				// Wait for page readiness
-				PerformanceUtils.waitForPageReady(driver, 2); // Increased from 1 to 2 seconds
+				currentRowCount = findElements(ALL_ROWS).size();
 
-				// Additional wait for DOM updates in headless mode
-				Thread.sleep(1000); // Extra buffer for lazy-loaded content to render
+				// Log progress every 10 scrolls or when new data loads
+				if (scrollCount % 10 == 0 || currentRowCount != previousRowCount) {
+					int percentComplete = totalProfiles > 0 ? (currentRowCount * 100 / totalProfiles) : 0;
+					LOGGER.info("Scroll {}/{}: Loaded {} profiles ({}% complete)", 
+							scrollCount, maxScrollAttempts, currentRowCount, percentComplete);
+				}
 
-				// Check current row count
-				currentRowCount = driver.findElements(By.xpath("//tbody//tr")).size();
-
-				LOGGER.debug("Current row count after scroll #{}: {}", scrollCount, currentRowCount);
-
-				// Check if no new rows loaded
 				if (currentRowCount == previousRowCount) {
 					noChangeCount++;
-					LOGGER.debug("No new rows loaded. Stagnation count: {}/3", noChangeCount);
-
 					if (noChangeCount >= 3) {
-						LOGGER.info("... Reached end of content after {} consecutive non-loading scrolls",
-								noChangeCount);
-						LOGGER.info("... Final row count: {}", currentRowCount);
+						LOGGER.info("Reached end of content after {} consecutive non-loading scrolls", noChangeCount);
 						break;
 					}
 
-					// ADDITIONAL: Try forcing scroll to absolute bottom one more time
 					if (noChangeCount == 2) {
-						LOGGER.debug("Attempting final aggressive scroll to ensure all content loaded...");
 						js.executeScript(
-								"window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight));");
-						Thread.sleep(2000); // Wait after aggressive scroll
-
-						// Wait for spinners after aggressive scroll
+								"window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight));");
+						safeSleep(2000);
 						PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 					}
 				} else {
 					noChangeCount = 0;
-					int newRows = currentRowCount - previousRowCount;
-					LOGGER.debug("✓ Loaded {} new rows (total: {}, scroll: #{})", newRows, currentRowCount,
-							scrollCount);
 				}
 
 				previousRowCount = currentRowCount;
 			}
 
-			// Check if we exited loop due to maxScrollAttempts (not because of 3
-			// consecutive no-change)
 			if (scrollCount >= maxScrollAttempts && noChangeCount < 3) {
 				reachedMaxScrollLimit = true;
-				LOGGER.warn(
-						"⚠️ REACHED MAX SCROLL LIMIT: Stopped at {} scrolls (limit: {}). Some profiles may not have been loaded!",
-						scrollCount, maxScrollAttempts);
-				LOGGER.warn("⚠️ Profile count may be INCOMPLETE. Current rows loaded: {} (Expected: ~{})",
-						currentRowCount, totalProfiles);
-				PageObjectHelper.log(LOGGER, "⚠️ WARNING: Reached max scroll limit (" + maxScrollAttempts
-						+ " scrolls). Profile count may be incomplete!");
+				LOGGER.warn("REACHED MAX SCROLL LIMIT: Stopped at {} scrolls.", scrollCount);
 			}
 
-			LOGGER.info("... Scrolling complete. Total rows loaded: {}, Scrolls performed: {}", currentRowCount,
-					scrollCount);
-			PageObjectHelper.log(LOGGER, 
-					"... Total rows loaded: " + currentRowCount + " (using " + scrollCount + " scrolls)");
+			LOGGER.info("Scrolling complete. Total rows loaded: {}, Scrolls performed: {}", currentRowCount, scrollCount);
 
-			// Step 3: Count selected checkboxes (enabled ones only, excluding disabled)
-			LOGGER.info("Counting selected profiles...");
-
-			// OPTIMIZED: Use JavaScript to count checkboxes in one call (much faster!)
-			// This avoids making multiple XPath queries
-			String jsScriptTotal = "return document.querySelectorAll('tbody tr td:first-child kf-checkbox div').length;";
-			String jsScriptDisabled = "return document.querySelectorAll('tbody tr td:first-child kf-checkbox div.disable').length;";
-
+			// Step 3: Count checkboxes by state using JavaScript (FAST)
+			// In HCM/PM screens:
+			// - Selected: kf-icon[@icon='checkbox-check'] is ONLY present in DOM when checked
+			// - Disabled: kf-checkbox has div with 'disable' class
+			
+			LOGGER.info("Counting selected/disabled checkboxes...");
+			
 			try {
-				// Count using JavaScript (single call for each)
-				Object totalResult = js.executeScript(jsScriptTotal);
-				int totalCheckboxes = ((Long) totalResult).intValue();
-
-				Object disabledResult = js.executeScript(jsScriptDisabled);
+				// JavaScript counting is MUCH faster than XPath findElements for large tables
+				String jsCountSelected = "return document.querySelectorAll('tbody tr td:first-child kf-checkbox kf-icon[icon=\"checkbox-check\"]').length;";
+				String jsCountDisabled = "return document.querySelectorAll('tbody tr td:first-child kf-checkbox div.disable').length;";
+				
+				Object selectedResult = js.executeScript(jsCountSelected);
+				selectedCount = ((Long) selectedResult).intValue();
+				
+				Object disabledResult = js.executeScript(jsCountDisabled);
 				disabledCount = ((Long) disabledResult).intValue();
+				
+				int unselectedCount = currentRowCount - selectedCount - disabledCount;
+				LOGGER.info("Counted - Total: {}, Selected: {}, Disabled: {}, Unselected: {}", 
+						currentRowCount, selectedCount, disabledCount, unselectedCount);
 
-				// Calculate enabled checkboxes (all - disabled = enabled/selected)
-				selectedCount = totalCheckboxes - disabledCount;
-
-				LOGGER.info(" Counted using JavaScript - Total: " + totalCheckboxes + ", Disabled: " + disabledCount
-						+ ", Selected: " + selectedCount);
-
-			} catch (Exception jsException) {
-				// Fallback: Use XPath counting (still faster than looping)
-				LOGGER.warn("JavaScript counting failed, using fallback method...");
-
-				// Count disabled checkboxes directly via XPath
-				disabledCount = driver
-						.findElements(By
-								.xpath("//tbody//tr//td[1]//*//..//div//kf-checkbox//div[contains(@class, 'disable')]"))
-						.size();
-
-				// Count all checkboxes
-				int totalCheckboxes = driver.findElements(By.xpath("//tbody//tr//td[1]//*//..//div//kf-checkbox//div"))
-						.size();
-
-				// Calculate enabled checkboxes (all - disabled = enabled)
-				selectedCount = totalCheckboxes - disabledCount;
-
-				LOGGER.info(" Counted using fallback method - Total: " + totalCheckboxes + ", Disabled: "
-						+ disabledCount + ", Selected: " + selectedCount);
+			} catch (Exception countException) {
+				LOGGER.warn("JavaScript counting failed, using XPath fallback: {}", countException.getMessage());
+				// Fallback to XPath (slower but reliable)
+				selectedCount = driver.findElements(By.xpath(
+						"//tbody//tr//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']")).size();
+				disabledCount = driver.findElements(By.xpath(
+						"//tbody//tr//td[1]//kf-checkbox//div[contains(@class, 'disable')]")).size();
+				LOGGER.info("Fallback Counted - Selected: {}, Disabled: {}", selectedCount, disabledCount);
 			}
 
-			PageObjectHelper.log(LOGGER, " Total rows loaded: " + currentRowCount);
-			PageObjectHelper.log(LOGGER, " Selected profiles: " + selectedCount + " | Disabled: " + disabledCount);
+			// Calculate unselected count for final summary
+			totalProfiles = currentRowCount;
+			int unselectedProfiles = totalProfiles - selectedCount - disabledCount;
+			
+			PageObjectHelper.log(LOGGER, "=== PROFILE COUNT SUMMARY ===");
+			PageObjectHelper.log(LOGGER, "Total Profiles: " + totalProfiles);
+			PageObjectHelper.log(LOGGER, " Selected (to be synced): " + selectedCount);
+			PageObjectHelper.log(LOGGER, " Unselected (enabled but not selected): " + unselectedProfiles);
+			PageObjectHelper.log(LOGGER, " Disabled (cannot be selected): " + disabledCount);
 
-			// Store the count and flag indicating if count is complete
 			CountOfProfilesSelectedToExport = selectedCount;
 			PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(CountOfProfilesSelectedToExport);
 			PO22_ValidateHCMSyncProfilesScreen_PM.isProfilesCountComplete.set(!reachedMaxScrollLimit);
 
-			// Log the count completeness status
 			if (reachedMaxScrollLimit) {
-				PageObjectHelper.log(LOGGER, "⚠️ Count Status: INCOMPLETE (max scroll limit reached)");
+				PageObjectHelper.log(LOGGER, "Count Status: INCOMPLETE (max scroll limit reached)");
 			} else {
-				PageObjectHelper.log(LOGGER, "✅ Count Status: COMPLETE (all profiles loaded and counted)");
+				PageObjectHelper.log(LOGGER, "Count Status: COMPLETE (all profiles loaded and counted)");
 			}
 
 		} catch (Exception e) {
-			ScreenshotHandler
-					.captureFailureScreenshot("verify_count_of_selected_profiles_by_scrolling_through_all_profiles", e);
-			LOGGER.error(
-					"Error getting selected profiles count in HCM Sync Profiles screen - Method: verify_count_of_selected_profiles_by_scrolling_through_all_profiles",
-					e);
-			PageObjectHelper.log(LOGGER, " Error getting selected profiles count");
+			ScreenshotHandler.captureFailureScreenshot("verify_count_of_selected_profiles_by_scrolling_through_all_profiles", e);
+			PageObjectHelper.handleError(LOGGER, "verify_count_of_selected_profiles_by_scrolling_through_all_profiles",
+					"Error getting selected profiles count in HCM Sync Profiles screen", e);
 		}
 	}
 }

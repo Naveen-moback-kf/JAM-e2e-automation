@@ -1,73 +1,54 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
-
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO45_ClearProfileSelectionwithNoneButton_JAM {
+/**
+ * Page Object for clearing profile selection with None button in Job Mapping (JAM) screen.
+ * Handles clicking None button and verifying all profiles are unselected.
+ */
+public class PO45_ClearProfileSelectionwithNoneButton_JAM extends BasePageObject {
 
-	WebDriver driver = DriverManager.getDriver();
+	private static final Logger LOGGER = LogManager.getLogger(PO45_ClearProfileSelectionwithNoneButton_JAM.class);
 
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
+	// Locators
+	private static final By NONE_BTN = By.xpath("//*[contains(text(),'None')]");
+	private static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input");
 
-	public PO45_ClearProfileSelectionwithNoneButton_JAM() throws IOException {
-		PageFactory.initElements(driver, this);
+	public PO45_ClearProfileSelectionwithNoneButton_JAM() {
+		super();
 	}
 
-	WebDriverWait wait = DriverManager.getWait();
-	Utilities utils = new Utilities();
-	JavascriptExecutor js = (JavascriptExecutor) driver;
-
-	// XPATHs
-	@FindBy(xpath = "//div[@data-testid='loader']//img")
-	@CacheLookup
-	WebElement pageLoadSpinner;
-
-	@FindBy(xpath = "//*[contains(text(),'None')]")
-	@CacheLookup
-	WebElement noneBtn;
-
 	/**
-	 * Clicks on None button to unselect all profiles in Job Mapping screen This
-	 * button is available in the dropdown that appears when clicking the chevron
-	 * beside header checkbox The dropdown appears immediately after chevron click
-	 * without page load spinner
+	 * Clicks on None button to unselect all profiles in Job Mapping screen.
+	 * This button is available in the dropdown that appears when clicking the chevron
+	 * beside header checkbox. The dropdown appears immediately after chevron click
+	 * without page load spinner.
 	 */
 	public void click_on_none_button_in_job_mapping_screen() {
 		try {
-			// Wait directly for None button to be clickable (dropdown appears immediately
-			// after chevron click)
+			// Wait directly for None button to be clickable (dropdown appears immediately after chevron click)
 			// No need to wait for spinner as dropdown shows without page reload
-
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(noneBtn)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(NONE_BTN)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", noneBtn);
+					jsClick(findElement(NONE_BTN));
 				} catch (Exception s) {
-					utils.jsClick(driver, noneBtn);
+					clickElement(NONE_BTN);
 				}
 			}
 
 			// Wait for unselection to complete
-			Thread.sleep(1000);
+			safeSleep(1000);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
@@ -75,15 +56,15 @@ public class PO45_ClearProfileSelectionwithNoneButton_JAM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_none_button_in_job_mapping_screen", e);
-			PageObjectHelper.log(LOGGER, "Error clicking on None button in Job Mapping screen");
+			PageObjectHelper.handleError(LOGGER, "click_on_none_button_in_job_mapping_screen",
+					"Error clicking on None button in Job Mapping screen", e);
 			Assert.fail("Error clicking on None button in Job Mapping screen: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies that all currently loaded profiles are unselected in Job Mapping
-	 * screen This method checks only the profiles already loaded on the page (no
-	 * scrolling)
+	 * Verifies that all currently loaded profiles are unselected in Job Mapping screen.
+	 * This method checks only the profiles already loaded on the page (no scrolling).
 	 */
 	public void verify_all_loaded_profiles_are_unselected_in_job_mapping_screen() {
 		int totalProfilesChecked = 0;
@@ -99,8 +80,7 @@ public class PO45_ClearProfileSelectionwithNoneButton_JAM {
 			LOGGER.info("========================================");
 
 			// Get all currently loaded checkboxes (no scrolling)
-			var allCheckboxes = driver
-					.findElements(By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input"));
+			var allCheckboxes = findElements(ALL_CHECKBOXES);
 
 			int totalCheckboxes = allCheckboxes.size();
 			LOGGER.info("Total checkboxes found on page: " + totalCheckboxes);
@@ -147,9 +127,9 @@ public class PO45_ClearProfileSelectionwithNoneButton_JAM {
 			}
 
 		} catch (Exception e) {
-			ScreenshotHandler
-					.captureFailureScreenshot("verify_all_loaded_profiles_are_unselected_in_job_mapping_screen", e);
-			PageObjectHelper.log(LOGGER, "Error verifying all loaded profiles are unselected");
+			ScreenshotHandler.captureFailureScreenshot("verify_all_loaded_profiles_are_unselected_in_job_mapping_screen", e);
+			PageObjectHelper.handleError(LOGGER, "verify_all_loaded_profiles_are_unselected_in_job_mapping_screen",
+					"Error verifying all loaded profiles are unselected", e);
 			Assert.fail("Error verifying all loaded profiles are unselected: " + e.getMessage());
 		}
 	}

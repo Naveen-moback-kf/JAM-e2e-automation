@@ -1,73 +1,54 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
-
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO43_ClearProfileSelectionwithNoneButton_PM {
+/**
+ * Page Object for clearing profile selection with None button in HCM Sync Profiles (PM) screen.
+ * Handles clicking None button and verifying all profiles are unselected.
+ */
+public class PO43_ClearProfileSelectionwithNoneButton_PM extends BasePageObject {
 
-	WebDriver driver = DriverManager.getDriver();
+	private static final Logger LOGGER = LogManager.getLogger(PO43_ClearProfileSelectionwithNoneButton_PM.class);
 
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
+	// Locators
+	private static final By HCM_NONE_BTN = By.xpath("//*[contains(text(),'None')]");
+	private static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox//div");
 
-	public PO43_ClearProfileSelectionwithNoneButton_PM() throws IOException {
-		PageFactory.initElements(driver, this);
+	public PO43_ClearProfileSelectionwithNoneButton_PM() {
+		super();
 	}
 
-	WebDriverWait wait = DriverManager.getWait();
-	Utilities utils = new Utilities();
-	JavascriptExecutor js = (JavascriptExecutor) driver;
-
-	// XPATHs
-	@FindBy(xpath = "//*[@class='blocking-loader']//img")
-	@CacheLookup
-	WebElement pageLoadSpinner;
-
-	@FindBy(xpath = "//*[contains(text(),'None')]")
-	@CacheLookup
-	WebElement HCMNoneBtn;
-
 	/**
-	 * Clicks on None button to unselect all profiles in HCM Sync Profiles screen
-	 * This button is available in the dropdown that appears when clicking the
-	 * chevron beside header checkbox The dropdown appears immediately after chevron
-	 * click without page load spinner
+	 * Clicks on None button to unselect all profiles in HCM Sync Profiles screen.
+	 * This button is available in the dropdown that appears when clicking the chevron
+	 * beside header checkbox. The dropdown appears immediately after chevron click
+	 * without page load spinner.
 	 */
 	public void click_on_none_button_in_hcm_sync_profiles_screen() {
 		try {
-			// Wait directly for None button to be clickable (dropdown appears immediately
-			// after chevron click)
+			// Wait directly for None button to be clickable (dropdown appears immediately after chevron click)
 			// No need to wait for spinner as dropdown shows without page reload
-
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(HCMNoneBtn)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(HCM_NONE_BTN)).click();
 			} catch (Exception e) {
 				try {
-					js.executeScript("arguments[0].click();", HCMNoneBtn);
+					jsClick(findElement(HCM_NONE_BTN));
 				} catch (Exception s) {
-					utils.jsClick(driver, HCMNoneBtn);
+					clickElement(HCM_NONE_BTN);
 				}
 			}
 
 			// Wait for unselection to complete
-			Thread.sleep(1000);
+			safeSleep(1000);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
@@ -75,15 +56,15 @@ public class PO43_ClearProfileSelectionwithNoneButton_PM {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_none_button_in_hcm_sync_profiles_screen", e);
-			PageObjectHelper.log(LOGGER, "Error clicking on None button in HCM Sync Profiles Screen");
+			PageObjectHelper.handleError(LOGGER, "click_on_none_button_in_hcm_sync_profiles_screen",
+					"Error clicking on None button in HCM Sync Profiles Screen", e);
 			Assert.fail("Error clicking on None button in HCM Sync Profiles Screen: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies that all currently loaded profiles are unselected in HCM Sync
-	 * Profiles screen This method checks only the profiles already loaded on the
-	 * page (no scrolling)
+	 * Verifies that all currently loaded profiles are unselected in HCM Sync Profiles screen.
+	 * This method checks only the profiles already loaded on the page (no scrolling).
 	 */
 	public void verify_all_loaded_profiles_are_unselected_in_hcm_sync_profiles_screen() {
 		int totalProfilesChecked = 0;
@@ -99,7 +80,7 @@ public class PO43_ClearProfileSelectionwithNoneButton_PM {
 			LOGGER.info("========================================");
 
 			// Get all currently loaded checkboxes (no scrolling)
-			var allCheckboxes = driver.findElements(By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox//div"));
+			var allCheckboxes = findElements(ALL_CHECKBOXES);
 
 			int totalCheckboxes = allCheckboxes.size();
 			LOGGER.info("Total checkboxes found on page: " + totalCheckboxes);
@@ -148,9 +129,9 @@ public class PO43_ClearProfileSelectionwithNoneButton_PM {
 			}
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot(
-					"verify_all_loaded_profiles_are_unselected_in_hcm_sync_profiles_screen", e);
-			PageObjectHelper.log(LOGGER, "Error verifying all loaded profiles are unselected");
+			ScreenshotHandler.captureFailureScreenshot("verify_all_loaded_profiles_are_unselected_in_hcm_sync_profiles_screen", e);
+			PageObjectHelper.handleError(LOGGER, "verify_all_loaded_profiles_are_unselected_in_hcm_sync_profiles_screen",
+					"Error verifying all loaded profiles are unselected", e);
 			Assert.fail("Error verifying all loaded profiles are unselected: " + e.getMessage());
 		}
 	}

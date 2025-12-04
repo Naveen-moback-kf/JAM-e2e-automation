@@ -1,121 +1,59 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.StaleElementReferenceException;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO15_ValidateRecommendedProfileDetails {
-	WebDriver driver = DriverManager.getDriver();
+public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
-	PO15_ValidateRecommendedProfileDetails validateRecommendedProfileDetails;
+	private static final Logger LOGGER = LogManager.getLogger(PO15_ValidateRecommendedProfileDetails.class);
+
+	public static ThreadLocal<Integer> rowNumber = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<String> orgJobName = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> orgJobCode = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> orgJobGrade = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> orgJobFunction = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> orgJobDepartment = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> matchedSuccessPrflName = ThreadLocal.withInitial(() -> "NOT_SET");
+
+	private static final By COMPARE_AND_SELECT_HEADER = By.xpath("//h1[@id='compare-desc']");
+	private static final By ORG_JOB_TITLE_HEADER = By.xpath("//div[contains(@class,'leading')]//div[1]//div[1]");
+	private static final By ORG_JOB_GRADE_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Grade')]//span");
+	private static final By ORG_JOB_DEPARTMENT_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Department')]//span");
+	private static final By ORG_JOB_FUNCTION_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Function')]//span");
+	private static final By PROFILE_1_TITLE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-title')]");
+	private static final By PROFILE_1_SELECT_BTN = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span");
+	private static final By PROFILE_1_RECOMMENDED_TAG = By.xpath("//div[@class='shadow']//div[contains(@id,'recommended-title')]");
+	private static final By PROFILE_1_GRADE = By.xpath("//div[@class='shadow']//div[contains(@id,'grade')]");
+	private static final By PROFILE_1_LEVEL = By.xpath("//div[@class='shadow']//div[contains(@id,'level-sublevels')]");
+	private static final By PROFILE_1_FUNCTION = By.xpath("//div[@class='shadow']//div[contains(@id,'function-subfunction')]");
+	private static final By PROFILE_1_SENIORITY = By.xpath("//div[@class='shadow']//div[contains(@id,'seniority-level')]");
+	private static final By PROFILE_1_MANAGERIAL = By.xpath("//div[@class='shadow']//div[contains(@id,'managerial-experience')]");
+	private static final By PROFILE_1_EDUCATION = By.xpath("//div[@class='shadow']//div[contains(@id,'education')]");
+	private static final By PROFILE_1_GENERAL_EXP = By.xpath("//div[@class='shadow']//div[contains(@id,'general-experience')]");
+	private static final By PROFILE_1_ROLE_SUMMARY = By.xpath("//div[@class='shadow']//div[contains(@id,'role-summary')]");
+	private static final By PROFILE_1_RESPONSIBILITIES = By.xpath("//div[@class='shadow']//div[contains(@id,'responsibilities')]");
+	private static final By VIEW_MORE_RESPONSIBILITIES = By.xpath("//div[contains(@id,'responsibilities')]//button[@data-testid='view-more-responsibilities']");
+	private static final By PROFILE_1_COMPETENCIES = By.xpath("//div[@class='shadow']//div[contains(@id,'behavioural-competencies')]");
+	private static final By VIEW_MORE_COMPETENCIES = By.xpath("//div[contains(@id,'behavioural-competencies')]//button[@data-testid='view-more-competencies']");
+	private static final By PROFILE_1_SKILLS = By.xpath("//div[@class='shadow']//div[contains(@id,'skills')]");
+	private static final By VIEW_MORE_SKILLS = By.xpath("//div[contains(@id,'skills')]//button[@data-testid='view-more-skills']");
 
 	public PO15_ValidateRecommendedProfileDetails() throws IOException {
-		// super();
-		PageFactory.initElements(driver, this);
+		super();
 	}
 
-	WebDriverWait wait = DriverManager.getWait();
-	Utilities utils = new Utilities();
-	JavascriptExecutor js = (JavascriptExecutor) driver;
-
-	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
-	public static ThreadLocal<Integer> rowNumber = ThreadLocal.withInitial(() -> 0);
-	public static ThreadLocal<String> orgJobName = ThreadLocal.withInitial(() -> null);
-	public static ThreadLocal<String> orgJobCode = ThreadLocal.withInitial(() -> null);
-	public static ThreadLocal<String> orgJobGrade = ThreadLocal.withInitial(() -> null);
-	public static ThreadLocal<String> orgJobFunction = ThreadLocal.withInitial(() -> null);
-	public static ThreadLocal<String> orgJobDepartment = ThreadLocal.withInitial(() -> null);
-	public static ThreadLocal<String> matchedSuccessPrflName = ThreadLocal.withInitial(() -> null);
-
-	// XPATHs
-	@FindBy(xpath = "//div[@data-testid='loader']//img")
-	WebElement pageLoadSpinner2;
-
-	@FindBy(xpath = "//h1[@id='compare-desc']")
-	public WebElement CompareandSelectheader;
-
-	@FindBy(xpath = "//div[contains(@class,'leading')]//div[1]//div[1]")
-	WebElement JCpageOrgJobTitleHeader;
-
-	@FindBy(xpath = "//div[contains(@class,'leading')]//div[contains(text(),'Grade')]//span")
-	WebElement JCpageOrgJobGradeValue;
-
-	@FindBy(xpath = "//div[contains(@class,'leading')]//div[contains(text(),'Department')]//span")
-	WebElement JCpageOrgJobDepartmentValue;
-
-	@FindBy(xpath = "//div[contains(@class,'leading')]//div[contains(text(),'Function')]//span")
-	WebElement JCpageOrgJobFunctionValue;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'card-title')]")
-	WebElement JCpageProfile1Title;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'card-header')][1]//span")
-	WebElement JCpageProfile1SelectBtn;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'recommended-title')]")
-	WebElement JCpageProfile1RecommendedTag;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'grade')]")
-	WebElement JCpageProfile1Grade;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'level-sublevels')]")
-	WebElement JCpageProfile1Level;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'function-subfunction')]")
-	WebElement JCpageProfile1Function;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'seniority-level')]")
-	WebElement JCpageProfile1SeniorityLevel;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'managerial-experience')]")
-	WebElement JCpageProfile1ManagerialExperience;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'education')]")
-	WebElement JCpageProfile1Education;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'general-experience')]")
-	WebElement JCpageProfile1GeneralExperience;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'role-summary')]")
-	WebElement JCpageProfile1RoleSummary;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'responsibilities')]")
-	WebElement JCpageProfile1Responsibilities;
-
-	@FindBy(xpath = "//div[contains(@id,'responsibilities')]//button[@data-testid='view-more-responsibilities']")
-	List<WebElement> JCpageProfile1ViewMoreResponsibilitiesBtn;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'behavioural-competencies')]")
-	WebElement JCpageProfile1BehaviouralCompetencies;
-
-	@FindBy(xpath = "//div[contains(@id,'behavioural-competencies')]//button[@data-testid='view-more-competencies']")
-	List<WebElement> JCpageProfile1ViewMoreCompetenciesBtn;
-
-	@FindBy(xpath = "//div[@class='shadow']//div[contains(@id,'skills')]")
-	WebElement JCpageProfile1Skills;
-
-	@FindBy(xpath = "//div[contains(@id,'skills')]//button[@data-testid='view-more-skills']")
-	List<WebElement> JCpageProfile1ViewMoreSkillsBtn;
-
-	// METHODS
 	public void search_for_job_profile_with_view_other_matches_button() {
 		try {
 			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//tbody")));
@@ -123,10 +61,10 @@ public class PO15_ValidateRecommendedProfileDetails {
 
 			for (int i = 2; i <= 47; i = i + 3) {
 				try {
-					WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(By
-							.xpath("//tbody//tr[" + Integer.toString(i) + "]//button[not(contains(@id,'publish'))]")));
+					WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(
+							By.xpath("//tbody//tr[" + i + "]//button[not(contains(@id,'publish'))]")));
 
-					js.executeScript("arguments[0].scrollIntoView(true);", button);
+					scrollToElement(button);
 					PerformanceUtils.waitForUIStability(driver, 1);
 
 					wait.until(ExpectedConditions.visibilityOf(button));
@@ -134,13 +72,11 @@ public class PO15_ValidateRecommendedProfileDetails {
 
 					if (text.contains("Other Matches")) {
 						rowNumber.set(i);
-						WebElement jobName = driver.findElement(By.xpath("//tbody//tr["
-								+ Integer.toString(rowNumber.get() - 1) + "]//td[2]//div[contains(text(),'(')]"));
+						WebElement jobName = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 1) + "]//td[2]//div[contains(text(),'(')]"));
 						Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobName)).isDisplayed());
 						String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText();
 						orgJobName.set(jobname1.split("-", 2)[0].trim());
-						PageObjectHelper.log(LOGGER,
-								"View Other Matches button found for Job Profile: " + orgJobName.get());
+						PageObjectHelper.log(LOGGER, "View Other Matches button found for Job Profile: " + orgJobName.get());
 						break;
 					} else {
 						rowNumber.set(i);
@@ -151,17 +87,14 @@ public class PO15_ValidateRecommendedProfileDetails {
 				}
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_for_job_profile_with_view_other_matches_button",
-					"Issue searching Job Profile with View Other Matches button", e);
+			PageObjectHelper.handleError(LOGGER, "search_for_job_profile_with_view_other_matches_button", "Issue searching Job Profile with View Other Matches button", e);
 		}
 	}
 
 	public void user_should_verify_organization_job_name_and_job_code_values_of_job_profile_with_view_other_matches_button() {
 		try {
-			// OPTIMIZED: Single comprehensive wait
 			PerformanceUtils.waitForPageReady(driver, 2);
-			WebElement jobName = driver.findElement(By.xpath(
-					"//tbody//tr[" + Integer.toString(rowNumber.get() - 1) + "]//td[2]//div[contains(text(),'(')]"));
+			WebElement jobName = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 1) + "]//td[2]//div[contains(text(),'(')]"));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobName)).isDisplayed());
 			String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText();
 			orgJobName.set(jobname1.split("-", 2)[0].trim());
@@ -169,159 +102,110 @@ public class PO15_ValidateRecommendedProfileDetails {
 			PageObjectHelper.log(LOGGER, "Job name: " + orgJobName.get());
 			PageObjectHelper.log(LOGGER, "Job code: " + orgJobCode.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"user_should_verify_organization_job_name_and_job_code_values_of_job_profile_with_view_other_matches_button",
-					"Issue verifying job name of Profile with View Other Matches button", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_name_and_job_code_values_of_job_profile_with_view_other_matches_button", "Issue verifying job name of Profile with View Other Matches button", e);
 		}
 	}
 
 	public void user_should_verify_organization_job_grade_and_department_values_of_job_profile_with_view_other_matches_button() {
 		try {
-			WebElement jobGrade = driver
-					.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get() - 1) + "]//td[3]//div[1]"));
+			WebElement jobGrade = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 1) + "]//td[3]//div[1]"));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobGrade)).isDisplayed());
 			String jobGradeText = wait.until(ExpectedConditions.visibilityOf(jobGrade)).getText();
 			if (jobGradeText.contentEquals("-") || jobGradeText.isEmpty() || jobGradeText.isBlank()) {
 				jobGradeText = "NULL";
-				orgJobGrade.set(jobGradeText);
 			}
 			orgJobGrade.set(jobGradeText);
 			PageObjectHelper.log(LOGGER, "Grade value: " + orgJobGrade.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_grade_value",
-					"Issue verifying Organization Job Grade value", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_grade_value", "Issue verifying Organization Job Grade value", e);
 		}
 
 		try {
-			WebElement jobDepartment = driver
-					.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get() - 1) + "]//td[4]//div[1]"));
+			WebElement jobDepartment = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 1) + "]//td[4]//div[1]"));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobDepartment)).isDisplayed());
 			String jobDepartmentText = wait.until(ExpectedConditions.visibilityOf(jobDepartment)).getText();
 			if (jobDepartmentText.contentEquals("-") || jobDepartmentText.isEmpty() || jobDepartmentText.isBlank()) {
 				jobDepartmentText = "NULL";
-				orgJobDepartment.set(jobDepartmentText);
 			}
 			orgJobDepartment.set(jobDepartmentText);
 			PageObjectHelper.log(LOGGER, "Department value: " + orgJobDepartment.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_department_value",
-					"Issue verifying Organization Job Department value", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_department_value", "Issue verifying Organization Job Department value", e);
 		}
 	}
 
 	public void user_should_verify_organization_job_function_or_sub_function_of_job_profile_with_view_other_matches_button() {
 		try {
-			WebElement jobFunction = driver
-					.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//div//span[2]"));
+			WebElement jobFunction = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//div//span[2]"));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobFunction)).isDisplayed());
 			String jobFunctionText = wait.until(ExpectedConditions.visibilityOf(jobFunction)).getText();
 			if (jobFunctionText.contentEquals("-") || jobFunctionText.isEmpty() || jobFunctionText.isBlank()) {
 				jobFunctionText = "NULL | NULL";
-				orgJobFunction.set(jobFunctionText);
 			} else if (jobFunctionText.endsWith("-") || jobFunctionText.endsWith("| -") || jobFunctionText.endsWith("|")
 					|| (!(jobFunctionText.contains("|")) && (jobFunctionText.length() > 1))) {
 				jobFunctionText = jobFunctionText + " | NULL";
-				orgJobFunction.set(jobFunctionText);
 			}
-
 			orgJobFunction.set(jobFunctionText);
 			PageObjectHelper.log(LOGGER, "Function / Sub-function values: " + orgJobFunction.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"user_should_verify_organization_job_function_or_sub_function_of_job_profile_with_view_other_matches_button",
-					"Issue verifying Organization Job Function / Sub-function values", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_function_or_sub_function_of_job_profile_with_view_other_matches_button", "Issue verifying Organization Job Function / Sub-function values", e);
 		}
 	}
 
-	/**
-	 * Clicks on matched profile of job profile with view other matches button
-	 * ENHANCED FOR HEADLESS MODE: Scrolls element into view before clicking
-	 * PERFORMANCE OPTIMIZED: Added comprehensive debug logging and optimized waits
-	 */
 	public void click_on_matched_profile_of_job_profile_with_view_other_matches_button() {
 		try {
-			// PARALLEL EXECUTION FIX: Wait for page to be ready first
 			PerformanceUtils.waitForPageReady(driver, 5);
+			waitForSpinners();
 
-			// CRITICAL: Wait for spinners BEFORE starting the click operation
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-
-			// Validate rowNumber is set
 			int currentRow = rowNumber.get();
 			if (currentRow == 0) {
-				throw new Exception(
-						"rowNumber is not set. Please ensure 'Search for Job Profile with View Other Matches button' step executed successfully.");
+				throw new Exception("rowNumber is not set. Please ensure 'Search for Job Profile with View Other Matches button' step executed successfully.");
 			}
 
 			int matchedProfileRow = currentRow - 1;
+			String matchedProfileXPath = "//div[@id='kf-job-container']//div//table//tbody//tr[" + matchedProfileRow + "]//td[1]//div";
 
-			// Build XPath for matched profile
-			String matchedProfileXPath = "//div[@id='kf-job-container']//div//table//tbody//tr[" + matchedProfileRow
-					+ "]//td[1]//div";
+			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+			WebElement linkedMatchedProfile = shortWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(matchedProfileXPath)));
 
-			// Wait for matched profile element to be present (REDUCED TIMEOUT)
-			WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10)); // Reduced from 60s
-			WebElement linkedMatchedProfile = shortWait
-					.until(ExpectedConditions.presenceOfElementLocated(By.xpath(matchedProfileXPath)));
+			WebElement clickableElement = shortWait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile));
+			String matchedProfileNameText = clickableElement.getText();
 
-			// Wait for element to be clickable and get text (REDUCED TIMEOUT)
-			WebElement clickableElement = shortWait
-					.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile));
-
-			String MatchedProfileNameText = clickableElement.getText();
-
-			if (MatchedProfileNameText == null || MatchedProfileNameText.trim().isEmpty()) {
+			if (matchedProfileNameText == null || matchedProfileNameText.trim().isEmpty()) {
 				throw new Exception("Matched Profile name is empty at row " + matchedProfileRow);
 			}
 
-			matchedSuccessPrflName.set(MatchedProfileNameText);
+			matchedSuccessPrflName.set(matchedProfileNameText);
+			scrollToElement(linkedMatchedProfile);
+			Thread.sleep(300);
 
-			// PARALLEL EXECUTION FIX: Scroll into view
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", linkedMatchedProfile);
-
-			// OPTIMIZED: Short stability wait after scroll
-			Thread.sleep(300); // Just 300ms instead of full wait
-
-			// CRITICAL: Temporarily disable implicit wait for instant findElements()
-			java.time.Duration savedImplicitWait = null;
+			Duration savedImplicitWait = null;
 			try {
 				savedImplicitWait = driver.manage().timeouts().getImplicitWaitTimeout();
-				driver.manage().timeouts().implicitlyWait(java.time.Duration.ZERO);
+				driver.manage().timeouts().implicitlyWait(Duration.ZERO);
 			} catch (Exception e) {
 				LOGGER.warn("Could not disable implicit wait: {}", e.getMessage());
 			}
 
 			try {
-				// OPTIMIZED: Quick spinner check with short timeout - don't wait if no spinners
 				try {
-					// Check if spinner exists first (INSTANT check with implicit wait = 0)
-					java.util.List<WebElement> spinners = driver
-							.findElements(By.xpath("//*[@class='blocking-loader']//img"));
-
+					List<WebElement> spinners = driver.findElements(Locators.Spinners.PAGE_LOAD_SPINNER);
 					if (!spinners.isEmpty() && spinners.get(0).isDisplayed()) {
-						WebDriverWait spinnerWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
+						WebDriverWait spinnerWait = new WebDriverWait(driver, Duration.ofSeconds(5));
 						spinnerWait.until(ExpectedConditions.invisibilityOfAllElements(spinners));
 					}
 				} catch (Exception e) {
-					// No action needed
 				}
 
-				// OPTIMIZED: Check for loader overlay with SHORT timeout - fail fast if doesn't
-				// exist
 				try {
-					// Check if loader exists first (INSTANT check with implicit wait = 0)
-					java.util.List<WebElement> loaders = driver
-							.findElements(By.xpath("//div[@data-testid='loader' and contains(@class, 'fixed')]"));
-
+					List<WebElement> loaders = driver.findElements(By.xpath("//div[@data-testid='loader' and contains(@class, 'fixed')]"));
 					if (!loaders.isEmpty() && loaders.get(0).isDisplayed()) {
-						WebDriverWait loaderWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
+						WebDriverWait loaderWait = new WebDriverWait(driver, Duration.ofSeconds(5));
 						loaderWait.until(ExpectedConditions.invisibilityOfAllElements(loaders));
 					}
 				} catch (Exception e) {
-					// No action needed
 				}
 			} finally {
-				// CRITICAL: Restore implicit wait
 				if (savedImplicitWait != null) {
 					try {
 						driver.manage().timeouts().implicitlyWait(savedImplicitWait);
@@ -331,54 +215,32 @@ public class PO15_ValidateRecommendedProfileDetails {
 				}
 			}
 
-			// Final clickability check (REDUCED TIMEOUT)
 			clickableElement = shortWait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile));
 
-			// Attempt to click with fallback strategies
-			boolean clickSuccessful = false;
-
-			try {
-				clickableElement.click();
-				clickSuccessful = true;
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", linkedMatchedProfile);
-					clickSuccessful = true;
-				} catch (Exception s) {
-					utils.jsClick(driver, linkedMatchedProfile);
-					clickSuccessful = true;
-				}
-			}
+			boolean clickSuccessful = tryClickWithStrategies(clickableElement);
 
 			if (clickSuccessful) {
-				PageObjectHelper.log(LOGGER, "Clicked on Matched Profile: " + MatchedProfileNameText
-						+ " of Organization Job: " + orgJobName.get());
+				PageObjectHelper.log(LOGGER, "Clicked on Matched Profile: " + matchedProfileNameText + " of Organization Job: " + orgJobName.get());
 				PerformanceUtils.waitForPageReady(driver, 10);
 			} else {
-				throw new Exception("All click strategies failed for Matched Profile: " + MatchedProfileNameText);
+				throw new Exception("All click strategies failed for Matched Profile: " + matchedProfileNameText);
 			}
 
 		} catch (Exception e) {
-			LOGGER.error("❌ Matched Profile Click FAILED: {}", e.getMessage());
-
-			PageObjectHelper.handleError(LOGGER,
-					"click_on_matched_profile_of_job_profile_with_view_other_matches_button",
-					"Issue clicking Matched Profile linked with job name " + orgJobName.get() + " (rowNumber: "
-							+ rowNumber.get() + ")",
-					e);
+			LOGGER.error("Matched Profile Click FAILED: {}", e.getMessage());
+			PageObjectHelper.handleError(LOGGER, "click_on_matched_profile_of_job_profile_with_view_other_matches_button",
+					"Issue clicking Matched Profile linked with job name " + orgJobName.get() + " (rowNumber: " + rowNumber.get() + ")", e);
 		}
 	}
 
 	public void verify_user_navigated_to_job_comparison_page() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			String compareAndSelectHeaderText = wait.until(ExpectedConditions.visibilityOf(CompareandSelectheader))
-					.getText();
+			waitForSpinners();
+			String compareAndSelectHeaderText = getElementText(COMPARE_AND_SELECT_HEADER);
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?");
 			PageObjectHelper.log(LOGGER, "User navigated to Job Compare page successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_job_comparison_page",
-					"Issue navigating to Job Compare page", e);
+			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_job_comparison_page", "Issue navigating to Job Compare page", e);
 		}
 	}
 
@@ -388,356 +250,207 @@ public class PO15_ValidateRecommendedProfileDetails {
 
 	public void validate_organization_job_name_and_code_in_job_comparison_page() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			String JCpageOrgJobTitleHeaderText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobTitleHeader))
-					.getText();
-			Assert.assertTrue(
-					JCpageOrgJobTitleHeaderText.contains(PO15_ValidateRecommendedProfileDetails.orgJobName.get()));
-			Assert.assertTrue(
-					JCpageOrgJobTitleHeaderText.contains(PO15_ValidateRecommendedProfileDetails.orgJobCode.get()));
+			waitForSpinners();
+			String orgJobTitleHeaderText = getElementText(ORG_JOB_TITLE_HEADER);
+			Assert.assertTrue(orgJobTitleHeaderText.contains(PO15_ValidateRecommendedProfileDetails.orgJobName.get()));
+			Assert.assertTrue(orgJobTitleHeaderText.contains(PO15_ValidateRecommendedProfileDetails.orgJobCode.get()));
 			PageObjectHelper.log(LOGGER, "Organization Job Name and Job code validated successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "validate_organization_job_name_and_code_in_job_comparison_page",
-					"Issue validating Organization Job Name and Job Code", e);
+			PageObjectHelper.handleError(LOGGER, "validate_organization_job_name_and_code_in_job_comparison_page", "Issue validating Organization Job Name and Job Code", e);
 		}
 	}
 
 	public void user_should_validate_organization_job_grade_department_and_function_or_subfunction_in_job_comparison_page() {
 		try {
-			String JCpageOrgJobGradeValueText = wait.until(ExpectedConditions.visibilityOf(JCpageOrgJobGradeValue))
-					.getText();
-			if (JCpageOrgJobGradeValueText.contentEquals("-") || JCpageOrgJobGradeValueText.isEmpty()
-					|| JCpageOrgJobGradeValueText.isBlank()) {
-				JCpageOrgJobGradeValueText = "NULL";
-				Assert.assertTrue(
-						JCpageOrgJobGradeValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobGrade.get()));
-			} else {
-				Assert.assertTrue(
-						JCpageOrgJobGradeValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobGrade.get()));
+			String gradeValueText = getElementText(ORG_JOB_GRADE_VALUE);
+			if (gradeValueText.contentEquals("-") || gradeValueText.isEmpty() || gradeValueText.isBlank()) {
+				gradeValueText = "NULL";
 			}
+			Assert.assertTrue(gradeValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobGrade.get()));
 			PageObjectHelper.log(LOGGER, "Organization Job Grade value validated successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_grade",
-					"Issue validating Organization Job Grade value", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_grade", "Issue validating Organization Job Grade value", e);
 		}
 
 		try {
-			String JCpageOrgJobDepartmentValueText = wait
-					.until(ExpectedConditions.visibilityOf(JCpageOrgJobDepartmentValue)).getText();
-			if (JCpageOrgJobDepartmentValueText.contentEquals("-") || JCpageOrgJobDepartmentValueText.isEmpty()
-					|| JCpageOrgJobDepartmentValueText.isBlank()) {
-				JCpageOrgJobDepartmentValueText = "NULL";
-				Assert.assertTrue(JCpageOrgJobDepartmentValueText
-						.contains(PO15_ValidateRecommendedProfileDetails.orgJobDepartment.get()));
-			} else {
-				Assert.assertTrue(JCpageOrgJobDepartmentValueText
-						.contains(PO15_ValidateRecommendedProfileDetails.orgJobDepartment.get()));
+			String departmentValueText = getElementText(ORG_JOB_DEPARTMENT_VALUE);
+			if (departmentValueText.contentEquals("-") || departmentValueText.isEmpty() || departmentValueText.isBlank()) {
+				departmentValueText = "NULL";
 			}
+			Assert.assertTrue(departmentValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobDepartment.get()));
 			PageObjectHelper.log(LOGGER, "Organization Job Department value validated successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_department",
-					"Issue validating Organization Job Department value", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_department", "Issue validating Organization Job Department value", e);
 		}
 
 		try {
-			String JCpageOrgJobFunctionValueText = wait
-					.until(ExpectedConditions.visibilityOf(JCpageOrgJobFunctionValue)).getText();
-			if (JCpageOrgJobFunctionValueText.contentEquals("-") || JCpageOrgJobFunctionValueText.isEmpty()
-					|| JCpageOrgJobFunctionValueText.isBlank()) {
-				JCpageOrgJobFunctionValueText = "NULL | NULL";
-				Assert.assertTrue(JCpageOrgJobFunctionValueText
-						.contains(PO15_ValidateRecommendedProfileDetails.orgJobFunction.get()));
-			} else if (JCpageOrgJobFunctionValueText.endsWith("-") || JCpageOrgJobFunctionValueText.endsWith("| -")
-					|| JCpageOrgJobFunctionValueText.endsWith("|") || (!(JCpageOrgJobFunctionValueText.contains("|"))
-							&& (JCpageOrgJobFunctionValueText.length() > 1))) {
-				JCpageOrgJobFunctionValueText = JCpageOrgJobFunctionValueText + " | NULL";
-			} else {
-				Assert.assertTrue(JCpageOrgJobFunctionValueText
-						.contains(PO15_ValidateRecommendedProfileDetails.orgJobFunction.get()));
+			String functionValueText = getElementText(ORG_JOB_FUNCTION_VALUE);
+			if (functionValueText.contentEquals("-") || functionValueText.isEmpty() || functionValueText.isBlank()) {
+				functionValueText = "NULL | NULL";
+			} else if (functionValueText.endsWith("-") || functionValueText.endsWith("| -") || functionValueText.endsWith("|")
+					|| (!(functionValueText.contains("|")) && (functionValueText.length() > 1))) {
+				functionValueText = functionValueText + " | NULL";
 			}
+			Assert.assertTrue(functionValueText.contains(PO15_ValidateRecommendedProfileDetails.orgJobFunction.get()));
 			PageObjectHelper.log(LOGGER, "Organization Job Function / Sub-function values validated successfully");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_function_or_subfunction",
-					"Issue validating Organization Job Function / Sub-function values", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_function_or_subfunction", "Issue validating Organization Job Function / Sub-function values", e);
 		}
 	}
 
 	public void user_should_verify_recommended_profile_name_matches_with_matched_success_profile_name() {
 		try {
-			String JCpageProfile1TitleText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Title)).getText();
-			Assert.assertTrue(JCpageProfile1TitleText
-					.contains(PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName.get()));
+			String profileTitleText = getElementText(PROFILE_1_TITLE);
+			Assert.assertTrue(profileTitleText.contains(PO15_ValidateRecommendedProfileDetails.matchedSuccessPrflName.get()));
 			PageObjectHelper.log(LOGGER, "Recommended Profile Name matches with Matched Success Profile Name");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"user_should_verify_recommended_profile_name_matches_with_matched_success_profile_name",
-					"Issue verifying Recommended Profile Name", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_recommended_profile_name_matches_with_matched_success_profile_name", "Issue verifying Recommended Profile Name", e);
 		}
 	}
 
 	public void user_should_verify_recommended_tag_and_select_button_is_displaying_on_the_profile() {
 		try {
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(JCpageProfile1RecommendedTag)).isDisplayed());
+			Assert.assertTrue(waitForElement(PROFILE_1_RECOMMENDED_TAG).isDisplayed());
 			PageObjectHelper.log(LOGGER, "Recommended tag is displaying on Recommended Profile");
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(JCpageProfile1SelectBtn)).isDisplayed());
-			Assert.assertEquals("true", wait.until(ExpectedConditions.visibilityOf(JCpageProfile1SelectBtn))
-					.getAttribute("aria-checked").toString());
+			WebElement selectBtn = waitForElement(PROFILE_1_SELECT_BTN);
+			Assert.assertTrue(selectBtn.isDisplayed());
+			Assert.assertEquals("true", selectBtn.getAttribute("aria-checked").toString());
 			PageObjectHelper.log(LOGGER, "Select button is displaying and in Selected status by default");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"user_should_verify_recommended_tag_and_select_button_is_displaying_on_the_profile",
-					"Issue verifying Recommended tag and Select button", e);
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_recommended_tag_and_select_button_is_displaying_on_the_profile", "Issue verifying Recommended tag and Select button", e);
 		}
 	}
 
 	public void validate_recommended_profile_grade_matches_with_matched_success_profile_grade() {
 		try {
-			String JCpageProfile1GradeText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Grade)).getText();
-			Assert.assertTrue(
-					PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Grade:" + JCpageProfile1GradeText));
+			String gradeText = getElementText(PROFILE_1_GRADE);
+			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Grade:" + gradeText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile Grade matches with Matched Success Profile Grade");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"validate_recommended_profile_grade_matches_with_matched_success_profile_grade",
-					"Issue validating Recommended Profile Grade", e);
+			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_grade_matches_with_matched_success_profile_grade", "Issue validating Recommended Profile Grade", e);
 		}
 	}
 
 	public void validate_recommended_profile_level_sublevels_matches_with_matched_success_profile_level_sublevels() {
 		try {
-			String JCpageProfile1LevelText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Level)).getText();
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails
-					.contains("Level / Sublevel:" + JCpageProfile1LevelText));
+			String levelText = getElementText(PROFILE_1_LEVEL);
+			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Level / Sublevel:" + levelText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile Level / Sublevels matches with Matched Success Profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"validate_recommended_profile_level_sublevels_matches_with_matched_success_profile_level_sublevels",
-					"Issue validating Recommended Profile Level / Sublevels", e);
+			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_level_sublevels_matches_with_matched_success_profile_level_sublevels", "Issue validating Recommended Profile Level / Sublevels", e);
 		}
 	}
 
 	public void validate_recommended_profile_function_subfunction_matches_with_matched_success_profile_function_subfunction() {
 		try {
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1Function);
-			String JCpageProfile1FunctionText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Function))
-					.getText();
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails
-					.contains("Function / Sub-function:" + JCpageProfile1FunctionText));
-			PageObjectHelper.log(LOGGER,
-					"Recommended Profile Function / Sub-function matches with Matched Success Profile");
+			scrollToElement(driver.findElement(PROFILE_1_FUNCTION));
+			String functionText = getElementText(PROFILE_1_FUNCTION);
+			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Function / Sub-function:" + functionText));
+			PageObjectHelper.log(LOGGER, "Recommended Profile Function / Sub-function matches with Matched Success Profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"validate_recommended_profile_function_subfunction_matches_with_matched_success_profile_function_subfunction",
-					"Issue validating Recommended Profile Function / Sub-function", e);
+			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_function_subfunction_matches_with_matched_success_profile_function_subfunction", "Issue validating Recommended Profile Function / Sub-function", e);
 		}
 	}
 
 	public void validate_recommended_profile_seniority_level_matches_with_matched_success_profile_seniority_level() {
 		try {
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1SeniorityLevel);
-			String JCpageProfile1SeniorityLevelText = wait
-					.until(ExpectedConditions.visibilityOf(JCpageProfile1SeniorityLevel)).getText();
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails
-					.contains("Seniority level:" + JCpageProfile1SeniorityLevelText));
+			scrollToElement(driver.findElement(PROFILE_1_SENIORITY));
+			String seniorityText = getElementText(PROFILE_1_SENIORITY);
+			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Seniority level:" + seniorityText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile Seniority level matches with Matched Success Profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"validate_recommended_profile_seniority_level_matches_with_matched_success_profile_seniority_level",
-					"Issue validating Recommended Profile Seniority level", e);
+			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_seniority_level_matches_with_matched_success_profile_seniority_level", "Issue validating Recommended Profile Seniority level", e);
 		}
 	}
 
 	public void validate_recommended_profile_managerial_experience_matches_with_matched_success_profile_managerial_experience() {
 		try {
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1ManagerialExperience);
-			String JCpageProfile1ManagerialExperienceText = wait
-					.until(ExpectedConditions.visibilityOf(JCpageProfile1ManagerialExperience)).getText();
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails
-					.contains("Managerial experience:" + JCpageProfile1ManagerialExperienceText));
-			PageObjectHelper.log(LOGGER,
-					"Recommended Profile Managerial experience matches with Matched Success Profile");
+			scrollToElement(driver.findElement(PROFILE_1_MANAGERIAL));
+			String managerialText = getElementText(PROFILE_1_MANAGERIAL);
+			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Managerial experience:" + managerialText));
+			PageObjectHelper.log(LOGGER, "Recommended Profile Managerial experience matches with Matched Success Profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"validate_recommended_profile_managerial_experience_matches_with_matched_success_profile_managerial_experience",
-					"Issue validating Recommended Profile Managerial experience", e);
+			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_managerial_experience_matches_with_matched_success_profile_managerial_experience", "Issue validating Recommended Profile Managerial experience", e);
 		}
 	}
 
 	public void validate_recommended_profile_education_matches_with_matched_success_profile_education() {
 		try {
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1Education);
-			String JCpageProfile1EducationText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Education))
-					.getText();
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails
-					.contains("Education:" + JCpageProfile1EducationText));
+			scrollToElement(driver.findElement(PROFILE_1_EDUCATION));
+			String educationText = getElementText(PROFILE_1_EDUCATION);
+			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Education:" + educationText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile Education matches with Matched Success Profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"validate_recommended_profile_education_matches_with_matched_success_profile_education",
-					"Issue validating Recommended Profile Education", e);
+			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_education_matches_with_matched_success_profile_education", "Issue validating Recommended Profile Education", e);
 		}
 	}
 
 	public void validate_recommended_profile_general_experience_matches_with_matched_success_profile_general_experience() {
 		try {
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1GeneralExperience);
-			String JCpageProfile1GeneralExperienceText = wait
-					.until(ExpectedConditions.visibilityOf(JCpageProfile1GeneralExperience)).getText();
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails
-					.contains("General experience:" + JCpageProfile1GeneralExperienceText));
+			scrollToElement(driver.findElement(PROFILE_1_GENERAL_EXP));
+			String generalExpText = getElementText(PROFILE_1_GENERAL_EXP);
+			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("General experience:" + generalExpText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile General experience matches with Matched Success Profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"validate_recommended_profile_general_experience_matches_with_matched_success_profile_general_experience",
-					"Issue validating Recommended Profile General experience", e);
+			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_general_experience_matches_with_matched_success_profile_general_experience", "Issue validating Recommended Profile General experience", e);
 		}
 	}
 
 	public void validate_recommended_profile_role_summary_matches_with_matched_success_profile_role_summary() {
 		try {
-			js.executeScript("arguments[0].scrollIntoView(true);", JCpageProfile1RoleSummary);
-			String JCpageProfile1RoleSummaryText = wait
-					.until(ExpectedConditions.visibilityOf(JCpageProfile1RoleSummary)).getText();
-			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileRoleSummary, JCpageProfile1RoleSummaryText);
+			scrollToElement(driver.findElement(PROFILE_1_ROLE_SUMMARY));
+			String roleSummaryText = getElementText(PROFILE_1_ROLE_SUMMARY);
+			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileRoleSummary, roleSummaryText);
 			PageObjectHelper.log(LOGGER, "Recommended Profile Role Summary matches with Matched Success Profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"validate_recommended_profile_role_summary_matches_with_matched_success_profile_role_summary",
-					"Issue validating Recommended Profile Role Summary", e);
+			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_role_summary_matches_with_matched_success_profile_role_summary", "Issue validating Recommended Profile Role Summary", e);
 		}
 	}
 
 	public void validate_recommended_profile_responsibilities_matches_with_matched_success_profile_responsibilities() {
 		try {
-			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1Responsibilities);
+			WebElement responsibilities = driver.findElement(PROFILE_1_RESPONSIBILITIES);
+			scrollToElement(responsibilities);
 			Thread.sleep(200);
-
-			// Check if "View more" button exists before clicking
-			if (!JCpageProfile1ViewMoreResponsibilitiesBtn.isEmpty()) {
-				wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreResponsibilitiesBtn.get(0)))
-						.click();
-
-				while (true) {
-					try {
-						if (JCpageProfile1ViewMoreResponsibilitiesBtn.isEmpty()) {
-							break;
-						}
-						// Scroll button into center view before clicking
-						js.executeScript("arguments[0].scrollIntoView({block: 'center'});",
-								JCpageProfile1ViewMoreResponsibilitiesBtn.get(0));
-						Thread.sleep(200);
-
-						try {
-							wait.until(ExpectedConditions
-									.elementToBeClickable(JCpageProfile1ViewMoreResponsibilitiesBtn.get(0))).click();
-						} catch (Exception e) {
-							js.executeScript("arguments[0].click();", JCpageProfile1ViewMoreResponsibilitiesBtn.get(0));
-						}
-						Thread.sleep(500); // Wait for content expansion
-					} catch (StaleElementReferenceException e) {
-						break;
-					}
-				}
-			}
-
-			String JCpageProfile1ResponsibilitiesText = wait
-					.until(ExpectedConditions.visibilityOf(JCpageProfile1Responsibilities)).getText();
-			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileResponsibilities,
-					JCpageProfile1ResponsibilitiesText);
+			expandAllViewMoreButtons(VIEW_MORE_RESPONSIBILITIES);
+			String responsibilitiesText = getElementText(PROFILE_1_RESPONSIBILITIES);
+			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileResponsibilities, responsibilitiesText);
 			PageObjectHelper.log(LOGGER, "Recommended Profile Responsibilities matches with Matched Success Profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"validate_recommended_profile_responsibilities_matches_with_matched_success_profile_responsibilities",
-					"Issue validating Recommended Profile Responsibilities", e);
+			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_responsibilities_matches_with_matched_success_profile_responsibilities", "Issue validating Recommended Profile Responsibilities", e);
 		}
 	}
 
 	public void validate_recommended_profile_behavioural_competencies_matches_with_matched_success_profile_behavioural_competencies() {
 		try {
-			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1BehaviouralCompetencies);
+			WebElement competencies = driver.findElement(PROFILE_1_COMPETENCIES);
+			scrollToElement(competencies);
 			Thread.sleep(200);
-
-			// Check if "View more" button exists before clicking
-			if (!JCpageProfile1ViewMoreCompetenciesBtn.isEmpty()) {
-				wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreCompetenciesBtn.get(0)))
-						.click();
-
-				while (true) {
-					try {
-						if (JCpageProfile1ViewMoreCompetenciesBtn.isEmpty()) {
-							break;
-						}
-						// Scroll button into center view before clicking
-						js.executeScript("arguments[0].scrollIntoView({block: 'center'});",
-								JCpageProfile1ViewMoreCompetenciesBtn.get(0));
-						Thread.sleep(200);
-
-						try {
-							wait.until(ExpectedConditions
-									.elementToBeClickable(JCpageProfile1ViewMoreCompetenciesBtn.get(0))).click();
-						} catch (Exception e) {
-							js.executeScript("arguments[0].click();", JCpageProfile1ViewMoreCompetenciesBtn.get(0));
-						}
-						Thread.sleep(500); // Wait for content expansion
-					} catch (StaleElementReferenceException e) {
-						break;
-					}
-				}
-			}
-
-			String JCpageProfile1BehaviouralCompetenciesText = wait
-					.until(ExpectedConditions.visibilityOf(JCpageProfile1BehaviouralCompetencies)).getText();
-			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileBehaviouralCompetencies,
-					JCpageProfile1BehaviouralCompetenciesText);
-			PageObjectHelper.log(LOGGER,
-					"Recommended Profile Behavioural Competencies matches with Matched Success Profile");
+			expandAllViewMoreButtons(VIEW_MORE_COMPETENCIES);
+			String competenciesText = getElementText(PROFILE_1_COMPETENCIES);
+			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileBehaviouralCompetencies, competenciesText);
+			PageObjectHelper.log(LOGGER, "Recommended Profile Behavioural Competencies matches with Matched Success Profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"validate_recommended_profile_behavioural_competencies_matches_with_matched_success_profile_behavioural_competencies",
-					"Issue validating Recommended Profile Behavioural Competencies", e);
+			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_behavioural_competencies_matches_with_matched_success_profile_behavioural_competencies", "Issue validating Recommended Profile Behavioural Competencies", e);
 		}
 	}
 
 	public void validate_recommended_profile_skills_matches_with_matched_success_profile_skills() {
 		try {
-			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", JCpageProfile1Skills);
+			WebElement skills = driver.findElement(PROFILE_1_SKILLS);
+			scrollToElement(skills);
 			Thread.sleep(200);
 
-			// Check if "View more" button exists before clicking
-			if (!JCpageProfile1ViewMoreSkillsBtn.isEmpty()) {
-				wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreSkillsBtn.get(0))).click();
-
-				while (true) {
-					try {
-						if (JCpageProfile1ViewMoreSkillsBtn.isEmpty()) {
-							break;
-						}
-						// Scroll button into center view before clicking
-						js.executeScript("arguments[0].scrollIntoView({block: 'center'});",
-								JCpageProfile1ViewMoreSkillsBtn.get(0));
-						Thread.sleep(200);
-
-						try {
-							wait.until(ExpectedConditions.elementToBeClickable(JCpageProfile1ViewMoreSkillsBtn.get(0)))
-									.click();
-						} catch (Exception e) {
-							js.executeScript("arguments[0].click();", JCpageProfile1ViewMoreSkillsBtn.get(0));
-						}
-						Thread.sleep(500); // Wait for content expansion
-					} catch (StaleElementReferenceException e) {
-						break;
-					}
-				}
+			List<WebElement> viewMoreBtns = driver.findElements(VIEW_MORE_SKILLS);
+			if (!viewMoreBtns.isEmpty()) {
+				expandAllViewMoreButtons(VIEW_MORE_SKILLS);
 			}
 
-			String JCpageProfile1SkillsText = wait.until(ExpectedConditions.visibilityOf(JCpageProfile1Skills))
-					.getText();
-			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileSkills, JCpageProfile1SkillsText);
+			String skillsText = getElementText(PROFILE_1_SKILLS);
+			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileSkills, skillsText);
 			PageObjectHelper.log(LOGGER, "Recommended Profile Skills matches with Matched Success Profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
-					"validate_recommended_profile_skills_matches_with_matched_success_profile_skills",
-					"Issue validating Recommended Profile Skills", e);
+			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_skills_matches_with_matched_success_profile_skills", "Issue validating Recommended Profile Skills", e);
 		}
 	}
 }

@@ -2,9 +2,18 @@
 
 A comprehensive, enterprise-grade end-to-end automation testing framework for Korn Ferry's AI-powered Job Mapping and Profile Management functionality. This framework focuses on Job Mapping workflows with specialized manual mapping capabilities across multiple environments, featuring robust error handling, visual reporting, and session recovery mechanisms.
 
-## 🚀 Latest Enhancements (November 2025)
+## 🚀 Latest Enhancements (December 2025)
 
-### **🧹 Code Quality Optimizations (NEW - November 28, 2025)**
+### **⚡ Performance & Code Optimization (NEW - December 4, 2025)**
+- **Logging Optimization**: Reduced DailyExcelTracker logging by ~60% (143 → 54 INFO logs) - verbose logs moved to DEBUG level
+- **Log4j2 Cleanup**: Streamlined configuration, removed duplicate appenders, added application-specific loggers
+- **Utils Package Consolidation**: Consolidated from 3 packages to 2 (`utils/common/` + `utils/JobMapping/`)
+- **DriverManager Optimization**: Extended driver download caching to all browsers (Chrome, Firefox, Edge)
+- **Removed Redundant Code**: Deleted unused `HeadlessCompatibleActions.java` and `extent.properties`
+- **BasePageObject Consolidation**: Unified duplicate methods (`isMissingData`, `getResultsCount`, cookie handlers)
+- **Faster Popup Verification**: Reduced success popup wait from 3-5 min to max 33 seconds with better fallbacks
+
+### **🧹 Code Quality Optimizations (November 28, 2025)**
 - **Singleton Pattern Consistency**: Applied consistent Singleton pattern across all 47 Page Object getters in `PageObjectManager`
 - **Dead Code Removal**: Removed ~100+ lines of commented-out code from all Java files
 - **ThreadLocal Memory Cleanup**: Added comprehensive cleanup for 61 ThreadLocal variables in `SuiteHooks.java`
@@ -84,8 +93,7 @@ This project is built using modern, enterprise-ready technologies:
 - **Selenium WebDriver 4.25.0** - Advanced web automation with session recovery
 - **Cucumber BDD 7.18.1** - Behavior-driven development framework
 - **TestNG 7.x** - Comprehensive test execution and management
-- **ExtentReports** - Visual test reporting with screenshot integration
-- **Log4j2 2.25.1** - Professional logging with configurable outputs
+- **Log4j2 2.25.1** - Optimized logging with application-specific loggers
 - **Apache POI 5.3.0** - Excel file handling for data-driven testing and reporting
 
 ## 📁 Project Structure
@@ -107,20 +115,22 @@ kfonetalentsuite/
 │   │   ├── testNGAnalyzer/     # Retry analyzer and transformers
 │   │   │   ├── RetryAnalyzer.java
 │   │   │   └── MyTransform.java
-│   │   ├── utils/              # Enhanced utilities and helpers
-│   │   │   ├── ScreenshotHandler.java        # Advanced screenshot management
-│   │   │   ├── DailyExcelTracker.java       # Dual-dashboard Excel reporting system
-│   │   │   ├── PDFReportGenerator.java      # PDF conversion utilities
-│   │   │   ├── Utilities.java               # Common utilities
-│   │   │   ├── ExcelStyleHelper.java        # Excel formatting utilities
-│   │   │   ├── EnhancedLogger.java          # Advanced logging features
-│   │   │   ├── SmartWaits.java              # Intelligent wait strategies
-│   │   │   ├── API/                         # API utilities
-│   │   │   │   └── kfApi.java
-│   │   │   └── common/                      # Configuration management
-│   │   │       ├── CommonVariable.java
-│   │   │       ├── VariableManager.java
-│   │   │       └── DynamicTagResolver.java
+│   │   ├── utils/              # Consolidated utilities (2 packages)
+│   │   │   ├── common/                      # Configuration management
+│   │   │   │   ├── CommonVariable.java
+│   │   │   │   ├── VariableManager.java
+│   │   │   │   ├── DynamicTagResolver.java
+│   │   │   │   ├── ExcelConfigProvider.java
+│   │   │   │   └── ExcelDataProvider.java
+│   │   │   └── JobMapping/                  # JobMapping-specific utilities
+│   │   │       ├── DailyExcelTracker.java   # Dual-dashboard Excel reporting
+│   │   │       ├── PageObjectHelper.java    # Page object utilities
+│   │   │       ├── PerformanceUtils.java    # Smart wait strategies
+│   │   │       ├── ScreenshotHandler.java   # Screenshot management
+│   │   │       ├── Utilities.java           # Common utilities
+│   │   │       ├── ExcelStyleHelper.java    # Excel formatting
+│   │   │       ├── SessionManager.java      # Session management
+│   │   │       └── KeepAwakeUtil.java       # System keep-alive
 │   │   └── webdriverManager/   # Enhanced WebDriver with session recovery
 │   │       ├── DriverManager.java            # Normal execution browser management
 │   │       ├── CrossBrowserDriverManager.java # Cross-browser execution management
@@ -160,9 +170,7 @@ kfonetalentsuite/
 │           ├── Job Catalog with 100 profiles.csv  # Test data file
 │           ├── config.properties      # Enhanced configuration with Excel reporting toggle
 │           ├── cucumber.properties    # Cucumber specific configuration
-│           ├── extent-config.xml     # ExtentReports configuration
-│           ├── extent.properties     # ExtentReports properties
-│           └── log4j2.properties    # Professional logging setup
+│           └── log4j2.properties     # Optimized logging (INFO level, app-specific loggers)
 ├── Screenshots/                # Organized screenshot storage
 │   └── FailureScreenshots/     # Date-organized failure screenshots
 ├── ExcelReports/              # Business-friendly Excel reports
@@ -756,23 +764,27 @@ extended.timeouts.enabled=true
 
 ### Logging Configuration (`log4j2.properties`)
 ```properties
-# Console Logging (Default - Active)
-appenders = console
-rootLogger.appenderRefs = stdout
+# Optimized logging configuration (December 2025)
+# Console + RollingFile with auto-rotation
 
-# File Logging (Uncomment to enable)  
-# appenders = file, rollingFile
-# rootLogger.appenderRefs = file, rollingFile
+appenders = console, rollingFile
+rootLogger.level = info           # INFO level for cleaner output
 
-# Logging Levels
-rootLogger.level = debug          # Options: trace, debug, info, warn, error
+# Application-specific loggers (suppress verbose output)
+logger.excelTracker.name = com.kfonetalentsuite.utils.JobMapping.DailyExcelTracker
+logger.excelTracker.level = info
+
+logger.po41.name = com.kfonetalentsuite.pageobjects.JobMapping.PO41_ValidateApplicationPerformance
+logger.po41.level = info
+
+# Third-party library loggers (WARN level to suppress noise)
+logger.poi.level = warn           # Apache POI
+logger.selenium.level = warn      # Selenium WebDriver
+logger.wdm.level = warn           # WebDriverManager
+
+# Enable DEBUG temporarily for troubleshooting:
+# rootLogger.level = debug
 ```
-
-### ExtentReports Configuration (`extent-config.xml`)
-- Professional report themes and styling
-- Timeline view configuration for execution tracking
-- Screenshot integration settings
-- Custom JavaScript and CSS for enhanced visualization
 
 ## 🏗️ Architecture Components
 
@@ -835,17 +847,15 @@ All page objects now include:
    Status: Resolved in November 2025 release
    ```
 
-3. **Success Popup Not Appearing in Headless Mode**
+3. **Success Popup Verification Timeout**
    ```
-   Issue: "Success Profiles Published" popup verification fails intermittently
-   Root Cause: Insufficient wait time for popup rendering after publish action
-   Solution: ✅ FIXED - Enhanced wait strategy with 5-step verification:
-     1. Wait for spinners to disappear
-     2. Wait for page to be fully ready (PerformanceUtils)
-     3. Additional buffer for DOM to settle (1000ms)
-     4. Wait for popup header visibility
-     5. Wait for popup message visibility
-   Status: Resolved in November 2025 release
+   Issue: "Success Profiles Published" popup verification takes 3-5 minutes or fails
+   Root Cause: Fallback locators used 60-90 second default wait (3 fallbacks × 60s = 3+ min)
+   Solution: ✅ FIXED (December 2025) - Optimized wait strategy:
+     - All fallback locators now use explicit 10-second timeouts
+     - Total max wait: 33 seconds (was 3-5 minutes)
+     - Added progress logging for each fallback attempt
+     - Screenshot captured on failure for debugging
    Location: PO04_VerifyJobMappingPageComponents.user_should_get_success_profile_published_popup()
    ```
 
@@ -1033,17 +1043,29 @@ java -cp "target/classes:lib/*" com.kfonetalentsuite.utils.PDFReportGenerator
 - **Reporting Formats**: Dual Excel dashboards (Normal + Cross-Browser), HTML, JSON, XML with visual evidence
 - **Dashboard Analytics**: 2 specialized dashboards with browser compatibility metrics
 - **Code Quality**: Professional codebase with consistent package naming and optimized logging
+- **Utils Packages**: 2 consolidated packages (`common/` - 5 files, `JobMapping/` - 12 files)
 - **Test Suite Coverage**: Complete documentation in TEST_SUITE_COVERAGE.md
 
 ---
 
-**Last Updated**: November 28, 2025  
-**Framework Version**: 2.3.1-SNAPSHOT  
+**Last Updated**: December 4, 2025  
+**Framework Version**: 2.4.0-SNAPSHOT  
 **Package Namespace**: com.kfonetalentsuite  
 **Maintained By**: QA Automation Team  
 **Execution Mode**: Parallel (3-5 threads) - Sequential mode also supported  
 
 ### 🚀 Release History
+
+#### **v2.4.0 (December 4, 2025)** - Performance & Code Consolidation Release
+- ⚡ **Logging Optimization**: Reduced DailyExcelTracker INFO logs by 60% (143 → 54), verbose logs moved to DEBUG
+- 🧹 **Log4j2 Cleanup**: Removed duplicate `file` appender, added app-specific loggers, set root level to INFO
+- 📦 **Utils Consolidation**: Merged 3 utils packages into 2 (`common/` + `JobMapping/`)
+- 🚀 **DriverManager Optimization**: Extended driver download caching to Firefox and Edge (not just Chrome)
+- 🗑️ **Removed Unused Code**: Deleted `HeadlessCompatibleActions.java` (unused) and `extent.properties` (disabled)
+- 🔧 **BasePageObject Cleanup**: Consolidated duplicate methods (`isMissingData`, `getResultsCount`, cookie handlers)
+- ⏱️ **Faster Popup Verification**: Reduced success popup wait timeout from 3-5 min to max 33 seconds
+- 📝 **Method Naming**: Fixed `CreateDriver()` → `initializeDriver()` (Java conventions)
+- 🎯 **50 Files Updated**: PageObjectHelper import path updated across all PO files, hooks, and step definitions
 
 #### **v2.3.1 (November 28, 2025)** - Code Quality & Memory Optimization Release
 - 🧹 **Singleton Pattern Consistency**: All 47 Page Object getters now use consistent Singleton pattern

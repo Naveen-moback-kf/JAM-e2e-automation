@@ -1,41 +1,34 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import java.time.Duration;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverManager {
+public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends BasePageObject {
 
-	WebDriver driver = DriverManager.getDriver();
-
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
+	private static final Logger LOGGER = LogManager.getLogger(PO29_ValidateJobsWithMissingGRADEdataInJobMapping.class);
 
 	// Static variables for storing extracted job details
 	public static Map<String, String> jobDetailsFromMissingDataScreen = new HashMap<>();
 	public static Map<String, String> jobDetailsFromJobMappingPage = new HashMap<>();
 	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
-	public static ThreadLocal<String> extractedJobName = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> extractedJobName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static WebElement foundJobRow = null; // Store the actual row element for precise extraction
 	public static WebElement foundProfile = null; // Store the profile row with info message (for DOM structure
 													// correction)
@@ -47,46 +40,23 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 	// Track Forward scenario profile details to skip same profile in Reverse
 	// scenario
-	public static ThreadLocal<String> forwardScenarioJobName = ThreadLocal.withInitial(() -> "");
-	public static ThreadLocal<String> forwardScenarioJobCode = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> forwardScenarioJobName = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> forwardScenarioJobCode = ThreadLocal.withInitial(() -> "NOT_SET");
+
+	private JavascriptExecutor js;
 
 	public PO29_ValidateJobsWithMissingGRADEdataInJobMapping() throws IOException {
-		PageFactory.initElements(driver, this);
+		super();
+		this.js = (JavascriptExecutor) driver;
 	}
 
-	WebDriverWait wait = DriverManager.getWait();
-	Utilities utils = new Utilities();
-	JavascriptExecutor js = (JavascriptExecutor) driver;
-
-	// XPATHs for Jobs with Missing Data Screen Elements - Using proven locators
-	// from Feature 26
-	@FindBy(xpath = "//div//p[contains(text(), 're-upload the jobs')]")
-	@CacheLookup
-	WebElement reuploadPageTitleDesc;
-
-	@FindBy(xpath = "//button[contains(@class, 'border-[#007BC7]') and contains(text(), 'Close')]")
-	@CacheLookup
-	WebElement closeReuploadJobsPageButton;
-
-	@FindBy(xpath = "//button[contains(text(), 'Re-upload')] | //button[contains(text(), 'upload')]")
-	@CacheLookup
-	WebElement reuploadButton;
-
-	@FindBy(xpath = "//table//tr[contains(@class, 'border-b')]")
-	List<WebElement> jobRowsInMissingDataScreen;
-
-	// XPATHs for Job Mapping Page Elements
-	@FindBy(xpath = "//input[@id='search-job-title-input-search-input']")
-	@CacheLookup
-	WebElement jobSearchInput;
-
-	// Using proven locators from Features 27 and 28 - org-job-container structure
-	@FindBy(xpath = "//div[@id='org-job-container']//tbody//tr")
-	List<WebElement> jobRowsInJobMappingPage;
-
-	// Using proven info message locators from Features 27 and 28
-	@FindBy(xpath = "//div[@id='org-job-container']//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']")
-	List<WebElement> infoMessages;
+	// ==================== LOCATORS ====================
+	private static final By REUPLOAD_PAGE_TITLE_DESC = By.xpath("//div//p[contains(text(), 're-upload the jobs')]");
+	private static final By CLOSE_REUPLOAD_JOBS_PAGE_BUTTON = By.xpath("//button[contains(@class, 'border-[#007BC7]') and contains(text(), 'Close')]");
+	private static final By REUPLOAD_BUTTON = By.xpath("//button[contains(text(), 'Re-upload')] | //button[contains(text(), 'upload')]");
+	private static final By JOB_ROWS_IN_MISSING_DATA_SCREEN = By.xpath("//table//tr[contains(@class, 'border-b')]");
+	private static final By SEARCH_BOX = By.xpath("//input[@id='search-job-title-input-search-input']");
+	private static final By JOB_ROWS_IN_JOB_MAPPING_PAGE = By.xpath("//div[@id='org-job-container']//tbody//tr");
 
 	/**
 	 * Verify user is navigated to Jobs with Missing Data screen (Modal/Overlay -
@@ -103,9 +73,9 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			// Check for page title description (most important indicator)
 			try {
 				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(15));
-				shortWait.until(ExpectedConditions.visibilityOf(reuploadPageTitleDesc));
-				if (reuploadPageTitleDesc.isDisplayed()) {
-					String pageTitle = reuploadPageTitleDesc.getText();
+				shortWait.until(ExpectedConditions.visibilityOfElementLocated(REUPLOAD_PAGE_TITLE_DESC));
+				if (findElement(REUPLOAD_PAGE_TITLE_DESC).isDisplayed()) {
+					String pageTitle = findElement(REUPLOAD_PAGE_TITLE_DESC).getText();
 					verificationResults += " Page title description found: " + pageTitle + "; ";
 					pageVerified = true;
 				}
@@ -116,8 +86,8 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			// Check for Close button (essential for closing modal)
 			try {
 				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-				shortWait.until(ExpectedConditions.visibilityOf(closeReuploadJobsPageButton));
-				if (closeReuploadJobsPageButton.isDisplayed()) {
+				shortWait.until(ExpectedConditions.visibilityOfElementLocated(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON));
+				if (findElement(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON).isDisplayed()) {
 					verificationResults += " Close button found; ";
 					pageVerified = true;
 				}
@@ -128,8 +98,8 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			// Check for Re-upload button (confirms this is the upload screen)
 			try {
 				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(8));
-				shortWait.until(ExpectedConditions.visibilityOf(reuploadButton));
-				if (reuploadButton.isDisplayed()) {
+				shortWait.until(ExpectedConditions.visibilityOfElementLocated(REUPLOAD_BUTTON));
+				if (findElement(REUPLOAD_BUTTON).isDisplayed()) {
 					verificationResults += " Re-upload button found; ";
 				}
 			} catch (Exception e) {
@@ -170,13 +140,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				PageObjectHelper.log(LOGGER, "  Verification results: " + verificationResults);
 			} else {
 				String errorMsg = "Failed to verify Jobs with Missing Data screen. Results: " + verificationResults;
-				LOGGER.error(errorMsg);
 				PageObjectHelper.log(LOGGER, "- " + errorMsg);
 				Assert.fail(errorMsg);
 			}
 
 		} catch (Exception e) {
-			LOGGER.error("Failed to verify Jobs with Missing Data screen: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "- Failed to verify Jobs with Missing Data screen: " + e.getMessage());
 			throw new IOException("Failed to verify Jobs with Missing Data screen", e);
 		}
@@ -239,7 +207,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 					// Note: Department and Function data validation removed as per requirements
 
 					// Check if this is the same profile from Forward scenario - skip it
-					String cleanedJobName = cleanJobName(jobName);
+					String cleanedJobName = cleanJobNameLocal(jobName);
 
 					// Extract job code from the current job name for comparison
 					String currentJobCode = "";
@@ -275,7 +243,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 					if (gradeIsMissing) {
 						preferredJobRow = row;
 						foundJobRow = row; // Store for precise extraction
-						extractedJobName.set(cleanJobName(jobName)); // Store cleaned job name
+						extractedJobName.set(cleanJobNameLocal(jobName)); // Store cleaned job name
 						LOGGER.info("Found DIFFERENT job at position " + (i + 1) + ": " + extractedJobName.get()
 								+ " (Grade: " + grade + ", Dept: " + department + ", Func: " + functionSubfunction
 								+ ")");
@@ -300,7 +268,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				if (cells.size() >= 4) {
 					// Extract job name and clean up any formatting issues
 					String rawJobName = cells.get(0).getText().trim();
-					String jobName = cleanJobName(rawJobName);
+					String jobName = cleanJobNameLocal(rawJobName);
 					String grade = cells.get(1).getText().trim();
 					String department = cells.get(2).getText().trim();
 					String functionSubfunction = cells.get(3).getText().trim();
@@ -323,7 +291,6 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				// profile
 				String failMsg = "BUG DETECTED: Reverse scenario found suitable profile, but Forward scenario found NO suitable jobs (ONLY Grade=N/A) in "
 						+ allJobRows.size() + " total jobs";
-				LOGGER.error(failMsg);
 				PageObjectHelper.log(LOGGER, " BUG: " + failMsg);
 
 				// This is a BUG - data inconsistency between scenarios
@@ -334,7 +301,6 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			// Re-throw SkipException to properly skip the scenario
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error("Failed to find job with specified criteria: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "- Failed to find job with specified criteria: " + e.getMessage());
 			throw new IOException("Failed to find job with specified criteria", e);
 		}
@@ -357,7 +323,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				if (cells.size() >= 4) {
 					// Extract and clean job name to fix parsing issues
 					String rawJobName = cells.get(0).getText().trim();
-					String cleanedJobName = cleanJobName(rawJobName);
+					String cleanedJobName = cleanJobNameLocal(rawJobName);
 
 					// Extract job code from the raw job name and clean the job name
 					String jobCode = "";
@@ -401,13 +367,13 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				// Fallback to original search method if no stored row
 				LOGGER.warn("No stored job row available. Falling back to re-search method (less reliable)");
 
-				for (WebElement row : jobRowsInMissingDataScreen) {
+				for (WebElement row : findElements(JOB_ROWS_IN_MISSING_DATA_SCREEN)) {
 					List<WebElement> cells = row.findElements(By.xpath(".//td"));
 
 					if (cells.size() >= 4 && cells.get(0).getText().contains(extractedJobName.get().split(" ")[0])) {
 						// Extract and clean job name to fix parsing issues
 						String rawJobName = cells.get(0).getText().trim();
-						String cleanedJobName = cleanJobName(rawJobName);
+						String cleanedJobName = cleanJobNameLocal(rawJobName);
 						String grade = cells.get(1).getText().trim();
 						String department = cells.get(2).getText().trim();
 						String functionSubfunction = cells.get(3).getText().trim();
@@ -419,13 +385,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 						jobDetailsFromMissingDataScreen.put("department", department);
 						jobDetailsFromMissingDataScreen.put("functionSubfunction", functionSubfunction);
 
-						LOGGER.info("Extracted job details from Missing Data screen (fallback search):");
-						LOGGER.info("Job Name: " + cleanedJobName);
-						LOGGER.info("Grade: " + grade);
-						LOGGER.info("Department: " + department);
-						LOGGER.info("Function/Subfunction: " + functionSubfunction);
-
-						PageObjectHelper.log(LOGGER, 
+												PageObjectHelper.log(LOGGER, 
 								"Successfully extracted job details from Jobs with Missing Data screen");
 						return;
 					}
@@ -435,7 +395,6 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			}
 
 		} catch (Exception e) {
-			LOGGER.error("Failed to extract job details: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "Failed to extract job details: " + e.getMessage());
 			throw new IOException("Failed to extract job details", e);
 		}
@@ -448,14 +407,12 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 		try {
 			LOGGER.info("Closing Missing Data screen to allow next scenario...");
 
-			wait.until(ExpectedConditions.elementToBeClickable(closeReuploadJobsPageButton));
-			js.executeScript("arguments[0].click();", closeReuploadJobsPageButton);
+			wait.until(ExpectedConditions.elementToBeClickable(findElement(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON)));
+			js.executeScript("arguments[0].click();", findElement(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON));
 
-			LOGGER.info("Closed Missing Data screen successfully");
 			PageObjectHelper.log(LOGGER, "Closed Missing Data screen - ready for next scenario");
 
 		} catch (Exception e) {
-			LOGGER.error("Failed to close Missing Data screen: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "Failed to close Missing Data screen: " + e.getMessage());
 			throw new IOException("Failed to close Missing Data screen", e);
 		}
@@ -470,15 +427,16 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			LOGGER.info("Force closing Missing Data screen for next scenario...");
 
 			// Strategy 1: Try to find the main close button first
-			if (closeReuploadJobsPageButton != null) {
-				try {
-					js.executeScript("arguments[0].click();", closeReuploadJobsPageButton);
+			try {
+				WebElement closeBtn = findElement(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
+				if (closeBtn != null) {
+					js.executeScript("arguments[0].click();", closeBtn);
 					LOGGER.info("Used main close button");
 					PerformanceUtils.safeSleep(driver, 2000);
 					return;
-				} catch (Exception e) {
-					// Main close button not clickable
 				}
+			} catch (Exception e) {
+				// Main close button not clickable
 			}
 
 			// Strategy 2: Try to find any close button
@@ -602,7 +560,8 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			// Additional specific check: Look for the "Reupload Jobs" page close button
 			// (specific to Missing Data screen)
 			try {
-				if (closeReuploadJobsPageButton != null && closeReuploadJobsPageButton.isDisplayed()) {
+				WebElement closeBtn = findElement(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
+				if (closeBtn != null && closeBtn.isDisplayed()) {
 					// Verify it's actually the Missing Data screen by checking URL or other context
 					String currentUrl = driver.getCurrentUrl();
 					if (currentUrl != null
@@ -645,15 +604,13 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 	 */
 	public void verify_user_is_back_on_job_mapping_page() throws IOException {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(jobSearchInput));
+			wait.until(ExpectedConditions.visibilityOfElementLocated(SEARCH_BOX));
 
-			Assert.assertTrue(jobSearchInput.isDisplayed(), "Job search input not visible - not on Job Mapping page");
+			Assert.assertTrue(findElement(SEARCH_BOX).isDisplayed(), "Job search input not visible - not on Job Mapping page");
 
-			LOGGER.info("Successfully verified user is back on Job Mapping page");
 			PageObjectHelper.log(LOGGER, "Successfully verified user is back on Job Mapping page");
 
 		} catch (Exception e) {
-			LOGGER.error("Failed to verify user is back on Job Mapping page: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "Failed to verify user is back on Job Mapping page: " + e.getMessage());
 			throw new IOException("Failed to verify user is back on Job Mapping page", e);
 		}
@@ -665,17 +622,17 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 	 */
 	public void search_for_the_extracted_job_profile_by_name_in_job_mapping_page() throws IOException {
 		try {
-			wait.until(ExpectedConditions.elementToBeClickable(jobSearchInput));
+			wait.until(ExpectedConditions.elementToBeClickable(findElement(SEARCH_BOX)));
 
 			// Use full job name for search (including timestamp for uniqueness)
 			String fullJobName = jobDetailsFromMissingDataScreen.get("jobName");
 			String searchTerm = fullJobName;
 
-			jobSearchInput.clear();
-			jobSearchInput.sendKeys(searchTerm);
+			findElement(SEARCH_BOX).clear();
+			findElement(SEARCH_BOX).sendKeys(searchTerm);
 
 			// Trigger search by pressing Enter key
-			jobSearchInput.sendKeys(Keys.ENTER);
+			findElement(SEARCH_BOX).sendKeys(Keys.ENTER);
 
 			LOGGER.info("Searching for: {}", searchTerm);
 
@@ -817,12 +774,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 			if (jobRows.isEmpty()) {
 				LOGGER.warn("org-job-container not found, trying fallback");
-				jobRows = jobRowsInJobMappingPage;
+				jobRows = findElements(JOB_ROWS_IN_JOB_MAPPING_PAGE);
 			}
 
 			if (jobRows.isEmpty()) {
 				String errorMsg = "No job rows found on Job Mapping page";
-				LOGGER.error(errorMsg);
 				PageObjectHelper.log(LOGGER, errorMsg);
 				throw new IOException(errorMsg);
 			}
@@ -848,7 +804,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				if (currentJobRows.isEmpty()) {
 					// Try alternative approach if org-job-container not found
 					LOGGER.warn("org-job-container structure not found. Trying fallback...");
-					currentJobRows = jobRowsInJobMappingPage;
+					currentJobRows = findElements(JOB_ROWS_IN_JOB_MAPPING_PAGE);
 				}
 
 				LOGGER.debug("Checking rows: {} total", currentJobRows.size());
@@ -987,7 +943,6 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			PageObjectHelper.log(LOGGER, "Job profile verified in search results");
 
 		} catch (Exception e) {
-			LOGGER.error("Failed to verify job profile in search results: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "Failed to verify job profile in search results: " + e.getMessage());
 			throw new IOException("Failed to verify job profile in search results", e);
 		}
@@ -1019,8 +974,8 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				// Extract job name
 				String jobNameFromMapping = "";
 				if (allCells.size() >= 2) {
-					jobNameFromMapping = extractCellText(allCells.get(1)); // Cell[1] = Job Name
-					jobNameFromMapping = cleanJobName(jobNameFromMapping);
+					jobNameFromMapping = extractCellTextLocal(allCells.get(1)); // Cell[1] = Job Name
+					jobNameFromMapping = cleanJobNameLocal(jobNameFromMapping);
 				} else {
 					// Fallback to text parsing
 					String rowText = matchingRow.getText();
@@ -1049,11 +1004,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 					// [value]"
 
 					if (allCells.size() >= 3) {
-						gradeFromMapping = extractCellText(allCells.get(2)); // Cell[2] = Grade
+						gradeFromMapping = extractCellTextLocal(allCells.get(2)); // Cell[2] = Grade
 						gradeFromMapping = normalizeFieldValue(gradeFromMapping, "Grade");
 					}
 					if (allCells.size() >= 4) {
-						departmentFromMapping = extractCellText(allCells.get(3)); // Cell[3] = Department
+						departmentFromMapping = extractCellTextLocal(allCells.get(3)); // Cell[3] = Department
 						departmentFromMapping = normalizeFieldValue(departmentFromMapping, "Department");
 					}
 
@@ -1182,12 +1137,12 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 				// Store extracted job details
 				jobDetailsFromJobMappingPage.clear();
-				jobDetailsFromJobMappingPage.put("jobName", cleanJobName(jobNameFromMapping));
+				jobDetailsFromJobMappingPage.put("jobName", cleanJobNameLocal(jobNameFromMapping));
 				jobDetailsFromJobMappingPage.put("grade", gradeFromMapping);
 				jobDetailsFromJobMappingPage.put("department", departmentFromMapping);
 				jobDetailsFromJobMappingPage.put("functionSubfunction", functionFromMapping);
 
-				LOGGER.info("Extracted job details - Job: '" + cleanJobName(jobNameFromMapping) + "', Grade: '"
+				LOGGER.info("Extracted job details - Job: '" + cleanJobNameLocal(jobNameFromMapping) + "', Grade: '"
 						+ gradeFromMapping + "', Department: '" + departmentFromMapping + "', Function: '"
 						+ functionFromMapping + "'");
 
@@ -1197,7 +1152,6 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			}
 
 		} catch (Exception e) {
-			LOGGER.error("Failed to extract job details from Job Mapping page: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "Failed to extract job details: " + e.getMessage());
 			throw new IOException("Failed to extract job details from Job Mapping page", e);
 		}
@@ -1243,8 +1197,8 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 			// Verify job name matches (allowing for format differences like Feature 27)
 			if (!nameFromMissingData.isEmpty() && !nameFromJobMapping.isEmpty()) {
-				String searchNameMissingData = extractJobNameForSearch(nameFromMissingData);
-				String searchNameJobMapping = extractJobNameForSearch(nameFromJobMapping);
+				String searchNameMissingData = extractJobNameForSearchLocal(nameFromMissingData);
+				String searchNameJobMapping = extractJobNameForSearchLocal(nameFromJobMapping);
 				boolean jobNameMatches = searchNameMissingData.toLowerCase()
 						.contains(searchNameJobMapping.toLowerCase())
 						|| searchNameJobMapping.toLowerCase().contains(searchNameMissingData.toLowerCase());
@@ -1274,11 +1228,9 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				Assert.fail("Function/Sub-function comparison failed - see logs for details");
 			}
 
-			LOGGER.info("Job details verification completed successfully");
 			PageObjectHelper.log(LOGGER, "Successfully verified job details match between both screens");
 
 		} catch (Exception e) {
-			LOGGER.error("Job details do not match between screens: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "Job details do not match between screens: " + e.getMessage());
 			throw new IOException("Job details do not match between screens", e);
 		}
@@ -1316,11 +1268,9 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			Assert.assertTrue(infoMessageFound,
 					"Info message not found on searched profile indicating missing Grade data");
 
-			LOGGER.info("✓ Info Message verified");
 			PageObjectHelper.log(LOGGER, "Info Message verified for profile with missing Grade data");
 
 		} catch (Exception e) {
-			LOGGER.error("Failed to verify Info Message: {}", e.getMessage());
 			PageObjectHelper.log(LOGGER, "Failed to verify Info Message: " + e.getMessage());
 			throw new IOException("Failed to verify Info Message", e);
 		}
@@ -1391,7 +1341,6 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			LOGGER.info(" " + fieldName + " matches");
 		} else {
 			String errorMsg = fieldName + " mismatch: '" + missingDataValue + "' vs '" + jobMappingValue + "'";
-			LOGGER.error(errorMsg);
 			PageObjectHelper.log(LOGGER, "- " + errorMsg);
 		}
 
@@ -1401,7 +1350,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 	/**
 	 * Helper method to extract text from a table cell using multiple strategies
 	 */
-	private String extractCellText(WebElement cell) {
+	private String extractCellTextLocal(WebElement cell) {
 		try {
 			// Strategy 1: Try to find div within cell (Features 27/28 approach)
 			try {
@@ -1573,7 +1522,6 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 			LOGGER.info(
 					"FORWARD SCENARIO (Scenario 1): Searching for first job with info message where Grade is missing");
-			LOGGER.info("Looking for: info message + Grade missing (ignoring Department & Function data)");
 			PageObjectHelper.log(LOGGER, 
 					" FORWARD SCENARIO (Scenario 1): Finding FIRST job with info message and missing Grade...");
 
@@ -1744,9 +1692,9 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 							// Store the found profile
 							foundJobRow = jobDataRow;
 							foundProfile = infoMessageRow;
-							extractedJobName.set(cleanJobName(jobName));
+							extractedJobName.set(cleanJobNameLocal(jobName));
 							forwardScenarioFoundProfile.set(true);
-							forwardScenarioJobName.set(cleanJobName(jobName));
+							forwardScenarioJobName.set(cleanJobNameLocal(jobName));
 							forwardScenarioJobCode.set(jobCode);
 
 							LOGGER.info("FORWARD SCENARIO (Scenario 1) will validate: " + extractedJobName.get()
@@ -1884,7 +1832,6 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 				String skipMsg = "SKIPPING SCENARIO: No profiles found with missing Grade (checked " + lastCheckedIndex
 						+ " profiles)";
-				LOGGER.error(skipMsg);
 				PageObjectHelper.log(LOGGER, " " + skipMsg);
 				throw new org.testng.SkipException(skipMsg);
 			}
@@ -1892,7 +1839,6 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 		} catch (org.testng.SkipException e) {
 			throw e; // Re-throw SkipException
 		} catch (Exception e) {
-			LOGGER.error("Failed to find suitable job profile: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "- Failed to find suitable job profile: " + e.getMessage());
 			throw new IOException("Failed to find suitable job profile", e);
 		}
@@ -1932,10 +1878,10 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 					// Parse job name and code from format: "Job Name - (JOB-CODE)"
 					if (jobNameCodeText.contains(" - (") && jobNameCodeText.contains(")")) {
 						int dashIndex = jobNameCodeText.lastIndexOf(" - (");
-						jobName = cleanJobName(jobNameCodeText.substring(0, dashIndex).trim());
+						jobName = cleanJobNameLocal(jobNameCodeText.substring(0, dashIndex).trim());
 						jobCode = jobNameCodeText.substring(dashIndex + 4).replace(")", "").trim();
 					} else {
-						jobName = cleanJobName(jobNameCodeText);
+						jobName = cleanJobNameLocal(jobNameCodeText);
 					}
 				}
 			} catch (Exception e) {
@@ -2019,11 +1965,9 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			// Update extracted job name for search
 			extractedJobName.set(jobName);
 
-			LOGGER.info("Successfully extracted job details: " + jobName);
 			PageObjectHelper.log(LOGGER, "Extracted job details: " + jobName + " (" + jobCode + ")");
 
 		} catch (Exception e) {
-			LOGGER.error("Failed to extract job details from Job Mapping page: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "- Failed to extract job details: " + e.getMessage());
 			throw new IOException("Failed to extract job details from Job Mapping page", e);
 		}
@@ -2043,13 +1987,12 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				throw new IOException("No job name available for search");
 			}
 
-			String searchTerm = extractJobNameForSearch(extractedJobName.get());
+			String searchTerm = extractJobNameForSearchLocal(extractedJobName.get());
 			LOGGER.info("Using search term: " + searchTerm);
 
 			// Get the expected job code from Job Mapping page for precise matching
 			String expectedJobCode = jobDetailsFromJobMappingPage.get("jobCode");
 			if (expectedJobCode != null && !expectedJobCode.isEmpty()) {
-				LOGGER.info("Expected job code from Job Mapping: " + expectedJobCode);
 				PageObjectHelper.log(LOGGER, 
 						"Looking for job with name '" + searchTerm + "' AND code '" + expectedJobCode + "'");
 			} else {
@@ -2090,7 +2033,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 						List<WebElement> cells = row.findElements(By.xpath(".//td"));
 						if (cells.size() >= 1) {
 							String jobNameInRow = cells.get(0).getText().trim();
-							String cleanJobNameInRow = cleanJobName(jobNameInRow);
+							String cleanJobNameInRow = cleanJobNameLocal(jobNameInRow);
 
 							// Extract job code from job name if present (format: "Job Name (CODE)")
 							String jobCodeInRow = "";
@@ -2195,26 +2138,19 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 							+ " jobs)";
 					LOGGER.error(
 							"BUG: Data consistency issue between screens OR multiple jobs with same name but different codes");
-					LOGGER.error("Job Mapping: Found job '" + searchTerm + "' with code '" + expectedJobCode
-							+ "' and missing Grade + info message");
-					LOGGER.error("Missing Data: Same job with EXACT code NOT FOUND after complete search");
-					PageObjectHelper.log(LOGGER, "BUG: Job name '" + searchTerm + "' with code '"
+										PageObjectHelper.log(LOGGER, "BUG: Job name '" + searchTerm + "' with code '"
 							+ expectedJobCode + "' not found in Missing Data screen");
 				} else {
 					errorMsg = "Job '" + searchTerm
 							+ "' found in Job Mapping but NOT FOUND in Missing Data screen (checked " + totalJobsChecked
 							+ " jobs)";
-					LOGGER.error("BUG: Data consistency issue between screens");
-					LOGGER.error("Job Mapping: Found job with missing Grade + info message");
-					LOGGER.error("Missing Data: Same job NOT FOUND after complete search");
-					PageObjectHelper.log(LOGGER, "BUG: " + errorMsg);
+										PageObjectHelper.log(LOGGER, "BUG: " + errorMsg);
 				}
 
 				throw new IOException("BUG: Data consistency issue - " + errorMsg);
 			}
 
 		} catch (Exception e) {
-			LOGGER.error("REVERSE SCENARIO FAILED: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, " REVERSE SCENARIO FAILED: " + e.getMessage());
 
 			// Force close Missing Data screen to ensure next scenario can run
@@ -2238,7 +2174,6 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 			if (foundJobRow == null) {
 				String errorMsg = " BUG: No job row found in Missing Data screen - job should exist since it was found with missing data in Job Mapping screen";
-				LOGGER.error(errorMsg);
 				PageObjectHelper.log(LOGGER, " " + errorMsg);
 				throw new IOException(errorMsg);
 			}
@@ -2249,7 +2184,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				List<WebElement> cells = foundJobRow.findElements(By.xpath(".//td"));
 				if (cells.size() >= 1) {
 					String jobNameInRow = cells.get(0).getText().trim();
-					String cleanJobNameInRow = cleanJobName(jobNameInRow);
+					String cleanJobNameInRow = cleanJobNameLocal(jobNameInRow);
 
 					// Extract job code from job name if present
 					String jobCodeInRow = "";
@@ -2272,10 +2207,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 						} else {
 							String errorMsg = " BUG: Job found but job code mismatch - Expected: " + expectedJobCode
 									+ ", Found: " + jobCodeInRow + " for job: " + cleanJobNameInRow;
-							LOGGER.error(errorMsg);
-							LOGGER.error(
-									"This indicates multiple jobs with same name but different codes exist in the system");
-							PageObjectHelper.log(LOGGER, " " + errorMsg);
+														PageObjectHelper.log(LOGGER, " " + errorMsg);
 							throw new IOException(errorMsg);
 						}
 					} else {
@@ -2290,13 +2222,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				}
 			} else {
 				String errorMsg = " BUG: Found job row exists but is not visible - display issue in Missing Data screen";
-				LOGGER.error(errorMsg);
 				PageObjectHelper.log(LOGGER, " " + errorMsg);
 				throw new IOException(errorMsg);
 			}
 
 		} catch (Exception e) {
-			LOGGER.error("Failed to verify job profile in Missing Data screen: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "Failed to verify job profile: " + e.getMessage());
 
 			// Force close Missing Data screen to ensure next scenario can run
@@ -2323,7 +2253,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			List<WebElement> cells = foundJobRow.findElements(By.xpath(".//td"));
 
 			if (cells.size() >= 4) {
-				String jobName = cleanJobName(cells.get(0).getText().trim());
+				String jobName = cleanJobNameLocal(cells.get(0).getText().trim());
 				String grade = normalizeFieldValue(cells.get(1).getText().trim(), "Grade");
 				String department = normalizeFieldValue(cells.get(2).getText().trim(), "Department");
 				String functionSubfunction = normalizeFieldValue(cells.get(3).getText().trim(), "Function");
@@ -2357,7 +2287,6 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			}
 
 		} catch (Exception e) {
-			LOGGER.error("Failed to extract job details from Missing Data screen: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "- Failed to extract job details: " + e.getMessage());
 
 			// Force close Missing Data screen to ensure next scenario can run
@@ -2414,8 +2343,8 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 
 			// Verify job name matches (allowing for format differences)
 			if (!nameFromJobMapping.isEmpty() && !nameFromMissingData.isEmpty()) {
-				String searchNameJobMapping = extractJobNameForSearch(nameFromJobMapping);
-				String searchNameMissingData = extractJobNameForSearch(nameFromMissingData);
+				String searchNameJobMapping = extractJobNameForSearchLocal(nameFromJobMapping);
+				String searchNameMissingData = extractJobNameForSearchLocal(nameFromMissingData);
 				boolean jobNameMatches = searchNameJobMapping.toLowerCase()
 						.contains(searchNameMissingData.toLowerCase())
 						|| searchNameMissingData.toLowerCase().contains(searchNameJobMapping.toLowerCase());
@@ -2432,13 +2361,11 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 			// Verify job code matches if both are available
 			if (!codeFromJobMapping.isEmpty() && !codeFromMissingData.isEmpty()) {
 				if (codeFromJobMapping.equals(codeFromMissingData)) {
-					LOGGER.info("... Job Code matches: " + codeFromJobMapping);
 					PageObjectHelper.log(LOGGER, "... Job Code verification passed: " + codeFromJobMapping);
 				} else {
 					String errorMsg = " BUG: Job Code mismatch - JobMapping='" + codeFromJobMapping
 							+ "' vs MissingData='" + codeFromMissingData
 							+ "' - This indicates multiple jobs with same name but different codes";
-					LOGGER.error(errorMsg);
 					PageObjectHelper.log(LOGGER, " " + errorMsg);
 					Assert.fail(errorMsg);
 				}
@@ -2462,11 +2389,9 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 				Assert.fail("Function/Sub-function comparison failed - see logs for details");
 			}
 
-			LOGGER.info("Job details verification completed successfully");
 			PageObjectHelper.log(LOGGER, "Successfully verified job details match between screens");
 
 		} catch (Exception e) {
-			LOGGER.error("Failed to verify job details match: " + e.getMessage());
 			PageObjectHelper.log(LOGGER, "- Failed to verify job details match: " + e.getMessage());
 			throw new IOException("Failed to verify job details match", e);
 		}
@@ -2475,7 +2400,7 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 	/**
 	 * Helper method to clean job name and fix parsing issues
 	 */
-	private String cleanJobName(String rawJobName) {
+	private String cleanJobNameLocal(String rawJobName) {
 		if (rawJobName == null || rawJobName.isEmpty()) {
 			return "";
 		}
@@ -2511,13 +2436,13 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends DriverMan
 	 * Helper method to extract job name for search (removes job codes and extra
 	 * formatting)
 	 */
-	private String extractJobNameForSearch(String fullJobName) {
+	private String extractJobNameForSearchLocal(String fullJobName) {
 		if (fullJobName == null || fullJobName.isEmpty()) {
 			return "";
 		}
 
 		// First clean the job name to fix any parsing issues
-		String cleaned = cleanJobName(fullJobName);
+		String cleaned = cleanJobNameLocal(fullJobName);
 
 		// Remove job codes in parentheses and extra whitespace
 		String cleanName = cleaned.replaceAll("\\([^)]*\\)", "").trim();

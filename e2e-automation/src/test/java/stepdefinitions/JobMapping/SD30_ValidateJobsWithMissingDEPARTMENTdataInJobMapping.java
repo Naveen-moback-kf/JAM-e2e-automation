@@ -3,7 +3,7 @@ package stepdefinitions.JobMapping;
 import java.io.IOException;
 
 import com.kfonetalentsuite.manager.PageObjectManager;
-import com.kfonetalentsuite.utils.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.kfonetalentsuite.webdriverManager.DriverManager;

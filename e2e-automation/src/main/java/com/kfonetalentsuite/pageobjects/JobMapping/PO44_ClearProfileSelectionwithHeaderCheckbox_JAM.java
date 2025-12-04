@@ -1,58 +1,42 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.CacheLookup;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
-import com.kfonetalentsuite.utils.PageObjectHelper;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
+/**
+ * Page Object for clearing profile selection with header checkbox in Job Mapping (JAM) screen.
+ * Handles clicking header checkbox to unselect profiles and verifying selection states.
+ */
+public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM extends BasePageObject {
 
-	WebDriver driver = DriverManager.getDriver();
-
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
-
-	public PO44_ClearProfileSelectionwithHeaderCheckbox_JAM() throws IOException {
-		PageFactory.initElements(driver, this);
-	}
-
-	WebDriverWait wait = DriverManager.getWait();
-	Utilities utils = new Utilities();
-	JavascriptExecutor js = (JavascriptExecutor) driver;
+	private static final Logger LOGGER = LogManager.getLogger(PO44_ClearProfileSelectionwithHeaderCheckbox_JAM.class);
 
 	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
 	public static ThreadLocal<Integer> loadedProfilesBeforeUncheck = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> selectedProfilesBeforeUncheck = ThreadLocal.withInitial(() -> 0);
 
-	// XPATHs
-	@FindBy(xpath = "//div[@data-testid='loader']//img")
-	@CacheLookup
-	WebElement pageLoadSpinner;
+	// Locators
+	private static final By HEADER_CHECKBOX = By.xpath("//thead//input[@type='checkbox']");
+	private static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input");
 
-	@FindBy(xpath = "//thead//input[@type='checkbox']")
-	@CacheLookup
-	WebElement headerCheckbox;
+	public PO44_ClearProfileSelectionwithHeaderCheckbox_JAM() {
+		super();
+	}
 
 	/**
-	 * Clicks on header checkbox to unselect loaded job profiles in Job Mapping
-	 * screen This method clicks the header checkbox when profiles are already
-	 * selected to clear the selection of currently loaded profiles
+	 * Clicks on header checkbox to unselect loaded job profiles in Job Mapping screen.
+	 * This method clicks the header checkbox when profiles are already selected
+	 * to clear the selection of currently loaded profiles.
 	 */
 	public void click_on_header_checkbox_to_unselect_loaded_job_profiles_in_job_mapping_screen() {
 		try {
@@ -60,8 +44,7 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			// Store counts before unchecking
-			List<WebElement> allCheckboxes = driver
-					.findElements(By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input"));
+			List<WebElement> allCheckboxes = findElements(ALL_CHECKBOXES);
 			loadedProfilesBeforeUncheck.set(allCheckboxes.size());
 
 			// Count selected checkboxes using isSelected() instead of @checked attribute
@@ -73,14 +56,14 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 			}
 			selectedProfilesBeforeUncheck.set(selectedCount);
 
-			LOGGER.info("Loaded Profiles on screen (BEFORE unchecking header checkbox): "
-					+ loadedProfilesBeforeUncheck.get());
-			LOGGER.info(
-					"Selected Profiles (BEFORE unchecking header checkbox): " + selectedProfilesBeforeUncheck.get());
+			LOGGER.info("Loaded Profiles on screen (BEFORE unchecking header checkbox): " + loadedProfilesBeforeUncheck.get());
+			LOGGER.info("Selected Profiles (BEFORE unchecking header checkbox): " + selectedProfilesBeforeUncheck.get());
+
+			WebElement headerCheckbox = findElement(HEADER_CHECKBOX);
 
 			// Click on header checkbox to unselect
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", headerCheckbox);
-			Thread.sleep(500);
+			safeSleep(500);
 
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(headerCheckbox)).click();
@@ -88,11 +71,11 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 				try {
 					js.executeScript("arguments[0].click();", headerCheckbox);
 				} catch (Exception s) {
-					utils.jsClick(driver, headerCheckbox);
+					jsClick(headerCheckbox);
 				}
 			}
 
-			Thread.sleep(1000);
+			safeSleep(1000);
 
 			PageObjectHelper.log(LOGGER, "Clicked on header checkbox to clear selection of loaded profiles");
 
@@ -103,15 +86,16 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot(
 					"click_on_header_checkbox_to_unselect_loaded_job_profiles_in_job_mapping_screen", e);
-			PageObjectHelper.log(LOGGER, "Error clicking on header checkbox to unselect profiles");
+			PageObjectHelper.handleError(LOGGER,
+					"click_on_header_checkbox_to_unselect_loaded_job_profiles_in_job_mapping_screen",
+					"Error clicking on header checkbox to unselect profiles", e);
 			Assert.fail("Error clicking on header checkbox to unselect profiles: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies that loaded profiles are unselected after clicking header checkbox
-	 * in Job Mapping screen This validates that the profiles that were loaded
-	 * before unchecking are now unselected
+	 * Verifies that loaded profiles are unselected after clicking header checkbox in Job Mapping screen.
+	 * This validates that the profiles that were loaded before unchecking are now unselected.
 	 */
 	public void verify_loaded_profiles_are_unselected_in_job_mapping_screen() {
 		int unselectedProfilesCount = 0;
@@ -125,17 +109,14 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 			LOGGER.info("VERIFYING UNSELECTED PROFILES");
 			LOGGER.info("========================================");
 
-			// Get all checkboxes currently on screen (including newly loaded after
-			// scrolling)
-			var allCheckboxes = driver
-					.findElements(By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input"));
+			// Get all checkboxes currently on screen (including newly loaded after scrolling)
+			List<WebElement> allCheckboxes = findElements(ALL_CHECKBOXES);
 
 			int totalProfilesOnScreen = allCheckboxes.size();
 			LOGGER.info("Total Profiles on screen (after scrolling): " + totalProfilesOnScreen);
 			LOGGER.info("Original Loaded Profiles (before scrolling): " + loadedProfilesBeforeUncheck.get());
 
-			// Verify ALL profiles on screen are now unselected (both original 20 + newly
-			// loaded 20)
+			// Verify ALL profiles on screen are now unselected (both original 20 + newly loaded 20)
 			for (int i = 0; i < totalProfilesOnScreen; i++) {
 				try {
 					WebElement checkbox = allCheckboxes.get(i);
@@ -181,18 +162,17 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 			}
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_loaded_profiles_are_unselected_in_job_mapping_screen",
-					e);
-			PageObjectHelper.log(LOGGER, "Error verifying loaded profiles are unselected");
+			ScreenshotHandler.captureFailureScreenshot("verify_loaded_profiles_are_unselected_in_job_mapping_screen", e);
+			PageObjectHelper.handleError(LOGGER, "verify_loaded_profiles_are_unselected_in_job_mapping_screen",
+					"Error verifying loaded profiles are unselected", e);
 			Assert.fail("Error verifying loaded profiles are unselected: " + e.getMessage());
 		}
 	}
 
 	/**
-	 * Verifies that newly loaded profiles (after scrolling) are still selected in
-	 * Job Mapping screen This validates that unchecking header checkbox only
-	 * affects currently loaded profiles, not profiles that were loaded after the
-	 * initial Select All was clicked
+	 * Verifies that newly loaded profiles (after scrolling) are still selected in Job Mapping screen.
+	 * This validates that unchecking header checkbox only affects currently loaded
+	 * profiles, not profiles that were loaded after the initial Select All was clicked.
 	 */
 	public void verify_newly_loaded_profiles_are_still_selected_in_job_mapping_screen() {
 		int totalProfilesNow = 0;
@@ -205,8 +185,7 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			// Get total profiles now loaded
-			var allCheckboxes = driver
-					.findElements(By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input"));
+			List<WebElement> allCheckboxes = findElements(ALL_CHECKBOXES);
 
 			totalProfilesNow = allCheckboxes.size();
 			newlyLoadedProfiles = totalProfilesNow - loadedProfilesBeforeUncheck.get();
@@ -222,8 +201,7 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 			LOGGER.info("Total Profiles Now: " + totalProfilesNow);
 			LOGGER.info("Newly Loaded Profiles: " + newlyLoadedProfiles);
 
-			// Verify newly loaded profiles are still selected (from index
-			// loadedProfilesBeforeUncheck onwards)
+			// Verify newly loaded profiles are still selected (from index loadedProfilesBeforeUncheck onwards)
 			for (int i = loadedProfilesBeforeUncheck.get(); i < allCheckboxes.size(); i++) {
 				try {
 					WebElement checkbox = allCheckboxes.get(i);
@@ -241,8 +219,7 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 					if (isSelected) {
 						selectedInNewlyLoaded++;
 					} else {
-						LOGGER.warn(" Newly loaded profile at position " + (i + 1)
-								+ " is UNSELECTED (should be selected!)");
+						LOGGER.warn(" Newly loaded profile at position " + (i + 1) + " is UNSELECTED (should be selected!)");
 					}
 
 				} catch (Exception e) {
@@ -272,7 +249,9 @@ public class PO44_ClearProfileSelectionwithHeaderCheckbox_JAM {
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot(
 					"verify_newly_loaded_profiles_are_still_selected_in_job_mapping_screen", e);
-			PageObjectHelper.log(LOGGER, "Error verifying newly loaded profiles are still selected");
+			PageObjectHelper.handleError(LOGGER,
+					"verify_newly_loaded_profiles_are_still_selected_in_job_mapping_screen",
+					"Error verifying newly loaded profiles are still selected", e);
 			Assert.fail("Error verifying newly loaded profiles are still selected: " + e.getMessage());
 		}
 	}
