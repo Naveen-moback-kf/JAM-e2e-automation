@@ -11,6 +11,7 @@ e2e-automation/test-output/
 e2e-automation/Screenshots/
 e2e-automation/ScreenshotsFailed/
 e2e-automation/Report/
+e2e-automation/AllureReports/
 
 # Excel Reports and Backups
 e2e-automation/ExcelReports/Backup/*.xlsx
