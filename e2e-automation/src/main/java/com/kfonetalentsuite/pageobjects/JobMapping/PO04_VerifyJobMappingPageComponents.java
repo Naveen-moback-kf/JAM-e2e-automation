@@ -605,9 +605,10 @@ public class PO04_VerifyJobMappingPageComponents extends BasePageObject {
 		try {
 			waitForSpinners();
 			scrollToBottom();
-			Thread.sleep(1000);
-			waitForSpinners();
+			safeSleep(3000);
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			PerformanceUtils.waitForPageReady(driver, 2);
+			safeSleep(1000);
 			PageObjectHelper.log(LOGGER, "Scrolled page down to view more job profiles");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "scroll_page_to_view_more_job_profiles", "Issue scrolling page", e);

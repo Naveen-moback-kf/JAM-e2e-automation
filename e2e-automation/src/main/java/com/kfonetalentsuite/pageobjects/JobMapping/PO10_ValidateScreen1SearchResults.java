@@ -69,10 +69,10 @@ public class PO10_ValidateScreen1SearchResults extends BasePageObject {
 				}
 
 				scrollToBottom();
-				Thread.sleep(500);
-				waitForSpinners();
-				Thread.sleep(1500);
-				PerformanceUtils.waitForUIStability(driver, 1);
+				safeSleep(3000);
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+				PerformanceUtils.waitForPageReady(driver, 2);
+				safeSleep(1000);
 
 				previousShowing = currentShowing;
 				scrollCount++;

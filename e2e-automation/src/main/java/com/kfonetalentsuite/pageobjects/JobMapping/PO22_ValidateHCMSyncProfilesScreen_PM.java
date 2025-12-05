@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -647,18 +648,14 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 	public void scroll_page_to_view_more_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
 			scrollToBottom();
-			// CRITICAL: Wait for spinners after scroll before page ready check
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			// PERFORMANCE: Single comprehensive wait after scroll
-			PerformanceUtils.waitForPageReady(driver, 5);
+			safeSleep(3000);
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PerformanceUtils.waitForPageReady(driver, 2);
+			safeSleep(1000);
 			PageObjectHelper.log(LOGGER, "Scrolled page down to view more job profiles in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
-			LOGGER.error("Issue scrolling page", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in scrolling page down to view more job profiles in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in scrolling page down to view more job profiles in in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "scroll_page_to_view_more_job_profiles_in_hcm_sync_profiles_tab",
+					"Issue scrolling page down to view more job profiles", e);
 		}
 	}
 
@@ -1840,6 +1837,15 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 	public void click_on_first_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
 			jobname1.set(wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW1))).getText());
+			
+			// Check if already selected - skip if yes
+			try {
+				driver.findElement(By.xpath("//tbody//tr[1]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+				return; // Already selected, skip
+			} catch (NoSuchElementException e) {
+				// Not selected, proceed to click
+			}
+			
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(findElement(PROFILE1_CHECKBOX))).click();
 			} catch (Exception e) {
@@ -1849,11 +1855,17 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 					jsClick(findElement(PROFILE1_CHECKBOX));
 				}
 			}
-			LOGGER.info("Clicked on checkbox of First job profile with name : " + jobname1.get()
-					+ " in HCM Sync Profiles screen in PM");
-			PageObjectHelper.log(LOGGER, "Clicked on checkbox of First job profile with name : "
-					+ jobname1.get() + " in HCM Sync Profiles screen in PM");
-			profilesCount.set(profilesCount.get() + 1);
+			safeSleep(200);
+			
+			// Only increment count if checkbox is actually selected after clicking
+			try {
+				driver.findElement(By.xpath("//tbody//tr[1]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+				profilesCount.set(profilesCount.get() + 1);
+				PageObjectHelper.log(LOGGER, "Clicked on checkbox of First job profile with name : "
+						+ jobname1.get() + " in HCM Sync Profiles screen in PM");
+			} catch (NoSuchElementException e) {
+				// Checkbox not selected after click - don't increment count
+			}
 		} catch (Exception e) {
 			LOGGER.error(
 					" Issue clicking first profile checkbox - Method: click_on_first_profile_checkbox_in_hcm_sync_profiles_tab",
@@ -1868,12 +1880,21 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 
 	public void click_on_second_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
-			Thread.sleep(500);
+			safeSleep(500);
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});",
 					findElement(HCM_SYNC_PROFILES_JOB_ROW2));
-			Thread.sleep(300);
+			safeSleep(300);
 
 			jobname2.set(wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW2))).getText());
+			
+			// Check if already selected - skip if yes
+			try {
+				driver.findElement(By.xpath("//tbody//tr[2]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+				return; // Already selected, skip
+			} catch (NoSuchElementException e) {
+				// Not selected, proceed to click
+			}
+			
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(findElement(PROFILE2_CHECKBOX))).click();
 			} catch (Exception e) {
@@ -1883,11 +1904,17 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 					jsClick(findElement(PROFILE2_CHECKBOX));
 				}
 			}
-			LOGGER.info("Clicked on checkbox of Second job profile with name : " + jobname2.get()
-					+ " in HCM Sync Profiles screen in PM");
-			PageObjectHelper.log(LOGGER, "Clicked on checkbox of Second job profile with name : "
-					+ jobname2.get() + " in HCM Sync Profiles screen in PM");
-			profilesCount.set(profilesCount.get() + 1);
+			safeSleep(200);
+			
+			// Only increment count if checkbox is actually selected after clicking
+			try {
+				driver.findElement(By.xpath("//tbody//tr[2]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+				profilesCount.set(profilesCount.get() + 1);
+				PageObjectHelper.log(LOGGER, "Clicked on checkbox of Second job profile with name : "
+						+ jobname2.get() + " in HCM Sync Profiles screen in PM");
+			} catch (NoSuchElementException e) {
+				// Checkbox not selected after click - don't increment count
+			}
 		} catch (Exception e) {
 			LOGGER.error(
 					" Issue clicking second profile checkbox - Method: click_on_second_profile_checkbox_in_hcm_sync_profiles_tab",
@@ -1903,7 +1930,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 	public void click_on_third_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
 			// Wait for table to load and stabilize
-			Thread.sleep(1000);
+			safeSleep(1000);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
 			// Scroll table container to trigger lazy loading if needed
@@ -1911,7 +1938,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 				WebElement tableContainer = driver
 						.findElement(By.xpath("//div[contains(@class, 'table') or contains(@class, 'list')]"));
 				js.executeScript("arguments[0].scrollTop = arguments[0].scrollHeight;", tableContainer);
-				Thread.sleep(500);
+				safeSleep(500);
 			} catch (Exception ignored) {
 				// Table container not found or not scrollable, continue
 			}
@@ -1922,9 +1949,17 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 					ExpectedConditions.presenceOfElementLocated(By.xpath("//tbody//tr[3]//td//div//span[1]//a")));
 
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", row3);
-			Thread.sleep(500);
+			safeSleep(500);
 
 			jobname3.set(shortWait.until(ExpectedConditions.visibilityOf(row3)).getText());
+
+			// Check if already selected - skip if yes
+			try {
+				driver.findElement(By.xpath("//tbody//tr[3]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+				return; // Already selected, skip
+			} catch (NoSuchElementException e) {
+				// Not selected, proceed to click
+			}
 
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(findElement(PROFILE3_CHECKBOX))).click();
@@ -1935,11 +1970,17 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 					jsClick(findElement(PROFILE3_CHECKBOX));
 				}
 			}
-			LOGGER.info("Clicked on checkbox of Third job profile with name : " + jobname3.get()
-					+ " in HCM Sync Profiles screen in PM");
-			PageObjectHelper.log(LOGGER, "Clicked on checkbox of Third job profile with name : "
-					+ jobname3.get() + " in HCM Sync Profiles screen in PM");
-			profilesCount.set(profilesCount.get() + 1);
+			safeSleep(200);
+			
+			// Only increment count if checkbox is actually selected after clicking
+			try {
+				driver.findElement(By.xpath("//tbody//tr[3]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+				profilesCount.set(profilesCount.get() + 1);
+				PageObjectHelper.log(LOGGER, "Clicked on checkbox of Third job profile with name : "
+						+ jobname3.get() + " in HCM Sync Profiles screen in PM");
+			} catch (NoSuchElementException e) {
+				// Checkbox not selected after click - don't increment count
+			}
 		} catch (Exception e) {
 			LOGGER.error(
 					" Issue clicking third profile checkbox - Method: click_on_third_profile_checkbox_in_hcm_sync_profiles_tab",

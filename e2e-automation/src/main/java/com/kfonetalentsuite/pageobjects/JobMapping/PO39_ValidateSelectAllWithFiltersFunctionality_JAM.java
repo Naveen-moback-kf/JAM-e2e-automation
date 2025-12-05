@@ -322,17 +322,10 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM extends BasePage
 				scrollAttempts++;
 				LOGGER.debug("Scroll attempt #{} - waiting for content to load...", scrollAttempts);
 
-				// CRITICAL: Longer wait for HEADLESS MODE (lazy loading needs more time)
-				Thread.sleep(3000); // Increased from 2000 to 3000ms for headless stability
-
-				// Wait for any spinners to disappear
+				safeSleep(3000);
 				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
-
-				// Wait for page readiness
 				PerformanceUtils.waitForPageReady(driver, 2);
-
-				// Additional wait for DOM updates in headless mode
-				Thread.sleep(1000); // Extra buffer for lazy-loaded content to render
+				safeSleep(1000);
 
 				// IMPORTANT: Use org-job-container to get ONLY Organization Jobs table rows
 				var allRows = driver.findElements(By.xpath(
@@ -367,16 +360,14 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM extends BasePage
 									+ " scrolls (stable count detected)");
 						}
 
-						// ADDITIONAL: Try forcing scroll to absolute bottom one more time
-						if (stableCountAttempts == 2) {
-							LOGGER.debug("Attempting final aggressive scroll to ensure all content loaded...");
-							js.executeScript(
-									"window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight));");
-							Thread.sleep(2000); // Wait after aggressive scroll
-
-							// Wait for spinners after aggressive scroll
-							PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
-						}
+					// ADDITIONAL: Try forcing scroll to absolute bottom one more time
+					if (stableCountAttempts == 2) {
+						LOGGER.debug("Attempting final aggressive scroll to ensure all content loaded...");
+						js.executeScript(
+								"window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight));");
+						safeSleep(2000);
+						PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+					}
 					} else {
 						stableCountAttempts = 0;
 						LOGGER.debug("✓ Loaded {} new rows (total: {}, scroll: #{})", newlyLoadedProfiles, currentCount,
@@ -600,11 +591,11 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM extends BasePage
 			while (scrollAttempts < maxScrollAttempts && !allProfilesLoaded) {
 				scrollAttempts++;
 
-				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN
-																								// (headless-compatible)
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+				scrollToBottom();
+				safeSleep(3000);
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 				PerformanceUtils.waitForPageReady(driver, 2);
-				Thread.sleep(1000);
+				safeSleep(1000);
 
 				// Get current visible profiles (Job Mapping specific XPath)
 				// IMPORTANT: Use org-job-container to get ONLY Organization Jobs table rows
@@ -1393,12 +1384,11 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM extends BasePage
 			while (currentProfileCount < expectedTotal && scrollAttempts < maxScrollAttempts && noChangeCount < 3) {
 				scrollAttempts++;
 				
-				// Scroll down using JavaScript
-				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-				Thread.sleep(500); // Wait for lazy loading
-				
-				// Wait for any spinners
+				scrollToBottom();
+				safeSleep(3000);
 				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+				PerformanceUtils.waitForPageReady(driver, 2);
+				safeSleep(1000);
 				
 				// Get updated profile count
 				currentProfileCount = driver.findElements(By.xpath(checkboxXpath)).size();
@@ -1417,12 +1407,11 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM extends BasePage
 			}
 
 			totalSecondFilterResults.set(currentProfileCount);
-			
-						PageObjectHelper.log(LOGGER, "Loaded " + currentProfileCount + " of " + expectedTotal + " second filter profiles");
+			PageObjectHelper.log(LOGGER, "Loaded " + currentProfileCount + " of " + expectedTotal + " second filter profiles");
 
 			// Scroll back to top for validation
 			js.executeScript("window.scrollTo(0, 0);");
-			Thread.sleep(300);
+			safeSleep(300);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("scroll_second_filter_results", e);

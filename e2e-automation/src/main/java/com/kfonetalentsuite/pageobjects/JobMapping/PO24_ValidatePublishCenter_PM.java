@@ -197,20 +197,43 @@ public class PO24_ValidatePublishCenter_PM extends BasePageObject {
 	public void select_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
 			for (int i = 25; i >= 6; i--) {
-				WebElement SP_Checkbox = driver.findElement(
-						By.xpath("//tbody//tr[" + i + "]//td[1]//*//..//div//kf-checkbox//div"));
-				String text = SP_Checkbox.getAttribute("class");
-				if (text.contains("disable")) {
-					continue;
-				} else {
+				try {
+					// Check if checkbox is disabled
+					WebElement SP_Checkbox = driver.findElement(
+							By.xpath("//tbody//tr[" + i + "]//td[1]//*//..//div//kf-checkbox//div"));
+					String text = SP_Checkbox.getAttribute("class");
+					if (text.contains("disable")) {
+						continue;
+					}
+					
+					// Check if already selected - skip if yes
+					try {
+						driver.findElement(By.xpath("//tbody//tr[" + i + "]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+						continue; // Already selected, skip
+					} catch (NoSuchElementException e) {
+						// Not selected, proceed to click
+					}
+					
+					// Click the checkbox
 					WebElement profilecheckbox = driver.findElement(By.xpath("//tbody//tr[" + i + "]//div[1]//kf-checkbox"));
 					scrollToElement(profilecheckbox);
 					tryClickWithStrategies(profilecheckbox);
-					PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount
-							.set(PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get() + 1);
-					PageObjectHelper.log(LOGGER,
-							"Selected " + PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get()
-									+ " Job Profiles in HCM Sync Profiles screen in PM");
+					safeSleep(200);
+					
+					// Only increment count if checkbox is actually selected after clicking
+					try {
+						driver.findElement(By.xpath("//tbody//tr[" + i + "]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+						PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount
+								.set(PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get() + 1);
+						PageObjectHelper.log(LOGGER,
+								"Selected " + PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.get()
+										+ " Job Profiles in HCM Sync Profiles screen in PM");
+					} catch (NoSuchElementException e) {
+						// Checkbox not selected after click - don't increment count
+					}
+				} catch (NoSuchElementException e) {
+					// Row doesn't exist - skip
+					continue;
 				}
 			}
 		} catch (NoSuchElementException e) {

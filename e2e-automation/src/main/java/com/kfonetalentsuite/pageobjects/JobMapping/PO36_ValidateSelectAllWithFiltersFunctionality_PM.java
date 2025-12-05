@@ -323,17 +323,10 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM extends BasePageO
 				scrollCount++;
 				LOGGER.debug("Scroll attempt #{} - waiting for content to load...", scrollCount);
 
-				// CRITICAL: Longer wait for HEADLESS MODE (lazy loading needs more time)
-				Thread.sleep(3000); // Increased from 2000 to 3000ms for headless stability
-
-				// Wait for any spinners to disappear
+				safeSleep(3000);
 				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
-
-				// Wait for page readiness
-				PerformanceUtils.waitForPageReady(driver, 2); // Increased from 1 to 2 seconds
-
-				// Additional wait for DOM updates in headless mode
-				Thread.sleep(1000); // Extra buffer for lazy-loaded content to render
+				PerformanceUtils.waitForPageReady(driver, 2);
+				safeSleep(1000);
 
 				// Check current count
 				currentCount = driver.findElements(By.xpath("//tbody//tr")).size();
@@ -356,10 +349,8 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM extends BasePageO
 					if (noChangeCount == 2) {
 						LOGGER.debug("Attempting final aggressive scroll to ensure all content loaded...");
 						js.executeScript(
-								"window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.body.clientHeight, document.documentElement.clientHeight));");
-						Thread.sleep(2000); // Wait after aggressive scroll
-
-						// Wait for spinners after aggressive scroll
+								"window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight));");
+						safeSleep(2000);
 						PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 					}
 				} else {

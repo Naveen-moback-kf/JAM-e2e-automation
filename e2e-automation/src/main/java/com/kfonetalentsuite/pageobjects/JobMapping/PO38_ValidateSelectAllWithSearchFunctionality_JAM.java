@@ -308,9 +308,10 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM extends BasePageO
 			while (currentProfileCount < expectedTotal && scrollAttempts < maxScrollAttempts && noChangeCount < 3) {
 				scrollAttempts++;
 				scrollToBottom();
-				safeSleep(500);
-				
+				safeSleep(3000);
 				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+				PerformanceUtils.waitForPageReady(driver, 2);
+				safeSleep(1000);
 				
 				currentProfileCount = findElements(ALL_PROFILE_ROWS).size();
 				

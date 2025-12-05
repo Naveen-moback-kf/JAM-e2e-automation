@@ -1,5 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +10,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
@@ -294,15 +296,16 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM extends BasePageOb
 				}
 
 				try {
-					WebElement searchBarElement = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.SearchAndFilters.SEARCH_BAR));
+					WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+					WebElement searchBarElement = shortWait.until(ExpectedConditions.visibilityOfElementLocated(Locators.SearchAndFilters.SEARCH_BAR));
 					js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", searchBarElement);
 					PerformanceUtils.waitForPageReady(driver, 1);
 
 					// Clear search bar
 					try {
-						wait.until(ExpectedConditions.elementToBeClickable(Locators.SearchAndFilters.SEARCH_BAR)).click();
+						shortWait.until(ExpectedConditions.elementToBeClickable(Locators.SearchAndFilters.SEARCH_BAR)).click();
 					} catch (Exception clickEx) {
-						jsClick(findElement(Locators.SearchAndFilters.SEARCH_BAR));
+						jsClick(searchBarElement);
 					}
 					searchBarElement.sendKeys(Keys.CONTROL + "a");
 					searchBarElement.sendKeys(Keys.DELETE);
@@ -311,7 +314,7 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM extends BasePageOb
 					PerformanceUtils.waitForPageReady(driver, 1);
 
 					// Enter different substring
-					searchBarElement = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.SearchAndFilters.SEARCH_BAR));
+					searchBarElement = shortWait.until(ExpectedConditions.visibilityOfElementLocated(Locators.SearchAndFilters.SEARCH_BAR));
 					searchBarElement.clear();
 					searchBarElement.sendKeys(substring);
 					searchBarElement.sendKeys(Keys.ENTER);
@@ -319,7 +322,8 @@ public class PO35_ValidateSelectAllWithSearchFunctionality_PM extends BasePageOb
 					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 					PerformanceUtils.waitForPageReady(driver, 2);
 
-					String resultsCountText = getElementText(SHOWING_JOB_RESULTS_COUNT);
+					WebElement resultsElement = shortWait.until(ExpectedConditions.visibilityOfElementLocated(SHOWING_JOB_RESULTS_COUNT));
+					String resultsCountText = resultsElement.getText();
 
 					if (resultsCountText.contains("Showing") && !resultsCountText.startsWith("Showing 0")) {
 						alternativeSearchSubstring.set(substring);

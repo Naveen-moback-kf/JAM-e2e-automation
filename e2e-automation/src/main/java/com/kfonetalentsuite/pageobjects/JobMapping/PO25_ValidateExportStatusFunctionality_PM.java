@@ -231,9 +231,27 @@ public class PO25_ValidateExportStatusFunctionality_PM extends BasePageObject {
 				throw new IllegalStateException("Checkbox is disabled for profile: " + SPJobName.get());
 			}
 
+			// Check if already selected - skip if yes
+			try {
+				driver.findElement(By.xpath(String.format("//tbody//tr[%d]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']", rowNumber.get())));
+				PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(1);
+				PageObjectHelper.log(LOGGER, "Checkbox already selected for Success profile with name: " + SPJobName.get());
+				return;
+			} catch (NoSuchElementException e) {
+				// Not selected, proceed to click
+			}
+
 			clickElement(checkboxLocator);
-			PageObjectHelper.log(LOGGER, "Clicked checkbox of Success profile with name: " + SPJobName.get());
-			PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(1);
+			safeSleep(200);
+			
+			// Only set count if checkbox is actually selected after clicking
+			try {
+				driver.findElement(By.xpath(String.format("//tbody//tr[%d]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']", rowNumber.get())));
+				PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(1);
+				PageObjectHelper.log(LOGGER, "Clicked checkbox of Success profile with name: " + SPJobName.get());
+			} catch (NoSuchElementException e) {
+				// Checkbox not selected after click - don't set count
+			}
 		} catch (Exception e) {
 			PageObjectHelper.handleWithContext(
 					"click_on_checkbox_of_success_profile_with_export_status_as_not_exported", e,
