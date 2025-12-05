@@ -26,6 +26,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.ExcelConfigProvider;
 
 public class DailyExcelTracker {
 
@@ -4524,12 +4525,12 @@ public class DailyExcelTracker {
 		try {
 			Class<?> loginClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin");
 
-			// Cache username
+			// Cache username (exclude "NOT_SET")
 			java.lang.reflect.Field usernameField = loginClass.getField("username");
 			@SuppressWarnings("unchecked")
 			ThreadLocal<String> usernameThreadLocal = (ThreadLocal<String>) usernameField.get(null);
 			String username = usernameThreadLocal.get();
-			if (username != null && !username.trim().isEmpty()) {
+			if (username != null && !username.trim().isEmpty() && !"NOT_SET".equalsIgnoreCase(username.trim())) {
 				lastKnownUsername = username.trim();
 				LOGGER.debug("Cached username for Excel reporting: {}", lastKnownUsername);
 			}
@@ -4554,29 +4555,60 @@ public class DailyExcelTracker {
 	 * suite-level reporting
 	 */
 	private static String getUsernameForExcel() {
-		try {
-			// Use reflection to access PO01_KFoneLogin.username ThreadLocal
-			Class<?> loginClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin");
-			java.lang.reflect.Field usernameField = loginClass.getField("username");
-			@SuppressWarnings("unchecked")
-			ThreadLocal<String> usernameThreadLocal = (ThreadLocal<String>) usernameField.get(null);
-			String username = usernameThreadLocal.get();
+		// PRIMARY: Get username from PO01_KFoneLogin (ThreadLocal)
+		// Try multiple times to catch username after login completes
+		for (int attempt = 0; attempt < 3; attempt++) {
+			try {
+				Class<?> loginClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin");
+				java.lang.reflect.Field usernameField = loginClass.getField("username");
+				@SuppressWarnings("unchecked")
+				ThreadLocal<String> usernameThreadLocal = (ThreadLocal<String>) usernameField.get(null);
+				String username = usernameThreadLocal.get();
 
-			if (username != null && !username.trim().isEmpty()) {
-				lastKnownUsername = username.trim(); // Cache for later use
-				return username.trim();
+				// Check if username is set (not null, not empty, and not "NOT_SET")
+				if (username != null && !username.trim().isEmpty() && !"NOT_SET".equalsIgnoreCase(username.trim())) {
+					lastKnownUsername = username.trim(); // Cache for later use
+					LOGGER.debug("Retrieved username from PO01_KFoneLogin: {}", username.trim());
+					return username.trim();
+				}
+			} catch (Exception e) {
+				if (attempt == 2) {
+					LOGGER.debug("Could not retrieve username from PO01_KFoneLogin after {} attempts: {}", attempt + 1, e.getMessage());
+				}
 			}
-		} catch (Exception e) {
-			LOGGER.debug("Could not retrieve username from PO01_KFoneLogin: {}", e.getMessage());
+			
+			// Small delay before retry (in case login is still in progress)
+			if (attempt < 2) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+					break;
+				}
+			}
 		}
 
 		// Fallback 1: Use last known username from previous execution in this suite
-		if (lastKnownUsername != null && !lastKnownUsername.trim().isEmpty()) {
-			LOGGER.debug("Using cached username: {}", lastKnownUsername);
+		if (lastKnownUsername != null && !lastKnownUsername.trim().isEmpty() && !"NOT_SET".equalsIgnoreCase(lastKnownUsername)) {
+			LOGGER.debug("Using cached username from previous execution: {}", lastKnownUsername);
 			return lastKnownUsername;
 		}
 
-		// Fallback 2: Try to get from system properties or environment
+		// Fallback 2: Try to get from Excel login data (only if PO01_KFoneLogin doesn't have it)
+		try {
+			Map<String, String> login = ExcelConfigProvider.getDefaultLogin();
+			if (login != null) {
+				String excelUsername = login.get("Username");
+				if (excelUsername != null && !excelUsername.trim().isEmpty()) {
+					LOGGER.debug("Using username from Excel (PO01_KFoneLogin not available): {}", excelUsername);
+					return excelUsername.trim();
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.debug("Could not get username from Excel: {}", e.getMessage());
+		}
+
+		// Fallback 3: Try to get from system properties or environment
 		String systemUser = System.getProperty("user.name");
 		if (systemUser != null && !systemUser.trim().isEmpty()) {
 			return systemUser.trim();

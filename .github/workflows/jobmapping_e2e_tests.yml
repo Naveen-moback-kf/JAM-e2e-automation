@@ -488,15 +488,8 @@ jobs:
             MVN_CMD="mvn test -DsuiteXmlFile=${TEST_SUITE}"
           fi
           
-          # Add browser parameter (if needed by your framework)
-          # MVN_CMD="${MVN_CMD} -Dbrowser=${BROWSER}"
-          
-          # Add environment parameter (if needed by your framework)
-          # MVN_CMD="${MVN_CMD} -Denvironment=${ENVIRONMENT}"
-          
-          # Note: Parallel execution is now controlled directly in the test suite XML
-          # The XML file is modified before execution based on the parallel_execution input
-          echo "ℹ️  Parallel execution controlled via test suite XML (already configured above)"
+          # Add CI/CD override parameters (override Excel values)
+          MVN_CMD="${MVN_CMD} -DEnvironment=${ENVIRONMENT} -Dlogin.type=${LOGIN_TYPE} -Dtarget.pams.id=${PAMS_ID}"
           
           # Add CI/CD specific Maven options
           MVN_CMD="${MVN_CMD} -Dmaven.test.failure.ignore=true -B"
@@ -586,50 +579,16 @@ jobs:
         if: always()
         working-directory: e2e-automation
         run: |
-          echo "📊 Generating Allure report..."
-          
-          # Check for Allure results
-          if [ -d "AllureReports/allure-results" ]; then
-            RESULT_COUNT=$(find AllureReports/allure-results -type f 2>/dev/null | wc -l)
-            echo "📁 Allure results directory found with ${RESULT_COUNT} files"
-            ls -la AllureReports/allure-results/ | head -20 || echo "⚠️  Could not list results directory"
-          else
-            echo "❌ Allure results directory not found"
-            echo "Creating AllureReports/allure-results directory..."
-            mkdir -p AllureReports/allure-results
-          fi
-          
-          # Check if results directory has files
           if [ -d "AllureReports/allure-results" ] && [ "$(ls -A AllureReports/allure-results 2>/dev/null)" ]; then
-            echo "✅ Allure results found - Generating report..."
-            
-            # Generate Allure report using Maven plugin
-            mvn allure:report -B -Dallure.results.directory=AllureReports/allure-results -Dallure.report.directory=AllureReports/allure-report || {
-              echo "⚠️  Allure report generation failed, trying alternative method..."
-              # Alternative: Use allure command line if available
-              if command -v allure &> /dev/null; then
-                allure generate AllureReports/allure-results -o AllureReports/allure-report --clean || echo "⚠️  Allure CLI also failed"
-              fi
+            mvn allure:report -B || {
+              RESULTS_DIR=$(cd AllureReports/allure-results && pwd)
+              REPORT_DIR=$(cd AllureReports && pwd)/allure-report
+              mvn allure:report -B -Dallure.results.directory="${RESULTS_DIR}" -Dallure.report.directory="${REPORT_DIR}" || {
+                if command -v allure &> /dev/null; then
+                  allure generate "${RESULTS_DIR}" -o "${REPORT_DIR}" --clean
+                fi
+              }
             }
-            
-            # Verify report was generated
-            if [ -d "AllureReports/allure-report" ] && [ "$(ls -A AllureReports/allure-report 2>/dev/null)" ]; then
-              REPORT_FILES=$(find AllureReports/allure-report -type f 2>/dev/null | wc -l)
-              echo "✅ Allure report generated successfully with ${REPORT_FILES} files"
-              ls -la AllureReports/allure-report/ | head -10 || echo "⚠️  Could not list report directory"
-            else
-              echo "⚠️  Allure report directory is empty or not found after generation"
-              echo "Checking Allure configuration..."
-              cat src/test/resources/allure.properties 2>/dev/null || echo "⚠️  allure.properties not found"
-            fi
-          else
-            echo "ℹ️  No Allure results found in AllureReports/allure-results - Skipping report generation"
-            echo "This might indicate:"
-            echo "  - Tests did not execute"
-            echo "  - Allure plugin not properly configured"
-            echo "  - Results written to different location"
-            echo "Checking for results in other locations..."
-            find . -name "allure-results" -type d 2>/dev/null | head -5 || echo "No allure-results directories found"
           fi
       
       - name: 🔄 Restore Original Test Suite XML

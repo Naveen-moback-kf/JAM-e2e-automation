@@ -21,15 +21,16 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 
 	private static final Logger LOGGER = LogManager.getLogger(PO11_ValidateJobMappingFiltersFunctionality.class);
 
-	public static String GradesOption = "";
-	public static String GradesOption1 = "";
-	public static String GradesOption2 = "";
-	public static String DepartmentsOption = "";
-	public static String DepartmentsOption1 = "";
-	public static String DepartmentsOption2 = "";
-	public static String FunctionsOption = "";
-	public static String FunctionsOption1 = "";
-	public static String FunctionsOption2 = "";
+	// PARALLEL EXECUTION FIX: Convert static variables to ThreadLocal for thread isolation
+	public static ThreadLocal<String> GradesOption = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> GradesOption1 = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> GradesOption2 = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> DepartmentsOption = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> DepartmentsOption1 = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> DepartmentsOption2 = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> FunctionsOption = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> FunctionsOption1 = ThreadLocal.withInitial(() -> "");
+	public static ThreadLocal<String> FunctionsOption2 = ThreadLocal.withInitial(() -> "");
 
 	private static final By GRADES_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Grades']");
 	private static final By GRADES_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']");
@@ -96,7 +97,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 			}
 
 			Assert.assertTrue(targetCheckbox.isSelected(), "Grade checkbox not selected: " + gradeValue);
-			GradesOption = gradeValue;
+			GradesOption.set(gradeValue);
 			PageObjectHelper.log(LOGGER, "Selected Grades Value: '" + gradeValue + "' from Grades Filters dropdown");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_one_option_in_grades_filters_dropdown", "Issue selecting option from Grades dropdown", e);
@@ -116,18 +117,18 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 				case "grades":
 					click_on_grades_filters_dropdown_button();
 					select_filter_option_by_value(filterValue, "Grades");
-					GradesOption = filterValue;
+					GradesOption.set(filterValue);
 					break;
 				case "departments":
 					click_on_departments_filters_dropdown_button();
 					select_filter_option_by_value(filterValue, "Departments");
-					DepartmentsOption = filterValue;
+					DepartmentsOption.set(filterValue);
 					break;
 				case "functions":
 				case "functions_subfunctions":
 					click_on_functions_subfunctions_filters_dropdown_button();
 					select_filter_option_by_value(filterValue, "Functions_SubFunctions");
-					FunctionsOption = filterValue;
+					FunctionsOption.set(filterValue);
 					break;
 				case "mappingstatus":
 				case "mapping status":
@@ -262,9 +263,11 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_grades_options() throws Exception {
 		try {
 			List<WebElement> allGrades = driver.findElements(ALL_GRADES_COLUMN);
-			for (WebElement grade : allGrades) {
+			for (int i = 0; i < allGrades.size(); i++) {
+				// PARALLEL EXECUTION FIX: Re-fetch element on each iteration to avoid stale element
+				WebElement grade = driver.findElements(ALL_GRADES_COLUMN).get(i);
 				String text = grade.getText();
-				if (text.contentEquals(GradesOption) || text.contentEquals(GradesOption1) || text.contentEquals(GradesOption2)) {
+				if (text.contentEquals(GradesOption.get()) || text.contentEquals(GradesOption1.get()) || text.contentEquals(GradesOption2.get())) {
 					PageObjectHelper.log(LOGGER, "Organization Job with Grade: " + text + " correctly filtered");
 				} else {
 					throw new Exception("Job Profile with incorrect Grade Value: " + text);
@@ -312,8 +315,8 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 				}
 
 				Assert.assertTrue(checkbox.isSelected(), "Grade checkbox not selected: " + gradeValue);
-				if (i == 0) GradesOption1 = gradeValue;
-				else GradesOption2 = gradeValue;
+				if (i == 0) GradesOption1.set(gradeValue);
+				else GradesOption2.set(gradeValue);
 				PageObjectHelper.log(LOGGER, "Selected Grades Value: " + gradeValue);
 			}
 		} catch (Exception e) {
@@ -373,7 +376,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 			}
 
 			Assert.assertTrue(targetCheckbox.isSelected(), "Department checkbox not selected: " + departmentValue);
-			DepartmentsOption = departmentValue;
+			DepartmentsOption.set(departmentValue);
 			PageObjectHelper.log(LOGGER, "Selected Departments Value: " + departmentValue);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_one_option_in_departments_filters_dropdown", "Issue selecting department", e);
@@ -383,12 +386,29 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_departments_options() throws Exception {
 		try {
-			List<WebElement> allDepartments = driver.findElements(ALL_DEPARTMENTS_COLUMN);
-			for (WebElement department : allDepartments) {
+			// PARALLEL EXECUTION FIX: Re-fetch elements on each iteration to avoid stale elements
+			PerformanceUtils.waitForPageReady(driver, 2);
+			int deptCount = driver.findElements(ALL_DEPARTMENTS_COLUMN).size();
+			
+			for (int i = 0; i < deptCount; i++) {
+				// Re-fetch element on each iteration to avoid stale element reference
+				WebElement department = driver.findElements(ALL_DEPARTMENTS_COLUMN).get(i);
 				String text = department.getText();
-				if (text.contentEquals(DepartmentsOption) || text.contentEquals(DepartmentsOption1) || text.contentEquals(DepartmentsOption2)) {
+				if (text.contentEquals(DepartmentsOption.get()) || text.contentEquals(DepartmentsOption1.get()) || text.contentEquals(DepartmentsOption2.get())) {
 					PageObjectHelper.log(LOGGER, "Organization Job with Department: " + text + " correctly filtered");
 				} else {
+					throw new Exception("Job Profile with incorrect Department Value: " + text);
+				}
+			}
+		} catch (org.openqa.selenium.StaleElementReferenceException e) {
+			// PARALLEL EXECUTION FIX: Retry on stale element
+			LOGGER.warn("Stale element detected, retrying validation...");
+			PerformanceUtils.waitForPageReady(driver, 2);
+			int deptCount = driver.findElements(ALL_DEPARTMENTS_COLUMN).size();
+			for (int i = 0; i < deptCount; i++) {
+				WebElement department = driver.findElements(ALL_DEPARTMENTS_COLUMN).get(i);
+				String text = department.getText();
+				if (!text.contentEquals(DepartmentsOption.get()) && !text.contentEquals(DepartmentsOption1.get()) && !text.contentEquals(DepartmentsOption2.get())) {
 					throw new Exception("Job Profile with incorrect Department Value: " + text);
 				}
 			}
@@ -422,8 +442,8 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 				}
 
 				Assert.assertTrue(checkbox.isSelected(), "Department checkbox not selected: " + deptValue);
-				if (i == 0) DepartmentsOption1 = deptValue;
-				else DepartmentsOption2 = deptValue;
+				if (i == 0) DepartmentsOption1.set(deptValue);
+				else DepartmentsOption2.set(deptValue);
 				PageObjectHelper.log(LOGGER, "Selected Departments Value: " + deptValue);
 			}
 		} catch (Exception e) {
@@ -507,7 +527,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 						Thread.sleep(300);
 					}
 
-					FunctionsOption = functionText;
+					FunctionsOption.set(functionText);
 					selectedFunctionWithSubfunctions = true;
 					break;
 				} catch (Exception e) {
@@ -525,23 +545,23 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
-			WebElement selectedFunctionToggle = driver.findElement(By.xpath("//label[normalize-space(text())='" + FunctionsOption + "']/following-sibling::button[contains(@data-testid,'toggle-suboptions')]"));
+			WebElement selectedFunctionToggle = driver.findElement(By.xpath("//label[normalize-space(text())='" + FunctionsOption.get() + "']/following-sibling::button[contains(@data-testid,'toggle-suboptions')]"));
 			jsClick(selectedFunctionToggle);
 			Thread.sleep(800);
 			waitForSpinners();
 
-			String subfunctionXPath = "//input[@type='checkbox'][contains(@id, '" + FunctionsOption + "') and contains(@id, '::')]";
+			String subfunctionXPath = "//input[@type='checkbox'][contains(@id, '" + FunctionsOption.get() + "') and contains(@id, '::')]";
 			List<WebElement> subfunctions = driver.findElements(By.xpath(subfunctionXPath));
 
 			if (subfunctions.isEmpty()) {
-				throw new Exception("Function '" + FunctionsOption + "' was expected to have subfunctions but none found");
+				throw new Exception("Function '" + FunctionsOption.get() + "' was expected to have subfunctions but none found");
 			}
 
 			for (WebElement subfunctionCheckbox : subfunctions) {
 				Assert.assertTrue(subfunctionCheckbox.isSelected(), "Subfunction should be auto-selected when parent function is selected");
 			}
 
-			LOGGER.info("Verified all {} subfunctions are auto-selected for function '{}'", subfunctions.size(), FunctionsOption);
+			LOGGER.info("Verified all {} subfunctions are auto-selected for function '{}'", subfunctions.size(), FunctionsOption.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_a_function_verify_subfunctions", "Issue verifying subfunctions auto-selection", e);
 			throw e;
@@ -550,14 +570,35 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options() throws Exception {
 		try {
-			List<WebElement> allFunctions = driver.findElements(ALL_FUNCTIONS_COLUMN);
-			for (WebElement functionElement : allFunctions) {
+			// PARALLEL EXECUTION FIX: Wait for page stability before getting elements
+			PerformanceUtils.waitForPageReady(driver, 2);
+			
+			// PARALLEL EXECUTION FIX: Get count first, then re-fetch elements on each iteration to avoid stale elements
+			int functionCount = driver.findElements(ALL_FUNCTIONS_COLUMN).size();
+			
+			for (int i = 0; i < functionCount; i++) {
+				// Re-fetch element on each iteration to avoid stale element reference
+				WebElement functionElement = driver.findElements(ALL_FUNCTIONS_COLUMN).get(i);
 				String fullText = functionElement.getText();
 				String function = fullText.contains("|") ? fullText.split("\\s*\\|\\s*", 2)[0].trim() : fullText.trim();
 
-				if (function.contentEquals(FunctionsOption) || function.contentEquals(FunctionsOption1) || function.contentEquals(FunctionsOption2)) {
+				if (function.contentEquals(FunctionsOption.get()) || function.contentEquals(FunctionsOption1.get()) || function.contentEquals(FunctionsOption2.get())) {
 					PageObjectHelper.log(LOGGER, "Organization Job with Function: " + function + " correctly filtered");
 				} else {
+					throw new Exception("Job Profile with incorrect Function Value: " + function);
+				}
+			}
+		} catch (org.openqa.selenium.StaleElementReferenceException e) {
+			// PARALLEL EXECUTION FIX: Retry on stale element
+			LOGGER.warn("Stale element detected, retrying validation...");
+			PerformanceUtils.waitForPageReady(driver, 2);
+			// Retry once
+			int functionCount = driver.findElements(ALL_FUNCTIONS_COLUMN).size();
+			for (int i = 0; i < functionCount; i++) {
+				WebElement functionElement = driver.findElements(ALL_FUNCTIONS_COLUMN).get(i);
+				String fullText = functionElement.getText();
+				String function = fullText.contains("|") ? fullText.split("\\s*\\|\\s*", 2)[0].trim() : fullText.trim();
+				if (!function.contentEquals(FunctionsOption.get()) && !function.contentEquals(FunctionsOption1.get()) && !function.contentEquals(FunctionsOption2.get())) {
 					throw new Exception("Job Profile with incorrect Function Value: " + function);
 				}
 			}
@@ -583,21 +624,21 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			if (FunctionsOption == null || FunctionsOption.isEmpty()) {
+			if (FunctionsOption.get() == null || FunctionsOption.get().isEmpty()) {
 				List<WebElement> toggleBtns = driver.findElements(TOGGLE_SUBOPTIONS);
 				List<WebElement> funcLabels = driver.findElements(FUNCTIONS_VALUES);
 
 				if (!toggleBtns.isEmpty() && !funcLabels.isEmpty()) {
-					FunctionsOption = funcLabels.get(0).getText().trim();
+					FunctionsOption.set(funcLabels.get(0).getText().trim());
 				}
 			}
 
 			WebElement searchBox = waitForElement(FUNCTIONS_SEARCH);
 			clickElement(searchBox);
 			searchBox.clear();
-			searchBox.sendKeys(FunctionsOption);
+			searchBox.sendKeys(FunctionsOption.get());
 			PerformanceUtils.waitForPageReady(driver, 2);
-			PageObjectHelper.log(LOGGER, "Entered function name: " + FunctionsOption);
+			PageObjectHelper.log(LOGGER, "Entered function name: " + FunctionsOption.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_inside_search_bar_and_enter_function_name", "Issue entering function name", e);
 			throw e;
@@ -613,7 +654,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 			scrollToElement(toggleBtn);
 			Thread.sleep(500);
 			clickElement(toggleBtn);
-			PageObjectHelper.log(LOGGER, "Clicked on dropdown button of Searched Function: " + FunctionsOption);
+			PageObjectHelper.log(LOGGER, "Clicked on dropdown button of Searched Function: " + FunctionsOption.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_click_on_dropdown_button_of_searched_function_name", "Issue clicking dropdown button", e);
 			throw e;
@@ -645,7 +686,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 
 				PerformanceUtils.waitForPageReady(driver, 2);
 				Assert.assertTrue(checkbox.isSelected(), "Subfunction not selected: " + subfunctionText);
-				PageObjectHelper.log(LOGGER, "Selected SubFunction '" + subfunctionText + "' from Function '" + FunctionsOption + "'");
+				PageObjectHelper.log(LOGGER, "Selected SubFunction '" + subfunctionText + "' from Function '" + FunctionsOption.get() + "'");
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_one_subfunction_option_inside_function_name_dropdown", "Issue selecting subfunction", e);
@@ -675,7 +716,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 
 					List<WebElement> subfuncs = driver.findElements(SUBFUNCTIONS_VALUES);
 					if (subfuncs.size() > 1) {
-						FunctionsOption = functionName;
+						FunctionsOption.set(functionName);
 						PageObjectHelper.log(LOGGER, "Found function with subfunctions: " + functionName);
 						return true;
 					}
@@ -693,7 +734,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 	}
 
 	public void user_should_verify_function_name_is_automatically_selected_after_selecting_subfunction_option() throws Exception {
-		String xpath = "//div[@data-testid='dropdown-Functions_SubFunctions']//input[@type='checkbox'][contains(@id,'" + FunctionsOption + "')][not(ancestor::button[contains(@data-testid,'suboption')])]";
+		String xpath = "//div[@data-testid='dropdown-Functions_SubFunctions']//input[@type='checkbox'][contains(@id,'" + FunctionsOption.get() + "')][not(ancestor::button[contains(@data-testid,'suboption')])]";
 
 		try {
 			WebElement functionCheckbox = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpath)));
@@ -702,9 +743,9 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 			boolean isSelected = wait.until(driver -> functionCheckbox.isSelected());
 
 			if (isSelected) {
-				PageObjectHelper.log(LOGGER, FunctionsOption + " Function checkbox is automatically selected as expected");
+				PageObjectHelper.log(LOGGER, FunctionsOption.get() + " Function checkbox is automatically selected as expected");
 			} else {
-				Assert.fail("Function checkbox '" + FunctionsOption + "' was NOT automatically selected");
+				Assert.fail("Function checkbox '" + FunctionsOption.get() + "' was NOT automatically selected");
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_function_name_is_automatically_selected_after_selecting_subfunction_option", "Issue verifying auto-selection", e);
@@ -739,32 +780,72 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_grades_departments_and_functions_subfunctions_options() throws Exception {
 		try {
-			List<WebElement> allGrades = driver.findElements(By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[3]//div"));
-			List<WebElement> allDepartments = driver.findElements(By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[4]//div"));
-			List<WebElement> allFunctions = driver.findElements(By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[@colspan='7']//span[2]"));
-
-			for (WebElement grade : allGrades) {
+			// PARALLEL EXECUTION FIX: Wait for page stability and re-fetch elements on each iteration
+			PerformanceUtils.waitForPageReady(driver, 2);
+			
+			By gradesXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[3]//div");
+			By deptXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[4]//div");
+			By funcXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[@colspan='7']//span[2]");
+			
+			// Get count first, then re-fetch on each iteration to avoid stale elements
+			int gradeCount = driver.findElements(gradesXpath).size();
+			for (int i = 0; i < gradeCount; i++) {
+				WebElement grade = driver.findElements(gradesXpath).get(i);
 				String gradeText = grade.getText();
-				if (!gradeText.contentEquals(GradesOption)) {
+				if (!gradeText.contentEquals(GradesOption.get())) {
 					throw new Exception("Job Profile with incorrect Grade: " + gradeText);
 				}
 			}
 
-			for (WebElement dept : allDepartments) {
+			int deptCount = driver.findElements(deptXpath).size();
+			for (int i = 0; i < deptCount; i++) {
+				WebElement dept = driver.findElements(deptXpath).get(i);
 				String deptText = dept.getText();
-				if (!deptText.contentEquals(DepartmentsOption)) {
+				if (!deptText.contentEquals(DepartmentsOption.get())) {
 					throw new Exception("Job Profile with incorrect Department: " + deptText);
 				}
 			}
 
-			for (WebElement func : allFunctions) {
+			int funcCount = driver.findElements(funcXpath).size();
+			for (int i = 0; i < funcCount; i++) {
+				WebElement func = driver.findElements(funcXpath).get(i);
 				String funcText = func.getText().contains("|") ? func.getText().split("\\s*\\|\\s*", 2)[0].trim() : func.getText().trim();
-				if (!funcText.contentEquals(FunctionsOption)) {
+				if (!funcText.contentEquals(FunctionsOption.get())) {
 					throw new Exception("Job Profile with incorrect Function: " + funcText);
 				}
 			}
 
 			PageObjectHelper.log(LOGGER, "All profiles correctly filtered with combined filters");
+		} catch (org.openqa.selenium.StaleElementReferenceException e) {
+			// PARALLEL EXECUTION FIX: Retry on stale element
+			LOGGER.warn("Stale element detected in combined filters validation, retrying...");
+			PerformanceUtils.waitForPageReady(driver, 2);
+			By gradesXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[3]//div");
+			By deptXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[4]//div");
+			By funcXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[@colspan='7']//span[2]");
+			
+			int gradeCount = driver.findElements(gradesXpath).size();
+			for (int i = 0; i < gradeCount; i++) {
+				WebElement grade = driver.findElements(gradesXpath).get(i);
+				if (!grade.getText().contentEquals(GradesOption.get())) {
+					throw new Exception("Job Profile with incorrect Grade: " + grade.getText());
+				}
+			}
+			int deptCount = driver.findElements(deptXpath).size();
+			for (int i = 0; i < deptCount; i++) {
+				WebElement dept = driver.findElements(deptXpath).get(i);
+				if (!dept.getText().contentEquals(DepartmentsOption.get())) {
+					throw new Exception("Job Profile with incorrect Department: " + dept.getText());
+				}
+			}
+			int funcCount = driver.findElements(funcXpath).size();
+			for (int i = 0; i < funcCount; i++) {
+				WebElement func = driver.findElements(funcXpath).get(i);
+				String funcText = func.getText().contains("|") ? func.getText().split("\\s*\\|\\s*", 2)[0].trim() : func.getText().trim();
+				if (!funcText.contentEquals(FunctionsOption.get())) {
+					throw new Exception("Job Profile with incorrect Function: " + funcText);
+				}
+			}
 		} catch (Exception e) {
 			try {
 				if (driver.findElement(NO_DATA_CONTAINER).isDisplayed()) {
@@ -808,7 +889,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 						PerformanceUtils.waitForPageReady(driver, 1);
 
 						Assert.assertTrue(checkboxes.get(i).isSelected());
-						DepartmentsOption = actualStatusText;
+						DepartmentsOption.set(actualStatusText);
 						PageObjectHelper.log(LOGGER, "Selected Mapping Status: " + actualStatusText);
 						optionSelected = true;
 						break;

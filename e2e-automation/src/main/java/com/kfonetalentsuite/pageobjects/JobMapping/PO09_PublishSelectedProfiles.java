@@ -44,11 +44,15 @@ public class PO09_PublishSelectedProfiles extends BasePageObject {
 
 	public void user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen() {
 		try {
+			// PARALLEL EXECUTION FIX: Verify expected job name matches (search should filter correctly)
+			String expectedJobName = PO04_VerifyJobMappingPageComponents.orgJobNameInRow1.get();
 			PerformanceUtils.waitForPageReady(driver, 2);
 			String job1NameText = getElementText(JOB_NAME_ROW_1);
-			Assert.assertEquals(PO04_VerifyJobMappingPageComponents.orgJobNameInRow1.get(), job1NameText.split("-", 2)[0].trim());
+			String actualJobName = job1NameText.split("-", 2)[0].trim();
+			Assert.assertEquals(expectedJobName, actualJobName, 
+				String.format("Expected job '%s' but found '%s'", expectedJobName, actualJobName));
 			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
-			PageObjectHelper.log(LOGGER, "Published Job (Org: " + job1NameText.split("-", 2)[0].trim() + ") is displayed in Row1");
+			PageObjectHelper.log(LOGGER, "Published Job (Org: " + actualJobName + ") is displayed in Row1");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen", "Issue verifying published first job profile in Row1", e);
 		}
@@ -71,11 +75,15 @@ public class PO09_PublishSelectedProfiles extends BasePageObject {
 
 	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen() {
 		try {
+			// PARALLEL EXECUTION FIX: Verify expected job name matches (search should filter correctly)
+			String expectedJobName = PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get();
 			PerformanceUtils.waitForPageReady(driver, 2);
 			String job1NameText = getElementText(JOB_NAME_ROW_1);
-			Assert.assertEquals(PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get(), job1NameText.split("-", 2)[0].trim());
+			String actualJobName = job1NameText.split("-", 2)[0].trim();
+			Assert.assertEquals(expectedJobName, actualJobName, 
+				String.format("Expected job '%s' but found '%s'", expectedJobName, actualJobName));
 			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
-			PageObjectHelper.log(LOGGER, "Published Job (Org: " + job1NameText.split("-", 2)[0].trim() + ") is displayed in Row1");
+			PageObjectHelper.log(LOGGER, "Published Job (Org: " + actualJobName + ") is displayed in Row1");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen", "Issue verifying published second job profile in Row1", e);
 		}
@@ -121,11 +129,15 @@ public class PO09_PublishSelectedProfiles extends BasePageObject {
 
 	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm() {
 		try {
+			// PARALLEL EXECUTION FIX: Verify expected job name matches (search should filter correctly)
+			String expectedJobName = PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get();
 			PerformanceUtils.waitForPageReady(driver, 2);
 			waitForSpinners();
 			String job2NameText = getElementText(HCM_JOB_ROW_1);
-			Assert.assertEquals(PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get(), job2NameText.split("-", 2)[0].trim());
-			PageObjectHelper.log(LOGGER, "Published Second Job (Org: " + job2NameText.split("-", 2)[0].trim() + ") is displayed in HCM Sync Profiles Row1");
+			String actualJobName = job2NameText.split("-", 2)[0].trim();
+			Assert.assertEquals(expectedJobName, actualJobName, 
+				String.format("Expected job '%s' but found '%s'", expectedJobName, actualJobName));
+			PageObjectHelper.log(LOGGER, "Published Second Job (Org: " + actualJobName + ") is displayed in HCM Sync Profiles Row1");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm", "Issue verifying published second job profile in HCM Sync Profiles", e);
 		}

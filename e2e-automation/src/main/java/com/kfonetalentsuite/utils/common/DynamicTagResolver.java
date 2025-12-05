@@ -1,9 +1,8 @@
 package com.kfonetalentsuite.utils.common;
 
-import java.util.Map;
-
 /**
  * Dynamically resolves login tags based on Excel Execute=YES row.
+ * Supports CI/CD overrides via system properties.
  */
 public class DynamicTagResolver {
 
@@ -37,21 +36,26 @@ public class DynamicTagResolver {
 	}
 
 	/**
-	 * Get login type from Excel (cached)
+	 * Get login type from Excel (cached) with CI/CD override support
 	 */
 	public static String getLoginTypeFromExcel() {
 		if (cachedLoginType != null) {
 			return cachedLoginType;
 		}
 
+		// CI/CD override - Check system property first (highest priority)
+		String loginTypeOverride = System.getProperty("login.type");
+		if (loginTypeOverride != null && !loginTypeOverride.isEmpty()) {
+			cachedLoginType = loginTypeOverride.trim().toUpperCase();
+			return cachedLoginType;
+		}
+
 		try {
-			Map<String, String> login = ExcelConfigProvider.getDefaultLogin();
-			if (login != null) {
-				String userType = login.get("UserType");
-				if (userType != null && !userType.isEmpty()) {
-					cachedLoginType = userType.toUpperCase().trim();
-					return cachedLoginType;
-				}
+			// Get from Excel
+			String loginType = ExcelConfigProvider.getActiveLoginType();
+			if (loginType != null && !loginType.isEmpty()) {
+				cachedLoginType = loginType;
+				return cachedLoginType;
 			}
 		} catch (Exception e) {
 			// Ignore

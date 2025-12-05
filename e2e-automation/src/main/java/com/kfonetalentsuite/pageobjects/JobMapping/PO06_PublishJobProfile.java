@@ -167,10 +167,14 @@ public class PO06_PublishJobProfile extends BasePageObject {
 
 	public void user_should_verify_published_job_is_displayed_in_view_published_screen() {
 		try {
+			// PARALLEL EXECUTION FIX: Verify expected job name matches (search should filter correctly)
+			String expectedJobName = PO15_ValidateRecommendedProfileDetails.orgJobName.get();
 			PerformanceUtils.waitForPageReady(driver, 3);
 			String job1NameText = getElementText(JOB_NAME_ROW_1);
-			job1OrgName.set(job1NameText.split("-", 2)[0].trim());
-			Assert.assertEquals(PO15_ValidateRecommendedProfileDetails.orgJobName.get(), job1NameText.split("-", 2)[0].trim());
+			String actualJobName = job1NameText.split("-", 2)[0].trim();
+			job1OrgName.set(actualJobName);
+			Assert.assertEquals(expectedJobName, actualJobName, 
+				String.format("Expected job '%s' but found '%s'", expectedJobName, actualJobName));
 			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
 			PageObjectHelper.log(LOGGER, "Published Job (Org: " + job1OrgName.get() + ") is displayed in view published screen");
 		} catch (Exception e) {
@@ -210,7 +214,6 @@ public class PO06_PublishJobProfile extends BasePageObject {
 			String expectedJobName = getJobNameToSearch();
 			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
-
 			String job1NameText = "";
 			try {
 				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -224,7 +227,6 @@ public class PO06_PublishJobProfile extends BasePageObject {
 				} catch (Exception countEx) {
 					// Continue
 				}
-
 				try {
 					if (driver.findElement(NO_PROFILES_MSG).isDisplayed()) {
 						Assert.fail("No profiles message displayed - Job '" + expectedJobName + "' not found");
@@ -232,12 +234,13 @@ public class PO06_PublishJobProfile extends BasePageObject {
 				} catch (Exception noMsgEx) {
 					// Continue
 				}
-
 				Assert.fail("Published job '" + expectedJobName + "' not found in HCM Sync Profiles");
 			}
-
-			Assert.assertEquals(expectedJobName, job1NameText.split("-", 2)[0].trim());
-			PageObjectHelper.log(LOGGER, "Published Job (Org: " + job1NameText.split("-", 2)[0].trim() + ") is displayed in HCM Sync Profiles");
+			String actualJobName = job1NameText.split("-", 2)[0].trim();
+			// PARALLEL EXECUTION FIX: Verify expected job name matches (search should filter correctly)
+			Assert.assertEquals(expectedJobName, actualJobName, 
+				String.format("Expected job '%s' but found '%s'", expectedJobName, actualJobName));
+			PageObjectHelper.log(LOGGER, "Published Job (Org: " + actualJobName + ") is displayed in HCM Sync Profiles");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", "Issue verifying published job in HCM Sync Profiles", e);
 		}
@@ -367,9 +370,13 @@ public class PO06_PublishJobProfile extends BasePageObject {
 	public void user_should_verify_published_job_is_displayed_in_jobs_page_in_architect() {
 		try {
 			String expectedJobName = getJobNameToSearch();
+			PerformanceUtils.waitForPageReady(driver, 3);
 			String job1NameText = getElementText(ARCHITECT_JOB_ROW_1);
-			Assert.assertEquals(expectedJobName, job1NameText.split("-", 2)[0].trim());
-			PageObjectHelper.log(LOGGER, "Published Job (Org: " + expectedJobName + ") is displayed in Jobs page in Architect");
+			String actualJobName = job1NameText.split("-", 2)[0].trim();
+			// PARALLEL EXECUTION FIX: Verify expected job name matches (search should filter correctly)
+			Assert.assertEquals(expectedJobName, actualJobName,
+				String.format("Expected job '%s' but found '%s'", expectedJobName, actualJobName));
+			PageObjectHelper.log(LOGGER, "Published Job (Org: " + actualJobName + ") is displayed in Jobs page in Architect");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_jobs_page_in_architect", "Issue verifying published job in Architect", e);
 		}

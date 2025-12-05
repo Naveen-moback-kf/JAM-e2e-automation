@@ -109,8 +109,39 @@ public class ExcelConfigProvider {
      * Get PAMS_ID from cached login
      */
     public static String getActivePamsId() {
+        // CI/CD override - Check system property first
+        String pamsIdOverride = System.getProperty("target.pams.id");
+        if (pamsIdOverride != null && !pamsIdOverride.isEmpty()) {
+            LOGGER.info("Using PAMS_ID from CI/CD override: {}", pamsIdOverride);
+            return pamsIdOverride.trim();
+        }
+        
+        // Get from Excel
         Map<String, String> login = getDefaultLogin();
         return (login != null) ? login.get("PAMS_ID") : null;
+    }
+    
+    /**
+     * Get Login Type (UserType) with CI/CD override support
+     */
+    public static String getActiveLoginType() {
+        // CI/CD override - Check system property first
+        String loginTypeOverride = System.getProperty("login.type");
+        if (loginTypeOverride != null && !loginTypeOverride.isEmpty()) {
+            LOGGER.info("Using Login Type from CI/CD override: {}", loginTypeOverride);
+            return loginTypeOverride.trim().toUpperCase();
+        }
+        
+        // Get from Excel
+        Map<String, String> login = getDefaultLogin();
+        if (login != null) {
+            String userType = login.get("UserType");
+            if (userType != null && !userType.isEmpty()) {
+                return userType.trim().toUpperCase();
+            }
+        }
+        
+        return null;
     }
 
     /**
