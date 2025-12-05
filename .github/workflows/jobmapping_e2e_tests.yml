@@ -252,7 +252,8 @@ jobs:
       
       - name: 📁 Create Report Directories
         run: |
-          mkdir -p e2e-automation/test-output/ExtentReports
+          mkdir -p e2e-automation/AllureReports/allure-results
+          mkdir -p e2e-automation/AllureReports/allure-report
           mkdir -p e2e-automation/test-output/screenshots
           mkdir -p e2e-automation/ExcelReports
           mkdir -p e2e-automation/logs
@@ -502,7 +503,7 @@ jobs:
           
           # Quick artifact check
           [ -f "test-output/testng-results.xml" ] && echo "✅ TestNG results generated" || echo "⚠️  TestNG results missing"
-          [ -d "test-output/ExtentReports" ] && echo "✅ Extent report generated" || echo "⚠️  Extent report missing"
+          [ -d "AllureReports/allure-report" ] && echo "✅ Allure report generated" || echo "⚠️  Allure report missing"
           [ -d "ExcelReports" ] && echo "✅ Excel report generated" || echo "⚠️  Excel report missing"
           
           # ═══════════════════════════════════════════════════════════════
@@ -539,6 +540,23 @@ jobs:
           fi
           
           [ $VALIDATION_FAILED -eq 1 ] && exit 1 || exit 0
+      
+      - name: 📊 Generate Allure Report
+        if: always()
+        working-directory: e2e-automation
+        run: |
+          echo "📊 Generating Allure report..."
+          if [ -d "AllureReports/allure-results" ] && [ "$(ls -A AllureReports/allure-results 2>/dev/null)" ]; then
+            echo "✅ Allure results found - Generating report..."
+            mvn allure:report -B || echo "⚠️  Allure report generation failed (non-critical)"
+            if [ -d "AllureReports/allure-report" ]; then
+              echo "✅ Allure report generated successfully"
+            else
+              echo "⚠️  Allure report directory not found after generation"
+            fi
+          else
+            echo "ℹ️  No Allure results found - Skipping report generation"
+          fi
       
       - name: 🔄 Restore Original Test Suite XML
         if: always() && (github.event.inputs.execution_mode == 'test_suite' || github.event_name == 'schedule')
@@ -676,7 +694,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "After the workflow completes, the following artifacts will be available for download:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- 📊 **Extent Report** - Detailed HTML test report with screenshots" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 **Allure Report** - Interactive HTML test report with screenshots and environment info" >> $GITHUB_STEP_SUMMARY
           echo "- 📈 **Excel Reports** - Comprehensive test results in Excel format" >> $GITHUB_STEP_SUMMARY
           echo "- 🧪 **TestNG Results** - Raw TestNG XML and HTML reports" >> $GITHUB_STEP_SUMMARY
           echo "- 📝 **Logs** - Detailed execution logs for debugging" >> $GITHUB_STEP_SUMMARY
@@ -684,12 +702,12 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> 💡 **Tip:** Click on the 'Summary' tab above to download artifacts quickly!" >> $GITHUB_STEP_SUMMARY
       
-      - name: 📤 Upload Extent Report
+      - name: 📤 Upload Allure Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: extent-report_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
-          path: e2e-automation/test-output/ExtentReports/
+          name: allure-report_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
+          path: e2e-automation/AllureReports/
           retention-days: 30
           if-no-files-found: ignore
       

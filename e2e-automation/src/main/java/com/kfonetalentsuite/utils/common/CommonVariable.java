@@ -52,6 +52,7 @@ public class CommonVariable {
 	public static String NON_SSO_PASSWORD;
 	public static String HEADLESS_MODE;
 	public static String EXCEL_REPORTING_ENABLED;
+	public static String ALLURE_REPORTING_ENABLED;
 	public static String LOGIN_TYPE;
 	public static String KEEP_SYSTEM_AWAKE;
 	public static String TARGET_PAMS_ID;
@@ -69,6 +70,7 @@ public class CommonVariable {
 			BROWSER = "chrome"; // Default browser
 			HEADLESS_MODE = "true"; // Default to headless mode
 			EXCEL_REPORTING_ENABLED = "true"; // Default to Excel reporting enabled
+			ALLURE_REPORTING_ENABLED = "true"; // Default to Allure reporting enabled
 			System.err.println("Failed to load properties, using defaults: " + e.getMessage());
 			e.printStackTrace();
 		}

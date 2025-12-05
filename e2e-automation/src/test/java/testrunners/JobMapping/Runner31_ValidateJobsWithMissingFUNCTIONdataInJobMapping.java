@@ -6,6 +6,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.Listeners;
 
 import com.kfonetalentsuite.listeners.ExcelReportListener;
+import io.qameta.allure.testng.AllureTestNg;
 import com.kfonetalentsuite.utils.common.DynamicTagResolver;
 import com.kfonetalentsuite.webdriverManager.CustomizeTestNGCucumberRunner;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
@@ -13,7 +14,8 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 import io.cucumber.testng.CucumberOptions;
 
 @Listeners({
-	ExcelReportListener.class
+	ExcelReportListener.class,
+	AllureTestNg.class
 })
 
 @CucumberOptions(
@@ -24,7 +26,11 @@ import io.cucumber.testng.CucumberOptions;
 		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Jobs_With_Missing_FUNCTION_Data_In_JobMapping",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
-		plugin = {"html:target/cucumber-reports/cucumber.html", "json:target/cucumber-reports/cucumber.json"}
+		plugin = {
+			"html:target/cucumber-reports/cucumber.html", 
+			"json:target/cucumber-reports/cucumber.json",
+			"io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
+		}
 		)
 
 public class Runner31_ValidateJobsWithMissingFUNCTIONdataInJobMapping extends CustomizeTestNGCucumberRunner {

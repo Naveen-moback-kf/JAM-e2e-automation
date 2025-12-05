@@ -17,6 +17,7 @@
 		<selenium.version>4.25.0</selenium.version>
 		<log4j.version>2.25.1</log4j.version>
 		<poi.version>5.3.0</poi.version>
+		<allure.version>2.27.0</allure.version>
 		
 		<!-- Default test suite - can be overridden via -DsuiteXmlFile=<suite>.xml -->
 		<suiteXmlFile>JAM_SanityTestSuite.xml</suiteXmlFile>
@@ -107,7 +108,34 @@
 			<artifactId>zap-clientapi</artifactId>
 			<version>1.13.0</version>
 		</dependency>
+
+		<!-- ADDED: Allure Reporting Dependencies -->
+		<!-- Allure TestNG Adapter for TestNG integration -->
+		<dependency>
+			<groupId>io.qameta.allure</groupId>
+			<artifactId>allure-testng</artifactId>
+			<version>${allure.version}</version>
+		</dependency>
+
+		<!-- Allure Cucumber JVM Adapter for Cucumber 7.x integration -->
+		<dependency>
+			<groupId>io.qameta.allure</groupId>
+			<artifactId>allure-cucumber7-jvm</artifactId>
+			<version>${allure.version}</version>
+		</dependency>
 	</dependencies>
+
+	<!-- ADDED: Dependency Management for Version Conflict Resolution -->
+	<dependencyManagement>
+		<dependencies>
+			<!-- Force compatible version of cucumber-messages to resolve Allure-Cucumber conflict -->
+			<dependency>
+				<groupId>io.cucumber</groupId>
+				<artifactId>messages</artifactId>
+				<version>24.1.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<!-- ADDED: Maven Plugins for Better Build Management -->
 	<build>
@@ -169,6 +197,45 @@
 						<goals>
 							<goal>check</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- ADDED: Allure Maven Plugin for Report Generation -->
+			<plugin>
+				<groupId>io.qameta.allure</groupId>
+				<artifactId>allure-maven</artifactId>
+				<version>2.13.0</version>
+				<configuration>
+					<reportVersion>${allure.version}</reportVersion>
+					<!-- Use dedicated AllureReports folder (similar to ExcelReports) -->
+					<!-- Results stored at project root (not in target/) -->
+					<resultsDirectory>${project.basedir}/AllureReports/allure-results</resultsDirectory>
+					<!-- Report generated at project root (not in target/) -->
+					<reportDirectory>${project.basedir}/AllureReports/allure-report</reportDirectory>
+				</configuration>
+				<executions>
+					<!-- Automatically generate report after tests complete -->
+					<execution>
+						<id>generate-allure-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<!-- 
+								cleanResultsDirectory: Disabled - Daily reset logic handles cleanup
+								Daily reset backs up and cleans on new day, allows accumulation during same day
+								(Similar to Excel reporting behavior)
+							-->
+							<cleanResultsDirectory>false</cleanResultsDirectory>
+							<!-- 
+								historyLimit: Limits Allure's internal history tracking (trends, comparisons)
+								This is separate from daily reset - controls Allure's built-in history feature
+								Note: Only valid for 'report' goal, not 'serve' goal
+							-->
+							<historyLimit>10</historyLimit>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>

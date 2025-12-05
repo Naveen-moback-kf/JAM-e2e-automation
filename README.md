@@ -204,7 +204,7 @@ kfonetalentsuite/
 
 ### 📸 Advanced Visual Documentation
 - **Automatic Screenshots**: Every failure captured with contextual information
-- **ExtentReports Integration**: Visual test reports with embedded evidence
+- **Allure Reporting Integration**: Visual test reports with embedded evidence and screenshots
 - **Structured Storage**: Date-organized screenshots for easy tracking
 - **Cleanup Management**: Configurable retention policies for storage optimization
 
@@ -213,7 +213,7 @@ kfonetalentsuite/
 - **Cross-Browser Metrics**: Compatibility scores, browser-specific results, and business impact assessment
 - **Smart Daily Reset**: Intelligent handling of same-day vs new-day executions
 - **Browser Status Tracking**: Individual Chrome/Firefox/Edge status columns in detailed reports
-- **ExtentReports**: Technical reports with timeline views and visual evidence
+- **Allure Reports**: Interactive HTML reports with timeline views, visual evidence, and environment information
 - **Multiple Output Formats**: HTML, Excel, JSON, and XML reporting options
 
 ### 🎯 Comprehensive Test Coverage
@@ -596,9 +596,9 @@ DailyExcelTracker.generateDailyReport();
 java -cp "target/classes:lib/*" com.kfonetalentsuite.utils.PDFReportGenerator
 ```
 
-### 📸 ExtentReports (Technical + Visual)
+### 📸 Allure Reports (Technical + Visual)
 
-**Location**: `Report/AI-AutoMap-Report/`
+**Location**: `AllureReports/allure-report/`
 
 **Features**:
 - **Visual Evidence**: Embedded failure screenshots with contextual information
@@ -606,6 +606,8 @@ java -cp "target/classes:lib/*" com.kfonetalentsuite.utils.PDFReportGenerator
 - **Dashboard Metrics**: Pass/fail ratios, execution trends, performance insights
 - **Step-by-Step Details**: Granular execution logs with BDD step mapping
 - **Exception Tracking**: Complete stack traces with screenshot correlation
+- **Environment Information**: Browser, OS, and execution environment details
+- **Interactive Reports**: Rich HTML reports with filtering and search capabilities
 
 ### 📋 TestNG Reports (Suite Analysis)
 
@@ -957,7 +959,7 @@ mvn test -Dscreenshot.enabled=true -Dscreenshot.debug=true
 ### 4. **Visual Documentation**
 - Capture screenshots for all failure scenarios automatically
 - Include contextual information in screenshot file names
-- Integrate visual evidence with ExtentReports for comprehensive documentation
+- Integrate visual evidence with Allure Reports for comprehensive documentation
 
 ### 5. **Environment Management**
 - Maintain environment-specific configurations
@@ -965,7 +967,7 @@ mvn test -Dscreenshot.enabled=true -Dscreenshot.debug=true
 - Implement proper session management for long-running tests
 
 ### 6. **Reporting Excellence**
-- Generate both technical (ExtentReports) and business (Excel) reports
+- Generate both technical (Allure Reports) and business (Excel) reports
 - Include visual evidence (screenshots) in all failure reports
 - Maintain historical tracking for trend analysis
 
@@ -995,7 +997,7 @@ mvn test -Dscreenshot.enabled=true -Dscreenshot.debug=true
 
 ### Technical Support Resources
 - **Execution Logs**: `logs/` directory for detailed execution information
-- **ExtentReports**: Visual test results with embedded screenshots and timelines
+- **Allure Reports**: Interactive HTML reports with embedded screenshots, timelines, and environment info
 - **TestNG Reports**: Suite-level analysis and failure categorization  
 - **Excel Reports**: Business-friendly insights in `ExcelReports/JobMappingAutomationTestResults.xlsx`
 

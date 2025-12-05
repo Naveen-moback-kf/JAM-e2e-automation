@@ -157,14 +157,12 @@ public class DailyExcelTracker {
 		if (!shouldStartFresh) {
 			// Normal operation: collect additional data from all sources
 			collectCucumberResults(summary);
-			collectExtentReportsData(summary);
 			LOGGER.info("Enhanced data collection from all sources (normal operation)");
 		} else {
 			// Fresh start: Skip old additional data sources, but collect current Cucumber
 			// data if it's fresh
 			LOGGER.debug("FRESH START - Collecting only current execution data sources...");
 			collectCurrentExecutionCucumberResults(summary);
-			LOGGER.debug("FRESH START - Skipped old ExtentReports data collection");
 		}
 
 		if (shouldStartFresh) {
@@ -262,24 +260,6 @@ public class DailyExcelTracker {
 				}
 			}
 
-			// Clean old ExtentReports HTML (only those older than 10 minutes)
-			File testOutput = new File("test-output");
-			if (testOutput.exists() && testOutput.isDirectory()) {
-				File[] htmlFiles = testOutput.listFiles((dir, name) -> {
-					File file = new File(dir, name);
-					return name.contains("ExtentReport") && name.endsWith(".html")
-							&& file.lastModified() < tenMinutesAgo;
-				});
-				if (htmlFiles != null && htmlFiles.length > 0) {
-					for (File htmlFile : htmlFiles) {
-						if (htmlFile.delete()) {
-							cleanedFiles++;
-						}
-					}
-					LOGGER.debug("Cleaned {} old ExtentReport HTML files (>10min old) from: {}", htmlFiles.length,
-							testOutput.getPath());
-				}
-			}
 
 			LOGGER.debug("SAFE CLEANUP COMPLETE - Cleaned {} old data files (preserved current execution data)",
 					cleanedFiles);
@@ -334,22 +314,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Collect data from ExtentReports HTML
-	 */
-	private static void collectExtentReportsData(TestResultsSummary summary) {
-		try {
-			File extentReports = new File("test-output");
-			File[] htmlFiles = extentReports.listFiles((dir, name) -> name.endsWith("ExtentReport.html"));
-
-			if (htmlFiles != null && htmlFiles.length > 0) {
-				// Process HTML reports silently - implementation can be enhanced based on needs
-			}
-
-		} catch (Exception e) {
-			// Silent error handling - optional data collection
-		}
-	}
 
 	/**
 	 * Parse actual TestNG XML results to get real test data ENHANCED: Skip empty

@@ -88,8 +88,7 @@ public class CrossBrowserDriverManager {
 			WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 			waitThreadLocal.set(wait);
 
-			// Log browser initialization (ExtentReports integration handled by Cucumber
-			// scenarios)
+			// Log browser initialization
 			LOGGER.info("Browser initialized: {} {} on {} for thread: {}", browserName.toUpperCase(), browserVersion,
 					platform, Thread.currentThread().getName());
 

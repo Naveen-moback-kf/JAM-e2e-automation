@@ -9,6 +9,8 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.kfonetalentsuite.pageobjects.JobMapping.*;
 import com.kfonetalentsuite.utils.common.CommonVariable;
 import com.kfonetalentsuite.utils.JobMapping.SessionManager;
+import com.kfonetalentsuite.utils.JobMapping.DailyAllureManager;
+import com.kfonetalentsuite.utils.JobMapping.AllureEnvironmentInfo;
 
 /**
  * Suite-level hooks for test execution lifecycle management
@@ -25,6 +27,14 @@ public class SuiteHooks implements ISuiteListener {
 		LOGGER.info("==================================================");
 		LOGGER.info("TEST SUITE STARTED: {}", suite.getName());
 		LOGGER.info("==================================================");
+
+		// Perform Allure daily reset check (similar to Excel reporting)
+		// This will backup old reports and reset if it's a new day
+		DailyAllureManager.checkAndPerformDailyReset();
+		
+		// Generate Allure environment information
+		// This creates environment.properties with browser, OS, and environment details
+		AllureEnvironmentInfo.generateEnvironmentInfo();
 	}
 
 	@Override

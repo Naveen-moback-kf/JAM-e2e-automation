@@ -5,6 +5,7 @@ import org.apache.logging.log4j.core.Logger;
 import org.testng.annotations.Listeners;
 
 import com.kfonetalentsuite.listeners.ExcelReportListener;
+import io.qameta.allure.testng.AllureTestNg;
 import com.kfonetalentsuite.utils.common.DynamicTagResolver;
 import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 
@@ -17,7 +18,8 @@ import io.cucumber.testng.CucumberOptions;
  * Result: Chrome + Firefox + Edge run automatically
  */
 @Listeners({
-    ExcelReportListener.class
+    ExcelReportListener.class,
+    AllureTestNg.class
 })
 @CucumberOptions(
     features = {
@@ -27,7 +29,11 @@ import io.cucumber.testng.CucumberOptions;
     tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Advanced_Sorting_Persistence",
     glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
     dryRun = false,
-    plugin = {"html:target/cucumber-reports/cucumber.html", "json:target/cucumber-reports/cucumber.json"}
+    plugin = {
+        "html:target/cucumber-reports/cucumber.html", 
+        "json:target/cucumber-reports/cucumber.json",
+        "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
+    }
 )
 public class CrossBrowser18b_ValidateAdvancedSortingPersistenceRunner extends CrossBrowserCucumberRunner {
     

@@ -110,6 +110,7 @@ public class VariableManager {
 		CommonVariable.NON_SSO_PASSWORD = config.getProperty("NON_SSO_Login_Password");
 		CommonVariable.HEADLESS_MODE = config.getProperty("headless.mode");
 		CommonVariable.EXCEL_REPORTING_ENABLED = config.getProperty("excel.reporting");
+		CommonVariable.ALLURE_REPORTING_ENABLED = config.getProperty("allure.reporting");
 		CommonVariable.LOGIN_TYPE = config.getProperty("login.type");
 		CommonVariable.KEEP_SYSTEM_AWAKE = config.getProperty("keep.system.awake");
 		CommonVariable.TARGET_PAMS_ID = config.getProperty("target.pams.id");

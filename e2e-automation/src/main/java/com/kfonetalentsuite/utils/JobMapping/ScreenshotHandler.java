@@ -13,6 +13,8 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.webdriverManager.DriverManager;
+import com.kfonetalentsuite.listeners.AllureScreenshotListener;
+import com.kfonetalentsuite.utils.common.CommonVariable;
 
 /**
  * Consolidated Screenshot Handler - Unified screenshot management
@@ -24,8 +26,7 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
  * CONSOLIDATED FEATURES: - Screenshot capture with descriptive names and
  * timestamps - Easy-to-use helper methods for test failure scenarios -
  * Configurable screenshot directory structure - Backward compatibility with existing code
- * 
- * @version 2.0 (Extent Reports removed)
+ * - Allure Reporting integration for screenshot attachments
  * 
  * USAGE EXAMPLES:
  * 
@@ -149,6 +150,18 @@ public class ScreenshotHandler {
 			// Log screenshot capture
 			LOGGER.info(" SCREENSHOT CAPTURED - Method: {} | Path: {}", methodName, screenshotPath);
 
+			// ENHANCEMENT: Attach screenshot to Allure report (if enabled)
+			if (isAllureReportingEnabled()) {
+				try {
+					AllureScreenshotListener.attachScreenshotToAllure(screenshotPath, 
+						"Failure Screenshot: " + methodName);
+					LOGGER.debug("Screenshot attached to Allure report");
+				} catch (Exception e) {
+					LOGGER.debug("Could not attach screenshot to Allure (non-critical): {}", e.getMessage());
+					// Don't fail if Allure attachment fails
+				}
+			}
+
 			return screenshotPath;
 
 		} catch (Exception e) {
@@ -229,6 +242,17 @@ public class ScreenshotHandler {
 
 			LOGGER.info(" Screenshot captured: {}", description);
 			LOGGER.info("Saved to: {}", screenshotPath);
+
+			// ENHANCEMENT: Attach screenshot to Allure report (if enabled)
+			if (isAllureReportingEnabled()) {
+				try {
+					AllureScreenshotListener.attachScreenshotToAllure(screenshotPath, description);
+					LOGGER.debug("Screenshot attached to Allure report");
+				} catch (Exception e) {
+					LOGGER.debug("Could not attach screenshot to Allure (non-critical): {}", e.getMessage());
+					// Don't fail if Allure attachment fails
+				}
+			}
 
 			return screenshotPath;
 
@@ -747,5 +771,14 @@ public class ScreenshotHandler {
 	public static java.util.List<File> getTodayFailureScreenshotsAscending() {
 		String today = LocalDateTime.now().format(DATE_FORMATTER);
 		return getFailureScreenshotsAscending(today);
+	}
+
+	/**
+	 * Check if Allure reporting is enabled in config.properties
+	 * Similar to Excel reporting flag check
+	 */
+	private static boolean isAllureReportingEnabled() {
+		return CommonVariable.ALLURE_REPORTING_ENABLED == null
+				|| !CommonVariable.ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false");
 	}
 }
