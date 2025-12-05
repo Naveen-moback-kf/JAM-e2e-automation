@@ -19,7 +19,7 @@ public class SD09_PublishSelectedProfiles {
 	}
 	
 	@Then("User should verify Published first job profile is displayed in Row1 in View Published screen")
-	public void user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen() throws IOException {
+	public void user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen() throws Exception {
 		publishSelectedProfiles.getPublishSelectedProfiles().user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen();
 	}
 	
@@ -29,7 +29,7 @@ public class SD09_PublishSelectedProfiles {
 	}
 	
 	@Then("User should verify Published second job profile is displayed in Row1 in View Published screen")
-	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen() throws IOException {
+	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen() throws Exception {
 		publishSelectedProfiles.getPublishSelectedProfiles().user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen();
 	}
 	
@@ -49,7 +49,7 @@ public class SD09_PublishSelectedProfiles {
 	}
 
 	@Then("User should verify Published Second Job Profile is displayed in Row1 in HCM Sync Profiles screen in PM")
-	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm() throws IOException {
+	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm() throws Exception {
 		publishSelectedProfiles.getPublishSelectedProfiles().user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm();
 	}
 

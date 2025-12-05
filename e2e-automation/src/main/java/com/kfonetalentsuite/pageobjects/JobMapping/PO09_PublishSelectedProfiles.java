@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
@@ -42,19 +43,75 @@ public class PO09_PublishSelectedProfiles extends BasePageObject {
 		}
 	}
 
-	public void user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen() {
+	public void user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen() throws Exception {
 		try {
 			// PARALLEL EXECUTION FIX: Verify expected job name matches (search should filter correctly)
 			String expectedJobName = PO04_VerifyJobMappingPageComponents.orgJobNameInRow1.get();
-			PerformanceUtils.waitForPageReady(driver, 2);
-			String job1NameText = getElementText(JOB_NAME_ROW_1);
-			String actualJobName = job1NameText.split("-", 2)[0].trim();
-			Assert.assertEquals(expectedJobName, actualJobName, 
-				String.format("Expected job '%s' but found '%s'", expectedJobName, actualJobName));
+			if (expectedJobName == null || expectedJobName.isEmpty()) {
+				throw new Exception("Expected job name is null or empty");
+			}
+			
+			// Wait for search results to filter - retry until first row matches expected job
+			int maxRetries = 5;
+			int retryCount = 0;
+			boolean found = false;
+			
+			while (retryCount < maxRetries && !found) {
+				PerformanceUtils.waitForPageReady(driver, 2);
+				waitForSpinners();
+				safeSleep(500);
+				
+				try {
+					// Re-fetch element to avoid stale reference
+					WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 5);
+					String job1NameText = jobNameElement.getText();
+					String actualJobName = job1NameText.split("-", 2)[0].trim();
+					
+					if (expectedJobName.equals(actualJobName)) {
+						found = true;
+						PageObjectHelper.log(LOGGER, "Found expected job: " + actualJobName);
+					} else {
+						retryCount++;
+						if (retryCount < maxRetries) {
+							LOGGER.warn("Search not filtered yet. Expected: '{}', Found: '{}' (retry {}/{})", 
+								expectedJobName, actualJobName, retryCount, maxRetries);
+							safeSleep(1000 * retryCount); // Exponential backoff
+						}
+					}
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					retryCount++;
+					LOGGER.warn("Stale element during search verification (retry {}/{})", retryCount, maxRetries);
+					if (retryCount < maxRetries) {
+						safeSleep(1000);
+					}
+				} catch (TimeoutException e) {
+					retryCount++;
+					LOGGER.warn("Element not found yet during search verification (retry {}/{})", retryCount, maxRetries);
+					if (retryCount < maxRetries) {
+						safeSleep(1000 * retryCount);
+					}
+				}
+			}
+			
+			if (!found) {
+				// Final attempt to get actual value for better error message
+				String actualJobName = "Unknown";
+				try {
+					WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 5);
+					String job1NameText = jobNameElement.getText();
+					actualJobName = job1NameText.split("-", 2)[0].trim();
+				} catch (Exception e) {
+					LOGGER.error("Could not get actual job name for error message: {}", e.getMessage());
+				}
+				Assert.fail(String.format("Expected job '%s' but found '%s' after %d retries. Search may not have filtered correctly.", 
+					expectedJobName, actualJobName, maxRetries));
+			}
+			
 			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
-			PageObjectHelper.log(LOGGER, "Published Job (Org: " + actualJobName + ") is displayed in Row1");
+			PageObjectHelper.log(LOGGER, "Published Job (Org: " + expectedJobName + ") is displayed in Row1");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen", "Issue verifying published first job profile in Row1", e);
+			throw e;
 		}
 	}
 
@@ -73,19 +130,75 @@ public class PO09_PublishSelectedProfiles extends BasePageObject {
 		}
 	}
 
-	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen() {
+	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen() throws Exception {
 		try {
 			// PARALLEL EXECUTION FIX: Verify expected job name matches (search should filter correctly)
 			String expectedJobName = PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get();
-			PerformanceUtils.waitForPageReady(driver, 2);
-			String job1NameText = getElementText(JOB_NAME_ROW_1);
-			String actualJobName = job1NameText.split("-", 2)[0].trim();
-			Assert.assertEquals(expectedJobName, actualJobName, 
-				String.format("Expected job '%s' but found '%s'", expectedJobName, actualJobName));
+			if (expectedJobName == null || expectedJobName.isEmpty()) {
+				throw new Exception("Expected job name is null or empty");
+			}
+			
+			// Wait for search results to filter - retry until first row matches expected job
+			int maxRetries = 5;
+			int retryCount = 0;
+			boolean found = false;
+			
+			while (retryCount < maxRetries && !found) {
+				PerformanceUtils.waitForPageReady(driver, 2);
+				waitForSpinners();
+				safeSleep(500);
+				
+				try {
+					// Re-fetch element to avoid stale reference
+					WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 5);
+					String job1NameText = jobNameElement.getText();
+					String actualJobName = job1NameText.split("-", 2)[0].trim();
+					
+					if (expectedJobName.equals(actualJobName)) {
+						found = true;
+						PageObjectHelper.log(LOGGER, "Found expected job: " + actualJobName);
+					} else {
+						retryCount++;
+						if (retryCount < maxRetries) {
+							LOGGER.warn("Search not filtered yet. Expected: '{}', Found: '{}' (retry {}/{})", 
+								expectedJobName, actualJobName, retryCount, maxRetries);
+							safeSleep(1000 * retryCount); // Exponential backoff
+						}
+					}
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					retryCount++;
+					LOGGER.warn("Stale element during search verification (retry {}/{})", retryCount, maxRetries);
+					if (retryCount < maxRetries) {
+						safeSleep(1000);
+					}
+				} catch (TimeoutException e) {
+					retryCount++;
+					LOGGER.warn("Element not found yet during search verification (retry {}/{})", retryCount, maxRetries);
+					if (retryCount < maxRetries) {
+						safeSleep(1000 * retryCount);
+					}
+				}
+			}
+			
+			if (!found) {
+				// Final attempt to get actual value for better error message
+				String actualJobName = "Unknown";
+				try {
+					WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 5);
+					String job1NameText = jobNameElement.getText();
+					actualJobName = job1NameText.split("-", 2)[0].trim();
+				} catch (Exception e) {
+					LOGGER.error("Could not get actual job name for error message: {}", e.getMessage());
+				}
+				Assert.fail(String.format("Expected job '%s' but found '%s' after %d retries. Search may not have filtered correctly.", 
+					expectedJobName, actualJobName, maxRetries));
+			}
+			
 			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
-			PageObjectHelper.log(LOGGER, "Published Job (Org: " + actualJobName + ") is displayed in Row1");
+			PageObjectHelper.log(LOGGER, "Published Job (Org: " + expectedJobName + ") is displayed in Row1");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen", "Issue verifying published second job profile in Row1", e);
+			throw e;
 		}
 	}
 
@@ -127,19 +240,74 @@ public class PO09_PublishSelectedProfiles extends BasePageObject {
 		}
 	}
 
-	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm() {
+	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm() throws Exception {
 		try {
 			// PARALLEL EXECUTION FIX: Verify expected job name matches (search should filter correctly)
 			String expectedJobName = PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get();
-			PerformanceUtils.waitForPageReady(driver, 2);
-			waitForSpinners();
-			String job2NameText = getElementText(HCM_JOB_ROW_1);
-			String actualJobName = job2NameText.split("-", 2)[0].trim();
-			Assert.assertEquals(expectedJobName, actualJobName, 
-				String.format("Expected job '%s' but found '%s'", expectedJobName, actualJobName));
-			PageObjectHelper.log(LOGGER, "Published Second Job (Org: " + actualJobName + ") is displayed in HCM Sync Profiles Row1");
+			if (expectedJobName == null || expectedJobName.isEmpty()) {
+				throw new Exception("Expected job name is null or empty");
+			}
+			
+			// Wait for search results to filter - retry until first row matches expected job
+			int maxRetries = 5;
+			int retryCount = 0;
+			boolean found = false;
+			
+			while (retryCount < maxRetries && !found) {
+				PerformanceUtils.waitForPageReady(driver, 2);
+				waitForSpinners();
+				safeSleep(500);
+				
+				try {
+					// Re-fetch element to avoid stale reference
+					WebElement jobNameElement = waitForElement(HCM_JOB_ROW_1, 5);
+					String job2NameText = jobNameElement.getText();
+					String actualJobName = job2NameText.split("-", 2)[0].trim();
+					
+					if (expectedJobName.equals(actualJobName)) {
+						found = true;
+						PageObjectHelper.log(LOGGER, "Found expected job in HCM Sync: " + actualJobName);
+					} else {
+						retryCount++;
+						if (retryCount < maxRetries) {
+							LOGGER.warn("Search not filtered yet in HCM. Expected: '{}', Found: '{}' (retry {}/{})", 
+								expectedJobName, actualJobName, retryCount, maxRetries);
+							safeSleep(1000 * retryCount); // Exponential backoff
+						}
+					}
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					retryCount++;
+					LOGGER.warn("Stale element during HCM verification (retry {}/{})", retryCount, maxRetries);
+					if (retryCount < maxRetries) {
+						safeSleep(1000);
+					}
+				} catch (TimeoutException e) {
+					retryCount++;
+					if (retryCount < maxRetries) {
+						LOGGER.warn("Job element not found yet in HCM (retry {}/{})", retryCount, maxRetries);
+						safeSleep(1000 * retryCount);
+					}
+				}
+			}
+			
+			if (!found) {
+				// Final attempt to get actual value for better error message
+				String actualJobName = "Unknown";
+				try {
+					WebElement jobNameElement = waitForElement(HCM_JOB_ROW_1, 5);
+					String job2NameText = jobNameElement.getText();
+					actualJobName = job2NameText.split("-", 2)[0].trim();
+				} catch (Exception e) {
+					LOGGER.error("Could not get actual job name for error message: {}", e.getMessage());
+				}
+				Assert.fail(String.format("Expected job '%s' but found '%s' after %d retries in HCM Sync Profiles. Search may not have filtered correctly.", 
+					expectedJobName, actualJobName, maxRetries));
+			}
+			
+			PageObjectHelper.log(LOGGER, "Published Second Job (Org: " + expectedJobName + ") is displayed in HCM Sync Profiles Row1");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm", "Issue verifying published second job profile in HCM Sync Profiles", e);
+			throw e;
 		}
 	}
 

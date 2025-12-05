@@ -569,43 +569,77 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 	}
 
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options() throws Exception {
-		try {
-			// PARALLEL EXECUTION FIX: Wait for page stability before getting elements
-			PerformanceUtils.waitForPageReady(driver, 2);
-			
-			// PARALLEL EXECUTION FIX: Get count first, then re-fetch elements on each iteration to avoid stale elements
-			int functionCount = driver.findElements(ALL_FUNCTIONS_COLUMN).size();
-			
-			for (int i = 0; i < functionCount; i++) {
-				// Re-fetch element on each iteration to avoid stale element reference
-				WebElement functionElement = driver.findElements(ALL_FUNCTIONS_COLUMN).get(i);
-				String fullText = functionElement.getText();
-				String function = fullText.contains("|") ? fullText.split("\\s*\\|\\s*", 2)[0].trim() : fullText.trim();
+		// PARALLEL EXECUTION FIX: Robust retry loop for stale elements
+		int maxRetries = 3;
+		int retryCount = 0;
+		boolean validationPassed = false;
+		
+		while (retryCount < maxRetries && !validationPassed) {
+			try {
+				// Wait for page stability before getting elements
+				PerformanceUtils.waitForPageReady(driver, 2);
+				waitForSpinners();
+				safeSleep(500); // Additional wait for DOM stability
+				
+				// Re-fetch count and elements on each retry to avoid stale references
+				List<WebElement> functionElements = driver.findElements(ALL_FUNCTIONS_COLUMN);
+				int functionCount = functionElements.size();
+				
+				if (functionCount == 0) {
+					throw new Exception("No function elements found in table");
+				}
+				
+				// Validate each function element
+				for (int i = 0; i < functionCount; i++) {
+					// Re-fetch element on each iteration to avoid stale element reference
+					functionElements = driver.findElements(ALL_FUNCTIONS_COLUMN);
+					if (i >= functionElements.size()) {
+						LOGGER.warn("Element count changed during iteration, retrying...");
+						throw new org.openqa.selenium.StaleElementReferenceException("Element count changed");
+					}
+					
+					WebElement functionElement = functionElements.get(i);
+					String fullText = functionElement.getText();
+					String function = fullText.contains("|") ? fullText.split("\\s*\\|\\s*", 2)[0].trim() : fullText.trim();
 
-				if (function.contentEquals(FunctionsOption.get()) || function.contentEquals(FunctionsOption1.get()) || function.contentEquals(FunctionsOption2.get())) {
-					PageObjectHelper.log(LOGGER, "Organization Job with Function: " + function + " correctly filtered");
-				} else {
-					throw new Exception("Job Profile with incorrect Function Value: " + function);
+					if (function.contentEquals(FunctionsOption.get()) || function.contentEquals(FunctionsOption1.get()) || function.contentEquals(FunctionsOption2.get())) {
+						PageObjectHelper.log(LOGGER, "Organization Job with Function: " + function + " correctly filtered");
+					} else {
+						throw new Exception("Job Profile with incorrect Function Value: " + function);
+					}
 				}
-			}
-		} catch (org.openqa.selenium.StaleElementReferenceException e) {
-			// PARALLEL EXECUTION FIX: Retry on stale element
-			LOGGER.warn("Stale element detected, retrying validation...");
-			PerformanceUtils.waitForPageReady(driver, 2);
-			// Retry once
-			int functionCount = driver.findElements(ALL_FUNCTIONS_COLUMN).size();
-			for (int i = 0; i < functionCount; i++) {
-				WebElement functionElement = driver.findElements(ALL_FUNCTIONS_COLUMN).get(i);
-				String fullText = functionElement.getText();
-				String function = fullText.contains("|") ? fullText.split("\\s*\\|\\s*", 2)[0].trim() : fullText.trim();
-				if (!function.contentEquals(FunctionsOption.get()) && !function.contentEquals(FunctionsOption1.get()) && !function.contentEquals(FunctionsOption2.get())) {
-					throw new Exception("Job Profile with incorrect Function Value: " + function);
+				
+				validationPassed = true;
+				
+			} catch (org.openqa.selenium.StaleElementReferenceException e) {
+				retryCount++;
+				LOGGER.warn("Stale element detected (attempt {}/{}), retrying validation...", retryCount, maxRetries);
+				if (retryCount >= maxRetries) {
+					PageObjectHelper.handleError(LOGGER, "validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options", 
+						"Issue validating functions filter - Stale element after " + maxRetries + " retries", e);
+					throw e;
 				}
+				safeSleep(1000 * retryCount); // Exponential backoff
+			} catch (Exception e) {
+				if (e.getMessage() != null && e.getMessage().contains("Element count changed")) {
+					retryCount++;
+					if (retryCount >= maxRetries) {
+						PageObjectHelper.handleError(LOGGER, "validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options", 
+							"Issue validating functions filter", e);
+						throw e;
+					}
+					safeSleep(1000 * retryCount);
+					continue;
+				}
+				PageObjectHelper.handleError(LOGGER, "validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options", "Issue validating functions filter", e);
+				throw e;
 			}
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options", "Issue validating functions filter", e);
-			throw e;
 		}
+		
+		if (!validationPassed) {
+			throw new Exception("Validation failed after " + maxRetries + " retries");
+		}
+		
 		scrollToTop();
 	}
 

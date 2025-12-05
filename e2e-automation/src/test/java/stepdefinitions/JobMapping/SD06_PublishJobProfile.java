@@ -40,7 +40,7 @@ public class SD06_PublishJobProfile {
 	}
 	
 	@Then("User should verify Published job is displayed in View Published screen")
-	public void user_should_verify_published_job_is_displayed_in_view_published_screen() throws IOException {
+	public void user_should_verify_published_job_is_displayed_in_view_published_screen() throws Exception {
 		publishJobProfile.getPublishJobProfile().user_should_verify_published_job_is_displayed_in_view_published_screen();
 	}
 	
@@ -105,7 +105,7 @@ public class SD06_PublishJobProfile {
 	}
 	
 	@Then("User should verify Published Job is displayed in Jobs page in Architect")
-	public void user_should_verify_published_job_is_displayed_in_jobs_page_in_architect() throws IOException {
+	public void user_should_verify_published_job_is_displayed_in_jobs_page_in_architect() throws Exception {
 		publishJobProfile.getPublishJobProfile().user_should_verify_published_job_is_displayed_in_jobs_page_in_architect();
 	}
 	

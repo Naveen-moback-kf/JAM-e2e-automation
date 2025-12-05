@@ -489,7 +489,7 @@ jobs:
           fi
           
           # Add CI/CD override parameters (override Excel values)
-          MVN_CMD="${MVN_CMD} -DEnvironment=${ENVIRONMENT} -Dlogin.type=${LOGIN_TYPE} -Dtarget.pams.id=${PAMS_ID}"
+          MVN_CMD="${MVN_CMD} -DEnvironment=${ENVIRONMENT} -Dlogin.type=${LOGIN_TYPE} -Dtarget.pams.id=${PAMS_ID} -Dbrowser=${BROWSER} -Dheadless.mode=${HEADLESS}"
           
           # Add CI/CD specific Maven options
           MVN_CMD="${MVN_CMD} -Dmaven.test.failure.ignore=true -B"

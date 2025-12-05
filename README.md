@@ -2,85 +2,16 @@
 
 A comprehensive, enterprise-grade end-to-end automation testing framework for Korn Ferry's AI-powered Job Mapping and Profile Management functionality. This framework focuses on Job Mapping workflows with specialized manual mapping capabilities across multiple environments, featuring robust error handling, visual reporting, and session recovery mechanisms.
 
-## 🚀 Latest Enhancements (December 2025)
+## 🚀 Key Features
 
-### **⚡ Performance & Code Optimization (NEW - December 4, 2025)**
-- **Logging Optimization**: Reduced DailyExcelTracker logging by ~60% (143 → 54 INFO logs) - verbose logs moved to DEBUG level
-- **Log4j2 Cleanup**: Streamlined configuration, removed duplicate appenders, added application-specific loggers
-- **Utils Package Consolidation**: Consolidated from 3 packages to 2 (`utils/common/` + `utils/JobMapping/`)
-- **DriverManager Optimization**: Extended driver download caching to all browsers (Chrome, Firefox, Edge)
-- **Removed Redundant Code**: Deleted unused `HeadlessCompatibleActions.java` and `extent.properties`
-- **BasePageObject Consolidation**: Unified duplicate methods (`isMissingData`, `getResultsCount`, cookie handlers)
-- **Faster Popup Verification**: Reduced success popup wait from 3-5 min to max 33 seconds with better fallbacks
-
-### **🧹 Code Quality Optimizations (November 28, 2025)**
-- **Singleton Pattern Consistency**: Applied consistent Singleton pattern across all 47 Page Object getters in `PageObjectManager`
-- **Dead Code Removal**: Removed ~100+ lines of commented-out code from all Java files
-- **ThreadLocal Memory Cleanup**: Added comprehensive cleanup for 61 ThreadLocal variables in `SuiteHooks.java`
-- **File Consolidation**: Merged duplicate `.gitignore` and `README.md` files to single root-level files
-- **Enhanced Parallel Execution**: Improved memory management prevents leaks in long-running test suites
-
-### **⚡ Parallel Execution Support (November 2025)**
-- **Thread-Safe Architecture**: Complete codebase conversion to support parallel test execution
-- **ThreadLocal State Management**: All shared state converted to thread-safe `ThreadLocal` variables
-- **Atomic Counters**: Test execution statistics use `AtomicInteger` for accurate parallel counting
-- **Flexible Execution Modes**: Easy toggle between parallel and sequential execution
-- **3-5x Faster Execution**: Parallel mode reduces execution time from 60-90 minutes to 20-30 minutes
-- **Zero Flakiness**: Robust thread safety ensures reliable results in parallel mode
-- **Backward Compatible**: All changes work seamlessly in both parallel and sequential modes
-- **Enhanced Reporting**: Thread-safe Excel reporting with accurate scenario-to-status mapping
-
-### **📊 Test Suite Organization & Coverage Enhancement**
-- **Hierarchical Test Suites** - 3 strategically organized suites: Sanity (7 tests), Smoke (18 tests), Regression (55 tests)
-- **Smart Execution Strategy** - Clear guidelines for optimal test execution at different stages
-- **JAM Test Suites** - Standardized naming: JAM_SanityTestSuite.xml, JAM_SmokeTestSuite.xml, JAM_RegressionTestSuite.xml
-- **Coverage Documentation** - Complete TEST_SUITE_COVERAGE.md for transparent suite mapping
-- **Execution Efficiency** - Reduced feedback time from 60-90 min (full suite) to 5-10 min (sanity) or 15-25 min (smoke)
-- **Build Verification** - Quick sanity checks ensure build stability before deeper testing
-
-### **📁 Framework Modernization & Refactoring**
-- **Codebase Restructuring** - Complete migration from `AIautoMap` to `JobMapping` package naming
-- **Scenario Breakdown & Optimization** - Large multi-step scenarios refactored into focused, maintainable tests
-- **Tag Cleanup** - Simplified tagging system with one primary tag per scenario for better organization
-- **Import Optimization** - Consistent import statements and package references across all Java files
-- **Documentation Updates** - Comprehensive README and inline documentation updates
-
-### **🌐 Cross-Browser Testing Suite**
-- **Multi-Browser Support** - Chrome, Firefox, and Edge parallel execution
-- **26 Cross-Browser Runners** with automatic browser configuration
-- **Cross-Browser Dashboard** - Dedicated analytics sheet for browser compatibility
-- **Browser Status Columns** - Chrome/Firefox/Edge status tracking in Excel reports
-- **Thread-Safe Execution** - Custom thread naming and isolation for parallel browser tests
-- **Compatibility Scoring** - Business impact assessment based on browser compatibility
-
-### **📊 Enhanced Excel Reporting System**
-- **Dual Dashboard Architecture** - Separate dashboards for Normal and Cross-Browser execution
-- **Browser-Specific Reporting** - Individual browser status columns (Chrome/Firefox/Edge)
-- **Execution Type Detection** - Smart differentiation between Normal and Cross-Browser runs
-- **Scenario Order Consistency** - Cross-browser scenarios match normal execution sequence
-- **Professional Color Coding** - Complete visual styling for all value cells and metrics
-- **Business Impact Logic** - Accurate risk assessment for both execution types
-
-### **📸 Advanced Screenshot Functionality**
-- **Automatic failure capture** with visual evidence for all test failures
-- **ExtentReports integration** with embedded screenshots
-- **Structured storage** organized by date and test method
-- **31+ Page Objects enhanced** with consistent screenshot handling
-- **Configurable capture** with cleanup management
-
-### **🔄 Session Recovery System**
-- **Screen-off immunity** preventing session failures during unattended execution
-- **Automatic session restoration** with retry mechanisms (up to 3 attempts)
-- **Enhanced Chrome configurations** with 13+ power management prevention options
-- **SessionRecoveryWrapper** utility for operation-level protection
-
-### **⚙️ Robust Configuration Management**
-- **Headless mode configuration** via `config.properties` (prevents screen-off issues)
-- **Excel reporting toggle** with `excel.reporting=true/false` for performance control
-- **Enhanced logging system** with optimized verbosity and clear console vs file separation  
-- **Automatic property loading** with fail-safe defaults
-- **Environment-specific configurations** for all supported regions
-- **Clean codebase** with consistent package naming throughout
+- **Parallel Execution**: Run tests in parallel for 3-5x faster execution
+- **Cross-Browser Testing**: Support for Chrome, Firefox, and Edge
+- **Data-Driven Testing**: Excel-based test data management (TestData.xlsx)
+- **Comprehensive Reporting**: Excel reports, Allure reports, and TestNG reports
+- **CI/CD Integration**: GitHub Actions workflow with configurable inputs
+- **Thread-Safe Architecture**: Reliable parallel execution with isolated state per thread
+- **Session Recovery**: Automatic recovery from browser session failures
+- **Screenshot Capture**: Automatic screenshots on test failures
 
 ---
 
@@ -186,37 +117,7 @@ kfonetalentsuite/
 └── TEST_SUITE_COVERAGE.md    # Complete test suite coverage mapping
 ```
 
-## ✨ Key Features
-
-### 🌐 Cross-Browser Compatibility Testing
-- **Multi-Browser Execution**: Parallel testing across Chrome, Firefox, and Edge
-- **26 Self-Contained Runners**: Independent cross-browser test runners with automatic browser configuration
-- **Thread-Safe Architecture**: Custom thread naming and isolation for reliable parallel execution
-- **Browser Compatibility Analytics**: Comprehensive cross-browser performance metrics and scoring
-- **Unified Reporting**: Browser-specific status tracking with consolidated Excel reporting
-- **Business Impact Assessment**: Compatibility-based risk evaluation for stakeholder insights
-
-### 🛡️ Enterprise-Grade Reliability
-- **Session Recovery**: Automatic handling of browser session failures
-- **Screen-off Immunity**: Tests continue even when screen locks or goes to sleep
-- **Retry Mechanisms**: Built-in retry logic with configurable attempts
-- **Robust Error Handling**: Comprehensive exception management with visual evidence
-
-### 📸 Advanced Visual Documentation
-- **Automatic Screenshots**: Every failure captured with contextual information
-- **Allure Reporting Integration**: Visual test reports with embedded evidence and screenshots
-- **Structured Storage**: Date-organized screenshots for easy tracking
-- **Cleanup Management**: Configurable retention policies for storage optimization
-
-### 📊 Professional Reporting
-- **Dual Excel Dashboards**: Separate dashboards for Normal and Cross-Browser execution analytics
-- **Cross-Browser Metrics**: Compatibility scores, browser-specific results, and business impact assessment
-- **Smart Daily Reset**: Intelligent handling of same-day vs new-day executions
-- **Browser Status Tracking**: Individual Chrome/Firefox/Edge status columns in detailed reports
-- **Allure Reports**: Interactive HTML reports with timeline views, visual evidence, and environment information
-- **Multiple Output Formats**: HTML, Excel, JSON, and XML reporting options
-
-### 🎯 Comprehensive Test Coverage
+## 🎯 Test Coverage
 - **Login Authentication**: Multiple methods (Standard, SAML, SSO via KFOne)
 - **Job Mapping Workflows**: Intelligent job profile mapping with AI recommendations
 - **Manual Mapping**: Specialized manual mapping capabilities within workflows
@@ -280,11 +181,14 @@ kfonetalentsuite/
    excel.reporting=true  # Enable Excel reports
    # excel.reporting=false # Disable for faster execution
    
-   # Login Type Configuration
+   # Login Type Configuration (CI/CD can override via workflow inputs)
    login.type=NON_SSO    # Options: SSO, NON_SSO
    
-   # Environment Selection
+   # Environment Selection (CI/CD can override via workflow inputs)
    Environment=QA        # Options: Dev, QA, Stage, ProdEU, ProdUS
+   
+   # PAMS ID (CI/CD can override via workflow inputs)
+   target.pams.id=23139  # Leave empty to verify all clients
    
    # Test Credentials - KF HUB NON SSO
    username=your.test.user@example.com
@@ -373,12 +277,10 @@ parallel_execution: false  # Set to false for sequential
 
 #### **Thread-Safe Implementation**
 
-All code is **100% thread-safe** thanks to:
-- ✅ **ThreadLocal Variables**: Isolated state per thread (150+ variables converted)
-- ✅ **AtomicInteger Counters**: Race-condition-free statistics (6 counters converted)
-- ✅ **ConcurrentHashMap**: Thread-safe data structures throughout
-- ✅ **Thread-Safe WebDriver**: Each thread has its own isolated browser instance
-- ✅ **Synchronized Reporting**: No conflicts in Excel/Extent report generation
+The framework is designed for parallel execution with:
+- **ThreadLocal Variables**: Isolated state per thread
+- **Thread-Safe WebDriver**: Each thread has its own browser instance
+- **Synchronized Reporting**: No conflicts in Excel/Extent report generation
 
 ---
 
@@ -766,7 +668,7 @@ extended.timeouts.enabled=true
 
 ### Logging Configuration (`log4j2.properties`)
 ```properties
-# Optimized logging configuration (December 2025)
+# Logging configuration
 # Console + RollingFile with auto-rotation
 
 appenders = console, rollingFile
@@ -833,35 +735,15 @@ All page objects now include:
 
 ### Common Issues & Solutions
 
-1. **Parallel Execution: Scenario Details Not in Sync**
+1. **Tests Fail in Parallel Execution**
    ```
-   Issue: Scenario names don't match their feature files in reports during parallel execution
-   Root Cause: Race conditions in test execution statistics counters
-   Solution: ✅ FIXED - All counters converted to AtomicInteger
-   Status: Resolved in November 2025 release
-   ```
-
-2. **Parallel Execution: Test Count Mismatches**
-   ```
-   Issue: Total/Passed/Failed counts incorrect in Excel reports during parallel execution
-   Root Cause: Non-atomic increment operations (++) in shared static counters
-   Solution: ✅ FIXED - ExcelReportListener uses AtomicInteger for all counters
-   Status: Resolved in November 2025 release
+   Issue: Tests pass individually but fail when run in parallel
+   Solution: Framework uses ThreadLocal for thread isolation. If issues persist:
+     - Run sequentially for debugging: Change parallel="false" in TestNG XML
+     - Check for shared state or static variables in custom code
    ```
 
-3. **Success Popup Verification Timeout**
-   ```
-   Issue: "Success Profiles Published" popup verification takes 3-5 minutes or fails
-   Root Cause: Fallback locators used 60-90 second default wait (3 fallbacks × 60s = 3+ min)
-   Solution: ✅ FIXED (December 2025) - Optimized wait strategy:
-     - All fallback locators now use explicit 10-second timeouts
-     - Total max wait: 33 seconds (was 3-5 minutes)
-     - Added progress logging for each fallback attempt
-     - Screenshot captured on failure for debugging
-   Location: PO04_VerifyJobMappingPageComponents.user_should_get_success_profile_published_popup()
-   ```
-
-4. **Need to Switch Between Parallel and Sequential Execution**
+2. **Need to Switch Between Parallel and Sequential Execution**
    ```
    Issue: Want to debug tests sequentially but default is parallel
    Solution: Use one of these methods:
@@ -878,21 +760,13 @@ All page objects now include:
    Note: All thread-safety improvements work in both modes
    ```
 
-5. **Browser Session Failures (Screen-off scenarios)**
+3. **Browser Session Failures**
    ```
    Error: "invalid session id" or "Browser appears to be closed"
    Solution: Enable headless mode (headless.mode=true) in config.properties
-   Check: session.recovery.enabled=true in config.properties
    ```
 
-6. **Screenshot Capture Failures**
-   ```
-   Error: Screenshots not being captured on failures
-   Solution: Verify screenshot.enabled=true in config.properties
-   Check: ScreenshotHandler import in page objects
-   ```
-
-7. **Excel Report Generation Issues**  
+4. **Excel Report Generation Issues**  
    ```
    Error: Excel reports not generated or incorrect data
    Solution: Ensure @Listeners({ExcelReportListener.class}) on test runners
@@ -900,14 +774,7 @@ All page objects now include:
    Check: ExcelReports directory permissions and disk space
    ```
 
-8. **Package/Import Errors**
-   ```
-   Error: Cannot resolve symbol 'AIautoMap'
-   Solution: All packages have been renamed to 'JobMapping'
-   Update: Run mvn clean install to refresh dependencies
-   ```
-
-9. **Environment Access Issues**
+5. **Environment Access Issues**
    ```
    Error: Unable to connect to test environment
    Solution: Verify VPN connection for internal environments
@@ -1050,61 +917,10 @@ java -cp "target/classes:lib/*" com.kfonetalentsuite.utils.PDFReportGenerator
 
 ---
 
-**Last Updated**: December 4, 2025  
 **Framework Version**: 2.4.0-SNAPSHOT  
 **Package Namespace**: com.kfonetalentsuite  
 **Maintained By**: QA Automation Team  
 **Execution Mode**: Parallel (3-5 threads) - Sequential mode also supported  
-
-### 🚀 Release History
-
-#### **v2.4.0 (December 4, 2025)** - Performance & Code Consolidation Release
-- ⚡ **Logging Optimization**: Reduced DailyExcelTracker INFO logs by 60% (143 → 54), verbose logs moved to DEBUG
-- 🧹 **Log4j2 Cleanup**: Removed duplicate `file` appender, added app-specific loggers, set root level to INFO
-- 📦 **Utils Consolidation**: Merged 3 utils packages into 2 (`common/` + `JobMapping/`)
-- 🚀 **DriverManager Optimization**: Extended driver download caching to Firefox and Edge (not just Chrome)
-- 🗑️ **Removed Unused Code**: Deleted `HeadlessCompatibleActions.java` (unused) and `extent.properties` (disabled)
-- 🔧 **BasePageObject Cleanup**: Consolidated duplicate methods (`isMissingData`, `getResultsCount`, cookie handlers)
-- ⏱️ **Faster Popup Verification**: Reduced success popup wait timeout from 3-5 min to max 33 seconds
-- 📝 **Method Naming**: Fixed `CreateDriver()` → `initializeDriver()` (Java conventions)
-- 🎯 **50 Files Updated**: PageObjectHelper import path updated across all PO files, hooks, and step definitions
-
-#### **v2.3.1 (November 28, 2025)** - Code Quality & Memory Optimization Release
-- 🧹 **Singleton Pattern Consistency**: All 47 Page Object getters now use consistent Singleton pattern
-- 🗑️ **Dead Code Removal**: Removed ~100+ lines of commented-out code across all Java files
-- 🧠 **ThreadLocal Memory Cleanup**: Added cleanup for 61 ThreadLocal variables in `SuiteHooks.java`
-- 📁 **File Consolidation**: Merged duplicate `.gitignore` and `README.md` to root level
-- ⚡ **Memory Leak Prevention**: Enhanced parallel execution with proper resource cleanup
-- 📊 **PageObjectManager Optimization**: Prevents multiple Page Object instantiations for better performance
-
-#### **v2.3.0 (November 2025)** - Parallel Execution & Thread-Safety Release
-- ⚡ **Parallel Execution Support**: Complete framework conversion for safe parallel test execution
-- 🔄 **ThreadLocal Variables**: 150+ static variables converted to thread-safe `ThreadLocal`
-- 🔢 **Atomic Counters**: 6 test statistics counters converted to `AtomicInteger` for race-free counting
-- 🎯 **Thread-Safe WebDriver**: Each thread gets isolated WebDriver instance via `ThreadLocal`
-- 📊 **Thread-Safe Reporting**: Excel/Extent reporting with no conflicts during parallel execution
-- 🚀 **3-5x Performance Boost**: Regression suite reduced from 60-90 min to 20-30 min
-- 🔀 **Flexible Execution Modes**: Easy toggle between parallel (fast) and sequential (debug)
-- ✅ **Zero Flakiness**: All race conditions eliminated for 100% reliable parallel execution
-- 🐛 **Bug Fixes**: Fixed success popup verification failures in headless mode
-- 📝 **Enhanced Documentation**: Complete parallel execution guide and troubleshooting
-
-#### **v2.2.0 (November 2025)** - Test Suite Organization & Coverage Enhancement
-- 📊 **Test Suite Restructuring**: Complete reorganization into 3 hierarchical suites (Sanity/Smoke/Regression)
-- 🎯 **Smart Test Categorization**: 7 Sanity tests, 18 Smoke tests, 55 Regression tests for optimal execution
-- 📋 **Coverage Documentation**: New TEST_SUITE_COVERAGE.md for complete suite mapping
-- ⚡ **Execution Strategy**: Clear guidelines for when to run each test suite (build/release/nightly)
-- 🔤 **Suite Naming Convention**: Standardized JAM_ prefix for all test suite XML files
-- 📈 **Improved Efficiency**: Strategic test selection reduces feedback time while maintaining coverage
-- 📚 **Enhanced Documentation**: Comprehensive README updates with test suite hierarchy and coverage details
-
-#### **v2.1.0 (October 2025)** - Framework Modernization & Code Quality Release
-- 📁 **Framework Restructuring**: Complete migration from `AIautoMap` to `JobMapping` package naming
-- 🔧 **Scenario Breakdown**: Large multi-step scenarios refactored into 100+ focused, maintainable tests
-- 🏷️ **Tag Cleanup**: Simplified tagging system with one primary tag per scenario
-- 📝 **Import Optimization**: Consistent import statements across all 59 test runners and 31 page objects
-- 🗂️ **Package Consistency**: Updated all package declarations, imports, and references
-- 📚 **Documentation Updates**: Comprehensive README and inline documentation improvements
 - 🎯 **Enhanced Maintainability**: Improved code organization for better debugging and reporting
 - 🌐 **Cross-Browser Support**: 26 cross-browser runners with complete Chrome/Firefox/Edge coverage
 - 📊 **Dual Dashboard Architecture**: Separate dashboards for Normal and Cross-Browser execution analytics

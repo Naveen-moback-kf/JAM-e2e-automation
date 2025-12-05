@@ -61,8 +61,17 @@ public class VariableManager {
 	}
 
 	private void populateCommonVariables() {
-		CommonVariable.ENVIRONMENT = config.getProperty("Environment");
-		CommonVariable.BROWSER = config.getProperty("browser");
+		// CI/CD override: Check system property first, then config.properties
+		String envOverride = System.getProperty("Environment");
+		CommonVariable.ENVIRONMENT = (envOverride != null && !envOverride.isEmpty()) 
+				? envOverride 
+				: config.getProperty("Environment");
+		
+		// CI/CD override: Check system property first, then config.properties
+		String browserOverride = System.getProperty("browser");
+		CommonVariable.BROWSER = (browserOverride != null && !browserOverride.isEmpty()) 
+				? browserOverride 
+				: config.getProperty("browser");
 		CommonVariable.Super_USERNAME = config.getProperty("super_Username");
 		CommonVariable.Super_PASSWORD = config.getProperty("super_Password");
 		CommonVariable.USERNAME = config.getProperty("username");
@@ -108,12 +117,28 @@ public class VariableManager {
 		CommonVariable.SSO_PASSWORD = config.getProperty("SSO_Login_Password");
 		CommonVariable.NON_SSO_USERNAME = config.getProperty("NON_SSO_Login_Username");
 		CommonVariable.NON_SSO_PASSWORD = config.getProperty("NON_SSO_Login_Password");
-		CommonVariable.HEADLESS_MODE = config.getProperty("headless.mode");
+		
+		// CI/CD override: Check system property first, then config.properties
+		String headlessOverride = System.getProperty("headless.mode");
+		CommonVariable.HEADLESS_MODE = (headlessOverride != null && !headlessOverride.isEmpty()) 
+				? headlessOverride 
+				: config.getProperty("headless.mode");
 		CommonVariable.EXCEL_REPORTING_ENABLED = config.getProperty("excel.reporting");
 		CommonVariable.ALLURE_REPORTING_ENABLED = config.getProperty("allure.reporting");
-		CommonVariable.LOGIN_TYPE = config.getProperty("login.type");
+		
+		// CI/CD override: Check system property first, then config.properties
+		String loginTypeOverride = System.getProperty("login.type");
+		CommonVariable.LOGIN_TYPE = (loginTypeOverride != null && !loginTypeOverride.isEmpty()) 
+				? loginTypeOverride 
+				: config.getProperty("login.type");
+		
 		CommonVariable.KEEP_SYSTEM_AWAKE = config.getProperty("keep.system.awake");
-		CommonVariable.TARGET_PAMS_ID = config.getProperty("target.pams.id");
+		
+		// CI/CD override: Check system property first, then config.properties
+		String pamsIdOverride = System.getProperty("target.pams.id");
+		CommonVariable.TARGET_PAMS_ID = (pamsIdOverride != null && !pamsIdOverride.isEmpty()) 
+				? pamsIdOverride 
+				: config.getProperty("target.pams.id");
 	}
 
 	public static boolean isInitialized() {
