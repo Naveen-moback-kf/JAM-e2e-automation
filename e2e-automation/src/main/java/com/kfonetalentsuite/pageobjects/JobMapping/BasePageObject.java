@@ -239,17 +239,74 @@ public class BasePageObject {
 
 	/**
 	 * Click on element by locator with fallback strategies
+	 * PARALLEL EXECUTION ENHANCED: Handles stale elements and page readiness
 	 */
 	protected void clickElement(By locator) {
-		try {
-			WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
-			element.click();
-		} catch (Exception e) {
+		clickElementSafely(locator, 10);
+	}
+
+	/**
+	 * PARALLEL EXECUTION FIX: Safe element click with stale element retry and page readiness check
+	 * @param locator Element locator
+	 * @param timeoutSeconds Maximum wait time
+	 */
+	protected void clickElementSafely(By locator, int timeoutSeconds) {
+		// Wait for page to be ready before interaction
+		PerformanceUtils.waitForPageReady(driver, 2);
+		
+		WebDriverWait customWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		int maxRetries = 3;
+		
+		for (int attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
-				WebElement element = driver.findElement(locator);
-				js.executeScript("arguments[0].click();", element);
-			} catch (Exception ex) {
-				LOGGER.warn("Click failed for locator: {}", ex.getMessage());
+				// Re-fetch element on each attempt to avoid stale references
+				WebElement element = customWait.until(ExpectedConditions.elementToBeClickable(locator));
+				element.click();
+				// Wait for UI to stabilize after click
+				PerformanceUtils.waitForUIStability(driver, 1);
+				return; // Success
+			} catch (org.openqa.selenium.StaleElementReferenceException e) {
+				if (attempt == maxRetries) {
+					LOGGER.error("Element remained stale after {} attempts for locator: {}", maxRetries, locator);
+					// Fallback to JavaScript click
+					try {
+						WebElement element = driver.findElement(locator);
+						js.executeScript("arguments[0].click();", element);
+						PerformanceUtils.waitForUIStability(driver, 1);
+						return;
+					} catch (Exception ex) {
+						LOGGER.error("JavaScript click also failed: {}", ex.getMessage());
+						throw new RuntimeException("Failed to click element after all retries", ex);
+					}
+				}
+				LOGGER.debug("Stale element on attempt {}/{}, retrying...", attempt, maxRetries);
+				try {
+					Thread.sleep(300); // Brief pause before retry
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+					throw new RuntimeException("Interrupted during retry", ie);
+				}
+			} catch (Exception e) {
+				if (attempt == maxRetries) {
+					// Last attempt failed, try JavaScript click as fallback
+					try {
+						WebElement element = driver.findElement(locator);
+						js.executeScript("arguments[0].click();", element);
+						PerformanceUtils.waitForUIStability(driver, 1);
+						LOGGER.debug("Used JavaScript click fallback for locator: {}", locator);
+						return;
+					} catch (Exception ex) {
+						LOGGER.warn("Click failed for locator after {} attempts: {}", maxRetries, ex.getMessage());
+						throw new RuntimeException("Failed to click element", ex);
+					}
+				}
+				LOGGER.debug("Click attempt {} failed, retrying: {}", attempt, e.getMessage());
+				try {
+					Thread.sleep(300);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+					throw new RuntimeException("Interrupted during retry", ie);
+				}
 			}
 		}
 	}

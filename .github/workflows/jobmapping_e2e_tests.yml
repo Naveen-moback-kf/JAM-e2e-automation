@@ -336,7 +336,7 @@ jobs:
             echo "# Browser & Execution Settings"
             echo "browser=${BROWSER}"
             echo "headless.mode=${HEADLESS}"
-            echo "excel.reporting=false"
+            echo "excel.reporting=true"
             echo "allure.reporting=true"
             echo "keep.system.awake=false"
             echo ""
@@ -532,7 +532,19 @@ jobs:
           
           # Quick artifact check
           [ -f "test-output/testng-results.xml" ] && echo "✅ TestNG results generated" || echo "⚠️  TestNG results missing"
-          [ -d "AllureReports/allure-report" ] && echo "✅ Allure report generated" || echo "⚠️  Allure report missing"
+          
+          # Check Allure results (report is generated in next step)
+          if [ -d "AllureReports/allure-results" ]; then
+            RESULT_COUNT=$(find AllureReports/allure-results -type f 2>/dev/null | wc -l)
+            if [ "${RESULT_COUNT}" -gt 0 ]; then
+              echo "✅ Allure results found: ${RESULT_COUNT} files"
+            else
+              echo "⚠️  Allure results directory exists but is empty"
+            fi
+          else
+            echo "⚠️  Allure results directory missing"
+          fi
+          
           [ -d "ExcelReports" ] && echo "✅ Excel report generated" || echo "⚠️  Excel report missing"
           
           # ═══════════════════════════════════════════════════════════════
@@ -575,16 +587,49 @@ jobs:
         working-directory: e2e-automation
         run: |
           echo "📊 Generating Allure report..."
+          
+          # Check for Allure results
+          if [ -d "AllureReports/allure-results" ]; then
+            RESULT_COUNT=$(find AllureReports/allure-results -type f 2>/dev/null | wc -l)
+            echo "📁 Allure results directory found with ${RESULT_COUNT} files"
+            ls -la AllureReports/allure-results/ | head -20 || echo "⚠️  Could not list results directory"
+          else
+            echo "❌ Allure results directory not found"
+            echo "Creating AllureReports/allure-results directory..."
+            mkdir -p AllureReports/allure-results
+          fi
+          
+          # Check if results directory has files
           if [ -d "AllureReports/allure-results" ] && [ "$(ls -A AllureReports/allure-results 2>/dev/null)" ]; then
             echo "✅ Allure results found - Generating report..."
-            mvn allure:report -B || echo "⚠️  Allure report generation failed (non-critical)"
-            if [ -d "AllureReports/allure-report" ]; then
-              echo "✅ Allure report generated successfully"
+            
+            # Generate Allure report using Maven plugin
+            mvn allure:report -B -Dallure.results.directory=AllureReports/allure-results -Dallure.report.directory=AllureReports/allure-report || {
+              echo "⚠️  Allure report generation failed, trying alternative method..."
+              # Alternative: Use allure command line if available
+              if command -v allure &> /dev/null; then
+                allure generate AllureReports/allure-results -o AllureReports/allure-report --clean || echo "⚠️  Allure CLI also failed"
+              fi
+            }
+            
+            # Verify report was generated
+            if [ -d "AllureReports/allure-report" ] && [ "$(ls -A AllureReports/allure-report 2>/dev/null)" ]; then
+              REPORT_FILES=$(find AllureReports/allure-report -type f 2>/dev/null | wc -l)
+              echo "✅ Allure report generated successfully with ${REPORT_FILES} files"
+              ls -la AllureReports/allure-report/ | head -10 || echo "⚠️  Could not list report directory"
             else
-              echo "⚠️  Allure report directory not found after generation"
+              echo "⚠️  Allure report directory is empty or not found after generation"
+              echo "Checking Allure configuration..."
+              cat src/test/resources/allure.properties 2>/dev/null || echo "⚠️  allure.properties not found"
             fi
           else
-            echo "ℹ️  No Allure results found - Skipping report generation"
+            echo "ℹ️  No Allure results found in AllureReports/allure-results - Skipping report generation"
+            echo "This might indicate:"
+            echo "  - Tests did not execute"
+            echo "  - Allure plugin not properly configured"
+            echo "  - Results written to different location"
+            echo "Checking for results in other locations..."
+            find . -name "allure-results" -type d 2>/dev/null | head -5 || echo "No allure-results directories found"
           fi
       
       - name: 🔄 Restore Original Test Suite XML

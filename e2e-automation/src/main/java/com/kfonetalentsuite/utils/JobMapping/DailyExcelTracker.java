@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +30,9 @@ import com.kfonetalentsuite.utils.common.CommonVariable;
 public class DailyExcelTracker {
 
 	private static final Logger LOGGER = LogManager.getLogger(DailyExcelTracker.class);
+
+	// PARALLEL EXECUTION FIX: Lock for Excel file operations to prevent file conflicts
+	private static final ReentrantLock excelFileLock = new ReentrantLock(true); // Fair lock for FIFO access
 
 	// Configuration
 	private static final String EXCEL_REPORTS_DIR = "ExcelReports";
@@ -3150,93 +3154,115 @@ public class DailyExcelTracker {
 	 * Update Excel with smart append/overwrite logic - NEW feature files: APPEND to
 	 * existing data - PREVIOUSLY RUN feature files: OVERWRITE existing data for
 	 * those features
+	 * 
+	 * PARALLEL EXECUTION FIX: Synchronized to prevent file locking conflicts
 	 */
 	private static void updateTestResultsExcel(TestResultsSummary summary) throws IOException {
-
-		File excelFile = new File(EXCEL_REPORTS_DIR, MASTER_TEST_RESULTS_FILE);
-		Workbook workbook;
-
-		// Load existing workbook or create new one
-		if (excelFile.exists() && excelFile.length() > 0) {
-			createBackup(excelFile);
-			try (FileInputStream fis = new FileInputStream(excelFile)) {
-				workbook = new XSSFWorkbook(fis);
-				LOGGER.debug("Loaded existing Excel file for smart update");
-			} catch (Exception e) {
-				LOGGER.error("Failed to load existing Excel file: " + e.getMessage());
-				LOGGER.warn("Creating new Excel file instead");
-				workbook = new XSSFWorkbook();
-			}
-		} else {
-			if (excelFile.exists() && excelFile.length() == 0) {
-				LOGGER.warn("Existing Excel file is empty (0 bytes), creating new file");
-				excelFile.delete(); // Remove empty file
-			}
-			workbook = new XSSFWorkbook();
-			LOGGER.info(" Creating new Excel test results file");
-		}
-
+		// PARALLEL EXECUTION FIX: Acquire lock to prevent concurrent file access
+		excelFileLock.lock();
 		try {
-			// Smart update Test Results Summary sheet (append new, overwrite existing)
-			smartUpdateTestResultsSummarySheet(workbook, summary);
+			LOGGER.debug("Thread {} acquired Excel file lock for updateTestResultsExcel", Thread.currentThread().getName());
+			
+			File excelFile = new File(EXCEL_REPORTS_DIR, MASTER_TEST_RESULTS_FILE);
+			Workbook workbook;
 
-			// Add to Execution History sheet (NEVER resets - permanent historical log)
-			addToExecutionHistorySheet(workbook, summary);
-
-			// Create or update Project Dashboard sheet (Normal Execution focus)
-			createOrUpdateProjectDashboard(workbook, summary);
-
-			// Create or update Cross-Browser Dashboard sheet
-			createOrUpdateCrossBrowserDashboard(workbook, summary);
-
-			// Write to file
-			try (FileOutputStream fos = new FileOutputStream(excelFile)) {
-				workbook.write(fos);
+			// Load existing workbook or create new one
+			if (excelFile.exists() && excelFile.length() > 0) {
+				createBackup(excelFile);
+				try (FileInputStream fis = new FileInputStream(excelFile)) {
+					workbook = new XSSFWorkbook(fis);
+					LOGGER.debug("Loaded existing Excel file for smart update");
+				} catch (Exception e) {
+					LOGGER.error("Failed to load existing Excel file: " + e.getMessage());
+					LOGGER.warn("Creating new Excel file instead");
+					workbook = new XSSFWorkbook();
+				}
+			} else {
+				if (excelFile.exists() && excelFile.length() == 0) {
+					LOGGER.warn("Existing Excel file is empty (0 bytes), creating new file");
+					excelFile.delete(); // Remove empty file
+				}
+				workbook = new XSSFWorkbook();
+				LOGGER.info(" Creating new Excel test results file");
 			}
 
+			try {
+				// Smart update Test Results Summary sheet (append new, overwrite existing)
+				smartUpdateTestResultsSummarySheet(workbook, summary);
+
+				// Add to Execution History sheet (NEVER resets - permanent historical log)
+				addToExecutionHistorySheet(workbook, summary);
+
+				// Create or update Project Dashboard sheet (Normal Execution focus)
+				createOrUpdateProjectDashboard(workbook, summary);
+
+				// Create or update Cross-Browser Dashboard sheet
+				createOrUpdateCrossBrowserDashboard(workbook, summary);
+
+				// Write to file
+				try (FileOutputStream fos = new FileOutputStream(excelFile)) {
+					workbook.write(fos);
+				}
+
+			} finally {
+				workbook.close();
+			}
 		} finally {
-			workbook.close();
+			// PARALLEL EXECUTION FIX: Always release lock, even on exception
+			excelFileLock.unlock();
+			LOGGER.debug("Thread {} released Excel file lock for updateTestResultsExcel", Thread.currentThread().getName());
 		}
 	}
 
 	/**
 	 * ENHANCED: Incremental Excel update for individual runner completions Updates
 	 * Test Results Summary only, skips Execution History to prevent duplication
+	 * 
+	 * PARALLEL EXECUTION FIX: Synchronized to prevent file locking conflicts
 	 */
 	private static void updateTestResultsExcelIncremental(TestResultsSummary summary) throws IOException {
-
-		File excelFile = new File(EXCEL_REPORTS_DIR, MASTER_TEST_RESULTS_FILE);
-		Workbook workbook;
-
-		// Load existing workbook or create new one
-		if (excelFile.exists()) {
-			// No backup for incremental updates to reduce I/O overhead
-			try (FileInputStream fis = new FileInputStream(excelFile)) {
-				workbook = new XSSFWorkbook(fis);
-				LOGGER.debug("Loaded existing Excel file for incremental update");
-			}
-		} else {
-			workbook = new XSSFWorkbook();
-			LOGGER.info(" Creating new Excel test results file");
-		}
-
+		// PARALLEL EXECUTION FIX: Acquire lock to prevent concurrent file access
+		excelFileLock.lock();
 		try {
-			// Smart update Test Results Summary sheet only (no execution history)
-			smartUpdateTestResultsSummarySheet(workbook, summary);
+			LOGGER.debug("Thread {} acquired Excel file lock for updateTestResultsExcelIncremental", Thread.currentThread().getName());
+			
+			File excelFile = new File(EXCEL_REPORTS_DIR, MASTER_TEST_RESULTS_FILE);
+			Workbook workbook;
 
-			// Create or update Project Dashboard sheet (Normal Execution focus)
-			createOrUpdateProjectDashboard(workbook, summary);
-
-			// Create or update Cross-Browser Dashboard sheet
-			createOrUpdateCrossBrowserDashboard(workbook, summary);
-
-			// Write to file
-			try (FileOutputStream fos = new FileOutputStream(excelFile)) {
-				workbook.write(fos);
+			// Load existing workbook or create new one
+			if (excelFile.exists()) {
+				// No backup for incremental updates to reduce I/O overhead
+				try (FileInputStream fis = new FileInputStream(excelFile)) {
+					workbook = new XSSFWorkbook(fis);
+					LOGGER.debug("Loaded existing Excel file for incremental update");
+				}
+			} else {
+				workbook = new XSSFWorkbook();
+				LOGGER.info(" Creating new Excel test results file");
 			}
 
+			try {
+				// Smart update Test Results Summary sheet only (no execution history)
+				smartUpdateTestResultsSummarySheet(workbook, summary);
+
+				// Create or update Project Dashboard sheet (Normal Execution focus)
+				createOrUpdateProjectDashboard(workbook, summary);
+
+				// Create or update Cross-Browser Dashboard sheet
+				createOrUpdateCrossBrowserDashboard(workbook, summary);
+
+				// Write to file
+				try (FileOutputStream fos = new FileOutputStream(excelFile)) {
+					workbook.write(fos);
+				}
+
+			} finally {
+				workbook.close();
+			}
 		} finally {
-			workbook.close();
+			// PARALLEL EXECUTION FIX: Always release lock, even on exception
+			excelFileLock.unlock();
+			LOGGER.debug("Thread {} released Excel file lock for updateTestResultsExcelIncremental", Thread.currentThread().getName());
 		}
 	}
 
