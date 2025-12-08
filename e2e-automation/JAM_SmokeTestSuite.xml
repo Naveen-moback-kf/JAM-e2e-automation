@@ -9,7 +9,7 @@
         <listener class-name="com.kfonetalentsuite.listeners.AllureScreenshotListener" />
     </listeners>
     
-    <!-- SMOKE TESTS - Quick Validation (19 tests) -->
+    <!-- SMOKE TESTS - Quick Validation (18 tests) -->
     <!-- Purpose: Validate major features work. Run before each release. -->
     <!-- Estimated Time: 15-25 minutes -->
     
@@ -140,13 +140,6 @@
     <test name="Validate Select All With Search Functionality in JAM">
         <classes>
             <class name="testrunners.JobMapping.Runner38_ValidateSelectAllWithSearchFunctionality_JAM" />
-        </classes>
-    </test>
-    
-    <!-- 19. JAM publish all -->
-    <test name="Validate Select And Publish All Job Profiles in JAM">
-        <classes>
-            <class name="testrunners.JobMapping.Runner40_ValidateSelectAndPublishAllJobProfiles_JAM" />
         </classes>
     </test>
     

@@ -1597,16 +1597,22 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 			LOGGER.info("Loaded profiles on screen (BEFORE header checkbox click): "
 					+ loadedProfilesBeforeHeaderCheckboxClick.get());
 
-			// Step 2: Click header checkbox
+			// Step 2: Click header checkbox - try multiple approaches for kf-checkbox
+			WebElement headerCheckbox = waitForElement(TABLE_HEADER_CHECKBOX, 10);
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(TABLE_HEADER_CHECKBOX))).click();
-			} catch (Exception e) {
+				WebElement innerInput = headerCheckbox.findElement(By.xpath(".//input | .//span | .//*[contains(@class,'checkbox')]"));
+				jsClick(innerInput);
+			} catch (Exception e1) {
 				try {
-					js.executeScript("arguments[0].click();", findElement(TABLE_HEADER_CHECKBOX));
-				} catch (Exception s) {
-					jsClick(findElement(TABLE_HEADER_CHECKBOX));
+					jsClick(headerCheckbox);
+				} catch (Exception e2) {
+					new Actions(driver).moveToElement(headerCheckbox).click().perform();
 				}
 			}
+			
+			// Wait for selection to complete
+			waitForSpinners();
+			safeSleep(500);
 
 			// Step 3: Count selected and disabled profiles (without scrolling)
 			profilesCount.set(loadedProfilesBeforeHeaderCheckboxClick.get());
@@ -1680,40 +1686,60 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 
 	public void user_should_uncheck_header_checkbox_to_deselect_selected_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
-			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
+			js.executeScript("window.scrollTo(0, 0);");
 			waitForSpinners();
-			// Step 1: Store count of profiles BEFORE unchecking header checkbox
+			safeSleep(500);
+			
 			int profilesBeforeDeselect = selectedProfilesAfterHeaderCheckboxClick.get();
 			LOGGER.info("Selected profiles count (BEFORE unchecking header checkbox): " + profilesBeforeDeselect);
 
-			// Step 2: Click header checkbox to deselect all
+			// Click header checkbox to deselect all - try multiple approaches
+			WebElement headerCheckbox = waitForElement(TABLE_HEADER_CHECKBOX, 10);
+			
+			// Try clicking the inner input element first (more reliable for kf-checkbox)
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(TABLE_HEADER_CHECKBOX))).click();
-			} catch (Exception e) {
+				WebElement innerInput = headerCheckbox.findElement(By.xpath(".//input | .//span | .//*[contains(@class,'checkbox')]"));
+				jsClick(innerInput);
+			} catch (Exception e1) {
+				// Fallback to clicking the kf-checkbox itself
 				try {
-					js.executeScript("arguments[0].click();", findElement(TABLE_HEADER_CHECKBOX));
-				} catch (Exception s) {
-					jsClick(findElement(TABLE_HEADER_CHECKBOX));
+					jsClick(headerCheckbox);
+				} catch (Exception e2) {
+					// Final fallback using Actions
+					new Actions(driver).moveToElement(headerCheckbox).click().perform();
 				}
 			}
 
-			// Step 3: Wait for action to complete
+			// Wait for deselection to complete
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
+			safeSleep(1000);
 
-			// Step 4: Reset profiles count to 0 (all deselected)
+			// Verify deselection - check that no profile checkboxes are selected
+			try {
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+				shortWait.until(driver -> {
+					try {
+						// Check if any checkbox is still selected (has check icon)
+						List<WebElement> selectedCheckboxes = driver.findElements(
+							By.xpath("//tbody//tr//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+						return selectedCheckboxes.isEmpty();
+					} catch (Exception e) {
+						return true;
+					}
+				});
+				LOGGER.info("Verified all checkboxes are deselected");
+			} catch (TimeoutException te) {
+				LOGGER.warn("Some checkboxes may still be selected after header checkbox click");
+			}
+
 			profilesCount.set(0);
 
 			PageObjectHelper.log(LOGGER, "Clicked on header checkbox and deselected all "
 					+ profilesBeforeDeselect + " job profiles in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue clicking header checkbox to deselect all - Method: user_should_uncheck_header_checkbox_to_deselect_selected_job_profiles_in_hcm_sync_profiles_tab",
-					e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking on header checkbox to deselect all job profiles in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in clicking on header checkbox to deselect all job profiles in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_uncheck_header_checkbox_to_deselect_selected_job_profiles_in_hcm_sync_profiles_tab",
+					"Issue clicking header checkbox to deselect all profiles", e);
 		}
 	}
 
