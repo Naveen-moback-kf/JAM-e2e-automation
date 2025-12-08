@@ -1,6 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -24,7 +23,7 @@ public class PO07_PublishJobFromComparisonScreen extends BasePageObject {
 	private static final By JC_PUBLISH_SELECT_BTN = By.xpath("//button[@id='publish-select-btn']");
 	private static final By SELECT_BTNS_IN_JC = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span");
 
-	public PO07_PublishJobFromComparisonScreen() throws IOException {
+	public PO07_PublishJobFromComparisonScreen() {
 		super();
 	}
 

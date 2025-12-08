@@ -1,6 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
@@ -50,7 +49,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 	private static final By PROFILE_1_SKILLS = By.xpath("//div[@class='shadow']//div[contains(@id,'skills')]");
 	private static final By VIEW_MORE_SKILLS = By.xpath("//div[contains(@id,'skills')]//button[@data-testid='view-more-skills']");
 
-	public PO15_ValidateRecommendedProfileDetails() throws IOException {
+	public PO15_ValidateRecommendedProfileDetails() {
 		super();
 	}
 

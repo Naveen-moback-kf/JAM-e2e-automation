@@ -1,6 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -26,7 +25,7 @@ public class PO38_ValidateSelectAllWithSearchFunctionality_JAM extends BasePageO
 
 	private static final Logger LOGGER = LogManager.getLogger(PO38_ValidateSelectAllWithSearchFunctionality_JAM.class);
 
-	public PO38_ValidateSelectAllWithSearchFunctionality_JAM() throws IOException {
+	public PO38_ValidateSelectAllWithSearchFunctionality_JAM() {
 		super();
 	}
 

@@ -1,6 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +58,7 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 	private static final By ALL_FUNCTIONS_COLUMN = By.xpath("//*[text()='Organization jobs']//..//tbody//tr//td[@colspan='7']//span[2] | //*[@id='table-container']/div[1]/div/div[2]/div/div/div[2]/span/div/span/span[2]");
 	private static final By VISIBLE_ROWS = By.xpath("//tbody//tr[contains(@class,'cursor-pointer')]");
 
-	public PO11_ValidateJobMappingFiltersFunctionality() throws IOException {
+	public PO11_ValidateJobMappingFiltersFunctionality() {
 		super();
 	}
 

@@ -1,13 +1,11 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
@@ -26,11 +24,8 @@ public class PO39_ValidateSelectAllWithFiltersFunctionality_JAM extends BasePage
 	private static final By CLEAR_FILTERS_BTN = By.xpath("//button[@data-testid='Clear Filters']");
 	private static final By DEPARTMENTS_FILTERS_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Departments']");
 
-	private JavascriptExecutor js;
-
-	public PO39_ValidateSelectAllWithFiltersFunctionality_JAM() throws IOException {
+	public PO39_ValidateSelectAllWithFiltersFunctionality_JAM() {
 		super();
-		this.js = (JavascriptExecutor) driver;
 	}
 
 	// Static variables to store filter results count

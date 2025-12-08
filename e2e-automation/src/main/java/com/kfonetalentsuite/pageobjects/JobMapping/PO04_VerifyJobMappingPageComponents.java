@@ -1,6 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
 
@@ -89,7 +88,7 @@ public class PO04_VerifyJobMappingPageComponents extends BasePageObject {
 	private static final By BROWSE_RESOURCES_JAM = By.xpath("//*[contains(text(),'Browse resources')]/following::*[contains(text(),'Job Mapping')]");
 	private static final By ROW_CHECKBOXES = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input");
 
-	public PO04_VerifyJobMappingPageComponents() throws IOException {
+	public PO04_VerifyJobMappingPageComponents() {
 		super();
 	}
 

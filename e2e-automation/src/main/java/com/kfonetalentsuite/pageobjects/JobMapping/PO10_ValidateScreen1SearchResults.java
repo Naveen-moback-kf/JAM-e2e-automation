@@ -1,6 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +22,7 @@ public class PO10_ValidateScreen1SearchResults extends BasePageObject {
 	private static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
 	private static final By JOB_NAMES_IN_RESULTS = By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]");
 
-	public PO10_ValidateScreen1SearchResults() throws IOException {
+	public PO10_ValidateScreen1SearchResults() {
 		super();
 	}
 

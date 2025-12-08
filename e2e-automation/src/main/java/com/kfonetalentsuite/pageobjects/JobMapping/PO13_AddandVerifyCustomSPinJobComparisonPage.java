@@ -1,6 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -43,7 +42,7 @@ public class PO13_AddandVerifyCustomSPinJobComparisonPage extends BasePageObject
 	private static final By PROFILE_1_SKILLS = By.xpath("//div[@class='shadow']//div[contains(@id,'skills')]");
 	private static final By VIEW_MORE_SKILLS = By.xpath("//div[contains(@id,'skills')]//button[@data-testid='view-more-skills']");
 
-	public PO13_AddandVerifyCustomSPinJobComparisonPage() throws IOException {
+	public PO13_AddandVerifyCustomSPinJobComparisonPage() {
 		super();
 	}
 

@@ -1,6 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import org.apache.logging.log4j.LogManager;
@@ -24,7 +23,7 @@ public class PO20_ManualMappingofSPinAutoAI extends BasePageObject {
 	private static final By FIND_MATCH_BTN = By.xpath("//tbody//tr[1]//button[contains(text(),'Find')]");
 	private static final By SEARCH_DIFFERENT_SP_BTN = By.xpath("//tbody//tr[2]//button[contains(text(),'different profile')]");
 
-	public PO20_ManualMappingofSPinAutoAI() throws IOException {
+	public PO20_ManualMappingofSPinAutoAI() {
 		super();
 	}
 

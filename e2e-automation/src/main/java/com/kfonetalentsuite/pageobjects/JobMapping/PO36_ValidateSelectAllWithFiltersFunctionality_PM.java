@@ -1,13 +1,11 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
@@ -24,11 +22,8 @@ public class PO36_ValidateSelectAllWithFiltersFunctionality_PM extends BasePageO
 	private static final By SHOWING_JOB_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing')]");
 	private static final By CLEAR_ALL_FILTERS_BTN = By.xpath("//a[contains(text(),'Clear All')]");
 
-	private JavascriptExecutor js;
-
-	public PO36_ValidateSelectAllWithFiltersFunctionality_PM() throws IOException {
+	public PO36_ValidateSelectAllWithFiltersFunctionality_PM() {
 		super();
-		this.js = (JavascriptExecutor) driver;
 	}
 
 	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution

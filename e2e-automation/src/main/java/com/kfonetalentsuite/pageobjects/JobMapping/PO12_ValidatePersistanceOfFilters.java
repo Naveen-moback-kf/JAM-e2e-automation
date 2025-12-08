@@ -1,7 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -21,7 +19,7 @@ public class PO12_ValidatePersistanceOfFilters extends BasePageObject {
 	private static final By ORG_JOB_GRADE_SORT_ICON = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div//span//*[@class='text-blue-600']");
 	private static final By MATCHED_SP_GRADE_SORT_ICON = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[2]/div//span//*[@class='text-blue-600']");
 
-	public PO12_ValidatePersistanceOfFilters() throws IOException {
+	public PO12_ValidatePersistanceOfFilters() {
 		super();
 	}
 

@@ -38,11 +38,8 @@ public class PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping extends BasePa
 	public static ThreadLocal<String> forwardScenarioJobName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> forwardScenarioJobCode = ThreadLocal.withInitial(() -> "NOT_SET");
 
-	private JavascriptExecutor js;
-
-	public PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping() throws IOException {
+	public PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping() {
 		super();
-		this.js = (JavascriptExecutor) driver;
 	}
 
 	// ==================== LOCATORS ====================

@@ -38,11 +38,8 @@ public class PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping extends Bas
 	public static ThreadLocal<String> forwardScenarioJobName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> forwardScenarioJobCode = ThreadLocal.withInitial(() -> "NOT_SET");
 
-	private JavascriptExecutor js;
-
-	public PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping() throws IOException {
+	public PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping() {
 		super();
-		this.js = (JavascriptExecutor) driver;
 	}
 
 	// ==================== LOCATORS ====================

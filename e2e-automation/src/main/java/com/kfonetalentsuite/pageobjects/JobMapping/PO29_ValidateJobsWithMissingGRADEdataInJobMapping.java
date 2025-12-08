@@ -43,11 +43,8 @@ public class PO29_ValidateJobsWithMissingGRADEdataInJobMapping extends BasePageO
 	public static ThreadLocal<String> forwardScenarioJobName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> forwardScenarioJobCode = ThreadLocal.withInitial(() -> "NOT_SET");
 
-	private JavascriptExecutor js;
-
-	public PO29_ValidateJobsWithMissingGRADEdataInJobMapping() throws IOException {
+	public PO29_ValidateJobsWithMissingGRADEdataInJobMapping() {
 		super();
-		this.js = (JavascriptExecutor) driver;
 	}
 
 	// ==================== LOCATORS ====================

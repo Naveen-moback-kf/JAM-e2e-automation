@@ -22,7 +22,7 @@ public class PO28_VerifyInfoMessageForManualMappingProfiles extends BasePageObje
 
 	private JavascriptExecutor jsExecutor;
 
-	public PO28_VerifyInfoMessageForManualMappingProfiles() throws IOException {
+	public PO28_VerifyInfoMessageForManualMappingProfiles() {
 		super();
 		this.jsExecutor = (JavascriptExecutor) driver;
 	}

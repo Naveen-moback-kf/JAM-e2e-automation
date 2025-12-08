@@ -1,6 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +22,7 @@ public class PO14_ValidateProfileLevelFunctionality extends BasePageObject {
 	private static final By PROFILE_HEADER = By.xpath("//h2[@id='summary-modal']//p");
 	private static final By PROFILE_1_TITLE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-title')]");
 
-	public PO14_ValidateProfileLevelFunctionality() throws IOException {
+	public PO14_ValidateProfileLevelFunctionality() {
 		super();
 	}
 
