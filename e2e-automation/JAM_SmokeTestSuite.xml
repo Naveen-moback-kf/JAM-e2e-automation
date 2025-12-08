@@ -7,6 +7,7 @@
         <listener class-name="com.kfonetalentsuite.listeners.ExcelReportListener" />
         <listener class-name="hooks.JobMapping.SuiteHooks" />
         <listener class-name="com.kfonetalentsuite.listeners.AllureScreenshotListener" />
+        <listener class-name="com.kfonetalentsuite.testNGAnalyzer.MyTransform" />
     </listeners>
     
     <!-- SMOKE TESTS - Quick Validation (18 tests) -->

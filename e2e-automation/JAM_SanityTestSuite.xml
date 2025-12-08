@@ -10,6 +10,7 @@
         <listener class-name="com.kfonetalentsuite.listeners.ExcelReportListener" />
         <listener class-name="hooks.JobMapping.SuiteHooks" />
         <listener class-name="com.kfonetalentsuite.listeners.AllureScreenshotListener" />
+        <listener class-name="com.kfonetalentsuite.testNGAnalyzer.MyTransform" />
     </listeners>
     
     <!-- SANITY TESTS - Critical Path Tests (8 tests) -->
