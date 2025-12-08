@@ -33,6 +33,7 @@ Feature: Validate functionality of publishing one or more than one job profiles 
 
   @VerifyPublishedJobsInHCMSyncProfilesTabInPM
   Scenario: Verify Published Job Profiles is displaying as Custom Profile in HCM Sync Profiles screen in PM
+  	Then Skip scenario if user does not have HCM Sync access
    	Then Click on KFONE Global Menu in Job Mapping UI
     Then Click on Profile Manager application button in KFONE Global Menu
     Then Verify user should land on Profile Manager dashboard page

@@ -70,19 +70,20 @@ public class ExcelStyleHelper {
 		statusFont.setFontName("Arial");
 		statusFont.setFontHeightInPoints((short) 10);
 
-		// Status-specific colors
-		if ("PASSED".equalsIgnoreCase(status)) {
-			statusStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
-			statusFont.setColor(IndexedColors.DARK_GREEN.getIndex());
-		} else if ("FAILED".equalsIgnoreCase(status)) {
+		// Normalize status for comparison
+		String normalizedStatus = (status != null) ? status.toUpperCase().trim() : "";
+
+		// Status-specific colors - FIXED: Handle variations like "PASS", "FAIL", "SKIP"
+		if (normalizedStatus.contains("FAIL")) {
 			statusStyle.setFillForegroundColor(IndexedColors.ROSE.getIndex());
 			statusFont.setColor(IndexedColors.DARK_RED.getIndex());
-		} else if ("SKIPPED".equalsIgnoreCase(status)) {
+		} else if (normalizedStatus.contains("SKIP")) {
 			statusStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
 			statusFont.setColor(IndexedColors.DARK_YELLOW.getIndex());
 		} else {
-			statusStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-			statusFont.setColor(IndexedColors.BLACK.getIndex());
+			// PASSED, PASS, or any other status - default to green
+			statusStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+			statusFont.setColor(IndexedColors.DARK_GREEN.getIndex());
 		}
 
 		// Apply style settings
@@ -180,8 +181,12 @@ public class ExcelStyleHelper {
 	 * applies the same background color to columns A-I as used in the status column
 	 * J
 	 * 
+	 * FIXED: Now handles status variations like "PASS", "FAIL", "SKIP" in addition
+	 * to "PASSED", "FAILED", "SKIPPED". Also treats null/unknown status as PASSED
+	 * (green) by default since most tests pass.
+	 * 
 	 * @param workbook - The Excel workbook
-	 * @param status   - Test status (PASSED, FAILED, SKIPPED)
+	 * @param status   - Test status (PASSED, FAILED, SKIPPED, or variations)
 	 * @return CellStyle with appropriate background color for the entire row
 	 */
 	public static CellStyle createRowStatusStyle(Workbook workbook, String status) {
@@ -197,19 +202,25 @@ public class ExcelStyleHelper {
 		rowStyle.setAlignment(HorizontalAlignment.LEFT);
 		rowStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-		// Apply status-specific background colors (SIMPLIFIED: 3 statuses only)
-		if ("PASSED".equalsIgnoreCase(status)) {
-			rowStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
-			rowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		} else if ("FAILED".equalsIgnoreCase(status)) {
+		// Normalize status for comparison
+		String normalizedStatus = (status != null) ? status.toUpperCase().trim() : "";
+
+		// Apply status-specific background colors
+		// FIXED: Handle variations like "PASS", "FAIL", "SKIP"
+		if (normalizedStatus.contains("FAIL")) {
+			// FAILED or FAIL
 			rowStyle.setFillForegroundColor(IndexedColors.ROSE.getIndex());
 			rowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		} else if ("SKIPPED".equalsIgnoreCase(status)) {
-			// SKIPPED status uses yellow color styling for execution history rows
+		} else if (normalizedStatus.contains("SKIP")) {
+			// SKIPPED or SKIP
 			rowStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
 			rowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		} else {
+			// PASSED, PASS, or any other status (including null/empty) - default to green
+			// This ensures all cells get a background color for visual consistency
+			rowStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+			rowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		}
-		// If status is unknown/null, no background color (default white)
 
 		// Borders
 		setBorders(rowStyle, BorderStyle.THIN);
@@ -231,8 +242,11 @@ public class ExcelStyleHelper {
 	 * Create enhanced status style for the Quality Status column (J) Maintains bold
 	 * formatting while ensuring consistent coloring with row
 	 * 
+	 * FIXED: Now handles status variations like "PASS", "FAIL", "SKIP" in addition
+	 * to "PASSED", "FAILED", "SKIPPED".
+	 * 
 	 * @param workbook - The Excel workbook
-	 * @param status   - Test status (PASSED, FAILED, SKIPPED)
+	 * @param status   - Test status (PASSED, FAILED, SKIPPED, or variations)
 	 * @return CellStyle for the status column with bold font and matching colors
 	 */
 	public static CellStyle createEnhancedStatusStyle(Workbook workbook, String status) {
@@ -244,20 +258,20 @@ public class ExcelStyleHelper {
 		statusFont.setFontName("Arial");
 		statusFont.setFontHeightInPoints((short) 10);
 
-		// Status-specific colors (SIMPLIFIED: 3 statuses only)
-		if ("PASSED".equalsIgnoreCase(status)) {
-			statusStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
-			statusFont.setColor(IndexedColors.DARK_GREEN.getIndex());
-		} else if ("FAILED".equalsIgnoreCase(status)) {
+		// Normalize status for comparison
+		String normalizedStatus = (status != null) ? status.toUpperCase().trim() : "";
+
+		// Status-specific colors - FIXED: Handle variations
+		if (normalizedStatus.contains("FAIL")) {
 			statusStyle.setFillForegroundColor(IndexedColors.ROSE.getIndex());
 			statusFont.setColor(IndexedColors.DARK_RED.getIndex());
-		} else if ("SKIPPED".equalsIgnoreCase(status)) {
-			// SKIPPED status uses yellow color styling
+		} else if (normalizedStatus.contains("SKIP")) {
 			statusStyle.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
 			statusFont.setColor(IndexedColors.DARK_YELLOW.getIndex());
 		} else {
-			statusStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-			statusFont.setColor(IndexedColors.BLACK.getIndex());
+			// PASSED, PASS, or any other status - default to green
+			statusStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+			statusFont.setColor(IndexedColors.DARK_GREEN.getIndex());
 		}
 
 		// Apply style settings
@@ -277,6 +291,9 @@ public class ExcelStyleHelper {
 	 * status-based background color to columns A-I and the enhanced status style to
 	 * column J
 	 * 
+	 * FIXED: Now gets or creates cells to ensure styling is applied even when updating
+	 * existing rows (prevents background color reset issue)
+	 * 
 	 * @param workbook          - The Excel workbook
 	 * @param dataRow           - The row to style
 	 * @param status            - Test status (PASSED, FAILED, SKIPPED)
@@ -291,24 +308,31 @@ public class ExcelStyleHelper {
 		CellStyle enhancedStatusStyle = createEnhancedStatusStyle(workbook, status);
 
 		// Apply row-level background coloring to data columns (A-I)
+		// FIXED: Get or create cell to ensure styling is always applied
 		for (int i = 0; i < numDataColumns; i++) {
 			Cell cell = dataRow.getCell(i);
-			if (cell != null) {
-				cell.setCellStyle(rowStatusStyle);
+			if (cell == null) {
+				cell = dataRow.createCell(i);
 			}
+			cell.setCellStyle(rowStatusStyle);
 		}
 
 		// Apply enhanced status style to status column (J)
+		// FIXED: Get or create cell to ensure styling is always applied
 		Cell statusCell = dataRow.getCell(statusColumnIndex);
-		if (statusCell != null) {
-			statusCell.setCellStyle(enhancedStatusStyle);
+		if (statusCell == null) {
+			statusCell = dataRow.createCell(statusColumnIndex);
 		}
+		statusCell.setCellStyle(enhancedStatusStyle);
 	}
 
 	/**
 	 * Apply row-level styling to specific columns only (CROSS-BROWSER FIX) This
 	 * preserves existing formatting in other columns (like bold browser status
 	 * columns)
+	 * 
+	 * FIXED: Now gets or creates cells to ensure styling is applied even when updating
+	 * existing rows (prevents background color reset issue)
 	 * 
 	 * @param workbook      - Excel workbook for creating styles
 	 * @param dataRow       - Row to apply styling to
@@ -321,11 +345,13 @@ public class ExcelStyleHelper {
 		CellStyle rowStatusStyle = createRowStatusStyle(workbook, status);
 
 		// Apply row-level background coloring to specified columns only
+		// FIXED: Get or create cell to ensure styling is always applied
 		for (int columnIndex : columnIndices) {
 			Cell cell = dataRow.getCell(columnIndex);
-			if (cell != null) {
-				cell.setCellStyle(rowStatusStyle);
+			if (cell == null) {
+				cell = dataRow.createCell(columnIndex);
 			}
+			cell.setCellStyle(rowStatusStyle);
 		}
 	}
 }

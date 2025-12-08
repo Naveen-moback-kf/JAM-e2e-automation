@@ -2,7 +2,11 @@ package stepdefinitions.JobMapping;
 
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.kfonetalentsuite.manager.PageObjectManager;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 import io.cucumber.java.en.Given;
@@ -11,6 +15,8 @@ import io.cucumber.java.en.Then;
 public class SD01_KFoneLogin {
 	PageObjectManager kfoneLogin = new PageObjectManager();
 	// WebDriver driver = DriverManager.getDriver();
+	
+	private static final Logger LOGGER = LogManager.getLogger(SD01_KFoneLogin.class);
 
 	public SD01_KFoneLogin() {
 		super();
@@ -93,11 +99,11 @@ public class SD01_KFoneLogin {
 
 	// ===== USER ROLE VERIFICATION STEP DEFINITIONS =====
 
-	@Then("Store user role from session storage")
-	public void store_user_role_from_session_storage() {
-		boolean success = Utilities.setCurrentUserRoleFromSessionStorage();
+	@Then("Store user session details from session storage")
+	public void store_user_session_details_from_session_storage() {
+		boolean success = Utilities.setUserSessionDetailsFromSessionStorage();
 		if (!success) {
-			throw new AssertionError("Failed to retrieve and store user role from session storage");
+			throw new AssertionError("Failed to retrieve and store user session details from session storage");
 		}
 	}
 
@@ -125,9 +131,9 @@ public class SD01_KFoneLogin {
 	public void log_current_user_role() {
 		String currentRole = Utilities.getCurrentUserRole();
 		if (currentRole != null) {
-			System.out.println(" Current User Role: " + currentRole);
+			PageObjectHelper.log(LOGGER," Current User Role: " + currentRole);
 		} else {
-			System.out.println(" No user role currently stored");
+			PageObjectHelper.log(LOGGER," No user role currently stored");
 		}
 	}
 
@@ -154,12 +160,56 @@ public class SD01_KFoneLogin {
 		}
 
 		// If we reach here, user has the required role
-		System.out.println("User role validation passed. Current role: '" + currentRole + "' matches required role: '"
+		PageObjectHelper.log(LOGGER,"User role validation passed. Current role: '" + currentRole + "' matches required role: '"
 				+ requiredRole + "'");
 	}
 
 	@Then("Skip scenario if user is not KF Super User")
 	public void skip_scenario_if_user_is_not_kf_super_user() {
 		skip_scenario_if_user_role_is_not("KF Super User");
+	}
+
+	// ===== CONDITIONAL EXECUTION BASED ON USER LEVEL PERMISSIONS =====
+
+	@Then("Skip scenario if user does not have Job Mapping access")
+	public void skip_scenario_if_user_does_not_have_job_mapping_access() {
+		Boolean jobMappingEnabled = Utilities.isUserLevelJobMappingEnabled();
+
+		// If not stored globally, the session details might not have been fetched
+		if (jobMappingEnabled == null) {
+			throw new org.testng.SkipException(
+					"SCENARIO SKIPPED: Could not determine Job Mapping access. "
+							+ "Ensure 'Store user session details from session storage' step is executed first.");
+		}
+
+		if (!jobMappingEnabled) {
+			throw new org.testng.SkipException(
+					"SCENARIO SKIPPED: User does not have Job Mapping access. "
+							+ "userLevelJobMappingEnabled = false");
+		}
+
+		// If we reach here, user has Job Mapping access
+		PageObjectHelper.log(LOGGER,"Job Mapping access validation passed. userLevelJobMappingEnabled = true");
+	}
+
+	@Then("Skip scenario if user does not have HCM Sync access")
+	public void skip_scenario_if_user_does_not_have_hcm_sync_access() {
+		String userLevelPermission = Utilities.getUserLevelPermission();
+
+		// If not stored globally, the session details might not have been fetched
+		if (userLevelPermission == null) {
+			throw new org.testng.SkipException(
+					"SCENARIO SKIPPED: Could not determine HCM Sync access. "
+							+ "Ensure 'Store user session details from session storage' step is executed first.");
+		}
+
+		if (!Utilities.hasHCMSyncAccess()) {
+			throw new org.testng.SkipException(
+					"SCENARIO SKIPPED: User does not have HCM Sync Profiles access. "
+							+ "userLevelPermission = '" + userLevelPermission + "'");
+		}
+
+		// If we reach here, user has HCM Sync access
+		PageObjectHelper.log(LOGGER,"HCM Sync access validation passed. userLevelPermission = 'true'");
 	}
 }

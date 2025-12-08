@@ -3,6 +3,7 @@ Feature: Select Loaded Profiles and Sync with HCM in HCM Sync Profiles screen in
 
 	@Navigate_HCM_Sync_Profiles
   	Scenario: Verify Title and Description of HCM Sync Profiles
+    	Then Skip scenario if user does not have HCM Sync access
     	When User is on Profile Manager page
     	Then Click on HCM Sync Profiles header button
     	Then User should be navigated to HCM Sync Profiles screen
@@ -11,6 +12,7 @@ Feature: Select Loaded Profiles and Sync with HCM in HCM Sync Profiles screen in
     	
     @Select_Loaded_Profiles_PM
     Scenario: Select Loaded Profiles with Header Checkbox
+    	Then Skip scenario if user does not have HCM Sync access
     	When User is in HCM Sync Profiles screen
     	Then Scroll page to view more job profiles in HCM Sync Profiles screen
     	Then Scroll page to view more job profiles in HCM Sync Profiles screen
@@ -20,6 +22,7 @@ Feature: Select Loaded Profiles and Sync with HCM in HCM Sync Profiles screen in
     	
     @SyncwithHCM
   	Scenario: Verify Sync with HCM button functionality and Verify PopUp
+    	Then Skip scenario if user does not have HCM Sync access
     	When User is in HCM Sync Profiles screen
     	Then User should verify Sync with HCM button is enabled in HCM Sync Profiles screen
     	Then Click on Sync with HCM button in HCM Sync Profiles screen
@@ -27,6 +30,7 @@ Feature: Select Loaded Profiles and Sync with HCM in HCM Sync Profiles screen in
     	
    @NavigateToPublishCenterAndVerifyHistory
    Scenario: Navigate to Publish Center and verify recently exported profiles history
+    	Then Skip scenario if user does not have HCM Sync access
     	When User is in HCM Sync Profiles screen after syncing profiles
     	Then Click on Publish Center button
     	Then Verify user navigated to Job Profile History screen succcessfully

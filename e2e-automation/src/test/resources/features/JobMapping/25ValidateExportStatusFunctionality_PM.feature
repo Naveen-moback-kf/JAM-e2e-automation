@@ -3,6 +3,7 @@ Feature: Validate Export Status behavior of Success Profiles in HCM Sync Profile
 
   @Navigate_HCM_Sync_Profiles
   Scenario: Navigate to HCM Sync Profiles screen
+    Then Skip scenario if user does not have HCM Sync access
     When User is on Profile Manager page
     When Click on HCM Sync Profiles header button
     Then User should be navigated to HCM Sync Profiles screen
@@ -11,6 +12,7 @@ Feature: Validate Export Status behavior of Success Profiles in HCM Sync Profile
 
   @Not_Exported_Status
   Scenario: Find and Verify Success Profile with Export Status as Not Exported
+    Then Skip scenario if user does not have HCM Sync access
     When User is in HCM Sync Profiles screen
     Then User should search for a Profile with Export Status as Not Exported
     Then Verify details of the Not Exported Success Profile in HCM Sync Profiles screen
@@ -18,6 +20,7 @@ Feature: Validate Export Status behavior of Success Profiles in HCM Sync Profile
 
   @Export_Status
   Scenario: Perform Sync with HCM Operation and Verify Export Status of the Success Profile
+    Then Skip scenario if user does not have HCM Sync access
     Then Click on checkbox of Success Profile with Export Status as Not Exported
     Then User should verify Sync with HCM button is enabled in HCM Sync Profiles screen
     Then Click on Sync with HCM button in HCM Sync Profiles screen
@@ -27,6 +30,7 @@ Feature: Validate Export Status behavior of Success Profiles in HCM Sync Profile
 
   @Exported_Modified_Status
   Scenario: Modify Details of Recently Exported Success Profile and Verify Export Status
+    Then Skip scenario if user does not have HCM Sync access
     When User is in HCM Sync Profiles screen
     Then User should click on Recently Exported Success Profile Job Name
     Then User should be navigated to SP details page

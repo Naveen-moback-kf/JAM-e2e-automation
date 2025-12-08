@@ -93,6 +93,7 @@ Feature: Validate Application Performance of Job Mapping and HCM screens
   
   @Validate_HCM_Page_Load_Performance
   Scenario: Validate HCM Sync Profiles Page Load Performance
+    Then Skip scenario if user does not have HCM Sync access
     Given User is in Job Mapping page
     When User navigates to Profile Manager screen
     And User clicks on HCM Sync Profiles tab
@@ -102,6 +103,7 @@ Feature: Validate Application Performance of Job Mapping and HCM screens
   
   @Validate_HCM_Sync_Performance
   Scenario: Validate Sync Operation Performance in HCM Sync Profiles
+    Then Skip scenario if user does not have HCM Sync access
     Given User is on HCM Sync Profiles page with selected profiles
     When User measures time to click Sync Selected Profiles button
     And User validates sync operation processing time

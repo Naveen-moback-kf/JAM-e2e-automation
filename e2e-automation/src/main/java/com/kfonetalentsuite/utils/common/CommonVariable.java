@@ -60,6 +60,16 @@ public class CommonVariable {
 	// Global User Role - Thread-local to support parallel execution
 	// Set after login and used across all feature files
 	public static ThreadLocal<String> CURRENT_USER_ROLE = ThreadLocal.withInitial(() -> null);
+	
+	// User Level Job Mapping Enabled - Thread-local for parallel execution
+	// When true = User has access to Job Mapping screen
+	// When false or null = User does NOT have access to Job Mapping screen
+	public static ThreadLocal<Boolean> USER_LEVEL_JOB_MAPPING_ENABLED = ThreadLocal.withInitial(() -> null);
+	
+	// User Level Permission - Thread-local for parallel execution
+	// When "true" = User has access to HCM Sync Profiles screen in Profile Manager
+	// When "false" or null = User does NOT have access to HCM Sync Profiles screen
+	public static ThreadLocal<String> USER_LEVEL_PERMISSION = ThreadLocal.withInitial(() -> null);
 	static {
 		try {
 			// Use optimized singleton VariableManager

@@ -227,6 +227,10 @@ public class Utilities {
 				// Store the role globally for use across all feature files
 				CommonVariable.CURRENT_USER_ROLE.set(roleName);
 				LOGGER.info("Current User Role : '{}'", roleName);
+				
+				// Also fetch and store userLevelJobMappingEnabled and userLevelPermission
+				fetchAndStoreUserLevelSettings(js);
+				
 				return roleName;
 			} else {
 				LOGGER.warn("Failed to extract user role. Result: {}", roleName);
@@ -239,6 +243,113 @@ public class Utilities {
 			CommonVariable.CURRENT_USER_ROLE.set(null);
 			return null;
 		}
+	}
+
+	/**
+	 * Fetch userLevelJobMappingEnabled and userLevelPermission from session storage
+	 * and store them globally for use across all feature files.
+	 * 
+	 * @param js JavascriptExecutor instance
+	 */
+	private static void fetchAndStoreUserLevelSettings(JavascriptExecutor js) {
+		try {
+			// Fetch userLevelJobMappingEnabled
+			String jobMappingEnabledScript = """
+						try {
+							var value = sessionStorage.getItem('userLevelJobMappingEnabled');
+							return value !== null ? value : 'NOT_FOUND';
+						} catch (error) {
+							return 'ERROR: ' + error.message;
+						}
+					""";
+
+			Object jobMappingResult = js.executeScript(jobMappingEnabledScript);
+			String jobMappingValue = (jobMappingResult != null) ? jobMappingResult.toString() : null;
+
+			if (jobMappingValue != null && !jobMappingValue.equals("NOT_FOUND") && !jobMappingValue.startsWith("ERROR")) {
+				Boolean isEnabled = "true".equalsIgnoreCase(jobMappingValue);
+				CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(isEnabled);
+				LOGGER.info("User Level Job Mapping Enabled: '{}'", isEnabled);
+			} else {
+				CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
+				LOGGER.debug("userLevelJobMappingEnabled not found in session storage");
+			}
+
+			// Fetch userLevelPermission
+			String permissionScript = """
+						try {
+							var value = sessionStorage.getItem('userLevelPermission');
+							return value !== null ? value : 'NOT_FOUND';
+						} catch (error) {
+							return 'ERROR: ' + error.message;
+						}
+					""";
+
+			Object permissionResult = js.executeScript(permissionScript);
+			String permissionValue = (permissionResult != null) ? permissionResult.toString() : null;
+
+			if (permissionValue != null && !permissionValue.equals("NOT_FOUND") && !permissionValue.startsWith("ERROR")) {
+				CommonVariable.USER_LEVEL_PERMISSION.set(permissionValue);
+				LOGGER.info("User Level Permission: '{}'", permissionValue);
+			} else {
+				CommonVariable.USER_LEVEL_PERMISSION.set(null);
+				LOGGER.debug("userLevelPermission not found in session storage");
+			}
+
+		} catch (Exception e) {
+			LOGGER.warn("Failed to fetch user level settings from session storage: {}", e.getMessage());
+			CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
+			CommonVariable.USER_LEVEL_PERMISSION.set(null);
+		}
+	}
+
+	/**
+	 * Get the current user level job mapping enabled status
+	 * 
+	 * @return Boolean value or null if not set
+	 */
+	public static Boolean isUserLevelJobMappingEnabled() {
+		return CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.get();
+	}
+
+	/**
+	 * Check if current user has access to Job Mapping screen.
+	 * This is determined by the userLevelJobMappingEnabled session storage value.
+	 * 
+	 * @return true if user has Job Mapping access, false otherwise
+	 */
+	public static boolean hasJobMappingAccess() {
+		Boolean enabled = CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.get();
+		return Boolean.TRUE.equals(enabled);
+	}
+
+	/**
+	 * Get the current user level permission
+	 * 
+	 * @return Permission string ("true"/"false") or null if not set
+	 */
+	public static String getUserLevelPermission() {
+		return CommonVariable.USER_LEVEL_PERMISSION.get();
+	}
+
+	/**
+	 * Check if current user has access to HCM Sync Profiles screen in Profile Manager.
+	 * This is determined by the userLevelPermission session storage value.
+	 * 
+	 * @return true if user has HCM Sync access, false otherwise
+	 */
+	public static boolean hasHCMSyncAccess() {
+		String permission = CommonVariable.USER_LEVEL_PERMISSION.get();
+		return "true".equalsIgnoreCase(permission);
+	}
+
+	/**
+	 * Clear all user level settings (useful for cleanup between tests)
+	 */
+	public static void clearUserLevelSettings() {
+		CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
+		CommonVariable.USER_LEVEL_PERMISSION.set(null);
+		LOGGER.info("Cleared user level settings");
 	}
 
 	/**
@@ -265,22 +376,35 @@ public class Utilities {
 	}
 
 	/**
-	 * Set user role after login and store it globally This method fetches the role
-	 * from session storage and stores it for use across all feature files
+	 * Set user session details after login and store them globally.
+	 * This method fetches the following from session storage:
+	 * - User Role (from HayGroup.user.roles)
+	 * - userLevelJobMappingEnabled
+	 * - userLevelPermission
 	 * 
-	 * @return true if role was successfully retrieved and stored, false otherwise
+	 * @return true if details were successfully retrieved and stored, false otherwise
 	 */
-	public static boolean setCurrentUserRoleFromSessionStorage() {
+	public static boolean setUserSessionDetailsFromSessionStorage() {
 		String role = getUserRoleFromSessionStorage();
 		return role != null;
 	}
+	
+	/**
+	 * @deprecated Use {@link #setUserSessionDetailsFromSessionStorage()} instead
+	 */
+	@Deprecated
+	public static boolean setCurrentUserRoleFromSessionStorage() {
+		return setUserSessionDetailsFromSessionStorage();
+	}
 
 	/**
-	 * Clear the stored user role (useful for cleanup between tests)
+	 * Clear the stored user role and user level settings (useful for cleanup between tests)
 	 */
 	public static void clearCurrentUserRole() {
 		CommonVariable.CURRENT_USER_ROLE.set(null);
-		LOGGER.info("Cleared stored user role");
+		CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
+		CommonVariable.USER_LEVEL_PERMISSION.set(null);
+		LOGGER.info("Cleared stored user role and user level settings");
 	}
 
 	/**

@@ -27,5 +27,5 @@ Feature: Login to KFONE Application and Find client with access to Profile Manag
     Then Click on Profile Manager application in Your Products section
     Then Verify User seemlessly landed on Profile Manager Application in KF HUB
     Then Verify user should land on Profile Manager dashboard page
-    Then Store user role from session storage
+    Then Store user session details from session storage
    
