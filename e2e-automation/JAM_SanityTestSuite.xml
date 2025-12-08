@@ -3,12 +3,13 @@
 
 <suite name="Job Mapping - Sanity Test Suite" 
        parallel="tests" 
-       thread-count="3" 
+       thread-count="4" 
        verbose="2">
     
     <listeners> 
         <listener class-name="com.kfonetalentsuite.listeners.ExcelReportListener" />
         <listener class-name="hooks.JobMapping.SuiteHooks" />
+        <listener class-name="com.kfonetalentsuite.listeners.AllureScreenshotListener" />
     </listeners>
     
     <!-- SANITY TESTS - Critical Path Tests (8 tests) -->

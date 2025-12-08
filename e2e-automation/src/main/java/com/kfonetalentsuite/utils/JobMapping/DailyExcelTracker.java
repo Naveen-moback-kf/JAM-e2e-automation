@@ -955,8 +955,9 @@ public class DailyExcelTracker {
 	}
 
 	/**
-	 * Extract runner number from class name (01, 04, 05, etc.) Examples:
-	 * CrossBrowser01_LoginPageRunner "01", CrossBrowser04_JobProfileRunner "04"
+	 * Extract runner number from class name (01, 04, 05, 11a, 11b, 11c, etc.) Examples:
+	 * CrossBrowser01_LoginPageRunner "01", CrossBrowser04_JobProfileRunner "04",
+	 * Runner11c_ValidateFunctionSubfunctionFilters "11c"
 	 */
 	private static String extractRunnerNumber(String runnerClass) {
 		try {
@@ -969,8 +970,9 @@ public class DailyExcelTracker {
 				return number;
 			}
 
-			// Also try normal runner pattern: Runner + NUMBER
-			pattern = java.util.regex.Pattern.compile("Runner(\\d+)");
+			// FIXED: Also try normal runner pattern: Runner + NUMBER (with optional letter suffix)
+			// This handles cases like Runner11a, Runner11b, Runner11c, etc.
+			pattern = java.util.regex.Pattern.compile("Runner(\\d+[a-z]?)");
 			matcher = pattern.matcher(runnerClass);
 			if (matcher.find()) {
 				String number = matcher.group(1);
@@ -1023,24 +1025,48 @@ public class DailyExcelTracker {
 			File featuresDir = new File("src/test/resources/features");
 			if (featuresDir.exists() && featuresDir.isDirectory()) {
 
-				File[] rootFeatureFiles = featuresDir
-						.listFiles((dir, name) -> name.startsWith(runnerNumber) && name.endsWith(".feature"));
+				// FIXED: For alphanumeric runner numbers (like "11c"), prefer exact match
+				// First try exact match pattern: runnerNumber + "Validate" (e.g., "11cValidate")
+				File[] rootFeatureFiles = featuresDir.listFiles((dir, name) -> {
+					if (!name.endsWith(".feature")) return false;
+					// Try exact match first (e.g., "11cValidate...")
+					if (name.startsWith(runnerNumber + "Validate")) return true;
+					// Fallback to startsWith for numeric-only cases
+					return name.startsWith(runnerNumber);
+				});
 
 				if (rootFeatureFiles != null && rootFeatureFiles.length > 0) {
+					// Prefer exact match if multiple files found
+					for (File file : rootFeatureFiles) {
+						if (file.getName().startsWith(runnerNumber + "Validate")) {
+							return file.getPath();
+						}
+					}
+					// Fallback to first match
 					String featureFilePath = rootFeatureFiles[0].getPath();
-					// runnerNumber, featureFilePath);
 					return featureFilePath;
 				}
 
 				File[] subdirectories = featuresDir.listFiles(File::isDirectory);
 				if (subdirectories != null) {
 					for (File subdir : subdirectories) {
-						File[] subFeatureFiles = subdir
-								.listFiles((dir, name) -> name.startsWith(runnerNumber) && name.endsWith(".feature"));
+						File[] subFeatureFiles = subdir.listFiles((dir, name) -> {
+							if (!name.endsWith(".feature")) return false;
+							// Try exact match first (e.g., "11cValidate...")
+							if (name.startsWith(runnerNumber + "Validate")) return true;
+							// Fallback to startsWith for numeric-only cases
+							return name.startsWith(runnerNumber);
+						});
 
 						if (subFeatureFiles != null && subFeatureFiles.length > 0) {
+							// Prefer exact match if multiple files found
+							for (File file : subFeatureFiles) {
+								if (file.getName().startsWith(runnerNumber + "Validate")) {
+									return file.getPath();
+								}
+							}
+							// Fallback to first match
 							String featureFilePath = subFeatureFiles[0].getPath();
-							// runnerNumber, featureFilePath);
 							return featureFilePath;
 						}
 					}

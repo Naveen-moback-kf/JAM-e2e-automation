@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 
-<suite name="Job Mapping - Smoke Test Suite" parallel="tests" thread-count="3" preserve-order="true" verbose="2">
+<suite name="Job Mapping - Smoke Test Suite" parallel="tests" thread-count="4" preserve-order="true" verbose="2">
     
     <listeners> 
         <listener class-name="com.kfonetalentsuite.listeners.ExcelReportListener" />
         <listener class-name="hooks.JobMapping.SuiteHooks" />
+        <listener class-name="com.kfonetalentsuite.listeners.AllureScreenshotListener" />
     </listeners>
     
     <!-- SMOKE TESTS - Quick Validation (19 tests) -->

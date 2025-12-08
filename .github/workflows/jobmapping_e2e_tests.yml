@@ -580,15 +580,37 @@ jobs:
         working-directory: e2e-automation
         run: |
           if [ -d "AllureReports/allure-results" ] && [ "$(ls -A AllureReports/allure-results 2>/dev/null)" ]; then
-            mvn allure:report -B || {
-              RESULTS_DIR=$(cd AllureReports/allure-results && pwd)
-              REPORT_DIR=$(cd AllureReports && pwd)/allure-report
-              mvn allure:report -B -Dallure.results.directory="${RESULTS_DIR}" -Dallure.report.directory="${REPORT_DIR}" || {
-                if command -v allure &> /dev/null; then
-                  allure generate "${RESULTS_DIR}" -o "${REPORT_DIR}" --clean
-                fi
-              }
+            echo "📊 Generating Allure Report..."
+            RESULTS_DIR="AllureReports/allure-results"
+            REPORT_DIR="AllureReports/allure-report"
+            
+            # Clean previous report
+            rm -rf "${REPORT_DIR}"
+            
+            # Generate report using Maven plugin
+            mvn allure:report -B -Dallure.results.directory="${RESULTS_DIR}" -Dallure.report.directory="${REPORT_DIR}" || {
+              echo "⚠️  Maven Allure plugin failed, trying Allure CLI..."
+              # Install Allure CLI if not available
+              if ! command -v allure &> /dev/null; then
+                echo "📦 Installing Allure CLI..."
+                wget -qO- https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz | tar -xz
+                export PATH="$PWD/allure-2.27.0/bin:$PATH"
+              fi
+              
+              # Generate report using Allure CLI
+              allure generate "${RESULTS_DIR}" -o "${REPORT_DIR}" --clean
             }
+            
+            # Verify report was generated
+            if [ -d "${REPORT_DIR}" ] && [ -f "${REPORT_DIR}/index.html" ]; then
+              echo "✅ Allure report generated successfully"
+              echo "📄 Report location: ${REPORT_DIR}/index.html"
+            else
+              echo "❌ Allure report generation failed"
+              exit 1
+            fi
+          else
+            echo "⚠️  No Allure results found - skipping report generation"
           fi
       
       - name: 🔄 Restore Original Test Suite XML
@@ -740,7 +762,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: allure-report_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
-          path: e2e-automation/AllureReports/
+          path: e2e-automation/AllureReports/allure-report/
           retention-days: 30
           if-no-files-found: ignore
       

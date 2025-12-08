@@ -231,6 +231,34 @@ public class PerformanceUtils {
 			if (!foundAnySpinner) {
 				return; // Fast exit!
 			}
+			
+			// PARALLEL EXECUTION FIX: Fallback check - verify if page is actually interactive
+			// Sometimes spinners remain visible but page is actually ready
+			try {
+				// Check if document is ready and page is interactive
+				org.openqa.selenium.JavascriptExecutor js = (org.openqa.selenium.JavascriptExecutor) driver;
+				String readyState = (String) js.executeScript("return document.readyState");
+				boolean jqueryReady = true;
+				try {
+					Object jquery = js.executeScript("return typeof jQuery !== 'undefined' && jQuery.active === 0");
+					jqueryReady = (jquery != null && (Boolean) jquery);
+				} catch (Exception e) {
+					// jQuery not available - that's fine
+				}
+				
+				if ("complete".equals(readyState) && jqueryReady) {
+					LOGGER.info("Page appears ready (document.readyState=complete) despite visible spinner - continuing");
+					return; // Page is ready, continue even if spinner is visible
+				}
+			} catch (Exception fallbackEx) {
+				LOGGER.debug("Fallback page readiness check failed: {}", fallbackEx.getMessage());
+			}
+			
+			// Final fallback: If timeout exceeded but we've waited long enough, continue anyway
+			// This prevents tests from failing due to persistent but non-blocking spinners
+			if (timeoutSeconds >= 10) {
+				LOGGER.warn("Spinner still visible after {}s timeout, but continuing execution to avoid false failures", timeoutSeconds);
+			}
 
 		} catch (Exception e) {
 			// Only log if significant timeout occurred

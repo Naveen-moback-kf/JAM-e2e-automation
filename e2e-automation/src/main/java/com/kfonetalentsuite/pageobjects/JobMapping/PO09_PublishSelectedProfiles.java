@@ -10,6 +10,7 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 
 public class PO09_PublishSelectedProfiles extends BasePageObject {
 
@@ -30,14 +31,72 @@ public class PO09_PublishSelectedProfiles extends BasePageObject {
 
 	public void search_for_published_job_name1() {
 		try {
+			String jobName = PO04_VerifyJobMappingPageComponents.orgJobNameInRow1.get();
+			if (jobName == null || jobName.isEmpty()) {
+				throw new Exception("Job name to search is null or empty");
+			}
+			
 			PerformanceUtils.waitForPageReady(driver, 3);
-			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR);
-			searchBar.click();
-			searchBar.clear();
-			searchBar.sendKeys(PO04_VerifyJobMappingPageComponents.orgJobNameInRow1.get());
+			waitForSpinners();
+			safeSleep(500);
+			
+			// PARALLEL EXECUTION FIX: Clear search bar more thoroughly and wait for it to be ready
+			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
+			scrollToElement(searchBar);
+			
+			// Clear any existing search
+			try {
+				searchBar.click();
+				safeSleep(300);
+				searchBar.clear();
+				searchBar.sendKeys(Keys.CONTROL + "a");
+				searchBar.sendKeys(Keys.DELETE);
+				safeSleep(300);
+			} catch (Exception clearEx) {
+				jsClick(searchBar);
+				safeSleep(300);
+				js.executeScript("arguments[0].value = '';", searchBar);
+				safeSleep(300);
+			}
+			
+			// Type search term
+			searchBar.sendKeys(jobName);
+			safeSleep(500);
+			
+			// Press Enter and wait for search to complete
 			searchBar.sendKeys(Keys.ENTER);
+			
+			// PARALLEL EXECUTION FIX: Wait for search to actually filter results
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			// Verify search was actually applied by checking search bar value
+			int verifyRetries = 5;
+			boolean searchApplied = false;
+			for (int v = 0; v < verifyRetries && !searchApplied; v++) {
+				safeSleep(500);
+				try {
+					WebElement verifySearchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR);
+					String searchValue = verifySearchBar.getAttribute("value");
+					if (searchValue != null && searchValue.contains(jobName)) {
+						searchApplied = true;
+						LOGGER.info("Search confirmed applied: '{}' found in search bar", searchValue);
+					} else {
+						LOGGER.warn("Search not yet applied (attempt {}/{}). Expected: '{}', Found: '{}'", 
+							v + 1, verifyRetries, jobName, searchValue);
+					}
+				} catch (Exception e) {
+					LOGGER.warn("Could not verify search bar value (attempt {}/{}): {}", v + 1, verifyRetries, e.getMessage());
+				}
+			}
+			
+			// Additional wait for search filtering to complete
+			safeSleep(1000);
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
-			PageObjectHelper.log(LOGGER, "Searched for job: " + PO04_VerifyJobMappingPageComponents.orgJobNameInRow1.get() + " in View Published screen");
+			
+			LOGGER.info("Search completed for job: {}", jobName);
+			PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name1", "Failed to search for first job in View Published screen", e);
 		}
@@ -103,28 +162,92 @@ public class PO09_PublishSelectedProfiles extends BasePageObject {
 				} catch (Exception e) {
 					LOGGER.error("Could not get actual job name for error message: {}", e.getMessage());
 				}
-				Assert.fail(String.format("Expected job '%s' but found '%s' after %d retries. Search may not have filtered correctly.", 
-					expectedJobName, actualJobName, maxRetries));
+				String errorMsg = String.format("Expected job '%s' but found '%s' after %d retries. Search may not have filtered correctly.", 
+					expectedJobName, actualJobName, maxRetries);
+				ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen", 
+					new Exception(errorMsg));
+				Assert.fail(errorMsg);
 			}
 			
-			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
+			try {
+				Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
+			} catch (Exception e) {
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen", "Published button not displayed", e);
+			}
 			PageObjectHelper.log(LOGGER, "Published Job (Org: " + expectedJobName + ") is displayed in Row1");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen", "Issue verifying published first job profile in Row1", e);
-			throw e;
 		}
 	}
 
 	public void search_for_published_job_name2() {
 		try {
+			String jobName = PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get();
+			if (jobName == null || jobName.isEmpty()) {
+				throw new Exception("Job name to search is null or empty");
+			}
+			
 			PerformanceUtils.waitForPageReady(driver, 3);
-			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR);
-			searchBar.click();
-			searchBar.clear();
-			searchBar.sendKeys(PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get());
+			waitForSpinners();
+			safeSleep(500);
+			
+			// PARALLEL EXECUTION FIX: Clear search bar more thoroughly and wait for it to be ready
+			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
+			scrollToElement(searchBar);
+			
+			// Clear any existing search
+			try {
+				searchBar.click();
+				safeSleep(300);
+				searchBar.clear();
+				searchBar.sendKeys(Keys.CONTROL + "a");
+				searchBar.sendKeys(Keys.DELETE);
+				safeSleep(300);
+			} catch (Exception clearEx) {
+				jsClick(searchBar);
+				safeSleep(300);
+				js.executeScript("arguments[0].value = '';", searchBar);
+				safeSleep(300);
+			}
+			
+			// Type search term
+			searchBar.sendKeys(jobName);
+			safeSleep(500);
+			
+			// Press Enter and wait for search to complete
 			searchBar.sendKeys(Keys.ENTER);
+			
+			// PARALLEL EXECUTION FIX: Wait for search to actually filter results
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			// Verify search was actually applied by checking search bar value
+			int verifyRetries = 5;
+			boolean searchApplied = false;
+			for (int v = 0; v < verifyRetries && !searchApplied; v++) {
+				safeSleep(500);
+				try {
+					WebElement verifySearchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR);
+					String searchValue = verifySearchBar.getAttribute("value");
+					if (searchValue != null && searchValue.contains(jobName)) {
+						searchApplied = true;
+						LOGGER.info("Search confirmed applied: '{}' found in search bar", searchValue);
+					} else {
+						LOGGER.warn("Search not yet applied (attempt {}/{}). Expected: '{}', Found: '{}'", 
+							v + 1, verifyRetries, jobName, searchValue);
+					}
+				} catch (Exception e) {
+					LOGGER.warn("Could not verify search bar value (attempt {}/{}): {}", v + 1, verifyRetries, e.getMessage());
+				}
+			}
+			
+			// Additional wait for search filtering to complete
+			safeSleep(1000);
+			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
-			PageObjectHelper.log(LOGGER, "Searched for job: " + PO04_VerifyJobMappingPageComponents.orgJobNameInRow2.get() + " in View Published screen");
+			
+			LOGGER.info("Search completed for job: {}", jobName);
+			PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name2", "Failed to search for second job in View Published screen", e);
 		}
@@ -190,15 +313,21 @@ public class PO09_PublishSelectedProfiles extends BasePageObject {
 				} catch (Exception e) {
 					LOGGER.error("Could not get actual job name for error message: {}", e.getMessage());
 				}
-				Assert.fail(String.format("Expected job '%s' but found '%s' after %d retries. Search may not have filtered correctly.", 
-					expectedJobName, actualJobName, maxRetries));
+				String errorMsg = String.format("Expected job '%s' but found '%s' after %d retries. Search may not have filtered correctly.", 
+					expectedJobName, actualJobName, maxRetries);
+				ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen", 
+					new Exception(errorMsg));
+				Assert.fail(errorMsg);
 			}
 			
-			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
+			try {
+				Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
+			} catch (Exception e) {
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen", "Published button not displayed", e);
+			}
 			PageObjectHelper.log(LOGGER, "Published Job (Org: " + expectedJobName + ") is displayed in Row1");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen", "Issue verifying published second job profile in Row1", e);
-			throw e;
 		}
 	}
 
@@ -300,14 +429,16 @@ public class PO09_PublishSelectedProfiles extends BasePageObject {
 				} catch (Exception e) {
 					LOGGER.error("Could not get actual job name for error message: {}", e.getMessage());
 				}
-				Assert.fail(String.format("Expected job '%s' but found '%s' after %d retries in HCM Sync Profiles. Search may not have filtered correctly.", 
-					expectedJobName, actualJobName, maxRetries));
+				String errorMsg = String.format("Expected job '%s' but found '%s' after %d retries in HCM Sync Profiles. Search may not have filtered correctly.", 
+					expectedJobName, actualJobName, maxRetries);
+				ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm", 
+					new Exception(errorMsg));
+				Assert.fail(errorMsg);
 			}
 			
 			PageObjectHelper.log(LOGGER, "Published Second Job (Org: " + expectedJobName + ") is displayed in HCM Sync Profiles Row1");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm", "Issue verifying published second job profile in HCM Sync Profiles", e);
-			throw e;
 		}
 	}
 

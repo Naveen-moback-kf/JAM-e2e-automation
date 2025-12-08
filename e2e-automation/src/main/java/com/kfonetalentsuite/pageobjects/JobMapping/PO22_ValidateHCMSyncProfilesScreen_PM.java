@@ -1,7 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.time.Duration;
-
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -596,61 +596,30 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 
 	public void verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab() {
 		try {
-			// PARALLEL EXECUTION FIX: Extended wait for page readiness
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PerformanceUtils.waitForPageReady(driver, 3);
+			waitForSpinners();
+			safeSleep(1000);
 
-			// PARALLEL EXECUTION FIX: Use dynamic element location with retry for stale
-			// elements
-			String resultsCountText = "";
-			int retryAttempts = 0;
-			int maxRetries = 5;
-
-			while (retryAttempts < maxRetries) {
-				try {
-					// Get fresh element on each attempt to avoid stale reference
-					WebElement resultsCountElement = driver.findElement(By.xpath("//div[contains(text(),'Showing')]"));
-					resultsCountText = resultsCountElement.getText().trim();
-
-					// Break if we got valid text
-					if (!resultsCountText.isEmpty()) {
-						break;
-					}
-
-					Thread.sleep(500);
-					retryAttempts++;
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					LOGGER.debug("Stale element on attempt {}, retrying", retryAttempts + 1);
-					retryAttempts++;
-					try {
-						Thread.sleep(500);
-					} catch (InterruptedException ie) {
-						Thread.currentThread().interrupt();
-					}
-				}
-			}
+			WebElement resultsCountElement = waitForElement(SHOWING_JOB_RESULTS_COUNT, 10);
+			String resultsCountText = resultsCountElement.getText().trim();
 
 			if (resultsCountText.isEmpty()) {
-				throw new Exception("Could not retrieve results count text after " + maxRetries + " retries");
+				throw new Exception("Could not retrieve results count text");
 			}
 
 			intialResultsCount.set(resultsCountText);
 			PageObjectHelper.log(LOGGER, "Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
-			LOGGER.error("Issue verifying job profiles count", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in verifying job profiles results count in on the page in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in verifying job profiles results count in on the page in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab",
+					"Issue verifying job profiles count", e);
 		}
 	}
 
 	public void scroll_page_to_view_more_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
 			scrollToBottom();
-			safeSleep(3000);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 3);
 			safeSleep(1000);
 			PageObjectHelper.log(LOGGER, "Scrolled page down to view more job profiles in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
@@ -661,99 +630,43 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 
 	public void user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table_in_hcm_sync_profiles_tab() {
 		try {
-			js.executeScript("arguments[0].scrollIntoView(true);", findElement(HCM_SYNC_PROFILES_TITLE));
+			scrollToElement(findElement(HCM_SYNC_PROFILES_TITLE));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PerformanceUtils.waitForPageReady(driver, 3);
+			safeSleep(2000);
 
-			// CRITICAL: Wait for spinners to disappear first after scrolling
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-
-			// PARALLEL EXECUTION FIX: Extended wait for page readiness after scrolling
-			PerformanceUtils.waitForPageReady(driver, 5);
-
-			// PARALLEL EXECUTION FIX: Wait for the results count text to actually CHANGE
-			// (not just be present)
-			// This prevents reading stale/cached count text and is critical for parallel
-			// execution
-			String resultsCountText1 = "";
-			int retryAttempts = 0;
-			int maxRetries = 15; // Increased for parallel execution - lazy loading can be slower
-			long startTime = System.currentTimeMillis();
 			String initialCount = intialResultsCount.get();
-
 			LOGGER.info("Waiting for results count to change from initial: " + initialCount);
 
-			while (retryAttempts < maxRetries) {
+			// Wait for count to update using WebDriverWait
+			WebDriverWait countWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+			String resultsCountText1 = countWait.until(driver -> {
 				try {
-					// PARALLEL EXECUTION FIX: Get fresh element on each attempt
-					WebElement resultsElement = driver.findElement(By.xpath("//div[contains(text(),'Showing')]"));
+					WebElement resultsElement = driver.findElement(SHOWING_JOB_RESULTS_COUNT);
 					String currentText = resultsElement.getText().trim();
-
-					// CRITICAL: Check if text has CHANGED from initial count (scrolling loaded more
-					// profiles)
 					if (!currentText.isEmpty() && !currentText.equals(initialCount)) {
-						resultsCountText1 = currentText;
-						long elapsedTime = System.currentTimeMillis() - startTime;
-						LOGGER.info("Results count updated from '" + initialCount + "' to '" + currentText + "' after "
-								+ elapsedTime + "ms");
-						break; // Success - count has updated
+						return currentText;
 					}
-
-					// If text hasn't changed yet, wait before retrying
-					if (retryAttempts == 0) {
-						Thread.sleep(1000); // Initial wait - give page time to start updating
-					} else if (retryAttempts < 5) {
-						Thread.sleep(500); // Medium wait for early attempts
-					} else {
-						Thread.sleep(300); // Shorter wait for later attempts
-					}
-
-					retryAttempts++;
-
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					LOGGER.debug("Stale element on attempt {}, retrying", retryAttempts + 1);
-					retryAttempts++;
-					try {
-						Thread.sleep(300);
-					} catch (InterruptedException ie) {
-						Thread.currentThread().interrupt();
-					}
-				} catch (org.openqa.selenium.NoSuchElementException e) {
-					LOGGER.warn("Element not found on attempt " + (retryAttempts + 1) + ", retrying...");
-					retryAttempts++;
-					try {
-						Thread.sleep(300);
-					} catch (InterruptedException ie) {
-						Thread.currentThread().interrupt();
-					}
+					return null;
+				} catch (Exception e) {
+					return null;
 				}
-			}
+			});
 
-			long totalElapsedTime = System.currentTimeMillis() - startTime;
-
-			// Ensure we got an updated count
-			if (resultsCountText1.isEmpty() || resultsCountText1.equals(initialCount)) {
-				throw new Exception("Results count did not update after scrolling. Initial: '" + initialCount
-						+ "', Current: '" + resultsCountText1 + "' (waited " + totalElapsedTime + "ms, " + retryAttempts
-						+ " attempts)");
+			if (resultsCountText1 == null || resultsCountText1.equals(initialCount)) {
+				throw new Exception("Results count did not update after scrolling. Initial: '" + initialCount + "'");
 			}
 
 			updatedResultsCount.set(resultsCountText1);
-
-			// Final assertion to confirm counts are different
 			Assert.assertNotEquals(initialCount, resultsCountText1,
-					"Results count should have changed after scrolling. Initial: " + initialCount + ", Updated: "
-							+ resultsCountText1);
+					"Results count should have changed after scrolling");
 
-						PageObjectHelper.log(LOGGER, "Success Profiles Results count updated and Now " + resultsCountText1
-					+ " as expected in HCM Sync Profiles screen in PM");
+			PageObjectHelper.log(LOGGER, "Success Profiles Results count updated to " + resultsCountText1
+					+ " in HCM Sync Profiles screen in PM");
 
 		} catch (Exception e) {
-			LOGGER.error("Issue verifying profiles count after scrolling", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!! Error: "
-							+ e.getMessage());
-			PageObjectHelper.log(LOGGER, 
-					"Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table_in_hcm_sync_profiles_tab",
+					"Issue verifying profiles count after scrolling", e);
 		}
 	}
 
@@ -820,157 +733,58 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 	}
 
 	public void verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab() {
-		int maxRetries = 3;
-
 		try {
-			// Wait for dropdown to be visible
 			wait.until(ExpectedConditions.visibilityOf(findElement(FILTER_OPTIONS)));
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			safeSleep(500);
 
-			// Wait for spinners to ensure page is stable
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			// Get filter option texts
+			String filterOption1Text = wait.until(ExpectedConditions.visibilityOfElementLocated(
+					By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][1]//span//div"))).getText();
+			String filterOption2Text = wait.until(ExpectedConditions.visibilityOfElementLocated(
+					By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][2]//span//div"))).getText();
+			String filterOption3Text = wait.until(ExpectedConditions.visibilityOfElementLocated(
+					By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div"))).getText();
 
-			// Verify filter options with retry mechanism for stale elements
-			String filterOption1Text = "";
-			String filterOption2Text = "";
-			String filterOption3Text = "";
-
-			for (int attempt = 1; attempt <= maxRetries; attempt++) {
-				try {
-					// Use visibilityOfElementLocated instead of visibilityOf to avoid stale
-					// references
-					filterOption1Text = wait
-							.until(ExpectedConditions.visibilityOfElementLocated(
-									By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][1]//span//div")))
-							.getText();
-
-					filterOption2Text = wait
-							.until(ExpectedConditions.visibilityOfElementLocated(
-									By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][2]//span//div")))
-							.getText();
-
-					filterOption3Text = wait
-							.until(ExpectedConditions.visibilityOfElementLocated(
-									By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div")))
-							.getText();
-
-					// If we got here, all reads were successful
-					break;
-
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					if (attempt < maxRetries) {
-						LOGGER.debug("Stale element on attempt {}, retrying", attempt);
-						Thread.sleep(300);
-					} else {
-						throw e;
-					}
-				}
-			}
-
-			// Verify the text values
 			Assert.assertEquals(filterOption1Text, "KF Grade", "Option 1 should be 'KF Grade'");
 			Assert.assertEquals(filterOption2Text, "Levels", "Option 2 should be 'Levels'");
-			Assert.assertEquals(filterOption3Text, "Functions / Subfunctions",
-					"Option 3 should be 'Functions / Subfunctions'");
+			Assert.assertEquals(filterOption3Text, "Functions / Subfunctions", "Option 3 should be 'Functions / Subfunctions'");
 
-			PageObjectHelper.log(LOGGER, 
-					"Options inside Filters dropdown verified successfully in HCM Sync Profiles screen in PM");
+			PageObjectHelper.log(LOGGER, "Options inside Filters dropdown verified successfully in HCM Sync Profiles screen in PM");
 
 		} catch (Exception e) {
-			LOGGER.error("Filter options verification failed", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in verifying Options inside Filter dropdown in HCM Sync Profiles screen in PM....Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in verifying Options inside Filter dropdown in HCM Sync Profiles screen in PM....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab",
+					"Filter options verification failed", e);
 		}
 
 		// Verify Functions/Subfunctions search bar
 		try {
-			// Click with retry for stale elements
-			for (int attempt = 1; attempt <= maxRetries; attempt++) {
-				try {
-					// Use elementToBeClickable with locator instead of element
-					WebElement option3ToClick = wait.until(ExpectedConditions.elementToBeClickable(
-							By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div")));
+			WebElement option3ToClick = wait.until(ExpectedConditions.elementToBeClickable(
+					By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//span//div")));
+			clickElement(option3ToClick);
+			safeSleep(300);
 
-					try {
-						option3ToClick.click();
-					} catch (Exception e) {
-						try {
-							js.executeScript("arguments[0].click();", option3ToClick);
-						} catch (Exception s) {
-							jsClick(option3ToClick);
-						}
-					}
+			WebElement searchBar = wait.until(ExpectedConditions.visibilityOfElementLocated(
+					By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//input")));
+			searchBar.click();
 
-					// If we got here, click was successful
-					break;
-
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					if (attempt < maxRetries) {
-						LOGGER.debug("Stale element on click attempt {}, retrying", attempt);
-						Thread.sleep(300);
-					} else {
-						throw e;
-					}
-				}
-			}
-
-			// Verify search bar with retry
-			for (int attempt = 1; attempt <= maxRetries; attempt++) {
-				try {
-					WebElement searchBar = wait.until(ExpectedConditions.visibilityOfElementLocated(
-							By.xpath("//*[contains(@class,'sp-search-filter-expansion-panel')][3]//input")));
-					searchBar.click();
-					break;
-
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					if (attempt < maxRetries) {
-						LOGGER.debug("Stale element on search bar attempt {}, retrying", attempt);
-						Thread.sleep(300);
-					} else {
-						throw e;
-					}
-				}
-			}
-
-			PageObjectHelper.log(LOGGER, 
-					"Search bar inside Functions / Subfunctions filter option is available and is clickable in HCM Sync Profiles screen in PM...");
+			PageObjectHelper.log(LOGGER, "Search bar inside Functions / Subfunctions filter option is available and clickable");
 
 		} catch (Exception e) {
-			LOGGER.error("Search bar verification failed", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in verifying Search bar inside Functions / Subfunctions filter option in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in verifying Search bar inside Functions / Subfunctions filter option in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab",
+					"Search bar verification failed", e);
 		}
 
-		// Close the dropdown after verification to ensure clean state for next scenario
+		// Close the dropdown after verification
 		try {
-			// Check visibility with retry
-			for (int attempt = 1; attempt <= maxRetries; attempt++) {
-				try {
-					WebElement filterOptionsElement = driver.findElement(By.xpath("//*[@class='accordion']"));
-					if (filterOptionsElement.isDisplayed()) {
-						jsClick(findElement(FILTERS_DROPDOWN_BTN));
-						wait.until(ExpectedConditions.invisibilityOf(filterOptionsElement));
-						PageObjectHelper.log(LOGGER, "Closed Filters dropdown after verification");
-					}
-					break;
-
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					if (attempt < maxRetries) {
-						LOGGER.debug("Stale element on close attempt {}, retrying", attempt);
-						Thread.sleep(300);
-					} else {
-						LOGGER.warn("Could not close filters dropdown after {} attempts", maxRetries);
-					}
-				}
+			WebElement filterOptionsElement = driver.findElement(FILTER_OPTIONS);
+			if (filterOptionsElement.isDisplayed()) {
+				jsClick(findElement(FILTERS_DROPDOWN_BTN));
+				wait.until(ExpectedConditions.invisibilityOf(filterOptionsElement));
+				PageObjectHelper.log(LOGGER, "Closed Filters dropdown after verification");
 			}
-
 		} catch (Exception e) {
-			LOGGER.debug("Could not close filters dropdown after verification: {}", e.getMessage());
+			LOGGER.debug("Could not close filters dropdown: {}", e.getMessage());
 		}
 	}
 
@@ -1345,22 +1159,91 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 					throw new Exception("No Functions/Subfunctions filter options found");
 				}
 
-				// Get the first checkbox and its corresponding label
-				WebElement firstCheckbox = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_CHECKBOXES).get(0);
-				String functionsValue = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_LABELS).get(0).getText().trim();
-
-				LOGGER.info("Found Functions/Subfunctions option: " + functionsValue);
+				// PARALLEL EXECUTION FIX: Iterate through options to find a valid function/subfunction name
+				// Skip invalid values (pure numbers, very short text, or placeholder values)
+				List<WebElement> checkboxes = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_CHECKBOXES);
+				List<WebElement> labels = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_LABELS);
+				
+				if (checkboxes.size() != labels.size()) {
+					LOGGER.warn("Mismatch between checkbox count ({}) and label count ({}). Re-fetching elements...", 
+							checkboxes.size(), labels.size());
+					PerformanceUtils.waitForPageReady(driver, 1);
+					checkboxes = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_CHECKBOXES);
+					labels = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_LABELS);
+				}
+				
+				WebElement selectedCheckbox = null;
+				String functionsValue = null;
+				
+				// Helper method to validate if a value looks like a valid function/subfunction name
+				for (int i = 0; i < Math.min(checkboxes.size(), labels.size()); i++) {
+					try {
+						// Re-fetch elements to avoid stale references
+						if (i > 0) {
+							checkboxes = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_CHECKBOXES);
+							labels = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_LABELS);
+						}
+						
+						String candidateValue = labels.get(i).getText().trim();
+						
+						// Validate: Skip if value is empty, too short, pure numbers, or looks like invalid data
+						if (candidateValue.isEmpty() || candidateValue.length() < 2) {
+							LOGGER.debug("Skipping option {}: too short or empty", candidateValue);
+							continue;
+						}
+						
+						// Skip if it's pure numbers (like "123141") or looks like invalid data
+						if (candidateValue.matches("^\\d+$") || candidateValue.matches("^[a-z]{1,5}$")) {
+							LOGGER.debug("Skipping option {}: appears to be invalid (pure numbers or too short)", candidateValue);
+							continue;
+						}
+						
+						// Found a valid-looking option
+						selectedCheckbox = checkboxes.get(i);
+						functionsValue = candidateValue;
+						LOGGER.info("Selected valid Functions/Subfunctions option: {}", functionsValue);
+						break;
+					} catch (org.openqa.selenium.StaleElementReferenceException e) {
+						LOGGER.debug("Stale element at index {}, re-fetching...", i);
+						checkboxes = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_CHECKBOXES);
+						labels = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_LABELS);
+						if (i < checkboxes.size() && i < labels.size()) {
+							String candidateValue = labels.get(i).getText().trim();
+							if (!candidateValue.isEmpty() && candidateValue.length() >= 2 
+									&& !candidateValue.matches("^\\d+$") && !candidateValue.matches("^[a-z]{1,5}$")) {
+								selectedCheckbox = checkboxes.get(i);
+								functionsValue = candidateValue;
+								LOGGER.info("Selected valid Functions/Subfunctions option after stale element: {}", functionsValue);
+								break;
+							}
+						}
+					}
+				}
+				
+				// If no valid option found, use the first one as fallback
+				if (selectedCheckbox == null || functionsValue == null) {
+					LOGGER.warn("No clearly valid option found, using first option as fallback");
+					checkboxes = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_CHECKBOXES);
+					labels = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_LABELS);
+					if (!checkboxes.isEmpty() && !labels.isEmpty()) {
+						selectedCheckbox = checkboxes.get(0);
+						functionsValue = labels.get(0).getText().trim();
+						LOGGER.info("Using first option as fallback: {}", functionsValue);
+					} else {
+						throw new Exception("Could not find any Functions/Subfunctions option to select");
+					}
+				}
 
 				// Scroll to element and click
-				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", firstCheckbox);
+				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", selectedCheckbox);
 				Thread.sleep(300);
 
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(firstCheckbox)).click();
+					wait.until(ExpectedConditions.elementToBeClickable(selectedCheckbox)).click();
 					LOGGER.info(" Clicked Functions/Subfunctions option using standard click");
 				} catch (Exception e) {
 					LOGGER.warn("Standard click failed, trying JS click...");
-					js.executeScript("arguments[0].click();", firstCheckbox);
+					js.executeScript("arguments[0].click();", selectedCheckbox);
 					LOGGER.info(" Clicked Functions/Subfunctions option using JS click");
 				}
 

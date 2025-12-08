@@ -1,8 +1,10 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -262,15 +264,50 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_grades_options() throws Exception {
 		try {
+			// Build set of expected grades
+			Set<String> expectedGrades = new HashSet<>();
+			if (GradesOption.get() != null && !GradesOption.get().isEmpty()) expectedGrades.add(GradesOption.get());
+			if (GradesOption1.get() != null && !GradesOption1.get().isEmpty()) expectedGrades.add(GradesOption1.get());
+			if (GradesOption2.get() != null && !GradesOption2.get().isEmpty()) expectedGrades.add(GradesOption2.get());
+			
+			// Wait for filter to apply
+			PerformanceUtils.waitForPageReady(driver, 2);
+			waitForSpinners();
+			safeSleep(1000);
+			
+			// Wait until filter is applied - first element should match expected grades
+			int maxWaitAttempts = 5;
+			boolean filterApplied = false;
+			for (int attempt = 0; attempt < maxWaitAttempts && !filterApplied; attempt++) {
+				List<WebElement> checkElements = driver.findElements(ALL_GRADES_COLUMN);
+				if (!checkElements.isEmpty()) {
+					String firstGrade = checkElements.get(0).getText();
+					if (expectedGrades.contains(firstGrade)) {
+						filterApplied = true;
+						LOGGER.info("Filter confirmed applied - first result '{}' matches expected", firstGrade);
+					}
+				}
+				if (!filterApplied) {
+					safeSleep(500);
+					waitForSpinners();
+				}
+			}
+			
+			if (!filterApplied) {
+				List<WebElement> checkElements = driver.findElements(ALL_GRADES_COLUMN);
+				String actualFirst = checkElements.isEmpty() ? "No elements found" : checkElements.get(0).getText();
+				throw new Exception("Filter did not apply within timeout. Expected one of: " + expectedGrades + ", but first result is: " + actualFirst);
+			}
+			
+			// Validate all grades
 			List<WebElement> allGrades = driver.findElements(ALL_GRADES_COLUMN);
 			for (int i = 0; i < allGrades.size(); i++) {
-				// PARALLEL EXECUTION FIX: Re-fetch element on each iteration to avoid stale element
 				WebElement grade = driver.findElements(ALL_GRADES_COLUMN).get(i);
 				String text = grade.getText();
-				if (text.contentEquals(GradesOption.get()) || text.contentEquals(GradesOption1.get()) || text.contentEquals(GradesOption2.get())) {
+				if (expectedGrades.contains(text)) {
 					PageObjectHelper.log(LOGGER, "Organization Job with Grade: " + text + " correctly filtered");
 				} else {
-					throw new Exception("Job Profile with incorrect Grade Value: " + text);
+					throw new Exception("Job Profile with incorrect Grade Value: " + text + ". Expected one of: " + expectedGrades);
 				}
 			}
 		} catch (Exception e) {
@@ -386,30 +423,50 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_departments_options() throws Exception {
 		try {
-			// PARALLEL EXECUTION FIX: Re-fetch elements on each iteration to avoid stale elements
-			PerformanceUtils.waitForPageReady(driver, 2);
-			int deptCount = driver.findElements(ALL_DEPARTMENTS_COLUMN).size();
+			// Build set of expected departments
+			Set<String> expectedDepts = new HashSet<>();
+			if (DepartmentsOption.get() != null && !DepartmentsOption.get().isEmpty()) expectedDepts.add(DepartmentsOption.get());
+			if (DepartmentsOption1.get() != null && !DepartmentsOption1.get().isEmpty()) expectedDepts.add(DepartmentsOption1.get());
+			if (DepartmentsOption2.get() != null && !DepartmentsOption2.get().isEmpty()) expectedDepts.add(DepartmentsOption2.get());
 			
-			for (int i = 0; i < deptCount; i++) {
-				// Re-fetch element on each iteration to avoid stale element reference
-				WebElement department = driver.findElements(ALL_DEPARTMENTS_COLUMN).get(i);
-				String text = department.getText();
-				if (text.contentEquals(DepartmentsOption.get()) || text.contentEquals(DepartmentsOption1.get()) || text.contentEquals(DepartmentsOption2.get())) {
-					PageObjectHelper.log(LOGGER, "Organization Job with Department: " + text + " correctly filtered");
-				} else {
-					throw new Exception("Job Profile with incorrect Department Value: " + text);
+			// Wait for filter to apply
+			PerformanceUtils.waitForPageReady(driver, 2);
+			waitForSpinners();
+			safeSleep(1000);
+			
+			// Wait until filter is applied - first element should match expected departments
+			int maxWaitAttempts = 5;
+			boolean filterApplied = false;
+			for (int attempt = 0; attempt < maxWaitAttempts && !filterApplied; attempt++) {
+				List<WebElement> checkElements = driver.findElements(ALL_DEPARTMENTS_COLUMN);
+				if (!checkElements.isEmpty()) {
+					String firstDept = checkElements.get(0).getText();
+					if (expectedDepts.contains(firstDept)) {
+						filterApplied = true;
+						LOGGER.info("Filter confirmed applied - first result '{}' matches expected", firstDept);
+					}
+				}
+				if (!filterApplied) {
+					safeSleep(500);
+					waitForSpinners();
 				}
 			}
-		} catch (org.openqa.selenium.StaleElementReferenceException e) {
-			// PARALLEL EXECUTION FIX: Retry on stale element
-			LOGGER.warn("Stale element detected, retrying validation...");
-			PerformanceUtils.waitForPageReady(driver, 2);
+			
+			if (!filterApplied) {
+				List<WebElement> checkElements = driver.findElements(ALL_DEPARTMENTS_COLUMN);
+				String actualFirst = checkElements.isEmpty() ? "No elements found" : checkElements.get(0).getText();
+				throw new Exception("Filter did not apply within timeout. Expected one of: " + expectedDepts + ", but first result is: " + actualFirst);
+			}
+			
+			// Validate all departments
 			int deptCount = driver.findElements(ALL_DEPARTMENTS_COLUMN).size();
 			for (int i = 0; i < deptCount; i++) {
 				WebElement department = driver.findElements(ALL_DEPARTMENTS_COLUMN).get(i);
 				String text = department.getText();
-				if (!text.contentEquals(DepartmentsOption.get()) && !text.contentEquals(DepartmentsOption1.get()) && !text.contentEquals(DepartmentsOption2.get())) {
-					throw new Exception("Job Profile with incorrect Department Value: " + text);
+				if (expectedDepts.contains(text)) {
+					PageObjectHelper.log(LOGGER, "Organization Job with Department: " + text + " correctly filtered");
+				} else {
+					throw new Exception("Job Profile with incorrect Department Value: " + text + ". Expected one of: " + expectedDepts);
 				}
 			}
 		} catch (Exception e) {
@@ -466,180 +523,224 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 	}
 
 	public void select_a_function_and_verify_all_subfunctions_inside_function_are_selected_automatically() throws Exception {
-		List<WebElement> checkboxes = driver.findElements(FUNCTIONS_CHECKBOXES);
-		List<WebElement> values = driver.findElements(FUNCTIONS_VALUES);
-		List<WebElement> toggleButtons = driver.findElements(TOGGLE_SUBOPTIONS);
-
+		PerformanceUtils.waitForPageReady(driver, 3);
+		waitForSpinners();
+		safeSleep(1000);
+		
 		final int MIN_REQUIRED_SUBFUNCTIONS = 2;
+		String selectedFunctionText = null;
 
+		List<WebElement> toggleButtons = driver.findElements(TOGGLE_SUBOPTIONS);
 		if (toggleButtons.isEmpty()) {
 			throw new Exception("No functions with subfunctions found!");
 		}
 
-		try {
-			boolean selectedFunctionWithSubfunctions = false;
-			int maxFunctionsToCheck = Math.min(toggleButtons.size(), 20);
+		int maxFunctionsToCheck = Math.min(toggleButtons.size(), 20);
 
-			for (int toggleIndex = 0; toggleIndex < maxFunctionsToCheck; toggleIndex++) {
-				try {
-					WebElement toggleButton = toggleButtons.get(toggleIndex);
-					WebElement functionLabel = toggleButton.findElement(By.xpath("./preceding-sibling::label"));
-					String functionText = functionLabel.getText();
-
-					int checkboxCountBefore = driver.findElements(By.xpath("//button[contains(@data-testid,'toggle-suboptions')]/preceding-sibling::input[@type='checkbox'] | //div[@class='ml-6']//input[@type='checkbox']")).size();
-
-					try {
-						jsClick(toggleButton);
-						Thread.sleep(600);
-					} catch (Exception e) {
-						continue;
-					}
-
-					int checkboxCountAfter = driver.findElements(By.xpath("//button[contains(@data-testid,'toggle-suboptions')]/preceding-sibling::input[@type='checkbox'] | //div[@class='ml-6']//input[@type='checkbox']")).size();
-					int subfunctionCount = checkboxCountAfter - checkboxCountBefore;
-
-					try {
-						jsClick(toggleButton);
-						Thread.sleep(300);
-					} catch (Exception e) {
-						// Ignore
-					}
-
-					if (subfunctionCount < MIN_REQUIRED_SUBFUNCTIONS) continue;
-
-					int functionIndex = -1;
-					for (int i = 0; i < values.size(); i++) {
-						if (values.get(i).getText().equals(functionText)) {
-							functionIndex = i;
-							break;
-						}
-					}
-
-					if (functionIndex == -1) continue;
-
-					WebElement targetCheckbox = checkboxes.get(functionIndex);
-					jsClick(targetCheckbox);
-					waitForSpinners();
-					PerformanceUtils.waitForPageReady(driver, 2);
-
-					if (!targetCheckbox.isSelected()) {
-						jsClick(targetCheckbox);
-						Thread.sleep(300);
-					}
-
-					FunctionsOption.set(functionText);
-					selectedFunctionWithSubfunctions = true;
+		for (int toggleIndex = 0; toggleIndex < maxFunctionsToCheck; toggleIndex++) {
+			try {
+				toggleButtons = driver.findElements(TOGGLE_SUBOPTIONS);
+				if (toggleIndex >= toggleButtons.size()) {
 					break;
-				} catch (Exception e) {
+				}
+				
+				WebElement toggleButton = toggleButtons.get(toggleIndex);
+				WebElement functionLabel = toggleButton.findElement(By.xpath("./preceding-sibling::label"));
+				String functionText = functionLabel.getText().trim();
+				
+				if (functionText.isEmpty()) {
 					continue;
 				}
-			}
 
-			if (!selectedFunctionWithSubfunctions) {
-				throw new Exception("Failed to find/select a function with >= " + MIN_REQUIRED_SUBFUNCTIONS + " subfunctions");
+				// Count checkboxes before expanding
+				int checkboxCountBefore = driver.findElements(By.xpath("//button[contains(@data-testid,'toggle-suboptions')]/preceding-sibling::input[@type='checkbox'] | //div[@class='ml-6']//input[@type='checkbox']")).size();
+
+				// Expand subfunctions
+				jsClick(toggleButton);
+				safeSleep(600);
+				waitForSpinners();
+
+				// Count checkboxes after expanding
+				int checkboxCountAfter = driver.findElements(By.xpath("//button[contains(@data-testid,'toggle-suboptions')]/preceding-sibling::input[@type='checkbox'] | //div[@class='ml-6']//input[@type='checkbox']")).size();
+				int subfunctionCount = checkboxCountAfter - checkboxCountBefore;
+
+				// Collapse subfunctions
+				jsClick(toggleButton);
+				safeSleep(300);
+
+				if (subfunctionCount < MIN_REQUIRED_SUBFUNCTIONS) {
+					continue;
+				}
+
+				// Find and select the function checkbox
+				List<WebElement> values = driver.findElements(FUNCTIONS_VALUES);
+				List<WebElement> checkboxes = driver.findElements(FUNCTIONS_CHECKBOXES);
+				
+				int functionIndex = -1;
+				for (int i = 0; i < values.size() && i < checkboxes.size(); i++) {
+					String valueText = values.get(i).getText().trim();
+					if (valueText.equals(functionText)) {
+						functionIndex = i;
+						break;
+					}
+				}
+
+				if (functionIndex == -1 || functionIndex >= checkboxes.size()) {
+					continue;
+				}
+
+				// Select the function checkbox
+				WebElement targetCheckbox = checkboxes.get(functionIndex);
+				jsClick(targetCheckbox);
+				waitForSpinners();
+				PerformanceUtils.waitForPageReady(driver, 3);
+				safeSleep(500);
+
+				// Verify checkbox is selected
+				checkboxes = driver.findElements(FUNCTIONS_CHECKBOXES);
+				if (functionIndex < checkboxes.size() && checkboxes.get(functionIndex).isSelected()) {
+					FunctionsOption.set(functionText);
+					selectedFunctionText = functionText;
+					LOGGER.info("Successfully selected function '{}' with {} subfunctions", functionText, subfunctionCount);
+					break;
+				}
+			} catch (Exception e) {
+				LOGGER.debug("Error processing function (attempt {}): {}", toggleIndex, e.getMessage());
+				continue;
 			}
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_a_function_and_verify_all_subfunctions_inside_function_are_selected_automatically", "Issue selecting function with subfunctions", e);
-			throw e;
 		}
 
-		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
-			WebElement selectedFunctionToggle = driver.findElement(By.xpath("//label[normalize-space(text())='" + FunctionsOption.get() + "']/following-sibling::button[contains(@data-testid,'toggle-suboptions')]"));
-			jsClick(selectedFunctionToggle);
-			Thread.sleep(800);
-			waitForSpinners();
-
-			String subfunctionXPath = "//input[@type='checkbox'][contains(@id, '" + FunctionsOption.get() + "') and contains(@id, '::')]";
-			List<WebElement> subfunctions = driver.findElements(By.xpath(subfunctionXPath));
-
-			if (subfunctions.isEmpty()) {
-				throw new Exception("Function '" + FunctionsOption.get() + "' was expected to have subfunctions but none found");
-			}
-
-			for (WebElement subfunctionCheckbox : subfunctions) {
-				Assert.assertTrue(subfunctionCheckbox.isSelected(), "Subfunction should be auto-selected when parent function is selected");
-			}
-
-			LOGGER.info("Verified all {} subfunctions are auto-selected for function '{}'", subfunctions.size(), FunctionsOption.get());
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_a_function_verify_subfunctions", "Issue verifying subfunctions auto-selection", e);
-			throw e;
+		if (selectedFunctionText == null) {
+			throw new Exception("Failed to find/select a function with >= " + MIN_REQUIRED_SUBFUNCTIONS + " subfunctions");
 		}
+
+		// Verify subfunctions are auto-selected
+		PerformanceUtils.waitForPageReady(driver, 3);
+		waitForSpinners();
+		safeSleep(500);
+		
+		WebElement selectedFunctionToggle = driver.findElement(By.xpath("//label[normalize-space(text())='" + selectedFunctionText + "']/following-sibling::button[contains(@data-testid,'toggle-suboptions')]"));
+		jsClick(selectedFunctionToggle);
+		safeSleep(800);
+		waitForSpinners();
+
+		String subfunctionXPath = "//input[@type='checkbox'][contains(@id, '" + selectedFunctionText + "') and contains(@id, '::')]";
+		List<WebElement> subfunctions = driver.findElements(By.xpath(subfunctionXPath));
+
+		if (subfunctions.isEmpty()) {
+			throw new Exception("Function '" + selectedFunctionText + "' was expected to have subfunctions but none found");
+		}
+
+		// Verify each subfunction is selected
+		for (int i = 0; i < subfunctions.size(); i++) {
+			subfunctions = driver.findElements(By.xpath(subfunctionXPath));
+			if (i >= subfunctions.size()) {
+				break;
+			}
+			
+			WebElement subfunctionCheckbox = subfunctions.get(i);
+			Assert.assertTrue(subfunctionCheckbox.isSelected(), "Subfunction should be auto-selected when parent function is selected");
+		}
+
+		LOGGER.info("Verified all {} subfunctions are auto-selected for function '{}'", subfunctions.size(), selectedFunctionText);
 	}
 
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options() throws Exception {
-		// PARALLEL EXECUTION FIX: Robust retry loop for stale elements
-		int maxRetries = 3;
-		int retryCount = 0;
-		boolean validationPassed = false;
+		String func1 = FunctionsOption.get();
+		String func2 = FunctionsOption1.get();
+		String func3 = FunctionsOption2.get();
 		
-		while (retryCount < maxRetries && !validationPassed) {
-			try {
-				// Wait for page stability before getting elements
-				PerformanceUtils.waitForPageReady(driver, 2);
+		// Build list of expected functions (only non-empty values)
+		Set<String> expectedFunctions = new HashSet<>();
+		if (func1 != null && !func1.isEmpty() && !func1.equals("NOT_SET")) {
+			expectedFunctions.add(func1.trim());
+		}
+		if (func2 != null && !func2.isEmpty() && !func2.equals("NOT_SET")) {
+			expectedFunctions.add(func2.trim());
+		}
+		if (func3 != null && !func3.isEmpty() && !func3.equals("NOT_SET")) {
+			expectedFunctions.add(func3.trim());
+		}
+		
+		if (expectedFunctions.isEmpty()) {
+			throw new Exception("No function options set in ThreadLocal. FunctionsOption=" + func1 + ", FunctionsOption1=" + func2 + ", FunctionsOption2=" + func3);
+		}
+		
+		LOGGER.info("Validating against expected functions: {}", expectedFunctions);
+		
+		// Wait for filter to apply
+		PerformanceUtils.waitForPageReady(driver, 2);
+		waitForSpinners();
+		safeSleep(1000);
+		
+		// Wait until filter is applied - first element should match expected functions
+		int maxWaitAttempts = 5;
+		boolean filterApplied = false;
+		for (int attempt = 0; attempt < maxWaitAttempts && !filterApplied; attempt++) {
+			List<WebElement> checkElements = driver.findElements(ALL_FUNCTIONS_COLUMN);
+			if (!checkElements.isEmpty()) {
+				String firstFunctionText = checkElements.get(0).getText();
+				String firstFunction = firstFunctionText.contains("|") ? firstFunctionText.split("\\s*\\|\\s*", 2)[0].trim() : firstFunctionText.trim();
+				
+				for (String expectedFunc : expectedFunctions) {
+					if (firstFunction.contentEquals(expectedFunc)) {
+						filterApplied = true;
+						LOGGER.info("Filter confirmed applied - first result '{}' matches expected", firstFunction);
+						break;
+					}
+				}
+			}
+			
+			if (!filterApplied) {
+				LOGGER.debug("Filter not yet applied (attempt {}/{}), waiting...", attempt + 1, maxWaitAttempts);
+				safeSleep(500);
 				waitForSpinners();
-				safeSleep(500); // Additional wait for DOM stability
-				
-				// Re-fetch count and elements on each retry to avoid stale references
-				List<WebElement> functionElements = driver.findElements(ALL_FUNCTIONS_COLUMN);
-				int functionCount = functionElements.size();
-				
-				if (functionCount == 0) {
-					throw new Exception("No function elements found in table");
-				}
-				
-				// Validate each function element
-				for (int i = 0; i < functionCount; i++) {
-					// Re-fetch element on each iteration to avoid stale element reference
-					functionElements = driver.findElements(ALL_FUNCTIONS_COLUMN);
-					if (i >= functionElements.size()) {
-						LOGGER.warn("Element count changed during iteration, retrying...");
-						throw new org.openqa.selenium.StaleElementReferenceException("Element count changed");
-					}
-					
-					WebElement functionElement = functionElements.get(i);
-					String fullText = functionElement.getText();
-					String function = fullText.contains("|") ? fullText.split("\\s*\\|\\s*", 2)[0].trim() : fullText.trim();
-
-					if (function.contentEquals(FunctionsOption.get()) || function.contentEquals(FunctionsOption1.get()) || function.contentEquals(FunctionsOption2.get())) {
-						PageObjectHelper.log(LOGGER, "Organization Job with Function: " + function + " correctly filtered");
-					} else {
-						throw new Exception("Job Profile with incorrect Function Value: " + function);
-					}
-				}
-				
-				validationPassed = true;
-				
-			} catch (org.openqa.selenium.StaleElementReferenceException e) {
-				retryCount++;
-				LOGGER.warn("Stale element detected (attempt {}/{}), retrying validation...", retryCount, maxRetries);
-				if (retryCount >= maxRetries) {
-					PageObjectHelper.handleError(LOGGER, "validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options", 
-						"Issue validating functions filter - Stale element after " + maxRetries + " retries", e);
-					throw e;
-				}
-				safeSleep(1000 * retryCount); // Exponential backoff
-			} catch (Exception e) {
-				if (e.getMessage() != null && e.getMessage().contains("Element count changed")) {
-					retryCount++;
-					if (retryCount >= maxRetries) {
-						PageObjectHelper.handleError(LOGGER, "validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options", 
-							"Issue validating functions filter", e);
-						throw e;
-					}
-					safeSleep(1000 * retryCount);
-					continue;
-				}
-				PageObjectHelper.handleError(LOGGER, "validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options", "Issue validating functions filter", e);
-				throw e;
 			}
 		}
 		
-		if (!validationPassed) {
-			throw new Exception("Validation failed after " + maxRetries + " retries");
+		if (!filterApplied) {
+			// Get actual first function for better error message
+			List<WebElement> checkElements = driver.findElements(ALL_FUNCTIONS_COLUMN);
+			String actualFirst = checkElements.isEmpty() ? "No elements found" : checkElements.get(0).getText();
+			throw new Exception("Filter did not apply within timeout. Expected one of: " + expectedFunctions + ", but first result is: " + actualFirst);
 		}
 		
+		// Now validate all elements
+		List<WebElement> functionElements = driver.findElements(ALL_FUNCTIONS_COLUMN);
+		int functionCount = functionElements.size();
+		
+		if (functionCount == 0) {
+			throw new Exception("No function elements found in table");
+		}
+		
+		// Validate each function element
+		for (int i = 0; i < functionCount; i++) {
+			functionElements = driver.findElements(ALL_FUNCTIONS_COLUMN);
+			if (i >= functionElements.size()) {
+				break;
+			}
+			
+			WebElement functionElement = functionElements.get(i);
+			String fullText = functionElement.getText();
+			String function = fullText.contains("|") ? fullText.split("\\s*\\|\\s*", 2)[0].trim() : fullText.trim();
+			
+			// Check if function matches any expected function
+			boolean matches = false;
+			for (String expectedFunc : expectedFunctions) {
+				if (function.contentEquals(expectedFunc)) {
+					matches = true;
+					break;
+				}
+			}
+			
+			if (matches) {
+				PageObjectHelper.log(LOGGER, "Organization Job with Function: " + function + " correctly filtered");
+			} else {
+				throw new Exception("Job Profile with incorrect Function Value: " + function + ". Expected one of: " + expectedFunctions);
+			}
+		}
+		
+		LOGGER.info("Validation passed: All {} function elements match expected filters", functionCount);
 		scrollToTop();
 	}
 
@@ -696,7 +797,9 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 	}
 
 	public void select_one_subfunction_option_inside_function_name_dropdown() throws Exception {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PerformanceUtils.waitForPageReady(driver, 2);
+		waitForSpinners();
+		
 		List<WebElement> checkboxes = driver.findElements(SUBFUNCTIONS_CHECKBOXES);
 		List<WebElement> values = driver.findElements(SUBFUNCTIONS_VALUES);
 
@@ -714,12 +817,17 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 				WebElement checkbox = checkboxes.get(1);
 
 				scrollToElement(checkbox);
-				Thread.sleep(300);
+				safeSleep(300);
 				jsClick(checkbox);
-				Thread.sleep(300);
-
+				
+				// Wait for filter to apply after selection
+				waitForSpinners();
 				PerformanceUtils.waitForPageReady(driver, 2);
-				Assert.assertTrue(checkbox.isSelected(), "Subfunction not selected: " + subfunctionText);
+				safeSleep(500);
+				
+				// Re-fetch checkbox to verify selection
+				checkboxes = driver.findElements(SUBFUNCTIONS_CHECKBOXES);
+				Assert.assertTrue(checkboxes.get(1).isSelected(), "Subfunction not selected: " + subfunctionText);
 				PageObjectHelper.log(LOGGER, "Selected SubFunction '" + subfunctionText + "' from Function '" + FunctionsOption.get() + "'");
 			}
 		} catch (Exception e) {
@@ -788,22 +896,33 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 	}
 
 	public void select_two_subfunction_options_inside_function_name_filters_dropdown() throws Exception {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PerformanceUtils.waitForPageReady(driver, 2);
+		waitForSpinners();
+		
 		List<WebElement> checkboxes = driver.findElements(SUBFUNCTIONS_CHECKBOXES);
 		List<WebElement> values = driver.findElements(SUBFUNCTIONS_VALUES);
 
 		try {
 			for (int j = 1; j <= 2 && j < values.size(); j++) {
+				// Re-fetch elements to avoid stale references after filter updates
+				checkboxes = driver.findElements(SUBFUNCTIONS_CHECKBOXES);
+				values = driver.findElements(SUBFUNCTIONS_VALUES);
+				
 				String subfunctionText = values.get(j).getText();
 				WebElement checkbox = checkboxes.get(j);
 
 				scrollToElement(checkbox);
-				Thread.sleep(300);
+				safeSleep(300);
 				jsClick(checkbox);
-				Thread.sleep(300);
-
+				
+				// Wait for filter to apply after each selection
+				waitForSpinners();
 				PerformanceUtils.waitForPageReady(driver, 2);
-				Assert.assertTrue(checkbox.isSelected(), "Subfunction not selected: " + subfunctionText);
+				safeSleep(500);
+				
+				// Re-fetch checkbox to verify selection
+				checkboxes = driver.findElements(SUBFUNCTIONS_CHECKBOXES);
+				Assert.assertTrue(checkboxes.get(j).isSelected(), "Subfunction not selected: " + subfunctionText);
 				PageObjectHelper.log(LOGGER, "Selected SubFunction #" + j + ": '" + subfunctionText + "'");
 			}
 		} catch (Exception e) {
@@ -814,80 +933,82 @@ public class PO11_ValidateJobMappingFiltersFunctionality extends BasePageObject 
 
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_grades_departments_and_functions_subfunctions_options() throws Exception {
 		try {
-			// PARALLEL EXECUTION FIX: Wait for page stability and re-fetch elements on each iteration
-			PerformanceUtils.waitForPageReady(driver, 2);
-			
 			By gradesXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[3]//div");
 			By deptXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[4]//div");
 			By funcXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[@colspan='7']//span[2]");
 			
-			// Get count first, then re-fetch on each iteration to avoid stale elements
+			String expectedGrade = GradesOption.get();
+			String expectedDept = DepartmentsOption.get();
+			String expectedFunc = FunctionsOption.get();
+			
+			// Wait for filter to apply
+			PerformanceUtils.waitForPageReady(driver, 2);
+			waitForSpinners();
+			safeSleep(1000);
+			
+			// Wait until filter is applied - first grade element should match expected
+			int maxWaitAttempts = 5;
+			boolean filterApplied = false;
+			for (int attempt = 0; attempt < maxWaitAttempts && !filterApplied; attempt++) {
+				List<WebElement> checkElements = driver.findElements(gradesXpath);
+				if (!checkElements.isEmpty()) {
+					String firstGrade = checkElements.get(0).getText();
+					if (firstGrade.contentEquals(expectedGrade)) {
+						filterApplied = true;
+						LOGGER.info("Filter confirmed applied - first grade '{}' matches expected", firstGrade);
+					}
+				}
+				if (!filterApplied) {
+					safeSleep(500);
+					waitForSpinners();
+				}
+			}
+			
+			if (!filterApplied) {
+				List<WebElement> checkElements = driver.findElements(gradesXpath);
+				String actualFirst = checkElements.isEmpty() ? "No elements found" : checkElements.get(0).getText();
+				throw new Exception("Filter did not apply within timeout. Expected grade: " + expectedGrade + ", but first result is: " + actualFirst);
+			}
+			
+			// Validate grades
 			int gradeCount = driver.findElements(gradesXpath).size();
 			for (int i = 0; i < gradeCount; i++) {
 				WebElement grade = driver.findElements(gradesXpath).get(i);
 				String gradeText = grade.getText();
-				if (!gradeText.contentEquals(GradesOption.get())) {
-					throw new Exception("Job Profile with incorrect Grade: " + gradeText);
+				if (!gradeText.contentEquals(expectedGrade)) {
+					throw new Exception("Job Profile with incorrect Grade: " + gradeText + ". Expected: " + expectedGrade);
 				}
 			}
 
+			// Validate departments
 			int deptCount = driver.findElements(deptXpath).size();
 			for (int i = 0; i < deptCount; i++) {
 				WebElement dept = driver.findElements(deptXpath).get(i);
 				String deptText = dept.getText();
-				if (!deptText.contentEquals(DepartmentsOption.get())) {
-					throw new Exception("Job Profile with incorrect Department: " + deptText);
+				if (!deptText.contentEquals(expectedDept)) {
+					throw new Exception("Job Profile with incorrect Department: " + deptText + ". Expected: " + expectedDept);
 				}
 			}
 
+			// Validate functions
 			int funcCount = driver.findElements(funcXpath).size();
 			for (int i = 0; i < funcCount; i++) {
 				WebElement func = driver.findElements(funcXpath).get(i);
 				String funcText = func.getText().contains("|") ? func.getText().split("\\s*\\|\\s*", 2)[0].trim() : func.getText().trim();
-				if (!funcText.contentEquals(FunctionsOption.get())) {
-					throw new Exception("Job Profile with incorrect Function: " + funcText);
+				if (!funcText.contentEquals(expectedFunc)) {
+					throw new Exception("Job Profile with incorrect Function: " + funcText + ". Expected: " + expectedFunc);
 				}
 			}
 
 			PageObjectHelper.log(LOGGER, "All profiles correctly filtered with combined filters");
-		} catch (org.openqa.selenium.StaleElementReferenceException e) {
-			// PARALLEL EXECUTION FIX: Retry on stale element
-			LOGGER.warn("Stale element detected in combined filters validation, retrying...");
-			PerformanceUtils.waitForPageReady(driver, 2);
-			By gradesXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[3]//div");
-			By deptXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[4]//div");
-			By funcXpath = By.xpath("//h2[text()='Organization jobs']//..//tbody//tr//td[@colspan='7']//span[2]");
-			
-			int gradeCount = driver.findElements(gradesXpath).size();
-			for (int i = 0; i < gradeCount; i++) {
-				WebElement grade = driver.findElements(gradesXpath).get(i);
-				if (!grade.getText().contentEquals(GradesOption.get())) {
-					throw new Exception("Job Profile with incorrect Grade: " + grade.getText());
-				}
-			}
-			int deptCount = driver.findElements(deptXpath).size();
-			for (int i = 0; i < deptCount; i++) {
-				WebElement dept = driver.findElements(deptXpath).get(i);
-				if (!dept.getText().contentEquals(DepartmentsOption.get())) {
-					throw new Exception("Job Profile with incorrect Department: " + dept.getText());
-				}
-			}
-			int funcCount = driver.findElements(funcXpath).size();
-			for (int i = 0; i < funcCount; i++) {
-				WebElement func = driver.findElements(funcXpath).get(i);
-				String funcText = func.getText().contains("|") ? func.getText().split("\\s*\\|\\s*", 2)[0].trim() : func.getText().trim();
-				if (!funcText.contentEquals(FunctionsOption.get())) {
-					throw new Exception("Job Profile with incorrect Function: " + funcText);
-				}
-			}
 		} catch (Exception e) {
 			try {
 				if (driver.findElement(NO_DATA_CONTAINER).isDisplayed()) {
 					PageObjectHelper.log(LOGGER, "No data with applied combined filters");
 				}
 			} catch (Exception s) {
-				PageObjectHelper.handleError(LOGGER, "validate_combined_filters", "Issue validating combined filters", s);
-				throw s;
+				PageObjectHelper.handleError(LOGGER, "validate_combined_filters", "Issue validating combined filters", e);
+				throw e;
 			}
 		}
 		scrollToTop();

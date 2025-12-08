@@ -44,7 +44,6 @@ public class PO06_PublishJobProfile extends BasePageObject {
 	private static final By ARCHITECT_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[9]");
 	private static final By JOBS_LINK = By.xpath("//span[text()='Jobs']");
 	// RESULTS_COUNT is available via Locators.JobMappingResults.SHOWING_JOB_RESULTS
-	private static final By NO_PROFILES_MSG = By.xpath("//div[contains(text(),'no Success Profiles') or contains(text(),'No profiles found')]");
 
 	public PO06_PublishJobProfile() {
 		super();
@@ -52,9 +51,31 @@ public class PO06_PublishJobProfile extends BasePageObject {
 
 	public void user_should_verify_publish_button_is_displaying_on_first_job_profile() {
 		try {
-			String job1NameText = getElementText(JOB_NAME_ROW_1);
-			job1OrgName.set(job1NameText.split("-", 2)[0].trim());
-			PO15_ValidateRecommendedProfileDetails.orgJobName.set(job1OrgName.get());
+			PerformanceUtils.waitForPageReady(driver, 3);
+			waitForSpinners();
+			safeSleep(1000);
+			
+			WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 10);
+			String job1NameText = jobNameElement.getText();
+			
+			if (job1NameText == null || job1NameText.trim().isEmpty()) {
+				throw new Exception("Job name element text is null or empty");
+			}
+			
+			// Extract job name (before the dash)
+			String[] parts = job1NameText.split("-", 2);
+			String extractedJobName = parts[0].trim();
+			
+			if (extractedJobName.isEmpty() || extractedJobName.equals("NOT_SET")) {
+				throw new Exception("Failed to extract valid job name from: " + job1NameText);
+			}
+			
+			// Store job name in both ThreadLocal variables
+			job1OrgName.set(extractedJobName);
+			PO15_ValidateRecommendedProfileDetails.orgJobName.set(extractedJobName);
+			
+			LOGGER.info("Job name extracted and stored: '{}'", extractedJobName);
+			
 			Assert.assertTrue(waitForElement(JOB_1_PUBLISH_BTN).isDisplayed());
 			PageObjectHelper.log(LOGGER, "Publish button on first job profile (Org: " + job1OrgName.get() + ") is displaying");
 		} catch (Exception e) {
@@ -140,25 +161,37 @@ public class PO06_PublishJobProfile extends BasePageObject {
 	public void search_for_published_job_name_in_view_published_screen() {
 		try {
 			String jobName = getJobNameToSearch();
+			if (jobName == null || jobName.isEmpty()) {
+				throw new Exception("Job name to search is null or empty");
+			}
 			
 			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 3);
 			scrollToTop();
 			safeSleep(500);
 			
-			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR);
+			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
 			scrollToElement(searchBar);
 			
-			try {
-				searchBar.clear();
-				searchBar.click();
-			} catch (Exception clickEx) {
-				jsClick(searchBar);
-			}
+			// Clear any existing search
+			searchBar.click();
+			safeSleep(300);
+			searchBar.clear();
+			searchBar.sendKeys(Keys.CONTROL + "a");
+			searchBar.sendKeys(Keys.DELETE);
+			safeSleep(300);
 			
+			// Type search term and submit
 			searchBar.sendKeys(jobName);
+			safeSleep(500);
 			searchBar.sendKeys(Keys.ENTER);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			
+			// Wait for search to complete
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 5);
+			safeSleep(1500);
+			
+			LOGGER.info("Search completed for job: {}", jobName);
 			PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name_in_view_published_screen", "Failed to search for job in View Published screen", e);
@@ -167,80 +200,42 @@ public class PO06_PublishJobProfile extends BasePageObject {
 
 	public void user_should_verify_published_job_is_displayed_in_view_published_screen() throws Exception {
 		try {
-			// PARALLEL EXECUTION FIX: Verify expected job name matches (search should filter correctly)
 			String expectedJobName = PO15_ValidateRecommendedProfileDetails.orgJobName.get();
 			if (expectedJobName == null || expectedJobName.isEmpty()) {
 				throw new Exception("Expected job name is null or empty");
 			}
 			
-			// Wait for search results to filter - retry until first row matches expected job
-			int maxRetries = 5;
-			int retryCount = 0;
-			boolean found = false;
+			// Wait for search results to filter
+			PerformanceUtils.waitForPageReady(driver, 3);
+			waitForSpinners();
+			safeSleep(2000);
 			
-			while (retryCount < maxRetries && !found) {
-				PerformanceUtils.waitForPageReady(driver, 2);
-				waitForSpinners();
-				safeSleep(500);
-				
-				try {
-					// Re-fetch element to avoid stale reference
-					WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 5);
-					String job1NameText = jobNameElement.getText();
-					String actualJobName = job1NameText.split("-", 2)[0].trim();
-					
-					if (expectedJobName.equals(actualJobName)) {
-						found = true;
-						job1OrgName.set(actualJobName);
-						PageObjectHelper.log(LOGGER, "Found expected job: " + actualJobName);
-					} else {
-						retryCount++;
-						if (retryCount < maxRetries) {
-							LOGGER.warn("Search not filtered yet. Expected: '{}', Found: '{}' (retry {}/{})", 
-								expectedJobName, actualJobName, retryCount, maxRetries);
-							safeSleep(1000 * retryCount); // Exponential backoff
-						}
-					}
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					retryCount++;
-					LOGGER.warn("Stale element during search verification (retry {}/{})", retryCount, maxRetries);
-					if (retryCount < maxRetries) {
-						safeSleep(1000);
-					}
-				} catch (org.openqa.selenium.TimeoutException e) {
-					retryCount++;
-					LOGGER.warn("Element not found yet during search verification (retry {}/{})", retryCount, maxRetries);
-					if (retryCount < maxRetries) {
-						safeSleep(1000 * retryCount);
-					}
-				}
+			WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 10);
+			String job1NameText = jobNameElement.getText();
+			String actualJobName = job1NameText.split("-", 2)[0].trim();
+			
+			if (!expectedJobName.equals(actualJobName)) {
+				String errorMsg = String.format("Expected job '%s' but found '%s'. Search may not have filtered correctly.", 
+					expectedJobName, actualJobName);
+				ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_view_published_screen", 
+					new Exception(errorMsg));
+				Assert.fail(errorMsg);
 			}
 			
-			if (!found) {
-				// Final attempt to get actual value for better error message
-				String actualJobName = "Unknown";
-				try {
-					WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 5);
-					String job1NameText = jobNameElement.getText();
-					actualJobName = job1NameText.split("-", 2)[0].trim();
-				} catch (Exception e) {
-					LOGGER.error("Could not get actual job name for error message: {}", e.getMessage());
-				}
-				Assert.fail(String.format("Expected job '%s' but found '%s' after %d retries. Search may not have filtered correctly.", 
-					expectedJobName, actualJobName, maxRetries));
-			}
+			job1OrgName.set(actualJobName);
+			PageObjectHelper.log(LOGGER, "Found expected job: " + actualJobName);
 			
 			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
 			PageObjectHelper.log(LOGGER, "Published Job (Org: " + job1OrgName.get() + ") is displayed in view published screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_view_published_screen", "Issue verifying Published Job", e);
-			throw e;
 		}
 	}
 
 	public void user_should_navigate_to_hcm_sync_profiles_tab_in_pm() {
 		try {
 			clickElement(HCM_SYNC_TAB);
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 5);
 			Assert.assertEquals("HCM Sync Profiles", getElementText(HCM_SYNC_HEADER));
 			PageObjectHelper.log(LOGGER, "Navigated to HCM Sync Profiles screen in PM");
@@ -252,7 +247,7 @@ public class PO06_PublishJobProfile extends BasePageObject {
 	public void search_for_published_job_name_in_hcm_sync_profiles_tab_in_pm() {
 		try {
 			String jobName = getJobNameToSearch();
-
+			PerformanceUtils.waitForPageReady(driver, 5);
 			WebElement searchBox = waitForElement(PROFILES_SEARCH);
 			String searchTerm = jobName.split("-", 2)[0].trim();
 			searchBox.clear();
@@ -267,79 +262,29 @@ public class PO06_PublishJobProfile extends BasePageObject {
 
 	public void user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm() {
 		try {
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PerformanceUtils.waitForPageReady(driver, 5);
+			safeSleep(2000);
+			
 			String expectedJobName = getJobNameToSearch();
 			if (expectedJobName == null || expectedJobName.isEmpty()) {
 				throw new Exception("Expected job name is null or empty");
 			}
 			
-			// PARALLEL EXECUTION FIX: Wait for search results to filter - retry until first row matches expected job
-			int maxRetries = 5;
-			int retryCount = 0;
-			boolean found = false;
-			String actualJobName = "Unknown";
+			waitForSpinners();
 			
-			while (retryCount < maxRetries && !found) {
-				waitForSpinners();
-				PerformanceUtils.waitForPageReady(driver, 2);
-				safeSleep(500);
-				
-				try {
-					WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-					WebElement jobElement = shortWait.until(ExpectedConditions.visibilityOfElementLocated(HCM_JOB_ROW_1));
-					String job1NameText = jobElement.getText();
-					actualJobName = job1NameText.split("-", 2)[0].trim();
-					
-					if (expectedJobName.equals(actualJobName)) {
-						found = true;
-						PageObjectHelper.log(LOGGER, "Found expected job in HCM Sync: " + actualJobName);
-					} else {
-						retryCount++;
-						if (retryCount < maxRetries) {
-							LOGGER.warn("Search not filtered yet in HCM. Expected: '{}', Found: '{}' (retry {}/{})", 
-								expectedJobName, actualJobName, retryCount, maxRetries);
-							safeSleep(1000 * retryCount); // Exponential backoff
-						}
-					}
-				} catch (TimeoutException e) {
-					retryCount++;
-					if (retryCount < maxRetries) {
-						LOGGER.warn("Job element not found yet in HCM (retry {}/{})", retryCount, maxRetries);
-						safeSleep(1000 * retryCount);
-					} else {
-						// Check for error messages
-						try {
-							String countText = driver.findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText();
-							if (countText.contains("Showing 0")) {
-								Assert.fail("Search returned 0 results - Job '" + expectedJobName + "' not found");
-							}
-						} catch (Exception countEx) {
-							// Continue
-						}
-						try {
-							if (driver.findElement(NO_PROFILES_MSG).isDisplayed()) {
-								Assert.fail("No profiles message displayed - Job '" + expectedJobName + "' not found");
-							}
-						} catch (Exception noMsgEx) {
-							// Continue
-						}
-						Assert.fail("Published job '" + expectedJobName + "' not found in HCM Sync Profiles after " + maxRetries + " retries");
-					}
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					retryCount++;
-					LOGGER.warn("Stale element during HCM verification (retry {}/{})", retryCount, maxRetries);
-					if (retryCount < maxRetries) {
-						safeSleep(1000);
-					}
-				}
+			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(15));
+			WebElement jobElement = shortWait.until(ExpectedConditions.visibilityOfElementLocated(HCM_JOB_ROW_1));
+			String job1NameText = jobElement.getText();
+			String actualJobName = job1NameText.split("-", 2)[0].trim();
+			
+			if (!expectedJobName.equals(actualJobName)) {
+				String errorMsg = String.format("Expected job '%s' but found '%s' in HCM Sync Profiles.", expectedJobName, actualJobName);
+				ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", 
+					new Exception(errorMsg));
+				Assert.fail(errorMsg);
 			}
 			
-			if (!found) {
-				Assert.fail(String.format("Expected job '%s' but found '%s' after %d retries in HCM Sync Profiles. Search may not have filtered correctly.", 
-					expectedJobName, actualJobName, maxRetries));
-			}
-			// PARALLEL EXECUTION FIX: Verify expected job name matches (search should filter correctly)
-			Assert.assertEquals(expectedJobName, actualJobName, 
-				String.format("Expected job '%s' but found '%s'", expectedJobName, actualJobName));
 			PageObjectHelper.log(LOGGER, "Published Job (Org: " + actualJobName + ") is displayed in HCM Sync Profiles");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", "Issue verifying published job in HCM Sync Profiles", e);
@@ -474,66 +419,25 @@ public class PO06_PublishJobProfile extends BasePageObject {
 				throw new Exception("Expected job name is null or empty");
 			}
 			
-			// PARALLEL EXECUTION FIX: Wait for search results to filter - retry until first row matches expected job
-			int maxRetries = 5;
-			int retryCount = 0;
-			boolean found = false;
+			// Wait for search results to filter
+			PerformanceUtils.waitForPageReady(driver, 3);
+			waitForSpinners();
+			safeSleep(2000);
 			
-			while (retryCount < maxRetries && !found) {
-				PerformanceUtils.waitForPageReady(driver, 2);
-				waitForSpinners();
-				safeSleep(500);
-				
-				try {
-					// Re-fetch element to avoid stale reference
-					WebElement jobNameElement = waitForElement(ARCHITECT_JOB_ROW_1, 5);
-					String job1NameText = jobNameElement.getText();
-					String actualJobName = job1NameText.split("-", 2)[0].trim();
-					
-					if (expectedJobName.equals(actualJobName)) {
-						found = true;
-						PageObjectHelper.log(LOGGER, "Found expected job in Architect: " + actualJobName);
-					} else {
-						retryCount++;
-						if (retryCount < maxRetries) {
-							LOGGER.warn("Search not filtered yet in Architect. Expected: '{}', Found: '{}' (retry {}/{})", 
-								expectedJobName, actualJobName, retryCount, maxRetries);
-							safeSleep(1000 * retryCount); // Exponential backoff
-						}
-					}
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					retryCount++;
-					LOGGER.warn("Stale element during Architect verification (retry {}/{})", retryCount, maxRetries);
-					if (retryCount < maxRetries) {
-						safeSleep(1000);
-					}
-				} catch (org.openqa.selenium.TimeoutException e) {
-					retryCount++;
-					LOGGER.warn("Element not found yet during Architect verification (retry {}/{})", retryCount, maxRetries);
-					if (retryCount < maxRetries) {
-						safeSleep(1000 * retryCount);
-					}
-				}
-			}
+			WebElement jobNameElement = waitForElement(ARCHITECT_JOB_ROW_1, 10);
+			String job1NameText = jobNameElement.getText();
+			String actualJobName = job1NameText.split("-", 2)[0].trim();
 			
-			if (!found) {
-				// Final attempt to get actual value for better error message
-				String actualJobName = "Unknown";
-				try {
-					WebElement jobNameElement = waitForElement(ARCHITECT_JOB_ROW_1, 5);
-					String job1NameText = jobNameElement.getText();
-					actualJobName = job1NameText.split("-", 2)[0].trim();
-				} catch (Exception e) {
-					LOGGER.error("Could not get actual job name for error message: {}", e.getMessage());
-				}
-				Assert.fail(String.format("Expected job '%s' but found '%s' after %d retries in Architect. Search may not have filtered correctly.", 
-					expectedJobName, actualJobName, maxRetries));
+			if (!expectedJobName.equals(actualJobName)) {
+				String errorMsg = String.format("Expected job '%s' but found '%s' in Architect.", expectedJobName, actualJobName);
+				ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_jobs_page_in_architect", 
+					new Exception(errorMsg));
+				Assert.fail(errorMsg);
 			}
 			
 			PageObjectHelper.log(LOGGER, "Published Job (Org: " + expectedJobName + ") is displayed in Jobs page in Architect");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_jobs_page_in_architect", "Issue verifying published job in Architect", e);
-			throw e;
 		}
 	}
 
@@ -552,13 +456,28 @@ public class PO06_PublishJobProfile extends BasePageObject {
 
 	private String getJobNameToSearch() {
 		String jobName = job1OrgName.get();
-		if (jobName == null || jobName.isEmpty()) {
+		
+		// Check if job name is valid (not null, empty, or "NOT_SET")
+		if (jobName == null || jobName.isEmpty() || jobName.equals("NOT_SET")) {
 			jobName = PO15_ValidateRecommendedProfileDetails.orgJobName.get();
 		}
-		if (jobName == null || jobName.isEmpty()) {
-			throw new IllegalStateException("Job name is not set in either job1OrgName or PO15_ValidateRecommendedProfileDetails.orgJobName");
+		
+		// Validate job name is valid
+		if (jobName == null || jobName.isEmpty() || jobName.equals("NOT_SET")) {
+			LOGGER.error("Job name not properly set. job1OrgName='{}', PO15.orgJobName='{}'", 
+				job1OrgName.get(), PO15_ValidateRecommendedProfileDetails.orgJobName.get());
+			throw new IllegalStateException("Job name is not set or is 'NOT_SET'. Ensure job name is extracted before publishing.");
 		}
-		job1OrgName.set(jobName);
+		
+		// Ensure both ThreadLocal variables are synchronized
+		if (!jobName.equals(job1OrgName.get())) {
+			job1OrgName.set(jobName);
+		}
+		if (!jobName.equals(PO15_ValidateRecommendedProfileDetails.orgJobName.get())) {
+			PO15_ValidateRecommendedProfileDetails.orgJobName.set(jobName);
+		}
+		
+		LOGGER.debug("Using job name for search: '{}'", jobName);
 		return jobName;
 	}
 }

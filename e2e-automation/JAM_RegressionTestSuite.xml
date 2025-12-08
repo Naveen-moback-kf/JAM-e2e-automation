@@ -6,6 +6,7 @@
     <listeners> 
         <listener class-name="com.kfonetalentsuite.listeners.ExcelReportListener" />
         <listener class-name="hooks.JobMapping.SuiteHooks" />
+        <listener class-name="com.kfonetalentsuite.listeners.AllureScreenshotListener" />
     </listeners>
     
     <!-- REGRESSION TESTS - Comprehensive Coverage (All 57 Runners) -->
