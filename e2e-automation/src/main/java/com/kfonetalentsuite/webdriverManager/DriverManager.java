@@ -279,12 +279,21 @@ public class DriverManager {
 			options.addArguments(
 					"--headless=new",
 					"--window-size=1920,1080",
-					"--disable-software-rasterizer"
+					"--disable-software-rasterizer",
+					// MEMORY OPTIMIZATION: Prevent TimeoutException in parallel execution
+					"--memory-pressure-off",
+					"--max-old-space-size=4096",
+					"--disable-features=VizDisplayCompositor",
+					"--disable-features=IsolateOrigins,site-per-process",
+					"--single-process" // Reduces memory footprint significantly
 			);
 			// Note: --disable-gpu, --no-sandbox, --disable-dev-shm-usage already added above
 		} else {
 			options.addArguments("--start-maximized");
 		}
+		
+		// TIMEOUT PREVENTION: Increase page unload timeout
+		options.setPageLoadStrategy(org.openqa.selenium.PageLoadStrategy.NORMAL);
 
 		return options;
 	}
