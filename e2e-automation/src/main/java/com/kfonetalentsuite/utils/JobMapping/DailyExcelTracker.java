@@ -5061,8 +5061,17 @@ public class DailyExcelTracker {
 				cumulativeSummary.totalTests, cumulativeSummary.passedTests, cumulativeSummary.failedTests,
 				cumulativeSummary.passRate);
 
-		// Update executedFeatures count based on unique features
-		cumulativeSummary.executedFeatures = cumulativeSummary.featureResults.size();
+		// FIXED: Count unique features from Test Results Summary sheet (more accurate than Execution History)
+		// This ensures Suite executions show correct feature count (e.g., 8 features instead of 1 suite)
+		int uniqueFeatureCount = countUniqueFeaturesFromTestResultsSummary(workbook);
+		if (uniqueFeatureCount > 0) {
+			cumulativeSummary.executedFeatures = uniqueFeatureCount;
+			LOGGER.info("FIXED FEATURE COUNT: Using Test Results Summary sheet count = {} features", uniqueFeatureCount);
+		} else {
+			// Fallback to featureResults.size() if Test Results Summary sheet is not available
+			cumulativeSummary.executedFeatures = cumulativeSummary.featureResults.size();
+			LOGGER.debug("Feature count fallback to featureResults.size() = {}", cumulativeSummary.executedFeatures);
+		}
 
 		// ENHANCED: Calculate enhanced metrics including timing and test coverage
 		// analytics
@@ -5280,6 +5289,52 @@ public class DailyExcelTracker {
 			LOGGER.warn("⚠️ No runners or suites found for today's date: {}", targetDate);
 			return new HashMap<>();
 		}
+	}
+
+	/**
+	 * Count unique features from Test Results Summary sheet
+	 * This provides accurate feature count even when Suite executions are recorded
+	 * as single entries in Execution History
+	 * 
+	 * @param workbook The Excel workbook containing Test Results Summary sheet
+	 * @return Number of unique features found in the sheet, or 0 if sheet not found
+	 */
+	private static int countUniqueFeaturesFromTestResultsSummary(Workbook workbook) {
+		Sheet summarySheet = workbook.getSheet(TEST_RESULTS_SHEET);
+		if (summarySheet == null) {
+			LOGGER.debug("Test Results Summary sheet not found, cannot count unique features");
+			return 0;
+		}
+
+		Set<String> uniqueFeatures = new java.util.HashSet<>();
+		int lastRowNum = summarySheet.getLastRowNum();
+
+		for (int i = 1; i <= lastRowNum; i++) { // Skip header row
+			Row row = summarySheet.getRow(i);
+			if (row != null) {
+				// Feature name is in column 1 (after Feature File column was added)
+				Cell featureCell = row.getCell(1);
+				if (featureCell != null) {
+					String featureName = null;
+					try {
+						featureName = featureCell.getStringCellValue();
+					} catch (Exception e) {
+						// Ignore non-string cells
+					}
+					
+					if (featureName != null && !featureName.isEmpty() 
+							&& !featureName.equals("Feature") // Skip header
+							&& !featureName.startsWith("Total") // Skip summary rows
+							&& !featureName.contains("Summary")) {
+						uniqueFeatures.add(featureName);
+					}
+				}
+			}
+		}
+
+		LOGGER.debug("Found {} unique features in Test Results Summary sheet: {}", 
+				uniqueFeatures.size(), uniqueFeatures);
+		return uniqueFeatures.size();
 	}
 
 	/**
@@ -7203,174 +7258,117 @@ public class DailyExcelTracker {
 	}
 
 	/**
-	 * Calculate cumulative totals from Execution History sheet - CURRENT DAY ONLY
-	 * This reads execution history data for the current date only to prevent
-	 * previous day data contamination
+	 * Calculate cumulative totals from actual scenario data rows in Test Results Summary sheet
 	 * 
-	 * FIXED: Now excludes the current runner from cumulative calculation if it already
-	 * exists in Execution History (to prevent double counting when updating rows)
+	 * FIXED: Now counts directly from scenario data rows in the sheet, not from Execution History.
+	 * This ensures accurate counts when:
+	 * - A Suite is executed (e.g., Sanity Suite with 69 scenarios)
+	 * - Then an individual Runner from that Suite is re-executed (e.g., Runner22)
+	 * - The counts should remain at 69 (since Runner22's rows are UPDATED, not added)
+	 * 
+	 * Previous bug: Was reading from Execution History which would show Suite(69) + Runner22(13) = 82
 	 */
 	private static DailyCumulativeTotals calculateCumulativeTotalsFromExcelData(Sheet sheet,
 			TestResultsSummary currentExecution) {
 		DailyCumulativeTotals totals = new DailyCumulativeTotals();
 		totals.date = currentExecution.executionDate;
 
-		// Get the workbook to access Execution History sheet
-		Workbook workbook = sheet.getWorkbook();
-		Sheet executionHistorySheet = workbook.getSheet(EXECUTION_HISTORY_SHEET);
+		// FIXED: Count directly from scenario data rows in Test Results Summary sheet
+		// This is more accurate than reading from Execution History because:
+		// 1. Re-executed scenarios UPDATE existing rows (not append)
+		// 2. Prevents double counting when Suite + individual Runner are executed
+		
+		int dataStartRow = findDataStartRow(sheet);
+		if (dataStartRow < 0) {
+			LOGGER.debug("No data rows found in Test Results Summary - using current execution counts");
+			// Fall back to current execution counts
+			totals.totalTests = currentExecution.totalTests;
+			totals.passedTests = currentExecution.passedTests;
+			totals.failedTests = currentExecution.failedTests;
+			totals.skippedTests = currentExecution.skippedTests;
+			totals.totalDurationMs = parseDurationToMs(currentExecution.totalDuration);
+			totals.executionCount = 1;
+			return totals;
+		}
 
-		// Get current runner name to exclude from cumulative (will be updated, not appended)
-		String currentRunnerName = getPrimaryRunnerName(currentExecution);
-
-		if (executionHistorySheet != null) {
-
-			// Scan execution history sheet for CURRENT DAY ONLY runs (skip header row)
-			int totalRows = executionHistorySheet.getLastRowNum() + 1;
-			for (int i = 1; i < totalRows; i++) { // Start from row 1 (skip headers)
-				Row row = executionHistorySheet.getRow(i);
-				if (row != null && isCurrentDayExecutionRow(row, currentExecution.executionDate)) {
-					
-					// FIXED: Skip the row for current runner (it will be UPDATED, not appended)
-					// This prevents double counting when the same runner is executed multiple times
-					Cell runnerCell = row.getCell(7); // Column 7: Runner / Suite File
-					if (runnerCell != null) {
-						String rowRunnerName = runnerCell.getStringCellValue();
-						if (currentRunnerName != null && currentRunnerName.equals(rowRunnerName)) {
-							LOGGER.debug("Excluding current runner '{}' from cumulative (will be updated)", currentRunnerName);
-							continue; // Skip this row - it will be updated with current execution data
-						}
-					}
-					
-					// SHIFTED: Column indices aligned with addToExecutionHistorySheet method (after
-					// adding Client Name column)
-					// Column 8: Functions Tested (total tests) - matches dataRow.createCell(8)
-					// Column 9: Working (passed tests) - matches dataRow.createCell(9)
-					// Column 10: Issues Found (failed tests) - matches dataRow.createCell(10)
-					// Column 11: Skipped tests - matches dataRow.createCell(11)
-					// Column 13: Duration - matches dataRow.createCell(13)
-					try {
-						Cell functionsTestedCell = row.getCell(8); // SHIFTED: Changed from 7 to 8
-						Cell workingCell = row.getCell(9); // SHIFTED: Changed from 8 to 9
-						Cell issuesFoundCell = row.getCell(10); // SHIFTED: Changed from 9 to 10
-						Cell skippedCell = row.getCell(11); // SHIFTED: Changed from 10 to 11
-						Cell durationCell = row.getCell(13); // SHIFTED: Changed from 12 to 13
-
-						if (functionsTestedCell != null && workingCell != null) {
-							int functionsTested = (int) functionsTestedCell.getNumericCellValue();
-							int working = (int) workingCell.getNumericCellValue();
-							int issuesFound = issuesFoundCell != null ? (int) issuesFoundCell.getNumericCellValue() : 0;
-							int skipped = skippedCell != null ? (int) skippedCell.getNumericCellValue() : 0;
-
-							totals.totalTests += functionsTested;
-							totals.passedTests += working;
-							totals.failedTests += issuesFound;
-							totals.skippedTests += skipped; // NEW: Add skipped tests to totals
-							totals.executionCount++;
-
-							// Parse duration if available
-							if (durationCell != null) {
-								String durationStr = durationCell.getStringCellValue();
-								long durationMs = parseDurationToMs(durationStr);
-								totals.totalDurationMs += durationMs;
-							}
-						}
-					} catch (Exception e) {
-					}
+		LOGGER.debug("Counting scenarios from Test Results Summary data rows starting at row {}", dataStartRow);
+		
+		int lastRowNum = sheet.getLastRowNum();
+		Set<String> uniqueFeatures = new java.util.HashSet<>();
+		
+		for (int i = dataStartRow; i <= lastRowNum; i++) {
+			Row row = sheet.getRow(i);
+			if (row == null) continue;
+			
+			// Check if this is a valid data row (has scenario name in column 2)
+			Cell scenarioCell = row.getCell(2);
+			if (scenarioCell == null) continue;
+			
+			String scenarioName = null;
+			try {
+				scenarioName = scenarioCell.getStringCellValue();
+			} catch (Exception e) {
+				continue; // Skip non-string cells
+			}
+			
+			if (scenarioName == null || scenarioName.isEmpty() 
+					|| scenarioName.equals("Scenario") // Skip header
+					|| scenarioName.startsWith("Total")) {
+				continue;
+			}
+			
+			// This is a valid scenario row - count it
+			totals.totalTests++;
+			
+			// Determine status from Chrome column (column 3)
+			Cell chromeCell = row.getCell(3);
+			String status = "PASSED"; // Default
+			if (chromeCell != null) {
+				try {
+					status = chromeCell.getStringCellValue();
+				} catch (Exception e) {
+					status = "PASSED";
 				}
 			}
-
-			LOGGER.info(
-					"Found {} OTHER execution records FOR CURRENT DAY (excluding current runner): {} total tests, {} passed, {} failed",
-					totals.executionCount, totals.totalTests, totals.passedTests, totals.failedTests);
-		} else {
-			LOGGER.debug("No execution history sheet found - this will be the first execution");
+			
+			if (status != null) {
+				String statusUpper = status.toUpperCase();
+				if (statusUpper.contains("FAIL")) {
+					totals.failedTests++;
+				} else if (statusUpper.contains("SKIP")) {
+					totals.skippedTests++;
+				} else {
+					totals.passedTests++;
+				}
+			} else {
+				totals.passedTests++; // Default to passed
+			}
+			
+			// Track unique features for execution count
+			Cell featureCell = row.getCell(1);
+			if (featureCell != null) {
+				try {
+					String featureName = featureCell.getStringCellValue();
+					if (featureName != null && !featureName.isEmpty()) {
+						uniqueFeatures.add(featureName);
+					}
+				} catch (Exception e) {
+					// Ignore
+				}
+			}
 		}
-
-		// Add current execution (this is the ONLY entry for current runner now)
-		totals.totalTests += currentExecution.totalTests;
-		totals.passedTests += currentExecution.passedTests;
-		totals.failedTests += currentExecution.failedTests;
-		totals.skippedTests += currentExecution.skippedTests;
-		long currentDurationMs = parseDurationToMs(currentExecution.totalDuration);
-		totals.totalDurationMs += currentDurationMs;
-		totals.executionCount++; // +1 for current execution
-
-		LOGGER.info("CUMULATIVE TOTALS: {} runs, {} total tests, {} passed, {} failed, {} skipped, Duration: {}ms",
-				totals.executionCount, totals.totalTests, totals.passedTests, totals.failedTests, totals.skippedTests,
-				totals.totalDurationMs);
+		
+		// Use feature count as execution count (more meaningful than arbitrary count)
+		totals.executionCount = uniqueFeatures.size();
+		
+		// Use current execution duration (we don't store duration per scenario row)
+		totals.totalDurationMs = parseDurationToMs(currentExecution.totalDuration);
+		
+		LOGGER.info("CUMULATIVE TOTALS (from {} scenario rows): {} total tests, {} passed, {} failed, {} skipped, {} features",
+				totals.totalTests, totals.totalTests, totals.passedTests, totals.failedTests, 
+				totals.skippedTests, totals.executionCount);
 
 		return totals;
-	}
-
-	/**
-	 * Check if a row contains execution history data
-	 */
-	private static boolean isExecutionHistoryDataRow(Row row) {
-		// Execution history rows should have:
-		// Column 2: Testing Date (not empty, not "Testing Date" header)
-		// Column 8: Functions Tested (numeric) - FIXED: Aligned with actual data
-		// location
-		// Column 9: Working (numeric) - SHIFTED: Aligned with actual data location
-
-		Cell dateCell = row.getCell(2); // Testing Date column (shifted from 1 to 2 after adding Client Name)
-		Cell functionsCell = row.getCell(8); // Functions Tested column (shifted from 7 to 8)
-		Cell workingCell = row.getCell(9); // Working column (shifted from 8 to 9)
-
-		if (dateCell == null || functionsCell == null || workingCell == null) {
-			return false;
-		}
-
-		String dateValue = dateCell.getStringCellValue();
-
-		// Skip header rows
-		if (dateValue.contains("Testing Date") || dateValue.contains("Date")) {
-			return false;
-		}
-
-		// Check if Functions Tested and Working columns contain numeric data
-		try {
-			functionsCell.getNumericCellValue();
-			workingCell.getNumericCellValue();
-			return true; // Valid execution history row
-		} catch (Exception e) {
-			return false; // Not numeric data
-		}
-	}
-
-	/**
-	 * Check if a row contains execution history data for the CURRENT DAY ONLY This
-	 * is the KEY FIX to prevent Daily Status from showing previous day data
-	 */
-	private static boolean isCurrentDayExecutionRow(Row row, String currentExecutionDate) {
-		// First verify it's a valid execution history row
-		if (!isExecutionHistoryDataRow(row)) {
-			return false;
-		}
-
-		// Extract date from the Testing Date column (Column 2: 0=User Name, 1=Client
-		// Name, 2=Testing Date)
-		Cell dateCell = row.getCell(2);
-		if (dateCell == null) {
-			return false;
-		}
-
-		String dateValue = dateCell.getStringCellValue();
-
-		// Extract date using the existing date extraction logic
-		String extractedDate = extractDateFromText(dateValue);
-
-		if (extractedDate == null) {
-			return false;
-		}
-
-		// Compare dates - only include if it matches current execution date
-		boolean isCurrentDay = extractedDate.equals(currentExecutionDate);
-
-		if (isCurrentDay) {
-		} else {
-		}
-
-		return isCurrentDay;
 	}
 
 	/**

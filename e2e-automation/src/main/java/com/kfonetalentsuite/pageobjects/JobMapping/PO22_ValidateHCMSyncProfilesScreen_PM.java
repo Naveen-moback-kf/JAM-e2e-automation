@@ -47,6 +47,43 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 	public PO22_ValidateHCMSyncProfilesScreen_PM() {
 		super();
 	}
+
+	// =============================================
+	// HELPER METHODS - Reusable click and wait patterns
+	// =============================================
+
+	/**
+	 * Click element with fallback pattern: standard click → JS click → jsClick()
+	 * Eliminates repeated nested try-catch blocks throughout the class
+	 */
+	private void clickWithFallback(By locator) {
+		WebElement element = findElement(locator);
+		try {
+			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+		} catch (Exception e) {
+			try {
+				js.executeScript("arguments[0].click();", element);
+			} catch (Exception ex) {
+				jsClick(element);
+			}
+		}
+	}
+
+	/**
+	 * Wait for page stability - consolidated wait method
+	 * Replaces: waitForPageReady() + waitForSpinners() + safeSleep() pattern
+	 */
+	private void waitForPageStability(int timeoutSeconds) {
+		PerformanceUtils.waitForPageReady(driver, timeoutSeconds);
+	}
+
+	/**
+	 * Scroll to element and wait for stability
+	 */
+	private void scrollToAndWait(WebElement element) {
+		js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", element);
+		safeSleep(300); // Brief pause for scroll animation
+	}
 	
 	private static final By MENU_BTN = By.xpath("//span[contains(text(),'Hi')]//following::img[1]");
 	private static final By HOME_MENU_BTN = By.xpath("//*[*[contains(text(),'Hi, ')]]/div[2]/img");
@@ -151,36 +188,22 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 
 	public void click_on_hcm_sync_profiles_header_button() {
 		try {
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(HCM_SYNC_PROFILES_HEADER))).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", findElement(HCM_SYNC_PROFILES_HEADER));
-				} catch (Exception s) {
-					jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
-				}
-			}
+			clickWithFallback(HCM_SYNC_PROFILES_HEADER);
 			PageObjectHelper.log(LOGGER, "Clicked on HCM Sync Profiles header in Profile Manager");
-			// PERFORMANCE: Single optimized wait - waitForPageReady already checks spinners
-			PerformanceUtils.waitForPageReady(driver, 2);
+			waitForPageStability(2);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_hcm_sync_profiles_header_button",
-					"Issue in clicking HCM Sync Profiles header in Profile Manager", e);
-			Assert.fail("Issue in clicking HCM Sync Profiles header in Profile Manager...Please Investigate!!!");
+					"Issue clicking HCM Sync Profiles header", e);
 		}
 	}
 
 	public void user_should_be_navigated_to_hcm_sync_profiles_screen() {
 		try {
-			// PERFORMANCE: Visibility check already ensures spinners are gone
 			wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_TITLE))).isDisplayed();
-			PageObjectHelper.log(LOGGER, "User should be Navigated to HCM Sync Profiles screen in Profile Manager");
+			PageObjectHelper.log(LOGGER, "User navigated to HCM Sync Profiles screen in Profile Manager");
 		} catch (Exception e) {
-			LOGGER.error("Issue navigating to HCM Sync Profiles screen", e);
-			e.printStackTrace();
-			Assert.fail("Issue in Navigating to HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in Navigating to HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_hcm_sync_profiles_screen",
+					"Issue navigating to HCM Sync Profiles screen", e);
 		}
 	}
 
@@ -188,20 +211,14 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 		try {
 			String titleText = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_TITLE))).getText();
 			Assert.assertEquals(titleText, "HCM Sync Profiles");
-			PageObjectHelper.log(LOGGER, "Title is correctly displaying in HCM Sync Profiles screen in Profile Manager");
+			PageObjectHelper.log(LOGGER, "Title is correctly displaying in HCM Sync Profiles screen");
 		} catch (AssertionError e) {
-			LOGGER.error("Assertion failed - Title mismatch in HCM Sync Profiles screen", e);
-			e.printStackTrace();
-			PageObjectHelper.log(LOGGER, 
-					"Issue in Verifying title in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
-			throw e; // Re-throw to fail the test
+			PageObjectHelper.handleError(LOGGER, "verify_title_is_correctly_displaying_in_hcm_sync_profiles_tab",
+					"Title mismatch in HCM Sync Profiles screen", new Exception(e));
+			throw e;
 		} catch (Exception e) {
-			LOGGER.error("Issue verifying title", e);
-			e.printStackTrace();
-			PageObjectHelper.log(LOGGER, 
-					"Issue in Verifying title in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
-			Assert.fail(
-					"Issue in Verifying title in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_title_is_correctly_displaying_in_hcm_sync_profiles_tab",
+					"Issue verifying title in HCM Sync Profiles screen", e);
 		}
 	}
 
@@ -209,50 +226,22 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 		try {
 			String titleDesc = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_TITLE_DESC))).getText();
 			Assert.assertEquals(titleDesc, "Select a job profile to sync with HCM.");
-						PageObjectHelper.log(LOGGER, 
-					"Title Description below the title is correctly displaying in HCM Sync Profiles screen in Profile Manager");
+			PageObjectHelper.log(LOGGER, "Title description is correctly displaying in HCM Sync Profiles screen");
 		} catch (Exception e) {
-			LOGGER.error("Issue verifying title description", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in Verifying title description in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in Verifying title description in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_description_below_the_title_is_correctly_displaying_in_hcm_sync_profiles_tab",
+					"Issue verifying title description", e);
 		}
 	}
 
 	public void verify_search_bar_text_box_is_clickable_in_hcm_sync_profiles_tab() {
 		try {
-			// ENHANCED FIX: Explicitly wait for blocking loader to disappear
-			PerformanceUtils.waitForPageReady(driver, 15);
-
-			// Additional explicit wait for blocking loader to be invisible
-			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
-				shortWait.until(ExpectedConditions
-						.invisibilityOfElementLocated(By.xpath("//div[contains(@class,'blocking-loader')]")));
-			} catch (TimeoutException e) {
-				LOGGER.debug("Blocking loader check timed out - continuing");
-			}
-
-			// Scroll search bar into view
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});",
-					findElement(HCM_SYNC_PROFILES_SEARCHBAR));
-
-			// Small wait after scroll for stability
-			Thread.sleep(500);
-
-			// Now wait for search bar to be clickable and click
+			waitForPageStability(15);
+			scrollToAndWait(findElement(HCM_SYNC_PROFILES_SEARCHBAR));
 			wait.until(ExpectedConditions.elementToBeClickable(findElement(HCM_SYNC_PROFILES_SEARCHBAR))).click();
-						PageObjectHelper.log(LOGGER, 
-					"Search bar text box is displayed and clickable in HCM Sync Profiles screen in Profile Manager");
+			PageObjectHelper.log(LOGGER, "Search bar is displayed and clickable in HCM Sync Profiles screen");
 		} catch (Exception e) {
-			LOGGER.error("Issue verifying search bar clickability", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in Verifying Search bar is clickable or not in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in Verifying Search bar is clickable or not in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_search_bar_text_box_is_clickable_in_hcm_sync_profiles_tab",
+					"Issue verifying search bar clickability", e);
 		}
 	}
 
@@ -261,16 +250,10 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 			String placeHolderText = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_SEARCHBAR)))
 					.getAttribute("placeholder");
 			Assert.assertEquals(placeHolderText, "Search job profiles within your organization...");
-			;
-						PageObjectHelper.log(LOGGER, placeHolderText
-					+ " is displaying as Placeholder Text in Search bar in HCM Sync Profiles screen in Profile Manager");
+			PageObjectHelper.log(LOGGER, "Placeholder Text: '" + placeHolderText + "' is displaying correctly");
 		} catch (Exception e) {
-			LOGGER.error("Issue verifying search bar placeholder text", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in Verifying Search bar Placeholder Text in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in Verifying Search bar Placeholder Text in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "verify_search_bar_placeholder_text_in_hcm_sync_profiles_tab",
+					"Issue verifying search bar placeholder text", e);
 		}
 	}
 
@@ -596,10 +579,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 
 	public void verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
-			waitForSpinners();
-			safeSleep(1000);
-
+			waitForPageStability(5);
 			WebElement resultsCountElement = waitForElement(SHOWING_JOB_RESULTS_COUNT, 10);
 			String resultsCountText = resultsCountElement.getText().trim();
 
@@ -608,7 +588,7 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 			}
 
 			intialResultsCount.set(resultsCountText);
-			PageObjectHelper.log(LOGGER, "Initially " + resultsCountText + " on the page in HCM Sync Profiles screen in PM");
+			PageObjectHelper.log(LOGGER, "Initially " + resultsCountText + " on the page in HCM Sync Profiles screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab",
 					"Issue verifying job profiles count", e);
@@ -618,13 +598,11 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 	public void scroll_page_to_view_more_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
 			scrollToBottom();
-			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
-			safeSleep(1000);
-			PageObjectHelper.log(LOGGER, "Scrolled page down to view more job profiles in HCM Sync Profiles screen in PM");
+			waitForPageStability(5);
+			PageObjectHelper.log(LOGGER, "Scrolled page down to view more job profiles in HCM Sync Profiles screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "scroll_page_to_view_more_job_profiles_in_hcm_sync_profiles_tab",
-					"Issue scrolling page down to view more job profiles", e);
+					"Issue scrolling page down", e);
 		}
 	}
 
@@ -676,59 +654,33 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 
 	public void click_on_filters_dropdown_button_in_hcm_sync_profiles_tab() {
 		try {
-			js.executeScript("window.scrollTo(0, 0);"); // Instant scroll to top
+			js.executeScript("window.scrollTo(0, 0);");
+			waitForPageStability(5);
 
-			// PERFORMANCE: Ensure page is ready before interacting
-			PerformanceUtils.waitForPageReady(driver, 5);
-
-			// Wait for filters button to be clickable
-			WebElement filtersBtn = wait.until(ExpectedConditions.elementToBeClickable(findElement(FILTERS_DROPDOWN_BTN)));
-
-			// Check if dropdown is already open by checking visibility of findElement(FILTER_OPTIONS)
+			// Check if dropdown is already open
 			boolean isDropdownOpen = false;
 			try {
 				isDropdownOpen = findElement(FILTER_OPTIONS).isDisplayed();
 			} catch (Exception ex) {
-				// Dropdown is not open, which is expected
 				isDropdownOpen = false;
 			}
 
 			if (isDropdownOpen) {
-				PageObjectHelper.log(LOGGER, "Filters dropdown is already open in HCM Sync Profiles screen");
-			} else {
-				// Dropdown is closed, so open it - filtersBtn is already clickable from line
-				// 846
-				try {
-					wait.until(ExpectedConditions.elementToBeClickable(filtersBtn)).click();
-				} catch (Exception e) {
-					try {
-						js.executeScript("arguments[0].click();", filtersBtn);
-					} catch (Exception s) {
-						jsClick(filtersBtn);
-					}
-				}
-				PageObjectHelper.log(LOGGER, "Clicked on filters dropdown button in HCM Sync Profiles screen in PM");
-
-				// PERFORMANCE: Wait for dropdown to be visible with shorter timeout
-				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-				try {
-					shortWait.until(ExpectedConditions.visibilityOf(findElement(FILTER_OPTIONS)));
-					LOGGER.info("Filters dropdown opened successfully");
-				} catch (TimeoutException te) {
-					// If accordion doesn't appear, check if we're on the right page
-					String currentUrl = driver.getCurrentUrl();
-					LOGGER.error("Filters dropdown did not appear after clicking. Current URL: {}", currentUrl);
-					throw new Exception("Filters dropdown (accordion) did not appear after 10 seconds. "
-							+ "This might indicate the page is not in the expected state. Current URL: " + currentUrl);
-				}
+				PageObjectHelper.log(LOGGER, "Filters dropdown is already open");
+				return;
 			}
+
+			// Open dropdown using fallback click pattern
+			clickWithFallback(FILTERS_DROPDOWN_BTN);
+			PageObjectHelper.log(LOGGER, "Clicked on filters dropdown button in HCM Sync Profiles screen");
+
+			// Wait for dropdown to be visible
+			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+			shortWait.until(ExpectedConditions.visibilityOf(findElement(FILTER_OPTIONS)));
+			LOGGER.debug("Filters dropdown opened successfully");
 		} catch (Exception e) {
-			LOGGER.error("Issue clicking filters dropdown", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking filters dropdown button in HCM Sync Profiles screen in PM...Please investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in clicking filters dropdown button in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_filters_dropdown_button_in_hcm_sync_profiles_tab",
+					"Issue clicking filters dropdown", e);
 		}
 	}
 
@@ -1542,49 +1494,38 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 
 	public void user_should_verify_organization_jobs_table_headers_are_correctly_displaying_in_hcm_sync_profiles_tab() {
 		try {
-			String tableHeader1Text = wait.until(ExpectedConditions.visibilityOf(findElement(TABLE_HEADER1))).getText();
-			Assert.assertEquals(tableHeader1Text, "NAME");
-			String tableHeader2Text = wait.until(ExpectedConditions.visibilityOf(findElement(TABLE_HEADER2))).getText();
-			Assert.assertEquals(tableHeader2Text, "STATUS");
-			String tableHeader3Text = wait.until(ExpectedConditions.visibilityOf(findElement(TABLE_HEADER3))).getText();
-			Assert.assertEquals(tableHeader3Text, "KF GRADE");
-			String tableHeader4Text = wait.until(ExpectedConditions.visibilityOf(findElement(TABLE_HEADER4))).getText();
-			Assert.assertEquals(tableHeader4Text, "LEVEL");
-			String tableHeader5Text = wait.until(ExpectedConditions.visibilityOf(findElement(TABLE_HEADER5))).getText();
-			Assert.assertEquals(tableHeader5Text, "FUNCTION");
-			String tableHeader6Text = wait.until(ExpectedConditions.visibilityOf(findElement(TABLE_HEADER6))).getText();
-			Assert.assertEquals(tableHeader6Text, "CREATED BY");
-			String tableHeader7Text = wait.until(ExpectedConditions.visibilityOf(findElement(TABLE_HEADER7))).getText();
-			Assert.assertEquals(tableHeader7Text, "LAST MODIFIED");
-			String tableHeader8Text = wait.until(ExpectedConditions.visibilityOf(findElement(TABLE_HEADER8))).getText();
-			Assert.assertEquals(tableHeader8Text, "EXPORT STATUS");
-			PageObjectHelper.log(LOGGER, 
-					"Organization jobs table headers verified successfully in HCM Sync Profiles screen in PM");
+			// Verify all table headers using a more compact approach
+			verifyHeaderText(TABLE_HEADER1, "NAME");
+			verifyHeaderText(TABLE_HEADER2, "STATUS");
+			verifyHeaderText(TABLE_HEADER3, "KF GRADE");
+			verifyHeaderText(TABLE_HEADER4, "LEVEL");
+			verifyHeaderText(TABLE_HEADER5, "FUNCTION");
+			verifyHeaderText(TABLE_HEADER6, "CREATED BY");
+			verifyHeaderText(TABLE_HEADER7, "LAST MODIFIED");
+			verifyHeaderText(TABLE_HEADER8, "EXPORT STATUS");
+			PageObjectHelper.log(LOGGER, "Organization jobs table headers verified successfully");
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue verifying table headers - Method: user_should_verify_organization_jobs_table_headers_are_correctly_displaying_in_hcm_sync_profiles_tab",
-					e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in verifying organization jobs table headers in HCM Sync Profiles screen in PM....Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in verifying organization jobs table headers in HCM Sync Profiles screen in PM....Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_jobs_table_headers_are_correctly_displaying_in_hcm_sync_profiles_tab",
+					"Issue verifying table headers", e);
 		}
+	}
+
+	/**
+	 * Helper method to verify table header text
+	 */
+	private void verifyHeaderText(By headerLocator, String expectedText) {
+		String actualText = wait.until(ExpectedConditions.visibilityOf(findElement(headerLocator))).getText();
+		Assert.assertEquals(actualText, expectedText, "Header mismatch: expected '" + expectedText + "' but got '" + actualText + "'");
 	}
 
 	public void user_should_verify_download_button_is_disabled_in_hcm_sync_profiles_tab() {
 		try {
-			Assert.assertTrue(!(wait.until(ExpectedConditions.visibilityOf(findElement(DOWNLOAD_BTN))).isEnabled()));
-			PageObjectHelper.log(LOGGER, "Download button is disabled as expected in HCM Sync Profiles screen in PM");
+			Assert.assertTrue(!wait.until(ExpectedConditions.visibilityOf(findElement(DOWNLOAD_BTN))).isEnabled(),
+					"Download button should be disabled");
+			PageObjectHelper.log(LOGGER, "Download button is disabled as expected");
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue verifying download button disabled - Method: user_should_verify_download_button_is_disabled_in_hcm_sync_profiles_tab",
-					e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in verifying Download button is disabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in verifying Download button is disabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_download_button_is_disabled_in_hcm_sync_profiles_tab",
+					"Issue verifying download button is disabled", e);
 		}
 	}
 
@@ -1667,20 +1608,14 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 
 	public void user_should_verify_download_button_is_enabled_in_hcm_sync_profiles_tab() {
 		try {
-			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
-			waitForSpinners();
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(DOWNLOAD_BTN))).isEnabled());
-						PageObjectHelper.log(LOGGER, 
-					"Download button is enabled as expected after selecting job profiles in HCM Sync Profiles screen in PM");
+			js.executeScript("window.scrollTo(0, 0);");
+			waitForPageStability(3);
+			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(DOWNLOAD_BTN))).isEnabled(),
+					"Download button should be enabled");
+			PageObjectHelper.log(LOGGER, "Download button is enabled as expected after selecting profiles");
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue verifying download button enabled - Method: user_should_verify_download_button_is_enabled_in_hcm_sync_profiles_tab",
-					e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in verifying Download button is enabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in verifying Download button is enabled in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_download_button_is_enabled_in_hcm_sync_profiles_tab",
+					"Issue verifying download button is enabled", e);
 		}
 	}
 
@@ -1748,157 +1683,82 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 			jobname1.set(wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW1))).getText());
 			
 			// Check if already selected - skip if yes
-			try {
-				driver.findElement(By.xpath("//tbody//tr[1]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
-				return; // Already selected, skip
-			} catch (NoSuchElementException e) {
-				// Not selected, proceed to click
-			}
+			if (isCheckboxSelected(1)) return;
 			
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(PROFILE1_CHECKBOX))).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", findElement(PROFILE1_CHECKBOX));
-				} catch (Exception s) {
-					jsClick(findElement(PROFILE1_CHECKBOX));
-				}
-			}
+			clickWithFallback(PROFILE1_CHECKBOX);
 			safeSleep(200);
 			
 			// Only increment count if checkbox is actually selected after clicking
-			try {
-				driver.findElement(By.xpath("//tbody//tr[1]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+			if (isCheckboxSelected(1)) {
 				profilesCount.set(profilesCount.get() + 1);
-				PageObjectHelper.log(LOGGER, "Clicked on checkbox of First job profile with name : "
-						+ jobname1.get() + " in HCM Sync Profiles screen in PM");
-			} catch (NoSuchElementException e) {
-				// Checkbox not selected after click - don't increment count
+				PageObjectHelper.log(LOGGER, "Selected First profile: " + jobname1.get());
 			}
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue clicking first profile checkbox - Method: click_on_first_profile_checkbox_in_hcm_sync_profiles_tab",
-					e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking First job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in clicking First job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_first_profile_checkbox_in_hcm_sync_profiles_tab",
+					"Issue clicking first profile checkbox", e);
+		}
+	}
+
+	/**
+	 * Helper method to check if a profile checkbox is selected
+	 */
+	private boolean isCheckboxSelected(int rowNumber) {
+		try {
+			driver.findElement(By.xpath("//tbody//tr[" + rowNumber + "]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+			return true;
+		} catch (NoSuchElementException e) {
+			return false;
 		}
 	}
 
 	public void click_on_second_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
-			safeSleep(500);
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});",
-					findElement(HCM_SYNC_PROFILES_JOB_ROW2));
-			safeSleep(300);
-
+			scrollToAndWait(findElement(HCM_SYNC_PROFILES_JOB_ROW2));
 			jobname2.set(wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW2))).getText());
 			
 			// Check if already selected - skip if yes
-			try {
-				driver.findElement(By.xpath("//tbody//tr[2]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
-				return; // Already selected, skip
-			} catch (NoSuchElementException e) {
-				// Not selected, proceed to click
-			}
+			if (isCheckboxSelected(2)) return;
 			
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(PROFILE2_CHECKBOX))).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", findElement(PROFILE2_CHECKBOX));
-				} catch (Exception s) {
-					jsClick(findElement(PROFILE2_CHECKBOX));
-				}
-			}
+			clickWithFallback(PROFILE2_CHECKBOX);
 			safeSleep(200);
 			
 			// Only increment count if checkbox is actually selected after clicking
-			try {
-				driver.findElement(By.xpath("//tbody//tr[2]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+			if (isCheckboxSelected(2)) {
 				profilesCount.set(profilesCount.get() + 1);
-				PageObjectHelper.log(LOGGER, "Clicked on checkbox of Second job profile with name : "
-						+ jobname2.get() + " in HCM Sync Profiles screen in PM");
-			} catch (NoSuchElementException e) {
-				// Checkbox not selected after click - don't increment count
+				PageObjectHelper.log(LOGGER, "Selected Second profile: " + jobname2.get());
 			}
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue clicking second profile checkbox - Method: click_on_second_profile_checkbox_in_hcm_sync_profiles_tab",
-					e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking Second job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in clicking Second job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_second_profile_checkbox_in_hcm_sync_profiles_tab",
+					"Issue clicking second profile checkbox", e);
 		}
 	}
 
 	public void click_on_third_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
-			// Wait for table to load and stabilize
-			safeSleep(1000);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			waitForPageStability(3);
 
-			// Scroll table container to trigger lazy loading if needed
-			try {
-				WebElement tableContainer = driver
-						.findElement(By.xpath("//div[contains(@class, 'table') or contains(@class, 'list')]"));
-				js.executeScript("arguments[0].scrollTop = arguments[0].scrollHeight;", tableContainer);
-				safeSleep(500);
-			} catch (Exception ignored) {
-				// Table container not found or not scrollable, continue
-			}
-
-			// Wait explicitly for third row to be present
+			// Wait for third row to be present
 			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
 			WebElement row3 = shortWait.until(
 					ExpectedConditions.presenceOfElementLocated(By.xpath("//tbody//tr[3]//td//div//span[1]//a")));
 
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", row3);
-			safeSleep(500);
-
+			scrollToAndWait(row3);
 			jobname3.set(shortWait.until(ExpectedConditions.visibilityOf(row3)).getText());
 
 			// Check if already selected - skip if yes
-			try {
-				driver.findElement(By.xpath("//tbody//tr[3]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
-				return; // Already selected, skip
-			} catch (NoSuchElementException e) {
-				// Not selected, proceed to click
-			}
+			if (isCheckboxSelected(3)) return;
 
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(PROFILE3_CHECKBOX))).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", findElement(PROFILE3_CHECKBOX));
-				} catch (Exception s) {
-					jsClick(findElement(PROFILE3_CHECKBOX));
-				}
-			}
+			clickWithFallback(PROFILE3_CHECKBOX);
 			safeSleep(200);
 			
 			// Only increment count if checkbox is actually selected after clicking
-			try {
-				driver.findElement(By.xpath("//tbody//tr[3]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
+			if (isCheckboxSelected(3)) {
 				profilesCount.set(profilesCount.get() + 1);
-				PageObjectHelper.log(LOGGER, "Clicked on checkbox of Third job profile with name : "
-						+ jobname3.get() + " in HCM Sync Profiles screen in PM");
-			} catch (NoSuchElementException e) {
-				// Checkbox not selected after click - don't increment count
+				PageObjectHelper.log(LOGGER, "Selected Third profile: " + jobname3.get());
 			}
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue clicking third profile checkbox - Method: click_on_third_profile_checkbox_in_hcm_sync_profiles_tab",
-					e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking Third job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in clicking Third job profile checkbox in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_third_profile_checkbox_in_hcm_sync_profiles_tab",
+					"Issue clicking third profile checkbox", e);
 		}
 	}
 
@@ -2054,28 +1914,14 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 
 	public void click_on_sync_with_hcm_button_in_hcm_sync_profiles_tab() {
 		try {
-			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
-			waitForSpinners();
-			try {
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(SYNC_WITH_HCM_BTN))).click();
-			} catch (Exception e) {
-				try {
-					js.executeScript("arguments[0].click();", findElement(SYNC_WITH_HCM_BTN));
-				} catch (Exception s) {
-					jsClick(findElement(SYNC_WITH_HCM_BTN));
-				}
-			}
-			PageObjectHelper.log(LOGGER, "Clicked on Sync with HCM button in HCM Sync Profiles screen in PM");
+			js.executeScript("window.scrollTo(0, 0);");
+			waitForPageStability(3);
+			clickWithFallback(SYNC_WITH_HCM_BTN);
+			PageObjectHelper.log(LOGGER, "Clicked on Sync with HCM button");
 			waitForSpinners();
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue clicking Sync with HCM button - Method: click_on_sync_with_hcm_button_in_hcm_sync_profiles_tab",
-					e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking on Sync with HCM button in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			PageObjectHelper.log(LOGGER, 
-					"Issue in Verifying CSV Format Zip File download in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			PageObjectHelper.handleError(LOGGER, "click_on_sync_with_hcm_button_in_hcm_sync_profiles_tab",
+					"Issue clicking Sync with HCM button", e);
 		}
 	}
 

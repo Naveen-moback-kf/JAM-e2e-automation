@@ -9,16 +9,22 @@ import org.testng.IAnnotationTransformer;
 import org.testng.annotations.ITestAnnotation;
 
 /**
- * MyTransform - Annotation Transformer for Retry Logic
+ * MyTransform - Annotation Transformer (Immediate Retry DISABLED)
  * 
- * This class implements TestNG's IAnnotationTransformer to automatically
- * apply the RetryAnalyzer to all test methods at runtime.
+ * IMPORTANT: Immediate retry is DISABLED in favor of "Retry at End of Suite" pattern.
  * 
- * This eliminates the need to add @Test(retryAnalyzer = RetryAnalyzer.class)
- * annotation to each test method individually.
+ * The SuiteRetryListener now handles retries:
+ * 1. All tests run without immediate retry
+ * 2. Failed tests are collected during suite execution
+ * 3. At END of suite, failed tests are retried with fresh browser sessions
  * 
- * Usage: Add this listener to TestNG suite XML:
- * <listener class-name="com.kfonetalentsuite.testNGAnalyzer.MyTransform" />
+ * This approach is better because:
+ * - Transient issues often resolve by end of suite
+ * - Fresh browser session for each retry
+ * - Clean reporting: see all failures first, then retries
+ * - Better for CI/CD pipelines
+ * 
+ * To re-enable immediate retry, uncomment the setRetryAnalyzer line below.
  * 
  * @author Automation Team
  */
@@ -28,25 +34,27 @@ public class MyTransform implements IAnnotationTransformer {
 	private static boolean loggedOnce = false;
 
 	/**
-	 * Transforms test annotations to apply RetryAnalyzer.
-	 * Called by TestNG for each test method during initialization.
+	 * Transforms test annotations.
+	 * NOTE: Immediate retry is DISABLED - SuiteRetryListener handles retries at end of suite.
 	 */
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void transform(ITestAnnotation annotation, Class testClass,
 			Constructor testConstructor, Method testMethod) {
 
-		// Log only once at startup to avoid log spam
+		// Log only once at startup
 		if (!loggedOnce) {
 			LOGGER.info("╔═══════════════════════════════════════════════════════════════╗");
-			LOGGER.info("║            AUTO-RETRY ENABLED FOR FAILED TESTS                ║");
-			LOGGER.info("║            Max Retry Attempts: {}                              ║", 
-					RetryAnalyzer.getMaxRetryCount());
+			LOGGER.info("║     RETRY MODE: End of Suite (Immediate retry DISABLED)       ║");
+			LOGGER.info("║     Failed tests will be retried AFTER all tests complete     ║");
+			LOGGER.info("║     Max Retry Attempts: {}                                     ║", 
+					SuiteRetryListener.getMaxRetryAttempts());
 			LOGGER.info("╚═══════════════════════════════════════════════════════════════╝");
 			loggedOnce = true;
 		}
 
-		// Apply RetryAnalyzer to all test methods
-		annotation.setRetryAnalyzer(RetryAnalyzer.class);
+		// DISABLED: Immediate retry - now handled by SuiteRetryListener at end of suite
+		// To re-enable immediate retry, uncomment the following line:
+		// annotation.setRetryAnalyzer(RetryAnalyzer.class);
 	}
 }

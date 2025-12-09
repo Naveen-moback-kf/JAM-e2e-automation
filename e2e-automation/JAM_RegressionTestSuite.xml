@@ -8,6 +8,7 @@
         <listener class-name="hooks.JobMapping.SuiteHooks" />
         <listener class-name="com.kfonetalentsuite.listeners.AllureScreenshotListener" />
         <listener class-name="com.kfonetalentsuite.testNGAnalyzer.MyTransform" />
+        <listener class-name="com.kfonetalentsuite.testNGAnalyzer.SuiteRetryListener" />
     </listeners>
     
     <!-- REGRESSION TESTS - Comprehensive Coverage (All 57 Runners) -->

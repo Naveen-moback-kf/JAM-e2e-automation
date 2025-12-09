@@ -5,14 +5,12 @@ import org.apache.logging.log4j.core.Logger;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import com.kfonetalentsuite.utils.common.DynamicTagResolver;
 import com.kfonetalentsuite.utils.common.VariableManager;
 
-import io.cucumber.testng.FeatureWrapper;
 import io.cucumber.testng.PickleWrapper;
 import io.cucumber.testng.TestNGCucumberRunner;
 
@@ -71,40 +69,63 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager {
 		testNGCucumberRunner = new TestNGCucumberRunner(this.getClass());
 	}
 
-	@SuppressWarnings("unused")
-	@Test(groups = "cucumber", description = "Runs Cucumber Scenarios", dataProvider = "scenarios")
-	public void runScenario(PickleWrapper pickleWrapper, FeatureWrapper featureWrapper) {
-		testNGCucumberRunner.runScenario(pickleWrapper.getPickle());
+	/**
+	 * FEATURE-LEVEL RETRY: Run ALL scenarios in a single @Test method
+	 * 
+	 * This enables FEATURE-LEVEL retry behavior:
+	 * - When ANY scenario fails, the entire feature will be retried
+	 * - RetryAnalyzer will retry this entire method (all scenarios)
+	 * - Up to MAX_RETRY_COUNT attempts for the whole feature
+	 * 
+	 * Previous behavior (DataProvider): Each scenario was a separate test,
+	 * so retry only retried the failed scenario.
+	 * 
+	 * Current behavior: All scenarios run together, so retry re-runs ALL scenarios.
+	 */
+	@Test(groups = "cucumber", description = "Runs All Cucumber Scenarios in Feature")
+	public void runFeature() {
+		if (testNGCucumberRunner == null) {
+			LOGGER.error("TestNGCucumberRunner is null - cannot execute feature");
+			return;
+		}
+
+		String runnerName = this.getClass().getSimpleName();
+		Object[][] allScenarios = testNGCucumberRunner.provideScenarios();
+
+		// Filter scenarios based on login type
+		java.util.List<Object[]> filteredScenarios = filterScenariosByLoginType(allScenarios);
+
+		LOGGER.info("╔═══════════════════════════════════════════════════════════════╗");
+		LOGGER.info("║ FEATURE EXECUTION: {} ", runnerName);
+		LOGGER.info("║ Total Scenarios: {} ", filteredScenarios.size());
+		LOGGER.info("╚═══════════════════════════════════════════════════════════════╝");
+
+		int scenarioIndex = 0;
+		int totalScenarios = filteredScenarios.size();
+
+		// Execute ALL scenarios sequentially within this single @Test method
+		for (Object[] scenario : filteredScenarios) {
+			scenarioIndex++;
+			PickleWrapper pickleWrapper = (PickleWrapper) scenario[0];
+			String scenarioName = pickleWrapper.getPickle().getName();
+
+			LOGGER.info("  ▶ [{}/{}] Executing: {}", scenarioIndex, totalScenarios, scenarioName);
+
+			// Run the scenario - if it fails, the exception propagates up
+			// and RetryAnalyzer will retry the ENTIRE runFeature() method
+			testNGCucumberRunner.runScenario(pickleWrapper.getPickle());
+		}
+
+		LOGGER.info("✅ {} - All {} scenarios completed successfully", runnerName, totalScenarios);
 	}
 
 	/**
-	 * THREAD-SAFE DataProvider for Cucumber scenarios
-	 * 
-	 * IMPORTANT: Do NOT use parallel=true here! - parallel=true would parallelize
-	 * scenarios WITHIN a runner, causing chaos - We want each runner to execute its
-	 * scenarios sequentially on its own thread - TestNG parallel="tests" already
-	 * ensures each runner runs on a separate thread
-	 * 
-	 * Thread Safety: - Each runner class instance has its own testNGCucumberRunner
-	 * - TestNG creates separate instances for each <test> in parallel execution -
-	 * This ensures scenarios from Runner01 stay with Thread-1, Runner02 with
-	 * Thread-2, etc.
+	 * Filter scenarios based on login type from config.
+	 * This ensures each runner only executes scenarios for the configured login type.
 	 */
-	@DataProvider
-	public Object[][] scenarios() {
-		if (testNGCucumberRunner == null) {
-			return new Object[0][0];
-		}
-
-		Object[][] allScenarios = testNGCucumberRunner.provideScenarios();
-
-		// THREAD-SAFE: Filter scenarios based on login type from config
-		// This ensures each runner only executes scenarios for the configured login
-		// type
+	private java.util.List<Object[]> filterScenariosByLoginType(Object[][] allScenarios) {
 		String configuredLoginTag = resolveLoginTag();
-		String runnerName = this.getClass().getSimpleName();
 
-		// Filter out scenarios with the wrong login tag
 		java.util.List<Object[]> filteredScenarios = new java.util.ArrayList<>();
 		for (Object[] scenario : allScenarios) {
 			PickleWrapper pickleWrapper = (PickleWrapper) scenario[0];
@@ -128,10 +149,7 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager {
 			}
 		}
 
-		Object[][] result = filteredScenarios.toArray(new Object[0][0]);
-		LOGGER.info("  ▶ {} executing {} scenarios", runnerName, result.length);
-
-		return result;
+		return filteredScenarios;
 	}
 
 	@AfterClass(alwaysRun = true)

@@ -6,12 +6,19 @@ import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
 
 /**
- * RetryAnalyzer - Automatically retries failed tests
+ * RetryAnalyzer - Automatically retries failed FEATURES (entire test)
  * 
  * This class implements TestNG's IRetryAnalyzer to automatically retry
  * failed tests up to a configurable number of times.
  * 
- * Thread-safe implementation for parallel test execution.
+ * FEATURE-LEVEL RETRY BEHAVIOR:
+ * - When ANY scenario in a feature fails, the ENTIRE FEATURE is retried
+ * - All scenarios in the feature will be re-executed from the beginning
+ * - Up to MAX_RETRY_COUNT retry attempts for the whole feature
+ * 
+ * This is achieved by running all scenarios in a single @Test method (runFeature)
+ * in CustomizeTestNGCucumberRunner. When the test method fails, RetryAnalyzer
+ * retries the entire method, which re-runs all scenarios.
  * 
  * @author Automation Team
  */
@@ -19,50 +26,79 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 
 	private static final Logger LOGGER = LogManager.getLogger(RetryAnalyzer.class);
 
-	// Thread-safe counter for parallel execution
-	private static ThreadLocal<Integer> retryCount = ThreadLocal.withInitial(() -> 0);
+	// Instance variable for retry count
+	// TestNG creates a new RetryAnalyzer instance for each @Test method
+	private int retryCount = 0;
 
 	// Maximum number of retry attempts (can be made configurable via config.properties)
 	private static final int MAX_RETRY_COUNT = 2;
 
 	/**
-	 * Determines whether a failed test should be retried.
+	 * Determines whether a failed test (feature) should be retried.
 	 * 
 	 * @param result The test result of the failed test
 	 * @return true if the test should be retried, false otherwise
 	 */
 	@Override
 	public boolean retry(ITestResult result) {
-		int currentRetryCount = retryCount.get();
+		if (retryCount < MAX_RETRY_COUNT) {
+			retryCount++;
 
-		if (currentRetryCount < MAX_RETRY_COUNT) {
-			currentRetryCount++;
-			retryCount.set(currentRetryCount);
-
-			String testName = result.getMethod().getMethodName();
-			String className = result.getTestClass().getName();
+			String runnerName = getSimpleClassName(result.getTestClass().getName());
 			Throwable throwable = result.getThrowable();
 			String errorMessage = (throwable != null) ? throwable.getMessage() : "Unknown error";
+			String failedScenario = extractFailedScenarioFromError(errorMessage);
 
 			LOGGER.warn("╔═══════════════════════════════════════════════════════════════╗");
-			LOGGER.warn("║                    TEST RETRY TRIGGERED                       ║");
+			LOGGER.warn("║              🔄 FEATURE RETRY TRIGGERED                       ║");
 			LOGGER.warn("╠═══════════════════════════════════════════════════════════════╣");
-			LOGGER.warn("║ Test Class  : {}", className);
-			LOGGER.warn("║ Test Method : {}", testName);
-			LOGGER.warn("║ Retry       : {} of {}", currentRetryCount, MAX_RETRY_COUNT);
-			LOGGER.warn("║ Error       : {}", truncateMessage(errorMessage, 50));
+			LOGGER.warn("║ Feature/Runner : {}", runnerName);
+			LOGGER.warn("║ Failed At      : {}", truncateMessage(failedScenario, 42));
+			LOGGER.warn("║ Retry Attempt  : {} of {}", retryCount, MAX_RETRY_COUNT);
+			LOGGER.warn("║ Error          : {}", truncateMessage(errorMessage, 42));
+			LOGGER.warn("╠═══════════════════════════════════════════════════════════════╣");
+			LOGGER.warn("║ ⚠️  ALL SCENARIOS in this feature will be RE-EXECUTED         ║");
 			LOGGER.warn("╚═══════════════════════════════════════════════════════════════╝");
 
 			return true;
 		}
 
-		// Reset counter for next test
-		retryCount.remove();
-
-		LOGGER.error("Test '{}' FAILED after {} retry attempts", 
-				result.getMethod().getMethodName(), MAX_RETRY_COUNT);
+		String runnerName = getSimpleClassName(result.getTestClass().getName());
+		LOGGER.error("╔═══════════════════════════════════════════════════════════════╗");
+		LOGGER.error("║              ❌ FEATURE FAILED - NO MORE RETRIES              ║");
+		LOGGER.error("╠═══════════════════════════════════════════════════════════════╣");
+		LOGGER.error("║ Feature/Runner : {}", runnerName);
+		LOGGER.error("║ After {} retry attempts - marking as FAILED", MAX_RETRY_COUNT);
+		LOGGER.error("╚═══════════════════════════════════════════════════════════════╝");
 
 		return false;
+	}
+
+	/**
+	 * Try to extract the failed scenario name from the error message.
+	 */
+	private String extractFailedScenarioFromError(String errorMessage) {
+		if (errorMessage == null) return "Unknown Scenario";
+		
+		// Try to find scenario name patterns in error message
+		// Cucumber often includes "Scenario:" or step text in errors
+		if (errorMessage.contains("Scenario:")) {
+			int start = errorMessage.indexOf("Scenario:");
+			int end = errorMessage.indexOf("\n", start);
+			if (end == -1) end = Math.min(start + 60, errorMessage.length());
+			return errorMessage.substring(start, end).trim();
+		}
+		
+		return "See error details above";
+	}
+
+	/**
+	 * Get simple class name from fully qualified name.
+	 */
+	private String getSimpleClassName(String fullClassName) {
+		if (fullClassName == null) return "Unknown";
+		int lastDot = fullClassName.lastIndexOf('.');
+		return lastDot > 0 ? fullClassName.substring(lastDot + 1) : fullClassName;
 	}
 
 	/**
