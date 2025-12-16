@@ -32,10 +32,6 @@ public class PageObjectManager {
 	public PO26_VerifyJobsMissingDataTipMessage verifyJobsMissingDataTipMessage;
 	public PO27_VerifyInfoMessageForMissingDataProfiles verifyInfoMessageForMissingDataProfiles;
 	public PO28_VerifyInfoMessageForManualMappingProfiles verifyInfoMessageForManualMappingProfiles;
-	public PO29_ValidateJobsWithMissingGRADEdataInJobMapping validateJobsWithMissingGRADEDataInJobMapping;
-	public PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping validateJobsWithMissingDEPARTMENTDataInJobMapping;
-	public PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping validateJobsWithMissingFUNCTIONDataInJobMapping;
-	public PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping validateJobsWithMissingSUBFUNCTIONDataInJobMapping;
 	public PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM validateSelectAndHCMSyncLoadedProfiles_PM;
 	public PO34_ValidateSelectAndSyncAllProfiles_PM validateSelectAndSyncAllProfiles_PM;
 	public PO35_ValidateSelectAllWithSearchFunctionality_PM validateSelectAllWithSearchFunctionality_PM;
@@ -52,6 +48,7 @@ public class PageObjectManager {
 	public PO46_ValidateSelectionOfUnmappedJobs_JAM validateSelectionOfUnmappedJobs_JAM;
 	public PO47_ValidateSortingFunctionalityInHCMScreen_PM validateSortingFunctionalityInHCMScreen_PM;
 	public PO48_ValidateReuploadMissingDataProfiles validateReuploadMissingDataProfiles;
+	public PO29_ValidateMissingDataFunctionality validateMissingDataFunctionality;
 
 	public PO01_KFoneLogin getKFoneLogin() throws IOException {
 		if (kfoneLogin == null) {
@@ -239,38 +236,6 @@ public class PageObjectManager {
 		return verifyInfoMessageForManualMappingProfiles;
 	}
 
-	public PO29_ValidateJobsWithMissingGRADEdataInJobMapping getValidateJobsWithMissingGRADEdataInJobMapping()
-			throws IOException {
-		if (validateJobsWithMissingGRADEDataInJobMapping == null) {
-			validateJobsWithMissingGRADEDataInJobMapping = new PO29_ValidateJobsWithMissingGRADEdataInJobMapping();
-		}
-		return validateJobsWithMissingGRADEDataInJobMapping;
-	}
-
-	public PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping getValidateJobsWithMissingDEPARTMENTdataInJobMapping()
-			throws IOException {
-		if (validateJobsWithMissingDEPARTMENTDataInJobMapping == null) {
-			validateJobsWithMissingDEPARTMENTDataInJobMapping = new PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping();
-		}
-		return validateJobsWithMissingDEPARTMENTDataInJobMapping;
-	}
-
-	public PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping getValidateJobsWithMissingFUNCTIONdataInJobMapping()
-			throws IOException {
-		if (validateJobsWithMissingFUNCTIONDataInJobMapping == null) {
-			validateJobsWithMissingFUNCTIONDataInJobMapping = new PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping();
-		}
-		return validateJobsWithMissingFUNCTIONDataInJobMapping;
-	}
-
-	public PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping getValidateJobsWithMissingSUBFUNCTIONdataInJobMapping()
-			throws IOException {
-		if (validateJobsWithMissingSUBFUNCTIONDataInJobMapping == null) {
-			validateJobsWithMissingSUBFUNCTIONDataInJobMapping = new PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping();
-		}
-		return validateJobsWithMissingSUBFUNCTIONDataInJobMapping;
-	}
-
 	public PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM getValidateSelectAndHCMSyncLoadedProfiles_PM()
 			throws IOException {
 		if (validateSelectAndHCMSyncLoadedProfiles_PM == null) {
@@ -396,6 +361,13 @@ public class PageObjectManager {
 		return validateReuploadMissingDataProfiles;
 	}
 
+	public PO29_ValidateMissingDataFunctionality getValidateMissingDataFunctionality() throws IOException {
+		if (validateMissingDataFunctionality == null) {
+			validateMissingDataFunctionality = new PO29_ValidateMissingDataFunctionality();
+		}
+		return validateMissingDataFunctionality;
+	}
+
 	/**
 	 * Reset all page object instances (useful for cleanup between tests) This
 	 * ensures a fresh start for each test scenario when needed
@@ -437,11 +409,8 @@ public class PageObjectManager {
 		verifyInfoMessageForMissingDataProfiles = null;
 		verifyInfoMessageForManualMappingProfiles = null;
 
-		// Missing Data Validation Page Objects (PO29-PO32)
-		validateJobsWithMissingGRADEDataInJobMapping = null;
-		validateJobsWithMissingDEPARTMENTDataInJobMapping = null;
-		validateJobsWithMissingFUNCTIONDataInJobMapping = null;
-		validateJobsWithMissingSUBFUNCTIONDataInJobMapping = null;
+		// Missing Data Validation Page Objects (PO29)
+		validateMissingDataFunctionality = null;
 
 		// Profile Selection PM Page Objects (PO33-PO36)
 		validateSelectAndHCMSyncLoadedProfiles_PM = null;

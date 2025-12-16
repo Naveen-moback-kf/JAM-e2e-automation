@@ -86,35 +86,16 @@ public class SuiteHooks implements ISuiteListener {
 			PO01_KFoneLogin.clientName.remove();
 			cleanedCount += 2;
 
-			// === MISSING DATA FEATURES ThreadLocals (PO29-PO32) ===
-
-			// PO29 - Missing GRADE data
-			PO29_ValidateJobsWithMissingGRADEdataInJobMapping.extractedJobName.remove();
-			PO29_ValidateJobsWithMissingGRADEdataInJobMapping.forwardScenarioFoundProfile.remove();
-			PO29_ValidateJobsWithMissingGRADEdataInJobMapping.forwardScenarioJobName.remove();
-			PO29_ValidateJobsWithMissingGRADEdataInJobMapping.forwardScenarioJobCode.remove();
-			cleanedCount += 4;
-
-			// PO30 - Missing DEPARTMENT data
-			PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping.extractedJobName.remove();
-			PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping.forwardScenarioFoundProfile.remove();
-			PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping.forwardScenarioJobName.remove();
-			PO30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping.forwardScenarioJobCode.remove();
-			cleanedCount += 4;
-
-			// PO31 - Missing FUNCTION data
-			PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping.extractedJobName.remove();
-			PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping.forwardScenarioFoundProfile.remove();
-			PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping.forwardScenarioJobName.remove();
-			PO31_ValidateJobsWithMissingFUNCTIONdataInJobMapping.forwardScenarioJobCode.remove();
-			cleanedCount += 4;
-
-			// PO32 - Missing SUBFUNCTION data
-			PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping.extractedJobName.remove();
-			PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping.forwardScenarioFoundProfile.remove();
-			PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping.forwardScenarioJobName.remove();
-			PO32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping.forwardScenarioJobCode.remove();
-			cleanedCount += 4;
+			// === MISSING DATA FEATURES ThreadLocals (PO29) ===
+			PO29_ValidateMissingDataFunctionality.extractedJobName.remove();
+			PO29_ValidateMissingDataFunctionality.extractedJobCode.remove();
+			PO29_ValidateMissingDataFunctionality.forwardScenarioFoundProfile.remove();
+			PO29_ValidateMissingDataFunctionality.forwardScenarioJobName.remove();
+			PO29_ValidateMissingDataFunctionality.forwardScenarioJobCode.remove();
+			PO29_ValidateMissingDataFunctionality.currentDataType.remove();
+			PO29_ValidateMissingDataFunctionality.jobDetailsFromJobMappingPage.remove();
+			PO29_ValidateMissingDataFunctionality.jobDetailsFromMissingDataScreen.remove();
+			cleanedCount += 8;
 
 			// === SELECT ALL FUNCTIONALITY ThreadLocals (PO35-PO39) ===
 

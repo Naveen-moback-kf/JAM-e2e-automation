@@ -7,8 +7,6 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.cucumber.java.Scenario;
-import hooks.JobMapping.ScenarioHooks;
 
 public class SD04_VerifyJobMappingPageComponents extends DriverManager{
 	PageObjectManager verifyJobMappingPageComponents = new PageObjectManager();
@@ -25,25 +23,6 @@ public class SD04_VerifyJobMappingPageComponents extends DriverManager{
 	
 	@When("User is in Job Mapping page")
 	public void user_is_in_job_mapping_page() throws IOException, InterruptedException {
-		// Get scenario from ScenarioHooks ThreadLocal storage
-		Scenario scenario = ScenarioHooks.getCurrentScenario();
-		
-		if (scenario != null) {
-			String featureUri = scenario.getUri().toString();
-			boolean isMissingDataFeature = featureUri.contains("29ValidateJobsWithMissingGRADEdataInJobMapping") ||
-			                                featureUri.contains("30ValidateJobsWithMissingDEPARTMENTdataInJobMapping") ||
-			                                featureUri.contains("31ValidateJobsWithMissingFUNCTIONdataInJobMapping") ||
-			                                featureUri.contains("32ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping");
-			
-			if (isMissingDataFeature) {
-				try {
-					verifyJobMappingPageComponents.getValidateJobsWithMissingGRADEdataInJobMapping().ensure_on_job_mapping_page_for_next_scenario();
-				} catch (Exception e) {
-					System.out.println("Cleanup step completed (expected for fresh scenarios)");
-				}
-			}
-		}
-		
 		verifyJobMappingPageComponents.getVerifyJobMappingPageComponents().user_is_in_job_mapping_page();
 	}
 	

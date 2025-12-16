@@ -13,6 +13,16 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.cucumber.testng.CucumberOptions;
 
+/**
+ * Missing Data Validation Runner
+ * 
+ * Run specific data types using tags:
+ * - @Missing_GRADE_Data - Test Grade missing data only
+ * - @Missing_DEPARTMENT_Data - Test Department missing data only
+ * - @Missing_FUNCTION_Data - Test Function missing data only
+ * - @Missing_SUBFUNCTION_Data - Test Subfunction missing data only
+ * - @Validate_Jobs_With_Missing_Data_In_JobMapping - Run all missing data tests
+ */
 @Listeners({
 	ExcelReportListener.class,
 	AllureTestNg.class
@@ -21,9 +31,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature",
-			"src/test/resources/features/JobMapping/29ValidateJobsWithMissingGRADEdataInJobMapping.feature"
+			"src/test/resources/features/JobMapping/29ValidateMissingDataFunctionality.feature"
 		},
-		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Jobs_With_Missing_GRADE_Data_In_JobMapping",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Jobs_With_Missing_Data_In_JobMapping",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {
@@ -33,23 +43,25 @@ import io.cucumber.testng.CucumberOptions;
 		}
 		)
 
-public class Runner29_ValidateJobsWithMissingGRADEdataInJobMapping extends CustomizeTestNGCucumberRunner {
+public class Runner29_ValidateMissingDataFunctionality extends CustomizeTestNGCucumberRunner {
+	
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
-
+	
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Jobs_With_Missing_GRADE_Data_In_JobMapping";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Jobs_With_Missing_Data_In_JobMapping";
 	}
 	
 	@Override
 	protected String resolveLoginTag() {
 		return DynamicTagResolver.getKFoneLoginTag();
 	}
-
+	
 	@AfterTest
 	public void after_test() {
-		LOGGER.info("Successfully completed validation of Jobs with Missing Data in Job Mapping workflow");
+		LOGGER.info("Successfully completed testing Missing Data Validation in Job Mapping page");
 		LOGGER.info("Login Type Used: " + DynamicTagResolver.getCurrentLoginType());
 		DriverManager.closeBrowser();
 	}
 }
+

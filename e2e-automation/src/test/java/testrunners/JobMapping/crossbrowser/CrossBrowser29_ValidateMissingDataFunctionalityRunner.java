@@ -12,10 +12,16 @@ import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 import io.cucumber.testng.CucumberOptions;
 
 /**
- * Cross-Browser Jobs With Missing SUBFUNCTION Data Test Runner
+ * Cross-Browser Missing Data Validation Test Runner
  * 
- * Command: mvn test -Dtest=CrossBrowser32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMappingRunner
+ * Command: mvn test -Dtest=CrossBrowser29_ValidateMissingDataFunctionalityRunner
  * Result: Chrome + Firefox + Edge run automatically
+ * 
+ * Run specific data types using tags:
+ * - @Missing_GRADE_Data - Test Grade missing data only
+ * - @Missing_DEPARTMENT_Data - Test Department missing data only
+ * - @Missing_FUNCTION_Data - Test Function missing data only
+ * - @Missing_SUBFUNCTION_Data - Test Subfunction missing data only
  */
 @Listeners({
     ExcelReportListener.class,
@@ -24,9 +30,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
     features = {
         "src/test/resources/features/01KFoneLogin.feature",
-        "src/test/resources/features/JobMapping/32ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping.feature"
+        "src/test/resources/features/JobMapping/29ValidateMissingDataFunctionality.feature"
     },
-    tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Jobs_With_Missing_SUBFUNCTION_Data_In_JobMapping",
+    tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Jobs_With_Missing_Data_In_JobMapping",
     glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
     dryRun = false,
     plugin = {
@@ -35,13 +41,13 @@ import io.cucumber.testng.CucumberOptions;
         "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
     }
 )
-public class CrossBrowser32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMappingRunner extends CrossBrowserCucumberRunner {
+public class CrossBrowser29_ValidateMissingDataFunctionalityRunner extends CrossBrowserCucumberRunner {
     
     protected static final Logger LOGGER = (Logger) LogManager.getLogger();
     
     @Override
     protected String getTagExpressionTemplate() {
-        return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Jobs_With_Missing_SUBFUNCTION_Data_In_JobMapping";
+        return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Jobs_With_Missing_Data_In_JobMapping";
     }
     
     @Override
@@ -49,3 +55,4 @@ public class CrossBrowser32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMappingRu
         return DynamicTagResolver.getKFoneLoginTag();
     }
 }
+

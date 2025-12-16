@@ -211,12 +211,21 @@ public class VariableManager {
 		LOGGER.info("╔═══════════════════════════════════════════════════════════╗");
 		LOGGER.info("║ CONFIGURATION LOADED                                      ║");
 		LOGGER.info("╠═══════════════════════════════════════════════════════════╣");
-		LOGGER.info("║ Environment  : {}", CommonVariable.ENVIRONMENT);
-		LOGGER.info("║ Login Type   : {}", CommonVariable.LOGIN_TYPE);
-		LOGGER.info("║ PAMS ID      : {}", CommonVariable.TARGET_PAMS_ID);
-		LOGGER.info("║ Browser      : {}", CommonVariable.BROWSER);
-		LOGGER.info("║ Headless     : {}", CommonVariable.HEADLESS_MODE);
+		LOGGER.info("║ Environment  : {}", padRight(CommonVariable.ENVIRONMENT, 43) + "║");
+		LOGGER.info("║ Login Type   : {}", padRight(CommonVariable.LOGIN_TYPE, 43) + "║");
+		LOGGER.info("║ PAMS ID      : {}", padRight(CommonVariable.TARGET_PAMS_ID, 43) + "║");
+		LOGGER.info("║ Browser      : {}", padRight(CommonVariable.BROWSER, 43) + "║");
+		LOGGER.info("║ Headless     : {}", padRight(CommonVariable.HEADLESS_MODE, 43) + "║");
 		LOGGER.info("╚═══════════════════════════════════════════════════════════╝");
+	}
+
+	/**
+	 * Pad string to specified length for box formatting
+	 */
+	private String padRight(String value, int length) {
+		if (value == null) value = "N/A";
+		if (value.length() >= length) return value.substring(0, length);
+		return String.format("%-" + length + "s", value);
 	}
 
 	public static boolean isInitialized() {
