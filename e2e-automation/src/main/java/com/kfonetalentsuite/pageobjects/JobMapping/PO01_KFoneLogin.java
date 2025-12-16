@@ -18,7 +18,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.SessionManager;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.utils.common.CommonVariable;
-import com.kfonetalentsuite.utils.common.ExcelConfigProvider;
 import com.kfonetalentsuite.utils.common.ExcelDataProvider;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
@@ -408,30 +407,22 @@ public class PO01_KFoneLogin extends BasePageObject {
 	// =============================================
 
 	private String getEnvironment() {
-		Map<String, String> login = ExcelConfigProvider.getDefaultLogin();
-		if (login != null && login.get("Environment") != null && !login.get("Environment").isEmpty()) {
-			return login.get("Environment").trim();
-		}
-		return CommonVariable.ENVIRONMENT != null ? CommonVariable.ENVIRONMENT : "QA";
+		return CommonVariable.ENVIRONMENT != null ? CommonVariable.ENVIRONMENT : "qa";
 	}
 
 	private String getUrlForEnvironment(String env) {
-		return switch (env) {
-			case "Stage" -> CommonVariable.KFONE_STAGEURL;
-			case "ProdEU" -> CommonVariable.KFONE_PRODEUURL;
-			case "ProdUS" -> CommonVariable.KFONE_PRODUSURL;
-			case "Dev" -> CommonVariable.KFONE_DEVURL;
-			default -> CommonVariable.KFONE_QAURL;
+		if (env == null) return CommonVariable.KFONE_QAURL;
+		
+		return switch (env.toLowerCase()) {
+			case "stage" -> CommonVariable.KFONE_STAGEURL;
+			case "prod-eu", "prodeu" -> CommonVariable.KFONE_PRODEUURL;
+			case "prod-us", "produs" -> CommonVariable.KFONE_PRODUSURL;
+			case "dev" -> CommonVariable.KFONE_DEVURL;
+			default -> CommonVariable.KFONE_QAURL; // qa is default
 		};
 	}
 
 	private String getCredential(String userType, String field) {
-		try {
-			Map<String, String> login = ExcelConfigProvider.getLoginByType(userType);
-			if (login != null) return login.get(field);
-		} catch (Exception e) {
-			LOGGER.debug("Excel read failed: {}", e.getMessage());
-		}
 		if ("SSO".equalsIgnoreCase(userType)) {
 			return "Username".equals(field) ? CommonVariable.SSO_USERNAME : CommonVariable.SSO_PASSWORD;
 		}
@@ -439,8 +430,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 	}
 
 	private String getPamsId() {
-		String pamsId = ExcelConfigProvider.getActivePamsId();
-		return (pamsId != null && !pamsId.trim().isEmpty()) ? pamsId.trim() : CommonVariable.TARGET_PAMS_ID;
+		return CommonVariable.TARGET_PAMS_ID;
 	}
 
 	private void verifyOnClientsPage() {

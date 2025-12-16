@@ -1,8 +1,12 @@
 package com.kfonetalentsuite.utils.common;
 
 /**
- * Dynamically resolves login tags based on Excel Execute=YES row.
+ * Dynamically resolves login tags based on environment configuration.
  * Supports CI/CD overrides via system properties.
+ * 
+ * Usage:
+ *   mvn test -Denv=qa -Dlogin.type=SSO    → Uses SSO login tag
+ *   mvn test -Denv=qa -Dlogin.type=NON_SSO → Uses NON_SSO login tag
  */
 public class DynamicTagResolver {
 
@@ -12,19 +16,19 @@ public class DynamicTagResolver {
 	private static final String SSO_LOGIN_TAG = "@SSO_Login_via_KFONE";
 	private static final String NON_SSO_LOGIN_TAG = "@NON_SSO_Login_via_KFONE";
 
-	// Cache to avoid duplicate logs
+	// Cache to avoid duplicate lookups
 	private static String cachedLoginTag = null;
 	private static String cachedLoginType = null;
 
 	/**
-	 * Get login tag based on Excel Execute=YES row (cached)
+	 * Get login tag based on configured login type
 	 */
 	public static String getKFoneLoginTag() {
 		if (cachedLoginTag != null) {
 			return cachedLoginTag;
 		}
 
-		String loginType = getLoginTypeFromExcel();
+		String loginType = getLoginType();
 		
 		if (SSO_LOGIN.equalsIgnoreCase(loginType)) {
 			cachedLoginTag = SSO_LOGIN_TAG;
@@ -36,36 +40,23 @@ public class DynamicTagResolver {
 	}
 
 	/**
-	 * Get login type from Excel (cached) with CI/CD override support
+	 * Get login type from configuration
+	 * Priority: System Property > Environment Config > Default (NON_SSO)
 	 */
-	public static String getLoginTypeFromExcel() {
+	public static String getLoginType() {
 		if (cachedLoginType != null) {
 			return cachedLoginType;
 		}
 
-		// CI/CD override - Check system property first (highest priority)
-		String loginTypeOverride = System.getProperty("login.type");
-		if (loginTypeOverride != null && !loginTypeOverride.isEmpty()) {
-			cachedLoginType = loginTypeOverride.trim().toUpperCase();
-			return cachedLoginType;
-		}
+		// Ensure config is loaded
+		VariableManager.getInstance().loadProperties();
 
-		try {
-			// Get from Excel
-			String loginType = ExcelConfigProvider.getActiveLoginType();
-			if (loginType != null && !loginType.isEmpty()) {
-				cachedLoginType = loginType;
-				return cachedLoginType;
-			}
-		} catch (Exception e) {
-			// Ignore
-		}
-		
-		// Fallback to config.properties
-		String configLoginType = CommonVariable.LOGIN_TYPE;
-		cachedLoginType = (configLoginType != null && !configLoginType.isEmpty()) 
-				? configLoginType.toUpperCase().trim() 
+		// Get from CommonVariable (already handles priority: system prop > env config > fallback)
+		String loginType = CommonVariable.LOGIN_TYPE;
+		cachedLoginType = (loginType != null && !loginType.isEmpty()) 
+				? loginType.toUpperCase().trim() 
 				: NON_SSO_LOGIN;
+		
 		return cachedLoginType;
 	}
 
@@ -74,7 +65,7 @@ public class DynamicTagResolver {
 	}
 
 	public static String getCurrentLoginType() {
-		return getLoginTypeFromExcel();
+		return getLoginType();
 	}
 
 	public static boolean isSSOLogin() {

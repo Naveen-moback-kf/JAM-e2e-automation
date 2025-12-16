@@ -21,9 +21,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature",
-			"src/test/resources/features/JobMapping/11cValidateFunctionSubfunctionFilters.feature"
+			"src/test/resources/features/JobMapping/11ValidateJobMappingFiltersFunctionality.feature"
 		},
-		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Function_Subfunction_Filters",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Filters_Functionality_JAM",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {
@@ -33,13 +33,14 @@ import io.cucumber.testng.CucumberOptions;
 		}
 		)
 
-public class Runner11c_ValidateFunctionSubfunctionFilters extends CustomizeTestNGCucumberRunner {
+public class Runner11_ValidateJobMappingFiltersFunctionality extends CustomizeTestNGCucumberRunner {
 	
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Function_Subfunction_Filters";
+		// Feature-level tag includes all scenarios - login filtering handled by base class
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Filters_Functionality_JAM";
 	}
 	
 	@Override
@@ -49,7 +50,7 @@ public class Runner11c_ValidateFunctionSubfunctionFilters extends CustomizeTestN
 	
 	@AfterTest
 	public void after_test() {
-		LOGGER.info("Successfully completed testing Function and Subfunction Filters functionality in Job Mapping page");
+		LOGGER.info("Successfully completed testing of Filters Functionality in Job Mapping page");
 		LOGGER.info("Login Type Used: " + DynamicTagResolver.getCurrentLoginType());
 		DriverManager.closeBrowser();
 	}

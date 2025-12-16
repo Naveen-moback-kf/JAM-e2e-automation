@@ -2,78 +2,81 @@
 
 ## 📋 Overview
 
-This guide explains how to create and use `TestData.xlsx` for data-driven testing.
-The Excel file should be placed in: `src/test/resources/testdata/TestData.xlsx`
+This guide explains how to use `TestData.xlsx` for **test data only** (search terms, filters, etc.).
+
+**IMPORTANT:** Environment configuration (credentials, URLs) are now managed via environment-specific property files, NOT Excel.
 
 ---
 
-## 🎯 Configuration Sources
+## 🎯 Configuration Architecture
+
+### Environment Configuration (NEW)
+
+| Setting | Source | How to Change |
+|---------|--------|---------------|
+| **Environment** | `environments/{env}.properties` | `-Denv=qa` or `-Denv=stage` |
+| **Login Credentials** | `environments/{env}.properties` | Edit the env file or use `-Dsso.username=xxx` |
+| **PAMS_ID** | `environments/{env}.properties` | Edit the env file or use `-Dpams.id=xxx` |
+| **URLs** | `config.properties` | All URLs defined centrally |
+| **Browser** | `config.properties` | `-Dbrowser=firefox` |
+| **Headless Mode** | `config.properties` | `-Dheadless.mode=false` |
+
+### Test Data (Excel)
 
 | What | Source | Location |
 |------|--------|----------|
-| **Login Credentials** | Excel | LoginData sheet |
-| **Environment** | Excel | LoginData.Environment column |
-| **PAMS_ID** | Excel | LoginData.PAMS_ID column |
-| **Browser** | config.properties | browser=chrome |
-| **Headless Mode** | config.properties | headless.mode=false |
-| **URLs** | config.properties | KFONE_*Url values |
-
-**CI/CD Override:** Use Maven parameters like `-DEnvironment=Stage`
+| **Search Terms** | Excel | SearchData sheet |
+| **Filter Values** | Excel | FilterData sheet |
+| **Sorting Data** | Excel | SortingData sheet |
+| **Other Test Data** | Excel | Various sheets |
 
 ---
 
 ## 🚀 Quick Start
 
-### Step 1: Create TestData.xlsx
-Create a new Excel file with the sheets described below.
+### Running Tests with Different Environments
 
-### Step 2: Set Execute=YES
-In LoginData sheet, set `Execute=YES` for the row you want to use.
-
-### Step 3: Run Test
 ```bash
-mvn test -Dcucumber.filter.tags="@NON_SSO_Login_via_KFONE"
+# Run tests on QA environment (default)
+mvn test -Denv=qa
+
+# Run tests on Stage environment
+mvn test -Denv=stage
+
+# Run tests on Dev environment
+mvn test -Denv=dev
+
+# Run tests with SSO login on QA
+mvn test -Denv=qa -Dlogin.type=SSO
+
+# Run tests with visible browser (non-headless)
+mvn test -Denv=qa -Dheadless.mode=false
+
+# Override credentials for CI/CD
+mvn test -Denv=stage -Dsso.password=${SECRET_PASSWORD}
+```
+
+### Environment Files Location
+
+```
+src/test/resources/
+├── config.properties              # Common settings (browser, headless, URLs)
+├── environments/
+│   ├── dev.properties             # Dev: credentials, PAMS_ID
+│   ├── qa.properties              # QA: credentials, PAMS_ID
+│   ├── stage.properties           # Stage: credentials, PAMS_ID
+│   ├── prod-us.properties         # Prod-US: credentials, PAMS_ID
+│   └── prod-eu.properties         # Prod-EU: credentials, PAMS_ID
+└── testdata/
+    ├── TestData.xlsx              # Test data ONLY (search, filters, etc.)
+    └── TestData_Template.md       # This guide
 ```
 
 ---
 
-## 📊 Sheet Structures
+## 📊 Excel Sheet Structures
 
-### Sheet 1: LoginData (MAIN SHEET)
-Login credentials and environment selection. **Execute=YES row is used for testing.**
-
-| Column | Required | Description |
-|--------|----------|-------------|
-| Execute | Yes | **YES** = Use this row, **NO** = Skip |
-| TestID | Yes | Unique identifier (L001, L002, etc.) |
-| UserType | Yes | SSO or NON_SSO |
-| Environment | Yes | Dev, QA, Stage - **Determines which URL to use** |
-| Username | Yes | Login email/username |
-| Password | Yes | Login password |
-| PAMS_ID | No | PAMS ID for this user |
-| Description | No | Description of this test user |
-
-**Sample Data:**
-```
-| Execute | TestID | UserType | Environment | Username                                        | Password           | PAMS_ID | Description              |
-|---------|--------|----------|-------------|-------------------------------------------------|--------------------|---------|--------------------------|
-| NO      | L001   | NON_SSO  | Dev         | clm.user.one@testkfy.com                        | 202510DigitalLog!  | 23139   | NON-SSO Dev User         |
-| NO      | L002   | SSO      | Dev         | AIAuto.user.one@kfdbhdevoutlook.onmicrosoft.com | 202410TestDigital! | 4790    | SSO Dev User             |
-| YES     | L003   | NON_SSO  | QA          | clm.user.one@testkfy.com                        | 202510DigitalLog!  | 23139   | NON-SSO QA User          |
-| NO      | L004   | SSO      | QA          | AIAuto.user.one@kfdbhdevoutlook.onmicrosoft.com | 202410TestDigital! | 4790    | SSO QA User              |
-| NO      | L005   | NON_SSO  | Stage       | clm.user.one@testkfy.com                        | 202510DigitalLog!  | 12024   | NON-SSO Stage User       |
-```
-
-**How to switch environment & login:** Just change `Execute` to `YES` for the desired row!
-
-When Execute=YES for L003:
-- Uses **QA** Environment (from Environment column)
-- Uses **NON_SSO** credentials (from Username/Password columns)
-- Opens **QA URL** (from config.properties)
-
----
-
-### Sheet 3: SearchData
+### Sheet 1: SearchData
 For search functionality testing.
 
 | Column | Required | Description |
@@ -97,33 +100,7 @@ For search functionality testing.
 
 ---
 
-### Sheet 2: LoginData
-For login functionality testing.
-
-| Column | Required | Description |
-|--------|----------|-------------|
-| TestID | Yes | Unique identifier (e.g., L001, L002) |
-| UserType | Yes | SSO or NON_SSO |
-| Environment | No | QA, Stage, Prod |
-| Username | Yes | Login username/email |
-| Password | Yes | Login password |
-| PAMS_ID | No | PAMS ID for client verification |
-| ExpectedRole | No | Expected user role after login |
-| Description | No | Test case description |
-
-**Sample Data:**
-```
-| TestID | UserType | Environment | Username              | Password   | PAMS_ID | ExpectedRole |
-|--------|----------|-------------|-----------------------|------------|---------|--------------|
-| L001   | NON_SSO  | QA          | admin@testkfy.com     | Pass123!   | 23139   | Admin        |
-| L002   | NON_SSO  | QA          | viewer@testkfy.com    | Pass456!   | 23140   | Viewer       |
-| L003   | SSO      | QA          | sso.user@outlook.com  | SSOPass!   | 4790    | Admin        |
-| L004   | NON_SSO  | Stage       | stage@testkfy.com     | Stage123!  | 12024   | Admin        |
-```
-
----
-
-### Sheet 3: FilterData
+### Sheet 2: FilterData
 For filter functionality testing.
 
 | Column | Required | Description |
@@ -148,7 +125,7 @@ For filter functionality testing.
 
 ---
 
-### Sheet 4: SortingData
+### Sheet 3: SortingData
 For sorting functionality testing.
 
 | Column | Required | Description |
@@ -172,7 +149,7 @@ For sorting functionality testing.
 
 ---
 
-### Sheet 5: MissingDataTests
+### Sheet 4: MissingDataTests
 For missing data validation testing.
 
 | Column | Required | Description |
@@ -221,12 +198,6 @@ Feature: Data-Driven Testing Examples
       | S002   |
       | S003   |
 
-  # Data-driven login
-  Scenario: Login using Excel data
-    Given Launch the KFONE application
-    When User logs in using Excel test data "L001"
-    Then Verify the KFONE landing page
-
   # Data-driven filter
   Scenario: Apply filter using Excel data
     When User is in Job Mapping page
@@ -245,17 +216,17 @@ Feature: Data-Driven Testing Examples
 
 ```java
 // Get all data from a sheet
-List<Map<String, String>> allUsers = ExcelDataProvider.getSheetData("LoginData");
+List<Map<String, String>> allSearchData = ExcelDataProvider.getSheetData("SearchData");
 
 // Get specific row by TestID
 Map<String, String> testData = ExcelDataProvider.getTestData("SearchData", "S001");
 String searchTerm = testData.get("SearchTerm");
 
 // Get single value directly
-String username = ExcelDataProvider.getValue("LoginData", "L001", "Username");
+String filterValue = ExcelDataProvider.getValue("FilterData", "F001", "FilterValue");
 
 // Filter data by column
-List<Map<String, String>> qaUsers = ExcelDataProvider.getDataByColumn("LoginData", "Environment", "QA");
+List<Map<String, String>> jamFilters = ExcelDataProvider.getDataByColumn("FilterData", "Screen", "JAM");
 
 // Use as TestNG DataProvider
 @DataProvider(name = "searchTests")
@@ -264,15 +235,42 @@ public Object[][] getSearchTests() {
 }
 ```
 
+### Using Configuration in Java Code
+
+```java
+// All config values are available via CommonVariable
+String environment = CommonVariable.ENVIRONMENT;      // "QA", "Stage", etc.
+String loginType = CommonVariable.LOGIN_TYPE;         // "SSO" or "NON_SSO"
+String pamsId = CommonVariable.TARGET_PAMS_ID;        // "23139"
+String browser = CommonVariable.BROWSER;              // "chrome"
+String ssoUser = CommonVariable.SSO_USERNAME;
+String nonSsoUser = CommonVariable.NON_SSO_USERNAME;
+
+// URLs are also available
+String qaUrl = CommonVariable.KFONE_QAURL;
+String stageUrl = CommonVariable.KFONE_STAGEURL;
+```
+
 ---
 
-## 📁 File Location
+## 📁 File Locations
 
 ```
 e2e-automation/
+├── src/main/java/com/kfonetalentsuite/utils/common/
+│   ├── VariableManager.java       ← Loads all config (env + common)
+│   └── CommonVariable.java        ← Static config variables (use these!)
+│
 └── src/test/resources/
+    ├── config.properties          ← Common settings
+    ├── environments/
+    │   ├── dev.properties         ← Dev environment
+    │   ├── qa.properties          ← QA environment
+    │   ├── stage.properties       ← Stage environment
+    │   ├── prod-us.properties     ← Prod-US environment
+    │   └── prod-eu.properties     ← Prod-EU environment
     └── testdata/
-        ├── TestData.xlsx          ← Your Excel file goes here
+        ├── TestData.xlsx          ← Test data only
         └── TestData_Template.md   ← This guide
 ```
 
@@ -280,28 +278,31 @@ e2e-automation/
 
 ## ⚠️ Important Notes
 
-1. **TestID Column**: Required in every sheet for lookup functionality
-2. **First Row**: Must be column headers
-3. **File Format**: Save as .xlsx (Excel 2007+)
-4. **Empty Rows**: Automatically skipped
-5. **Column Names**: Case-sensitive, must match exactly
-6. **Special Characters**: Use quotes in Excel for values with commas
+1. **Environment Selection**: Always use `-Denv=xxx` to select environment
+2. **Excel for Test Data Only**: Don't put credentials or environment config in Excel anymore
+3. **CI/CD Secrets**: Use `-Dsso.password=${SECRET}` for sensitive values
+4. **TestID Column**: Required in every Excel sheet for lookup functionality
+5. **File Format**: Save Excel as .xlsx (Excel 2007+)
 
 ---
 
-## 🔄 For Other Teams
+## 🔄 Migration from Excel-based Environment Config
 
-If your team needs a separate test data file:
+If you were using the `LoginData` sheet with `Execute=YES` for environment switching:
 
-```java
-// Set custom file path before using
-ExcelDataProvider.setCustomFilePath("src/test/resources/myteam/MyTestData.xlsx");
+**Old Way (Excel):**
+1. Open TestData.xlsx
+2. Find the row for your environment
+3. Set Execute=YES for that row
+4. Set Execute=NO for other rows
+5. Run tests
 
-// Now all calls will use your custom file
-Map<String, String> data = ExcelDataProvider.getTestData("MySheet", "TC001");
-
-// Reset to default when done
-ExcelDataProvider.clearCustomFilePath();
+**New Way (Environment Files):**
+```bash
+# Just add -Denv parameter!
+mvn test -Denv=qa           # QA environment
+mvn test -Denv=stage        # Stage environment
+mvn test -Denv=dev          # Dev environment
 ```
 
 ---

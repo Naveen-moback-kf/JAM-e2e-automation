@@ -11,12 +11,6 @@ import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 
 import io.cucumber.testng.CucumberOptions;
 
-/**
- * Cross-Browser Mapping Status and Multiple Filters Test Runner
- * 
- * Command: mvn test -Dtest=CrossBrowser11d_ValidateMappingStatusAndMultipleFiltersRunner
- * Result: Chrome + Firefox + Edge run automatically
- */
 @Listeners({
     ExcelReportListener.class,
     AllureTestNg.class
@@ -24,9 +18,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
     features = {
         "src/test/resources/features/01KFoneLogin.feature",
-        "src/test/resources/features/JobMapping/11dValidateMappingStatusAndMultipleFilters.feature"
+        "src/test/resources/features/JobMapping/11ValidateJobMappingFiltersFunctionality.feature"
     },
-    tags = "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Mapping_Status_And_Multiple_Filters",
+    tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Filters_Functionality_JAM",
     glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
     dryRun = false,
     plugin = {
@@ -35,13 +29,13 @@ import io.cucumber.testng.CucumberOptions;
         "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
     }
 )
-public class CrossBrowser11d_ValidateMappingStatusAndMultipleFiltersRunner extends CrossBrowserCucumberRunner {
+public class CrossBrowser11_ValidateJobMappingFiltersFunctionalityRunner extends CrossBrowserCucumberRunner {
     
     protected static final Logger LOGGER = (Logger) LogManager.getLogger();
     
     @Override
     protected String getTagExpressionTemplate() {
-        return "@DYNAMIC_LOGIN or @Client_with_PM_Access or @Validate_Mapping_Status_And_Multiple_Filters";
+        return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Filters_Functionality_JAM";
     }
     
     @Override
@@ -49,3 +43,4 @@ public class CrossBrowser11d_ValidateMappingStatusAndMultipleFiltersRunner exten
         return DynamicTagResolver.getKFoneLoginTag();
     }
 }
+

@@ -127,5 +127,34 @@ public class SD11_ValidateJobMappingFiltersFunctionality {
 	public void select_one_option_in_mapping_status_filters_dropdown() throws Exception {
 		validateJobMappingFiltersFunctionality.getValidateJobMappingFiltersFunctionality().select_one_option_in_mapping_status_filters_dropdown();
 	}
+
+	// ═══════════════════════════════════════════════════════════════════════════
+	// CONSOLIDATED/PARAMETERIZED STEP DEFINITIONS - For unified filter handling
+	// ═══════════════════════════════════════════════════════════════════════════
+
+	@Then("Click on {string} Filters dropdown button")
+	public void click_on_filter_dropdown_button(String filterType) throws Exception {
+		validateJobMappingFiltersFunctionality.getValidateJobMappingFiltersFunctionality().click_on_filter_dropdown_button(filterType);
+	}
+
+	@Then("Select one option in {string} Filters dropdown")
+	public void select_one_option_in_filter_dropdown(String filterType) throws Exception {
+		validateJobMappingFiltersFunctionality.getValidateJobMappingFiltersFunctionality().select_one_option_in_filter_dropdown(filterType);
+	}
+
+	@Then("Select two options in {string} Filters dropdown")
+	public void select_two_options_in_filter_dropdown(String filterType) throws Exception {
+		validateJobMappingFiltersFunctionality.getValidateJobMappingFiltersFunctionality().select_two_options_in_filter_dropdown(filterType);
+	}
+
+	@Then("Validate Job Mapping Profiles are correctly filtered with applied {string} Options")
+	public void validate_filter_results(String filterType) throws Exception {
+		validateJobMappingFiltersFunctionality.getValidateJobMappingFiltersFunctionality().validate_filter_results(filterType);
+	}
+
+	@Then("Validate Job Mapping Profiles are correctly filtered with applied Grades Departments and FunctionsSubfunctions Options")
+	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_grades_departments_and_functionssubfunctions_options() throws Exception {
+		validateJobMappingFiltersFunctionality.getValidateJobMappingFiltersFunctionality().validate_job_mapping_profiles_are_correctly_filtered_with_applied_grades_departments_and_functions_subfunctions_options();
+	}
 	
 }

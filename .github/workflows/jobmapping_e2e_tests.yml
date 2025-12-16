@@ -4,8 +4,6 @@ run-name: |
   ${{ 
     github.event_name == 'schedule' && 
     '⏰ Scheduled Run | JAM_SmokeTestSuite.xml | chrome | qa' || 
-    (github.event.inputs.execution_mode == 'individual_runner' && 
-    format('🏃 {0} | {1} | {2}', github.event.inputs.individual_runner, github.event.inputs.browser, github.event.inputs.environment)) || 
     format('📋 {0} | {1} | {2}', github.event.inputs.test_suite, github.event.inputs.browser, github.event.inputs.environment)
   }}
 
@@ -26,87 +24,15 @@ on:
   # Manual trigger with parameters (ENABLED)
   workflow_dispatch:
     inputs:
-      execution_mode:
-        description: '🎯 Execution Mode'
-        required: true
-        default: 'test_suite'
-        type: choice
-        options:
-          - test_suite
-          - individual_runner
-      
       test_suite:
-        description: '📋 Test Suite to Execute (when execution_mode = test_suite)'
-        required: false
+        description: '📋 Test Suite to Execute'
+        required: true
         default: 'JAM_SmokeTestSuite.xml'
         type: choice
         options:
           - JAM_SanityTestSuite.xml
           - JAM_SmokeTestSuite.xml
           - JAM_RegressionTestSuite.xml
-      
-      individual_runner:
-        description: '🏃 Individual Runner (when execution_mode = individual_runner)'
-        required: false
-        default: 'Runner01_KFoneLogin'
-        type: choice
-        options:
-          - Runner01_KFoneLogin
-          - Runner02_ValidateAddMoreJobsFunctionality
-          - Runner03_ValidateJobmappingHeaderSection
-          - Runner04_VerifyJobMappingPageComponents
-          - Runner05_ValidateJobProfileDetailsPopup
-          - Runner06_PublishJobProfile
-          - Runner07_PublishJobFromComparisonScreen
-          - Runner08_PublishJobFromDetailsPopup
-          - Runner09_PublishSelectedProfiles
-          - Runner10_ValidateScreen1SearchResults
-          - Runner11a_ValidateGradeFilters
-          - Runner11b_ValidateDepartmentFilters
-          - Runner11c_ValidateFunctionSubfunctionFilters
-          - Runner11d_ValidateMappingStatusAndMultipleFilters
-          - Runner12a_ValidateBasicFilterPersistence
-          - Runner12b_ValidateAdvancedFilterPersistence
-          - Runner13_AddandVerifyCustomSPinJobComparsionPage
-          - Runner14_ValidateProfileLevelFunctionality
-          - Runner15_ValidateRecommendedProfileDetails
-          - Runner16_ValidatePCRestrictedTipMessage
-          - Runner17_ValidateSortingFunctionality_JAM
-          - Runner18a_ValidateBasicSortingPersistence
-          - Runner18b_ValidateAdvancedSortingPersistence
-          - Runner19_VerifyJobsWithNoBICMappings
-          - Runner20_ManualMappingofSPinAutoAI
-          - Runner21_MapDifferentSPtoProfileInAutoAI
-          - Runner22_ValidateHCMSyncProfilesTab_PM
-          - Runner23_VerifyProfileswithNoJobCode_PM
-          - Runner24_ValidatePublishCenter_PM
-          - Runner25_ValidateExportStatusFunctionality_PM
-          - Runner26_VerifyJobsMissingDataTipMessage
-          - Runner27_VerifyInfoMessageForMissingDataProfiles
-          - Runner28_VerifyInfoMessageForManualMappingProfiles
-          - Runner29_ValidateJobsWithMissingGRADEdataInJobMapping
-          - Runner30_ValidateJobsWithMissingDEPARTMENTdataInJobMapping
-          - Runner31_ValidateJobsWithMissingFUNCTIONdataInJobMapping
-          - Runner32_ValidateJobsWithMissingSUBFUNCTIONdataInJobMapping
-          - Runner33_ValidateSelectAndHCMSyncLoadedProfiles_PM
-          - Runner34_ValidateSelectAndSyncAllProfiles_PM
-          - Runner35_ValidateSelectAllWithSearchFunctionality_PM
-          - Runner35a_ValidateLoadedProfilesSelectionWithSearch_PM
-          - Runner36_ValidateSelectAllWithFiltersFunctionality_PM
-          - Runner36a_ValidateLoadedProfilesSelectionWithFilters_PM
-          - Runner37_ValidateSelectAndPublishLoadedProfiles_JAM
-          - Runner38_ValidateSelectAllWithSearchFunctionality_JAM
-          - Runner38a_ValidateLoadedProfilesSelectionWithSearch_JAM
-          - Runner39_ValidateSelectAllWithFiltersFunctionality_JAM
-          - Runner39a_ValidateLoadedProfilesSelectionWithFilters_JAM
-          - Runner40_ValidateSelectAndPublishAllJobProfiles_JAM
-          - Runner41_ValidateApplicationPerformance_JAM_and_HCM
-          - Runner42_ClearProfileSelectionwithHeaderCheckbox_PM
-          - Runner43_ClearProfileSelectionwithNoneButton_PM
-          - Runner44_ClearProfileSelectionwithHeaderCheckbox_JAM
-          - Runner45_ClearProfileSelectionwithNoneButton_JAM
-          - Runner46_ValidateSelectionOfUnmappedJobs_JAM
-          - Runner47_ValidateSortingFunctionalityInHCMScreen_PM
       
       browser:
         description: 'Browser'
@@ -127,8 +53,8 @@ on:
           - dev
           - qa
           - stage
-          - prodeu
-          - produs
+          - prod-eu
+          - prod-us
       
       headless_mode:
         description: 'Run in Headless Mode'
@@ -193,7 +119,7 @@ env:
   # ═══════════════════════════════════════════════════════════════════
   SCHEDULED_TEST_SUITE: 'JAM_SmokeTestSuite.xml'    # Options: JAM_SanityTestSuite.xml, JAM_SmokeTestSuite.xml, JAM_RegressionTestSuite.xml
   SCHEDULED_BROWSER: 'chrome'                        # Options: chrome, firefox, edge
-  SCHEDULED_ENVIRONMENT: 'qa'                        # Options: dev, qa, stage, prodeu, produs
+  SCHEDULED_ENVIRONMENT: 'qa'                        # Options: dev, qa, stage, prod-eu, prod-us
   SCHEDULED_HEADLESS: 'true'                         # Options: true, false
   SCHEDULED_LOGIN_TYPE: 'NON_SSO'                    # Options: SSO, NON_SSO
   SCHEDULED_PAMS_ID: '23139'                         # Target PAMS ID for scheduled runs
@@ -201,7 +127,7 @@ env:
 
 jobs:
   e2e-tests:
-    name: 🧪 E2E Tests - ${{ github.event_name == 'schedule' && '⏰ Scheduled Run' || github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }} (${{ github.event.inputs.browser || 'chrome' }})
+    name: 🧪 E2E Tests - ${{ github.event_name == 'schedule' && '⏰ Scheduled Run' || github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }} (${{ github.event.inputs.browser || 'chrome' }})
     runs-on: ubuntu-latest
     
     strategy:
@@ -312,59 +238,59 @@ jobs:
       - name: ⚙️ Configure Test Environment
         working-directory: e2e-automation
         run: |
-          echo "🔧 Creating config.properties..."
+          echo "🔧 Configuring environment-specific settings..."
           
           # Get workflow inputs with defaults
           HEADLESS="${{ github.event.inputs.headless_mode || 'true' }}"
           BROWSER="${{ github.event.inputs.browser || 'chrome' }}"
-          ENVIRONMENT="${{ github.event.inputs.environment || 'Dev' }}"
+          ENVIRONMENT="${{ github.event.inputs.environment || 'qa' }}"
           LOGIN_TYPE="${{ github.event.inputs.login_type || 'NON_SSO' }}"
           PAMS_ID="${{ github.event.inputs.pams_id || '23139' }}"
           
-          # Create config.properties directly with all values
-          {
-            echo "# ============================================"
-            echo "# Job Mapping - Configuration Properties"
-            echo "# ============================================"
-            echo "# Generated by CI/CD workflow"
-            echo "# "
-            echo "# DATA-DRIVEN TESTING PRIORITY:"
-            echo "# 1. PRIMARY: TestData.xlsx (LoginData sheet with Execute=YES row)"
-            echo "# 2. FALLBACK: config.properties (this file)"
-            echo "# ============================================"
-            echo ""
-            echo "# Browser & Execution Settings"
-            echo "browser=${BROWSER}"
-            echo "headless.mode=${HEADLESS}"
-            echo "excel.reporting=true"
-            echo "allure.reporting=true"
-            echo "keep.system.awake=false"
-            echo ""
-            echo "# ========================================"
-            echo "# KFONE URLS (Used based on Environment from Excel)"
-            echo "# ========================================"
-            echo "KFONE_DevUrl=https://home.kornferrytalent-dev.com/"
-            echo "KFONE_QAUrl=https://home.kornferrytalent-qa.com/"
-            echo "KFONE_StageUrl=https://home.kornferrytalent-stage.com/"
-            echo "KFONE_ProdUSUrl=https://home.kornferrytalent.com/"
-            echo "KFONE_ProdEUUrl=https://home.kornferrytalent.eu/"
-            echo ""
-            echo "# ========================================"
-            echo "# FALLBACK VALUES (Used only if Excel fails)"
-            echo "# ========================================"
-            echo "Environment=${ENVIRONMENT}"
-            echo "login.type=${LOGIN_TYPE}"
-            echo "target.pams.id=${PAMS_ID}"
-            echo ""
-            echo "# Login Credentials (Fallback only)"
-            echo "# PRIMARY source: TestData.xlsx LoginData sheet (Execute=YES row)"
-            echo "SSO_Login_Username=${{ secrets.SSO_USERNAME }}"
-            echo "SSO_Login_Password=${{ secrets.SSO_PASSWORD }}"
-            echo "NON_SSO_Login_Username=${{ secrets.NON_SSO_USERNAME }}"
-            echo "NON_SSO_Login_Password=${{ secrets.NON_SSO_PASSWORD }}"
-          } > src/test/resources/config.properties
+          echo "════════════════════════════════════════"
+          echo "🌍 ENVIRONMENT CONFIGURATION"
+          echo "════════════════════════════════════════"
+          echo "Environment: ${ENVIRONMENT}"
+          echo "Browser: ${BROWSER}"
+          echo "Headless: ${HEADLESS}"
+          echo "Login Type: ${LOGIN_TYPE}"
+          echo "PAMS ID: ${PAMS_ID}"
+          echo "════════════════════════════════════════"
           
-          echo "✅ Configured: ${BROWSER} | ${ENVIRONMENT} | Headless: ${HEADLESS} | ${LOGIN_TYPE} | PAMS: ${PAMS_ID}"
+          # Inject secrets into environment-specific config file
+          ENV_FILE="src/test/resources/environments/${ENVIRONMENT}.properties"
+          
+          if [ -f "$ENV_FILE" ]; then
+            echo "✅ Found environment file: ${ENV_FILE}"
+            
+            # Update credentials from GitHub Secrets (more secure than hardcoding)
+            if [ -n "${{ secrets.SSO_USERNAME }}" ]; then
+              sed -i "s|^sso.username=.*|sso.username=${{ secrets.SSO_USERNAME }}|" "$ENV_FILE"
+              sed -i "s|^sso.password=.*|sso.password=${{ secrets.SSO_PASSWORD }}|" "$ENV_FILE"
+              echo "✅ SSO credentials injected from secrets"
+            fi
+            
+            if [ -n "${{ secrets.NON_SSO_USERNAME }}" ]; then
+              sed -i "s|^nonsso.username=.*|nonsso.username=${{ secrets.NON_SSO_USERNAME }}|" "$ENV_FILE"
+              sed -i "s|^nonsso.password=.*|nonsso.password=${{ secrets.NON_SSO_PASSWORD }}|" "$ENV_FILE"
+              echo "✅ NON-SSO credentials injected from secrets"
+            fi
+            
+            # Update login type if overridden
+            sed -i "s|^login.type=.*|login.type=${LOGIN_TYPE}|" "$ENV_FILE"
+            
+            # Update PAMS ID if provided
+            if [ -n "${PAMS_ID}" ]; then
+              sed -i "s|^pams.id=.*|pams.id=${PAMS_ID}|" "$ENV_FILE"
+            fi
+          else
+            echo "⚠️ Environment file not found: ${ENV_FILE}"
+            echo "Available environment files:"
+            ls -la src/test/resources/environments/ || echo "No environments directory found"
+          fi
+          
+          echo ""
+          echo "✅ Configuration complete: -Denv=${ENVIRONMENT}"
       
       - name: 🖥️ Setup Display for Headless (Linux)
         if: runner.os == 'Linux'
@@ -377,7 +303,7 @@ jobs:
           echo "✅ Virtual display configured (Xvfb on :99)"
       
       - name: 🔧 Configure Parallel Execution in Test Suite
-        if: github.event.inputs.execution_mode == 'test_suite' || github.event_name == 'schedule'
+        if: always()
         working-directory: e2e-automation
         run: |
           # Determine parallel execution setting
@@ -430,12 +356,11 @@ jobs:
         run: |
           # Record start time
           START_TIME=$(date +%s)
+          
           # Detect if this is a scheduled run or manual run
           if [ "${{ github.event_name }}" = "schedule" ]; then
             echo "⏰ SCHEDULED RUN DETECTED - Using scheduled configuration"
-            EXECUTION_MODE="test_suite"
             TEST_SUITE="${{ env.SCHEDULED_TEST_SUITE }}"
-            INDIVIDUAL_RUNNER=""
             BROWSER="${{ env.SCHEDULED_BROWSER }}"
             ENVIRONMENT="${{ env.SCHEDULED_ENVIRONMENT }}"
             HEADLESS="${{ env.SCHEDULED_HEADLESS }}"
@@ -444,9 +369,7 @@ jobs:
             PAMS_ID="${{ env.SCHEDULED_PAMS_ID }}"
           else
             echo "👤 MANUAL RUN DETECTED - Using workflow inputs"
-            EXECUTION_MODE="${{ github.event.inputs.execution_mode || 'test_suite' }}"
             TEST_SUITE="${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}"
-            INDIVIDUAL_RUNNER="${{ github.event.inputs.individual_runner || '' }}"
             BROWSER="${{ github.event.inputs.browser || 'chrome' }}"
             ENVIRONMENT="${{ github.event.inputs.environment || 'qa' }}"
             HEADLESS="${{ github.event.inputs.headless_mode || 'true' }}"
@@ -458,38 +381,22 @@ jobs:
           echo "════════════════════════════════════════"
           echo "🧪 E2E TEST EXECUTION"
           echo "════════════════════════════════════════"
-          if [ "${EXECUTION_MODE}" = "individual_runner" ]; then
-            echo "Mode: Individual Runner | ${INDIVIDUAL_RUNNER}"
-          else
-            echo "Mode: Test Suite | ${TEST_SUITE}"
-          fi
+          echo "Test Suite: ${TEST_SUITE}"
           echo "Config: ${BROWSER} | ${ENVIRONMENT} | Headless: ${HEADLESS} | Parallel: ${PARALLEL}"
           echo "════════════════════════════════════════"
           
-          # Build Maven command based on execution mode
-          if [ "${EXECUTION_MODE}" = "individual_runner" ]; then
-            # Run individual test runner
-            RUNNER_CLASS="testrunners.JobMapping.${INDIVIDUAL_RUNNER}"
-            echo "🏃 Running individual test runner: ${RUNNER_CLASS}"
-            # Force TestNG to generate XML results for Excel reporting
-            # Set TestNG output directory and ensure XML reports are generated
-            # Maven profiles will auto-detect and skip suiteXmlFiles when -Dtest is used
-            MVN_CMD="mvn test -Dtest=${RUNNER_CLASS} -Dtestng.outputdir=test-output"
-          else
-            # Run test suite XML
-            # Verify test suite file exists
-            if [ ! -f "${TEST_SUITE}" ]; then
-              echo "❌ ERROR: Test suite file not found: ${TEST_SUITE}"
-              echo "📂 Available suite files:"
-              ls -la *.xml || echo "No XML files found in current directory"
-              exit 1
-            fi
-            echo "✅ Test suite file found: ${TEST_SUITE}"
-            MVN_CMD="mvn test -DsuiteXmlFile=${TEST_SUITE}"
+          # Verify test suite file exists
+          if [ ! -f "${TEST_SUITE}" ]; then
+            echo "❌ ERROR: Test suite file not found: ${TEST_SUITE}"
+            echo "📂 Available suite files:"
+            ls -la *.xml || echo "No XML files found in current directory"
+            exit 1
           fi
+          echo "✅ Test suite file found: ${TEST_SUITE}"
+          MVN_CMD="mvn test -DsuiteXmlFile=${TEST_SUITE}"
           
-          # Add CI/CD override parameters (override Excel values)
-          MVN_CMD="${MVN_CMD} -DEnvironment=${ENVIRONMENT} -Dlogin.type=${LOGIN_TYPE} -Dtarget.pams.id=${PAMS_ID} -Dbrowser=${BROWSER} -Dheadless.mode=${HEADLESS}"
+          # Add CI/CD parameters (using environment-specific config files)
+          MVN_CMD="${MVN_CMD} -Denv=${ENVIRONMENT} -Dlogin.type=${LOGIN_TYPE} -Dpams.id=${PAMS_ID} -Dbrowser=${BROWSER} -Dheadless.mode=${HEADLESS}"
           
           # Add CI/CD specific Maven options
           MVN_CMD="${MVN_CMD} -Dmaven.test.failure.ignore=true -B"
@@ -614,7 +521,7 @@ jobs:
           fi
       
       - name: 🔄 Restore Original Test Suite XML
-        if: always() && (github.event.inputs.execution_mode == 'test_suite' || github.event_name == 'schedule')
+        if: always()
         working-directory: e2e-automation
         run: |
           # Determine which test suite was used
@@ -649,15 +556,7 @@ jobs:
             echo "**PAMS ID:** ${{ env.SCHEDULED_PAMS_ID }}" >> $GITHUB_STEP_SUMMARY
           else
             echo "**Trigger:** 👤 Manual Run" >> $GITHUB_STEP_SUMMARY
-            EXECUTION_MODE="${{ github.event.inputs.execution_mode || 'test_suite' }}"
-            echo "**Execution Mode:** ${EXECUTION_MODE}" >> $GITHUB_STEP_SUMMARY
-            
-            if [ "${EXECUTION_MODE}" = "individual_runner" ]; then
-              echo "**Runner:** ${{ github.event.inputs.individual_runner }}" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "**Test Suite:** ${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}" >> $GITHUB_STEP_SUMMARY
-            fi
-            
+            echo "**Test Suite:** ${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}" >> $GITHUB_STEP_SUMMARY
             echo "**Browser:** ${{ github.event.inputs.browser || 'chrome' }}" >> $GITHUB_STEP_SUMMARY
             echo "**Environment:** ${{ github.event.inputs.environment || 'qa' }}" >> $GITHUB_STEP_SUMMARY
             echo "**Headless Mode:** ${{ github.event.inputs.headless_mode || 'true' }}" >> $GITHUB_STEP_SUMMARY
@@ -761,7 +660,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
+          name: allure-report_${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}_${{ github.event.inputs.browser || 'chrome' }}_${{ github.event.inputs.environment || 'qa' }}_${{ github.run_number }}_${{ github.run_attempt }}
           path: e2e-automation/AllureReports/allure-report/
           retention-days: 30
           if-no-files-found: ignore
@@ -770,7 +669,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: testng-results_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
+          name: testng-results_${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}_${{ github.event.inputs.browser || 'chrome' }}_${{ github.event.inputs.environment || 'qa' }}_${{ github.run_number }}_${{ github.run_attempt }}
           path: |
             e2e-automation/test-output/testng-results.xml
             e2e-automation/test-output/emailable-report.html
@@ -794,7 +693,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: excel-reports_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
+          name: excel-reports_${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}_${{ github.event.inputs.browser || 'chrome' }}_${{ github.event.inputs.environment || 'qa' }}_${{ github.run_number }}_${{ github.run_attempt }}
           path: e2e-automation/ExcelReports/
           retention-days: 30
           if-no-files-found: ignore
@@ -803,7 +702,7 @@ jobs:
         if: failure() || contains(github.event.head_commit.message, 'force-screenshots')
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
+          name: screenshots_${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}_${{ github.event.inputs.browser || 'chrome' }}_${{ github.event.inputs.environment || 'qa' }}_${{ github.run_number }}_${{ github.run_attempt }}
           path: e2e-automation/Screenshots/
           retention-days: 7
           if-no-files-found: warn
@@ -812,7 +711,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: logs_${{ github.event.inputs.execution_mode == 'individual_runner' && github.event.inputs.individual_runner || github.event.inputs.test_suite }}_${{ github.event.inputs.browser }}_${{ github.event.inputs.environment }}_${{ github.run_number }}_${{ github.run_attempt }}
+          name: logs_${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}_${{ github.event.inputs.browser || 'chrome' }}_${{ github.event.inputs.environment || 'qa' }}_${{ github.run_number }}_${{ github.run_attempt }}
           path: e2e-automation/logs/
           retention-days: 7
           if-no-files-found: warn

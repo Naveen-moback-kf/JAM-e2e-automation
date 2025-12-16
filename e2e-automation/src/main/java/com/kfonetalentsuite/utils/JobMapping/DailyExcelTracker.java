@@ -26,7 +26,6 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.kfonetalentsuite.utils.common.CommonVariable;
-import com.kfonetalentsuite.utils.common.ExcelConfigProvider;
 
 public class DailyExcelTracker {
 
@@ -4825,18 +4824,13 @@ public class DailyExcelTracker {
 			return lastKnownUsername;
 		}
 
-		// Fallback 2: Try to get from Excel login data (only if PO01_KFoneLogin doesn't have it)
-		try {
-			Map<String, String> login = ExcelConfigProvider.getDefaultLogin();
-			if (login != null) {
-				String excelUsername = login.get("Username");
-				if (excelUsername != null && !excelUsername.trim().isEmpty()) {
-					LOGGER.debug("Using username from Excel (PO01_KFoneLogin not available): {}", excelUsername);
-					return excelUsername.trim();
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.debug("Could not get username from Excel: {}", e.getMessage());
+		// Fallback 2: Try to get from CommonVariable (environment config)
+		String configUsername = "SSO".equalsIgnoreCase(CommonVariable.LOGIN_TYPE) 
+				? CommonVariable.SSO_USERNAME 
+				: CommonVariable.NON_SSO_USERNAME;
+		if (configUsername != null && !configUsername.trim().isEmpty()) {
+			LOGGER.debug("Using username from environment config: {}", configUsername);
+			return configUsername.trim();
 		}
 
 		// Fallback 3: Try to get from system properties or environment
