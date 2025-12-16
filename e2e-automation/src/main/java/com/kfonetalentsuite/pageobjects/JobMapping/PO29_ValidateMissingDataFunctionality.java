@@ -402,8 +402,9 @@ public class PO29_ValidateMissingDataFunctionality extends BasePageObject {
 
 				// Search through current batch (start from where we left off)
 				for (int i = totalRowsChecked; i < jobRows.size() && !profileFound; i++) {
+				totalRowsChecked++; // Increment at start to stay in sync regardless of continue/break
 				try {
-					WebElement row = driver.findElements(JOB_ROWS_IN_JOB_MAPPING_PAGE).get(i);
+					WebElement row = jobRows.get(i);
 					List<WebElement> cells = row.findElements(By.tagName("td"));
 					
 					LOGGER.debug("Row {}: {} cells found", i, cells.size());
@@ -504,9 +505,7 @@ public class PO29_ValidateMissingDataFunctionality extends BasePageObject {
 						profileFound = true;
 						break;
 					}
-					totalRowsChecked++;
 				} catch (Exception rowEx) {
-					totalRowsChecked++;
 					continue;
 				}
 			}
@@ -669,6 +668,7 @@ public class PO29_ValidateMissingDataFunctionality extends BasePageObject {
 
 				// Search through current batch (start from where we left off)
 				for (int i = totalRowsChecked; i < jobRows.size() && !profileFound; i++) {
+					totalRowsChecked++; // Increment at start to stay in sync regardless of continue/break
 					try {
 						WebElement row = jobRows.get(i);
 						List<WebElement> cells = row.findElements(By.tagName("td"));
@@ -707,9 +707,7 @@ public class PO29_ValidateMissingDataFunctionality extends BasePageObject {
 							}
 						}
 					}
-					totalRowsChecked++;
 				} catch (Exception rowEx) {
-					totalRowsChecked++;
 					continue;
 				}
 			}
