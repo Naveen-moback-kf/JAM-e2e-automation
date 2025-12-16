@@ -41,10 +41,7 @@ public class PageObjectManager {
 	public PO39_ValidateSelectAllWithFiltersFunctionality_JAM validateSelectAllWithFiltersFunctionality_JAM;
 	public PO40_ValidateSelectAndPublishAllJobProfilesinJAM validateSelectAndPublishAllJobProfilesinJAM;
 	public PO41_ValidateApplicationPerformance_JAM_and_HCM validateApplicationPerformance_JAM_and_HCM;
-	public PO42_ClearProfileSelectionwithHeaderCheckbox_PM clearProfileSelectionwithHeaderCheckbox_PM;
-	public PO43_ClearProfileSelectionwithNoneButton_PM clearProfileSelectionwithNoneButton_PM;
-	public PO44_ClearProfileSelectionwithHeaderCheckbox_JAM clearProfileSelectionwithHeaderCheckbox_JAM;
-	public PO45_ClearProfileSelectionwithNoneButton_JAM clearProfileSelectionwithNoneButton_JAM;
+	public PO42_ClearProfileSelectionFunctionality clearProfileSelectionFunctionality;
 	public PO46_ValidateSelectionOfUnmappedJobs_JAM validateSelectionOfUnmappedJobs_JAM;
 	public PO47_ValidateSortingFunctionalityInHCMScreen_PM validateSortingFunctionalityInHCMScreen_PM;
 	public PO48_ValidateReuploadMissingDataProfiles validateReuploadMissingDataProfiles;
@@ -307,35 +304,11 @@ public class PageObjectManager {
 		return validateApplicationPerformance_JAM_and_HCM;
 	}
 
-	public PO42_ClearProfileSelectionwithHeaderCheckbox_PM getClearProfileSelectionwithHeaderCheckbox_PM()
-			throws IOException {
-		if (clearProfileSelectionwithHeaderCheckbox_PM == null) {
-			clearProfileSelectionwithHeaderCheckbox_PM = new PO42_ClearProfileSelectionwithHeaderCheckbox_PM();
+	public PO42_ClearProfileSelectionFunctionality getClearProfileSelectionFunctionality() throws IOException {
+		if (clearProfileSelectionFunctionality == null) {
+			clearProfileSelectionFunctionality = new PO42_ClearProfileSelectionFunctionality();
 		}
-		return clearProfileSelectionwithHeaderCheckbox_PM;
-	}
-
-	public PO43_ClearProfileSelectionwithNoneButton_PM getClearProfileSelectionwithNoneButton_PM() throws IOException {
-		if (clearProfileSelectionwithNoneButton_PM == null) {
-			clearProfileSelectionwithNoneButton_PM = new PO43_ClearProfileSelectionwithNoneButton_PM();
-		}
-		return clearProfileSelectionwithNoneButton_PM;
-	}
-
-	public PO44_ClearProfileSelectionwithHeaderCheckbox_JAM getClearProfileSelectionwithHeaderCheckbox_JAM()
-			throws IOException {
-		if (clearProfileSelectionwithHeaderCheckbox_JAM == null) {
-			clearProfileSelectionwithHeaderCheckbox_JAM = new PO44_ClearProfileSelectionwithHeaderCheckbox_JAM();
-		}
-		return clearProfileSelectionwithHeaderCheckbox_JAM;
-	}
-
-	public PO45_ClearProfileSelectionwithNoneButton_JAM getClearProfileSelectionwithNoneButton_JAM()
-			throws IOException {
-		if (clearProfileSelectionwithNoneButton_JAM == null) {
-			clearProfileSelectionwithNoneButton_JAM = new PO45_ClearProfileSelectionwithNoneButton_JAM();
-		}
-		return clearProfileSelectionwithNoneButton_JAM;
+		return clearProfileSelectionFunctionality;
 	}
 
 	public PO46_ValidateSelectionOfUnmappedJobs_JAM getValidateSelectionOfUnmappedJobs_JAM() throws IOException {
@@ -426,10 +399,7 @@ public class PageObjectManager {
 
 		// Performance & Utility Page Objects (PO41-PO47)
 		validateApplicationPerformance_JAM_and_HCM = null;
-		clearProfileSelectionwithHeaderCheckbox_PM = null;
-		clearProfileSelectionwithNoneButton_PM = null;
-		clearProfileSelectionwithHeaderCheckbox_JAM = null;
-		clearProfileSelectionwithNoneButton_JAM = null;
+		clearProfileSelectionFunctionality = null;
 		validateSelectionOfUnmappedJobs_JAM = null;
 		validateSortingFunctionalityInHCMScreen_PM = null;
 		validateReuploadMissingDataProfiles = null;

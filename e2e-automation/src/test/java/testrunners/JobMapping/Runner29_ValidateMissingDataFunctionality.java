@@ -13,16 +13,6 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.cucumber.testng.CucumberOptions;
 
-/**
- * Missing Data Validation Runner
- * 
- * Run specific data types using tags:
- * - @Missing_GRADE_Data - Test Grade missing data only
- * - @Missing_DEPARTMENT_Data - Test Department missing data only
- * - @Missing_FUNCTION_Data - Test Function missing data only
- * - @Missing_SUBFUNCTION_Data - Test Subfunction missing data only
- * - @Validate_Jobs_With_Missing_Data_In_JobMapping - Run all missing data tests
- */
 @Listeners({
 	ExcelReportListener.class,
 	AllureTestNg.class

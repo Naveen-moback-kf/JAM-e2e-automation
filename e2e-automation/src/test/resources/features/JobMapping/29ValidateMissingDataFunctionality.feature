@@ -1,27 +1,10 @@
 @Validate_Jobs_With_Missing_Data_In_JobMapping
 Feature: Validate Jobs with Missing Data in Job Mapping UI
-  # This feature tests validation of jobs with missing data:
-  # - Grade, Department, Function, Subfunction
-  #
-  # Run specific data type using tags:
-  # - @Missing_GRADE_Data - Test Grade missing data only
-  # - @Missing_DEPARTMENT_Data - Test Department missing data only
-  # - @Missing_FUNCTION_Data - Test Function missing data only
-  # - @Missing_SUBFUNCTION_Data - Test Subfunction missing data only
-
-  # ═══════════════════════════════════════════════════════════════════
-  # NAVIGATION - Required first scenario
-  # ═══════════════════════════════════════════════════════════════════
 
   @Navigate_To_Job_Mapping
   Scenario: Navigate to Job Mapping page
     Then Navigate to Job Mapping page from KFONE Global Menu in PM
     Then User should verify Job Mapping logo is displayed on screen
-
-  # ═══════════════════════════════════════════════════════════════════
-  # FORWARD FLOW - Find job in Job Mapping → Validate in Missing Data screen
-  # Parameterized for all data types
-  # ═══════════════════════════════════════════════════════════════════
 
   @Forward_Validate_Missing_Data_Flow
   Scenario Outline: Forward Flow - Find job with missing <DataType> in Job Mapping, then validate in Missing Data screen
@@ -60,11 +43,6 @@ Feature: Validate Jobs with Missing Data in Job Mapping UI
     Examples:
       | DataType    | SortColumn         |
       | Subfunction | Organization Grade |
-
-  # ═══════════════════════════════════════════════════════════════════
-  # REVERSE FLOW - Missing Data screen → Validate in Job Mapping
-  # Parameterized for all data types
-  # ═══════════════════════════════════════════════════════════════════
 
   @Reverse_Validate_Missing_Data_Flow
   Scenario Outline: Reverse Flow - Validate jobs with missing <DataType> data from Missing Data screen to Job Mapping

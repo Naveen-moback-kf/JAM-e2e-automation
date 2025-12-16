@@ -13,6 +13,18 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.cucumber.testng.CucumberOptions;
 
+/**
+ * Clear Profile Selection Functionality Runner
+ * 
+ * Run specific combinations using tags:
+ * - @Clear_Profile_Selection - Run all clear selection tests
+ * - @Clear_PM - Run PM (HCM Sync Profiles) tests only
+ * - @Clear_JAM - Run JAM (Job Mapping) tests only
+ * - @Clear_PM_HeaderCheckbox - PM with Header Checkbox
+ * - @Clear_PM_NoneButton - PM with None Button
+ * - @Clear_JAM_HeaderCheckbox - JAM with Header Checkbox
+ * - @Clear_JAM_NoneButton - JAM with None Button
+ */
 @Listeners({
 	ExcelReportListener.class,
 	AllureTestNg.class
@@ -21,9 +33,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature",
-			"src/test/resources/features/JobMapping/45ClearProfileSelectionwithNoneButton_JAM.feature"
+			"src/test/resources/features/JobMapping/42ClearProfileSelectionFunctionality.feature"
 		},
-		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Clear_Profile_Selection_With_None_Button_JAM",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Clear_Profile_Selection",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {
@@ -33,12 +45,12 @@ import io.cucumber.testng.CucumberOptions;
 		}
 		)
 
-public class Runner45_ClearProfileSelectionwithNoneButton_JAM extends CustomizeTestNGCucumberRunner {
+public class Runner42_ClearProfileSelectionFunctionality extends CustomizeTestNGCucumberRunner {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Clear_Profile_Selection_With_None_Button_JAM";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Clear_Profile_Selection";
 	}
 	
 	@Override
@@ -48,10 +60,9 @@ public class Runner45_ClearProfileSelectionwithNoneButton_JAM extends CustomizeT
 
 	@AfterTest
 	public void after_test() {
-		LOGGER.info("Successfully completed validation of Clear Profile Selection with None Button in Job Mapping screen");
+		LOGGER.info("Successfully completed Clear Profile Selection Functionality validation");
 		LOGGER.info("Login Type Used: " + DynamicTagResolver.getCurrentLoginType());
 		DriverManager.closeBrowser();
 	}
-
 }
 

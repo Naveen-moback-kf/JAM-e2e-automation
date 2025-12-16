@@ -142,15 +142,11 @@ public class SuiteHooks implements ISuiteListener {
 			PO40_ValidateSelectAndPublishAllJobProfilesinJAM.selectedProfilesCount.remove();
 			cleanedCount += 8;
 
-			// PO42 - Clear Profile Selection with Header Checkbox (PM)
-			PO42_ClearProfileSelectionwithHeaderCheckbox_PM.loadedProfilesBeforeUncheck.remove();
-			PO42_ClearProfileSelectionwithHeaderCheckbox_PM.selectedProfilesBeforeUncheck.remove();
-			cleanedCount += 2;
-
-			// PO44 - Clear Profile Selection with Header Checkbox (JAM)
-			PO44_ClearProfileSelectionwithHeaderCheckbox_JAM.loadedProfilesBeforeUncheck.remove();
-			PO44_ClearProfileSelectionwithHeaderCheckbox_JAM.selectedProfilesBeforeUncheck.remove();
-			cleanedCount += 2;
+			// PO42 - Clear Profile Selection Functionality (Consolidated PM/JAM)
+			PO42_ClearProfileSelectionFunctionality.loadedProfilesBeforeUncheck.remove();
+			PO42_ClearProfileSelectionFunctionality.selectedProfilesBeforeUncheck.remove();
+			PO42_ClearProfileSelectionFunctionality.currentScreen.remove();
+			cleanedCount += 3;
 
 			// PO46 - Selection of Unmapped Jobs (JAM)
 			PO46_ValidateSelectionOfUnmappedJobs_JAM.skipScenario.remove();
