@@ -201,6 +201,8 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_TITLE))).isDisplayed();
 			PageObjectHelper.log(LOGGER, "User navigated to HCM Sync Profiles screen in Profile Manager");
+			// Wait for background API (~100K records) to complete
+			waitForBackgroundDataLoad();
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_hcm_sync_profiles_screen",
 					"Issue navigating to HCM Sync Profiles screen", e);

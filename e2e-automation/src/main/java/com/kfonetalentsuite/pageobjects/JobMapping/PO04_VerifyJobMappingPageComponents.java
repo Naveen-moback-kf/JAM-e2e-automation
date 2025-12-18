@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
@@ -25,7 +26,7 @@ public class PO04_VerifyJobMappingPageComponents extends BasePageObject {
 	static String expectedPageTitle = "Korn Ferry Digital";
 	static String expectedTitleHeader = "Review and Publish Your Matched Job Profiles";
 
-	public static String[] SEARCH_SUBSTRING_OPTIONS = { "Ac", "Ma", "An", "Sa", "En", "Ad", "As", "Co", "Te", "Di" };
+	public static String[] SEARCH_SUBSTRING_OPTIONS = { "An", "Ma", "Ac", "Sa", "En", "Ad", "As", "Co", "Te", "Di" };
 
 	public static ThreadLocal<String> jobnamesubstring = ThreadLocal.withInitial(() -> "Ac");
 	public static ThreadLocal<String> orgJobNameInRow1 = ThreadLocal.withInitial(() -> "NOT_SET");
@@ -155,7 +156,7 @@ public class PO04_VerifyJobMappingPageComponents extends BasePageObject {
 			if (!finalUrl.contains("job-mapping")) {
 				throw new RuntimeException("Navigation failed. Expected job-mapping URL but got: " + finalUrl);
 			}
-
+			waitForBackgroundDataLoad();
 			PageObjectHelper.log(LOGGER, "Successfully Navigated to Job Mapping screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "navigate_to_job_mapping_page_from_kfone_global_menu_in_pm",
@@ -174,10 +175,11 @@ public class PO04_VerifyJobMappingPageComponents extends BasePageObject {
 	}
 
 	public void user_is_in_job_mapping_page() throws InterruptedException {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		
+		PerformanceUtils.waitForPageReady(driver, 5);
 		PageObjectHelper.log(LOGGER, "User is in JOB MAPPING page");
 	}
-
+	
 	public void verify_title_header_is_correctly_displaying() throws InterruptedException {
 		try {
 			String actualTitleHeader = wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(PAGE_TITLE_HEADER))).getText();
@@ -221,25 +223,47 @@ public class PO04_VerifyJobMappingPageComponents extends BasePageObject {
 	public void enter_job_name_substring_in_search_bar() {
 		boolean foundResults = false;
 		String selectedSubstring = SEARCH_SUBSTRING_OPTIONS[0];
+		// Use specific JAM search bar locator for reliability
+		By jamSearchBar = By.xpath("//input[@id='search-job-title-input-search-input']");
 
 		try {
 			PageObjectHelper.log(LOGGER, "Searching with dynamic substring (with fallback retry until results found)...");
 
 			for (String substring : SEARCH_SUBSTRING_OPTIONS) {
 				try {
-					WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR);
-					searchBar.clear();
+					// Wait for search bar to be ready
+					WebElement searchBar = wait.until(ExpectedConditions.elementToBeClickable(jamSearchBar));
+					
+					// Scroll to search bar to ensure visibility
+					((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", searchBar);
+					safeSleep(300);
+					
+					// Click to focus
+					searchBar.click();
+					safeSleep(200);
+					
+					// Clear using keyboard (more reliable than .clear())
+					searchBar.sendKeys(Keys.CONTROL + "a");
+					searchBar.sendKeys(Keys.DELETE);
+					safeSleep(200);
+					
+					// Enter search text
 					searchBar.sendKeys(substring);
+					safeSleep(300);
 					searchBar.sendKeys(Keys.ENTER);
-					waitForSpinners();
-					PerformanceUtils.waitForPageReady(driver, 2);
+					
+					// Wait for search to complete
+					PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
+					PerformanceUtils.waitForPageReady(driver, 3);
+					safeSleep(1500); // Allow results to fully render
 
 					String resultsCountText = "";
 					int retries = 0;
-					while (retries < 10) {
-						Thread.sleep(300);
+					while (retries < 15) {
+						safeSleep(500);
 						try {
 							resultsCountText = driver.findElement(SHOWING_RESULTS_COUNT).getText().trim();
+							LOGGER.debug("Search '{}' attempt {}: {}", substring, retries + 1, resultsCountText);
 							if (resultsCountText.contains("Showing") && !resultsCountText.startsWith("Showing 0")) {
 								break;
 							}
@@ -255,14 +279,21 @@ public class PO04_VerifyJobMappingPageComponents extends BasePageObject {
 						foundResults = true;
 						PageObjectHelper.log(LOGGER, "Search successful with substring '" + substring + "' - " + resultsCountText);
 						break;
+					} else {
+						LOGGER.debug("No results for '{}', trying next substring...", substring);
 					}
 				} catch (Exception e) {
-					// Continue to next substring
+					LOGGER.debug("Error searching with '{}': {}", substring, e.getMessage());
 				}
 			}
 
 			if (!foundResults) {
+				// Set the substring anyway for downstream methods
+				jobnamesubstring.set(selectedSubstring);
 				PageObjectHelper.log(LOGGER, "No search substring returned results. Using: '" + selectedSubstring + "'");
+				// Final wait to ensure page is stable
+				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+				PerformanceUtils.waitForPageReady(driver, 2);
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "enter_job_name_substring_in_search_bar", "Failed to enter job name substring", e);

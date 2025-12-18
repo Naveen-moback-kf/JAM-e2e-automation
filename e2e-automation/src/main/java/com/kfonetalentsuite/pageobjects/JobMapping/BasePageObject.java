@@ -1073,5 +1073,69 @@ public class BasePageObject {
 	protected boolean shouldSkipInSortValidation(String value) {
 		return isMissingData(value);
 	}
+
+	/**
+	 * Waits for the background API that loads ~100K job records.
+	 * Monitors network activity to detect when API completes.
+	 * Should be called after navigating to Job Mapping or HCM Sync Profiles screens.
+	 */
+	protected void waitForBackgroundDataLoad() {
+		try {
+			LOGGER.debug("Waiting for background data API to complete...");
+			
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			
+			// Inject script to monitor XHR/fetch requests
+			js.executeScript(
+				"if (!window._pendingRequests) {" +
+				"  window._pendingRequests = 0;" +
+				"  window._dataApiComplete = false;" +
+				"  var origOpen = XMLHttpRequest.prototype.open;" +
+				"  XMLHttpRequest.prototype.open = function() {" +
+				"    window._pendingRequests++;" +
+				"    this.addEventListener('load', function() { " +
+				"      window._pendingRequests--;" +
+				"      if (this.responseURL && this.responseURL.includes('limit=100000')) {" +
+				"        window._dataApiComplete = true;" +
+				"      }" +
+				"    });" +
+				"    this.addEventListener('error', function() { window._pendingRequests--; });" +
+				"    origOpen.apply(this, arguments);" +
+				"  };" +
+				"}"
+			);
+			
+			// Wait for the 100K API to complete (max 120 seconds)
+			int maxWaitSeconds = 120;
+			int waited = 0;
+			
+			while (waited < maxWaitSeconds) {
+				safeSleep(2000);
+				waited += 2;
+				
+				// Check if the 100K API has completed
+				Boolean apiComplete = (Boolean) js.executeScript("return window._dataApiComplete === true;");
+				
+				if (Boolean.TRUE.equals(apiComplete)) {
+					LOGGER.debug("Background data API completed after {} seconds", waited);
+					safeSleep(500); // Small buffer after API completes
+					return;
+				}
+				
+				// Log progress every 20 seconds
+				if (waited % 20 == 0) {
+					Long pending = (Long) js.executeScript("return window._pendingRequests || 0;");
+					LOGGER.debug("Waiting for data API... {}s elapsed, {} pending requests", waited, pending);
+				}
+			}
+			
+			LOGGER.debug("Data API wait timeout after {} seconds", maxWaitSeconds);
+			
+		} catch (Exception e) {
+			LOGGER.debug("Error monitoring API: {}. Using fallback wait.", e.getMessage());
+			// Fallback: simple fixed wait
+			safeSleep(15000);
+		}
+	}
 }
 

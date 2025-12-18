@@ -239,6 +239,8 @@ public class PO06_PublishJobProfile extends BasePageObject {
 			PerformanceUtils.waitForPageReady(driver, 5);
 			Assert.assertEquals("HCM Sync Profiles", getElementText(HCM_SYNC_HEADER));
 			PageObjectHelper.log(LOGGER, "Navigated to HCM Sync Profiles screen in PM");
+			// Wait for background API (~100K records) to complete
+			waitForBackgroundDataLoad();
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_navigate_to_hcm_sync_profiles_tab_in_pm", "Issue navigating to HCM Sync Profiles screen", e);
 		}

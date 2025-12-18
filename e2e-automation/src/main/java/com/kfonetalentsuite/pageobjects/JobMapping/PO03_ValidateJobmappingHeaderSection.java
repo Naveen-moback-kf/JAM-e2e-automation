@@ -83,6 +83,8 @@ public class PO03_ValidateJobmappingHeaderSection extends BasePageObject {
 
 				waitForSpinners();
 				PerformanceUtils.waitForPageReady(driver, 2);
+				// Wait for background API (~100K records) to complete
+				waitForBackgroundDataLoad();
 				PageObjectHelper.log(LOGGER, "Successfully Navigated to Job Mapping screen");
 
 			} catch (Exception e) {

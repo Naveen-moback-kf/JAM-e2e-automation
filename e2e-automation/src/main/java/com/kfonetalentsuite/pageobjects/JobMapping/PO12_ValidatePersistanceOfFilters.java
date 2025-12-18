@@ -27,8 +27,10 @@ public class PO12_ValidatePersistanceOfFilters extends BasePageObject {
 		try {
 			refreshPage();
 			PerformanceUtils.waitForPageReady(driver, 2);
+			// Wait for background API (~100K records) to complete after refresh
+			waitForBackgroundDataLoad();
 			scrollToTop();
-			Thread.sleep(800);
+			safeSleep(800);
 			PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "refresh_job_mapping_page", "Issue refreshing Job Mapping page", e);
