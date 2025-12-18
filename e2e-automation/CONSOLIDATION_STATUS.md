@@ -38,13 +38,13 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 
 | Before (4 separate files) | After (1 consolidated file) |
 |--------------------------|----------------------------|
-| 42ClearProfileSelectionwithHeaderCheckbox_PM.feature | 42ClearProfileSelectionFunctionality.feature |
+| 42ClearProfileSelectionwithHeaderCheckbox_PM.feature | 42_ClearProfileSelectionFunctionality.feature |
 | 43ClearProfileSelectionwithNoneButton_PM.feature | |
 | 44ClearProfileSelectionwithHeaderCheckbox_JAM.feature | |
 | 45ClearProfileSelectionwithNoneButton_JAM.feature | |
 
 **Files Created:**
-- `42ClearProfileSelectionFunctionality.feature` - Parameterized with `<screen>` (PM/JAM) and `<method>` (HeaderCheckbox/NoneButton)
+- `42_ClearProfileSelectionFunctionality.feature` - Parameterized with `<screen>` (PM/JAM) and `<method>` (HeaderCheckbox/NoneButton)
 - `PO42_ClearProfileSelectionFunctionality.java` - Unified Page Object
 - `SD42_ClearProfileSelectionFunctionality.java` - Step Definitions
 - `Runner42_ClearProfileSelectionFunctionality.java`
@@ -58,7 +58,88 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 
 ---
 
-### 3. Filters Functionality (Feature #11)
+### 3. Select All with Search (Feature #35)
+**Consolidated:** December 18, 2024
+
+| Before (4 separate files) | After (consolidated files) |
+|--------------------------|----------------------------|
+| 35ValidateSelectAllWithSearchFunctionality_PM.feature | 35SelectAllWithSearchFunctionality_PM.feature |
+| 35aValidateLoadedProfilesSelectionWithSearch_PM.feature | 35SelectAllWithSearchFunctionality_JAM.feature |
+| 38ValidateSelectAllWithSearchFunctionality_JAM.feature | |
+| 38aValidateLoadedProfilesSelectionWithSearch_JAM.feature | |
+
+**Files Created:**
+- `35SelectAllWithSearchFunctionality_PM.feature` - PM scenarios (Select All, Alternative Validation, Sync, History, Loaded Profiles)
+- `35SelectAllWithSearchFunctionality_JAM.feature` - JAM scenarios (Select All, Alternative Validation, Loaded Profiles)
+- `PO35_SelectAllWithSearchFunctionality.java` - Unified Page Object for both PM and JAM
+- `SD35_SelectAllWithSearchFunctionality.java` - Step Definitions with parameterized `{string} screen`
+- `Runner35_SelectAllWithSearchFunctionality_PM.java`
+- `Runner35_SelectAllWithSearchFunctionality_JAM.java`
+- `CrossBrowser35_SelectAllWithSearchFunctionalityRunner.java`
+
+**Key Features:**
+- Screen parameter (PM/JAM) for all methods
+- Full page scroll (`window.scrollTo`) for proper lazy loading
+- 100K API background data load wait support
+- Different scroll wait times: JAM (500ms), PM (1500ms)
+- Profiles per scroll: JAM (~10), PM (~50)
+- JavaScript-based checkbox counting for performance
+- Alternative validation with second search substring
+- Clear search bar with stale element handling
+
+**Files Deleted:**
+- `PO35_ValidateSelectAllWithSearchFunctionality_PM.java`
+- `PO38_ValidateSelectAllWithSearchFunctionality_JAM.java`
+- `SD35_ValidateSelectAllWithSearchFunctionality_PM.java`
+- `SD38_ValidateSelectAllWithSearchFunctionality_JAM.java`
+- Runner35, Runner35a, Runner38, Runner38a
+- Old feature files (35Validate, 35a, 38Validate, 38a)
+
+---
+
+### 4. Select All with Filters (Feature #36)
+**Consolidated:** December 18, 2024
+
+| Before (4 separate files) | After (consolidated files) |
+|--------------------------|----------------------------|
+| 36ValidateSelectAllWithFiltersFunctionality_PM.feature | 36_SelectAllWithFiltersFunctionality_PM.feature |
+| 36aValidateLoadedProfilesSelectionWithFilters_PM.feature | 36_SelectAllWithFiltersFunctionality_JAM.feature |
+| 39ValidateSelectAllWithFiltersFunctionality_JAM.feature | |
+| 39aValidateLoadedProfilesSelectionWithFilters_JAM.feature | |
+
+**Files Created:**
+- `36_SelectAllWithFiltersFunctionality_PM.feature` - PM scenarios (Select All with Filters, Alternative Filter, Sync, History, Loaded Profiles)
+- `36_SelectAllWithFiltersFunctionality_JAM.feature` - JAM scenarios (Select All with Filters, Alternative Filter, Publish, History, Loaded Profiles)
+- `PO36_SelectAllWithFiltersFunctionality.java` - Unified Page Object for both PM and JAM (filter-specific methods only)
+- `SD36_SelectAllWithFiltersFunctionality.java` - Step Definitions (filter-specific steps only, reuses SD35 common steps)
+- `Runner36_SelectAllWithFiltersFunctionality_PM.java`
+- `Runner36_SelectAllWithFiltersFunctionality_JAM.java`
+
+**Key Features:**
+- Screen parameter (PM/JAM) for all methods
+- PM Filters: KF Grade, Levels
+- JAM Filters: Grades, Departments
+- **Reuses SD35 step definitions** for common operations (chevron, select all, header checkbox, scroll, verify, capture baseline)
+- **Reuses SD42 step definition** for action button verification
+- Filter-specific: apply filter, clear filters, validate filtered results, alternative filter validation
+- JavaScript-based checkbox counting inherited from BasePageObject
+
+**Files Deleted:**
+- `PO36_ValidateSelectAllWithFiltersFunctionality_PM.java`
+- `PO39_ValidateSelectAllWithFiltersFunctionality_JAM.java`
+- `SD36_ValidateSelectAllWithFiltersFunctionality_PM.java`
+- `SD39_ValidateSelectAllWithFiltersFunctionality_JAM.java`
+- Runner36_Validate, Runner36a, Runner39_Validate, Runner39a
+- Old feature files (36Validate, 36a, 39Validate, 39a)
+
+**Code Reuse Optimization:**
+- SD36 reduced from 16 steps to 9 steps (removed 7 duplicate steps)
+- PO36 reduced from 16 methods to 9 methods (removed 7 duplicate methods)
+- Common locators and helpers moved to `BasePageObject`
+
+---
+
+### 5. Filters Functionality (Feature #11)
 **Consolidated:** Earlier
 
 | Before (multiple filter files) | After (1 consolidated file) |
@@ -69,35 +150,7 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 
 ## 🎯 High Priority - Recommended Next Consolidations
 
-### 1. Select All with Search (PM + JAM) → Could become Feature #35
-**Current Files (4):**
-- `35ValidateSelectAllWithSearchFunctionality_PM.feature`
-- `35aValidateLoadedProfilesSelectionWithSearch_PM.feature`
-- `38ValidateSelectAllWithSearchFunctionality_JAM.feature`
-- `38aValidateLoadedProfilesSelectionWithSearch_JAM.feature`
-
-**Consolidation Strategy:**
-- Parameterize by `<screen>` (PM/JAM)
-- Combine "Select All" and "Loaded Profiles" scenarios
-- Estimated reduction: 4 files → 1 file
-
----
-
-### 2. Select All with Filters (PM + JAM) → Could become Feature #36
-**Current Files (4):**
-- `36ValidateSelectAllWithFiltersFunctionality_PM.feature`
-- `36aValidateLoadedProfilesSelectionWithFilters_PM.feature`
-- `39ValidateSelectAllWithFiltersFunctionality_JAM.feature`
-- `39aValidateLoadedProfilesSelectionWithFilters_JAM.feature`
-
-**Consolidation Strategy:**
-- Parameterize by `<screen>` (PM/JAM)
-- Combine "Select All" and "Loaded Profiles" scenarios
-- Estimated reduction: 4 files → 1 file
-
----
-
-### 3. Select and Sync/Publish (PM + JAM) → Could become Feature #33
+### 1. Select and Sync/Publish (PM + JAM) → Could become Feature #33
 **Current Files (4):**
 - `33ValidateSelectAndHCMSyncLoadedProfiles_PM.feature`
 - `34ValidateSelectAndSyncAllProfiles_PM.feature`
@@ -113,7 +166,7 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 
 ## 📋 Medium Priority Consolidations
 
-### 4. Publish Job from Different Screens → Could become Feature #06
+### 3. Publish Job from Different Screens → Could become Feature #06
 **Current Files (4):**
 - `06PublishJobProfile.feature`
 - `07PublishJobFromComparisonScreen.feature`
@@ -126,7 +179,7 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 
 ---
 
-### 5. Filter Persistence (Basic + Advanced) → Could become Feature #12
+### 4. Filter Persistence (Basic + Advanced) → Could become Feature #12
 **Current Files (2):**
 - `12aValidateBasicFilterPersistence.feature`
 - `12bValidateAdvancedFilterPersistence.feature`
@@ -137,7 +190,7 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 
 ---
 
-### 6. Sorting Persistence (Basic + Advanced) → Could become Feature #18
+### 5. Sorting Persistence (Basic + Advanced) → Could become Feature #18
 **Current Files (2):**
 - `18aValidateBasicSortingPersistence.feature`
 - `18bValidateAdvancedSortingPersistence.feature`
@@ -150,7 +203,7 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 
 ## 📝 Low Priority / Future Consolidations
 
-### 7. Info Messages for Various Scenarios
+### 6. Info Messages for Various Scenarios
 **Current Files (3):**
 - `26VerifyJobsMissingDataTipMessage.feature`
 - `27VerifyInfoMessageForMissingDataProfiles.feature`
@@ -168,14 +221,15 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 |--------|---------------|--------------|-------------|-----------|
 | ✅ Done | Missing Data (29-32) | 16 | 5 | 11 files |
 | ✅ Done | Clear Selection (42-45) | 16 | 5 | 11 files |
+| ✅ Done | Search Selection (35,38) | 12 | 7 | 5 files |
+| ✅ Done | Filter Selection (36,39) | 12 | 6 | 6 files |
 | ✅ Done | Filters (11) | Multiple | 5 | ~10 files |
-| 🎯 Next | Search Selection (35,38) | 16 | 5 | 11 files |
-| 🎯 Next | Filter Selection (36,39) | 16 | 5 | 11 files |
 | 🎯 Next | Sync/Publish (33,34,37,40) | 16 | 5 | 11 files |
 | 📋 Medium | Publish Sources (06-09) | 16 | 5 | 11 files |
 | 📋 Medium | Filter Persistence (12a,12b) | 8 | 5 | 3 files |
 | 📋 Medium | Sort Persistence (18a,18b) | 8 | 5 | 3 files |
 
+**Total Files Reduced So Far:** ~43 files
 **Total Potential Reduction:** ~70+ files
 
 ---
@@ -201,8 +255,10 @@ When consolidating, ensure:
 |------|--------------|---------------|-------------|
 | Dec 2024 | Missing Data Validation (29-32) | 11 files | Naveen |
 | Dec 2024 | Clear Profile Selection (42-45) | 11 files | Naveen |
+| Dec 18, 2024 | Select All with Search (35, 35a, 38, 38a) | 5 files | Naveen |
+| Dec 18, 2024 | Select All with Filters (36, 36a, 39, 39a) | 6 files | Naveen |
 
 ---
 
-*Last Updated: December 16, 2024*
+*Last Updated: December 18, 2024*
 

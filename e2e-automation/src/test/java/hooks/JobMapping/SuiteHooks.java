@@ -107,23 +107,15 @@ public class SuiteHooks implements ISuiteListener {
 			PO35_SelectAllWithSearchFunctionality.loadedProfilesBeforeScroll.remove();
 			cleanedCount += 5;
 
-			// PO36 - Select All with Filters (PM)
-			PO36_ValidateSelectAllWithFiltersFunctionality_PM.filterResultsCount.remove();
-			PO36_ValidateSelectAllWithFiltersFunctionality_PM.firstFilterType.remove();
-			PO36_ValidateSelectAllWithFiltersFunctionality_PM.firstFilterValue.remove();
-			PO36_ValidateSelectAllWithFiltersFunctionality_PM.secondFilterType.remove();
-			PO36_ValidateSelectAllWithFiltersFunctionality_PM.secondFilterValue.remove();
-			PO36_ValidateSelectAllWithFiltersFunctionality_PM.totalSecondFilterResults.remove();
-			cleanedCount += 6;
-
-			// PO39 - Select All with Filters (JAM)
-			PO39_ValidateSelectAllWithFiltersFunctionality_JAM.filterResultsCount.remove();
-			PO39_ValidateSelectAllWithFiltersFunctionality_JAM.firstFilterType.remove();
-			PO39_ValidateSelectAllWithFiltersFunctionality_JAM.firstFilterValue.remove();
-			PO39_ValidateSelectAllWithFiltersFunctionality_JAM.secondFilterType.remove();
-			PO39_ValidateSelectAllWithFiltersFunctionality_JAM.secondFilterValue.remove();
-			PO39_ValidateSelectAllWithFiltersFunctionality_JAM.totalSecondFilterResults.remove();
-			cleanedCount += 6;
+			// PO36 - Select All with Filters (Consolidated PM/JAM)
+			PO36_SelectAllWithFiltersFunctionality.filterResultsCount.remove();
+			PO36_SelectAllWithFiltersFunctionality.firstFilterType.remove();
+			PO36_SelectAllWithFiltersFunctionality.firstFilterValue.remove();
+			PO36_SelectAllWithFiltersFunctionality.secondFilterType.remove();
+			PO36_SelectAllWithFiltersFunctionality.secondFilterValue.remove();
+			PO36_SelectAllWithFiltersFunctionality.totalSecondFilterResults.remove();
+			PO36_SelectAllWithFiltersFunctionality.currentScreen.remove();
+			cleanedCount += 7;
 
 			// === PUBLISH & SELECTION ThreadLocals (PO40-PO46) ===
 

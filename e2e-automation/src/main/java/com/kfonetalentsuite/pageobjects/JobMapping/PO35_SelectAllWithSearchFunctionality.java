@@ -29,25 +29,9 @@ public class PO35_SelectAllWithSearchFunctionality extends BasePageObject {
 		super();
 	}
 
-	// ==================== LOCATORS - PM (HCM Sync Profiles) ====================
-	private static final By PM_SHOWING_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing')]");
-	private static final By PM_ALL_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-checkbox]");
-	private static final By PM_SELECTED_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]");
-	private static final By PM_CHEVRON_BUTTON = By.xpath("//*[contains(@class,'kf-icon-arrow-down')]");
-	private static final By PM_SEARCH_BAR = By.xpath("//input[@type='search']");
-	// PM_SELECT_ALL_BUTTON uses Locators.Table.SELECT_ALL_BTN
-	private static final By PM_HEADER_CHECKBOX = By.xpath("//thead//tr//th[1]//div[1]//kf-checkbox//div");
-	private static final By PM_SYNC_BUTTON = By.xpath("//button[contains(text(),'Sync with HCM')]");
-
-	// ==================== LOCATORS - JAM (Job Mapping) ====================
-	private static final By JAM_SHOWING_RESULTS_COUNT = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
-	private static final By JAM_SEARCH_BAR = By.xpath("//input[@id='search-job-title-input-search-input']");
-	private static final By JAM_ALL_PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]");
-	private static final By JAM_SELECTED_PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox' and @checked]]");
-	private static final By JAM_CHEVRON_BUTTON = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]");
-	// JAM_SELECT_ALL_BUTTON uses Locators.Table.SELECT_ALL_BTN (same as PM)
-	private static final By JAM_HEADER_CHECKBOX = By.xpath("//thead//input[@type='checkbox']");
-	private static final By JAM_PUBLISH_BUTTON = By.xpath("//button[contains(text(),'Publish Selected')]");
+	// ==================== LOCATORS ====================
+	// Common locators are now in BasePageObject.Locators.PMScreen and JAMScreen
+	// Only search-specific locators remain here if needed
 
 	// ==================== THREAD-SAFE STATE ====================
 	public static ThreadLocal<Integer> searchResultsCount = ThreadLocal.withInitial(() -> 0);
@@ -57,42 +41,13 @@ public class PO35_SelectAllWithSearchFunctionality extends BasePageObject {
 	public static ThreadLocal<Integer> loadedProfilesBeforeScroll = ThreadLocal.withInitial(() -> 0);
 
 	// ==================== HELPER METHODS ====================
-
-	private String getScreenName(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? "HCM Sync Profiles" : "Job Mapping";
-	}
-
-	private By getShowingResultsCountLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? PM_SHOWING_RESULTS_COUNT : JAM_SHOWING_RESULTS_COUNT;
-	}
-
-	private By getAllProfileRowsLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? PM_ALL_PROFILE_ROWS : JAM_ALL_PROFILE_ROWS;
-	}
-
-	private By getSelectedProfileRowsLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? PM_SELECTED_PROFILE_ROWS : JAM_SELECTED_PROFILE_ROWS;
-	}
-
-	private By getChevronButtonLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? PM_CHEVRON_BUTTON : JAM_CHEVRON_BUTTON;
-	}
+	// Common helper methods (getScreenName, getShowingResultsCountLocator, getAllProfileRowsLocator,
+	// getSelectedProfileRowsLocator, getChevronButtonLocator, getHeaderCheckboxLocator, 
+	// getSearchBarLocator, getActionButtonLocator) are now inherited from BasePageObject
 
 	private By getSelectAllButtonLocator(String screen) {
 		// Both PM and JAM use the same Select All button locator
 		return Locators.Table.SELECT_ALL_BTN;
-	}
-
-	private By getHeaderCheckboxLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? PM_HEADER_CHECKBOX : JAM_HEADER_CHECKBOX;
-	}
-
-	private By getSearchBarLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? PM_SEARCH_BAR : JAM_SEARCH_BAR;
-	}
-
-	private By getActionButtonLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? PM_SYNC_BUTTON : JAM_PUBLISH_BUTTON;
 	}
 
 	private String getSearchSubstring(String screen) {

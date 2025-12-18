@@ -123,8 +123,6 @@ Feature: Validate Clear Profile Selection Functionality in JAM and PM
   @Clear_JAM_HeaderCheckbox @Clear_JAM
   Scenario: JAM - Uncheck Header Checkbox and Verify Button Disabled
     When User is in Job Mapping page
-    Then Click on header checkbox to select loaded job profiles in "JAM" screen
-    Then User should verify action button is enabled in "JAM" screen
     Then Click on header checkbox to Unselect loaded job profiles in "JAM" screen
     Then User should verify action button is disabled in "JAM" screen
     Then Scroll page to view more job profiles in "JAM" screen

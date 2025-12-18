@@ -207,6 +207,33 @@ public class BasePageObject {
 		}
 
 		// -----------------------------------------
+		// PM SCREEN LOCATORS (HCM Sync Profiles - Used in PO35, PO36, PO42)
+		// -----------------------------------------
+		public static class PMScreen {
+			public static final By ALL_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-checkbox]");
+			public static final By SELECTED_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]");
+			public static final By CHEVRON_BUTTON = By.xpath("//*[contains(@class,'kf-icon-arrow-down')]");
+			public static final By HEADER_CHECKBOX = By.xpath("//thead//tr//th[1]//div[1]//kf-checkbox//div");
+			public static final By SYNC_BUTTON = By.xpath("//button[contains(@class,'custom-export')] | //button[contains(text(),'Sync with HCM')]");
+			public static final By SEARCH_BAR = By.xpath("//input[@type='search']");
+			public static final By CLEAR_ALL_FILTERS_BTN = By.xpath("//a[contains(text(),'Clear All')]");
+		}
+
+		// -----------------------------------------
+		// JAM SCREEN LOCATORS (Job Mapping - Used in PO35, PO36, PO42)
+		// -----------------------------------------
+		public static class JAMScreen {
+			public static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
+			public static final By ALL_PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]");
+			public static final By SELECTED_PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox' and @checked]]");
+			public static final By CHEVRON_BUTTON = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]");
+			public static final By HEADER_CHECKBOX = By.xpath("//thead//input[@type='checkbox']");
+			public static final By PUBLISH_BUTTON = By.xpath("//button[contains(@id,'publish-approved-mappings-btn')] | //button[contains(text(),'Publish Selected')]");
+			public static final By SEARCH_BAR = By.xpath("//input[@id='search-job-title-input-search-input']");
+			public static final By CLEAR_FILTERS_BTN = By.xpath("//button[@data-testid='Clear Filters']");
+		}
+
+		// -----------------------------------------
 		// JOB MAPPING RESULTS (Used in 7+ files)
 		// -----------------------------------------
 		public static class JobMappingResults {
@@ -983,6 +1010,124 @@ public class BasePageObject {
 		LOGGER.info(" Selected (to be processed): {}", selected);
 		LOGGER.info(" Unselected (enabled but not selected): {}", unselected);
 		LOGGER.info(" Disabled (cannot be selected): {}", disabled);
+	}
+
+	// ==================== SCREEN-BASED LOCATOR HELPERS (PM/JAM) ====================
+	// These methods return screen-specific locators based on the "PM" or "JAM" parameter
+	// Used by PO35, PO36, PO42, and other consolidated Page Objects
+
+	/**
+	 * Returns human-readable screen name for logging.
+	 * @param screen "PM" or "JAM"
+	 * @return "HCM Sync Profiles" or "Job Mapping"
+	 */
+	protected String getScreenName(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? "HCM Sync Profiles" : "Job Mapping";
+	}
+
+	/**
+	 * Returns the "Showing X of Y" results count locator for the specified screen.
+	 */
+	protected By getShowingResultsCountLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT : Locators.JAMScreen.SHOWING_RESULTS_COUNT;
+	}
+
+	/**
+	 * Returns the locator for all profile rows in the specified screen.
+	 */
+	protected By getAllProfileRowsLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.ALL_PROFILE_ROWS : Locators.JAMScreen.ALL_PROFILE_ROWS;
+	}
+
+	/**
+	 * Returns the locator for selected profile rows in the specified screen.
+	 */
+	protected By getSelectedProfileRowsLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SELECTED_PROFILE_ROWS : Locators.JAMScreen.SELECTED_PROFILE_ROWS;
+	}
+
+	/**
+	 * Returns the chevron button locator for the specified screen.
+	 */
+	protected By getChevronButtonLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.CHEVRON_BUTTON : Locators.JAMScreen.CHEVRON_BUTTON;
+	}
+
+	/**
+	 * Returns the header checkbox locator for the specified screen.
+	 */
+	protected By getHeaderCheckboxLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.HEADER_CHECKBOX : Locators.JAMScreen.HEADER_CHECKBOX;
+	}
+
+	/**
+	 * Returns the action button locator (Sync/Publish) for the specified screen.
+	 */
+	protected By getActionButtonLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SYNC_BUTTON : Locators.JAMScreen.PUBLISH_BUTTON;
+	}
+
+	/**
+	 * Returns the search bar locator for the specified screen.
+	 */
+	protected By getSearchBarLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SEARCH_BAR : Locators.JAMScreen.SEARCH_BAR;
+	}
+
+	/**
+	 * Returns the clear filters button locator for the specified screen.
+	 */
+	protected By getClearFiltersButtonLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.CLEAR_ALL_FILTERS_BTN : Locators.JAMScreen.CLEAR_FILTERS_BTN;
+	}
+
+	// ==================== SCREEN-BASED JAVASCRIPT COUNTING ====================
+
+	/**
+	 * Counts selected profiles using JavaScript for performance.
+	 * Supports both PM (kf-checkbox) and JAM (native checkbox) screens.
+	 * 
+	 * @param screen "PM" or "JAM"
+	 * @return Count of selected profiles
+	 */
+	protected int countSelectedProfilesJS(String screen) {
+		try {
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			Object result;
+			
+			if ("PM".equalsIgnoreCase(screen)) {
+				String jsScript = "return document.querySelectorAll('tbody tr kf-icon[icon=\"checkbox-check\"]').length;";
+				result = js.executeScript(jsScript);
+				int count = result != null ? ((Long) result).intValue() : 0;
+				// Fallback to locator if JS returns 0
+				if (count == 0) {
+					count = findElements(Locators.PMScreen.SELECTED_PROFILE_ROWS).size();
+				}
+				return count;
+			} else {
+				String jsScript = "return Array.from(document.querySelectorAll('#org-job-container tbody tr td:first-child input[type=\"checkbox\"]')).filter(cb => cb.checked).length;";
+				result = js.executeScript(jsScript);
+				return result != null ? ((Long) result).intValue() : 0;
+			}
+		} catch (Exception e) {
+			LOGGER.debug("JS counting failed for {}: {}", screen, e.getMessage());
+			return findElements(getSelectedProfileRowsLocator(screen)).size();
+		}
+	}
+
+	/**
+	 * Counts all visible profile rows using JavaScript for performance.
+	 * 
+	 * @param screen "PM" or "JAM"
+	 * @return Count of visible profile rows
+	 */
+	protected int countAllProfilesJS(String screen) {
+		try {
+			return findElements(getAllProfileRowsLocator(screen)).size();
+		} catch (Exception e) {
+			LOGGER.debug("Profile counting failed for {}: {}", screen, e.getMessage());
+			return 0;
+		}
 	}
 
 	// ==================== COMMON SORTING VALIDATION HELPERS ====================

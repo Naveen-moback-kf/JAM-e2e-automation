@@ -13,6 +13,14 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.cucumber.testng.CucumberOptions;
 
+/**
+ * Runner for Select All / Loaded Profiles Selection with Filters - PM (HCM Sync Profiles).
+ * 
+ * Tags available:
+ * - @SelectAll_PM - All Select All scenarios in PM
+ * - @LoadedProfiles_PM - Loaded Profiles scenarios in PM
+ * - @SelectAll_With_Filters_PM - Run all PM scenarios
+ */
 @Listeners({
 	ExcelReportListener.class,
 	AllureTestNg.class
@@ -21,9 +29,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature",
-			"src/test/resources/features/JobMapping/36aValidateLoadedProfilesSelectionWithFilters_PM.feature"
+			"src/test/resources/features/JobMapping/36SelectAllWithFiltersFunctionality_PM.feature"
 		},
-		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Select_HCM_Sync_Loaded_Profiles_With_Filter_PM",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @SelectAll_With_Filters_PM",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {
@@ -31,14 +39,14 @@ import io.cucumber.testng.CucumberOptions;
 			"json:target/cucumber-reports/cucumber.json",
 			"io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
 		}
-		)
+)
 
-public class Runner36a_ValidateLoadedProfilesSelectionWithFilters_PM extends CustomizeTestNGCucumberRunner {
+public class Runner36_SelectAllWithFiltersFunctionality_PM extends CustomizeTestNGCucumberRunner {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Select_HCM_Sync_Loaded_Profiles_With_Filter_PM";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @SelectAll_With_Filters_PM";
 	}
 
 	@Override
@@ -48,7 +56,7 @@ public class Runner36a_ValidateLoadedProfilesSelectionWithFilters_PM extends Cus
 
 	@AfterTest
 	public void after_test() {
-		LOGGER.info("Successfully completed validation of Loaded Profiles Selection with Filters in HCM Sync Profiles screen");
+		LOGGER.info("Completed Select All / Loaded Profiles with Filters - PM validation");
 		LOGGER.info("Login Type Used: " + DynamicTagResolver.getCurrentLoginType());
 		DriverManager.closeBrowser();
 	}

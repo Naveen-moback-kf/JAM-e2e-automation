@@ -23,7 +23,7 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
         features = {
             "src/test/resources/features/01KFoneLogin.feature",
-            "src/test/resources/features/JobMapping/35_SelectAllWithSearchFunctionality.feature"
+            "src/test/resources/features/JobMapping/35SelectAllWithSearchFunctionality.feature"
         },
         tags = "@DYNAMIC_LOGIN or @SelectAll_With_Search_Functionality",
         glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
