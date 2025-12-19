@@ -14,9 +14,9 @@
         <listener class-name="com.kfonetalentsuite.testNGAnalyzer.SuiteRetryListener" />
     </listeners>
     
-    <!-- SANITY TESTS - Critical Path Tests (8 tests) -->
+    <!-- SANITY TESTS - Critical Path Tests -->
     <!-- Purpose: Verify the application is minimally functional. If these fail, build is broken. -->
-    <!-- Estimated Time: 20-25 minutes with 4 parallel threads -->
+    <!-- Estimated Time: 20-25 minutes with parallel threads -->
     
     <!-- 1. Login - Must be able to login -->
     <test name="KFone Login">
@@ -26,53 +26,52 @@
     </test>
     
     <!-- 2. Core job loading functionality -->
-    <test name="Validate Add More Jobs Functionality">
+    <test name="Add More Jobs Functionality">
         <classes>
-            <class name="testrunners.JobMapping.Runner02_ValidateAddMoreJobsFunctionality" />
+            <class name="testrunners.JobMapping.Runner02_AddMoreJobsFunctionality" />
         </classes>
     </test>
     
     <!-- 3. Basic UI loads correctly -->
-    <test name="Verify Job Mapping Page Components">
+    <test name="Job Mapping Page Components">
         <classes>
-            <class name="testrunners.JobMapping.Runner04_VerifyJobMappingPageComponents" />
+            <class name="testrunners.JobMapping.Runner04_JobMappingPageComponents" />
         </classes>
     </test>
     
-    <!-- 4. Alternative publish workflow -->
-    <test name="Publish Job From Details Popup">
+    <!-- 4. Core publish workflow -->
+    <test name="Publish Job Profile">
         <classes>
-            <class name="testrunners.JobMapping.Runner08_PublishJobFromDetailsPopup" />
+            <class name="testrunners.JobMapping.Runner05_PublishJobProfile" />
         </classes>
     </test>
     
     <!-- 5. Basic filtering works -->
-    <test name="Validate Function Subfunction Filters">
+    <test name="Job Mapping Filters">
         <classes>
-            <class name="testrunners.JobMapping.Runner11c_ValidateFunctionSubfunctionFilters" />
+            <class name="testrunners.JobMapping.Runner08_JobMappingFilters" />
         </classes>
     </test>
     
     <!-- 6. PM module accessible -->
-    <test name="Validate HCM Sync Profiles Tab in PM">
+    <test name="HCM Sync Profiles Tab PM">
         <classes>
-            <class name="testrunners.JobMapping.Runner22_ValidateHCMSyncProfilesTab_PM" />
+            <class name="testrunners.JobMapping.Runner18_HCMSyncProfilesTab_PM" />
         </classes>
     </test>
     
     <!-- 7. Missing Data workflow -->
-    <test name="Runner27 - Verify Info Message For Missing Data Profiles">
+    <test name="Info Message Missing Data Profiles">
         <classes>
-            <class name="testrunners.JobMapping.Runner27_VerifyInfoMessageForMissingDataProfiles" />
+            <class name="testrunners.JobMapping.Runner23_InfoMessageMissingDataProfiles" />
         </classes>
     </test>
     
     <!-- 8. JAM module accessible -->
-    <test name="Validate Select And Publish Loaded Profiles in JAM">
+    <test name="Select And Publish Loaded Profiles JAM">
         <classes>
-            <class name="testrunners.JobMapping.Runner37_ValidateSelectAndPublishLoadedProfiles_JAM" />
+            <class name="testrunners.JobMapping.Runner29_SelectAndPublishLoadedProfiles_JAM" />
         </classes>
     </test>
     
 </suite>
-
