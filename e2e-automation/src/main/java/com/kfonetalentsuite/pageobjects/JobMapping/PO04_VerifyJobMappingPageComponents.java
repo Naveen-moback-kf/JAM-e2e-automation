@@ -153,7 +153,7 @@ public class PO04_VerifyJobMappingPageComponents extends BasePageObject {
 			PerformanceUtils.waitForPageReady(driver, 10);
 
 			String finalUrl = driver.getCurrentUrl();
-			if (!finalUrl.contains("job-mapping")) {
+			if (!finalUrl.contains("aiauto")) {
 				throw new RuntimeException("Navigation failed. Expected job-mapping URL but got: " + finalUrl);
 			}
 			waitForBackgroundDataLoad();

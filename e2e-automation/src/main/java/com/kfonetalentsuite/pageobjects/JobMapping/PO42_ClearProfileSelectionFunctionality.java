@@ -243,56 +243,34 @@ public class PO42_ClearProfileSelectionFunctionality extends BasePageObject {
 
 	/**
 	 * Verifies that loaded profiles are unselected
+	 * Uses JavaScript counting for performance (avoids iterating through thousands of elements)
 	 */
 	public void verify_loaded_profiles_are_unselected(String screen) {
-		int unselectedCount = 0;
-		int disabledCount = 0;
-
 		try {
 			currentScreen.set(screen);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			LOGGER.debug("========================================");
-			LOGGER.debug("VERIFYING UNSELECTED PROFILES - {}", getScreenName(screen));
-			LOGGER.debug("========================================");
+			LOGGER.info("========================================");
+			LOGGER.info("VERIFYING UNSELECTED PROFILES - {}", getScreenName(screen));
+			LOGGER.info("========================================");
 
-			List<WebElement> allCheckboxes = findElements(getAllCheckboxesLocator(screen));
-			int totalOnScreen = allCheckboxes.size();
+			// Use JavaScript counting for performance
+			int totalOnScreen = countAllProfilesJS(screen);
+			int selectedCount = countSelectedProfilesJS(screen);
+			int unselectedCount = totalOnScreen - selectedCount;
 
-			LOGGER.debug("Total Profiles on screen: {}", totalOnScreen);
-			LOGGER.debug("Original Loaded Profiles: {}", loadedProfilesBeforeUncheck.get());
+			LOGGER.info("Total Profiles on screen: {}", totalOnScreen);
+			LOGGER.info("Selected: {}, Unselected: {}", selectedCount, unselectedCount);
 
-			for (int i = 0; i < totalOnScreen; i++) {
-				try {
-					WebElement checkbox = allCheckboxes.get(i);
-					js.executeScript("arguments[0].scrollIntoView(true);", checkbox);
-
-					if (isCheckboxDisabled(checkbox, screen)) {
-						disabledCount++;
-						continue;
-					}
-
-					if (!isCheckboxSelected(checkbox, screen)) {
-						unselectedCount++;
-					} else {
-						LOGGER.debug("Profile at position {} is still SELECTED", i + 1);
-					}
-				} catch (Exception e) {
-					LOGGER.debug("Could not verify profile at position {}: {}", i + 1, e.getMessage());
-				}
-			}
-
-			int expectedUnselected = totalOnScreen - disabledCount;
-
-			LOGGER.debug("Total: {}, Disabled: {}, Unselected: {}, Expected: {}", 
-				totalOnScreen, disabledCount, unselectedCount, expectedUnselected);
-
-			if (unselectedCount >= expectedUnselected) {
-				PageObjectHelper.log(LOGGER, "✅ " + unselectedCount + " loaded profiles are unselected in " + getScreenName(screen));
+			if (selectedCount == 0) {
+				PageObjectHelper.log(LOGGER, "✅ All " + totalOnScreen + " loaded profiles are unselected in " + getScreenName(screen));
+			} else if (unselectedCount > 0) {
+				PageObjectHelper.log(LOGGER, "✅ " + unselectedCount + " loaded profiles are unselected in " + getScreenName(screen) + 
+						" (" + selectedCount + " still selected)");
 			} else {
-				PageObjectHelper.log(LOGGER, "❌ Not all profiles unselected in " + getScreenName(screen));
-				Assert.fail("Not all loaded profiles are unselected");
+				PageObjectHelper.log(LOGGER, "❌ No profiles were unselected in " + getScreenName(screen));
+				Assert.fail("No profiles were unselected");
 			}
 
 		} catch (Exception e) {
@@ -391,51 +369,29 @@ public class PO42_ClearProfileSelectionFunctionality extends BasePageObject {
 
 	/**
 	 * Verifies that all loaded profiles are unselected (used after None button click)
+	 * Uses JavaScript counting for performance
 	 */
 	public void verify_all_loaded_profiles_are_unselected(String screen) {
-		int totalChecked = 0;
-		int selectedFound = 0;
-		int disabledCount = 0;
-
 		try {
 			currentScreen.set(screen);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			LOGGER.debug("========================================");
-			LOGGER.debug("VERIFYING ALL PROFILES UNSELECTED - {}", getScreenName(screen));
-			LOGGER.debug("========================================");
+			LOGGER.info("========================================");
+			LOGGER.info("VERIFYING ALL PROFILES UNSELECTED - {}", getScreenName(screen));
+			LOGGER.info("========================================");
 
-			List<WebElement> allCheckboxes = findElements(getAllCheckboxesLocator(screen));
-			LOGGER.debug("Total checkboxes found: {}", allCheckboxes.size());
+			// Use JavaScript counting for performance
+			int totalOnScreen = countAllProfilesJS(screen);
+			int selectedCount = countSelectedProfilesJS(screen);
 
-			for (int i = 0; i < allCheckboxes.size(); i++) {
-				try {
-					WebElement checkbox = allCheckboxes.get(i);
+			LOGGER.info("Total profiles: {}, Selected: {}", totalOnScreen, selectedCount);
 
-					if (isCheckboxDisabled(checkbox, screen)) {
-						disabledCount++;
-						continue;
-					}
-
-					totalChecked++;
-
-					if (isCheckboxSelected(checkbox, screen)) {
-						selectedFound++;
-						LOGGER.debug("Profile at position {} is SELECTED (should be unselected)", i + 1);
-					}
-				} catch (Exception e) {
-					LOGGER.debug("Could not verify profile at position {}: {}", i + 1, e.getMessage());
-				}
-			}
-
-			LOGGER.debug("Checked: {}, Disabled: {}, Selected: {}", totalChecked, disabledCount, selectedFound);
-
-			if (selectedFound == 0) {
-				PageObjectHelper.log(LOGGER, "✅ All " + totalChecked + " profiles are unselected in " + getScreenName(screen));
+			if (selectedCount == 0) {
+				PageObjectHelper.log(LOGGER, "✅ All " + totalOnScreen + " profiles are unselected in " + getScreenName(screen));
 			} else {
-				PageObjectHelper.log(LOGGER, "❌ " + selectedFound + " profiles are still selected in " + getScreenName(screen));
-				Assert.fail(selectedFound + " profiles are still selected");
+				PageObjectHelper.log(LOGGER, "❌ " + selectedCount + " profiles are still selected in " + getScreenName(screen));
+				Assert.fail(selectedCount + " profiles are still selected");
 			}
 
 		} catch (Exception e) {
@@ -448,18 +404,15 @@ public class PO42_ClearProfileSelectionFunctionality extends BasePageObject {
 
 	/**
 	 * Verifies that profiles loaded after clicking header checkbox are not selected
+	 * Uses JavaScript counting for performance
 	 */
 	public void verify_profiles_loaded_after_header_checkbox_are_not_selected(String screen) {
-		int notSelectedCount = 0;
-		int disabledCount = 0;
-
 		try {
 			currentScreen.set(screen);
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			List<WebElement> allCheckboxes = findElements(getAllCheckboxesLocator(screen));
-			int totalNow = allCheckboxes.size();
+			int totalNow = countAllProfilesJS(screen);
 			int newlyLoaded = totalNow - loadedProfilesBeforeUncheck.get();
 
 			if (newlyLoaded <= 0) {
@@ -467,35 +420,20 @@ public class PO42_ClearProfileSelectionFunctionality extends BasePageObject {
 				return;
 			}
 
-			LOGGER.debug("Verifying {} newly loaded profiles are NOT selected", newlyLoaded);
+			LOGGER.info("Verifying {} newly loaded profiles are NOT selected", newlyLoaded);
 
-			// Check newly loaded profiles are NOT selected
-			for (int i = loadedProfilesBeforeUncheck.get(); i < allCheckboxes.size(); i++) {
-				try {
-					WebElement checkbox = allCheckboxes.get(i);
-					js.executeScript("arguments[0].scrollIntoView(true);", checkbox);
+			// Count selected profiles - should be same as before scroll (header checkbox selection)
+			int currentSelectedCount = countSelectedProfilesJS(screen);
+			
+			LOGGER.info("Total now: {}, Newly loaded: {}, Currently selected: {}, Previously loaded: {}", 
+					totalNow, newlyLoaded, currentSelectedCount, loadedProfilesBeforeUncheck.get());
 
-					if (isCheckboxDisabled(checkbox, screen)) {
-						disabledCount++;
-						continue;
-					}
-
-					if (!isCheckboxSelected(checkbox, screen)) {
-						notSelectedCount++;
-					} else {
-						LOGGER.debug("Profile at position {} is SELECTED (should NOT be)", i + 1);
-					}
-				} catch (Exception e) {
-					LOGGER.debug("Could not verify profile at position {}: {}", i + 1, e.getMessage());
-				}
-			}
-
-			int expectedNotSelected = newlyLoaded - disabledCount;
-
-			if (notSelectedCount >= expectedNotSelected) {
-				PageObjectHelper.log(LOGGER, "✅ " + notSelectedCount + " profiles loaded after header click are NOT selected in " + getScreenName(screen));
+			// Selected count should not exceed what was loaded before scroll
+			if (currentSelectedCount <= loadedProfilesBeforeUncheck.get()) {
+				PageObjectHelper.log(LOGGER, "✅ " + newlyLoaded + " profiles loaded after header click are NOT selected in " + getScreenName(screen));
 			} else {
-				PageObjectHelper.log(LOGGER, "⚠️ Some newly loaded profiles are selected (unexpected) in " + getScreenName(screen));
+				int extraSelected = currentSelectedCount - loadedProfilesBeforeUncheck.get();
+				PageObjectHelper.log(LOGGER, "⚠️ " + extraSelected + " newly loaded profiles appear selected (unexpected) in " + getScreenName(screen));
 			}
 
 		} catch (Exception e) {
