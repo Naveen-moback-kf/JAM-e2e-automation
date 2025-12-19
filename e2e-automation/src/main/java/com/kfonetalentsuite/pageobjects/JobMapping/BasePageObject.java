@@ -1285,7 +1285,7 @@ public class BasePageObject {
 				
 				if (Boolean.TRUE.equals(apiComplete)) {
 					LOGGER.info("Background data API completed after {} seconds", waited);
-					safeSleep(500); // Small buffer after API completes
+					safeSleep(10000); // Small buffer after API completes
 					return;
 				}
 				
@@ -1294,7 +1294,7 @@ public class BasePageObject {
 					consecutiveZeroPending++;
 					if (consecutiveZeroPending >= 3) {
 						LOGGER.info("No pending requests for {}+ seconds - API already completed or no data to load", consecutiveZeroPending * 2);
-						safeSleep(500);
+						safeSleep(10000);
 						return;
 					}
 				} else {

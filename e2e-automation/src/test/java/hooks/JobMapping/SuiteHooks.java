@@ -86,85 +86,85 @@ public class SuiteHooks implements ISuiteListener {
 			PO01_KFoneLogin.clientName.remove();
 			cleanedCount += 2;
 
-			// === MISSING DATA FEATURES ThreadLocals (PO29) ===
-			PO29_ValidateMissingDataFunctionality.extractedJobName.remove();
-			PO29_ValidateMissingDataFunctionality.extractedJobCode.remove();
-			PO29_ValidateMissingDataFunctionality.forwardScenarioFoundProfile.remove();
-			PO29_ValidateMissingDataFunctionality.forwardScenarioJobName.remove();
-			PO29_ValidateMissingDataFunctionality.forwardScenarioJobCode.remove();
-			PO29_ValidateMissingDataFunctionality.currentDataType.remove();
-			PO29_ValidateMissingDataFunctionality.jobDetailsFromJobMappingPage.remove();
-			PO29_ValidateMissingDataFunctionality.jobDetailsFromMissingDataScreen.remove();
-			cleanedCount += 8;
+		// === MISSING DATA FEATURES ThreadLocals (PO25) ===
+		PO25_MissingDataFunctionality.extractedJobName.remove();
+		PO25_MissingDataFunctionality.extractedJobCode.remove();
+		PO25_MissingDataFunctionality.forwardScenarioFoundProfile.remove();
+		PO25_MissingDataFunctionality.forwardScenarioJobName.remove();
+		PO25_MissingDataFunctionality.forwardScenarioJobCode.remove();
+		PO25_MissingDataFunctionality.currentDataType.remove();
+		PO25_MissingDataFunctionality.jobDetailsFromJobMappingPage.remove();
+		PO25_MissingDataFunctionality.jobDetailsFromMissingDataScreen.remove();
+		cleanedCount += 8;
 
-			// === SELECT ALL FUNCTIONALITY ThreadLocals (PO35-PO39) ===
+		// === SELECT ALL FUNCTIONALITY ThreadLocals (PO27-PO28) ===
 
-			// PO35 - Select All with Search (Consolidated PM/JAM)
-			PO35_SelectAllWithSearchFunctionality.searchResultsCount.remove();
-			PO35_SelectAllWithSearchFunctionality.alternativeSearchSubstring.remove();
-			PO35_SelectAllWithSearchFunctionality.totalSecondSearchResults.remove();
-			PO35_SelectAllWithSearchFunctionality.currentScreen.remove();
-			PO35_SelectAllWithSearchFunctionality.loadedProfilesBeforeScroll.remove();
-			cleanedCount += 5;
+		// PO27 - Select All with Search (Consolidated PM/JAM)
+		PO27_SelectAllWithSearchFunctionality.searchResultsCount.remove();
+		PO27_SelectAllWithSearchFunctionality.alternativeSearchSubstring.remove();
+		PO27_SelectAllWithSearchFunctionality.totalSecondSearchResults.remove();
+		PO27_SelectAllWithSearchFunctionality.currentScreen.remove();
+		PO27_SelectAllWithSearchFunctionality.loadedProfilesBeforeScroll.remove();
+		cleanedCount += 5;
 
-			// PO36 - Select All with Filters (Consolidated PM/JAM)
-			PO36_SelectAllWithFiltersFunctionality.filterResultsCount.remove();
-			PO36_SelectAllWithFiltersFunctionality.firstFilterType.remove();
-			PO36_SelectAllWithFiltersFunctionality.firstFilterValue.remove();
-			PO36_SelectAllWithFiltersFunctionality.secondFilterType.remove();
-			PO36_SelectAllWithFiltersFunctionality.secondFilterValue.remove();
-			PO36_SelectAllWithFiltersFunctionality.totalSecondFilterResults.remove();
-			PO36_SelectAllWithFiltersFunctionality.currentScreen.remove();
-			cleanedCount += 7;
+		// PO28 - Select All with Filters (Consolidated PM/JAM)
+		PO28_SelectAllWithFiltersFunctionality.filterResultsCount.remove();
+		PO28_SelectAllWithFiltersFunctionality.firstFilterType.remove();
+		PO28_SelectAllWithFiltersFunctionality.firstFilterValue.remove();
+		PO28_SelectAllWithFiltersFunctionality.secondFilterType.remove();
+		PO28_SelectAllWithFiltersFunctionality.secondFilterValue.remove();
+		PO28_SelectAllWithFiltersFunctionality.totalSecondFilterResults.remove();
+		PO28_SelectAllWithFiltersFunctionality.currentScreen.remove();
+		cleanedCount += 7;
 
-			// === PUBLISH & SELECTION ThreadLocals (PO40-PO46) ===
+		// === PUBLISH & SELECTION ThreadLocals (PO30-PO33) ===
 
-			// PO40 - Select and Publish All Profiles (JAM)
-			PO40_ValidateSelectAndPublishAllJobProfilesinJAM.unpublishedProfilesCountBefore.remove();
-			PO40_ValidateSelectAndPublishAllJobProfilesinJAM.publishedProfilesCountBefore.remove();
-			PO40_ValidateSelectAndPublishAllJobProfilesinJAM.unpublishedProfilesCountAfter.remove();
-			PO40_ValidateSelectAndPublishAllJobProfilesinJAM.publishedProfilesCountAfter.remove();
-			PO40_ValidateSelectAndPublishAllJobProfilesinJAM.totalPublishedCount.remove();
-			PO40_ValidateSelectAndPublishAllJobProfilesinJAM.expectedTotalMinutes.remove();
-			PO40_ValidateSelectAndPublishAllJobProfilesinJAM.profilesToBePublished.remove();
-			PO40_ValidateSelectAndPublishAllJobProfilesinJAM.selectedProfilesCount.remove();
-			cleanedCount += 8;
+		// PO30 - Select and Publish All Profiles (JAM)
+		PO30_SelectAndPublishAllJobProfiles_JAM.unpublishedProfilesCountBefore.remove();
+		PO30_SelectAndPublishAllJobProfiles_JAM.publishedProfilesCountBefore.remove();
+		PO30_SelectAndPublishAllJobProfiles_JAM.unpublishedProfilesCountAfter.remove();
+		PO30_SelectAndPublishAllJobProfiles_JAM.publishedProfilesCountAfter.remove();
+		PO30_SelectAndPublishAllJobProfiles_JAM.totalPublishedCount.remove();
+		PO30_SelectAndPublishAllJobProfiles_JAM.expectedTotalMinutes.remove();
+		PO30_SelectAndPublishAllJobProfiles_JAM.profilesToBePublished.remove();
+		PO30_SelectAndPublishAllJobProfiles_JAM.selectedProfilesCount.remove();
+		cleanedCount += 8;
 
-			// PO42 - Clear Profile Selection Functionality (Consolidated PM/JAM)
-			PO42_ClearProfileSelectionFunctionality.loadedProfilesBeforeUncheck.remove();
-			PO42_ClearProfileSelectionFunctionality.selectedProfilesBeforeUncheck.remove();
-			PO42_ClearProfileSelectionFunctionality.currentScreen.remove();
-			cleanedCount += 3;
+		// PO32 - Clear Profile Selection Functionality (Consolidated PM/JAM)
+		PO32_ClearProfileSelectionFunctionality.loadedProfilesBeforeUncheck.remove();
+		PO32_ClearProfileSelectionFunctionality.selectedProfilesBeforeUncheck.remove();
+		PO32_ClearProfileSelectionFunctionality.currentScreen.remove();
+		cleanedCount += 3;
 
-			// PO46 - Selection of Unmapped Jobs (JAM)
-			PO46_VerifyUnmappedJobs_JAM.skipScenario.remove();
-			cleanedCount++;
+		// PO33 - Selection of Unmapped Jobs (JAM)
+		PO33_UnmappedJobs_JAM.skipScenario.remove();
+		cleanedCount++;
 
-			// === HCM & PROFILE MANAGER ThreadLocals (PO22-PO26) ===
+		// === HCM & PROFILE MANAGER ThreadLocals (PO18-PO22) ===
 
-			// PO22 - HCM Sync Profiles Screen (PM)
-			PO22_ValidateHCMSyncProfilesScreen_PM.jobProfileName.remove();
-			PO22_ValidateHCMSyncProfilesScreen_PM.intialResultsCount.remove();
-			PO22_ValidateHCMSyncProfilesScreen_PM.updatedResultsCount.remove();
-			PO22_ValidateHCMSyncProfilesScreen_PM.orgJobNameInRow1.remove();
-			PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.remove();
-			PO22_ValidateHCMSyncProfilesScreen_PM.isProfilesCountComplete.remove();
-			cleanedCount += 6;
+		// PO18 - HCM Sync Profiles Screen (PM)
+		PO18_HCMSyncProfilesTab_PM.jobProfileName.remove();
+		PO18_HCMSyncProfilesTab_PM.intialResultsCount.remove();
+		PO18_HCMSyncProfilesTab_PM.updatedResultsCount.remove();
+		PO18_HCMSyncProfilesTab_PM.orgJobNameInRow1.remove();
+		PO18_HCMSyncProfilesTab_PM.profilesCount.remove();
+		PO18_HCMSyncProfilesTab_PM.isProfilesCountComplete.remove();
+		cleanedCount += 6;
 
-			// PO23 - Profiles with No Job Code (PM)
-			PO23_VerifyProfileswithNoJobCode_PM.rowNumber.remove();
-			PO23_VerifyProfileswithNoJobCode_PM.SPJobName.remove();
-			PO23_VerifyProfileswithNoJobCode_PM.noJobCode.remove();
-			cleanedCount += 3;
+		// PO19 - Profiles with No Job Code (PM)
+		PO19_ProfileswithNoJobCode_PM.rowNumber.remove();
+		PO19_ProfileswithNoJobCode_PM.SPJobName.remove();
+		PO19_ProfileswithNoJobCode_PM.noJobCode.remove();
+		cleanedCount += 3;
 
-			// PO25 - Export Status Functionality (PM)
-			PO25_ValidateExportStatusFunctionality_PM.rowNumber.remove();
-			PO25_ValidateExportStatusFunctionality_PM.SPJobName.remove();
-			cleanedCount += 2;
+		// PO21 - Export Status Functionality (PM)
+		PO21_ExportStatusFunctionality_PM.rowNumber.remove();
+		PO21_ExportStatusFunctionality_PM.SPJobName.remove();
+		cleanedCount += 2;
 
-			// PO26 - Jobs Missing Data Tip Message
-			PO26_VerifyJobsMissingDataTipMessage.initialJobCount.remove();
-			cleanedCount++;
+		// PO22 - Jobs Missing Data Tip Message
+		PO22_MissingDataTipMessage.initialJobCount.remove();
+		cleanedCount++;
 
 			LOGGER.info("✅ ThreadLocal cleanup completed - {} variables cleaned", cleanedCount);
 

@@ -2,7 +2,6 @@ package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.logging.log4j.LogManager;
@@ -18,7 +17,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.SessionManager;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.utils.common.CommonVariable;
-import com.kfonetalentsuite.utils.common.ExcelDataProvider;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 public class PO01_KFoneLogin extends BasePageObject {
@@ -134,35 +132,6 @@ public class PO01_KFoneLogin extends BasePageObject {
 		jsClick(wait.until(ExpectedConditions.elementToBeClickable(KFONE_SIGNIN_BTN)));
 		PerformanceUtils.waitForPageReady(driver, 10);
 		PageObjectHelper.log(LOGGER, "Entered password and submitted login");
-	}
-
-	public void login_using_excel_data(String testId) {
-		try {
-			Map<String, String> testData = ExcelDataProvider.getTestData("LoginData", testId);
-			String userType = testData.get("UserType");
-			String excelUsername = testData.get("Username");
-			String excelPassword = testData.get("Password");
-
-			PageObjectHelper.log(LOGGER, "Data-Driven Login: TestID=" + testId + ", UserType=" + userType);
-			handleCookiesBanner();
-
-			wait.until(ExpectedConditions.elementToBeClickable(USERNAME_INPUT)).sendKeys(excelUsername);
-			username.set(excelUsername);
-			jsClick(driver.findElement(KFONE_SIGNIN_BTN));
-
-			if ("SSO".equalsIgnoreCase(userType)) {
-				wait.until(ExpectedConditions.visibilityOfElementLocated(MICROSOFT_PASSWORD_HEADER));
-				wait.until(ExpectedConditions.elementToBeClickable(PASSWORD_INPUT)).sendKeys(excelPassword);
-				jsClick(driver.findElement(MICROSOFT_SUBMIT_BTN));
-				wait.until(ExpectedConditions.elementToBeClickable(MICROSOFT_SUBMIT_BTN)).click();
-			} else {
-				wait.until(ExpectedConditions.elementToBeClickable(PASSWORD_INPUT)).sendKeys(excelPassword);
-				jsClick(driver.findElement(KFONE_SIGNIN_BTN));
-			}
-			PerformanceUtils.waitForPageReady(driver, 10);
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "login_using_excel_data", "Failed to login using Excel data for TestID: " + testId, e);
-		}
 	}
 
 	public void verify_the_kfone_landing_page() {

@@ -21,7 +21,7 @@ import io.cucumber.java.Scenario;
  * - Automatically skips remaining scenarios in the feature file
  * - Completely safe - doesn't affect other test execution
  * 
- * TRIGGER CONDITION: When PO21_MapDifferentSPtoProfileInAutoAI.mapSP is set to false
+ * TRIGGER CONDITION: When PO17_MapDifferentSPtoProfile.mapSP is set to false
  * (indicating all profiles are already mapped with BIC profiles)
  * 
  * BEHAVIOR: First scenario runs normally and checks for unmapped profiles
@@ -122,14 +122,14 @@ public class ConditionalScenarioSkip {
 
 	/**
 	 * Check if all profiles are mapped by looking for the static flag set by
-	 * PO21_MapDifferentSPtoProfileInAutoAI.mapSP ThreadLocal variable.
+	 * PO17_MapDifferentSPtoProfile.mapSP ThreadLocal variable.
 	 * This integrates with your existing code without any modifications.
 	 */
 	private boolean checkIfAllProfilesMapped() {
 		try {
-			// Access the ThreadLocal flag set by PO21_MapDifferentSPtoProfileInAutoAI class
+			// Access the ThreadLocal flag set by PO17_MapDifferentSPtoProfile class
 			// This flag is set to false when all profiles are mapped
-			Class<?> mapClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO21_MapDifferentSPtoProfileInAutoAI");
+			Class<?> mapClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO17_MapDifferentSPtoProfile");
 			java.lang.reflect.Field mapSPField = mapClass.getDeclaredField("mapSP");
 			mapSPField.setAccessible(true);
 			
@@ -141,9 +141,9 @@ public class ConditionalScenarioSkip {
 			boolean allMapped = (mapSPValue == null || !mapSPValue);
 
 			if (allMapped) {
-				LOGGER.info("CONDITION CHECK: PO21_MapDifferentSPtoProfileInAutoAI.mapSP = {} (All profiles mapped)", mapSPValue);
+				LOGGER.info("CONDITION CHECK: PO17_MapDifferentSPtoProfile.mapSP = {} (All profiles mapped)", mapSPValue);
 			} else {
-				LOGGER.info("CONDITION CHECK: PO21_MapDifferentSPtoProfileInAutoAI.mapSP = true (Unmapped profiles available)");
+				LOGGER.info("CONDITION CHECK: PO17_MapDifferentSPtoProfile.mapSP = true (Unmapped profiles available)");
 			}
 
 			return allMapped;
