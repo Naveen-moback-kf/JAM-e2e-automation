@@ -1,37 +1,163 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 /**
- * Page Object for validating Select All and Sync All profiles in HCM Sync Profiles (PM) screen.
- * Handles clicking chevron/Select All buttons and scrolling through all profiles to count selected.
+ * Consolidated Page Object for Select and Sync Profiles in HCM Sync Profiles (PM) screen.
+ * 
+ * Supports two selection methods:
+ * 1. Header Checkbox - Selects only LOADED profiles (lazy loading aware)
+ * 2. Select All (Chevron + Select All) - Selects ALL profiles including those not yet loaded
+ * 
+ * Merged from: PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM and PO34_ValidateSelectAndSyncAllProfiles_PM
  */
-public class PO34_ValidateSelectAndSyncAllProfiles_PM extends BasePageObject {
+public class PO33_SelectAndSyncProfiles_PM extends BasePageObject {
 
-	private static final Logger LOGGER = LogManager.getLogger(PO34_ValidateSelectAndSyncAllProfiles_PM.class);
+	private static final Logger LOGGER = LogManager.getLogger(PO33_SelectAndSyncProfiles_PM.class);
 
+	// Static variable for storing count of profiles selected to export
 	public static int CountOfProfilesSelectedToExport;
 
 	// Locators - Uses centralized locators from BasePageObject.Locators where available
-	// PAGE_LOAD_SPINNER is available via Locators.Spinners.PAGE_LOAD_SPINNER
-	// HCM_SELECT_ALL_BTN is available via Locators.Actions.SELECT_ALL_BTN
-	// Using centralized Locators from BasePageObject where applicable
-	private static final By HCM_CHEVRON_BTN = Locators.PMScreen.CHEVRON_BUTTON;
-	private static final By SHOWING_COUNT = Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT;
+	private static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
 	private static final By ALL_ROWS = By.xpath("//tbody//tr");
 
-	public PO34_ValidateSelectAndSyncAllProfiles_PM() {
+	public PO33_SelectAndSyncProfiles_PM() {
 		super();
 	}
+
+	// =====================================================
+	// FLOW 1: HEADER CHECKBOX SELECTION (Loaded Profiles)
+	// =====================================================
+
+	/**
+	 * Verifies that profiles loaded after clicking the header checkbox are NOT selected.
+	 * 
+	 * Expected Flow:
+	 * 1. Loaded Profiles on screen (BEFORE Header checkbox is clicked): 100 profiles
+	 * 2. Header checkbox is clicked - Selects 61 profiles (39 are disabled, cannot be selected)
+	 * 3. User scrolls - Loads 50 MORE profiles (Total now = 150)
+	 * 4. These 50 newly loaded profiles should NOT be selected
+	 * 
+	 * This validates that the "header checkbox select" only selects currently
+	 * LOADED profiles, not profiles that load later via lazy loading/scrolling.
+	 */
+	public void verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen() {
+		int loadedProfilesBeforeHeaderCheckboxClick = PO22_ValidateHCMSyncProfilesScreen_PM.loadedProfilesBeforeHeaderCheckboxClick.get();
+		int selectedProfilesAfterHeaderCheckboxClick = PO22_ValidateHCMSyncProfilesScreen_PM.selectedProfilesAfterHeaderCheckboxClick.get();
+		int disabledProfilesInLoadedProfiles = PO22_ValidateHCMSyncProfilesScreen_PM.disabledProfilesCountInLoadedProfiles.get();
+		int totalProfilesCurrentlyLoaded = 0;
+		int newlyLoadedProfilesAfterScrolling = 0;
+		int unselectedProfilesCount = 0;
+		int disabledInNewlyLoadedProfiles = 0;
+
+		try {
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.PAGE_LOAD_SPINNER));
+			PerformanceUtils.waitForPageReady(driver, 2);
+
+			// Step 1: Count TOTAL profiles currently in DOM (includes newly loaded after scrolling)
+			totalProfilesCurrentlyLoaded = findElements(ALL_CHECKBOXES).size();
+
+			LOGGER.info("Total Profiles Currently loaded on screen: " + totalProfilesCurrentlyLoaded);
+
+			// Step 2: Calculate newly loaded profiles
+			newlyLoadedProfilesAfterScrolling = totalProfilesCurrentlyLoaded - loadedProfilesBeforeHeaderCheckboxClick;
+
+			if (newlyLoadedProfilesAfterScrolling <= 0) {
+				PageObjectHelper.log(LOGGER, "No newly loaded profiles to verify (Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
+						", Selected: " + selectedProfilesAfterHeaderCheckboxClick + 
+						", Disabled: " + disabledProfilesInLoadedProfiles + 
+						", Total Now: " + totalProfilesCurrentlyLoaded + ")");
+				return;
+			}
+
+			PageObjectHelper.log(LOGGER, "Profile Summary - Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
+					", Selected: " + selectedProfilesAfterHeaderCheckboxClick + 
+					", Disabled: " + disabledProfilesInLoadedProfiles + 
+					", Total Now: " + totalProfilesCurrentlyLoaded + 
+					", Newly Loaded: " + newlyLoadedProfilesAfterScrolling);
+			PageObjectHelper.log(LOGGER, "Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
+
+			// Step 3: Verify that newly loaded profiles are NOT selected
+			for (int i = loadedProfilesBeforeHeaderCheckboxClick + 1; i <= totalProfilesCurrentlyLoaded; i++) {
+				try {
+					WebElement checkbox = driver.findElement(By.xpath("//tbody//tr[" + i + "]//td[1]//div[1]//kf-checkbox//div"));
+
+					// Scroll to element to ensure it's visible
+					js.executeScript("arguments[0].scrollIntoView(true);", checkbox);
+
+					// Check checkbox class attributes
+					String classAttribute = checkbox.getAttribute("class");
+					boolean isSelected = classAttribute != null
+							&& (classAttribute.contains("selected") || classAttribute.contains("checked"));
+					boolean isDisabled = classAttribute != null && classAttribute.contains("disable");
+
+					// Count disabled profiles in newly loaded profiles
+					if (isDisabled) {
+						disabledInNewlyLoadedProfiles++;
+						LOGGER.debug("Newly loaded profile at position " + i + " is disabled (no job code)");
+						continue;
+					}
+
+					// Verify that newly loaded profile is NOT selected
+					if (!isSelected) {
+						unselectedProfilesCount++;
+					} else {
+						LOGGER.warn(" Newly loaded profile at position " + i + " is SELECTED (should be unselected!)");
+					}
+
+				} catch (Exception e) {
+					LOGGER.debug("Could not verify profile at position " + i + ": " + e.getMessage());
+					continue;
+				}
+			}
+
+			// Step 4: Validate results
+			LOGGER.info("========================================");
+			LOGGER.info("VALIDATION RESULTS");
+			LOGGER.info("========================================");
+			LOGGER.info("Newly loaded profiles (after scrolling): " + newlyLoadedProfilesAfterScrolling);
+			LOGGER.info("Disabled profiles in newly loaded: " + disabledInNewlyLoadedProfiles);
+			LOGGER.info("Unselected Profiles (From newly loaded profiles): " + unselectedProfilesCount);
+			LOGGER.info("Expected unselected: " + (newlyLoadedProfilesAfterScrolling - disabledInNewlyLoadedProfiles));
+			LOGGER.info("========================================");
+
+			// Validation logic: All newly loaded profiles (excluding disabled) should be unselected
+			int expectedUnselected = newlyLoadedProfilesAfterScrolling - disabledInNewlyLoadedProfiles;
+
+			if (unselectedProfilesCount >= expectedUnselected) {
+				PageObjectHelper.log(LOGGER, "✅ Validation PASSED: " + unselectedProfilesCount
+						+ " newly loaded profiles are NOT selected (as expected)");
+			} else {
+				int missingUnselected = expectedUnselected - unselectedProfilesCount;
+				PageObjectHelper.log(LOGGER, "❌ Validation FAILED: " + missingUnselected
+						+ " newly loaded profiles are unexpectedly selected");
+				Assert.fail("Validation FAILED: " + missingUnselected
+						+ " newly loaded profiles are selected (should be unselected)");
+			}
+
+		} catch (Exception e) {
+			ScreenshotHandler.captureFailureScreenshot(
+					"verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen", e);
+			PageObjectHelper.handleError(LOGGER, 
+					"verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen",
+					"Error verifying newly loaded profiles are not selected in HCM Sync Profiles Screen", e);
+			Assert.fail("Error verifying newly loaded profiles are not selected: " + e.getMessage());
+		}
+	}
+
+	// =====================================================
+	// FLOW 2: SELECT ALL (Chevron + Select All Button)
+	// =====================================================
 
 	/**
 	 * Clicks on Chevron Button beside Header Checkbox in HCM Sync Profiles screen.
@@ -41,12 +167,12 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM extends BasePageObject {
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.PAGE_LOAD_SPINNER));
 			
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(HCM_CHEVRON_BTN)).click();
+				wait.until(ExpectedConditions.elementToBeClickable(Locators.PMScreen.CHEVRON_BUTTON)).click();
 			} catch (Exception e) {
 				try {
-					jsClick(findElement(HCM_CHEVRON_BTN));
+					jsClick(findElement(Locators.PMScreen.CHEVRON_BUTTON));
 				} catch (Exception s) {
-					clickElement(HCM_CHEVRON_BTN);
+					clickElement(Locators.PMScreen.CHEVRON_BUTTON);
 				}
 			}
 			
@@ -69,7 +195,6 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM extends BasePageObject {
 	public void click_on_select_all_button_in_hcm_sync_profiles_screen() {
 		try {
 			// Wait directly for Select All button to be clickable (dropdown appears immediately after chevron click)
-			// No need to wait for spinner as dropdown shows without page reload
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(Locators.Table.SELECT_ALL_BTN)).click();
 			} catch (Exception e) {
@@ -112,7 +237,7 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM extends BasePageObject {
 
 			// Step 1: Get total profile count from "Showing X of Y Success Profiles" text
 			try {
-				WebElement countElement = findElement(SHOWING_COUNT);
+				WebElement countElement = findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 				String countText = countElement.getText().trim();
 
 				// Parse text like "Showing 50 of 2842 Success Profiles"
@@ -134,11 +259,10 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM extends BasePageObject {
 				PageObjectHelper.log(LOGGER, "Could not determine total profile count. Scrolling through all available profiles...");
 			}
 
-			// Step 2: Scroll to load all profiles (ENHANCED FOR HEADLESS MODE)
+			// Step 2: Scroll to load all profiles
 			PageObjectHelper.log(LOGGER, "Loading all profiles by scrolling...");
 
 			// DYNAMIC maxScrollAttempts calculation based on total profiles
-			// ~50 profiles load per scroll, add small buffer for safety
 			int maxScrollAttempts;
 			if (totalProfiles > 0) {
 				int estimatedScrolls = (int) Math.ceil(totalProfiles / 50.0);
@@ -212,14 +336,9 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM extends BasePageObject {
 			LOGGER.info("Scrolling complete. Total rows loaded: {}, Scrolls performed: {}", currentRowCount, scrollCount);
 
 			// Step 3: Count checkboxes by state using JavaScript (FAST)
-			// In HCM/PM screens:
-			// - Selected: kf-icon[@icon='checkbox-check'] is ONLY present in DOM when checked
-			// - Disabled: kf-checkbox has div with 'disable' class
-			
 			LOGGER.info("Counting selected/disabled checkboxes...");
 			
 			try {
-				// JavaScript counting is MUCH faster than XPath findElements for large tables
 				String jsCountSelected = "return document.querySelectorAll('tbody tr td:first-child kf-checkbox kf-icon[icon=\"checkbox-check\"]').length;";
 				String jsCountDisabled = "return document.querySelectorAll('tbody tr td:first-child kf-checkbox div.disable').length;";
 				
@@ -249,9 +368,9 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM extends BasePageObject {
 			
 			PageObjectHelper.log(LOGGER, "=== PROFILE COUNT SUMMARY ===");
 			PageObjectHelper.log(LOGGER, "Total Profiles: " + totalProfiles);
-			PageObjectHelper.log(LOGGER, " Selected (to be synced): " + selectedCount);
-			PageObjectHelper.log(LOGGER, " Unselected (enabled but not selected): " + unselectedProfiles);
-			PageObjectHelper.log(LOGGER, " Disabled (cannot be selected): " + disabledCount);
+			PageObjectHelper.log(LOGGER, "✅ Selected (to be synced): " + selectedCount);
+			PageObjectHelper.log(LOGGER, "⬜ Unselected (enabled but not selected): " + unselectedProfiles);
+			PageObjectHelper.log(LOGGER, "🚫 Disabled (cannot be selected): " + disabledCount);
 
 			CountOfProfilesSelectedToExport = selectedCount;
 			PO22_ValidateHCMSyncProfilesScreen_PM.profilesCount.set(CountOfProfilesSelectedToExport);
@@ -270,3 +389,4 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM extends BasePageObject {
 		}
 	}
 }
+

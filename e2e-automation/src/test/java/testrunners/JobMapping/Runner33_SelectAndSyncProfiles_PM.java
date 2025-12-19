@@ -21,9 +21,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature",
-			"src/test/resources/features/JobMapping/33ValidateSelectAndHCMSyncLoadedProfiles_PM.feature"
+			"src/test/resources/features/JobMapping/33_SelectAndSyncProfiles_PM.feature"
 		},
-		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Select_And_HCM_Sync_Loaded_Profiles_PM",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Select_And_Sync_Profiles_PM",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {
@@ -33,12 +33,12 @@ import io.cucumber.testng.CucumberOptions;
 		}
 		)
 
-public class Runner33_ValidateSelectAndHCMSyncLoadedProfiles_PM extends CustomizeTestNGCucumberRunner {
+public class Runner33_SelectAndSyncProfiles_PM extends CustomizeTestNGCucumberRunner {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Select_And_HCM_Sync_Loaded_Profiles_PM";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Select_And_Sync_Profiles_PM";
 	}
 	
 	@Override
@@ -48,7 +48,7 @@ public class Runner33_ValidateSelectAndHCMSyncLoadedProfiles_PM extends Customiz
 
 	@AfterTest
 	public void after_test() {
-		LOGGER.info("Successfully completed validation of Select Loaded Profiles and Sync with HCM in HCM Sync Profiles screen");
+		LOGGER.info("Successfully completed validation of Select and Sync Profiles in HCM Sync Profiles screen");
 		LOGGER.info("Login Type Used: " + DynamicTagResolver.getCurrentLoginType());
 		DriverManager.closeBrowser();
 	}

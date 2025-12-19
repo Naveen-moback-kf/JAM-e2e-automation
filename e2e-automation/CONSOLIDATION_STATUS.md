@@ -273,19 +273,50 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 
 ---
 
-## 🎯 High Priority - Recommended Next Consolidations
+### 10. Select and Sync Profiles PM (Feature #33)
+**Consolidated:** December 19, 2024
 
-### 1. Select and Sync/Publish (PM + JAM) → Could become Feature #33
-**Current Files (4):**
+| Before (2 separate features) | After (1 consolidated feature) |
+|------------------------------|-------------------------------|
+| 33ValidateSelectAndHCMSyncLoadedProfiles_PM.feature | 33_SelectAndSyncProfiles_PM.feature |
+| 34ValidateSelectAndSyncAllProfiles_PM.feature | |
+
+**Files Created:**
+- `33_SelectAndSyncProfiles_PM.feature` - Unified feature with two selection flows
+- `PO33_SelectAndSyncProfiles_PM.java` - Unified Page Object
+- `SD33_SelectAndSyncProfiles_PM.java` - Step Definitions
+- `Runner33_SelectAndSyncProfiles_PM.java`
+
+**Key Features:**
+- **Flow 1 (Header Checkbox):** Select only LOADED profiles, verify lazy-loaded profiles remain unselected
+- **Flow 2 (Select All):** Chevron + Select All to select ALL profiles including not-yet-loaded
+- Common Sync with HCM functionality
+- Publish Center history verification
+- Tags: `@Header_Checkbox_Selection`, `@Select_All_Selection`, `@Select_And_Sync_Profiles_PM`
+
+**Files Deleted:**
 - `33ValidateSelectAndHCMSyncLoadedProfiles_PM.feature`
 - `34ValidateSelectAndSyncAllProfiles_PM.feature`
+- `PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM.java`
+- `PO34_ValidateSelectAndSyncAllProfiles_PM.java`
+- `SD33_ValidateSelectAndHCMSyncLoadedProfiles_PM.java`
+- `SD34_ValidateSelectAndSyncAllProfiles_PM.java`
+- `Runner33_ValidateSelectAndHCMSyncLoadedProfiles_PM.java`
+- `Runner34_ValidateSelectAndSyncAllProfiles_PM.java`
+
+---
+
+## 🎯 High Priority - Recommended Next Consolidations
+
+### 1. Select and Publish Profiles JAM (Feature #37 + #40)
+**Current Files (2):**
 - `37ValidateSelectAndPublishLoadedProfiles_JAM.feature`
 - `40ValidateSelectAndPublishAllJobProfiles_JAM.feature`
 
 **Consolidation Strategy:**
-- Parameterize by `<screen>` (PM/JAM) and `<scope>` (Loaded/All)
-- Note: PM uses "Sync", JAM uses "Publish" - may need action parameterization
-- Estimated reduction: 4 files → 1 file
+- Similar to PM consolidation (Feature #33)
+- Parameterize by `<scope>` (Loaded/All)
+- Estimated reduction: 2 files → 1 file
 
 ---
 
@@ -317,9 +348,10 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 | ✅ Done | Unmapped Jobs (19,46) | 8 | 2 | 6 files |
 | ✅ Done | Profile Details (05→15) | 4 | 0 | 4 files |
 | ✅ Done | Single Job Publish (06,07,08) | 12 | 4 | 8 files |
-| 🎯 Next | Sync/Publish (33,34,37,40) | 16 | 5 | 11 files |
+| ✅ Done | Select & Sync PM (33,34) | 8 | 4 | 4 files |
+| 🎯 Next | Select & Publish JAM (37,40) | 8 | 4 | 4 files |
 
-**Total Files Reduced So Far:** ~73 files
+**Total Files Reduced So Far:** ~77 files
 **Total Potential Reduction:** ~85+ files
 
 ---
@@ -352,6 +384,7 @@ When consolidating, ensure:
 | Dec 19, 2024 | Unmapped Jobs (19, 46) | 6 files | Naveen |
 | Dec 19, 2024 | Profile Details Popup (05 → 15) | 4 files | Naveen |
 | Dec 19, 2024 | Single Job Publish (06, 07, 08) | 8 files | Naveen |
+| Dec 19, 2024 | Select & Sync PM (33, 34) | 4 files | Naveen |
 
 ---
 

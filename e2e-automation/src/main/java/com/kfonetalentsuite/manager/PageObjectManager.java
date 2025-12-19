@@ -29,8 +29,7 @@ public class PageObjectManager {
 	public PO26_VerifyJobsMissingDataTipMessage verifyJobsMissingDataTipMessage;
 	public PO27_VerifyInfoMessageForMissingDataProfiles verifyInfoMessageForMissingDataProfiles;
 	public PO28_VerifyInfoMessageForManualMappingProfiles verifyInfoMessageForManualMappingProfiles;
-	public PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM validateSelectAndHCMSyncLoadedProfiles_PM;
-	public PO34_ValidateSelectAndSyncAllProfiles_PM validateSelectAndSyncAllProfiles_PM;
+	public PO33_SelectAndSyncProfiles_PM selectAndSyncProfiles_PM;
 	public PO37_ValidateSelectAndPublishLoadedProfiles_JAM validateSelectAndPublishLoadedProfiles_JAM;
 	public PO40_ValidateSelectAndPublishAllJobProfilesinJAM validateSelectAndPublishAllJobProfilesinJAM;
 	public PO41_ValidateApplicationPerformance_JAM_and_HCM validateApplicationPerformance_JAM_and_HCM;
@@ -209,19 +208,11 @@ public class PageObjectManager {
 		return verifyInfoMessageForManualMappingProfiles;
 	}
 
-	public PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM getValidateSelectAndHCMSyncLoadedProfiles_PM()
-			throws IOException {
-		if (validateSelectAndHCMSyncLoadedProfiles_PM == null) {
-			validateSelectAndHCMSyncLoadedProfiles_PM = new PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM();
+	public PO33_SelectAndSyncProfiles_PM getSelectAndSyncProfiles_PM() throws IOException {
+		if (selectAndSyncProfiles_PM == null) {
+			selectAndSyncProfiles_PM = new PO33_SelectAndSyncProfiles_PM();
 		}
-		return validateSelectAndHCMSyncLoadedProfiles_PM;
-	}
-
-	public PO34_ValidateSelectAndSyncAllProfiles_PM getValidateSelectAndSyncAllProfiles_PM() throws IOException {
-		if (validateSelectAndSyncAllProfiles_PM == null) {
-			validateSelectAndSyncAllProfiles_PM = new PO34_ValidateSelectAndSyncAllProfiles_PM();
-		}
-		return validateSelectAndSyncAllProfiles_PM;
+		return selectAndSyncProfiles_PM;
 	}
 
 	public PO37_ValidateSelectAndPublishLoadedProfiles_JAM getValidateSelectAndPublishLoadedProfiles_JAM()
@@ -340,9 +331,8 @@ public class PageObjectManager {
 		// Missing Data Validation Page Objects (PO29)
 		validateMissingDataFunctionality = null;
 
-		// Profile Selection PM Page Objects (PO33-PO34)
-		validateSelectAndHCMSyncLoadedProfiles_PM = null;
-		validateSelectAndSyncAllProfiles_PM = null;
+		// Profile Selection PM Page Objects (PO33)
+		selectAndSyncProfiles_PM = null;
 
 		// Profile Selection JAM Page Objects (PO37, PO40)
 		validateSelectAndPublishLoadedProfiles_JAM = null;
