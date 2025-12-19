@@ -31,15 +31,16 @@ public class PO40_ValidateSelectAndPublishAllJobProfilesinJAM extends BasePageOb
 	public static final int REFRESH_INTERVAL_SECONDS = 30;
 
 	// ==================== LOCATORS ====================
-	private static final By CHEVRON_BTN = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]");
+	// Using centralized Locators from BasePageObject
+	private static final By CHEVRON_BTN = Locators.JAMScreen.CHEVRON_BUTTON;
 	// SELECT_ALL_BTN is available via Locators.Table.SELECT_ALL_BTN
 	// RESULTS_COUNT_TEXT is available via Locators.Table.RESULTS_COUNT_TEXT
 	// VIEW_PUBLISHED_TOGGLE is available via Locators.Actions.VIEW_PUBLISHED_TOGGLE
-	private static final By ASYNC_MESSAGE = By.xpath("//*[contains(text(),'Publish process') or contains(text(),'Please check')]");
-	private static final By SUCCESS_HEADER = By.xpath("//h2[@id='modal-header']");
-	private static final By SUCCESS_MSG = By.xpath("//*[@id='modal-description']");
-	private static final By SUCCESS_CLOSE_BTN = By.xpath("//button[@id='close-success-modal-btn']");
-	private static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//input[@type='checkbox']");
+	private static final By ASYNC_MESSAGE = Locators.JobMapping.ASYNC_MESSAGE;
+	private static final By SUCCESS_HEADER = Locators.Modals.SUCCESS_MODAL_HEADER;
+	private static final By SUCCESS_MSG = Locators.Modals.SUCCESS_MODAL_MESSAGE;
+	private static final By SUCCESS_CLOSE_BTN = Locators.Modals.SUCCESS_MODAL_CLOSE_BTN;
+	private static final By ALL_CHECKBOXES = Locators.Table.ROW_CHECKBOXES;
 	private static final By SELECTED_CHECKBOXES = By.xpath("//tbody//tr//td[1]//input[@type='checkbox' and @checked]");
 
 	// ==================== THREAD-SAFE STATE ====================

@@ -32,7 +32,7 @@ public class PO27_VerifyInfoMessageForMissingDataProfiles extends BasePageObject
 	private static final By INFO_MESSAGE_TEXTS = By.xpath("//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']//div[contains(text(), 'Reduced match accuracy due to missing data')]");
 	private static final By ORG_JOB_TABLE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr");
 	private static final By KF_JOB_TABLE_ROWS = By.xpath("//div[@id='kf-job-container']//tbody//tr");
-	private static final By COMPARE_SELECT_HEADER = By.xpath("//h1[@id='compare-desc']");
+	private static final By COMPARE_SELECT_HEADER = Locators.ComparisonPage.COMPARE_HEADER;
 	private static final By LOADER_ELEMENTS = By.xpath("//div[@data-testid='loader'] | //div[contains(@class, 'loader')] | //div[contains(@class, 'loading')]");
 
 	@SuppressWarnings("unused")

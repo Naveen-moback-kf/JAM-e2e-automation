@@ -154,25 +154,25 @@ public class PO41_ValidateApplicationPerformance_JAM_and_HCM extends BasePageObj
 	// Locators.JobMappingResults.SHOWING_JOB_RESULTS is available via Locators.JobMappingResults.SHOWING_JOB_RESULTS
 	private static final By FILTERS_DROPDOWN_BUTTON = By.xpath("//button[@id='filters-btn']");
 	
-	// Navigation XPaths (Job Comparison)
-	private static final By JOB_COMPARISON_HEADER = By.xpath("//h1[@id='compare-desc']");
+	// Navigation XPaths (Job Comparison) - from Locators.ComparisonPage
+	private static final By JOB_COMPARISON_HEADER = Locators.ComparisonPage.COMPARE_HEADER;
 	
 	// Sort XPaths
 	private static final By ORG_JOB_NAME_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[2]/div");
 	private static final By ORG_JOB_GRADE_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div");
 	
-	// Select All XPaths (Job Mapping)
-	private static final By CHEVRON_BTN_IN_JAM = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]");
+	// Select All XPaths (Job Mapping) - from Locators.JAMScreen
+	private static final By CHEVRON_BTN_IN_JAM = Locators.JAMScreen.CHEVRON_BUTTON;
 	// SELECT_ALL_BTN is available via Locators.Table.SELECT_ALL_BTN
 	
-	// KFONE Global Menu XPaths
+	// KFONE Global Menu XPaths - from Locators.Navigation
 	// KFONE_MENU is available via Locators.Navigation.GLOBAL_NAV_MENU_BTN
-	private static final By KFONE_MENU_PM_BTN = By.xpath("//span[@aria-label='Profile Manager']");
+	private static final By KFONE_MENU_PM_BTN = Locators.Navigation.KFONE_MENU_PM_BTN;
 	
-	// HCM Navigation XPaths
-	private static final By PROFILE_MANAGER_HEADER = By.xpath("//h1[contains(text(),'Profile Manager')]");
-	private static final By HCM_SYNC_PROFILES_HEADER_TAB = By.xpath("//span[contains(text(),'HCM Sync Profiles')]");
-	private static final By HCM_SYNC_PROFILES_TITLE = By.xpath("//h1[contains(text(),'Sync Profiles')]");
+	// HCM Navigation XPaths - from Locators.HCMSyncProfiles
+	private static final By PROFILE_MANAGER_HEADER = Locators.HCMSyncProfiles.PROFILE_MANAGER_HEADER;
+	private static final By HCM_SYNC_PROFILES_HEADER_TAB = Locators.HCMSyncProfiles.HCM_SYNC_TAB;
+	private static final By HCM_SYNC_PROFILES_TITLE = Locators.HCMSyncProfiles.SYNC_PROFILES_TITLE;
 	
 	// HCM Sync XPaths
 	private static final By HCM_TABLE_HEADER_CHECKBOX = By.xpath("//thead//tr//div//kf-checkbox");

@@ -88,12 +88,12 @@ public class PO22_ValidateHCMSyncProfilesScreen_PM extends BasePageObject {
 	private static final By MENU_BTN = By.xpath("//span[contains(text(),'Hi')]//following::img[1]");
 	private static final By HOME_MENU_BTN = By.xpath("//*[*[contains(text(),'Hi, ')]]/div[2]/img");
 	private static final By PM_BTN = By.xpath("//a[contains(text(),'Profile Manager')]");
-	private static final By PM_HEADER = By.xpath("//h1[contains(text(),'Profile Manager')]");
-	private static final By HCM_SYNC_PROFILES_HEADER = By.xpath("//span[contains(text(),'HCM Sync Profiles')]");
-	private static final By HCM_SYNC_PROFILES_TITLE = By.xpath("//h1[contains(text(),'Sync Profiles')]");
+	private static final By PM_HEADER = Locators.HCMSyncProfiles.PROFILE_MANAGER_HEADER;
+	private static final By HCM_SYNC_PROFILES_HEADER = Locators.HCMSyncProfiles.HCM_SYNC_TAB;
+	private static final By HCM_SYNC_PROFILES_TITLE = Locators.HCMSyncProfiles.SYNC_PROFILES_TITLE;
 	private static final By HCM_SYNC_PROFILES_TITLE_DESC = By.xpath("//p[contains(text(),'Select a job profile')]");
-	private static final By HCM_SYNC_PROFILES_SEARCHBAR = By.xpath("//input[@type='search']");
-	private static final By HCM_SYNC_PROFILES_JOB_ROW1 = By.xpath("//tbody//tr[1]//td//div//span[1]//a");
+	private static final By HCM_SYNC_PROFILES_SEARCHBAR = Locators.PMScreen.SEARCH_BAR;
+	private static final By HCM_SYNC_PROFILES_JOB_ROW1 = Locators.JobMappingResults.HCM_JOB_ROW_1;
 	private static final By NO_SP_MSG = By.xpath("//div[contains(text(),'no Success Profiles')]");
 	private static final By NO_RESULTS_MESSAGE = By.xpath("//*[contains(text(),'no results available') or contains(text(),'There are no results')]");
 	private static final By HCM_SYNC_PROFILES_JOB_ROW2 = By.xpath("//tbody//tr[2]//td//div//span[1]//a");

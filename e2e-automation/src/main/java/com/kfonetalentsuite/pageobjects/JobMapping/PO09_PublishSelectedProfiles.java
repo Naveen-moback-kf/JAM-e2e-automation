@@ -17,12 +17,13 @@ public class PO09_PublishSelectedProfiles extends BasePageObject {
 	private static final Logger LOGGER = LogManager.getLogger(PO09_PublishSelectedProfiles.class);
 
 	// formatDateForDisplay() is inherited from BasePageObject
-
-	private static final By JOB_NAME_ROW_1 = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
-	private static final By JOB_1_PUBLISHED_BTN = By.xpath("//tbody//tr[2]//button[text()='Published'][1]");
-	private static final By HCM_PROFILES_SEARCH = By.xpath("//input[@type='search']");
-	private static final By HCM_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//span[1]//a");
-	private static final By HCM_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[7]//span");
+	
+	// Using centralized Locators from BasePageObject
+	private static final By JOB_NAME_ROW_1 = Locators.JobMappingResults.JOB_NAME_ROW_1;
+	private static final By JOB_1_PUBLISHED_BTN = Locators.JobMappingResults.JOB_1_PUBLISHED_BTN;
+	private static final By HCM_PROFILES_SEARCH = Locators.PMScreen.SEARCH_BAR;
+	private static final By HCM_JOB_ROW_1 = Locators.JobMappingResults.HCM_JOB_ROW_1;
+	private static final By HCM_DATE_ROW_1 = Locators.JobMappingResults.HCM_DATE_ROW_1;
 	private static final By HCM_DATE_ROW_2 = By.xpath("//tbody//tr[2]//td[7]//span");
 
 	public PO09_PublishSelectedProfiles() {

@@ -34,7 +34,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 	private static final By PROCEED_BTN = By.xpath("//*[text()='Proceed']");
 	private static final By MICROSOFT_SUBMIT_BTN = By.xpath("//input[@type='submit']");
 	private static final By MICROSOFT_PASSWORD_HEADER = By.xpath("//div[text()='Enter password']");
-	private static final By PM_HEADER = By.xpath("//h1[contains(text(),'Profile Manager')]");
+	private static final By PM_HEADER = Locators.HCMSyncProfiles.PROFILE_MANAGER_HEADER;
 	private static final By CLIENTS_TABLE = By.xpath("//table[@id='iam-clients-list-table-content']");
 	private static final By CLIENTS_TABLE_BODY = By.xpath("//tbody[@class='table-body']");
 	private static final By CLIENT_SEARCH_BAR = By.xpath("//input[@id='search-client-input-search']");

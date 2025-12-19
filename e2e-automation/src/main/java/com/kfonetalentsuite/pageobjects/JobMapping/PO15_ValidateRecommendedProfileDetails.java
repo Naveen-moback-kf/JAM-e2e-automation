@@ -55,8 +55,8 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 	private static final By PUBLISH_PROFILE_BTN = By.xpath("//button[@id='publish-job-profile']");
 	private static final By POPUP_CONTAINER = By.xpath("//div[contains(@class, 'modal-body') or contains(@class, 'popup-content') or contains(@class, 'dialog-content')]");
 
-	// Job Comparison Page Locators
-	private static final By COMPARE_AND_SELECT_HEADER = By.xpath("//h1[@id='compare-desc']");
+	// Job Comparison Page Locators - from Locators.ComparisonPage
+	private static final By COMPARE_AND_SELECT_HEADER = Locators.ComparisonPage.COMPARE_HEADER;
 	private static final By ORG_JOB_TITLE_HEADER = By.xpath("//div[contains(@class,'leading')]//div[1]//div[1]");
 	private static final By ORG_JOB_GRADE_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Grade')]//span");
 	private static final By ORG_JOB_DEPARTMENT_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Department')]//span");

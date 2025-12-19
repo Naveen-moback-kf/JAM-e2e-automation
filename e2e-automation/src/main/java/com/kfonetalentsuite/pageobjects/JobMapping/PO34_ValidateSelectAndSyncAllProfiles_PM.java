@@ -24,8 +24,9 @@ public class PO34_ValidateSelectAndSyncAllProfiles_PM extends BasePageObject {
 	// Locators - Uses centralized locators from BasePageObject.Locators where available
 	// PAGE_LOAD_SPINNER is available via Locators.Spinners.PAGE_LOAD_SPINNER
 	// HCM_SELECT_ALL_BTN is available via Locators.Actions.SELECT_ALL_BTN
-	private static final By HCM_CHEVRON_BTN = By.xpath("//*[contains(@class,'kf-icon-arrow-down')]");
-	private static final By SHOWING_COUNT = By.xpath("//div[contains(@class, 'body-text') and contains(text(), 'Showing')]");
+	// Using centralized Locators from BasePageObject where applicable
+	private static final By HCM_CHEVRON_BTN = Locators.PMScreen.CHEVRON_BUTTON;
+	private static final By SHOWING_COUNT = Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT;
 	private static final By ALL_ROWS = By.xpath("//tbody//tr");
 
 	public PO34_ValidateSelectAndSyncAllProfiles_PM() {
