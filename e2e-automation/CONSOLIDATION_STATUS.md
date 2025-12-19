@@ -148,6 +148,58 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 
 ---
 
+### 6. Filter Persistence (Feature #12)
+**Consolidated:** December 19, 2024
+
+| Before (2 separate files) | After (1 consolidated file) |
+|--------------------------|----------------------------|
+| 12aValidateBasicFilterPersistence.feature | 12_FilterPersistence.feature |
+| 12bValidateAdvancedFilterPersistence.feature | |
+
+**Files Created:**
+- `12_FilterPersistence.feature` - All filter persistence scenarios organized by type
+- `Runner12_FilterPersistence.java`
+
+**Key Features:**
+- Basic Filter Persistence: Grades filters, Mapping Status filters
+- Advanced Filter Persistence: Manual Mapping navigation, View Published screen
+- Tests persistence after: Page refresh, Job Comparison, Profile Manager, Manual Mapping
+
+**Files Deleted:**
+- `12aValidateBasicFilterPersistence.feature`
+- `12bValidateAdvancedFilterPersistence.feature`
+- `Runner12a_ValidateBasicFilterPersistence.java`
+- `Runner12b_ValidateAdvancedFilterPersistence.java`
+- CrossBrowser runners (12a, 12b)
+
+---
+
+### 7. Sorting Persistence (Feature #18)
+**Consolidated:** December 19, 2024
+
+| Before (2 separate files) | After (1 consolidated file) |
+|--------------------------|----------------------------|
+| 18aValidateBasicSortingPersistence.feature | 18_SortingPersistence.feature |
+| 18bValidateAdvancedSortingPersistence.feature | |
+
+**Files Created:**
+- `18_SortingPersistence.feature` - All sorting persistence scenarios organized by type
+- `Runner18_SortingPersistence.java`
+
+**Key Features:**
+- Basic Sorting Persistence: Multi-level sorting (Grade + Job Name)
+- Advanced Sorting Persistence: Sorting with filters, View Published screen
+- Tests persistence after: Page refresh, Job Comparison, Profile Manager, Manual Mapping
+
+**Files Deleted:**
+- `18aValidateBasicSortingPersistence.feature`
+- `18bValidateAdvancedSortingPersistence.feature`
+- `Runner18a_ValidateBasicSortingPersistence.java`
+- `Runner18b_ValidateAdvancedSortingPersistence.java`
+- CrossBrowser runners (18a, 18b)
+
+---
+
 ## 🎯 High Priority - Recommended Next Consolidations
 
 ### 1. Select and Sync/Publish (PM + JAM) → Could become Feature #33
@@ -166,7 +218,7 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 
 ## 📋 Medium Priority Consolidations
 
-### 3. Publish Job from Different Screens → Could become Feature #06
+### 2. Publish Job from Different Screens → Could become Feature #06
 **Current Files (4):**
 - `06PublishJobProfile.feature`
 - `07PublishJobFromComparisonScreen.feature`
@@ -176,28 +228,6 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 **Consolidation Strategy:**
 - Parameterize by `<source>` (JobMapping/Comparison/DetailsPopup/Selected)
 - Estimated reduction: 4 files → 1 file
-
----
-
-### 4. Filter Persistence (Basic + Advanced) → Could become Feature #12
-**Current Files (2):**
-- `12aValidateBasicFilterPersistence.feature`
-- `12bValidateAdvancedFilterPersistence.feature`
-
-**Consolidation Strategy:**
-- Parameterize by `<filterType>` (Basic/Advanced)
-- Estimated reduction: 2 files → 1 file
-
----
-
-### 5. Sorting Persistence (Basic + Advanced) → Could become Feature #18
-**Current Files (2):**
-- `18aValidateBasicSortingPersistence.feature`
-- `18bValidateAdvancedSortingPersistence.feature`
-
-**Consolidation Strategy:**
-- Parameterize by `<sortType>` (Basic/Advanced)
-- Estimated reduction: 2 files → 1 file
 
 ---
 
@@ -224,12 +254,12 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 | ✅ Done | Search Selection (35,38) | 12 | 7 | 5 files |
 | ✅ Done | Filter Selection (36,39) | 12 | 6 | 6 files |
 | ✅ Done | Filters (11) | Multiple | 5 | ~10 files |
+| ✅ Done | Filter Persistence (12a,12b) | 8 | 2 | 6 files |
+| ✅ Done | Sort Persistence (18a,18b) | 8 | 2 | 6 files |
 | 🎯 Next | Sync/Publish (33,34,37,40) | 16 | 5 | 11 files |
 | 📋 Medium | Publish Sources (06-09) | 16 | 5 | 11 files |
-| 📋 Medium | Filter Persistence (12a,12b) | 8 | 5 | 3 files |
-| 📋 Medium | Sort Persistence (18a,18b) | 8 | 5 | 3 files |
 
-**Total Files Reduced So Far:** ~43 files
+**Total Files Reduced So Far:** ~55 files
 **Total Potential Reduction:** ~70+ files
 
 ---
@@ -257,8 +287,10 @@ When consolidating, ensure:
 | Dec 2024 | Clear Profile Selection (42-45) | 11 files | Naveen |
 | Dec 18, 2024 | Select All with Search (35, 35a, 38, 38a) | 5 files | Naveen |
 | Dec 18, 2024 | Select All with Filters (36, 36a, 39, 39a) | 6 files | Naveen |
+| Dec 19, 2024 | Filter Persistence (12a, 12b) | 6 files | Naveen |
+| Dec 19, 2024 | Sorting Persistence (18a, 18b) | 6 files | Naveen |
 
 ---
 
-*Last Updated: December 18, 2024*
+*Last Updated: December 19, 2024*
 

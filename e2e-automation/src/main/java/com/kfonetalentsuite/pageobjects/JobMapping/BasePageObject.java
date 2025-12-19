@@ -1226,7 +1226,7 @@ public class BasePageObject {
 	 */
 	protected void waitForBackgroundDataLoad() {
 		try {
-			LOGGER.debug("Waiting for background data API to complete...");
+			LOGGER.info("Waiting for background data API to complete...");
 			
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			
@@ -1253,6 +1253,7 @@ public class BasePageObject {
 			// Wait for the 100K API to complete (max 120 seconds)
 			int maxWaitSeconds = 120;
 			int waited = 0;
+			int consecutiveZeroPending = 0;
 			
 			while (waited < maxWaitSeconds) {
 				safeSleep(2000);
@@ -1260,17 +1261,29 @@ public class BasePageObject {
 				
 				// Check if the 100K API has completed
 				Boolean apiComplete = (Boolean) js.executeScript("return window._dataApiComplete === true;");
+				Long pending = (Long) js.executeScript("return window._pendingRequests || 0;");
 				
 				if (Boolean.TRUE.equals(apiComplete)) {
-					LOGGER.debug("Background data API completed after {} seconds", waited);
+					LOGGER.info("Background data API completed after {} seconds", waited);
 					safeSleep(500); // Small buffer after API completes
 					return;
 				}
 				
+				// If 0 pending requests for 3 consecutive checks (6+ seconds), API likely already completed before monitoring started
+				if (pending == 0) {
+					consecutiveZeroPending++;
+					if (consecutiveZeroPending >= 3) {
+						LOGGER.info("No pending requests for {}+ seconds - API already completed or no data to load", consecutiveZeroPending * 2);
+						safeSleep(500);
+						return;
+					}
+				} else {
+					consecutiveZeroPending = 0; // Reset if requests appear
+				}
+				
 				// Log progress every 20 seconds
 				if (waited % 20 == 0) {
-					Long pending = (Long) js.executeScript("return window._pendingRequests || 0;");
-					LOGGER.debug("Waiting for data API... {}s elapsed, {} pending requests", waited, pending);
+					LOGGER.info("Waiting for data API... {}s elapsed, {} pending requests", waited, pending);
 				}
 			}
 			

@@ -21,9 +21,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature",
-			"src/test/resources/features/JobMapping/18aValidateBasicSortingPersistence.feature"
+			"src/test/resources/features/JobMapping/18SortingPersistence.feature"
 		},
-		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Basic_Sorting_Persistence",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Sorting_Persistence",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {
@@ -33,13 +33,13 @@ import io.cucumber.testng.CucumberOptions;
 		}
 		)
 
-public class Runner18a_ValidateBasicSortingPersistence extends CustomizeTestNGCucumberRunner {
+public class Runner18_SortingPersistence extends CustomizeTestNGCucumberRunner {
 	
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Basic_Sorting_Persistence";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Sorting_Persistence";
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ public class Runner18a_ValidateBasicSortingPersistence extends CustomizeTestNGCu
 	
 	@AfterTest
 	public void after_test() {
-		LOGGER.info("Successfully completed testing Basic Sorting Persistence functionality in Job Mapping page");
+		LOGGER.info("Successfully completed testing Sorting Persistence functionality in Job Mapping page");
 		LOGGER.info("Login Type Used: " + DynamicTagResolver.getCurrentLoginType());
 		DriverManager.closeBrowser();
 	}

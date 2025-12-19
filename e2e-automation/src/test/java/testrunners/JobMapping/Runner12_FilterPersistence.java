@@ -21,9 +21,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature",
-			"src/test/resources/features/JobMapping/12bValidateAdvancedFilterPersistence.feature"
+			"src/test/resources/features/JobMapping/12FilterPersistence.feature"
 		},
-		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Advanced_Filter_Persistence",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Filter_Persistence",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {
@@ -33,13 +33,13 @@ import io.cucumber.testng.CucumberOptions;
 		}
 		)
 
-public class Runner12b_ValidateAdvancedFilterPersistence extends CustomizeTestNGCucumberRunner {
+public class Runner12_FilterPersistence extends CustomizeTestNGCucumberRunner {
 	
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Advanced_Filter_Persistence";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Filter_Persistence";
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ public class Runner12b_ValidateAdvancedFilterPersistence extends CustomizeTestNG
 	
 	@AfterTest
 	public void after_test() {
-		LOGGER.info("Successfully completed testing Advanced Filter Persistence functionality in Job Mapping page");
+		LOGGER.info("Successfully completed testing Filter Persistence functionality in Job Mapping page");
 		LOGGER.info("Login Type Used: " + DynamicTagResolver.getCurrentLoginType());
 		DriverManager.closeBrowser();
 	}
