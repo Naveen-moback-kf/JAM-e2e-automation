@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.kfonetalentsuite.manager.PageObjectManager;
 
 import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
 public class SD06_PublishJobProfile {
 	
@@ -112,6 +113,39 @@ public class SD06_PublishJobProfile {
 	@Then("User should verify Updated Date on Published Job matches with current date in Architect")
 	public void user_should_verify__updated_date_on_published_job_matches_with_current_date_in_architect() throws IOException {
 		publishJobProfile.getPublishJobProfile().user_should_verify__updated_date_on_published_job_matches_with_current_date_in_architect();
+	}
+
+	// ============================================================
+	// Methods moved from SD07_PublishJobFromComparisonScreen
+	// ============================================================
+
+	@Then("Verify user landed on job comparison screen")
+	public void verify_user_landed_on_job_comparison_screen() throws IOException {
+		publishJobProfile.getPublishJobProfile().verify_user_landed_on_job_comparison_screen();
+	}
+
+	@Then("Select second profile from DS Suggestions of Organization Job")
+	public void select_second_profile_from_ds_suggestions_of_organization_job() throws IOException {
+		publishJobProfile.getPublishJobProfile().select_second_profile_from_ds_suggestions_of_organization_job();
+	}
+
+	@Then("Click on Publish Selected button in Job Comparison page")
+	public void click_on_publish_selected_button_in_job_comparison_page() throws IOException {
+		publishJobProfile.getPublishJobProfile().click_on_publish_selected_button_in_job_comparison_page();
+	}
+
+	// ============================================================
+	// Methods moved from SD08_PublishJobFromDetailsPopup
+	// ============================================================
+
+	@When("User is on profile details popup")
+	public void user_is_on_profile_details_popup() throws IOException {
+		publishJobProfile.getPublishJobProfile().user_is_on_profile_details_popup();
+	}
+
+	@Then("Click on Publish Profile button in profile details popup")
+	public void click_on_publish_profile_button_in_profile_details_popup() throws IOException {
+		publishJobProfile.getPublishJobProfile().click_on_publish_profile_button_in_profile_details_popup();
 	}
 
 }

@@ -169,6 +169,7 @@ public class PO04_VerifyJobMappingPageComponents extends BasePageObject {
 			PerformanceUtils.waitForPageReady(driver, 5);
 			Assert.assertTrue(waitForElement(Locators.JobMapping.PAGE_CONTAINER).isDisplayed());
 			PageObjectHelper.log(LOGGER, "User landed on the JOB MAPPING page successfully");
+			waitForBackgroundDataLoad();
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_be_landed_on_job_mapping_page", "Issue in landing Job Mapping page", e);
 		}

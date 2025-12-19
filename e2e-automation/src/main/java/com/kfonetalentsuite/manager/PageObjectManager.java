@@ -11,8 +11,6 @@ public class PageObjectManager {
 	public PO03_ValidateJobmappingHeaderSection validateJobmappingHeaderSection;
 	public PO04_VerifyJobMappingPageComponents verifyJobMappingPageComponents;
 	public PO06_PublishJobProfile publishJobProfile;
-	public PO07_PublishJobFromComparisonScreen publishJobFromComparisonScreen;
-	public PO08_PublishJobFromDetailsPopup publishJobFromDetailsPopup;
 	public PO09_PublishSelectedProfiles publishSelectedProfiles;
 	public PO10_ValidateScreen1SearchResults validateScreen1SearchResults;
 	public PO11_ValidateJobMappingFiltersFunctionality validateJobMappingFiltersFunctionality;
@@ -81,19 +79,6 @@ public class PageObjectManager {
 		return publishJobProfile;
 	}
 
-	public PO07_PublishJobFromComparisonScreen getPublishJobFromComparisonScreen() throws IOException {
-		if (publishJobFromComparisonScreen == null) {
-			publishJobFromComparisonScreen = new PO07_PublishJobFromComparisonScreen();
-		}
-		return publishJobFromComparisonScreen;
-	}
-
-	public PO08_PublishJobFromDetailsPopup getPublishJobFromDetailsPopup() throws IOException {
-		if (publishJobFromDetailsPopup == null) {
-			publishJobFromDetailsPopup = new PO08_PublishJobFromDetailsPopup();
-		}
-		return publishJobFromDetailsPopup;
-	}
 
 	public PO09_PublishSelectedProfiles getPublishSelectedProfiles() throws IOException {
 		if (publishSelectedProfiles == null) {
@@ -327,8 +312,6 @@ public class PageObjectManager {
 		validateJobmappingHeaderSection = null;
 		verifyJobMappingPageComponents = null;
 		publishJobProfile = null;
-		publishJobFromComparisonScreen = null;
-		publishJobFromDetailsPopup = null;
 		publishSelectedProfiles = null;
 		validateScreen1SearchResults = null;
 		validateJobMappingFiltersFunctionality = null;

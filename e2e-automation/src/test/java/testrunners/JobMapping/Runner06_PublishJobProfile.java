@@ -21,9 +21,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature",
-			"src/test/resources/features/JobMapping/06PublishJobProfile.feature"
+			"src/test/resources/features/JobMapping/06_PublishJobProfile.feature"
 		},
-		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Publish_Job_Profile_Functionality",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Publish_Job_Profile",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {
@@ -38,7 +38,9 @@ public class Runner06_PublishJobProfile extends CustomizeTestNGCucumberRunner {
 	
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Validate_Publish_Job_Profile_Functionality";
+		// Run all 3 publish flows: Listing, Comparison, and Popup
+		// To run specific flow, use: @Publish_From_Listing, @Publish_From_Comparison, or @Publish_From_Popup
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Publish_Job_Profile";
 	}
 	
 	@Override
@@ -48,7 +50,7 @@ public class Runner06_PublishJobProfile extends CustomizeTestNGCucumberRunner {
 	
 	@AfterTest
 	public void after_test() {
-		LOGGER.info("Successfully completed testing the functionality of publishing job profiles from Jobs listing table");
+		LOGGER.info("Successfully completed testing publish job profile functionality from all sources (Listing, Comparison, Popup)");
 		LOGGER.info("Login Type Used: " + DynamicTagResolver.getCurrentLoginType());
 		DriverManager.closeBrowser();
 	}

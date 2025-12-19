@@ -1,6 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.time.Duration;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +22,7 @@ public class PO06_PublishJobProfile extends BasePageObject {
 	private static final Logger LOGGER = LogManager.getLogger(PO06_PublishJobProfile.class);
 
 	public static ThreadLocal<String> job1OrgName = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> job1OrgCode = ThreadLocal.withInitial(() -> "NOT_SET");
 
 	// formatDateForDisplay() is inherited from BasePageObject
 
@@ -45,6 +47,19 @@ public class PO06_PublishJobProfile extends BasePageObject {
 	private static final By JOBS_LINK = By.xpath("//span[text()='Jobs']");
 	// RESULTS_COUNT is available via Locators.JobMappingResults.SHOWING_JOB_RESULTS
 
+	// ============================================================
+	// Locators moved from PO07_PublishJobFromComparisonScreen
+	// ============================================================
+	private static final By COMPARE_SELECT_HEADER = By.xpath("//h1[@id='compare-desc']");
+	private static final By JC_ORG_JOB_TITLE = By.xpath("//div[contains(@class, 'text-[24px] font-semibold')] | //h2[contains(@class, 'job-title')]");
+	private static final By JC_PUBLISH_SELECT_BTN = By.xpath("//button[@id='publish-select-btn']");
+	private static final By SELECT_BTNS_IN_JC = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span");
+
+	// ============================================================
+	// Locators moved from PO08_PublishJobFromDetailsPopup
+	// ============================================================
+	private static final By POPUP_PUBLISH_PROFILE_BTN = By.xpath("//button[@id='publish-job-profile']");
+
 	public PO06_PublishJobProfile() {
 		super();
 	}
@@ -62,22 +77,33 @@ public class PO06_PublishJobProfile extends BasePageObject {
 				throw new Exception("Job name element text is null or empty");
 			}
 			
-			// Extract job name (before the dash)
+			// Extract job name (before the dash) and job code (within parentheses)
 			String[] parts = job1NameText.split("-", 2);
 			String extractedJobName = parts[0].trim();
+			String extractedJobCode = "NOT_SET";
+			
+			// Extract job code from the second part (e.g., "(ABC123)" -> "ABC123")
+			if (parts.length > 1) {
+				String codePart = parts[1].trim();
+				if (codePart.startsWith("(") && codePart.contains(")")) {
+					extractedJobCode = codePart.substring(1, codePart.indexOf(")")).trim();
+				}
+			}
 			
 			if (extractedJobName.isEmpty() || extractedJobName.equals("NOT_SET")) {
 				throw new Exception("Failed to extract valid job name from: " + job1NameText);
 			}
 			
-			// Store job name in both ThreadLocal variables
+			// Store job name and code in ThreadLocal variables
 			job1OrgName.set(extractedJobName);
+			job1OrgCode.set(extractedJobCode);
 			PO15_ValidateRecommendedProfileDetails.orgJobName.set(extractedJobName);
+			PO15_ValidateRecommendedProfileDetails.orgJobCode.set(extractedJobCode);
 			
-			LOGGER.info("Job name extracted and stored: '{}'", extractedJobName);
+			LOGGER.info("Job name extracted and stored: '{}', Job code: '{}'", extractedJobName, extractedJobCode);
 			
 			Assert.assertTrue(waitForElement(JOB_1_PUBLISH_BTN).isDisplayed());
-			PageObjectHelper.log(LOGGER, "Publish button on first job profile (Org: " + job1OrgName.get() + ") is displaying");
+			PageObjectHelper.log(LOGGER, "Publish button on first job profile (Org: " + job1OrgName.get() + ", Code: " + job1OrgCode.get() + ") is displaying");
 		} catch (Exception e) {
 			ScreenshotHandler.handleTestFailure("verify_publish_btn_on_first_job_profile", e, "Issue in verifying Publish button on first job");
 		}
@@ -151,6 +177,7 @@ public class PO06_PublishJobProfile extends BasePageObject {
 				clickElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
 				PerformanceUtils.waitForPageReady(driver, 3);
 				PageObjectHelper.log(LOGGER, "View published toggle button is turned ON");
+				waitForBackgroundDataLoad();
 				PO17_ValidateSortingFunctionality_JAM.jobNamesTextInDefaultOrder.get().clear();
 			}
 		} catch (Exception e) {
@@ -164,6 +191,8 @@ public class PO06_PublishJobProfile extends BasePageObject {
 			if (jobName == null || jobName.isEmpty()) {
 				throw new Exception("Job name to search is null or empty");
 			}
+			
+			LOGGER.info("Searching for published job with name: '{}'", jobName);
 			
 			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 3);
@@ -191,7 +220,7 @@ public class PO06_PublishJobProfile extends BasePageObject {
 			PerformanceUtils.waitForPageReady(driver, 5);
 			safeSleep(1500);
 			
-			LOGGER.info("Search completed for job: {}", jobName);
+			LOGGER.info("Search completed for job: '{}'", jobName);
 			PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name_in_view_published_screen", "Failed to search for job in View Published screen", e);
@@ -481,5 +510,124 @@ public class PO06_PublishJobProfile extends BasePageObject {
 		
 		LOGGER.debug("Using job name for search: '{}'", jobName);
 		return jobName;
+	}
+
+	/**
+	 * Gets the job code to use for validation across different screens.
+	 * Checks both PO06 and PO15 ThreadLocal variables for valid job code.
+	 * @return The job code string
+	 */
+	public String getJobCodeForValidation() {
+		String jobCode = job1OrgCode.get();
+		
+		// Check if job code is valid (not null, empty, or "NOT_SET")
+		if (jobCode == null || jobCode.isEmpty() || jobCode.equals("NOT_SET")) {
+			jobCode = PO15_ValidateRecommendedProfileDetails.orgJobCode.get();
+		}
+		
+		// Validate job code is valid
+		if (jobCode == null || jobCode.isEmpty() || jobCode.equals("NOT_SET")) {
+			LOGGER.warn("Job code not properly set. job1OrgCode='{}', PO15.orgJobCode='{}'", 
+				job1OrgCode.get(), PO15_ValidateRecommendedProfileDetails.orgJobCode.get());
+			return "NOT_SET";
+		}
+		
+		// Ensure both ThreadLocal variables are synchronized
+		if (!jobCode.equals(job1OrgCode.get())) {
+			job1OrgCode.set(jobCode);
+		}
+		if (!jobCode.equals(PO15_ValidateRecommendedProfileDetails.orgJobCode.get())) {
+			PO15_ValidateRecommendedProfileDetails.orgJobCode.set(jobCode);
+		}
+		
+		LOGGER.debug("Using job code for validation: '{}'", jobCode);
+		return jobCode;
+	}
+
+	// ============================================================
+	// Methods moved from PO07_PublishJobFromComparisonScreen
+	// ============================================================
+
+	public void verify_user_landed_on_job_comparison_screen() {
+		try {
+			PerformanceUtils.waitForPageReady(driver, 10);
+			String compareAndSelectHeaderText = getElementText(COMPARE_SELECT_HEADER);
+			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?");
+			PageObjectHelper.log(LOGGER, "User landed on the Job Comparison screen successfully");
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_job_comparison_screen", "Issue in landing Job Comparison screen", e);
+		}
+	}
+
+	public void select_second_profile_from_ds_suggestions_of_organization_job() {
+		try {
+			PerformanceUtils.waitForPageReady(driver, 2);
+			List<WebElement> selectBtns = driver.findElements(SELECT_BTNS_IN_JC);
+
+			for (int i = 0; i < selectBtns.size(); i++) {
+				if (i == 2) {
+					WebElement btn = selectBtns.get(i);
+					wait.until(ExpectedConditions.visibilityOf(btn));
+					if (!tryClickWithStrategies(btn)) {
+						jsClick(btn);
+					}
+					String jobTitle = getElementText(JC_ORG_JOB_TITLE);
+					PageObjectHelper.log(LOGGER, "Second Profile selected from DS Suggestions for job: " + jobTitle);
+					break;
+				}
+			}
+			PerformanceUtils.waitForUIStability(driver, 1);
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "select_second_profile_from_ds_suggestions_of_organization_job", "Issue in selecting Second Profile from DS Suggestions", e);
+		}
+	}
+
+	public void click_on_publish_selected_button_in_job_comparison_page() {
+		try {
+			String jobTitle = getElementText(JC_ORG_JOB_TITLE);
+			String[] parts = jobTitle.split("-", 2);
+			String extractedJobName = parts[0].trim();
+			String extractedJobCode = "NOT_SET";
+			
+			// Extract job code from the second part (e.g., "(ABC123)" -> "ABC123")
+			if (parts.length > 1) {
+				String codePart = parts[1].trim();
+				if (codePart.startsWith("(") && codePart.contains(")")) {
+					extractedJobCode = codePart.substring(1, codePart.indexOf(")")).trim();
+				}
+			}
+			
+			// Store job name and code in ThreadLocal variables
+			job1OrgName.set(extractedJobName);
+			job1OrgCode.set(extractedJobCode);
+			PO15_ValidateRecommendedProfileDetails.orgJobName.set(extractedJobName);
+			PO15_ValidateRecommendedProfileDetails.orgJobCode.set(extractedJobCode);
+			
+			clickElement(JC_PUBLISH_SELECT_BTN);
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			PageObjectHelper.log(LOGGER, "Clicked Publish Selected button for job: " + job1OrgName.get() + " (Code: " + job1OrgCode.get() + ")");
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "click_on_publish_selected_button_in_job_comparison_page", "Issue clicking Publish Selected button", e);
+		}
+	}
+
+	// ============================================================
+	// Methods moved from PO08_PublishJobFromDetailsPopup
+	// ============================================================
+
+	public void user_is_on_profile_details_popup() {
+		PageObjectHelper.log(LOGGER, "User is on Profile details Popup");
+	}
+
+	public void click_on_publish_profile_button_in_profile_details_popup() {
+		try {
+			clickElement(POPUP_PUBLISH_PROFILE_BTN);
+			PageObjectHelper.log(LOGGER, "Clicked Publish Profile button in Profile Details popup");
+			waitForSpinners();
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "click_on_publish_profile_button_in_profile_details_popup", "Failed to click Publish Profile button in popup", e);
+		}
 	}
 }
