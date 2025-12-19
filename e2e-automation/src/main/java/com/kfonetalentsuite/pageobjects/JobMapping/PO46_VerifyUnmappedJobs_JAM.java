@@ -18,9 +18,9 @@ import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
  * Page Object for validating selection of unmapped jobs in Job Mapping (JAM) screen.
  * Verifies that unmapped jobs cannot be selected and that checkboxes/header are disabled.
  */
-public class PO46_ValidateSelectionOfUnmappedJobs_JAM extends BasePageObject {
+public class PO46_VerifyUnmappedJobs_JAM extends BasePageObject {
 
-	private static final Logger LOGGER = LogManager.getLogger(PO46_ValidateSelectionOfUnmappedJobs_JAM.class);
+	private static final Logger LOGGER = LogManager.getLogger(PO46_VerifyUnmappedJobs_JAM.class);
 
 	// THREAD-SAFE: Flag to track if scenario should be skipped (when Unmapped option is not available)
 	public static ThreadLocal<Boolean> skipScenario = ThreadLocal.withInitial(() -> false);
@@ -34,7 +34,7 @@ public class PO46_ValidateSelectionOfUnmappedJobs_JAM extends BasePageObject {
 	private static final By ANY_CHEVRONS = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*");
 	private static final By TOOLTIP_CONTAINERS = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//div[@data-testid='tooltip-container']");
 
-	public PO46_ValidateSelectionOfUnmappedJobs_JAM() {
+	public PO46_VerifyUnmappedJobs_JAM() {
 		super();
 	}
 

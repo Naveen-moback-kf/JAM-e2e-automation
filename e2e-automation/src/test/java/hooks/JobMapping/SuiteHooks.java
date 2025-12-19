@@ -137,7 +137,7 @@ public class SuiteHooks implements ISuiteListener {
 			cleanedCount += 3;
 
 			// PO46 - Selection of Unmapped Jobs (JAM)
-			PO46_ValidateSelectionOfUnmappedJobs_JAM.skipScenario.remove();
+			PO46_VerifyUnmappedJobs_JAM.skipScenario.remove();
 			cleanedCount++;
 
 			// === HCM & PROFILE MANAGER ThreadLocals (PO22-PO26) ===

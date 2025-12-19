@@ -40,7 +40,7 @@ public class PageObjectManager {
 	public PO42_ClearProfileSelectionFunctionality clearProfileSelectionFunctionality;
 	public PO35_SelectAllWithSearchFunctionality selectAllWithSearchFunctionality;
 	public PO36_SelectAllWithFiltersFunctionality selectAllWithFiltersFunctionality;
-	public PO46_ValidateSelectionOfUnmappedJobs_JAM validateSelectionOfUnmappedJobs_JAM;
+	public PO46_VerifyUnmappedJobs_JAM verifyUnmappedJobs_JAM;
 	public PO47_ValidateSortingFunctionalityInHCMScreen_PM validateSortingFunctionalityInHCMScreen_PM;
 	public PO48_ValidateReuploadMissingDataProfiles validateReuploadMissingDataProfiles;
 	public PO29_ValidateMissingDataFunctionality validateMissingDataFunctionality;
@@ -291,11 +291,11 @@ public class PageObjectManager {
 		return selectAllWithFiltersFunctionality;
 	}
 
-	public PO46_ValidateSelectionOfUnmappedJobs_JAM getValidateSelectionOfUnmappedJobs_JAM() throws IOException {
-		if (validateSelectionOfUnmappedJobs_JAM == null) {
-			validateSelectionOfUnmappedJobs_JAM = new PO46_ValidateSelectionOfUnmappedJobs_JAM();
+	public PO46_VerifyUnmappedJobs_JAM getVerifyUnmappedJobs_JAM() throws IOException {
+		if (verifyUnmappedJobs_JAM == null) {
+			verifyUnmappedJobs_JAM = new PO46_VerifyUnmappedJobs_JAM();
 		}
-		return validateSelectionOfUnmappedJobs_JAM;
+		return verifyUnmappedJobs_JAM;
 	}
 
 	public PO47_ValidateSortingFunctionalityInHCMScreen_PM getValidateSortingFunctionalityInHCMScreen_PM()
@@ -378,7 +378,7 @@ public class PageObjectManager {
 		clearProfileSelectionFunctionality = null;
 		selectAllWithSearchFunctionality = null;
 		selectAllWithFiltersFunctionality = null;
-		validateSelectionOfUnmappedJobs_JAM = null;
+		verifyUnmappedJobs_JAM = null;
 		validateSortingFunctionalityInHCMScreen_PM = null;
 		validateReuploadMissingDataProfiles = null;
 	}

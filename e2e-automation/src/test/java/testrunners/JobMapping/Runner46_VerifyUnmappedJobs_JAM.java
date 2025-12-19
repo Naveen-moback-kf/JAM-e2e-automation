@@ -21,9 +21,9 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature",
-			"src/test/resources/features/JobMapping/46ValidateSelectionOfUnmappedJobs_JAM.feature"
+			"src/test/resources/features/JobMapping/46VerifyUnmappedJobs_JAM.feature"
 		},
-		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Selection_of_Unmapped_jobs_JAM",
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Verify_Unmapped_jobs_JAM",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
 		dryRun = false,
 		plugin = {
@@ -33,12 +33,12 @@ import io.cucumber.testng.CucumberOptions;
 		}
 		)
 
-public class Runner46_ValidateSelectionOfUnmappedJobs_JAM extends CustomizeTestNGCucumberRunner {
+public class Runner46_VerifyUnmappedJobs_JAM extends CustomizeTestNGCucumberRunner {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 
 	@Override
 	protected String getTagExpressionTemplate() {
-		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Selection_of_Unmapped_jobs_JAM";
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Verify_Unmapped_jobs_JAM";
 	}
 	
 	@Override

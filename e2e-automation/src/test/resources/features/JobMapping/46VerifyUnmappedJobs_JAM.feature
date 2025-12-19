@@ -1,10 +1,20 @@
-@Selection_of_Unmapped_jobs_JAM
-Feature: Verify Unmapped jobs cannot be selected on Job Mapping screen
+@Verify_Unmapped_jobs_JAM
+Feature: Verify Unmapped jobs behaviour in Job Mapping screen
 
   @Navigate_To_Job_Mapping
   Scenario: Navigate to Job Mapping page 
     Then Navigate to Job Mapping page from KFONE Global Menu in PM
     Then User should verify Job Mapping logo is displayed on screen
+    
+  @SortByOrganizationNameDescending
+  Scenario: Apply descending order sorting on Organization Job Name
+    When User is in Job Mapping page
+    Then Sort Job Profiles by Organization Job Name in Descending order
+
+  @VerifyUnmappedJobsAtTopAfterSorting
+  Scenario: Verify jobs with no BIC mappings display at top after sorting by Organization Name descending
+    When User is in Job Mapping page
+    Then Verify Profile with No BIC Mapping is displaying on Top after sorting
   
   @ApplyUnmappedJobsFilter_JAM
   Scenario: Apply Unmapped Jobs filter in Job Mapping screen
