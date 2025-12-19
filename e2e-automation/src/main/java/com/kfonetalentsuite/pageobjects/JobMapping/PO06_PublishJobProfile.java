@@ -24,41 +24,50 @@ public class PO06_PublishJobProfile extends BasePageObject {
 	public static ThreadLocal<String> job1OrgName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> job1OrgCode = ThreadLocal.withInitial(() -> "NOT_SET");
 
-	// formatDateForDisplay() is inherited from BasePageObject
-
-	private static final By JOB_NAME_ROW_1 = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
-	private static final By JOB_1_PUBLISH_BTN = By.xpath("//tbody//tr[2]//button[@id='publish-btn'][1]");
-	private static final By PUBLISH_SUCCESS_MSG = By.xpath("//p[contains(text(),'Success profile published')]/..");
-	private static final By PUBLISH_SUCCESS_MSG_DIRECT = By.xpath("//p[contains(text(),'Success profile published')]");
-	private static final By PUBLISH_SUCCESS_MSG_FLEXIBLE = By.xpath("//*[contains(text(),'profile published') or contains(text(),'successfully published')]");
-	// TOGGLE_SWITCH is available via Locators.Actions.VIEW_PUBLISHED_TOGGLE
-	private static final By JOB_1_PUBLISHED_BTN = By.xpath("//tbody//tr[2]//button[text()='Published'][1]");
-	private static final By HCM_SYNC_TAB = By.xpath("//span[contains(text(),'HCM Sync')]");
-	private static final By HCM_SYNC_HEADER = By.xpath("//h1[contains(text(),'Sync Profiles')]");
-	private static final By PROFILES_SEARCH = By.xpath("//input[@type='search']");
-	private static final By HCM_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//span[1]//a");
+	// ============================================================
+	// LOCATORS - Using centralized Locators from BasePageObject where available
+	// ============================================================
+	
+	// JAM Table Rows - from Locators.JobMappingResults
+	private static final By JOB_NAME_ROW_1 = Locators.JobMappingResults.JOB_NAME_ROW_1;
+	private static final By JOB_1_PUBLISH_BTN = Locators.JobMappingResults.JOB_1_PUBLISH_BTN;
+	private static final By JOB_1_PUBLISHED_BTN = Locators.JobMappingResults.JOB_1_PUBLISHED_BTN;
+	
+	// Publish Success Messages - from Locators.Modals
+	private static final By PUBLISH_SUCCESS_MSG = Locators.Modals.PUBLISH_SUCCESS_MSG;
+	private static final By PUBLISH_SUCCESS_MSG_DIRECT = Locators.Modals.PUBLISH_SUCCESS_MSG_DIRECT;
+	private static final By PUBLISH_SUCCESS_MSG_FLEXIBLE = Locators.Modals.PUBLISH_SUCCESS_MSG_FLEXIBLE;
+	
+	// HCM Sync Profiles - from Locators.HCMSyncProfiles
+	private static final By HCM_SYNC_TAB = Locators.HCMSyncProfiles.HCM_SYNC_TAB;
+	private static final By HCM_SYNC_HEADER = Locators.HCMSyncProfiles.SYNC_PROFILES_TITLE;
+	private static final By PM_HEADER = Locators.HCMSyncProfiles.PROFILE_MANAGER_HEADER;
+	
+	// HCM/Architect Row Locators - from Locators.JobMappingResults
+	private static final By HCM_JOB_ROW_1 = Locators.JobMappingResults.HCM_JOB_ROW_1;
+	private static final By HCM_DATE_ROW_1 = Locators.JobMappingResults.HCM_DATE_ROW_1;
+	private static final By ARCHITECT_JOB_ROW_1 = Locators.JobMappingResults.ARCHITECT_JOB_ROW_1;
+	private static final By ARCHITECT_DATE_ROW_1 = Locators.JobMappingResults.ARCHITECT_DATE_ROW_1;
+	
+	// Navigation - from Locators.Navigation
+	private static final By KFONE_MENU_PM_BTN = Locators.Navigation.KFONE_MENU_PM_BTN;
+	private static final By KFONE_MENU_ARCHITECT_BTN = Locators.Navigation.KFONE_MENU_ARCHITECT_BTN;
+	
+	// Search - from Locators.PMScreen (HCM uses different search bar)
+	private static final By PROFILES_SEARCH = Locators.PMScreen.SEARCH_BAR;
+	
+	// Local locators (not commonly used elsewhere)
 	private static final By SP_DETAILS_TEXT = By.xpath("//span[contains(text(),'Select your view')]");
-	private static final By HCM_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[7]//span");
-	private static final By PM_HEADER = By.xpath("//h1[contains(text(),'Profile Manager')]");
-	private static final By KFONE_MENU_PM_BTN = By.xpath("//span[@aria-label='Profile Manager']");
-	private static final By KFONE_MENU_ARCHITECT_BTN = By.xpath("//span[@aria-label='Architect']");
-	private static final By ARCHITECT_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//div//a");
-	private static final By ARCHITECT_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[9]");
 	private static final By JOBS_LINK = By.xpath("//span[text()='Jobs']");
-	// RESULTS_COUNT is available via Locators.JobMappingResults.SHOWING_JOB_RESULTS
-
-	// ============================================================
-	// Locators moved from PO07_PublishJobFromComparisonScreen
-	// ============================================================
-	private static final By COMPARE_SELECT_HEADER = By.xpath("//h1[@id='compare-desc']");
+	
+	// Comparison Screen locators - from Locators.ComparisonPage
+	private static final By COMPARE_SELECT_HEADER = Locators.ComparisonPage.COMPARE_HEADER;
 	private static final By JC_ORG_JOB_TITLE = By.xpath("//div[contains(@class, 'text-[24px] font-semibold')] | //h2[contains(@class, 'job-title')]");
 	private static final By JC_PUBLISH_SELECT_BTN = By.xpath("//button[@id='publish-select-btn']");
-	private static final By SELECT_BTNS_IN_JC = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span");
-
-	// ============================================================
-	// Locators moved from PO08_PublishJobFromDetailsPopup
-	// ============================================================
-	private static final By POPUP_PUBLISH_PROFILE_BTN = By.xpath("//button[@id='publish-job-profile']");
+	private static final By SELECT_BTNS_IN_JC = Locators.ComparisonPage.CARD_HEADER;
+	
+	// Profile Details Popup - from Locators.ProfileDetails
+	private static final By POPUP_PUBLISH_PROFILE_BTN = Locators.ProfileDetails.PUBLISH_PROFILE_BTN;
 
 	public PO06_PublishJobProfile() {
 		super();

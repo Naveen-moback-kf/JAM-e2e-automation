@@ -86,6 +86,9 @@ public class BasePageObject {
 			public static final By WAFFLE_MENU = By.xpath("//div[@data-testid='menu-icon']");
 			public static final By CLIENT_NAME = By.xpath("//button[contains(@class,'global-nav-client-name')]//span");
 			public static final By JOB_MAPPING_BTN = By.xpath("//button[@aria-label='Job Mapping']");
+			// KFONE Menu Application Buttons
+			public static final By KFONE_MENU_PM_BTN = By.xpath("//span[@aria-label='Profile Manager']");
+			public static final By KFONE_MENU_ARCHITECT_BTN = By.xpath("//span[@aria-label='Architect']");
 		}
 
 		// -----------------------------------------
@@ -141,6 +144,12 @@ public class BasePageObject {
 			public static final By SUCCESS_MODAL_CLOSE_BTN = By.xpath("//button[@id='close-success-modal-btn']");
 			public static final By PROFILE_DETAILS_POPUP_HEADER = By.xpath("//h2[@id='summary-modal']");
 			public static final By PROFILE_DETAILS_CLOSE_BTN = By.xpath("//button[@id='close-profile-summary']");
+			// Publish Success Messages
+			public static final By PUBLISH_SUCCESS_MSG = By.xpath("//p[contains(text(),'Success profile published')]/..");
+			public static final By PUBLISH_SUCCESS_MSG_DIRECT = By.xpath("//p[contains(text(),'Success profile published')]");
+			public static final By PUBLISH_SUCCESS_MSG_FLEXIBLE = By.xpath("//*[contains(text(),'profile published') or contains(text(),'successfully published')]");
+			public static final By PUBLISHED_SUCCESS_MSG = By.xpath("//p[@id='modal-message']");
+			public static final By PUBLISHED_SUCCESS_CLOSE_BTN = By.xpath("//button[@aria-label='Close']");
 		}
 
 		// -----------------------------------------
@@ -192,6 +201,7 @@ public class BasePageObject {
 		// HCM SYNC PROFILES (Used in PO22,PO23,PO25)
 		// -----------------------------------------
 		public static class HCMSyncProfiles {
+			public static final By HCM_SYNC_TAB = By.xpath("//span[contains(text(),'HCM Sync')]");
 			public static final By SYNC_PROFILES_TITLE = By.xpath("//h1[contains(text(),'Sync Profiles')]");
 			public static final By PROFILE_MANAGER_HEADER = By.xpath("//h1[contains(text(),'Profile Manager')]");
 			public static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing')]");
@@ -241,6 +251,16 @@ public class BasePageObject {
 			public static final By FIRST_ROW_PROFILE_MATCH = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
 			public static final By FIRST_ROW_JOB_TITLE = By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr[1]//td[1]//div");
 			public static final By SEARCH_INPUT = By.xpath("//input[@type='search']");
+			// JAM Table Row Locators
+			public static final By JOB_NAME_ROW_1 = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
+			public static final By JOB_1_PUBLISH_BTN = By.xpath("//tbody//tr[2]//button[@id='publish-btn'][1]");
+			public static final By JOB_1_PUBLISHED_BTN = By.xpath("//tbody//tr[2]//button[text()='Published'][1]");
+			// HCM Sync Profiles Row Locators
+			public static final By HCM_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//span[1]//a");
+			public static final By HCM_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[7]//span");
+			// Architect Row Locators
+			public static final By ARCHITECT_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//div//a");
+			public static final By ARCHITECT_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[9]");
 		}
 	}
 

@@ -43,32 +43,47 @@ public class PO04_VerifyJobMappingPageComponents extends BasePageObject {
 	public static ThreadLocal<Integer> selectedProfilesAfterHeaderCheckboxClick = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> disabledProfilesCountInLoadedProfiles = ThreadLocal.withInitial(() -> 0);
 
-	private static final By PAGE_TITLE_HEADER = By.xpath("//div[@id='page-heading']//h1");
+	// ============================================================
+	// LOCATORS - Using centralized Locators from BasePageObject where available
+	// ============================================================
+	
+	// Page header - from Locators.JobMapping
+	private static final By PAGE_TITLE_HEADER = Locators.JobMapping.PAGE_TITLE_HEADER;
 	private static final By PAGE_TITLE_DESC = By.xpath("//div[@id='page-title']//p[1]");
-	private static final By JOB_NAME_PROFILE_1 = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
+	
+	// Job profile rows - from Locators.JobMappingResults
+	private static final By JOB_NAME_PROFILE_1 = Locators.JobMappingResults.JOB_NAME_ROW_1;
 	private static final By JOB_GRADE_PROFILE_1 = By.xpath("//tbody//tr[1]//td[3]//div[1]");
 	private static final By JOB_FUNCTION_PROFILE_1 = By.xpath("//tbody//tr[2]//div//span[2]");
 	private static final By JOB_DEPARTMENT_PROFILE_1 = By.xpath("//tbody//tr[1]//td[4]//div");
 	private static final By JOB_NAME_PROFILE_2 = By.xpath("//tbody//tr[4]//td[2]//div[contains(text(),'(')]");
-	private static final By JOB_1_MATCHED_PROFILE = By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr[1]//td[1]//div");
-	private static final By FILTER_OPTIONS = By.xpath("//div[@id='filters-search-btns']//div[2]//div");
+	private static final By JOB_1_MATCHED_PROFILE = Locators.JobMappingResults.FIRST_ROW_JOB_TITLE;
+	
+	// Filters - from Locators.SearchAndFilters
+	private static final By FILTER_OPTIONS = Locators.SearchAndFilters.FILTER_OPTIONS_PANEL;
 	private static final By FILTER_OPTION_1 = By.xpath("//div[@id='filters-search-btns']//div[2]//div//div/h3");
 	private static final By FILTER_OPTION_2 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[2]//div/h3");
 	private static final By FILTER_OPTION_3 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[3]//div/h3");
 	private static final By FILTER_OPTION_4 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[4]//div/h3");
 	private static final By SEARCH_BAR_FILTER_OPTION_3 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[3]//input[contains(@placeholder,'Search')]");
+	
+	// Add More Jobs
 	private static final By ADD_MORE_JOBS_BTN = By.xpath("//span[contains(text(),'Add more jobs')] | //button[@id='add-more-jobs-btn']");
 	private static final By ADD_MORE_JOBS_PAGE_HEADER = By.xpath("//div[contains(text(),'Add Job Data')]");
 	private static final By ADD_MORE_JOBS_CLOSE_BTN = By.xpath("//*[@aria-label='Close']//*");
-	private static final By PUBLISH_SELECTED_BTN = By.xpath("//button[contains(@id,'publish-approved-mappings-btn')]");
-	private static final By HEADER_CHECKBOX = By.xpath("//thead//input[@type='checkbox']");
+	
+	// Actions - from Locators.Actions and Locators.Table
+	private static final By PUBLISH_SELECTED_BTN = Locators.Actions.PUBLISH_BTN;
+	private static final By HEADER_CHECKBOX = Locators.JAMScreen.HEADER_CHECKBOX;
 	private static final By PROFILE_1_CHECKBOX = By.xpath("//tbody//tr[1]//td[1][contains(@class,'whitespace')]//input");
 	private static final By PROFILE_2_CHECKBOX = By.xpath("//tbody//tr[4]//td[1][contains(@class,'whitespace')]//input");
-	private static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
+	private static final By SHOWING_RESULTS_COUNT = Locators.JAMScreen.SHOWING_RESULTS_COUNT;
 	private static final By VIEW_PUBLISHED_TOGGLE = By.xpath("//div[contains(@id,'results-toggle')]//label//div[2]");
 	private static final By PUBLISHED_BTN = By.xpath("//button[text()='Published']");
 	private static final By NO_DATA_AVAILABLE = By.xpath("//td[@id='no-data-container']");
 	private static final By PUBLISH_BTN = By.xpath("//button[@id='publish-btn']");
+	
+	// Table headers
 	private static final By TABLE_1_TITLE = By.xpath("//*[contains(text(),'Organization jobs')]");
 	private static final By TABLE_1_HEADER_1 = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[2]/div | //*[@id='table-container']/div[1]/div/div[1]/div/span[1]");
 	private static final By TABLE_1_HEADER_2 = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div | //*[@id='table-container']/div[1]/div/div[1]/div/span[2]");
@@ -79,15 +94,21 @@ public class PO04_VerifyJobMappingPageComponents extends BasePageObject {
 	private static final By TABLE_2_HEADER_3 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[3]/div");
 	private static final By TABLE_2_HEADER_4 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[4]/div");
 	private static final By TABLE_2_HEADER_5 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[5]/div");
+	
+	// View Other Matches & Comparison - from Locators.ComparisonPage
 	private static final By JOB_1_VIEW_OTHER_MATCHES = By.xpath("//tbody//tr[2]//button[@id='view-matches']");
-	private static final By COMPARE_SELECT_HEADER = By.xpath("//h1[@id='compare-desc']");
-	private static final By JOB_1_PUBLISH_BTN = By.xpath("//tbody//tr[2]//button[@id='publish-btn'][1]");
-	private static final By PUBLISHED_SUCCESS_HEADER = By.xpath("//h2[@id='modal-header']");
-	private static final By PUBLISHED_SUCCESS_MSG = By.xpath("//p[@id='modal-message']");
-	private static final By PUBLISHED_SUCCESS_CLOSE_BTN = By.xpath("//button[@aria-label='Close']");
+	private static final By COMPARE_SELECT_HEADER = Locators.ComparisonPage.COMPARE_HEADER;
+	private static final By JOB_1_PUBLISH_BTN = Locators.JobMappingResults.JOB_1_PUBLISH_BTN;
+	
+	// Success Modal - from Locators.Modals
+	private static final By PUBLISHED_SUCCESS_HEADER = Locators.Modals.SUCCESS_MODAL_HEADER;
+	private static final By PUBLISHED_SUCCESS_MSG = Locators.Modals.PUBLISHED_SUCCESS_MSG;
+	private static final By PUBLISHED_SUCCESS_CLOSE_BTN = Locators.Modals.PUBLISHED_SUCCESS_CLOSE_BTN;
+	
+	// JAM Logo and navigation
 	private static final By JAM_LOGO = By.xpath("//div[@id='header-logo']");
 	private static final By BROWSE_RESOURCES_JAM = By.xpath("//*[contains(text(),'Browse resources')]/following::*[contains(text(),'Job Mapping')]");
-	private static final By ROW_CHECKBOXES = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input");
+	private static final By ROW_CHECKBOXES = Locators.Table.ROW_CHECKBOXES;
 
 	public PO04_VerifyJobMappingPageComponents() {
 		super();

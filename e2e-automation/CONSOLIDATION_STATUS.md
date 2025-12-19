@@ -198,6 +198,79 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 - `Runner18b_ValidateAdvancedSortingPersistence.java`
 - CrossBrowser runners (18a, 18b)
 
+### 8. Unmapped Jobs Validation (Feature #46)
+**Consolidated:** December 19, 2024
+
+| Before (2 separate files) | After (1 consolidated file) |
+|--------------------------|----------------------------|
+| 19VerifyJobsWithNoBICMappings.feature | 46VerifyUnmappedJobs_JAM.feature |
+| 46ValidateSelectionOfUnmappedJobs_JAM.feature | |
+
+**Files Created:**
+- `46VerifyUnmappedJobs_JAM.feature` - Combined unmapped jobs scenarios
+
+**Key Features:**
+- Verify jobs with no BIC mappings
+- Selection behavior for unmapped jobs
+- JAM-specific validation
+
+**Files Deleted:**
+- `19VerifyJobsWithNoBICMappings.feature`
+- Old `46ValidateSelectionOfUnmappedJobs_JAM.feature`
+- Related runner files
+
+---
+
+### 9. Profile Details Popup (Feature #05 → #15)
+**Consolidated:** December 19, 2024
+
+| Before (duplicate functionality) | After (merged into existing) |
+|--------------------------------|----------------------------|
+| 05ValidateJobProfileDetailsPopup.feature | (Merged into 15ValidateRecommendedProfileDetails.feature) |
+
+**Changes:**
+- Moved all methods from `PO05_ValidateJobProfileDetailsPopup.java` to `PO15_ValidateRecommendedProfileDetails.java`
+- Moved all step definitions from `SD05` to `SD15`
+- Feature 05 scenarios were already present in Feature 15
+
+**Files Deleted:**
+- `PO05_ValidateJobProfileDetailsPopup.java`
+- `SD05_ValidateJobProfileDetailsPopup.java`
+- `05ValidateJobProfileDetailsPopup.feature`
+- Related runner files
+
+---
+
+### 10. Single Job Publish (Features #06, #07, #08)
+**Consolidated:** December 19, 2024
+
+| Before (3 separate files) | After (1 consolidated file) |
+|--------------------------|----------------------------|
+| 06PublishJobProfile.feature | 06_PublishJobProfile.feature |
+| 07PublishJobFromComparisonScreen.feature | |
+| 08PublishJobFromDetailsPopup.feature | |
+
+**Files Created:**
+- `06_PublishJobProfile.feature` - 3 distinct flows with separate tags
+
+**Key Features:**
+- **Flow 1** (`@Publish_From_Listing`): Publish from Jobs Listing Table
+- **Flow 2** (`@Publish_From_Comparison`): Publish from Job Comparison Screen
+- **Flow 3** (`@Publish_From_Popup`): Publish from Profile Details Popup
+- Each flow verifies publish in: View Published, HCM Sync Profiles, Architect
+- Job code extraction and global storage (`job1OrgCode` ThreadLocal)
+- Publish success verification for all flows
+
+**Files Deleted:**
+- `PO07_PublishJobFromComparisonScreen.java`
+- `PO08_PublishJobFromDetailsPopup.java`
+- `SD07_PublishJobFromComparisonScreen.java`
+- `SD08_PublishJobFromDetailsPopup.java`
+- `Runner07_PublishJobFromComparisonScreen.java`
+- `Runner08_PublishJobFromDetailsPopup.java`
+- `07PublishJobFromComparisonScreen.feature`
+- `08PublishJobFromDetailsPopup.feature`
+
 ---
 
 ## 🎯 High Priority - Recommended Next Consolidations
@@ -212,21 +285,6 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 **Consolidation Strategy:**
 - Parameterize by `<screen>` (PM/JAM) and `<scope>` (Loaded/All)
 - Note: PM uses "Sync", JAM uses "Publish" - may need action parameterization
-- Estimated reduction: 4 files → 1 file
-
----
-
-## 📋 Medium Priority Consolidations
-
-### 2. Publish Job from Different Screens → Could become Feature #06
-**Current Files (4):**
-- `06PublishJobProfile.feature`
-- `07PublishJobFromComparisonScreen.feature`
-- `08PublishJobFromDetailsPopup.feature`
-- `09PublishSelectedProfiles.feature`
-
-**Consolidation Strategy:**
-- Parameterize by `<source>` (JobMapping/Comparison/DetailsPopup/Selected)
 - Estimated reduction: 4 files → 1 file
 
 ---
@@ -256,11 +314,13 @@ This document tracks the consolidation of redundant test files in the Job Mappin
 | ✅ Done | Filters (11) | Multiple | 5 | ~10 files |
 | ✅ Done | Filter Persistence (12a,12b) | 8 | 2 | 6 files |
 | ✅ Done | Sort Persistence (18a,18b) | 8 | 2 | 6 files |
+| ✅ Done | Unmapped Jobs (19,46) | 8 | 2 | 6 files |
+| ✅ Done | Profile Details (05→15) | 4 | 0 | 4 files |
+| ✅ Done | Single Job Publish (06,07,08) | 12 | 4 | 8 files |
 | 🎯 Next | Sync/Publish (33,34,37,40) | 16 | 5 | 11 files |
-| 📋 Medium | Publish Sources (06-09) | 16 | 5 | 11 files |
 
-**Total Files Reduced So Far:** ~55 files
-**Total Potential Reduction:** ~70+ files
+**Total Files Reduced So Far:** ~73 files
+**Total Potential Reduction:** ~85+ files
 
 ---
 
@@ -289,6 +349,9 @@ When consolidating, ensure:
 | Dec 18, 2024 | Select All with Filters (36, 36a, 39, 39a) | 6 files | Naveen |
 | Dec 19, 2024 | Filter Persistence (12a, 12b) | 6 files | Naveen |
 | Dec 19, 2024 | Sorting Persistence (18a, 18b) | 6 files | Naveen |
+| Dec 19, 2024 | Unmapped Jobs (19, 46) | 6 files | Naveen |
+| Dec 19, 2024 | Profile Details Popup (05 → 15) | 4 files | Naveen |
+| Dec 19, 2024 | Single Job Publish (06, 07, 08) | 8 files | Naveen |
 
 ---
 

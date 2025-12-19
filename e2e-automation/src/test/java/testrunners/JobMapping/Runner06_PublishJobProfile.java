@@ -21,7 +21,7 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(
 		features = {
 			"src/test/resources/features/01KFoneLogin.feature",
-			"src/test/resources/features/JobMapping/06_PublishJobProfile.feature"
+			"src/test/resources/features/JobMapping/06PublishJobProfile.feature"
 		},
 		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Publish_Job_Profile",
 		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
@@ -38,8 +38,6 @@ public class Runner06_PublishJobProfile extends CustomizeTestNGCucumberRunner {
 	
 	@Override
 	protected String getTagExpressionTemplate() {
-		// Run all 3 publish flows: Listing, Comparison, and Popup
-		// To run specific flow, use: @Publish_From_Listing, @Publish_From_Comparison, or @Publish_From_Popup
 		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Publish_Job_Profile";
 	}
 	
