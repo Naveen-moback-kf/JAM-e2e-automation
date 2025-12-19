@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
@@ -18,6 +19,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO15_ValidateRecommendedProfileDetails.class);
 
+	// ThreadLocal variables for thread-safe test execution
 	public static ThreadLocal<Integer> rowNumber = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<String> orgJobName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> orgJobCode = ThreadLocal.withInitial(() -> "NOT_SET");
@@ -26,6 +28,34 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 	public static ThreadLocal<String> orgJobDepartment = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> matchedSuccessPrflName = ThreadLocal.withInitial(() -> "NOT_SET");
 
+	// ============================================================
+	// Static variables moved from PO05_ValidateJobProfileDetailsPopup
+	// ============================================================
+	public static String ProfileDetails;
+	public static String ProfileRoleSummary;
+	public static String ProfileResponsibilities;
+	public static String ProfileBehaviouralCompetencies;
+	public static String ProfileSkills;
+
+	// ============================================================
+	// Locators moved from PO05_ValidateJobProfileDetailsPopup (Profile Details Popup)
+	// ============================================================
+	private static final By PROFILE_HEADER = By.xpath("//h2[@id='summary-modal']//p");
+	private static final By PROFILE_DETAILS = By.xpath("//div[@id='details-container']//div[contains(@class,'mt-2')]");
+	private static final By PROFILE_LEVEL_DROPDOWN = By.xpath("//select[contains(@id,'profileLevel') or @id='profile-level']");
+	private static final By ROLE_SUMMARY = By.xpath("//div[@id='role-summary-container']//p");
+	private static final By POPUP_VIEW_MORE_RESPONSIBILITIES = By.xpath("//div[@id='responsibilities-panel']//button[contains(text(),'View')]");
+	private static final By POPUP_RESPONSIBILITIES_DATA = By.xpath("//div[@id='responsibilities-panel']//div[@id='item-container']");
+	private static final By BEHAVIOUR_TAB_BTN = By.xpath("//button[contains(text(),'BEHAVIOUR')]");
+	private static final By POPUP_VIEW_MORE_BEHAVIOUR = By.xpath("//div[@id='behavioural-panel']//button[contains(text(),'View')]");
+	private static final By POPUP_BEHAVIOUR_DATA = By.xpath("//div[@id='behavioural-panel']//div[@id='item-container']");
+	private static final By SKILLS_TAB_BTN = By.xpath("//button[text()='SKILLS']");
+	private static final By POPUP_VIEW_MORE_SKILLS = By.xpath("//div[@id='skills-panel']//button[contains(text(),'View')]");
+	private static final By POPUP_SKILLS_DATA = By.xpath("//div[@id='skills-panel']//div[@id='item-container']");
+	private static final By PUBLISH_PROFILE_BTN = By.xpath("//button[@id='publish-job-profile']");
+	private static final By POPUP_CONTAINER = By.xpath("//div[contains(@class, 'modal-body') or contains(@class, 'popup-content') or contains(@class, 'dialog-content')]");
+
+	// Job Comparison Page Locators
 	private static final By COMPARE_AND_SELECT_HEADER = By.xpath("//h1[@id='compare-desc']");
 	private static final By ORG_JOB_TITLE_HEADER = By.xpath("//div[contains(@class,'leading')]//div[1]//div[1]");
 	private static final By ORG_JOB_GRADE_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Grade')]//span");
@@ -323,7 +353,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 	public void validate_recommended_profile_grade_matches_with_matched_success_profile_grade() {
 		try {
 			String gradeText = getElementText(PROFILE_1_GRADE);
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Grade:" + gradeText));
+			Assert.assertTrue(ProfileDetails.contains("Grade:" + gradeText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile Grade matches with Matched Success Profile Grade");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_grade_matches_with_matched_success_profile_grade", "Issue validating Recommended Profile Grade", e);
@@ -333,7 +363,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 	public void validate_recommended_profile_level_sublevels_matches_with_matched_success_profile_level_sublevels() {
 		try {
 			String levelText = getElementText(PROFILE_1_LEVEL);
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Level / Sublevel:" + levelText));
+			Assert.assertTrue(ProfileDetails.contains("Level / Sublevel:" + levelText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile Level / Sublevels matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_level_sublevels_matches_with_matched_success_profile_level_sublevels", "Issue validating Recommended Profile Level / Sublevels", e);
@@ -344,7 +374,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 		try {
 			scrollToElement(driver.findElement(PROFILE_1_FUNCTION));
 			String functionText = getElementText(PROFILE_1_FUNCTION);
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Function / Sub-function:" + functionText));
+			Assert.assertTrue(ProfileDetails.contains("Function / Sub-function:" + functionText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile Function / Sub-function matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_function_subfunction_matches_with_matched_success_profile_function_subfunction", "Issue validating Recommended Profile Function / Sub-function", e);
@@ -355,7 +385,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 		try {
 			scrollToElement(driver.findElement(PROFILE_1_SENIORITY));
 			String seniorityText = getElementText(PROFILE_1_SENIORITY);
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Seniority level:" + seniorityText));
+			Assert.assertTrue(ProfileDetails.contains("Seniority level:" + seniorityText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile Seniority level matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_seniority_level_matches_with_matched_success_profile_seniority_level", "Issue validating Recommended Profile Seniority level", e);
@@ -366,7 +396,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 		try {
 			scrollToElement(driver.findElement(PROFILE_1_MANAGERIAL));
 			String managerialText = getElementText(PROFILE_1_MANAGERIAL);
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Managerial experience:" + managerialText));
+			Assert.assertTrue(ProfileDetails.contains("Managerial experience:" + managerialText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile Managerial experience matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_managerial_experience_matches_with_matched_success_profile_managerial_experience", "Issue validating Recommended Profile Managerial experience", e);
@@ -377,7 +407,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 		try {
 			scrollToElement(driver.findElement(PROFILE_1_EDUCATION));
 			String educationText = getElementText(PROFILE_1_EDUCATION);
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("Education:" + educationText));
+			Assert.assertTrue(ProfileDetails.contains("Education:" + educationText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile Education matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_education_matches_with_matched_success_profile_education", "Issue validating Recommended Profile Education", e);
@@ -388,7 +418,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 		try {
 			scrollToElement(driver.findElement(PROFILE_1_GENERAL_EXP));
 			String generalExpText = getElementText(PROFILE_1_GENERAL_EXP);
-			Assert.assertTrue(PO05_ValidateJobProfileDetailsPopup.ProfileDetails.contains("General experience:" + generalExpText));
+			Assert.assertTrue(ProfileDetails.contains("General experience:" + generalExpText));
 			PageObjectHelper.log(LOGGER, "Recommended Profile General experience matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_general_experience_matches_with_matched_success_profile_general_experience", "Issue validating Recommended Profile General experience", e);
@@ -399,7 +429,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 		try {
 			scrollToElement(driver.findElement(PROFILE_1_ROLE_SUMMARY));
 			String roleSummaryText = getElementText(PROFILE_1_ROLE_SUMMARY);
-			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileRoleSummary, roleSummaryText);
+			Assert.assertEquals(ProfileRoleSummary, roleSummaryText);
 			PageObjectHelper.log(LOGGER, "Recommended Profile Role Summary matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_role_summary_matches_with_matched_success_profile_role_summary", "Issue validating Recommended Profile Role Summary", e);
@@ -413,7 +443,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 			Thread.sleep(200);
 			expandAllViewMoreButtons(VIEW_MORE_RESPONSIBILITIES);
 			String responsibilitiesText = getElementText(PROFILE_1_RESPONSIBILITIES);
-			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileResponsibilities, responsibilitiesText);
+			Assert.assertEquals(ProfileResponsibilities, responsibilitiesText);
 			PageObjectHelper.log(LOGGER, "Recommended Profile Responsibilities matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_responsibilities_matches_with_matched_success_profile_responsibilities", "Issue validating Recommended Profile Responsibilities", e);
@@ -427,7 +457,7 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 			Thread.sleep(200);
 			expandAllViewMoreButtons(VIEW_MORE_COMPETENCIES);
 			String competenciesText = getElementText(PROFILE_1_COMPETENCIES);
-			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileBehaviouralCompetencies, competenciesText);
+			Assert.assertEquals(ProfileBehaviouralCompetencies, competenciesText);
 			PageObjectHelper.log(LOGGER, "Recommended Profile Behavioural Competencies matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_behavioural_competencies_matches_with_matched_success_profile_behavioural_competencies", "Issue validating Recommended Profile Behavioural Competencies", e);
@@ -446,10 +476,143 @@ public class PO15_ValidateRecommendedProfileDetails extends BasePageObject {
 			}
 
 			String skillsText = getElementText(PROFILE_1_SKILLS);
-			Assert.assertEquals(PO05_ValidateJobProfileDetailsPopup.ProfileSkills, skillsText);
+			Assert.assertEquals(ProfileSkills, skillsText);
 			PageObjectHelper.log(LOGGER, "Recommended Profile Skills matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_skills_matches_with_matched_success_profile_skills", "Issue validating Recommended Profile Skills", e);
+		}
+	}
+
+	// ============================================================
+	// Methods moved from PO05_ValidateJobProfileDetailsPopup
+	// ============================================================
+
+	public void user_is_on_profile_details_popup() {
+		PageObjectHelper.log(LOGGER, "User is on Profile Details Popup");
+	}
+
+	public void verify_profile_header_matches_with_matched_profile_name() {
+		try {
+			String profileHeaderName = getElementText(PROFILE_HEADER);
+			Assert.assertEquals(matchedSuccessPrflName.get(), profileHeaderName);
+			PageObjectHelper.log(LOGGER, "Profile header on the details popup: " + profileHeaderName);
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "verify_profile_header_matches_with_matched_profile_name", "Failed to verify profile details popup header", e);
+		}
+	}
+
+	public void verify_profile_details_displaying_on_the_popup() {
+		try {
+			String profileDetailsText = getElementText(PROFILE_DETAILS);
+			ProfileDetails = profileDetailsText;
+			PageObjectHelper.log(LOGGER, "Profile Details displaying on the popup screen:\n" + profileDetailsText);
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "verify_profile_details_displaying_on_the_popup", "Failed to display profile details on the popup screen", e);
+		}
+	}
+
+	public void user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown() {
+		try {
+			WebElement dropdown = waitForElement(PROFILE_LEVEL_DROPDOWN);
+			if (dropdown.isEnabled()) {
+				dropdown.click();
+				Select select = new Select(dropdown);
+				List<WebElement> allOptions = select.getOptions();
+				StringBuilder levels = new StringBuilder();
+				for (WebElement option : allOptions) {
+					levels.append(option.getText()).append(", ");
+				}
+				dropdown.click();
+				PageObjectHelper.log(LOGGER, "Profile Level dropdown verified. Levels: " + levels.toString().replaceAll(", $", ""));
+			} else {
+				PageObjectHelper.log(LOGGER, "No Profile Levels available for profile: " + matchedSuccessPrflName.get());
+			}
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown", "Failed to validate profile level dropdown", e);
+		}
+	}
+
+	public void validate_role_summary_is_displaying() {
+		try {
+			String roleSummaryText = getElementText(ROLE_SUMMARY);
+			ProfileRoleSummary = roleSummaryText.split(": ", 2)[1].trim();
+			PageObjectHelper.log(LOGGER, "Role summary of Matched Success Profile: " + ProfileRoleSummary);
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "validate_role_summary_is_displaying", "Failed to validate Role Summary in Profile Details Popup", e);
+		}
+	}
+
+	public void validate_data_in_responsibilities_tab() {
+		try {
+			PerformanceUtils.waitForPageReady(driver, 2);
+			expandAllViewMoreButtons(POPUP_VIEW_MORE_RESPONSIBILITIES);
+
+			String responsibilitiesDataText = getElementText(POPUP_RESPONSIBILITIES_DATA);
+			ProfileResponsibilities = responsibilitiesDataText;
+			PageObjectHelper.log(LOGGER, "Responsibilities data validated successfully");
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "validate_data_in_responsibilities_tab", "Failed to validate data in Responsibilities screen", e);
+		}
+	}
+
+	public void validate_data_in_behavioural_competencies_tab() {
+		try {
+			scrollToElement(driver.findElement(ROLE_SUMMARY));
+			PerformanceUtils.waitForPageReady(driver, 3);
+			clickElement(BEHAVIOUR_TAB_BTN);
+			expandAllViewMoreButtons(POPUP_VIEW_MORE_BEHAVIOUR);
+
+			String behaviourDataText = getElementText(POPUP_BEHAVIOUR_DATA);
+			ProfileBehaviouralCompetencies = behaviourDataText;
+			PageObjectHelper.log(LOGGER, "Behavioural Competencies data validated successfully");
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "validate_data_in_behavioural_competencies_tab", "Failed to validate data in Behaviour Competencies screen", e);
+		}
+	}
+
+	public void validate_data_in_skills_tab() {
+		try {
+			scrollToElement(driver.findElement(ROLE_SUMMARY));
+			PerformanceUtils.waitForPageReady(driver, 2);
+			clickElement(SKILLS_TAB_BTN);
+			expandAllViewMoreButtons(POPUP_VIEW_MORE_SKILLS);
+
+			String skillsDataText = getElementText(POPUP_SKILLS_DATA);
+			ProfileSkills = skillsDataText;
+			PageObjectHelper.log(LOGGER, "Skills data validated successfully");
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "validate_data_in_skills_tab", "Failed to validate data in Skills screen", e);
+		}
+	}
+
+	public void user_should_verify_publish_profile_button_is_available_on_popup_screen() {
+		try {
+			try {
+				WebElement publishBtn = driver.findElement(PUBLISH_PROFILE_BTN);
+				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'end', inline: 'nearest'});", publishBtn);
+				Thread.sleep(1000);
+			} catch (Exception scrollEx1) {
+				try {
+					WebElement popupContainer = driver.findElement(POPUP_CONTAINER);
+					js.executeScript("arguments[0].scrollTop = arguments[0].scrollHeight;", popupContainer);
+					Thread.sleep(1000);
+				} catch (Exception scrollEx2) {
+					scrollToBottom();
+					Thread.sleep(500);
+				}
+			}
+
+			PerformanceUtils.waitForPageReady(driver, 2);
+			Thread.sleep(500);
+
+			boolean isButtonDisplayed = wait.until(ExpectedConditions.elementToBeClickable(PUBLISH_PROFILE_BTN)).isDisplayed();
+			if (!isButtonDisplayed) {
+				throw new Exception("Publish button found but not displayed");
+			}
+
+			PageObjectHelper.log(LOGGER, "Publish button is displaying on the Profile Details Popup and is clickable");
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "user_should_verify_publish_profile_button_is_available_on_popup_screen", "Failed to verify Publish Profile button", e);
 		}
 	}
 }

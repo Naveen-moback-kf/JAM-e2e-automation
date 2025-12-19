@@ -125,6 +125,49 @@ public class SD15_ValidateRecommendedProfileDetails {
 		validateRecommendedProfileDetails.getValidateRecommendedProfileDetails().validate_recommended_profile_skills_matches_with_matched_success_profile_skills();
 	}
 
+	// ============================================================
+	// Methods moved from SD05_ValidateJobProfileDetailsPopup
+	// Now calling PO15 methods directly (methods moved from PO05)
+	// ============================================================
 
+	@Then("Verify profile header matches with matched profile name")
+	public void verify_profile_header_matches_with_matched_profile_name() throws IOException {
+		validateRecommendedProfileDetails.getValidateRecommendedProfileDetails().verify_profile_header_matches_with_matched_profile_name();
+	}
+
+	@Then("Verify profile details displaying on the popup")
+	public void verify_profile_details_displaying_on_the_popup() throws IOException {
+		validateRecommendedProfileDetails.getValidateRecommendedProfileDetails().verify_profile_details_displaying_on_the_popup();
+	}
+
+	@Then("User should verify Profile Level dropdown is available and Validate levels present inside dropdown")
+	public void user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown() throws IOException {
+		validateRecommendedProfileDetails.getValidateRecommendedProfileDetails().user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown();
+	}
+
+	@Then("Validate Role Summary is displaying")
+	public void validate_role_summary_is_displaying() throws IOException {
+		validateRecommendedProfileDetails.getValidateRecommendedProfileDetails().validate_role_summary_is_displaying();
+	}
+
+	@Then("Validate data in RESPONSIBILITIES screen")
+	public void validate_data_in_responsibilities_tab() throws IOException {
+		validateRecommendedProfileDetails.getValidateRecommendedProfileDetails().validate_data_in_responsibilities_tab();
+	}
+
+	@Then("Validate data in BEHAVIOURAL COMPETENCIES screen")
+	public void validate_data_in_behavioural_competencies_tab() throws IOException {
+		validateRecommendedProfileDetails.getValidateRecommendedProfileDetails().validate_data_in_behavioural_competencies_tab();
+	}
+
+	@Then("Validate data in SKILLS screen")
+	public void validate_data_in_skills_tab() throws IOException {
+		validateRecommendedProfileDetails.getValidateRecommendedProfileDetails().validate_data_in_skills_tab();
+	}
+
+	@Then("User should verify publish profile button is available on popup screen")
+	public void user_should_verify_publish_profile_button_is_available_on_popup_screen() throws IOException {
+		validateRecommendedProfileDetails.getValidateRecommendedProfileDetails().user_should_verify_publish_profile_button_is_available_on_popup_screen();
+	}
 
 }

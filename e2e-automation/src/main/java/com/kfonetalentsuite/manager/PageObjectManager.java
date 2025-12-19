@@ -10,7 +10,6 @@ public class PageObjectManager {
 	public PO02_ValidateAddMoreJobsFunctionality validateAddMoreJobsFunctionality;
 	public PO03_ValidateJobmappingHeaderSection validateJobmappingHeaderSection;
 	public PO04_VerifyJobMappingPageComponents verifyJobMappingPageComponents;
-	public PO05_ValidateJobProfileDetailsPopup validateJobProfileDetailsPopup;
 	public PO06_PublishJobProfile publishJobProfile;
 	public PO07_PublishJobFromComparisonScreen publishJobFromComparisonScreen;
 	public PO08_PublishJobFromDetailsPopup publishJobFromDetailsPopup;
@@ -74,12 +73,6 @@ public class PageObjectManager {
 
 	}
 
-	public PO05_ValidateJobProfileDetailsPopup getValidateJobProfileDetailsPopup() throws IOException {
-		if (validateJobProfileDetailsPopup == null) {
-			validateJobProfileDetailsPopup = new PO05_ValidateJobProfileDetailsPopup();
-		}
-		return validateJobProfileDetailsPopup;
-	}
 
 	public PO06_PublishJobProfile getPublishJobProfile() throws IOException {
 		if (publishJobProfile == null) {
@@ -333,7 +326,6 @@ public class PageObjectManager {
 		validateAddMoreJobsFunctionality = null;
 		validateJobmappingHeaderSection = null;
 		verifyJobMappingPageComponents = null;
-		validateJobProfileDetailsPopup = null;
 		publishJobProfile = null;
 		publishJobFromComparisonScreen = null;
 		publishJobFromDetailsPopup = null;
