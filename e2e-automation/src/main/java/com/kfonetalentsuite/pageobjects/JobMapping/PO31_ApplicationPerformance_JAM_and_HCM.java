@@ -36,8 +36,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	private static final long HCM_PAGE_LOAD_THRESHOLD_MS = 10000; // 10 seconds for HCM page load
 	private static final long SYNC_OPERATION_THRESHOLD_MS = 10000; // 10 seconds for sync operation
 
-	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
-	// Performance metrics storage
 	private static ThreadLocal<Long> pageLoadStartTime = ThreadLocal.withInitial(() -> 0L);
 	private static ThreadLocal<Long> pageLoadEndTime = ThreadLocal.withInitial(() -> 0L);
 	private static ThreadLocal<Long> totalPageLoadTime = ThreadLocal.withInitial(() -> 0L);
@@ -140,7 +138,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	private static final By PAGE_TITLE_HEADER = By.xpath("//div[@id='page-heading']//h1");
 	private static final By PAGE_TITLE_DESC = By.xpath("//div[@id='page-title']//p[1]");
 	private static final By SEARCH_BAR = By.xpath("//input[contains(@id,'search-job-title')]");
-	// Locators.JobMappingResults.SHOWING_JOB_RESULTS is available via Locators.JobMappingResults.SHOWING_JOB_RESULTS
 	private static final By FILTERS_DROPDOWN_BUTTON = By.xpath("//button[@id='filters-btn']");
 	
 	// Navigation XPaths (Job Comparison) - from Locators.ComparisonPage
@@ -163,9 +160,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	private static final By HCM_SYNC_PROFILES_HEADER_TAB = Locators.HCMSyncProfiles.HCM_SYNC_TAB;
 	private static final By HCM_SYNC_PROFILES_TITLE = Locators.HCMSyncProfiles.SYNC_PROFILES_TITLE;
 	
-	// HCM Sync XPaths
-	private static final By HCM_TABLE_HEADER_CHECKBOX = By.xpath("//thead//tr//div//kf-checkbox");
-	private static final By SYNC_WITH_HCM_BTN = By.xpath("//button[contains(@class,'custom-export')]");
 	private static final By SYNC_SUCCESS_POPUP_TEXT = By.xpath("//div[@class='p-toast-detail']");
 	private static final By SYNC_SUCCESS_POPUP_CLOSE_BTN = By.xpath("//button[contains(@class,'p-toast-icon-close')]");
 	
@@ -2372,7 +2366,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			}
 
 			// Click header checkbox to select all loaded profiles
-			WebElement hcmHeaderCheckbox = findElement(HCM_TABLE_HEADER_CHECKBOX);
+			WebElement hcmHeaderCheckbox = findElement(Locators.HCMSyncProfiles.TABLE_HEADER_CHECKBOX);
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(hcmHeaderCheckbox)).click();
 			} catch (Exception e) {
@@ -2392,7 +2386,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 					String.format(" %d profiles selected for sync test", selectedProfilesCountBeforeSync.get()));
 
 			// Verify Sync button is enabled
-			WebElement syncBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(SYNC_WITH_HCM_BTN));
+			WebElement syncBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN));
 			if (!syncBtn.isEnabled()) {
 				LOGGER.warn(" Sync with HCM button is not enabled, profiles may not be selected");
 			}
@@ -2411,7 +2405,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		try {
 			syncClickStartTime.set(System.currentTimeMillis());
 
-			WebElement syncBtn = findElement(SYNC_WITH_HCM_BTN);
+			WebElement syncBtn = findElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN);
 			try {
 				wait.until(ExpectedConditions.elementToBeClickable(syncBtn)).click();
 			} catch (Exception e) {
@@ -2476,10 +2470,14 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	 */
 	public void user_validates_sync_status_updates_appear_promptly() {
 		try {
-			String successMsg = findElement(SYNC_SUCCESS_POPUP_TEXT).getText().trim();
+			// PARALLEL EXECUTION FIX: Use wait with locator instead of direct findElement
+			WebElement successPopup = wait.until(ExpectedConditions.visibilityOfElementLocated(SYNC_SUCCESS_POPUP_TEXT));
+			String successMsg = successPopup.getText().trim();
 			PageObjectHelper.log(LOGGER, "Sync success message displayed: " + successMsg);
 
-			findElement(SYNC_SUCCESS_POPUP_CLOSE_BTN).click();
+			// PARALLEL EXECUTION FIX: Use elementToBeClickable for close button
+			WebElement closeBtn = wait.until(ExpectedConditions.elementToBeClickable(SYNC_SUCCESS_POPUP_CLOSE_BTN));
+			closeBtn.click();
 			safeSleep(500);
 
 			LOGGER.info(String.format(" Sync operation completed | %d profiles synced with HCM",

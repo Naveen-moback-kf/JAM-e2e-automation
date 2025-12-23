@@ -55,14 +55,39 @@ public class SD05_PublishJobProfile {
 		publishJobProfile.getPublishJobProfile().user_should_navigate_to_hcm_sync_profiles_tab_in_pm();
 	}
 	
+	@Then("User should verify Search dropdown is displaying in HCM Sync Profiles screen in PM")
+	public void user_should_verify_search_dropdown_is_displaying_in_hcm_sync_profiles_screen_in_pm() throws IOException {
+		publishJobProfile.getPublishJobProfile().user_should_verify_search_dropdown_is_displaying_in_hcm_sync_profiles_screen_in_pm();
+	}
+	
+	@Then("Change search type to search by Job Code in HCM Sync Profiles screen in PM")
+	public void change_search_type_to_search_by_job_code_in_hcm_sync_profiles_screen_in_pm() throws IOException {
+		publishJobProfile.getPublishJobProfile().change_search_type_to_search_by_job_code_in_hcm_sync_profiles_screen_in_pm();
+	}
+	
+	@Then("Change search type to search by Job Profile in HCM Sync Profiles screen in PM")
+	public void change_search_type_to_search_by_job_profile_in_hcm_sync_profiles_screen_in_pm() throws IOException {
+		publishJobProfile.getPublishJobProfile().change_search_type_to_search_by_job_profile_in_hcm_sync_profiles_screen_in_pm();
+	}
+	
 	@Then("Search for Published Job name in HCM Sync Profiles screen in PM")
 	public void search_for_published_job_name_in_hcm_sync_profiles_tab_in_pm() throws IOException {
 		publishJobProfile.getPublishJobProfile().search_for_published_job_name_in_hcm_sync_profiles_tab_in_pm();
+	}
+	
+	@Then("Search for Published Job Code in HCM Sync Profiles screen in PM")
+	public void search_for_published_job_code_in_hcm_sync_profiles_tab_in_pm() throws IOException {
+		publishJobProfile.getPublishJobProfile().search_for_published_job_code_in_hcm_sync_profiles_tab_in_pm();
 	}
 
 	@Then("User should verify Published Job is displayed in HCM Sync Profiles screen in PM")
 	public void user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm() throws IOException {
 		publishJobProfile.getPublishJobProfile().user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm();
+	}
+	
+	@Then("User should verify Published Job Code in HCM Sync Profiles screen in PM")
+	public void user_should_verify_published_job_code_in_hcm_sync_profiles_tab_in_pm() throws IOException {
+		publishJobProfile.getPublishJobProfile().user_should_verify_published_job_code_in_hcm_sync_profiles_tab_in_pm();
 	}
 	
 	@Then("User should verify Date on Published Job matches with current date")

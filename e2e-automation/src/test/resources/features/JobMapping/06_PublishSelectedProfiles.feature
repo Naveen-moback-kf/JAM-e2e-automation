@@ -31,8 +31,8 @@ Feature: Validate functionality of publishing one or more than one job profiles 
     Then User should verify Published second job profile is displayed in Row1 in View Published screen
     Then Click on toggle button to turn off
 
-  @VerifyPublishedJobsInHCMSyncProfilesTabInPM
-  Scenario: Verify Published Job Profiles is displaying as Custom Profile in HCM Sync Profiles screen in PM
+  @VerifyPublishedJobsInHCMSyncProfilesTabInPM_WithJobName
+  Scenario: Verify Published Job Profiles is displaying as Custom Profile in HCM Sync Profiles screen in PM with Job Name
   	Then Skip scenario if user does not have HCM Sync access
    	Then Click on KFONE Global Menu in Job Mapping UI
     Then Click on Profile Manager application button in KFONE Global Menu
@@ -42,4 +42,16 @@ Feature: Validate functionality of publishing one or more than one job profiles 
     Then User should verify Date on Published Second Job matches with current date
     Then Search for Published Job name2 in HCM Sync Profiles screen in PM
     Then User should verify Published Second Job Profile is displayed in Row1 in HCM Sync Profiles screen in PM
+  
+  @VerifyPublishedJobsInHCMSyncProfilesTabInPM_WithJobCode  
+  Scenario: Verify job published appears in HCM Sync Profiles with Job Code
+    Then Skip scenario if user does not have HCM Sync access
+    Then User should verify Search dropdown is displaying in HCM Sync Profiles screen in PM
+    Then Change search type to search by Job Code in HCM Sync Profiles screen in PM 
+    Then Search for Published Job code2 in HCM Sync Profiles screen in PM
+    Then User should verify Published Job is displayed in HCM Sync Profiles screen in PM
+    Then User should verify Published Job Code in HCM Sync Profiles screen in PM
+    Then User should verify Date on Published Job matches with current date
     Then User should verify SP details page opens on click of Published Job name
+    
+    

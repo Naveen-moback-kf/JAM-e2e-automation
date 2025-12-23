@@ -126,8 +126,18 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			WebElement jobName = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 1) + "]//td[2]//div[contains(text(),'(')]"));
 			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobName)).isDisplayed());
 			String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText();
-			orgJobName.set(jobname1.split("-", 2)[0].trim());
-			orgJobCode.set(jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length() - 2));
+			
+			String extractedJobName = jobname1.split("-", 2)[0].trim();
+			String extractedJobCode = jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length() - 2);
+			
+			// Set values in PO12 ThreadLocal variables
+			orgJobName.set(extractedJobName);
+			orgJobCode.set(extractedJobCode);
+			
+			// Also sync to PO05 ThreadLocal variables to ensure consistency across all verification methods
+			PO05_PublishJobProfile.job1OrgName.set(extractedJobName);
+			PO05_PublishJobProfile.job1OrgCode.set(extractedJobCode);
+			
 			PageObjectHelper.log(LOGGER, "Job name: " + orgJobName.get());
 			PageObjectHelper.log(LOGGER, "Job code: " + orgJobCode.get());
 		} catch (Exception e) {

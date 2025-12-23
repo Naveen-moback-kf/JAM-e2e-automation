@@ -33,7 +33,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	private static final By GRADES_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Grades']");
 	private static final By GRADES_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']");
 	private static final By GRADES_VALUES = By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']//..//label");
-	private static final By SHOWING_RESULTS = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
 	private static final By NO_DATA_CONTAINER = By.xpath("//*[@id='no-data-container']");
 	private static final By CLEAR_FILTERS_BTN = By.xpath("//button[@data-testid='Clear Filters']");
 	private static final By CLEAR_FILTERS_X_BTN = By.xpath("//button[@data-testid='clear-filters-button']");
@@ -103,6 +102,44 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		}
 	}
 
+	/**
+	 * Selects a DIFFERENT (second) option in Grades filter - for alternative validation scenarios.
+	 * Unlike select_two_options which selects BOTH 1st and 2nd, this selects ONLY the 2nd option.
+	 */
+	public void select_different_option_in_grades_filters_dropdown() throws Exception {
+		try {
+			wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(GRADES_CHECKBOXES));
+			List<WebElement> checkboxes = driver.findElements(GRADES_CHECKBOXES);
+			List<WebElement> values = driver.findElements(GRADES_VALUES);
+
+			if (values.size() < 2) throw new Exception("Need at least 2 grade options for different selection, found: " + values.size());
+
+			// Select the SECOND option (index 1), not the first
+			WebElement targetCheckbox = checkboxes.get(1);
+			String gradeValue = values.get(1).getText().trim();
+
+			scrollToElement(targetCheckbox);
+			Thread.sleep(300);
+			jsClick(targetCheckbox);
+
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 1);
+
+			if (!targetCheckbox.isSelected()) {
+				jsClick(targetCheckbox);
+				Thread.sleep(300);
+				waitForSpinners();
+			}
+
+			Assert.assertTrue(targetCheckbox.isSelected(), "Grade checkbox not selected: " + gradeValue);
+			GradesOption2.set(gradeValue);  // Store in GradesOption2 for alternative validation
+			PageObjectHelper.log(LOGGER, "Selected DIFFERENT Grades Value: '" + gradeValue + "' (2nd option) from Grades Filters dropdown");
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "select_different_option_in_grades_filters_dropdown", "Issue selecting different option from Grades dropdown", e);
+			throw e;
+		}
+	}
+
 	public void user_should_scroll_down_to_view_last_result_with_applied_filters() throws InterruptedException {
 		try {
 			PageObjectHelper.log(LOGGER, "Scrolling down to last filtered result");
@@ -118,7 +155,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				String resultsCountText = "";
 				try {
 					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(1));
-					WebElement resultsElement = shortWait.until(ExpectedConditions.presenceOfElementLocated(SHOWING_RESULTS));
+					WebElement resultsElement = shortWait.until(ExpectedConditions.presenceOfElementLocated(Locators.JAMScreen.SHOWING_RESULTS_COUNT));
 					resultsCountText = resultsElement.getText();
 					consecutiveFailures = 0;
 				} catch (Exception e) {
@@ -903,7 +940,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			
 			// Check for "Showing 0 of X results" text
 			try {
-				WebElement resultsElement = driver.findElement(SHOWING_RESULTS);
+				WebElement resultsElement = driver.findElement(Locators.JAMScreen.SHOWING_RESULTS_COUNT);
 				String resultsText = resultsElement.getText();
 				if (resultsText.contains("Showing 0 of")) {
 					PageObjectHelper.log(LOGGER, "✅ Combined filters applied successfully - " + resultsText + " (no profiles match all filter criteria)");

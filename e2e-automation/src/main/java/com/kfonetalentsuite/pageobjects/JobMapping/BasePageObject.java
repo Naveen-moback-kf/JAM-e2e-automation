@@ -198,7 +198,7 @@ public class BasePageObject {
 		}
 
 		// -----------------------------------------
-		// HCM SYNC PROFILES (Used in PO22,PO23,PO25)
+		// HCM SYNC PROFILES (Used in PO18,PO19,PO21,PO22,PO23,PO25,PO31)
 		// -----------------------------------------
 		public static class HCMSyncProfiles {
 			public static final By HCM_SYNC_TAB = By.xpath("//span[contains(text(),'HCM Sync')]");
@@ -207,6 +207,7 @@ public class BasePageObject {
 			public static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing')]");
 			public static final By TABLE_HEADER_NAME = By.xpath("//thead//tr//div[@kf-sort-header='name']//div");
 			public static final By TABLE_HEADER_STATUS = By.xpath("//thead//tr//div//div[text()=' Status ']");
+			public static final By TABLE_HEADER_JOB_CODE = By.xpath("//thead//tr//div//div[text()=' Job Code ']");
 			public static final By TABLE_HEADER_KF_GRADE = By.xpath("//thead//tr//div//div[text()=' kf grade ']");
 			public static final By TABLE_HEADER_LEVEL = By.xpath("//thead//tr//div//div[text()=' Level ']");
 			public static final By TABLE_HEADER_FUNCTION = By.xpath("//thead//tr//div//div[text()=' Function ']");
@@ -214,16 +215,23 @@ public class BasePageObject {
 			public static final By TABLE_HEADER_LAST_MODIFIED = By.xpath("//thead//tr//div//div[text()=' Last Modified ']");
 			public static final By TABLE_HEADER_EXPORT_STATUS = By.xpath("//thead//tr//div//div[text()=' Export status ']");
 			public static final By DOWNLOAD_BTN = By.xpath("//button[contains(@class,'border-button')]");
+			public static final By TABLE_HEADER_CHECKBOX = By.xpath("//thead//tr//div//kf-checkbox");
+			public static final By SP_DETAILS_PAGE_TEXT = By.xpath("//span[contains(text(),'Select your view')]");
+			public static final By SYNC_WITH_HCM_BTN = By.xpath("//button[contains(@class,'custom-export')] | //*[contains(text(),'Sync with HCM')]");
+			public static final By SEARCH_DROPDOWN = By.xpath("//div[@class='search-type-toggle']");
+			public static final By SEARCH_BY_JOBPROFILE = By.xpath("//div[contains(@class,'search-type-item') and contains(text(),'Job Profile')]");
+			public static final By SEARCH_BY_JOBCODE = By.xpath("//div[contains(@class,'search-type-item') and contains(text(),'Job Code')]");
 		}
 
 		// -----------------------------------------
 		// PM SCREEN LOCATORS (HCM Sync Profiles - Used in PO35, PO36, PO42)
 		// -----------------------------------------
-		public static class PMScreen {
-			public static final By ALL_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-checkbox]");
-			public static final By SELECTED_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]");
-			public static final By CHEVRON_BUTTON = By.xpath("//*[contains(@class,'kf-icon-arrow-down')]");
-			public static final By HEADER_CHECKBOX = By.xpath("//thead//tr//th[1]//div[1]//kf-checkbox//div");
+	public static class PMScreen {
+		public static final By ALL_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-checkbox]");
+		public static final By SELECTED_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]");
+		// FIXED: More specific locator to target chevron beside table header checkbox, not search dropdown
+		public static final By CHEVRON_BUTTON = By.xpath("//thead//th//kf-icon[contains(@class,'arrow-down') or @icon='arrow-down'] | //thead//th//*[contains(@class,'chevron')]");
+		public static final By HEADER_CHECKBOX = By.xpath("//thead//tr//th[1]//div[1]//kf-checkbox//div");
 			public static final By SYNC_BUTTON = By.xpath("//button[contains(@class,'custom-export')] | //button[contains(text(),'Sync with HCM')]");
 			public static final By SEARCH_BAR = By.xpath("//input[@type='search']");
 			public static final By CLEAR_ALL_FILTERS_BTN = By.xpath("//a[contains(text(),'Clear All')]");
@@ -257,7 +265,8 @@ public class BasePageObject {
 			public static final By JOB_1_PUBLISHED_BTN = By.xpath("//tbody//tr[2]//button[text()='Published'][1]");
 			// HCM Sync Profiles Row Locators
 			public static final By HCM_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//span[1]//a");
-			public static final By HCM_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[7]//span");
+			public static final By HCM_JOBCODE_ROW_1 = By.xpath("//tbody//tr[1]//td[3]//span");
+			public static final By HCM_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[8]//span");
 			// Architect Row Locators
 			public static final By ARCHITECT_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//div//a");
 			public static final By ARCHITECT_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[9]");
@@ -1106,6 +1115,7 @@ public class BasePageObject {
 	/**
 	 * Counts selected profiles using JavaScript for performance.
 	 * Supports both PM (kf-checkbox) and JAM (native checkbox) screens.
+	 * FIX: For PM, only counts ENABLED selected checkboxes (excludes disabled with check icons)
 	 * 
 	 * @param screen "PM" or "JAM"
 	 * @return Count of selected profiles
@@ -1116,7 +1126,12 @@ public class BasePageObject {
 			Object result;
 			
 			if ("PM".equalsIgnoreCase(screen)) {
-				String jsScript = "return document.querySelectorAll('tbody tr kf-icon[icon=\"checkbox-check\"]').length;";
+				// FIX: Count only ENABLED selected checkboxes (exclude disabled with check icons)
+				String jsScript = 
+					"return Array.from(document.querySelectorAll('tbody tr td:first-child kf-checkbox')).filter(cb => " +
+					"  cb.querySelector('kf-icon[icon=\"checkbox-check\"]') && " +
+					"  !cb.querySelector('div.disable')" +
+					").length;";
 				result = js.executeScript(jsScript);
 				int count = result != null ? ((Long) result).intValue() : 0;
 				// Fallback to locator if JS returns 0

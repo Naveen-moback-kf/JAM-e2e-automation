@@ -21,7 +21,6 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 	public static ThreadLocal<String> ResultsCountBeforeAddingMoreJobs = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> KFONEjobsCountBeforeAddingMoreJobs = ThreadLocal.withInitial(() -> "NOT_SET");
 
-	// SHOWING_JOB_RESULTS_COUNT is available via Locators.JobMappingResults.SHOWING_JOB_RESULTS
 	private static final By ADD_MORE_JOBS_PAGE_HEADER = By.xpath("//*[contains(text(),'Add Job Data')]");
 	private static final By MANUAL_UPLOAD_BTN = By.xpath("//button[@data-testid='manual-upload-btn']");
 	private static final By KFONE_JOBS_COUNT = By.xpath("//span[contains(@class,'regular-small')]");

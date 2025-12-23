@@ -28,14 +28,25 @@ Feature: Publish Job Profile from Different Sources in Job Mapping
     Then Click on toggle button to turn off
 
   @Publish_From_Listing @VerifyInHCMSync
-  Scenario: Verify job published from listing table appears in HCM Sync Profiles
+  Scenario: Verify job published from listing table appears in HCM Sync Profiles with Job Name
     Then Skip scenario if user does not have HCM Sync access
     Then Click on KFONE Global Menu in Job Mapping UI
     Then Click on Profile Manager application button in KFONE Global Menu
     Then Verify user should land on Profile Manager dashboard page
     Then User should navigate to HCM Sync Profiles screen in PM
+    Then User should verify Search dropdown is displaying in HCM Sync Profiles screen in PM
     Then Search for Published Job name in HCM Sync Profiles screen in PM
     Then User should verify Published Job is displayed in HCM Sync Profiles screen in PM
+    Then User should verify Published Job Code in HCM Sync Profiles screen in PM
+    Then User should verify Date on Published Job matches with current date
+    
+  @Publish_From_Listing @VerifyInHCMSync_ByJobCode
+  Scenario: Verify job published from listing table appears in HCM Sync Profiles with Job Code
+    Then Skip scenario if user does not have HCM Sync access
+    Then Change search type to search by Job Code in HCM Sync Profiles screen in PM 
+    Then Search for Published Job Code in HCM Sync Profiles screen in PM
+    Then User should verify Published Job is displayed in HCM Sync Profiles screen in PM
+    Then User should verify Published Job Code in HCM Sync Profiles screen in PM
     Then User should verify Date on Published Job matches with current date
     Then User should verify SP details page opens on click of Published Job name
 
@@ -74,19 +85,31 @@ Feature: Publish Job Profile from Different Sources in Job Mapping
   Scenario: Verify job published from comparison screen appears in View Published
     When User is in Job Mapping page
     Then Click on View Published toggle button to turn on
-    #Then Search for Published Job name in View Published screen
     Then User should verify Published job is displayed in View Published screen
     Then Click on toggle button to turn off
 
-  @Publish_From_Comparison @VerifyInHCMSync
-  Scenario: Verify job published from comparison screen appears in HCM Sync Profiles
+  @Publish_From_Comparison @VerifyInHCMSync_ByJobname
+  Scenario: Verify job published from comparison screen appears in HCM Sync Profiles with Job Name
     Then Skip scenario if user does not have HCM Sync access
     Then Click on KFONE Global Menu in Job Mapping UI
     Then Click on Profile Manager application button in KFONE Global Menu
     Then Verify user should land on Profile Manager dashboard page
     Then User should navigate to HCM Sync Profiles screen in PM
+    Then User should verify Search dropdown is displaying in HCM Sync Profiles screen in PM
     Then Search for Published Job name in HCM Sync Profiles screen in PM
     Then User should verify Published Job is displayed in HCM Sync Profiles screen in PM
+    Then User should verify Published Job Code in HCM Sync Profiles screen in PM
+    Then User should verify Date on Published Job matches with current date
+    #Then User should verify SP details page opens on click of Published Job name
+    
+  @Publish_From_Comparison @VerifyInHCMSync_ByJobCode
+  Scenario: Verify job published from comparison screen appears in HCM Sync Profiles with Job Code
+    Then Skip scenario if user does not have HCM Sync access
+    Then Skip scenario if user does not have HCM Sync access
+    Then Change search type to search by Job Code in HCM Sync Profiles screen in PM 
+    Then Search for Published Job Code in HCM Sync Profiles screen in PM
+    Then User should verify Published Job is displayed in HCM Sync Profiles screen in PM
+    Then User should verify Published Job Code in HCM Sync Profiles screen in PM
     Then User should verify Date on Published Job matches with current date
     Then User should verify SP details page opens on click of Published Job name
 
@@ -126,16 +149,28 @@ Feature: Publish Job Profile from Different Sources in Job Mapping
     Then Click on View Published toggle button to turn on
     Then User should verify Published job is displayed in View Published screen
     Then Click on toggle button to turn off
-
-  @Publish_From_Popup @VerifyInHCMSync
-  Scenario: Verify job published from details popup appears in HCM Sync Profiles
+    
+  @Publish_From_Popup @VerifyInHCMSync_withJobCode  
+  Scenario: Verify job published from listing table appears in HCM Sync Profiles with Job Code
     Then Skip scenario if user does not have HCM Sync access
     Then Click on KFONE Global Menu in Job Mapping UI
     Then Click on Profile Manager application button in KFONE Global Menu
     Then Verify user should land on Profile Manager dashboard page
     Then User should navigate to HCM Sync Profiles screen in PM
+    Then User should verify Search dropdown is displaying in HCM Sync Profiles screen in PM
+    Then Change search type to search by Job Code in HCM Sync Profiles screen in PM 
+    Then Search for Published Job Code in HCM Sync Profiles screen in PM
+    Then User should verify Published Job is displayed in HCM Sync Profiles screen in PM
+    Then User should verify Published Job Code in HCM Sync Profiles screen in PM
+    Then User should verify Date on Published Job matches with current date
+
+  @Publish_From_Popup @VerifyInHCMSync
+  Scenario: Verify job published from details popup appears in HCM Sync Profiles with Job Name
+    Then Skip scenario if user does not have HCM Sync access
+    Then Change search type to search by Job Profile in HCM Sync Profiles screen in PM
     Then Search for Published Job name in HCM Sync Profiles screen in PM
     Then User should verify Published Job is displayed in HCM Sync Profiles screen in PM
+    Then User should verify Published Job Code in HCM Sync Profiles screen in PM
     Then User should verify Date on Published Job matches with current date
     Then User should verify SP details page opens on click of Published Job name
 

@@ -3,6 +3,9 @@ package stepdefinitions.JobMapping;
 import java.io.IOException;
 
 import com.kfonetalentsuite.manager.PageObjectManager;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO08_JobMappingFilters;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO18_HCMSyncProfilesTab_PM;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO28_SelectAllWithFiltersFunctionality;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.cucumber.java.en.Then;
@@ -13,6 +16,36 @@ public class SD28_SelectAllWithFiltersFunctionality extends DriverManager {
 
 	public SD28_SelectAllWithFiltersFunctionality() {
 		super();
+	}
+
+	// ==================== FILTER VALUE STORAGE STEPS (Bridge PO08/PO18 -> PO28) ====================
+
+	@Then("Store applied filter value for validation in {string} screen")
+	public void store_applied_filter_value_for_validation(String screen) {
+		// Copy filter value from PO08 to PO28 for later validation (JAM screen)
+		PO28_SelectAllWithFiltersFunctionality.firstFilterType.set("Grades");
+		PO28_SelectAllWithFiltersFunctionality.firstFilterValue.set(PO08_JobMappingFilters.GradesOption.get());
+	}
+
+	@Then("Store second filter value for validation in {string} screen")
+	public void store_second_filter_value_for_validation(String screen) {
+		// Copy second filter value from PO08 to PO28 for alternative validation (JAM screen)
+		PO28_SelectAllWithFiltersFunctionality.secondFilterType.set("Grades");
+		PO28_SelectAllWithFiltersFunctionality.secondFilterValue.set(PO08_JobMappingFilters.GradesOption2.get());
+	}
+
+	@Then("Store applied PM filter value for validation")
+	public void store_applied_pm_filter_value_for_validation() {
+		// Copy filter value from PO18 to PO28 for later validation (PM screen)
+		PO28_SelectAllWithFiltersFunctionality.firstFilterType.set(PO18_HCMSyncProfilesTab_PM.appliedFilterType.get());
+		PO28_SelectAllWithFiltersFunctionality.firstFilterValue.set(PO18_HCMSyncProfilesTab_PM.appliedFilterValue.get());
+	}
+
+	@Then("Store second PM filter value for validation")
+	public void store_second_pm_filter_value_for_validation() {
+		// Copy filter value from PO18 to PO28 for alternative validation (PM screen)
+		PO28_SelectAllWithFiltersFunctionality.secondFilterType.set(PO18_HCMSyncProfilesTab_PM.appliedFilterType.get());
+		PO28_SelectAllWithFiltersFunctionality.secondFilterValue.set(PO18_HCMSyncProfilesTab_PM.appliedFilterValue.get());
 	}
 
 	// ==================== FILTER APPLICATION STEPS ====================

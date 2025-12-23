@@ -8,18 +8,10 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
   - Re-uploading the corrected file
   - Verifying the jobs no longer show missing data warning
 
-  # ==========================================
-  # NAVIGATION TO JOB MAPPING
-  # ==========================================
-
   @Navigate_To_Job_Mapping
   Scenario: Navigate to Job Mapping page
     Then Navigate to Job Mapping page from KFONE Global Menu in PM
     Then User should verify Job Mapping logo is displayed on screen
-
-  # ==========================================
-  # NAVIGATION TO MISSING DATA SCREEN
-  # ==========================================
 
   @Navigate_To_Missing_Data_Screen
   Scenario: Navigate to Jobs Missing Data screen from Job Mapping page
@@ -27,12 +19,8 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
     Then Verify Missing Data Tip Message is displaying on Job Mapping page
     And Verify Missing Data Tip Message contains correct count of jobs with missing data
     When Click on "View & Re-upload jobs" link in Missing Data Tip Message
-    Then Verify user is navigated to Jobs with Missing Data screen
+    Then Verify user is navigated to Jobs with Missing "<DataType>" Data screen
     And Verify Re-upload button is displayed on Jobs Missing Data screen
-
-  # ==========================================
-  # EXPORT TOP 100 PROFILES TO CSV
-  # ==========================================
 
   @Export_Missing_Data_Profiles_To_CSV
   Scenario: Fetch profiles with missing data and export to CSV file (up to 100 or all if less)
@@ -44,11 +32,7 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
     And Save CSV file as "MissingDataProfiles_ToFix.csv" in test resources folder
     And Verify CSV file is created successfully with correct headers
     And Verify CSV file contains extracted profile data
-    And Click on Close button to return to Job Mapping page
-
-  # ==========================================
-  # FILL MISSING DATA IN CSV
-  # ==========================================
+    And Click on Close button to return to Job Mapping page from "<DataType>" validation
 
   @Fill_Missing_Grade_Data_In_CSV
   Scenario: Fill missing GRADE data in exported CSV file
@@ -82,16 +66,12 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
     And Save the updated CSV file with all missing data filled
     And Verify updated CSV file has no empty required fields
 
-  # ==========================================
-  # RE-UPLOAD CORRECTED CSV FILE
-  # ==========================================
-
   @Reupload_Corrected_CSV_Via_Reupload_Button
   Scenario: Re-upload corrected CSV file using Re-upload button in Missing Data screen
     When User is in Job Mapping page
     Then Capture the count of jobs with missing data before re-upload
     When Click on "View & Re-upload jobs" link in Missing Data Tip Message
-    Then Verify user is navigated to Jobs with Missing Data screen
+    Then Verify user is navigated to Jobs with Missing "<DataType>" Data screen
     And Verify Re-upload button is displayed on Jobs Missing Data screen
     When Click on Re-upload button in Jobs Missing Data screen
     Then User should be landed on KFONE Add Job Data page
@@ -116,10 +96,6 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
     Then Close Add Job Data screen
     Then User should be landed on Job Mapping page
     # NOTE: Unpublished count may or may not change - skip this verification for re-upload scenario
-
-  # ==========================================
-  # POST-UPLOAD VERIFICATION
-  # ==========================================
 
   @Wait_For_Backend_Processing
   Scenario: Wait for backend to process uploaded data and refresh page
@@ -146,7 +122,7 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
   Scenario: Verify re-uploaded profiles are removed from Missing Data screen
     When User is in Job Mapping page
     Then Click on "View & Re-upload jobs" link in Missing Data Tip Message
-    And Verify user is navigated to Jobs with Missing Data screen
+    Then Verify user is navigated to Jobs with Missing "<DataType>" Data screen
     Then Search for first re-uploaded profile by Job Code in Missing Data screen
     And Verify profile is NOT found in Jobs Missing Data screen
-    And Click on Close button to return to Job Mapping page
+    And Click on Close button to return to Job Mapping page from "<DataType>" validation

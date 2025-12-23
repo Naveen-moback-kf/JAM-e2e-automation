@@ -22,7 +22,6 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO33_UnmappedJobs_JAM.class);
 
-	// THREAD-SAFE: Flag to track if scenario should be skipped (when Unmapped option is not available)
 	public static ThreadLocal<Boolean> skipScenario = ThreadLocal.withInitial(() -> false);
 
 	// Locators

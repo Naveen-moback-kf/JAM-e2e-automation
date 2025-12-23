@@ -140,6 +140,11 @@ public class SD18_HCMSyncProfilesTab_PM {
 		validateHCMSyncProfilesTab_PM.getHCMSyncProfilesTab_PM().apply_levels_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab();
 	}
 
+	@Then("Apply different Levels filter in HCM Sync Profiles screen")
+	public void apply_different_levels_filter_in_hcm_sync_profiles_tab() throws IOException {
+		validateHCMSyncProfilesTab_PM.getHCMSyncProfilesTab_PM().apply_different_levels_filter_in_hcm_sync_profiles_tab();
+	}
+
 	@Then("Clear Levels filter in HCM Sync Profiles screen")
 	public void clear_levels_filter_in_hcm_sync_profiles_tab() throws IOException {
 		validateHCMSyncProfilesTab_PM.getHCMSyncProfilesTab_PM().clear_levels_filter_in_hcm_sync_profiles_tab();

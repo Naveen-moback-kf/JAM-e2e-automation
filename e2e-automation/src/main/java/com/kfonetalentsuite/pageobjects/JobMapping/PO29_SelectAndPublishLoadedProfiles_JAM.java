@@ -22,7 +22,6 @@ public class PO29_SelectAndPublishLoadedProfiles_JAM extends BasePageObject {
 	private static final Logger LOGGER = LogManager.getLogger(PO29_SelectAndPublishLoadedProfiles_JAM.class);
 
 	// Locators
-	// PAGE_LOAD_SPINNER (DATA_LOADER) is available via Locators.Spinners.DATA_LOADER
 	private static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input");
 
 	public PO29_SelectAndPublishLoadedProfiles_JAM() {

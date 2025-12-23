@@ -24,7 +24,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 	private static final By HCM_PROFILES_SEARCH = Locators.PMScreen.SEARCH_BAR;
 	private static final By HCM_JOB_ROW_1 = Locators.JobMappingResults.HCM_JOB_ROW_1;
 	private static final By HCM_DATE_ROW_1 = Locators.JobMappingResults.HCM_DATE_ROW_1;
-	private static final By HCM_DATE_ROW_2 = By.xpath("//tbody//tr[2]//td[7]//span");
+	private static final By HCM_DATE_ROW_2 = By.xpath("//tbody//tr[2]//td[8]//span");
 
 	public PO06_PublishSelectedProfiles() {
 		super();
@@ -367,6 +367,21 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			PageObjectHelper.log(LOGGER, "Searched for job: " + PO04_JobMappingPageComponents.orgJobNameInRow2.get() + " in HCM Sync Profiles");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name2_in_hcm_sync_profiles_tab_in_pm", "Failed to search for job in HCM Sync Profiles", e);
+		}
+	}
+	
+	public void search_for_published_job_code2_in_hcm_sync_profiles_tab_in_pm() {
+		try {
+			WebElement searchBox = waitForElement(HCM_PROFILES_SEARCH);
+			searchBox.click();
+			searchBox.clear();
+			searchBox.sendKeys(PO04_JobMappingPageComponents.orgJobCodeInRow2.get());
+			searchBox.sendKeys(Keys.ENTER);
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.log(LOGGER, "Searched for job code: " + PO04_JobMappingPageComponents.orgJobCodeInRow2.get() + " in HCM Sync Profiles");
+		} catch (Exception e) {
+			PageObjectHelper.handleError(LOGGER, "search_for_published_job_code2_in_hcm_sync_profiles_tab_in_pm", "Failed to search for job code in HCM Sync Profiles", e);
 		}
 	}
 

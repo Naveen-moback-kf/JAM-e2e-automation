@@ -27,15 +27,6 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 		super();
 	}
 
-	private static final By TABLE_HEADER_1 = By.xpath("//thead//tr//div[@kf-sort-header='name']//div");
-	private static final By TABLE_HEADER_2 = By.xpath("//thead//tr//div//div[text()=' Status ']");
-	private static final By TABLE_HEADER_3 = By.xpath("//thead//tr//div//div[text()=' kf grade ']");
-	private static final By TABLE_HEADER_4 = By.xpath("//thead//tr//div//div[text()=' Level ']");
-	private static final By TABLE_HEADER_5 = By.xpath("//thead//tr//div//div[text()=' Function ']");
-	private static final By TABLE_HEADER_6 = By.xpath("//thead//tr//div//div[text()=' Created By ']");
-	private static final By TABLE_HEADER_7 = By.xpath("//thead//tr//div//div[text()=' Last Modified ']");
-	private static final By TABLE_HEADER_8 = By.xpath("//thead//tr//div//div[text()=' Export status ']");
-	private static final By SP_DETAILS_PAGE_TEXT = By.xpath("//span[contains(text(),'Select your view')]");
 	private static final By THREE_DOTS_SP_DETAILS = By.xpath("//kf-icon[contains(@class,'dots-three')]");
 	private static final By EDIT_SP_BUTTON = By.xpath("//*[contains(text(),'Edit Success')]");
 	private static final By EDIT_DETAILS_BTN = By.xpath("//*[contains(@class,'editDetails')]");
@@ -43,7 +34,6 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	private static final By SUBFUNCTION_DROPDOWN = By.xpath("//label[contains(text(),'Subfunction')]//..//..//button");
 	private static final By DONE_BTN = By.xpath("//*[contains(text(),'Done')]");
 	private static final By SAVE_BTN = By.xpath("//button[text()='Save']");
-	private static final By SHOWING_JOB_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing')]");
 	private static final By DROPDOWN_OPTIONS = By.xpath("//kf-dropdown-item//div//span");
 
 	private WebElement findTableElement(int rowNum, int colNum) {
@@ -62,7 +52,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 			try {
 				shortWait.until(ExpectedConditions.or(
-						ExpectedConditions.presenceOfElementLocated(SP_DETAILS_PAGE_TEXT),
+						ExpectedConditions.presenceOfElementLocated(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT),
 						ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Select your view')]"))));
 
 				String currentUrl = driver.getCurrentUrl();
@@ -178,8 +168,17 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 	private StringBuilder buildProfileDetailsString() {
 		StringBuilder details = new StringBuilder();
-		By[] headers = { TABLE_HEADER_1, TABLE_HEADER_2, TABLE_HEADER_3, TABLE_HEADER_4, TABLE_HEADER_5, TABLE_HEADER_6,
-				TABLE_HEADER_7, TABLE_HEADER_8 };
+		By[] headers = { 
+				Locators.HCMSyncProfiles.TABLE_HEADER_NAME, 
+				Locators.HCMSyncProfiles.TABLE_HEADER_STATUS, 
+				Locators.HCMSyncProfiles.TABLE_HEADER_JOB_CODE, 
+				Locators.HCMSyncProfiles.TABLE_HEADER_KF_GRADE, 
+				Locators.HCMSyncProfiles.TABLE_HEADER_LEVEL, 
+				Locators.HCMSyncProfiles.TABLE_HEADER_FUNCTION,
+				Locators.HCMSyncProfiles.TABLE_HEADER_CREATED_BY, 
+				Locators.HCMSyncProfiles.TABLE_HEADER_LAST_MODIFIED, 
+				Locators.HCMSyncProfiles.TABLE_HEADER_EXPORT_STATUS 
+		};
 
 		for (int col = 1; col <= 8; col++) {
 			WebElement dataElement = findTableElement(rowNumber.get(), col);
@@ -363,7 +362,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			waitForPageLoad();
 
 			if (rowNumber.get() == 1) {
-				scrollToElement(waitForElement(SHOWING_JOB_RESULTS_COUNT));
+				scrollToElement(waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT));
 			} else if (rowNumber.get() < 5) {
 				WebElement spJobName = waitForElement(By.xpath("//tbody//tr[1]//td[1]//*"));
 				scrollToElement(spJobName);
@@ -436,7 +435,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			waitForSpinners();
 
 			try {
-				WebElement pageText = waitForElement(SP_DETAILS_PAGE_TEXT);
+				WebElement pageText = waitForElement(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT);
 				Assert.assertTrue(pageText.isDisplayed());
 			} catch (Exception e) {
 				String currentUrl = driver.getCurrentUrl();
@@ -589,7 +588,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	public void user_should_be_navigated_to_sp_details_page_after_saving_sp_details() {
 		try {
 			waitForSpinners();
-			WebElement pageText = waitForElement(SP_DETAILS_PAGE_TEXT);
+			WebElement pageText = waitForElement(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT);
 			Assert.assertTrue(pageText.isDisplayed());
 			PageObjectHelper.log(LOGGER, "Navigated to SP details page as expected after Saving SP details....");
 		} catch (AssertionError e) {

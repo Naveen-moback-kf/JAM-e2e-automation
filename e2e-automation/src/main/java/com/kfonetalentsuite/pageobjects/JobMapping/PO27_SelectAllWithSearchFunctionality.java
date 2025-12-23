@@ -342,7 +342,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			int previousTotalVisible = 0;
 			int scrollAttempts = 0;
 			int noChangeCount = 0;
-			int maxScrollAttempts = 500;
+			int maxScrollAttempts = 200; // Reduced from 500 for better performance
 			int requiredStableCount = 3;
 			int totalVisible = 0;
 			int expectedTotal = 0;
@@ -385,20 +385,8 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				safeSleep(scrollWait);
 				PerformanceUtils.waitForSpinnersToDisappear(driver, 3);
 				
-				// Count current selected using JavaScript (faster)
-				if (isJAM) {
-					String jsScript = "return Array.from(document.querySelectorAll('#org-job-container tbody tr td:first-child input[type=\"checkbox\"]')).filter(cb => cb.checked).length;";
-					Object result = js.executeScript(jsScript);
-					selectedCount = result != null ? ((Long) result).intValue() : 0;
-				} else {
-					// PM: Use JavaScript for speed
-					String jsScript = "return document.querySelectorAll('tbody tr kf-icon[icon=\"checkbox-check\"]').length;";
-					Object result = js.executeScript(jsScript);
-					selectedCount = result != null ? ((Long) result).intValue() : 0;
-					if (selectedCount == 0) {
-						selectedCount = findElements(getSelectedProfileRowsLocator(screen)).size();
-					}
-				}
+				// Count current selected using BasePageObject helper method
+				selectedCount = countSelectedProfilesJS(screen);
 				
 				// Get total visible for logging
 				totalVisible = findElements(getAllProfileRowsLocator(screen)).size();
@@ -533,23 +521,28 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		int actualSelectedCount = 0;
 		int scrollAttempts = 0;
 		int stableCountAttempts = 0;
+		int earlySuccessAttempts = 0;
 		boolean allProfilesLoaded = false;
 		int expectedTotalProfiles = 0;
 		boolean maxScrollLimitReached = false;
+		boolean earlySuccessExit = false;
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		boolean isJAM = "JAM".equalsIgnoreCase(screen);
+		int baseline = searchResultsCount.get();
 		
 		// Scrolling settings - JAM loads ~10 profiles/scroll, PM loads ~50 profiles/scroll
-		int maxScrollAttempts = 500;
+		// Reduced max from 500 to 200 for better performance
+		int maxScrollAttempts = 200;
 		int requiredStableAttempts = 5;
+		int requiredEarlySuccessAttempts = 3; // Consecutive scrolls with all expected selections found
 
 		try {
 			currentScreen.set(screen);
 			
-			PageObjectHelper.log(LOGGER, "Verifying only " + searchResultsCount.get() +
+			PageObjectHelper.log(LOGGER, "Verifying only " + baseline +
 					" profiles remain selected in " + getScreenName(screen) + "...");
 
-			if (searchResultsCount.get() == 0) {
+			if (baseline == 0) {
 				PageObjectHelper.log(LOGGER, "No search results to verify - skipping");
 				return;
 			}
@@ -564,13 +557,27 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			
 			long startTime = System.currentTimeMillis();
 
-			// Calculate estimated scrolls needed
+			// Get expected total profile count from "Showing X of Y" text
+			try {
+				String resultsCountText = getElementText(getShowingResultsCountLocator(screen));
+				expectedTotalProfiles = parseProfileCountFromText(resultsCountText);
+				LOGGER.info("Expected total profiles from 'Showing' text: {}", expectedTotalProfiles);
+			} catch (Exception e) {
+				LOGGER.debug("Could not parse total profile count: {}", e.getMessage());
+			}
+
+			// Calculate estimated scrolls needed (capped at maxScrollAttempts)
 			int profilesPerScroll = isJAM ? 10 : 50;
 			int estimatedScrolls = expectedTotalProfiles > 0 ? (expectedTotalProfiles / profilesPerScroll) + 10 : maxScrollAttempts;
 			maxScrollAttempts = Math.min(estimatedScrolls, maxScrollAttempts);
-			LOGGER.info("Estimated scrolls needed: {} ({} profiles / {} per scroll)", estimatedScrolls, expectedTotalProfiles, profilesPerScroll);
+			
+			// Minimum profiles to load before early success can trigger (at least 3x baseline or 50% of total)
+			int minProfilesForEarlySuccess = Math.max(baseline * 3, expectedTotalProfiles / 2);
+			
+			LOGGER.info("Estimated scrolls needed: {} ({} profiles / {} per scroll), early success after {} profiles", 
+					estimatedScrolls, expectedTotalProfiles, profilesPerScroll, minProfilesForEarlySuccess);
 
-			// Scroll through all profiles using FULL PAGE scroll (triggers lazy loading)
+			// Scroll through profiles using FULL PAGE scroll (triggers lazy loading)
 			while (scrollAttempts < maxScrollAttempts && !allProfilesLoaded) {
 				// Scroll to FULL page bottom (this triggers lazy loading)
 				try {
@@ -592,20 +599,8 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				// Count visible profiles
 				totalProfilesVisible = findElements(getAllProfileRowsLocator(screen)).size();
 
-				// Count selected using JavaScript
-				int currentSelectedCount = 0;
-				if (isJAM) {
-					String jsScript = "return Array.from(document.querySelectorAll('#org-job-container tbody tr td:first-child input[type=\"checkbox\"]')).filter(cb => cb.checked).length;";
-					Object result = js.executeScript(jsScript);
-					currentSelectedCount = result != null ? ((Long) result).intValue() : 0;
-				} else {
-					String jsScript = "return document.querySelectorAll('tbody tr kf-icon[icon=\"checkbox-check\"]').length;";
-					Object result = js.executeScript(jsScript);
-					currentSelectedCount = result != null ? ((Long) result).intValue() : 0;
-					if (currentSelectedCount == 0) {
-						currentSelectedCount = findElements(getSelectedProfileRowsLocator(screen)).size();
-					}
-				}
+				// Count selected using BasePageObject helper method
+				int currentSelectedCount = countSelectedProfilesJS(screen);
 
 				// Log progress every 10 scrolls
 				if (scrollAttempts % 10 == 0) {
@@ -615,17 +610,34 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 							scrollAttempts, totalProfilesVisible, expectedTotalProfiles, pctLoaded, currentSelectedCount, elapsed);
 				}
 
-				// Fail-fast: Check if selected count increased beyond baseline
-				if (currentSelectedCount > searchResultsCount.get()) {
-					int extra = currentSelectedCount - searchResultsCount.get();
+				// FAIL-FAST: Check if selected count increased beyond baseline
+				if (currentSelectedCount > baseline) {
+					int extra = currentSelectedCount - baseline;
 					LOGGER.warn("FAIL-FAST at scroll {}: Found {} selected (expected {}), {} extra",
-							scrollAttempts, currentSelectedCount, searchResultsCount.get(), extra);
+							scrollAttempts, currentSelectedCount, baseline, extra);
 					allProfilesLoaded = true;
 					actualSelectedCount = currentSelectedCount;
 					break;
 				}
 
-				// Check if count is stable (no new profiles loaded)
+				// EARLY SUCCESS: All expected selections found + loaded enough profiles
+				if (currentSelectedCount == baseline && totalProfilesVisible >= minProfilesForEarlySuccess) {
+					earlySuccessAttempts++;
+					if (earlySuccessAttempts >= requiredEarlySuccessAttempts) {
+						long elapsed = (System.currentTimeMillis() - startTime) / 1000;
+						int pctLoaded = expectedTotalProfiles > 0 ? (totalProfilesVisible * 100 / expectedTotalProfiles) : 0;
+						LOGGER.info("EARLY SUCCESS at scroll {}: Found all {} expected selections, {}% profiles loaded ({}s)", 
+								scrollAttempts, baseline, pctLoaded, elapsed);
+						allProfilesLoaded = true;
+						earlySuccessExit = true;
+						actualSelectedCount = currentSelectedCount;
+						break;
+					}
+				} else {
+					earlySuccessAttempts = 0; // Reset if count changes
+				}
+
+				// Check if count is stable (no new profiles loaded - reached end)
 				if (totalProfilesVisible == previousTotalProfilesVisible && scrollAttempts > 0) {
 					stableCountAttempts++;
 					if (stableCountAttempts >= requiredStableAttempts) {
@@ -641,7 +653,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				previousTotalProfilesVisible = totalProfilesVisible;
 			}
 
-			maxScrollLimitReached = scrollAttempts >= maxScrollAttempts;
+			maxScrollLimitReached = scrollAttempts >= maxScrollAttempts && !earlySuccessExit;
 			
 			if (maxScrollLimitReached) {
 				long elapsed = (System.currentTimeMillis() - startTime) / 1000;
@@ -651,27 +663,21 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 			// After loading all profiles, count selected if not already set
 			if (actualSelectedCount == 0) {
-				if (isJAM) {
-					String jsScript = "return Array.from(document.querySelectorAll('#org-job-container tbody tr td:first-child input[type=\"checkbox\"]')).filter(cb => cb.checked).length;";
-					Object result = js.executeScript(jsScript);
-					actualSelectedCount = result != null ? ((Long) result).intValue() : 0;
-				} else {
-					actualSelectedCount = findElements(getSelectedProfileRowsLocator(screen)).size();
-				}
+				actualSelectedCount = countSelectedProfilesJS(screen);
 			}
 			int notSelectedProfiles = totalProfilesVisible - actualSelectedCount;
 
 			// Calculate missing/extra selections
-			int missingSelections = Math.max(0, searchResultsCount.get() - actualSelectedCount);
-			int extraSelections = Math.max(0, actualSelectedCount - searchResultsCount.get());
+			int missingSelections = Math.max(0, baseline - actualSelectedCount);
+			int extraSelections = Math.max(0, actualSelectedCount - baseline);
 
 			// Log validation summary
-			logValidationSummary(screen, maxScrollLimitReached, expectedTotalProfiles, totalProfilesVisible,
-					actualSelectedCount, notSelectedProfiles, missingSelections, extraSelections);
+			logValidationSummary(screen, maxScrollLimitReached, earlySuccessExit, expectedTotalProfiles, totalProfilesVisible,
+					actualSelectedCount, notSelectedProfiles, missingSelections, extraSelections, baseline);
 
 			// Validate selection counts
-			validateSelectionCounts(screen, maxScrollLimitReached, expectedTotalProfiles, totalProfilesVisible,
-					actualSelectedCount, missingSelections, extraSelections);
+			validateSelectionCounts(screen, maxScrollLimitReached, earlySuccessExit, expectedTotalProfiles, totalProfilesVisible,
+					actualSelectedCount, missingSelections, extraSelections, baseline);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_only_searched_profiles_selected_" + screen, e);
@@ -923,21 +929,26 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	private void logValidationSummary(String screen, boolean maxScrollLimitReached, int expectedTotalProfiles,
-			int totalProfilesVisible, int actualSelectedCount, int notSelectedProfiles,
-			int missingSelections, int extraSelections) {
+	private void logValidationSummary(String screen, boolean maxScrollLimitReached, boolean earlySuccessExit,
+			int expectedTotalProfiles, int totalProfilesVisible, int actualSelectedCount, int notSelectedProfiles,
+			int missingSelections, int extraSelections, int baseline) {
 
 		LOGGER.debug("========================================");
 		LOGGER.debug("VALIDATION SUMMARY - {} (After Clearing Search)", getScreenName(screen));
 		LOGGER.debug("========================================");
-		if (maxScrollLimitReached && expectedTotalProfiles > 0 && totalProfilesVisible < expectedTotalProfiles) {
+		if (earlySuccessExit) {
+			LOGGER.debug("EARLY SUCCESS EXIT - All expected selections found");
+			int pctLoaded = expectedTotalProfiles > 0 ? (totalProfilesVisible * 100 / expectedTotalProfiles) : 0;
+			LOGGER.debug("Loaded: {}/{} profiles ({}%)", totalProfilesVisible, expectedTotalProfiles, pctLoaded);
+		} else if (maxScrollLimitReached && expectedTotalProfiles > 0 && totalProfilesVisible < expectedTotalProfiles) {
 			LOGGER.debug("PARTIAL VALIDATION (Max scroll limit reached)");
 			LOGGER.debug("Expected Total: {}, Actually Loaded: {}", expectedTotalProfiles, totalProfilesVisible);
 		} else {
+			LOGGER.debug("FULL VALIDATION - All profiles loaded");
 			LOGGER.debug("Total Profiles Loaded: {}", totalProfilesVisible);
 		}
 		LOGGER.debug("Currently Selected: {}, Not Selected: {}", actualSelectedCount, notSelectedProfiles);
-		LOGGER.debug("Baseline (from search): {} profiles", searchResultsCount.get());
+		LOGGER.debug("Baseline (from search): {} profiles", baseline);
 		if (missingSelections > 0) {
 			LOGGER.debug("Missing Selections: {}", missingSelections);
 		} else if (extraSelections > 0) {
@@ -946,39 +957,48 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		LOGGER.debug("========================================");
 	}
 
-	private void validateSelectionCounts(String screen, boolean maxScrollLimitReached, int expectedTotalProfiles,
-			int totalProfilesVisible, int actualSelectedCount, int missingSelections, int extraSelections) {
+	private void validateSelectionCounts(String screen, boolean maxScrollLimitReached, boolean earlySuccessExit,
+			int expectedTotalProfiles, int totalProfilesVisible, int actualSelectedCount,
+			int missingSelections, int extraSelections, int baseline) {
+
+		// Early success exit - found all expected with no extras in loaded profiles
+		if (earlySuccessExit) {
+			int pctLoaded = expectedTotalProfiles > 0 ? (totalProfilesVisible * 100 / expectedTotalProfiles) : 0;
+			PageObjectHelper.log(LOGGER, "✅ PASS (Early Success): All " + baseline +
+					" searched profiles remain selected (" + pctLoaded + "% of profiles checked)");
+			return;
+		}
 
 		if (maxScrollLimitReached && expectedTotalProfiles > 0 && totalProfilesVisible < expectedTotalProfiles) {
 			// Partial validation
 			if (actualSelectedCount == 0) {
 				String errorMsg = "FAIL: No selections found in " + totalProfilesVisible +
-						" loaded profiles (expected " + searchResultsCount.get() + ")";
+						" loaded profiles (expected " + baseline + ")";
 				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg);
-			} else if (actualSelectedCount > searchResultsCount.get()) {
+			} else if (actualSelectedCount > baseline) {
 				String errorMsg = "FAIL: Found " + actualSelectedCount + " selected (expected " +
-						searchResultsCount.get() + "), " + extraSelections + " extra profiles incorrectly selected";
+						baseline + "), " + extraSelections + " extra profiles incorrectly selected";
 				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg);
-			} else if (actualSelectedCount < searchResultsCount.get()) {
-				PageObjectHelper.log(LOGGER, "✅ PASS: Found " + actualSelectedCount + " of " + searchResultsCount.get() +
+			} else if (actualSelectedCount < baseline) {
+				PageObjectHelper.log(LOGGER, "✅ PASS: Found " + actualSelectedCount + " of " + baseline +
 						" selected (remaining " + missingSelections + " likely in unloaded profiles)");
 			} else {
-				PageObjectHelper.log(LOGGER, "✅ PASS: All " + searchResultsCount.get() + " searched profiles found selected");
+				PageObjectHelper.log(LOGGER, "✅ PASS: All " + baseline + " searched profiles found selected");
 			}
 		} else {
 			// Full validation
-			if (actualSelectedCount == searchResultsCount.get()) {
-				PageObjectHelper.log(LOGGER, "✅ PASS: All " + searchResultsCount.get() +
+			if (actualSelectedCount == baseline) {
+				PageObjectHelper.log(LOGGER, "✅ PASS: All " + baseline +
 						" searched profiles remain selected in " + getScreenName(screen));
-			} else if (actualSelectedCount < searchResultsCount.get()) {
-				String errorMsg = "FAIL: Only " + actualSelectedCount + " selected (expected " + searchResultsCount.get() +
+			} else if (actualSelectedCount < baseline) {
+				String errorMsg = "FAIL: Only " + actualSelectedCount + " selected (expected " + baseline +
 						"), " + missingSelections + " profiles lost selection";
 				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg);
 			} else {
-				String errorMsg = "FAIL: " + actualSelectedCount + " selected (expected " + searchResultsCount.get() +
+				String errorMsg = "FAIL: " + actualSelectedCount + " selected (expected " + baseline +
 						"), " + extraSelections + " extra profiles incorrectly selected";
 				PageObjectHelper.log(LOGGER, errorMsg);
 				Assert.fail(errorMsg);
@@ -1013,4 +1033,5 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	}
 
 }
+
 

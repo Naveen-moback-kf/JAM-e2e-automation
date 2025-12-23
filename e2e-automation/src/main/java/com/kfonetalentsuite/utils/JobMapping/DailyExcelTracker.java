@@ -54,12 +54,11 @@ public class DailyExcelTracker {
 	}
 
 	public static void generateDailyReport(boolean incrementalUpdate) {
-		// CONFIGURATION CHECK: Skip Excel reporting if disabled in config.properties
+		// Skip Excel reporting if disabled
 		if (CommonVariable.EXCEL_REPORTING_ENABLED != null
 				&& CommonVariable.EXCEL_REPORTING_ENABLED.equalsIgnoreCase("false")) {
-			LOGGER.info(
-					"Excel reporting is disabled in config.properties (excel.reporting=false) - Skipping Excel report generation");
-			return; // Exit early - Excel reporting is disabled
+			LOGGER.debug("Excel reporting disabled");
+			return;
 		}
 
 		try {
@@ -81,22 +80,15 @@ public class DailyExcelTracker {
 				return; // Exit early - don't generate any Excel report
 			}
 
-			LOGGER.info("Excel generation - Execution type: {} | Date: {} | Total tests: {}",
-					incrementalUpdate ? "INCREMENTAL (Individual Runner)" : "FULL (Test Suite)", results.executionDate,
-					results.totalTests);
+		LOGGER.debug("Excel generation - {} | {} tests",
+					incrementalUpdate ? "Incremental" : "Full", results.totalTests);
 
-			if (incrementalUpdate) {
-				// Individual runner update: Update Test Results Summary only, skip execution
-				// history
-				updateTestResultsExcelIncremental(results);
-				LOGGER.info("Excel updated incrementally (no execution history): {}",
-						new File(EXCEL_REPORTS_DIR, MASTER_TEST_RESULTS_FILE).getAbsolutePath());
-			} else {
-				// Full execution update: Update both Test Results Summary and Execution History
-				updateTestResultsExcel(results);
-				LOGGER.info("Excel report updated (full): {}",
-						new File(EXCEL_REPORTS_DIR, MASTER_TEST_RESULTS_FILE).getAbsolutePath());
-			}
+		if (incrementalUpdate) {
+			updateTestResultsExcelIncremental(results);
+		} else {
+			updateTestResultsExcel(results);
+		}
+		LOGGER.debug("Excel updated: {}", new File(EXCEL_REPORTS_DIR, MASTER_TEST_RESULTS_FILE).getAbsolutePath());
 
 		} catch (Exception e) {
 			LOGGER.error("Excel report generation failed", e);
@@ -114,23 +106,18 @@ public class DailyExcelTracker {
 	}
 
 	private static TestResultsSummary collectTestResults() {
-		LOGGER.info("COLLECTING TEST RESULTS - Starting data collection...");
+		LOGGER.debug("Collecting test results...");
 		TestResultsSummary summary = new TestResultsSummary();
 		summary.executionDate = LocalDateTime.now().format(DATE_FORMATTER);
 		summary.executionDateTime = LocalDateTime.now().format(DATETIME_FORMATTER);
 		summary.environment = CommonVariable.ENVIRONMENT != null ? CommonVariable.ENVIRONMENT : "Unknown";
 
-		// ENHANCED: Retrieve suite name from ExcelReportListener (null if individual
-		// runner execution)
+		// Retrieve suite name from ExcelReportListener
 		try {
 			summary.suiteName = com.kfonetalentsuite.listeners.ExcelReportListener.getCurrentSuiteName();
-			if (summary.suiteName != null) {
-				LOGGER.info("Suite Name Retrieved: '{}'", summary.suiteName);
-			} else {
-				LOGGER.debug("No suite name (individual runner execution)");
-			}
+			LOGGER.debug("Suite: '{}'", summary.suiteName);
 		} catch (Exception e) {
-			LOGGER.warn("Could not retrieve suite name: {}", e.getMessage());
+			LOGGER.debug("Could not retrieve suite name");
 			summary.suiteName = null;
 		}
 
@@ -142,10 +129,9 @@ public class DailyExcelTracker {
 			LOGGER.debug("Will collect current execution data FIRST, then clean old sources");
 		}
 
-		LOGGER.info("Collecting TestNG results...");
+		LOGGER.debug("Collecting TestNG results...");
 		collectTestNGResults(summary);
-		LOGGER.info("TestNG collection complete - Total tests: {}, Features: {}, Suites: {}", summary.totalTests,
-				summary.featureResults.size(), summary.testSuites.size());
+		LOGGER.debug("TestNG: {} tests, {} features", summary.totalTests, summary.featureResults.size());
 
 		// EARLY EXIT: Skip processing if no meaningful test execution was found
 		if (summary.totalTests == 0) {
@@ -159,9 +145,8 @@ public class DailyExcelTracker {
 		}
 
 		if (!shouldStartFresh) {
-			// Normal operation: collect additional data from all sources
 			collectCucumberResults(summary);
-			LOGGER.info("Enhanced data collection from all sources (normal operation)");
+			LOGGER.debug("Collected Cucumber results");
 		} else {
 			// Fresh start: Skip old additional data sources, but collect current Cucumber
 			// data if it's fresh
@@ -482,6 +467,14 @@ public class DailyExcelTracker {
 										: generateBusinessDescriptionFromMethodName(methodName);
 								scenario.status = StatusConverter.convertTestNGStatusToBusiness(status);
 
+								// RETRY FIX: Check if this scenario passed in retry and update status
+								if (scenario.status != null && scenario.status.contains("FAILED")) {
+									if (com.kfonetalentsuite.listeners.ExcelReportListener.didScenarioPassInRetry(actualScenarioName)) {
+										scenario.status = "PASSED";
+										LOGGER.debug("Retry passed: '{}'", actualScenarioName);
+									}
+								}
+
 								// ENHANCED: Capture actual exception details from ExcelReportListener
 								if (scenario.status != null && scenario.status.contains("FAILED")) {
 									// Include scenario name in testKey (matching ExcelReportListener key format)
@@ -560,8 +553,16 @@ public class DailyExcelTracker {
 			List<String> actuallyExecutedScenarios = filterActuallyExecutedScenarios(realScenarioNames, runnerClass);
 
 			for (String scenarioName : actuallyExecutedScenarios) {
+				// RETRY FIX: Check if this scenario passed in retry and update status
+				String finalStatus = convertedStatus;
+				if (convertedStatus != null && convertedStatus.contains("FAILED")) {
+					if (com.kfonetalentsuite.listeners.ExcelReportListener.didScenarioPassInRetry(scenarioName)) {
+						finalStatus = "PASSED";
+						LOGGER.debug("Retry passed (CrossBrowser): '{}'", scenarioName);
+					}
+				}
 				addOrUpdateCrossBrowserScenario(summary, className, featureName, scenarioName, browserName,
-						convertedStatus);
+						finalStatus);
 			}
 
 			// runnerClass, actuallyExecutedScenarios.size(), browserName, convertedStatus);
@@ -1370,9 +1371,107 @@ public class DailyExcelTracker {
 							totalScenarios, passedScenarios, failedScenarios, skippedScenarios);
 				}
 			}
+			
+			// RETRY FIX: Always recalculate counts from unique scenarios after retry status updates
+			recalculateCountsFromUniqueScenarios(summary);
 
 		} catch (Exception e) {
 			LOGGER.debug("Failed to recalculate cross-browser test counts: {}", e.getMessage());
+		}
+	}
+	
+	/**
+	 * RETRY FIX: Recalculate summary counts from UNIQUE scenarios (after retry status updates)
+	 * This ensures counts reflect final scenario outcomes, not accumulated TestNG invocations
+	 */
+	private static void recalculateCountsFromUniqueScenarios(TestResultsSummary summary) {
+		try {
+			if (summary.featureResults.isEmpty()) {
+				return;
+			}
+			
+			// First, update feature-level counts based on actual scenario statuses
+			int totalUniqueScenarios = 0;
+			int passedScenarios = 0;
+			int failedScenarios = 0;
+			int skippedScenarios = 0;
+			
+			// Track unique scenarios by name to avoid counting duplicates from retries
+			java.util.Set<String> processedScenarios = new java.util.HashSet<>();
+			
+			for (FeatureResult feature : summary.featureResults) {
+				// Reset feature counts
+				int featurePassed = 0;
+				int featureFailed = 0;
+				int featureSkipped = 0;
+				
+				if (feature.scenarios != null) {
+					for (ScenarioDetail scenario : feature.scenarios) {
+						// Create unique key for scenario (feature + scenario name)
+						String scenarioKey = (feature.featureName + "_" + scenario.scenarioName).toLowerCase().trim();
+						
+						// Skip if we've already processed this scenario (from retry runs)
+						if (processedScenarios.contains(scenarioKey)) {
+							continue;
+						}
+						processedScenarios.add(scenarioKey);
+						
+						totalUniqueScenarios++;
+						
+						if (scenario.status != null) {
+							String statusUpper = scenario.status.toUpperCase();
+							if (statusUpper.contains("PASSED") || statusUpper.contains("SUCCESS")) {
+								passedScenarios++;
+								featurePassed++;
+							} else if (statusUpper.contains("FAILED") || statusUpper.contains("FAILURE")) {
+								failedScenarios++;
+								featureFailed++;
+							} else if (statusUpper.contains("SKIPPED") || statusUpper.contains("SKIP")) {
+								skippedScenarios++;
+								featureSkipped++;
+							} else {
+								// Default unknown status to failed
+								failedScenarios++;
+								featureFailed++;
+							}
+						}
+					}
+				}
+				
+				// Update feature-level counts
+				feature.totalScenarios = featurePassed + featureFailed + featureSkipped;
+				feature.passed = featurePassed;
+				feature.failed = featureFailed;
+				feature.skipped = featureSkipped;
+			}
+			
+			// Only update if we have unique scenarios and counts differ from raw TestNG counts
+			if (totalUniqueScenarios > 0) {
+				int rawTotal = summary.totalTests;
+				int rawFailed = summary.failedTests;
+				
+				// Check if recalculation is needed (e.g., retries caused duplication)
+				if (rawTotal != totalUniqueScenarios || rawFailed != failedScenarios) {
+					LOGGER.debug("Retry count fix: {} raw -> {} unique ({} failed)", 
+							rawTotal, totalUniqueScenarios, failedScenarios);
+					
+					summary.totalTests = totalUniqueScenarios;
+					summary.passedTests = passedScenarios;
+					summary.failedTests = failedScenarios;
+					summary.skippedTests = skippedScenarios;
+					
+					// Recalculate rates
+					summary.passRate = totalUniqueScenarios > 0 ? (double) passedScenarios / totalUniqueScenarios * 100 : 0;
+					summary.failRate = totalUniqueScenarios > 0 ? (double) failedScenarios / totalUniqueScenarios * 100 : 0;
+					summary.skipRate = totalUniqueScenarios > 0 ? (double) skippedScenarios / totalUniqueScenarios * 100 : 0;
+					
+					LOGGER.debug("Unique counts: {} total, {} passed, {} failed", 
+							totalUniqueScenarios, passedScenarios, failedScenarios);
+				}
+			}
+			
+		} catch (Exception e) {
+			LOGGER.debug("Failed to recalculate unique scenario counts: {}", e.getMessage());
 		}
 	}
 
@@ -1452,8 +1551,51 @@ public class DailyExcelTracker {
 			LOGGER.debug("Adding scenario to EXISTING feature: '{}' (runner: {})", feature.featureName, className);
 		}
 
-		// THREAD-SAFE: ArrayList.add() is now protected by method synchronization
-		feature.scenarios.add(scenario);
+		// RETRY FIX: Check if scenario already exists (from previous run or retry)
+		// If it does, UPDATE its status instead of adding duplicate
+		ScenarioDetail existingScenario = null;
+		if (scenario.scenarioName != null && !scenario.scenarioName.isEmpty()) {
+			String scenarioNameLower = scenario.scenarioName.toLowerCase().trim();
+			for (ScenarioDetail existing : feature.scenarios) {
+				if (existing.scenarioName != null && 
+					existing.scenarioName.toLowerCase().trim().equals(scenarioNameLower)) {
+					existingScenario = existing;
+					break;
+				}
+			}
+		}
+		
+		if (existingScenario != null) {
+			// RETRY FIX: Update existing scenario's status
+			// Prefer PASSED status (from retry) over FAILED (from original run)
+			String oldStatus = existingScenario.status;
+			String newStatus = scenario.status;
+			
+			// If new status is PASSED or old status is not PASSED, update to new status
+			if (newStatus != null && (newStatus.contains("PASSED") || !oldStatus.contains("PASSED"))) {
+				existingScenario.status = newStatus;
+				existingScenario.businessDescription = scenario.businessDescription;
+				// Clear failure details if scenario passed
+				if (newStatus.contains("PASSED")) {
+					existingScenario.actualFailureReason = null;
+					existingScenario.failedStepName = null;
+					existingScenario.failedStepDetails = null;
+					existingScenario.errorStackTrace = null;
+				} else {
+					// Update failure details for failed scenarios
+					existingScenario.actualFailureReason = scenario.actualFailureReason;
+					existingScenario.failedStepName = scenario.failedStepName;
+					existingScenario.failedStepDetails = scenario.failedStepDetails;
+					existingScenario.errorStackTrace = scenario.errorStackTrace;
+				}
+				LOGGER.debug("RETRY FIX: Updated scenario '{}' status from '{}' to '{}'", 
+						scenario.scenarioName, oldStatus, newStatus);
+			}
+		} else {
+			// THREAD-SAFE: ArrayList.add() is now protected by method synchronization
+			feature.scenarios.add(scenario);
+		}
+		
 		feature.totalScenarios = feature.scenarios.size();
 
 		// Recalculate counts
@@ -1621,6 +1763,14 @@ public class DailyExcelTracker {
 						scenario.scenarioName = scenarioName;
 						scenario.businessDescription = "Test execution result: " + scenarioName;
 						scenario.status = convertCucumberStatusToBusiness(status);
+
+						// RETRY FIX: Check if this scenario passed in retry and update status
+						if (scenario.status != null && scenario.status.contains("FAILED")) {
+							if (com.kfonetalentsuite.listeners.ExcelReportListener.didScenarioPassInRetry(scenarioName)) {
+								scenario.status = "PASSED";
+								LOGGER.debug("Retry passed (Cucumber): '{}'", scenarioName);
+							}
+						}
 
 						feature.scenarios.add(scenario);
 					}
@@ -1971,7 +2121,7 @@ public class DailyExcelTracker {
 				LOGGER.debug("Feature file extraction failed - falling back to consistent naming");
 				ensureConsistentFeatureNames(summary);
 			} else {
-				LOGGER.info("Successfully enhanced {} features with real .feature file content",
+				LOGGER.debug("Enhanced {} features from .feature files",
 						summary.featureResults.size());
 			}
 			return;
@@ -2074,12 +2224,9 @@ public class DailyExcelTracker {
 
 						if (realContent != null) {
 							// Update with real feature information
-							String oldName = feature.featureName;
 							feature.featureName = realContent.featureName;
 							feature.businessDescription = realContent.businessDescription;
-
-							LOGGER.info(" Enhanced feature: '{}' '{}' (from {})", oldName, feature.featureName,
-									featureFile.getName());
+							LOGGER.debug("Enhanced feature: '{}' (from {})", feature.featureName, featureFile.getName());
 						} else {
 							LOGGER.debug("Failed to extract content from: {}", featureFile.getName());
 							allFeaturesEnhanced = false;
@@ -2154,7 +2301,7 @@ public class DailyExcelTracker {
 
 				// FIXED: Always use the consistent naming to prevent race conditions
 				if (!feature.featureName.equals(consistentFeatureName)) {
-					LOGGER.info(" Standardizing feature name: '{}' '{}' (runner: {})", feature.featureName,
+					LOGGER.debug("Standardizing feature: '{}' (runner: {})", feature.featureName,
 							consistentFeatureName, feature.runnerClassName);
 					feature.featureName = consistentFeatureName;
 					feature.businessDescription = consistentBusinessDescription;
@@ -2266,8 +2413,7 @@ public class DailyExcelTracker {
 				File featureFile = new File(featureFilePath);
 				if (featureFile.exists()) {
 					featureFiles.add(featureFile);
-					LOGGER.info("DYNAMIC MAPPING SUCCESS - Runner '{}' Feature file: {}", runnerClassName,
-							featureFile.getName());
+					LOGGER.debug("Mapped: {} -> {}", runnerClassName.substring(runnerClassName.lastIndexOf('.') + 1), featureFile.getName());
 				} else {
 					LOGGER.warn("DYNAMIC MAPPING - Feature file not found: {} for runner: {}", featureFilePath,
 							runnerClassName);
@@ -2435,7 +2581,7 @@ public class DailyExcelTracker {
 
 			int scenarioIndex = scenarioMappingCounter % allFeatureScenarios.size();
 			String selectedScenario = allFeatureScenarios.get(scenarioIndex);
-			LOGGER.info(" [Scenario Match] All used, counter-based: {} -> index {} -> '{}'", scenarioMappingCounter,
+			LOGGER.debug("Scenario match: index {} -> '{}'", scenarioMappingCounter,
 					scenarioIndex, selectedScenario);
 			scenarioMappingCounter++; // Increment counter
 			return selectedScenario;
@@ -3084,8 +3230,7 @@ public class DailyExcelTracker {
 				summary.featureCoverageRate = String.format("%.1f%%", featureCoverage);
 			}
 
-			LOGGER.info("PROJECT SCOPE CALCULATED - Features: {}, Scenarios: {}, Execution Coverage: {}",
-					projectScope.totalFeatures, projectScope.totalScenarios, summary.projectCoverageRate);
+			LOGGER.debug("Project scope: {} features, {} scenarios", projectScope.totalFeatures, projectScope.totalScenarios);
 
 		} catch (Exception e) {
 			LOGGER.warn("Could not calculate project scope metrics: {}", e.getMessage());
@@ -3209,7 +3354,7 @@ public class DailyExcelTracker {
 					excelFile.delete(); // Remove empty file
 				}
 				workbook = new XSSFWorkbook();
-				LOGGER.info(" Creating new Excel test results file");
+				LOGGER.debug("Creating new Excel file");
 			}
 
 			try {
@@ -3264,7 +3409,7 @@ public class DailyExcelTracker {
 				}
 			} else {
 				workbook = new XSSFWorkbook();
-				LOGGER.info(" Creating new Excel test results file");
+				LOGGER.debug("Creating new Excel file");
 			}
 
 			try {
@@ -3341,7 +3486,7 @@ public class DailyExcelTracker {
 	 */
 	private static void smartUpdateTestResultsSummarySheet(Workbook workbook, TestResultsSummary currentExecution) {
 		LOGGER.debug("=== SMART UPDATE TEST RESULTS SUMMARY SHEET ===");
-		LOGGER.info("Current execution: {} total tests, {} passed, {} failed, Date: {}", currentExecution.totalTests,
+		LOGGER.debug("Execution: {} tests, {} passed, {} failed", currentExecution.totalTests,
 				currentExecution.passedTests, currentExecution.failedTests, currentExecution.executionDate);
 
 		Sheet sheet = workbook.getSheet(TEST_RESULTS_SHEET);
@@ -3780,7 +3925,7 @@ public class DailyExcelTracker {
 		Set<String> actuallyReExecutedFeatures = identifyReExecutedFeatures(sheet, currentExecution);
 
 		LOGGER.debug("Features being re-executed (will overwrite): {}", actuallyReExecutedFeatures);
-		LOGGER.info("Features being added (will append): {}", allFeatureNames.stream()
+		LOGGER.debug("Adding features: {}", allFeatureNames.stream()
 				.filter(f -> !actuallyReExecutedFeatures.contains(f)).collect(java.util.stream.Collectors.toSet()));
 
 		if (!actuallyReExecutedFeatures.isEmpty()) {
@@ -4052,7 +4197,7 @@ public class DailyExcelTracker {
 	 * Remove existing rows for features that are being re-executed
 	 */
 	private static void removeExistingFeatureRows(Sheet sheet, Set<String> executedFeatureNames) {
-		LOGGER.info("Removing existing data for re-executed features: {}", executedFeatureNames);
+		LOGGER.debug("Removing re-executed features: {}", executedFeatureNames);
 
 		if (executedFeatureNames.isEmpty()) {
 			LOGGER.debug("No features to remove - skipping deletion step");
@@ -4199,7 +4344,7 @@ public class DailyExcelTracker {
 
 				if (cellValue != null
 						&& (cellValue.startsWith("Overall Status:") || cellValue.startsWith("Daily Status"))) {
-					LOGGER.info("Found summary row at row {}: '{}'", i, cellValue);
+					LOGGER.debug("Summary row at {}", i);
 					// Apply data-driven cumulative logic
 					updateSummaryRow(row, currentExecution);
 					summaryRowFound = true;
@@ -4445,7 +4590,7 @@ public class DailyExcelTracker {
 
 		// Return appropriate status icon
 		String finalStatus = hasAnyFailure ? "" : "";
-		LOGGER.info("BROWSER STATUS ANALYSIS - {}: {} (hasFailure: {}, hasResult: {})", browserName, finalStatus,
+		LOGGER.debug("Browser {}: {} (fail:{}, result:{})", browserName, finalStatus,
 				hasAnyFailure, hasAnyResult);
 		return finalStatus; // Fail if any scenario failed, pass if all passed
 	}
@@ -4544,7 +4689,7 @@ public class DailyExcelTracker {
 		if (existingRowIndex != -1) {
 			// UPDATE existing row instead of creating new one
 			dataRow = sheet.getRow(existingRowIndex);
-			LOGGER.info("Updating existing Execution History row for '{}' on {} (row {})", 
+			LOGGER.debug("Updating history row {} for '{}'", 
 					currentRunnerName, summary.executionDate, existingRowIndex + 1);
 		} else {
 			// No existing row found - create new row (original append behavior)
@@ -4556,7 +4701,7 @@ public class DailyExcelTracker {
 			}
 
 			dataRow = sheet.createRow(insertRowIndex);
-			LOGGER.info("Adding new Execution History row for '{}' on {}", currentRunnerName, summary.executionDate);
+			LOGGER.debug("Adding history row for '{}'", currentRunnerName);
 		}
 
 		// Get username and client name from PO01_KFoneLogin (ThreadLocal)
@@ -5051,7 +5196,7 @@ public class DailyExcelTracker {
 
 		// Calculate summary statistics for unique cumulative data
 		calculateSummaryStats(cumulativeSummary);
-		LOGGER.info("DASHBOARD CALCULATION SUMMARY: {} total tests, {} passed, {} failed (Pass Rate: {}%)",
+		LOGGER.debug("Dashboard: {} tests, {} passed, {} failed ({}%)",
 				cumulativeSummary.totalTests, cumulativeSummary.passedTests, cumulativeSummary.failedTests,
 				cumulativeSummary.passRate);
 
@@ -5060,7 +5205,7 @@ public class DailyExcelTracker {
 		int uniqueFeatureCount = countUniqueFeaturesFromTestResultsSummary(workbook);
 		if (uniqueFeatureCount > 0) {
 			cumulativeSummary.executedFeatures = uniqueFeatureCount;
-			LOGGER.info("FIXED FEATURE COUNT: Using Test Results Summary sheet count = {} features", uniqueFeatureCount);
+			LOGGER.debug("Feature count: {}", uniqueFeatureCount);
 		} else {
 			// Fallback to featureResults.size() if Test Results Summary sheet is not available
 			cumulativeSummary.executedFeatures = cumulativeSummary.featureResults.size();
@@ -5103,7 +5248,7 @@ public class DailyExcelTracker {
 			// Recalculate percentages after capping
 			calculateSummaryStats(cumulativeSummary);
 
-			LOGGER.info("CORRECTED SCENARIO COUNTS - Total: {}, Passed: {}, Failed: {}, Skipped: {}",
+			LOGGER.debug("Corrected counts: {} total, {} passed, {} failed",
 					cumulativeSummary.totalTests, cumulativeSummary.passedTests, cumulativeSummary.failedTests,
 					cumulativeSummary.skippedTests);
 		}
@@ -5124,8 +5269,7 @@ public class DailyExcelTracker {
 			cumulativeSummary.featureCoverageRate = "0%";
 		}
 
-		LOGGER.info("UNIQUE COVERAGE RATES - Project Coverage: {}, Feature Coverage: {}",
-				cumulativeSummary.projectCoverageRate, cumulativeSummary.featureCoverageRate);
+		LOGGER.debug("Coverage: Project {}, Feature {}", cumulativeSummary.projectCoverageRate, cumulativeSummary.featureCoverageRate);
 
 		return cumulativeSummary;
 	}
@@ -5371,7 +5515,7 @@ public class DailyExcelTracker {
 		// Create the comprehensive dashboard layout with unique cumulative data
 		createProjectDashboardLayout(dashboardSheet, dashboardSummary, workbook);
 
-		LOGGER.info("Project Dashboard sheet created successfully with {} unique features and {} unique scenarios",
+		LOGGER.debug("Dashboard: {} features, {} scenarios",
 				dashboardSummary.totalFeatures, dashboardSummary.totalTests);
 	}
 
@@ -5399,7 +5543,7 @@ public class DailyExcelTracker {
 		// Create the cross-browser dashboard layout
 		createCrossBrowserDashboardLayout(dashboardSheet, crossBrowserMetrics, summary, workbook);
 
-		LOGGER.info("Cross-Browser Dashboard sheet created successfully with {} total executions across {} browsers",
+		LOGGER.debug("Cross-Browser Dashboard: {} executions, {} browsers",
 				crossBrowserMetrics.totalCrossBrowserRuns, crossBrowserMetrics.browserStats.size());
 	}
 
@@ -6102,7 +6246,7 @@ public class DailyExcelTracker {
 			}
 		}
 
-		LOGGER.info("RESULTS BREAKDOWN - Cross-browser totals calculated: Passed={}, Failed={}, Skipped={}",
+		LOGGER.debug("Cross-browser totals: Passed={}, Failed={}, Skipped={}",
 				totalPassed, totalFailed, totalSkipped);
 
 		Cell passedCell = resultsRow.createCell(1);
@@ -6715,8 +6859,8 @@ public class DailyExcelTracker {
 					// === RISK ANALYSIS SECTION REMOVED ===
 					// Risk Analysis section has been removed from the dashboard
 
-					// ENHANCED: Auto-size columns with consistent alignment and margin fixes
-					LOGGER.info("Applying enhanced auto-sizing to Project Dashboard columns...");
+					// Auto-size columns
+					LOGGER.debug("Auto-sizing dashboard columns...");
 
 					// First pass: Apply auto-sizing to all columns
 					for (int i = 0; i < 8; i++) {
@@ -6778,7 +6922,7 @@ public class DailyExcelTracker {
 			}
 		}
 
-		LOGGER.info("Project Dashboard enhanced auto-sizing completed - columns and rows optimized for alignment");
+		LOGGER.debug("Dashboard auto-sizing completed");
 	}
 
 	/**

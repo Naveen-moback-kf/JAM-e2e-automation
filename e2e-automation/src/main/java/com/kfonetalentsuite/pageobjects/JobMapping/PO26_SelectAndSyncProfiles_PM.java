@@ -336,30 +336,56 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 			LOGGER.info("Scrolling complete. Total rows loaded: {}, Scrolls performed: {}", currentRowCount, scrollCount);
 
 			// Step 3: Count checkboxes by state using JavaScript (FAST)
+			// FIX: Count only ENABLED selected checkboxes (exclude disabled with check icons)
 			LOGGER.info("Counting selected/disabled checkboxes...");
 			
 			try {
-				String jsCountSelected = "return document.querySelectorAll('tbody tr td:first-child kf-checkbox kf-icon[icon=\"checkbox-check\"]').length;";
+				// Count disabled checkboxes first
 				String jsCountDisabled = "return document.querySelectorAll('tbody tr td:first-child kf-checkbox div.disable').length;";
-				
-				Object selectedResult = js.executeScript(jsCountSelected);
-				selectedCount = ((Long) selectedResult).intValue();
-				
 				Object disabledResult = js.executeScript(jsCountDisabled);
 				disabledCount = ((Long) disabledResult).intValue();
 				
+				// FIX: Count ONLY selected checkboxes that are NOT disabled
+				// Some disabled checkboxes may still show a check icon but should not be counted as "selected for export"
+				String jsCountEnabledSelected = 
+					"return Array.from(document.querySelectorAll('tbody tr td:first-child kf-checkbox')).filter(cb => " +
+					"  cb.querySelector('kf-icon[icon=\"checkbox-check\"]') && " +
+					"  !cb.querySelector('div.disable')" +
+					").length;";
+				
+				Object selectedResult = js.executeScript(jsCountEnabledSelected);
+				selectedCount = ((Long) selectedResult).intValue();
+				
+				// Also count disabled checkboxes that show a check icon (for diagnostic purposes)
+				String jsCountDisabledWithCheck = 
+					"return Array.from(document.querySelectorAll('tbody tr td:first-child kf-checkbox')).filter(cb => " +
+					"  cb.querySelector('kf-icon[icon=\"checkbox-check\"]') && " +
+					"  cb.querySelector('div.disable')" +
+					").length;";
+				Object disabledWithCheckResult = js.executeScript(jsCountDisabledWithCheck);
+				int disabledWithCheckCount = ((Long) disabledWithCheckResult).intValue();
+				
 				int unselectedCount = currentRowCount - selectedCount - disabledCount;
-				LOGGER.info("Counted - Total: {}, Selected: {}, Disabled: {}, Unselected: {}", 
+				LOGGER.info("Counted - Total: {}, Selected (enabled): {}, Disabled: {}, Unselected: {}", 
 						currentRowCount, selectedCount, disabledCount, unselectedCount);
+				
+				if (disabledWithCheckCount > 0) {
+					LOGGER.info("Note: {} disabled profiles show check icon (not counted as exportable)", disabledWithCheckCount);
+				}
 
 			} catch (Exception countException) {
 				LOGGER.warn("JavaScript counting failed, using XPath fallback: {}", countException.getMessage());
-				// Fallback to XPath (slower but reliable)
-				selectedCount = driver.findElements(By.xpath(
-						"//tbody//tr//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']")).size();
+				// Fallback to XPath - count selected checkboxes that are NOT disabled
 				disabledCount = driver.findElements(By.xpath(
 						"//tbody//tr//td[1]//kf-checkbox//div[contains(@class, 'disable')]")).size();
-				LOGGER.info("Fallback Counted - Selected: {}, Disabled: {}", selectedCount, disabledCount);
+				// Count all checked, then subtract disabled-with-check
+				int allChecked = driver.findElements(By.xpath(
+						"//tbody//tr//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']")).size();
+				int disabledWithCheck = driver.findElements(By.xpath(
+						"//tbody//tr//td[1]//kf-checkbox[.//div[contains(@class, 'disable')]]//kf-icon[@icon='checkbox-check']")).size();
+				selectedCount = allChecked - disabledWithCheck;
+				LOGGER.info("Fallback Counted - Selected (enabled): {}, Disabled: {}, Disabled with check: {}", 
+						selectedCount, disabledCount, disabledWithCheck);
 			}
 
 			// Calculate unselected count for final summary

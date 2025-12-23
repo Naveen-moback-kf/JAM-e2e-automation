@@ -19,7 +19,6 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 	public static String[] jobNamesTextInSearchResults;
 	private static boolean hasSearchResults = true;
 
-	private static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
 	private static final By JOB_NAMES_IN_RESULTS = By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]");
 
 	public PO07_Screen1SearchResults() {
@@ -45,7 +44,7 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 			int stableCount = 0;
 
 			while (scrollCount < maxScrollAttempts) {
-				String resultsCountText = wait.until(ExpectedConditions.visibilityOfElementLocated(SHOWING_RESULTS_COUNT)).getText();
+				String resultsCountText = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JAMScreen.SHOWING_RESULTS_COUNT)).getText();
 				String[] parts = resultsCountText.split(" ");
 				int currentShowing = Integer.parseInt(parts[1]);
 				int totalResults = Integer.parseInt(parts[3]);

@@ -36,6 +36,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public static ThreadLocal<String> updatedResultsCount = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> initialFilteredResultsCount = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> orgJobNameInRow2 = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> orgJobCodeInRow2 = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> matchedSuccessPrflName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<Integer> loadedProfilesBeforeHeaderCheckboxClick = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> selectedProfilesAfterHeaderCheckboxClick = ThreadLocal.withInitial(() -> 0);
@@ -81,7 +82,6 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	private static final By NO_DATA_AVAILABLE = By.xpath("//td[@id='no-data-container']");
 	private static final By PUBLISH_BTN = By.xpath("//button[@id='publish-btn']");
 	
-	// Table headers
 	private static final By TABLE_1_TITLE = By.xpath("//*[contains(text(),'Organization jobs')]");
 	private static final By TABLE_1_HEADER_1 = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[2]/div | //*[@id='table-container']/div[1]/div/div[1]/div/span[1]");
 	private static final By TABLE_1_HEADER_2 = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div | //*[@id='table-container']/div[1]/div/div[1]/div/span[2]");
@@ -601,7 +601,33 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void click_on_checkbox_of_first_job_profile() {
 		try {
-			orgJobNameInRow1.set(getElementText(JOB_NAME_PROFILE_1).split("-", 2)[0].trim());
+			WebElement jobNameElement = waitForElement(JOB_NAME_PROFILE_1, 10);
+			String job1NameText = jobNameElement.getText();
+			
+			if (job1NameText == null || job1NameText.trim().isEmpty()) {
+				throw new Exception("Job name element text is null or empty");
+			}
+			
+			// Extract job name (before the dash) and job code (within parentheses)
+			String[] parts = job1NameText.split("-", 2);
+			String extractedJobName = parts[0].trim();
+			String extractedJobCode = "NOT_SET";
+			
+			// Extract job code from the second part (e.g., "(ABC123)" -> "ABC123")
+			if (parts.length > 1) {
+				String codePart = parts[1].trim();
+				if (codePart.startsWith("(") && codePart.contains(")")) {
+					extractedJobCode = codePart.substring(1, codePart.indexOf(")")).trim();
+				}
+			}
+			
+			if (extractedJobName.isEmpty() || extractedJobName.equals("NOT_SET")) {
+				throw new Exception("Failed to extract valid job name from: " + job1NameText);
+			}
+			
+			// Store job name and code in ThreadLocal variables
+			orgJobNameInRow1.set(extractedJobName);
+			orgJobCodeInRow1.set(extractedJobCode);
 			clickElement(PROFILE_1_CHECKBOX);
 			PageObjectHelper.log(LOGGER, "Clicked on checkbox of First job profile: " + orgJobNameInRow1.get());
 		} catch (Exception e) {
@@ -611,7 +637,33 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void click_on_checkbox_of_second_job_profile() {
 		try {
-			orgJobNameInRow2.set(getElementText(JOB_NAME_PROFILE_2).split("-", 2)[0].trim());
+			WebElement jobNameElement = waitForElement(JOB_NAME_PROFILE_2, 10);
+			String job1NameText = jobNameElement.getText();
+			
+			if (job1NameText == null || job1NameText.trim().isEmpty()) {
+				throw new Exception("Job name element text is null or empty");
+			}
+			
+			// Extract job name (before the dash) and job code (within parentheses)
+			String[] parts = job1NameText.split("-", 2);
+			String extractedJobName = parts[0].trim();
+			String extractedJobCode = "NOT_SET";
+			
+			// Extract job code from the second part (e.g., "(ABC123)" -> "ABC123")
+			if (parts.length > 1) {
+				String codePart = parts[1].trim();
+				if (codePart.startsWith("(") && codePart.contains(")")) {
+					extractedJobCode = codePart.substring(1, codePart.indexOf(")")).trim();
+				}
+			}
+			
+			if (extractedJobName.isEmpty() || extractedJobName.equals("NOT_SET")) {
+				throw new Exception("Failed to extract valid job name from: " + job1NameText);
+			}
+			
+			// Store job name and code in ThreadLocal variables
+			orgJobNameInRow2.set(extractedJobName);
+			orgJobCodeInRow2.set(extractedJobCode);
 			clickElement(PROFILE_2_CHECKBOX);
 			PageObjectHelper.log(LOGGER, "Clicked on checkbox of Second job profile: " + orgJobNameInRow2.get());
 		} catch (Exception e) {

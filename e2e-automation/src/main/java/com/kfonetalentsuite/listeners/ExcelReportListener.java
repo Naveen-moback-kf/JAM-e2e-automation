@@ -34,6 +34,14 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 				|| !CommonVariable.EXCEL_REPORTING_ENABLED.equalsIgnoreCase("false");
 	}
 
+	// RETRY FIX: Flag to detect retry runs and avoid counter reset
+	private static volatile boolean isRetryRun = false;
+	
+	// RETRY FIX: Track if we're within a retry execution to skip Excel generation during retry
+	private static volatile boolean skipExcelGenerationDuringRetry = false;
+	
+	// RETRY FIX: Track scenarios that passed in retry (to update Excel report)
+	private static final Map<String, String> scenariosPassedInRetry = new ConcurrentHashMap<>();
 
 	// Execution statistics - Thread-safe counters for parallel execution
 	private static final AtomicInteger totalTestMethods = new AtomicInteger(0);
@@ -160,7 +168,14 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 			return;
 		}
 
-		// Reset counters and add logging for debugging
+		// RETRY FIX: Don't reset counters during retry runs - accumulate results instead
+		if (isRetryRun) {
+			LOGGER.debug("Retry run detected - preserving existing counters and exception details");
+			// Don't reset counters during retry - we want to accumulate results
+			return;
+		}
+
+		// Reset counters and add logging for debugging (only on first/original run)
 		totalTestMethods.set(0);
 		passedTestMethods.set(0);
 		failedTestMethods.set(0);
@@ -185,12 +200,11 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 			return;
 		}
 
-		// ENHANCED: Store suite name for Excel reporting (distinguishes suite vs
-		// individual runner execution)
+		// Store suite name for Excel reporting
 		currentSuiteName = suite.getName();
-		LOGGER.info("Suite Name Captured: '{}'", currentSuiteName);
+		LOGGER.debug("Suite: '{}'", currentSuiteName);
 
-		// ENHANCED: Count total test contexts (runners) and initialize progress bar
+		// Count total test contexts (runners) and initialize progress bar
 		try {
 			Map<String, org.testng.xml.XmlTest> allTests = suite.getXmlSuite().getTests().stream()
 					.collect(java.util.stream.Collectors.toMap(org.testng.xml.XmlTest::getName, test -> test));
@@ -198,11 +212,11 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 			totalTestContexts.set(allTests.size());
 
 			if (totalTestContexts.get() > 0) {
-				LOGGER.info("Test Suite '{}' started with {} runners", suite.getName(), totalTestContexts.get());
+				LOGGER.debug("Suite '{}' - {} runners", suite.getName(), totalTestContexts.get());
 				ProgressBarUtil.initializeProgress(totalTestContexts.get());
 			}
 		} catch (Exception e) {
-			LOGGER.warn("Could not initialize progress tracking");
+			LOGGER.debug("Progress tracking init failed");
 			totalTestContexts.set(0);
 		}
 	}
@@ -248,7 +262,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 
 	@Override
 	public void onExecutionFinish() {
-		LOGGER.info("Execution finished - Total: {}, Passed: {}, Failed: {}, Skipped: {}", totalTestMethods.get(),
+		LOGGER.debug("Execution finished - Total: {}, Passed: {}, Failed: {}, Skipped: {}", totalTestMethods.get(),
 				passedTestMethods.get(), failedTestMethods.get(), skippedTestMethods.get());
 
 		if (!isExcelReportingEnabled()) {
@@ -256,11 +270,24 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 			return;
 		}
 
+		// Skip Excel generation during retry - will be generated after retry completes
+		if (skipExcelGenerationDuringRetry) {
+			LOGGER.debug("Deferring Excel generation until retry completes");
+			return;
+		}
+
 		try {
+			// Log scenarios that passed in retry (condensed)
+			Map<String, String> retryPassed = getScenariosPassedInRetry();
+			if (!retryPassed.isEmpty()) {
+				LOGGER.info("✅ {} scenario(s) passed in retry", retryPassed.size());
+			}
+			
 			DailyExcelTracker.generateDailyReport(false);
-			LOGGER.info("Excel report generated successfully");
+			LOGGER.debug("Excel report generated");
 
 			clearExceptionDetails();
+			clearScenariosPassedInRetry();
 			crossBrowserRunnerNames.clear();
 			ProgressBarUtil.resetProgress();
 			System.gc();
@@ -268,7 +295,9 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		} catch (Exception e) {
 			LOGGER.error("Excel report generation failed", e);
 		} finally {
-			KeepAwakeUtil.shutdown();
+			if (!isRetryRun) {
+				KeepAwakeUtil.shutdown();
+			}
 		}
 	}
 
@@ -276,7 +305,15 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 	public void onTestSuccess(ITestResult result) {
 		passedTestMethods.incrementAndGet();
 		totalTestMethods.incrementAndGet();
-		// No logging needed for individual test success
+		
+		// Track scenarios that passed in retry run
+		if (isRetryRun) {
+			String scenarioName = extractScenarioInfo(result);
+			if (scenarioName != null && !scenarioName.isEmpty() && !scenarioName.equals("Test Scenario")) {
+				scenariosPassedInRetry.put(scenarioName.toLowerCase().trim(), "PASSED");
+				LOGGER.debug("Retry PASSED: '{}'", scenarioName);
+			}
+		}
 	}
 
 	@Override
@@ -287,7 +324,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		// ENHANCED: Capture actual exception details for Excel reporting
 		if (isExcelReportingEnabled()) {
 			String scenarioInfo = extractScenarioInfo(result);
-			LOGGER.warn("Test failed: {}", scenarioInfo);
+			LOGGER.debug("Test failed: {}", scenarioInfo);
 
 			// ENHANCED: Capture comprehensive failure details with actual exception message
 			captureFailureExceptionDetails(result, scenarioInfo);
@@ -338,7 +375,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 			}
 
 		} catch (Exception e) {
-			LOGGER.warn("Failed to capture failure exception details");
+			LOGGER.debug("Could not capture failure details");
 		}
 	}
 
@@ -603,11 +640,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 	 */
 	public static void generateManualReport() {
 		try {
-			LOGGER.info("Manual Excel generation triggered - Total: {}, Passed: {}, Failed: {}, Skipped: {}",
+			LOGGER.debug("Manual Excel generation - Total: {}, Passed: {}, Failed: {}, Skipped: {}",
 					totalTestMethods.get(), passedTestMethods.get(), failedTestMethods.get(), skippedTestMethods.get());
-
 			DailyExcelTracker.generateDailyReport();
-			LOGGER.info("Manual Excel report generated successfully");
+			LOGGER.debug("Manual Excel report generated");
 		} catch (Exception e) {
 			LOGGER.error("Error generating manual Excel report", e);
 		}
@@ -617,7 +653,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 	 * Force Excel generation with current execution data (for immediate testing)
 	 */
 	public static void forceGenerateReport() {
-		LOGGER.info("Force generating Excel report with current data");
+		LOGGER.debug("Force generating Excel report");
 		generateManualReport();
 	}
 
@@ -684,7 +720,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 			}
 
 		} catch (Exception e) {
-			LOGGER.warn("Failed to capture skip exception details");
+			LOGGER.debug("Could not capture skip details");
 		}
 	}
 
@@ -889,6 +925,59 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		skipReasonsByScenario.clear(); // Also clear skip reasons
 		globalSkipReasonsByRunner.clear(); // Also clear global skip reasons
 		clearPerformanceMetrics(); // Also clear performance metrics
+	}
+
+	/**
+	 * RETRY FIX: Called by SuiteRetryListener before starting retry execution
+	 * This prevents counter reset and Excel generation during retry
+	 */
+	public static void markRetryRunStart() {
+		isRetryRun = true;
+		skipExcelGenerationDuringRetry = true;
+		LOGGER.debug("Retry run started");
+	}
+
+	/**
+	 * RETRY FIX: Called by SuiteRetryListener after retry execution completes
+	 * This allows final Excel generation with accumulated results
+	 */
+	public static void markRetryRunComplete() {
+		isRetryRun = false;
+		skipExcelGenerationDuringRetry = false;
+		LOGGER.debug("Retry run complete");
+	}
+
+	/**
+	 * RETRY FIX: Check if we're in a retry run
+	 */
+	public static boolean isInRetryRun() {
+		return isRetryRun;
+	}
+
+	/**
+	 * RETRY FIX: Check if a scenario passed in retry
+	 */
+	public static boolean didScenarioPassInRetry(String scenarioName) {
+		if (scenarioName == null) return false;
+		return scenariosPassedInRetry.containsKey(scenarioName.toLowerCase().trim());
+	}
+
+	/**
+	 * RETRY FIX: Get all scenarios that passed in retry
+	 */
+	public static Map<String, String> getScenariosPassedInRetry() {
+		return new HashMap<>(scenariosPassedInRetry);
+	}
+
+	/**
+	 * RETRY FIX: Clear scenarios passed in retry (called after Excel generation)
+	 */
+	public static void clearScenariosPassedInRetry() {
+		int count = scenariosPassedInRetry.size();
+		scenariosPassedInRetry.clear();
+		if (count > 0) {
+			LOGGER.debug("Cleared {} retry-passed scenarios", count);
+		}
 	}
 
 	/**

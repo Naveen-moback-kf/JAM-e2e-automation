@@ -47,6 +47,11 @@ public class SD06_PublishSelectedProfiles {
 	public void search_for_published_job_name2_in_hcm_sync_profiles_tab_in_pm() throws IOException {
 		publishSelectedProfiles.getPublishSelectedProfiles().search_for_published_job_name2_in_hcm_sync_profiles_tab_in_pm();
 	}
+	
+	@Then("Search for Published Job code2 in HCM Sync Profiles screen in PM")
+	public void search_for_published_job_code2_in_hcm_sync_profiles_tab_in_pm() throws IOException {
+		publishSelectedProfiles.getPublishSelectedProfiles().search_for_published_job_code2_in_hcm_sync_profiles_tab_in_pm();
+	}
 
 	@Then("User should verify Published Second Job Profile is displayed in Row1 in HCM Sync Profiles screen in PM")
 	public void user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm() throws Exception {

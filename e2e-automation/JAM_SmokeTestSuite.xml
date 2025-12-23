@@ -145,4 +145,12 @@
         </classes>
     </test>
     
+    <!-- 19. JAM Delete Job Profiles 
+    <test name="Delete Job Profiles in Job Mapping">
+        <classes>
+            <class name="testrunners.JobMapping.Runner36_DeleteJObProfiles" />
+        </classes>
+    </test>
+    -->
+    
 </suite>

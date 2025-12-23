@@ -13,10 +13,6 @@ public class SD32_ClearProfileSelectionFunctionality extends DriverManager {
 		super();
 	}
 
-	// ═══════════════════════════════════════════════════════════════════════════
-	// HEADER CHECKBOX STEPS - Parameterized
-	// ═══════════════════════════════════════════════════════════════════════════
-
 	@Then("Click on header checkbox to select loaded job profiles in {string} screen")
 	public void click_on_header_checkbox_to_select_loaded_job_profiles(String screen) throws Exception {
 		pageObjectManager.getClearProfileSelectionFunctionality()
@@ -29,19 +25,11 @@ public class SD32_ClearProfileSelectionFunctionality extends DriverManager {
 			.click_on_header_checkbox_to_unselect_loaded_job_profiles(screen);
 	}
 
-	// ═══════════════════════════════════════════════════════════════════════════
-	// NONE BUTTON STEPS - Parameterized
-	// ═══════════════════════════════════════════════════════════════════════════
-
 	@Then("Click on None button in {string} screen")
 	public void click_on_none_button(String screen) throws Exception {
 		pageObjectManager.getClearProfileSelectionFunctionality().click_on_none_button(screen);
 	}
-
-	// ═══════════════════════════════════════════════════════════════════════════
-	// VERIFICATION STEPS - Parameterized
-	// ═══════════════════════════════════════════════════════════════════════════
-
+	
 	@Then("Verify Loaded Profiles are unselected in {string} screen")
 	public void verify_loaded_profiles_are_unselected(String screen) throws Exception {
 		pageObjectManager.getClearProfileSelectionFunctionality()
@@ -66,10 +54,6 @@ public class SD32_ClearProfileSelectionFunctionality extends DriverManager {
 			.verify_profiles_loaded_after_header_checkbox_are_not_selected(screen);
 	}
 
-	// ═══════════════════════════════════════════════════════════════════════════
-	// SCROLL AND REFRESH STEPS - Parameterized
-	// ═══════════════════════════════════════════════════════════════════════════
-
 	@Then("Scroll page to view more job profiles in {string} screen")
 	public void scroll_page_to_view_more_job_profiles(String screen) throws Exception {
 		pageObjectManager.getClearProfileSelectionFunctionality()
@@ -80,10 +64,6 @@ public class SD32_ClearProfileSelectionFunctionality extends DriverManager {
 	public void refresh_screen(String screen) throws Exception {
 		pageObjectManager.getClearProfileSelectionFunctionality().refresh_screen(screen);
 	}
-
-	// ═══════════════════════════════════════════════════════════════════════════
-	// ACTION BUTTON VERIFICATION STEPS - Parameterized
-	// ═══════════════════════════════════════════════════════════════════════════
 
 	@Then("User should verify action button is enabled in {string} screen")
 	public void verify_action_button_is_enabled(String screen) throws Exception {

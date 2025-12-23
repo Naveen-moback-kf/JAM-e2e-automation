@@ -18,17 +18,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 	public static ThreadLocal<String> SPJobName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<Boolean> noJobCode = ThreadLocal.withInitial(() -> false);
 
-	private static final By TABLE_HEADER_1 = By.xpath("//thead//tr//div[@kf-sort-header='name']//div");
-	private static final By TABLE_HEADER_2 = By.xpath("//thead//tr//div//div[text()=' Status ']");
-	private static final By TABLE_HEADER_3 = By.xpath("//thead//tr//div//div[text()=' kf grade ']");
-	private static final By TABLE_HEADER_4 = By.xpath("//thead//tr//div//div[text()=' Level ']");
-	private static final By TABLE_HEADER_5 = By.xpath("//thead//tr//div//div[text()=' Function ']");
-	private static final By TABLE_HEADER_6 = By.xpath("//thead//tr//div//div[text()=' Created By ']");
-	private static final By TABLE_HEADER_7 = By.xpath("//thead//tr//div//div[text()=' Last Modified ']");
-	private static final By TABLE_HEADER_8 = By.xpath("//thead//tr//div//div[text()=' Export status ']");
-	private static final By SHOWING_JOB_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing')]");
 	private static final By NO_JOB_CODE_TOOLTIP = By.xpath("//div[@class='p-tooltip-text']");
-	private static final By DOWNLOAD_BTN = By.xpath("//button[contains(@class,'border-button')]");
 
 	public PO19_ProfileswithNoJobCode_PM() {
 		super();
@@ -38,7 +28,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
-			String resultsCountText = getElementText(SHOWING_JOB_RESULTS_COUNT);
+			String resultsCountText = getElementText(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 			String[] resultsCountText_split = resultsCountText.split(" ");
 			int totalProfiles = Integer.parseInt(resultsCountText_split[3]);
 
@@ -83,7 +73,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 		if (noJobCode.get()) {
 			try {
 				if (rowNumber.get() == 1) {
-					scrollToElement(driver.findElement(DOWNLOAD_BTN));
+					scrollToElement(driver.findElement(Locators.HCMSyncProfiles.DOWNLOAD_BTN));
 				} else if (rowNumber.get() < 5) {
 					WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[1]//td[1]//*"));
 					scrollToElement(SP_JobName);
@@ -122,7 +112,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 					WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 2) + "]//td[1]//*"));
 					scrollToElement(SP_JobName);
 				} else if (rowNumber.get() == 1) {
-					scrollToElement(driver.findElement(DOWNLOAD_BTN));
+					scrollToElement(driver.findElement(Locators.HCMSyncProfiles.DOWNLOAD_BTN));
 				}
 
 				PerformanceUtils.waitForPageReady(driver, 1);
@@ -132,22 +122,24 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 				SPJobName.set(SP_JobName.getText());
 
 				WebElement SP_Status = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[2]//*"));
-				WebElement SP_KFGrade = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[3]//*"));
-				WebElement SP_Level = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[4]//*"));
-				WebElement SP_Function = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[5]//*"));
-				WebElement SP_CreatedBy = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[6]//*"));
-				WebElement SP_LastModified = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[7]//*"));
-				WebElement SP_ExportStatus = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[8]//*"));
+				WebElement SP_JobCode = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[3]//*"));
+				WebElement SP_KFGrade = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[4]//*"));
+				WebElement SP_Level = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[5]//*"));
+				WebElement SP_Function = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[6]//*"));
+				WebElement SP_CreatedBy = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[7]//*"));
+				WebElement SP_LastModified = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[8]//*"));
+				WebElement SP_ExportStatus = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[9]//*"));
 
-				PageObjectHelper.log(LOGGER, "Below are the details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM (Row " + rowNumber.get() + "): \n "
-						+ getElementText(TABLE_HEADER_1).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobName.getText() + "   "
-						+ getElementText(TABLE_HEADER_2).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Status.getText() + "   "
-						+ getElementText(TABLE_HEADER_3).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_KFGrade.getText() + "   "
-						+ getElementText(TABLE_HEADER_4).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Level.getText() + "   "
-						+ getElementText(TABLE_HEADER_5).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Function.getText() + "   "
-						+ getElementText(TABLE_HEADER_6).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_CreatedBy.getText() + "   "
-						+ getElementText(TABLE_HEADER_7).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_LastModified.getText() + "   "
-						+ getElementText(TABLE_HEADER_8).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_ExportStatus.getText());
+			PageObjectHelper.log(LOGGER, "Below are the details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM (Row " + rowNumber.get() + "): \n "
+					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_NAME).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobName.getText() + "   "
+					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_STATUS).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Status.getText() + "   "
+					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_KF_GRADE).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobCode.getText() + "   "
+					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_JOB_CODE).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_KFGrade.getText() + "   "
+					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_LEVEL).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Level.getText() + "   "
+					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_FUNCTION).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Function.getText() + "   "
+					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_CREATED_BY).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_CreatedBy.getText() + "   "
+					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_LAST_MODIFIED).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_LastModified.getText() + "   "
+					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_EXPORT_STATUS).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_ExportStatus.getText());
 
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER, "verify_details_of_the_success_profile_with_no_job_code_assigned_in_hcm_sync_profiles_tab", "Issue in Verifying details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM", e);

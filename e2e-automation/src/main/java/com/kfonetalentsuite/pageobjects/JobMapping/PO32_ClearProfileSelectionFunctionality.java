@@ -17,7 +17,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO32_ClearProfileSelectionFunctionality.class);
 
-	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
 	public static ThreadLocal<Integer> loadedProfilesBeforeUncheck = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> selectedProfilesBeforeUncheck = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<String> currentScreen = ThreadLocal.withInitial(() -> "PM");

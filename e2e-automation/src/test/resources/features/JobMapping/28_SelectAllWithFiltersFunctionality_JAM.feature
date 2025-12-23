@@ -11,11 +11,13 @@ Feature: Validate Select All and Loaded Profiles Selection with Filters - JAM (J
     When User is in Job Mapping page
     Then Verify job profiles count is displaying on the page
     Then Click on Filters dropdown button
-    Then Apply filter and verify profiles count in "JAM" screen
+    Then Click on Grades Filters dropdown button
+    Then Select one option in Grades Filters dropdown
+    Then Store applied filter value for validation in "JAM" screen
     Then Close the Filters dropdown in "JAM" screen
     Then User should verify count of job profiles is correctly showing on top of Job Profiles listing table
     Then User should scroll down to view last filtered result in "JAM" screen
-    Then User should validate all filtered results match the applied filter in "JAM" screen
+    Then Validate Job Mapping Profiles are correctly filtered with applied Grades Options
     Then Click on Chevron button beside header checkbox in "JAM" screen
     Then Click on Select All button in "JAM" screen
     Then User should verify action button is enabled in "JAM" screen
@@ -27,7 +29,9 @@ Feature: Validate Select All and Loaded Profiles Selection with Filters - JAM (J
   Scenario: JAM - Alternative Validation with Different Filter
     When User is in Job Mapping page
     Then Click on Filters dropdown button
-    Then Apply different filter for alternative validation in "JAM" screen
+    Then Click on Grades Filters dropdown button
+    Then Select different option in Grades Filters dropdown
+    Then Store second filter value for validation in "JAM" screen
     Then Close the Filters dropdown in "JAM" screen
     Then User should verify count of job profiles is correctly showing on top of Job Profiles listing table
     Then Scroll down to load all second filter results in "JAM" screen
@@ -46,7 +50,9 @@ Feature: Validate Select All and Loaded Profiles Selection with Filters - JAM (J
     When User is in Job Mapping page
     Then Verify job profiles count is displaying on the page
     Then Click on Filters dropdown button
-    Then Apply filter and verify profiles count in "JAM" screen
+    Then Click on Grades Filters dropdown button
+    Then Select one option in Grades Filters dropdown
+    Then Store applied filter value for validation in "JAM" screen
     Then Close the Filters dropdown in "JAM" screen
     Then User should verify count of job profiles is correctly showing on top of Job Profiles listing table
     Then Select loaded job profiles using header checkbox in "JAM" screen

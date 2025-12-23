@@ -20,7 +20,6 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO17_MapDifferentSPtoProfile.class);
 
-	// THREAD-SAFE: Each thread gets its own isolated state for parallel execution
 	public static ThreadLocal<Integer> rowNumber = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Boolean> mapSP = ThreadLocal.withInitial(() -> false);
 	public static ThreadLocal<Boolean> manualMapping = ThreadLocal.withInitial(() -> false);

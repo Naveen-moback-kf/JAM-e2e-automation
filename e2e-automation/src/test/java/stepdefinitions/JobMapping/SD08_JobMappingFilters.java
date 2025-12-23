@@ -43,6 +43,11 @@ public class SD08_JobMappingFilters {
 		validateJobMappingFiltersFunctionality.getJobMappingFilters().select_two_options_in_grades_filters_dropdown();
 	}
 
+	@Then("Select different option in Grades Filters dropdown")
+	public void select_different_option_in_grades_filters_dropdown() throws Exception {
+		validateJobMappingFiltersFunctionality.getJobMappingFilters().select_different_option_in_grades_filters_dropdown();
+	}
+
 	@Then("Click on Clear Filters button")
 	public void click_on_clear_filters_button() throws InterruptedException, Exception {
 		validateJobMappingFiltersFunctionality.getJobMappingFilters().click_on_clear_filters_button();

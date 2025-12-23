@@ -13,6 +13,25 @@ public class SD14_SortingFunctionality_JAM {
 		super();		
 	}
 	
+	// ============================================================
+	// PARAMETERIZED STEP DEFINITIONS FOR SCENARIO OUTLINE
+	// Uses {string} to avoid ambiguity with specific step definitions
+	// ============================================================
+	
+	@Then("Sort Job Profiles by {string} in {string} order")
+	public void sort_job_profiles_by_column_in_order(String column, String order) throws IOException {
+		validateSortingFunctionality_JAM.getSortingFunctionality_JAM().sort_job_profiles_by_column_in_order(column, order);
+	}
+	
+	@Then("User should verify first thirty job profiles sorted by {string} in {string} order")
+	public void user_should_verify_first_thirty_job_profiles_sorted_by_column_in_order(String column, String order) throws IOException {
+		validateSortingFunctionality_JAM.getSortingFunctionality_JAM().user_should_verify_first_thirty_job_profiles_sorted_by_column_in_order(column, order);
+	}
+	
+	// ============================================================
+	// EXISTING STEP DEFINITIONS (kept for backward compatibility)
+	// ============================================================
+	
 	@Then("User should scroll page down two times to view first thirty job profiles")
 	public void user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles() throws IOException {
 		validateSortingFunctionality_JAM.getSortingFunctionality_JAM().user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles();

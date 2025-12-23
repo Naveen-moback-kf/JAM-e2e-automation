@@ -74,10 +74,10 @@ public class SuiteRetryListener implements ISuiteListener {
 		// Collect failed tests from this suite run
 		collectFailedTests(suite);
 
-		// If we're already in a retry run, don't trigger another retry
+		// If we're already in a retry run, just collect results and return
+		// The retry loop in executeRetriesWithLoop() will handle subsequent retries
 		if (isRetryRun) {
-			LOGGER.debug("Retry run completed - not triggering another retry");
-			isRetryRun = false;
+			LOGGER.debug("Retry run completed - results collected, returning to retry loop");
 			return;
 		}
 
@@ -104,8 +104,21 @@ public class SuiteRetryListener implements ISuiteListener {
 		LOGGER.warn("║     Starting retry execution at END of suite...               ║");
 		LOGGER.warn("╚═══════════════════════════════════════════════════════════════╝");
 
-		// Execute retries
-		executeRetries(suite, testsToRetry);
+		// Execute retries with loop to handle multiple retry attempts
+		executeRetriesWithLoop(suite);
+		
+		// EXCEL FIX: After all retries complete, log final status
+		if (failedTests.isEmpty()) {
+			LOGGER.info("╔═══════════════════════════════════════════════════════════════╗");
+			LOGGER.info("║     ✅ ALL RETRIES PASSED - Final Excel report will include   ║");
+			LOGGER.info("║        updated results from retry runs                        ║");
+			LOGGER.info("╚═══════════════════════════════════════════════════════════════╝");
+		} else {
+			LOGGER.warn("╔═══════════════════════════════════════════════════════════════╗");
+			LOGGER.warn("║     ❌ {} TEST(S) STILL FAILED after all retry attempts       ║", failedTests.size());
+			LOGGER.warn("║        Final Excel report will show failed status             ║");
+			LOGGER.warn("╚═══════════════════════════════════════════════════════════════╝");
+		}
 	}
 
 	/**
@@ -116,6 +129,9 @@ public class SuiteRetryListener implements ISuiteListener {
 
 		for (ISuiteResult suiteResult : results.values()) {
 			ITestContext context = suiteResult.getTestContext();
+			
+			int failedCount = context.getFailedTests().size();
+			int passedCount = context.getPassedTests().size();
 
 			// Get failed tests
 			for (ITestResult result : context.getFailedTests().getAllResults()) {
@@ -132,14 +148,20 @@ public class SuiteRetryListener implements ISuiteListener {
 				}
 			}
 
-			// Remove from failed if it passed (in case of retry success)
-			for (ITestResult result : context.getPassedTests().getAllResults()) {
-				String className = result.getTestClass().getName();
-				if (failedTests.containsKey(className)) {
-					failedTests.remove(className);
-					LOGGER.info("✅ Test {} PASSED on retry - removed from failed list", 
-							result.getTestClass().getRealClass().getSimpleName());
+			// Only remove from failed list if ALL tests passed (no failures) in this context
+			// This is important for Cucumber where each scenario is a separate test in the same runner
+			if (failedCount == 0 && passedCount > 0) {
+				for (ITestResult result : context.getPassedTests().getAllResults()) {
+					String className = result.getTestClass().getName();
+					if (failedTests.containsKey(className)) {
+						failedTests.remove(className);
+						LOGGER.info("✅ Test {} PASSED on retry (all scenarios passed) - removed from failed list", 
+								result.getTestClass().getRealClass().getSimpleName());
+					}
 				}
+			} else if (failedCount > 0) {
+				LOGGER.debug("Context {} has {} failed and {} passed tests - keeping in retry list", 
+						context.getName(), failedCount, passedCount);
 			}
 		}
 	}
@@ -164,14 +186,75 @@ public class SuiteRetryListener implements ISuiteListener {
 	}
 
 	/**
-	 * Execute retry runs for failed tests
+	 * Execute retries with a loop to handle multiple retry attempts
+	 * This continues retrying until all tests pass or max attempts are exhausted
+	 */
+	private void executeRetriesWithLoop(ISuite originalSuite) {
+		// EXCEL FIX: Mark retry run start to prevent counter reset and defer Excel generation
+		com.kfonetalentsuite.listeners.ExcelReportListener.markRetryRunStart();
+		
+		try {
+			int retryRound = 0;
+			
+			// Loop until no more tests to retry or max attempts exhausted for all
+			while (true) {
+				retryRound++;
+				List<FailedTestInfo> testsToRetry = getTestsToRetry();
+				
+				if (testsToRetry.isEmpty()) {
+					LOGGER.info("╔═══════════════════════════════════════════════════════════════╗");
+					LOGGER.info("║     ✅ All tests passed after {} retry round(s)               ║", retryRound - 1);
+					LOGGER.info("╚═══════════════════════════════════════════════════════════════╝");
+					break;
+				}
+				
+				LOGGER.info("╔═══════════════════════════════════════════════════════════════╗");
+				LOGGER.info("║     🔄 RETRY ROUND {} - {} test(s) to retry                   ║", retryRound, testsToRetry.size());
+				LOGGER.info("╚═══════════════════════════════════════════════════════════════╝");
+				
+				// Execute single retry round
+				executeRetries(originalSuite, testsToRetry);
+				
+				// Check if any tests still need retry
+				List<FailedTestInfo> remainingTests = getTestsToRetry();
+				if (remainingTests.isEmpty()) {
+					LOGGER.info("All tests passed after retry round {}", retryRound);
+					break;
+				}
+				
+				// Safety check: if no progress is being made, exit
+				if (remainingTests.size() == testsToRetry.size()) {
+					boolean anyCanRetry = false;
+					for (FailedTestInfo test : remainingTests) {
+						if (retryAttempts.getOrDefault(test.className, 0) < MAX_RETRY_ATTEMPTS) {
+							anyCanRetry = true;
+							break;
+						}
+					}
+					if (!anyCanRetry) {
+						LOGGER.warn("Max retry attempts exhausted for all remaining {} tests", remainingTests.size());
+						break;
+					}
+				}
+			}
+		} finally {
+			// Reset retry flag
+			isRetryRun = false;
+			// EXCEL FIX: Mark retry complete to allow final Excel generation
+			com.kfonetalentsuite.listeners.ExcelReportListener.markRetryRunComplete();
+			LOGGER.info("Retry loop completed - Excel report will now be generated with all results");
+		}
+	}
+
+	/**
+	 * Execute a single retry round for failed tests
 	 */
 	private void executeRetries(ISuite originalSuite, List<FailedTestInfo> testsToRetry) {
 		if (testsToRetry.isEmpty()) {
 			return;
 		}
 
-		// Set retry flag to prevent infinite loops
+		// Set retry flag
 		isRetryRun = true;
 
 		// Create a new TestNG instance for retry
@@ -180,7 +263,8 @@ public class SuiteRetryListener implements ISuiteListener {
 
 		// Create XML suite for retry
 		XmlSuite retrySuite = new XmlSuite();
-		retrySuite.setName(originalSuite.getName() + " - RETRY");
+		// EXCEL FIX: Keep original suite name for proper feature matching in Excel
+		retrySuite.setName(originalSuite.getName());
 		retrySuite.setParallel(originalSuite.getXmlSuite().getParallel());
 		retrySuite.setThreadCount(originalSuite.getXmlSuite().getThreadCount());
 
@@ -204,7 +288,8 @@ public class SuiteRetryListener implements ISuiteListener {
 			
 			if (originalTest != null) {
 				XmlTest retryTest = new XmlTest(retrySuite);
-				retryTest.setName(failedTest.testName + " - RETRY #" + (currentAttempts + 1));
+				// EXCEL FIX: Keep original test name for proper feature matching
+				retryTest.setName(failedTest.testName);
 				retryTest.setPreserveOrder(originalTest.getPreserveOrder());
 
 				// Copy classes

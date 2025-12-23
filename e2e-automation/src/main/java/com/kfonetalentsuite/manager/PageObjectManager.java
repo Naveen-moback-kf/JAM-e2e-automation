@@ -40,6 +40,7 @@ public class PageObjectManager {
 	public PO33_UnmappedJobs_JAM unmappedJobs_JAM;
 	public PO34_SortingFunctionalityInHCMScreen_PM sortingFunctionalityInHCMScreen_PM;
 	public PO35_ReuploadMissingDataProfiles reuploadMissingDataProfiles;
+	public PO36_DeleteJobProfiles deleteJobProfiles;
 
 	public PO01_KFoneLogin getKFoneLogin() throws IOException {
 		if (kfoneLogin == null) {
@@ -278,16 +279,20 @@ public class PageObjectManager {
 		}
 		return reuploadMissingDataProfiles;
 	}
+	
+	public PO36_DeleteJobProfiles getDeleteJobProfiles() throws IOException {
+		if(deleteJobProfiles == null) {
+			deleteJobProfiles = new PO36_DeleteJobProfiles();
+		}
+		return deleteJobProfiles;
+	}
 
 	/**
 	 * Reset all page object instances (useful for cleanup between tests)
 	 * This ensures a fresh start for each test scenario when needed
 	 */
 	public void resetPageObjects() {
-		// Login Page Object
 		kfoneLogin = null;
-
-		// Job Mapping Core Page Objects (PO02-PO14)
 		addMoreJobsFunctionality = null;
 		jobMappingHeaderSection = null;
 		jobMappingPageComponents = null;
@@ -301,42 +306,27 @@ public class PageObjectManager {
 		recommendedProfileDetails = null;
 		pcRestrictedTipMessage = null;
 		sortingFunctionality_JAM = null;
-
-		// Manual Mapping Page Objects (PO16-PO17)
 		manualMappingofSP = null;
 		mapDifferentSPtoProfile = null;
-
-		// Profile Manager Page Objects (PO18-PO22)
 		hcmSyncProfilesTab_PM = null;
 		profileswithNoJobCode_PM = null;
 		publishCenter_PM = null;
 		exportStatusFunctionality_PM = null;
 		missingDataTipMessage = null;
-
-		// Info Message Page Objects (PO23-PO24)
 		infoMessageMissingDataProfiles = null;
 		infoMessageManualMappingProfiles = null;
-
-		// Missing Data Validation Page Objects (PO25)
 		missingDataFunctionality = null;
-
-		// Profile Selection PM Page Objects (PO26)
 		selectAndSyncProfiles_PM = null;
-
-		// Select All Page Objects (PO27-PO28)
 		selectAllWithSearchFunctionality = null;
 		selectAllWithFiltersFunctionality = null;
-
-		// Profile Selection JAM Page Objects (PO29-PO30)
 		selectAndPublishLoadedProfiles_JAM = null;
 		selectAndPublishAllJobProfiles_JAM = null;
-
-		// Performance & Utility Page Objects (PO31-PO35)
 		applicationPerformance_JAM_and_HCM = null;
 		clearProfileSelectionFunctionality = null;
 		unmappedJobs_JAM = null;
 		sortingFunctionalityInHCMScreen_PM = null;
 		reuploadMissingDataProfiles = null;
+		deleteJobProfiles = null;
 	}
 
 }

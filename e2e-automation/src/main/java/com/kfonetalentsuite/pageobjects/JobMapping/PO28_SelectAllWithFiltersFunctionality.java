@@ -39,8 +39,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 	// Only filter-specific locators remain here
 	private static final By PM_KF_GRADE_HEADER = By.xpath("//thcl-expansion-panel-header[@id='expansion-panel-header-0']");
 	private static final By PM_LEVELS_HEADER = By.xpath("//thcl-expansion-panel-header[@id='expansion-panel-header-1']");
-	private static final By JAM_GRADES_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Grades']");
-	private static final By JAM_DEPARTMENTS_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Departments']");
+	// NOTE: JAM filter locators removed - JAM now uses SD08 steps directly (PO08_JobMappingFilters)
 
 	// ==================== THREAD-SAFE STATE ====================
 	public static ThreadLocal<Integer> filterResultsCount = ThreadLocal.withInitial(() -> 0);
@@ -86,7 +85,13 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			if (isPM) {
 				applyPMFilter();
 			} else {
-				applyJAMFilter();
+				// JAM filters should use SD08 steps directly in feature file:
+				// - Click on Grades Filters dropdown button
+				// - Select one option in Grades Filters dropdown
+				// - Store applied filter value for validation in "JAM" screen
+				throw new UnsupportedOperationException(
+					"JAM filters should use SD08 steps directly. Update feature file to use: " +
+					"'Click on Grades Filters dropdown button' and 'Select one option in Grades Filters dropdown'");
 			}
 
 			PageObjectHelper.log(LOGGER, "Applied filter: " + firstFilterType.get() + " = " + firstFilterValue.get() + 
@@ -143,78 +148,8 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		}
 	}
 
-	private void applyJAMFilter() throws Exception {
-		LOGGER.info("Applying Grades filter in JAM...");
-		firstFilterType.set("Grades");
-
-		try {
-			// Click on Grades dropdown to expand it
-			WebElement gradesDropdown = findElement(JAM_GRADES_DROPDOWN);
-			jsClick(gradesDropdown);
-			PerformanceUtils.waitForPageReady(driver, 1);
-			safeSleep(1000); // Wait for dropdown to expand
-
-			// Find checkbox options within the Grades dropdown
-			// Try multiple XPath strategies
-			var gradesOptions = driver.findElements(
-					By.xpath("//div[@data-testid='dropdown-Grades']//input[@type='checkbox']"));
-			
-			if (gradesOptions.isEmpty()) {
-				// Try alternative: look for checkboxes in any expanded dropdown panel
-				gradesOptions = driver.findElements(
-						By.xpath("//div[contains(@class,'dropdown')]//input[@type='checkbox']"));
-			}
-
-			LOGGER.info("Found {} grade filter options", gradesOptions.size());
-			
-			if (!gradesOptions.isEmpty()) {
-				// Select first option that has results (skip if count is 0)
-				for (WebElement option : gradesOptions) {
-					try {
-						String optionText = option.findElement(By.xpath("./ancestor::label | ./parent::*")).getText();
-						// Skip options with (0) count
-						if (!optionText.contains("(0)")) {
-							selectJAMFilterOption(option);
-							return;
-						}
-					} catch (Exception e) {
-						// If can't check, just select first
-						selectJAMFilterOption(option);
-						return;
-					}
-				}
-				// If all have (0), select first anyway
-				selectJAMFilterOption(gradesOptions.get(0));
-				return;
-			}
-			throw new Exception("Grades not available");
-		} catch (Exception gradesException) {
-			LOGGER.warn("Grades filter failed: {}", gradesException.getMessage());
-			// Fallback to Departments filter
-			LOGGER.info("Grades not available, trying Departments filter...");
-			firstFilterType.set("Departments");
-
-			jsClick(findElement(JAM_DEPARTMENTS_DROPDOWN));
-			PerformanceUtils.waitForPageReady(driver, 1);
-			safeSleep(1000);
-
-			var deptOptions = driver.findElements(
-					By.xpath("//div[@data-testid='dropdown-Departments']//input[@type='checkbox']"));
-			
-			if (deptOptions.isEmpty()) {
-				deptOptions = driver.findElements(
-						By.xpath("//div[contains(@class,'dropdown')]//input[@type='checkbox']"));
-			}
-
-			LOGGER.info("Found {} department filter options", deptOptions.size());
-			
-			if (!deptOptions.isEmpty()) {
-				selectJAMFilterOption(deptOptions.get(0));
-				return;
-			}
-			throw new Exception("Both Grades and Departments filters failed");
-		}
-	}
+	// NOTE: JAM filter methods removed - now using SD08 steps directly in feature files
+	// Use: "Click on Grades Filters dropdown button" + "Select one option in Grades Filters dropdown"
 
 	private List<WebElement> findFilterOptions(String panelHeaderId) {
 		List<WebElement> options = new ArrayList<>();
@@ -254,58 +189,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 2);
-	}
-
-	private void selectJAMFilterOption(WebElement checkbox) throws Exception {
-		// Extract label text from the label element (sibling or parent structure)
-		String labelText = "Filter_Option_1";
-		try {
-			// JAM filter structure: <label><input type="checkbox"/><span>Label Text</span></label>
-			// Or: <div><input type="checkbox"/><label>Label Text</label></div>
-			WebElement labelSpan = checkbox.findElement(By.xpath("./following-sibling::span | ./following-sibling::label | ../label | ../span"));
-			labelText = labelSpan.getText().trim();
-		} catch (Exception e) {
-			try {
-				// Try getting text from parent container
-				WebElement parent = checkbox.findElement(By.xpath("./ancestor::label | ./ancestor::div[contains(@class,'checkbox')]"));
-				labelText = parent.getText().trim();
-			} catch (Exception ex) {
-				LOGGER.debug("Could not extract label text: {}", ex.getMessage());
-			}
-		}
-		firstFilterValue.set(labelText);
-		LOGGER.info("Found JAM filter option: '{}', checkbox checked before click: {}", labelText, checkbox.isSelected());
-
-		// Scroll checkbox into view
-		js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", checkbox);
-		safeSleep(300);
-
-		// Click the checkbox directly using JavaScript to ensure it toggles
-		boolean wasSelected = checkbox.isSelected();
-		js.executeScript("arguments[0].click();", checkbox);
-		safeSleep(500);
-
-		// Verify checkbox state changed
-		boolean isNowSelected = checkbox.isSelected();
-		LOGGER.info("Checkbox state: before={}, after={}", wasSelected, isNowSelected);
-
-		if (wasSelected == isNowSelected) {
-			// Try clicking the label/parent instead
-			LOGGER.warn("Checkbox state didn't change, trying label click...");
-			try {
-				WebElement label = checkbox.findElement(By.xpath("./ancestor::label | ./parent::*"));
-				js.executeScript("arguments[0].click();", label);
-				safeSleep(500);
-				LOGGER.info("After label click, checkbox selected: {}", checkbox.isSelected());
-			} catch (Exception e) {
-				LOGGER.warn("Label click also failed: {}", e.getMessage());
-			}
-		}
-
-		// Wait for filter to apply
-		PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
-		PerformanceUtils.waitForPageReady(driver, 3);
-		safeSleep(1000); // Extra wait for filter API
 	}
 
 	// ==================== SCROLL AND VALIDATION METHODS ====================
@@ -464,16 +347,19 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		int actualSelectedCount = 0;
 		int scrollAttempts = 0;
 		int stableCountAttempts = 0;
+		int earlySuccessAttempts = 0;
 		boolean allProfilesLoaded = false;
+		boolean earlySuccessExit = false;
 		int expectedTotalProfiles = 0;
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		boolean isPM = "PM".equalsIgnoreCase(screen);
 
-		// Scrolling settings
-		int maxScrollAttempts = 500;
+		// Scrolling settings - reduced max from 500 to 200 for better performance
+		int maxScrollAttempts = 200;
 		int requiredStableAttempts = 3;
+		int requiredEarlySuccessAttempts = 3; // Consecutive scrolls with all expected selections found
 
-		// Get baseline from PO35 (shared ThreadLocal) or use local filterResultsCount
+		// Get baseline from PO27 (shared ThreadLocal) or use local filterResultsCount
 		int baseline = PO27_SelectAllWithSearchFunctionality.searchResultsCount.get();
 		if (baseline == 0) {
 			baseline = filterResultsCount.get();
@@ -507,13 +393,18 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 				LOGGER.debug("Could not parse total profile count: {}", e.getMessage());
 			}
 
-			// Calculate estimated scrolls
+			// Calculate estimated scrolls (capped at maxScrollAttempts)
 			int profilesPerScroll = isPM ? 50 : 10;
 			int estimatedScrolls = expectedTotalProfiles > 0 ? (expectedTotalProfiles / profilesPerScroll) + 10 : maxScrollAttempts;
 			maxScrollAttempts = Math.min(estimatedScrolls, maxScrollAttempts);
-			LOGGER.info("Estimated scrolls needed: {} ({} profiles / {} per scroll)", estimatedScrolls, expectedTotalProfiles, profilesPerScroll);
+			
+			// Minimum profiles to load before early success can trigger (at least 3x baseline or 50% of total)
+			int minProfilesForEarlySuccess = Math.max(baseline * 3, expectedTotalProfiles / 2);
+			
+			LOGGER.info("Estimated scrolls needed: {} ({} profiles / {} per scroll), early success after {} profiles",
+					estimatedScrolls, expectedTotalProfiles, profilesPerScroll, minProfilesForEarlySuccess);
 
-			// Scroll through all profiles
+			// Scroll through profiles
 			while (scrollAttempts < maxScrollAttempts && !allProfilesLoaded) {
 				try {
 					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
@@ -539,7 +430,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 							scrollAttempts, totalProfilesVisible, expectedTotalProfiles, pctLoaded, currentSelectedCount, elapsed);
 				}
 
-				// Fail-fast check
+				// FAIL-FAST: Check if selected count increased beyond baseline
 				if (currentSelectedCount > baseline) {
 					int extra = currentSelectedCount - baseline;
 					LOGGER.warn("FAIL-FAST at scroll {}: Found {} selected (expected {}), {} extra",
@@ -549,7 +440,24 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 					break;
 				}
 
-				// Check stability
+				// EARLY SUCCESS: All expected selections found + loaded enough profiles
+				if (currentSelectedCount == baseline && totalProfilesVisible >= minProfilesForEarlySuccess) {
+					earlySuccessAttempts++;
+					if (earlySuccessAttempts >= requiredEarlySuccessAttempts) {
+						long elapsed = (System.currentTimeMillis() - startTime) / 1000;
+						int pctLoaded = expectedTotalProfiles > 0 ? (totalProfilesVisible * 100 / expectedTotalProfiles) : 0;
+						LOGGER.info("EARLY SUCCESS at scroll {}: Found all {} expected selections, {}% profiles loaded ({}s)",
+								scrollAttempts, baseline, pctLoaded, elapsed);
+						allProfilesLoaded = true;
+						earlySuccessExit = true;
+						actualSelectedCount = currentSelectedCount;
+						break;
+					}
+				} else {
+					earlySuccessAttempts = 0; // Reset if count changes
+				}
+
+				// Check stability (no new profiles loaded - reached end)
 				if (totalProfilesVisible == previousTotalProfilesVisible && scrollAttempts > 0) {
 					stableCountAttempts++;
 					if (stableCountAttempts >= requiredStableAttempts) {
@@ -576,13 +484,22 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 			LOGGER.info("========================================");
 			LOGGER.info("VALIDATION SUMMARY (After Clearing Filters)");
-			LOGGER.info("Total Profiles Loaded: {}", totalProfilesVisible);
+			if (earlySuccessExit) {
+				int pctLoaded = expectedTotalProfiles > 0 ? (totalProfilesVisible * 100 / expectedTotalProfiles) : 0;
+				LOGGER.info("EARLY SUCCESS EXIT - Loaded: {}/{} profiles ({}%)", totalProfilesVisible, expectedTotalProfiles, pctLoaded);
+			} else {
+				LOGGER.info("Total Profiles Loaded: {}", totalProfilesVisible);
+			}
 			LOGGER.info("Currently Selected: {}", actualSelectedCount);
 			LOGGER.info("Baseline (from filter): {}", baseline);
 			LOGGER.info("Missing/Extra: {} / {}", missingSelections, extraSelections);
 			LOGGER.info("========================================");
 
-			if (actualSelectedCount == baseline) {
+			if (earlySuccessExit) {
+				int pctLoaded = expectedTotalProfiles > 0 ? (totalProfilesVisible * 100 / expectedTotalProfiles) : 0;
+				PageObjectHelper.log(LOGGER, "✅ PASS (Early Success): All " + baseline +
+						" filtered profiles remain selected (" + pctLoaded + "% of profiles checked)");
+			} else if (actualSelectedCount == baseline) {
 				PageObjectHelper.log(LOGGER, "✅ PASS: All " + baseline + " filtered profiles remain selected");
 			} else if (actualSelectedCount < baseline) {
 				PageObjectHelper.log(LOGGER, "⚠️ Only " + actualSelectedCount + " selected (expected " + baseline + 
@@ -619,7 +536,13 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			if (isPM) {
 				applyDifferentPMFilter();
 			} else {
-				applyDifferentJAMFilter();
+				// JAM filters should use SD08 steps directly in feature file:
+				// - Click on Grades Filters dropdown button
+				// - Select two options in Grades Filters dropdown
+				// - Store second filter value for validation in "JAM" screen
+				throw new UnsupportedOperationException(
+					"JAM filters should use SD08 steps directly. Update feature file to use: " +
+					"'Select two options in Grades Filters dropdown'");
 			}
 
 			PageObjectHelper.log(LOGGER, "Applied alternative filter: " + secondFilterType.get() + " = " + secondFilterValue.get());
@@ -669,43 +592,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			}
-		}
-	}
-
-	private void applyDifferentJAMFilter() throws Exception {
-		// Use same filter type but different value
-		secondFilterType.set(firstFilterType.get());
-		By dropdownLocator = "Grades".equals(firstFilterType.get()) ? JAM_GRADES_DROPDOWN : JAM_DEPARTMENTS_DROPDOWN;
-		String dropdownTestId = "Grades".equals(firstFilterType.get()) ? "dropdown-Grades" : "dropdown-Departments";
-
-		jsClick(findElement(dropdownLocator));
-		safeSleep(1000);
-
-		var options = driver.findElements(By.xpath("//div[@data-testid='" + dropdownTestId + "']//input[@type='checkbox']"));
-		LOGGER.info("Found {} options for second filter", options.size());
-		
-		if (options.size() > 1) {
-			WebElement secondOption = options.get(1);
-			
-			// Extract label text
-			try {
-				WebElement labelSpan = secondOption.findElement(By.xpath("./following-sibling::span | ./following-sibling::label | ../label | ../span"));
-				secondFilterValue.set(labelSpan.getText().trim());
-			} catch (Exception e) {
-				secondFilterValue.set("Filter_Option_2");
-			}
-
-			LOGGER.info("Selecting second filter option: {}", secondFilterValue.get());
-
-			// Click checkbox directly
-			js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});", secondOption);
-			safeSleep(300);
-			js.executeScript("arguments[0].click();", secondOption);
-			safeSleep(500);
-
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
-			PerformanceUtils.waitForPageReady(driver, 3);
-			safeSleep(1000);
 		}
 	}
 
