@@ -126,7 +126,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	}
 
 	private WebElement findExportStatusElement(int rowNum) {
-		String xpath = String.format("//tbody//tr[%d]//td[8]//span", rowNum);
+		String xpath = String.format("//tbody//tr[%d]//td[9]//span", rowNum);
 		try {
 			return driver.findElement(By.xpath(xpath));
 		} catch (Exception e) {
@@ -284,7 +284,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			}
 			SPJobName.set(actualJobName);
 
-			WebElement exportStatusElement = findTableElement(rowNumber.get(), 8);
+			WebElement exportStatusElement = findTableElement(rowNumber.get(), 9);
 			String actualStatus = exportStatusElement.getText();
 
 			if (!"Exported".equals(actualStatus)) {
@@ -625,7 +625,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			Assert.assertEquals(topJobName.getText(), SPJobName.get());
 			SPJobName.set(topJobName.getText());
 
-			WebElement exportStatus = findTableElement(1, 8);
+			WebElement exportStatus = findTableElement(1, 9);
 			Assert.assertEquals(exportStatus.getText(), "Exported - Modified");
 			PageObjectHelper.log(LOGGER, "Export Status of recently Exported and Modfied SP with name " + SPJobName.get()
 					+ " updated as " + exportStatus.getText() + " as expected...");

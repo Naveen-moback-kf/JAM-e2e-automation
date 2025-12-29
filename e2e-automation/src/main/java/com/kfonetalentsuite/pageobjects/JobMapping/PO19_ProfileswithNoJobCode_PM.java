@@ -9,6 +9,7 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 
 public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 
@@ -72,33 +73,56 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 	public void user_should_verify_tooltip_is_displaying_on_checkbox_of_success_profile_with_no_job_code() {
 		if (noJobCode.get()) {
 			try {
+				// Scroll to position the element properly based on row number
 				if (rowNumber.get() == 1) {
-					scrollToElement(driver.findElement(Locators.HCMSyncProfiles.DOWNLOAD_BTN));
+					// Try to scroll to download button, but don't fail if it's not there
+					try {
+						WebElement SyncBtn = waitForElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN, 5);
+						scrollToElement(SyncBtn);
+					} catch (Exception e) {
+						LOGGER.debug("Download button not found, scrolling to top instead");
+						scrollToTop();
+					}
 				} else if (rowNumber.get() < 5) {
-					WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[1]//td[1]//*"));
+					WebElement SP_JobName = waitForElement(By.xpath("//tbody//tr[1]//td[1]//*"), 5);
 					scrollToElement(SP_JobName);
 				} else if (rowNumber.get() > 5) {
-					WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 5) + "]//td[1]//*"));
+					WebElement SP_JobName = waitForElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 5) + "]//td[1]//*"), 5);
 					scrollToElement(SP_JobName);
 				}
 
-				WebElement SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[1]//*//..//div//kf-checkbox//div"));
+				safeSleep(500); // Allow scroll to complete
+				PerformanceUtils.waitForPageReady(driver, 2);
 
+				// Find the checkbox for the profile with no job code
+				WebElement SP_Checkbox = waitForElement(
+					By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[1]//*//..//div//kf-checkbox//div"), 10);
+				
+				LOGGER.debug("Found checkbox at row {}, triggering hover for tooltip", rowNumber.get());
+
+				// Hover over checkbox to trigger tooltip
 				try {
 					Actions action = new Actions(driver);
 					action.moveToElement(SP_Checkbox).build().perform();
+					safeSleep(800); // Wait for tooltip animation
 				} catch (Exception e) {
+					LOGGER.debug("Standard hover failed, using JavaScript hover");
 					js.executeScript("var evt = new MouseEvent('mouseover', {bubbles: true, cancelable: true, view: window}); arguments[0].dispatchEvent(evt);", SP_Checkbox);
+					safeSleep(800);
 				}
 
-				Assert.assertTrue(waitForElement(NO_JOB_CODE_TOOLTIP).isDisplayed());
+				// Verify tooltip is displayed
+				WebElement tooltip = waitForElement(NO_JOB_CODE_TOOLTIP, 5);
+				Assert.assertTrue(tooltip.isDisplayed(), "Tooltip should be visible on hover");
 				String tipMessage = getElementText(NO_JOB_CODE_TOOLTIP);
 
 				PageObjectHelper.log(LOGGER, "Tooltip verified on Checkbox of SP with No Job Code at row " + rowNumber.get());
 				PageObjectHelper.log(LOGGER, "Tooltip Message: " + tipMessage);
 
 			} catch (Exception e) {
-				PageObjectHelper.handleError(LOGGER, "user_should_verify_tooltip_is_displaying_on_checkbox_of_success_profile_with_no_job_code", "Issue in verifying Tooltip on checkbox of Success profile with No Job Code assigned in HCM Sync Profiles screen in PM", e);
+				ScreenshotHandler.captureFailureScreenshot("tooltip_verification_failed", e);
+				PageObjectHelper.handleError(LOGGER, "user_should_verify_tooltip_is_displaying_on_checkbox_of_success_profile_with_no_job_code", 
+					"Issue in verifying Tooltip on checkbox of Success profile with No Job Code assigned in HCM Sync Profiles screen in PM", e);
 			}
 		} else {
 			PageObjectHelper.log(LOGGER, "Skipping tooltip verification - No profile with No Job Code was found");
@@ -112,7 +136,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 					WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 2) + "]//td[1]//*"));
 					scrollToElement(SP_JobName);
 				} else if (rowNumber.get() == 1) {
-					scrollToElement(driver.findElement(Locators.HCMSyncProfiles.DOWNLOAD_BTN));
+					scrollToElement(driver.findElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN));
 				}
 
 				PerformanceUtils.waitForPageReady(driver, 1);

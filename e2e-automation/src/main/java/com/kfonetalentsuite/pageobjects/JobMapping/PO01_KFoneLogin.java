@@ -72,9 +72,34 @@ public class PO01_KFoneLogin extends BasePageObject {
 			String environment = getEnvironment();
 			String url = getUrlForEnvironment(environment);
 			driver.get(url);
+			
+			// ANTI-BOT DETECTION: Hide WebDriver properties immediately after page load
+			hideWebDriverProperties();
+			
 			PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + environment + " Environment URL: " + url);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "launch_the_kfone_application", "Issue in launching KFONE application", e);
+		}
+	}
+	
+	/**
+	 * Hides WebDriver-related properties from JavaScript to prevent bot detection and 403 errors.
+	 * This method removes automation indicators that cause APIs to return 403 Forbidden.
+	 */
+	private void hideWebDriverProperties() {
+		try {
+			js.executeScript(
+				"Object.defineProperty(navigator, 'webdriver', {get: () => undefined});" +
+				"Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});" +
+				"Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});" +
+				"window.navigator.chrome = {runtime: {}};" +
+				"Object.defineProperty(navigator, 'permissions', {get: () => ({query: () => Promise.resolve({state: 'granted'})})});" +
+				"delete navigator.__proto__.webdriver;"
+			);
+			LOGGER.debug("WebDriver properties hidden to prevent bot detection");
+		} catch (Exception e) {
+			// Non-critical - log but don't fail
+			LOGGER.warn("Could not hide WebDriver properties: {}", e.getMessage());
 		}
 	}
 

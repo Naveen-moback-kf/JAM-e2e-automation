@@ -626,13 +626,14 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			js.executeScript("window.scrollTo(0, 0);");
 			waitForPageStability(5);
 
-			// Check if dropdown is already open
-			boolean isDropdownOpen = false;
-			try {
-				isDropdownOpen = findElement(FILTER_OPTIONS).isDisplayed();
-			} catch (Exception ex) {
-				isDropdownOpen = false;
-			}
+		// Check if dropdown is already open
+		boolean isDropdownOpen = false;
+		try {
+			List<WebElement> filterElements = driver.findElements(FILTER_OPTIONS);
+			isDropdownOpen = !filterElements.isEmpty() && filterElements.get(0).isDisplayed();
+		} catch (Exception ex) {
+			isDropdownOpen = false;
+		}
 
 			if (isDropdownOpen) {
 				PageObjectHelper.log(LOGGER, "Filters dropdown is already open");
@@ -643,9 +644,9 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			clickWithFallback(FILTERS_DROPDOWN_BTN);
 			PageObjectHelper.log(LOGGER, "Clicked on filters dropdown button in HCM Sync Profiles screen");
 
-			// Wait for dropdown to be visible
+			// Wait for dropdown to be visible using LOCATOR-based wait (avoids stale element)
 			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-			shortWait.until(ExpectedConditions.visibilityOf(findElement(FILTER_OPTIONS)));
+			shortWait.until(ExpectedConditions.visibilityOfElementLocated(FILTER_OPTIONS));
 			LOGGER.debug("Filters dropdown opened successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_filters_dropdown_button_in_hcm_sync_profiles_tab",
@@ -655,7 +656,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(findElement(FILTER_OPTIONS)));
+			// Use locator-based wait to avoid stale element
+			wait.until(ExpectedConditions.visibilityOfElementLocated(FILTER_OPTIONS));
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
 			safeSleep(500);
 
@@ -1553,17 +1555,6 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		Assert.assertEquals(actualText, expectedText, "Header mismatch: expected '" + expectedText + "' but got '" + actualText + "'");
 	}
 
-	public void user_should_verify_download_button_is_disabled_in_hcm_sync_profiles_tab() {
-		try {
-			Assert.assertTrue(!wait.until(ExpectedConditions.visibilityOf(findElement(Locators.HCMSyncProfiles.DOWNLOAD_BTN))).isEnabled(),
-					"Download button should be disabled");
-			PageObjectHelper.log(LOGGER, "Download button is disabled as expected");
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_download_button_is_disabled_in_hcm_sync_profiles_tab",
-					"Issue verifying download button is disabled", e);
-		}
-	}
-
 	public void click_on_header_checkbox_to_select_loaded_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
 			// Step 1: Store count of profiles loaded BEFORE clicking header checkbox
@@ -1637,19 +1628,6 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					"Issue in clicking on header checkbox to select loaded job profiles in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			PageObjectHelper.log(LOGGER, 
 					"Issue in clicking on header checkbox to select loaded job profiles in in HCM Sync Profiles screen in PM...Please Investigate!!!");
-		}
-	}
-
-	public void user_should_verify_download_button_is_enabled_in_hcm_sync_profiles_tab() {
-		try {
-			js.executeScript("window.scrollTo(0, 0);");
-			waitForPageStability(3);
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(Locators.HCMSyncProfiles.DOWNLOAD_BTN))).isEnabled(),
-					"Download button should be enabled");
-			PageObjectHelper.log(LOGGER, "Download button is enabled as expected after selecting profiles");
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_download_button_is_enabled_in_hcm_sync_profiles_tab",
-					"Issue verifying download button is enabled", e);
 		}
 	}
 

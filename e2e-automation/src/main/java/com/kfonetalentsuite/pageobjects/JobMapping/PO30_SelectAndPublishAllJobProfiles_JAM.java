@@ -232,20 +232,16 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 				shortWait.until(ExpectedConditions.visibilityOfElementLocated(SUCCESS_HEADER));
 				popupAppeared = true;
 
-				String successHeaderText = getElementText(SUCCESS_HEADER);
-				String successMsgText = getElementText(SUCCESS_MSG);
-				PageObjectHelper.log(LOGGER, "Success popup appeared - Header: " + successHeaderText + 
-						", Message: " + successMsgText);
+			String successHeaderText = getElementText(SUCCESS_HEADER);
+			String successMsgText = getElementText(SUCCESS_MSG);
+			PageObjectHelper.log(LOGGER, "Success popup appeared - Header: " + successHeaderText + 
+					", Message: " + successMsgText);
 
-				// Close the popup
-				try {
-					clickElement(SUCCESS_CLOSE_BTN);
-				} catch (Exception e) {
-					jsClick(findElement(SUCCESS_CLOSE_BTN));
-				}
+			// Close the popup with multiple fallback strategies
+			closeSuccessPopupWithFallback();
 
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-				PerformanceUtils.waitForPageReady(driver, 2);
+			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PerformanceUtils.waitForPageReady(driver, 2);
 
 			} catch (Exception popupException) {
 				PageObjectHelper.log(LOGGER, "Async publishing detected - no immediate success popup");
@@ -626,5 +622,54 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	}
 
 	// ==================== HELPER METHODS ====================
+	
+	/**
+	 * Close success popup with multiple fallback strategies.
+	 * Tries various selectors and methods to ensure popup closes.
+	 */
+	private void closeSuccessPopupWithFallback() {
+		// Try multiple close button selectors
+		By[] closeButtonSelectors = {
+			SUCCESS_CLOSE_BTN,  // Primary: //button[@id='close-success-modal-btn']
+			By.xpath("//button[contains(@id, 'close')]"),
+			By.xpath("//button[contains(text(), 'Close')]"),
+			By.xpath("//button[contains(@class, 'close')]"),
+			By.xpath("//button[@aria-label='Close']"),
+			By.xpath("//*[@role='dialog']//button"),
+			By.cssSelector("button.close"),
+			By.cssSelector("[aria-label='close']")
+		};
+		
+		boolean popupClosed = false;
+		for (By selector : closeButtonSelectors) {
+			try {
+				WebElement closeBtn = driver.findElement(selector);
+				if (closeBtn.isDisplayed()) {
+					try {
+						closeBtn.click();
+					} catch (Exception e) {
+						jsClick(closeBtn);
+					}
+					LOGGER.info("✓ Closed success popup using selector: {}", selector);
+					popupClosed = true;
+					break;
+				}
+			} catch (Exception e) {
+				// Try next selector
+			}
+		}
+		
+		if (!popupClosed) {
+			LOGGER.warn("Could not find close button - trying ESC key and page refresh");
+			try {
+				// Try pressing ESC key
+				((JavascriptExecutor) driver).executeScript("document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'Escape'}));");
+				safeSleep(500);
+			} catch (Exception e) {
+				LOGGER.debug("ESC key failed, popup may auto-dismiss or require page refresh");
+			}
+		}
+	}
+	
 	// Note: Common helpers (parseProfileCountFromText, etc.) are inherited from BasePageObject
 }

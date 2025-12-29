@@ -214,7 +214,6 @@ public class BasePageObject {
 			public static final By TABLE_HEADER_CREATED_BY = By.xpath("//thead//tr//div//div[text()=' Created By ']");
 			public static final By TABLE_HEADER_LAST_MODIFIED = By.xpath("//thead//tr//div//div[text()=' Last Modified ']");
 			public static final By TABLE_HEADER_EXPORT_STATUS = By.xpath("//thead//tr//div//div[text()=' Export status ']");
-			public static final By DOWNLOAD_BTN = By.xpath("//button[contains(@class,'border-button')]");
 			public static final By TABLE_HEADER_CHECKBOX = By.xpath("//thead//tr//div//kf-checkbox");
 			public static final By SP_DETAILS_PAGE_TEXT = By.xpath("//span[contains(text(),'Select your view')]");
 			public static final By SYNC_WITH_HCM_BTN = By.xpath("//button[contains(@class,'custom-export')] | //*[contains(text(),'Sync with HCM')]");
@@ -717,22 +716,55 @@ public class BasePageObject {
 
 	/**
 	 * Expand all "View More" buttons within a section
+	 * ENHANCED: Loops until no more buttons exist (handles dynamically loaded buttons)
 	 */
 	protected void expandAllViewMoreButtons(By viewMoreLocator) {
 		try {
-			List<WebElement> viewMoreBtns = findElements(viewMoreLocator);
-			for (WebElement btn : viewMoreBtns) {
-				try {
-					js.executeScript("arguments[0].scrollIntoView(true);", btn);
-					safeSleep(200);
-					jsClick(btn);
-					safeSleep(300);
-				} catch (Exception e) {
-					LOGGER.debug("Could not click View More button: " + e.getMessage());
+			int maxAttempts = 20; // Safety limit to prevent infinite loops
+			int attemptCount = 0;
+			int totalClicked = 0;
+			
+			while (attemptCount < maxAttempts) {
+				List<WebElement> viewMoreBtns = findElements(viewMoreLocator);
+				
+				if (viewMoreBtns.isEmpty()) {
+					LOGGER.debug("No more View More buttons found. Total clicked: {}", totalClicked);
+					break;
 				}
+				
+				// Click the first visible button (after clicking, new buttons may appear)
+				boolean buttonClicked = false;
+				for (WebElement btn : viewMoreBtns) {
+					try {
+						if (btn.isDisplayed()) {
+							js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", btn);
+							safeSleep(300);
+							jsClick(btn);
+							safeSleep(400);
+							totalClicked++;
+							buttonClicked = true;
+							LOGGER.debug("Clicked View More button #{}", totalClicked);
+							break; // Exit inner loop, re-query for new buttons
+						}
+					} catch (Exception e) {
+						LOGGER.debug("Could not click View More button: {}", e.getMessage());
+					}
+				}
+				
+				if (!buttonClicked) {
+					// No button was successfully clicked, exit to avoid infinite loop
+					LOGGER.debug("No clickable View More button found, stopping. Total clicked: {}", totalClicked);
+					break;
+				}
+				
+				attemptCount++;
+			}
+			
+			if (attemptCount >= maxAttempts) {
+				LOGGER.warn("Reached max attempts ({}) for clicking View More buttons. Total clicked: {}", maxAttempts, totalClicked);
 			}
 		} catch (Exception e) {
-			LOGGER.debug("No View More buttons found or error expanding: " + e.getMessage());
+			LOGGER.debug("Error expanding View More buttons: {}", e.getMessage());
 		}
 	}
 

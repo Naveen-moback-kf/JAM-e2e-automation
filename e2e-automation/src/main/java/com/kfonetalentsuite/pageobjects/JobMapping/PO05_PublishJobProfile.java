@@ -515,10 +515,78 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void verify_user_should_land_on_profile_manager_dashboard_page() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			// AUTO-DISMISS: Remove temporary notification if displayed
+			dismissProfileManagerNotificationIfPresent();
+			
 			String PMHeaderText = getElementText(PM_HEADER);
 			PageObjectHelper.log(LOGGER, "User landed on " + PMHeaderText + " Dashboard Page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_should_land_on_profile_manager_dashboard_page", "Issue landing on Profile Manager dashboard", e);
+		}
+	}
+	
+	/**
+	 * Dismisses the temporary Profile Manager notification banner if it's displayed.
+	 * This notification appears when landing on Profile Manager and can interfere with tests.
+	 * Silently continues if notification is not present.
+	 */
+	private void dismissProfileManagerNotificationIfPresent() {
+		try {
+			// Set implicit wait to 0 to check quickly
+			driver.manage().timeouts().implicitlyWait(Duration.ZERO);
+			
+			// Try multiple possible selectors for the notification close button/link
+			By[] notificationCloseSelectors = {
+				// Primary: Exact match for the div element shown in screenshot
+				By.xpath("//div[contains(@class, 'link-sm') and contains(@class, 'fw-bold') and contains(text(), 'Remove Notification')]"),
+				By.xpath("//div[contains(text(), 'Remove Notification') and contains(@class, 'color-primary')]"),
+				By.xpath("//div[text()='Remove Notification']"),
+				// Fallback: Button elements (in case UI changes)
+				By.xpath("//button[contains(@aria-label, 'Remove Notification')]"),
+				By.xpath("//button[contains(., 'Remove Notification')]"),
+				// Generic notification close elements
+				By.xpath("//div[contains(@class, 'notification')]//div[contains(@class, 'close') or contains(text(), 'Remove')]"),
+				By.xpath("//div[contains(@class, 'notification')]//button[contains(@class, 'close')]"),
+				// Search near "IMPORTANT UPDATE" text
+				By.xpath("//div[contains(text(), 'IMPORTANT UPDATE')]//ancestor::div[contains(@class, 'notification') or contains(@class, 'banner')]//div[contains(text(), 'Remove')]")
+			};
+			
+			boolean dismissed = false;
+			for (By selector : notificationCloseSelectors) {
+				try {
+					List<WebElement> closeElements = driver.findElements(selector);
+					if (!closeElements.isEmpty() && closeElements.get(0).isDisplayed()) {
+						WebElement closeElement = closeElements.get(0);
+						try {
+							// Scroll into view first
+							js.executeScript("arguments[0].scrollIntoView({block: 'center'});", closeElement);
+							safeSleep(200);
+							closeElement.click();
+						} catch (Exception clickEx) {
+							// Fallback to JS click
+							js.executeScript("arguments[0].click();", closeElement);
+						}
+						dismissed = true;
+						LOGGER.info("✓ Profile Manager notification dismissed");
+						safeSleep(500); // Wait for notification to fade out
+						break;
+					}
+				} catch (Exception e) {
+					// Continue to next selector
+				}
+			}
+			
+			if (!dismissed) {
+				LOGGER.debug("No Profile Manager notification found to dismiss (this is normal)");
+			}
+			
+		} catch (Exception e) {
+			// Non-critical - log but don't fail
+			LOGGER.debug("Could not dismiss notification (not critical): {}", e.getMessage());
+		} finally {
+			// Restore implicit wait
+			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
 		}
 	}
 

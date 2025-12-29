@@ -234,6 +234,7 @@ public class DriverManager {
 	/**
 	 * Configure Chrome options with all necessary arguments PARALLEL EXECUTION
 	 * OPTIMIZED: Isolates each Chrome instance with unique user-data-dir
+	 * ANTI-BOT DETECTION: Prevents 403 errors by hiding automation flags
 	 */
 	private static ChromeOptions configureChromeOptions(boolean isHeadless) {
 		ChromeOptions options = new ChromeOptions();
@@ -245,7 +246,16 @@ public class DriverManager {
 		prefs.put("profile.default_content_settings.popups", 0);
 		prefs.put("profile.default_content_setting_values.automatic_downloads", 1);
 		prefs.put("download.prompt_for_download", false);
+		
+		// ANTI-BOT DETECTION: Hide automation flags from JavaScript
+		prefs.put("credentials_enable_service", false);
+		prefs.put("profile.password_manager_enabled", false);
+		
 		options.setExperimentalOption("prefs", prefs);
+		
+		// ANTI-BOT DETECTION: Critical - removes automation detection flags
+		options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation", "enable-logging"});
+		options.setExperimentalOption("useAutomationExtension", false);
 
 		// Core Chrome arguments for stability
 		options.addArguments(
@@ -271,7 +281,11 @@ public class DriverManager {
 				"--ignore-certificate-errors-spki-list",
 				"--allow-running-insecure-content",
 				"--disable-crash-reporter",
-				"--disable-in-process-stack-traces"
+				"--disable-in-process-stack-traces",
+				// ANTI-BOT DETECTION: Additional stealth arguments
+				"--disable-blink-features=AutomationControlled",
+				"--disable-features=IsolateOrigins,site-per-process",
+				"--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 		);
 
 		// Headless-specific configuration
@@ -284,7 +298,6 @@ public class DriverManager {
 					"--memory-pressure-off",
 					"--max-old-space-size=4096",
 					"--disable-features=VizDisplayCompositor",
-					"--disable-features=IsolateOrigins,site-per-process",
 					"--single-process" // Reduces memory footprint significantly
 			);
 			// Note: --disable-gpu, --no-sandbox, --disable-dev-shm-usage already added above

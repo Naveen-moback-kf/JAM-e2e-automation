@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -3928,8 +3929,14 @@ public class DailyExcelTracker {
 		LOGGER.debug("Adding features: {}", allFeatureNames.stream()
 				.filter(f -> !actuallyReExecutedFeatures.contains(f)).collect(java.util.stream.Collectors.toSet()));
 
+		// ENHANCED FIX: Smart deduplication logic
+		// - Remove duplicate scenarios within current execution (handles retries)
+		// - Keep scenarios from previous daily runs (accumulate across runs)
+		// - This prevents over-counting from retries while still accumulating daily totals
 		if (!actuallyReExecutedFeatures.isEmpty()) {
-			removeExistingFeatureRows(sheet, actuallyReExecutedFeatures);
+			LOGGER.debug("Re-executed features detected: {} - Applying smart deduplication", 
+				actuallyReExecutedFeatures);
+			smartDeduplicateScenarios(sheet, currentExecution, actuallyReExecutedFeatures);
 		} else {
 			LOGGER.debug("All features will be appended - no re-execution detected");
 		}
@@ -4194,130 +4201,133 @@ public class DailyExcelTracker {
 	}
 
 	/**
-	 * Remove existing rows for features that are being re-executed
+	 * Smart deduplication: Remove only scenarios from current execution that already exist in sheet.
+	 * This handles:
+	 * 1. Retry attempts - updates existing scenario status instead of adding duplicate
+	 * 2. Suite + Individual runner - prevents double counting same scenario
+	 * 3. Multiple daily runs - keeps scenarios from previous runs (accumulation)
+	 * 
+	 * Logic: For each re-executed feature, only remove scenarios that match BOTH feature AND scenario name
+	 * from current execution. Scenarios from previous runs that aren't in current execution are preserved.
 	 */
-	private static void removeExistingFeatureRows(Sheet sheet, Set<String> executedFeatureNames) {
-		LOGGER.debug("Removing re-executed features: {}", executedFeatureNames);
-
-		if (executedFeatureNames.isEmpty()) {
-			LOGGER.debug("No features to remove - skipping deletion step");
+	private static void smartDeduplicateScenarios(Sheet sheet, TestResultsSummary currentExecution, 
+			Set<String> reExecutedFeatures) {
+		
+		LOGGER.debug("Starting smart deduplication for {} re-executed features", reExecutedFeatures.size());
+		
+		// Build map of scenarios in current execution: "FeatureName|ScenarioName" -> ScenarioDetail
+		Map<String, ScenarioDetail> currentScenarios = new HashMap<>();
+		for (FeatureResult feature : currentExecution.featureResults) {
+			if (reExecutedFeatures.contains(feature.featureName)) {
+				for (ScenarioDetail scenario : feature.scenarios) {
+					String key = feature.featureName + "|" + scenario.scenarioName;
+					currentScenarios.put(key, scenario);
+				}
+			}
+		}
+		
+		if (currentScenarios.isEmpty()) {
+			LOGGER.debug("No scenarios to deduplicate");
 			return;
 		}
-
-		// Find data rows (skip headers)
-		int lastRowNum = sheet.getLastRowNum();
-		List<Integer> rowsToDelete = new ArrayList<>();
-
-		for (int i = 0; i <= lastRowNum; i++) {
+		
+		// Find and remove rows that match scenarios in current execution
+		int dataStartRow = findDataStartRow(sheet);
+		if (dataStartRow < 0) {
+			LOGGER.debug("No data rows found - nothing to deduplicate");
+			return;
+		}
+		
+		List<Integer> rowsToRemove = new ArrayList<>();
+		int lastRow = sheet.getLastRowNum();
+		
+		for (int i = dataStartRow; i <= lastRow; i++) {
 			Row row = sheet.getRow(i);
-			if (row != null) {
-				// UPDATED: Feature name is now in column 1 (was column 0 before Feature File
-				// column was added)
-				Cell featureCell = row.getCell(1);
-				if (featureCell != null) {
-					String cellValue = featureCell.getStringCellValue();
-
-					// Check if this row contains a feature that's being re-executed
-					for (String executedFeature : executedFeatureNames) {
-						if (cellValue != null && cellValue.equals(executedFeature)) {
-							rowsToDelete.add(i);
-							break;
-						}
+			if (row == null) continue;
+			
+			// Get feature name (column 1) and scenario name (column 2)
+			Cell featureCell = row.getCell(1);
+			Cell scenarioCell = row.getCell(2);
+			
+			if (featureCell == null || scenarioCell == null) continue;
+			
+			String featureName = null;
+			String scenarioName = null;
+			
+			try {
+				featureName = featureCell.getStringCellValue();
+				scenarioName = scenarioCell.getStringCellValue();
+			} catch (Exception e) {
+				continue;
+			}
+			
+			if (featureName == null || scenarioName == null) continue;
+			
+			// Check if this exact scenario exists in current execution
+			String key = featureName + "|" + scenarioName;
+			if (currentScenarios.containsKey(key)) {
+				rowsToRemove.add(i);
+				LOGGER.debug("Marking duplicate scenario for removal: {} - {}", featureName, scenarioName);
+			}
+		}
+		
+		// Remove rows in reverse order to maintain indices
+		if (!rowsToRemove.isEmpty()) {
+			LOGGER.debug("Removing {} duplicate scenario rows", rowsToRemove.size());
+			
+			// CRITICAL FIX: Remove merged regions in affected area BEFORE shifting rows
+			// This prevents "overlapping merged regions" error
+			removeMergedRegionsInRowRange(sheet, Collections.min(rowsToRemove), sheet.getLastRowNum());
+			
+			Collections.reverse(rowsToRemove);
+			for (Integer rowIndex : rowsToRemove) {
+				Row row = sheet.getRow(rowIndex);
+				if (row != null) {
+					sheet.removeRow(row);
+					// Shift rows up to fill gap
+					if (rowIndex < sheet.getLastRowNum()) {
+						sheet.shiftRows(rowIndex + 1, sheet.getLastRowNum(), -1);
 					}
 				}
 			}
+			LOGGER.debug("Successfully removed duplicate rows and shifted remaining rows");
+		} else {
+			LOGGER.debug("No duplicate scenarios found - all scenarios are new");
 		}
-
-		// Delete rows in reverse order to maintain indices
-		for (int i = rowsToDelete.size() - 1; i >= 0; i--) {
-			int rowIndex = rowsToDelete.get(i);
-			Row row = sheet.getRow(rowIndex);
-			if (row != null) {
-				sheet.removeRow(row);
-			}
-		}
-
-		// Shift remaining rows up to fill gaps
-		if (!rowsToDelete.isEmpty()) {
-			compactSheet(sheet);
-		}
-
-		LOGGER.debug("Removed {} rows for re-executed features", rowsToDelete.size());
 	}
-
+	
 	/**
-	 * Compact sheet by moving rows up to fill gaps
+	 * Remove all merged regions that overlap with the specified row range.
+	 * This prevents "overlapping merged regions" errors when shifting rows.
 	 */
-	private static void compactSheet(Sheet sheet) {
-		int lastRowNum = sheet.getLastRowNum();
-		int writeIndex = 0;
-
-		// Find first available write position (skip headers)
-		for (int i = 0; i <= lastRowNum; i++) {
-			Row row = sheet.getRow(i);
-			if (row != null) {
-				Cell cell = row.getCell(0);
-				// UPDATED: Check for "Feature File" header (was "Feature" before new column was
-				// added)
-				if (cell != null && "Feature File".equals(cell.getStringCellValue())) {
-					writeIndex = i + 1; // Start writing after headers
-					break;
+	private static void removeMergedRegionsInRowRange(Sheet sheet, int startRow, int endRow) {
+		try {
+			List<Integer> regionsToRemove = new ArrayList<>();
+			
+			// Find merged regions that overlap with the row range
+			for (int i = 0; i < sheet.getNumMergedRegions(); i++) {
+				CellRangeAddress region = sheet.getMergedRegion(i);
+				// Check if merged region overlaps with our row range
+				if (region.getFirstRow() <= endRow && region.getLastRow() >= startRow) {
+					regionsToRemove.add(i);
 				}
 			}
-		}
-
-		// Compact data rows
-		for (int readIndex = writeIndex; readIndex <= lastRowNum; readIndex++) {
-			Row sourceRow = sheet.getRow(readIndex);
-			if (sourceRow != null) {
-				if (readIndex != writeIndex) {
-					// Move row to new position
-					copyRow(sheet, sourceRow, writeIndex);
-					sheet.removeRow(sourceRow);
-				}
-				writeIndex++;
+			
+			// Remove in reverse order to maintain indices
+			Collections.reverse(regionsToRemove);
+			for (Integer index : regionsToRemove) {
+				sheet.removeMergedRegion(index);
 			}
+			
+			if (!regionsToRemove.isEmpty()) {
+				LOGGER.debug("Removed {} merged regions in row range {}-{} to prevent conflicts", 
+					regionsToRemove.size(), startRow, endRow);
+			}
+		} catch (Exception e) {
+			LOGGER.warn("Could not remove merged regions: {}", e.getMessage());
 		}
 	}
-
-	/**
-	 * Copy row content to a new position BUGFIX: Do NOT copy cell styles during
-	 * compaction - new rows will get correct styles when appended This prevents
-	 * red/green background colors from persisting when runners are executed
-	 * consecutively
-	 */
-	private static void copyRow(Sheet sheet, Row sourceRow, int targetRowIndex) {
-		Row newRow = sheet.createRow(targetRowIndex);
-
-		for (int i = 0; i < sourceRow.getLastCellNum(); i++) {
-			Cell sourceCell = sourceRow.getCell(i);
-			if (sourceCell != null) {
-				Cell newCell = newRow.createCell(i);
-
-				// Copy cell value based on type
-				switch (sourceCell.getCellType()) {
-				case STRING:
-					newCell.setCellValue(sourceCell.getStringCellValue());
-					break;
-				case NUMERIC:
-					newCell.setCellValue(sourceCell.getNumericCellValue());
-					break;
-				case BOOLEAN:
-					newCell.setCellValue(sourceCell.getBooleanCellValue());
-					break;
-				default:
-					newCell.setCellValue(sourceCell.toString());
-					break;
-				}
-
-				// BUGFIX: Do NOT copy cell styles - this was causing red backgrounds to persist
-				// when consecutive runs changed from FAILED to PASSED status
-				// New rows will get correct styles applied via
-				// ExcelStyleHelper.applyRowLevelStylingToSpecificColumns()
-			}
-		}
-	}
-
+	
 	/**
 	 * Update summary information at the top of the sheet
 	 */
@@ -6966,11 +6976,6 @@ public class DailyExcelTracker {
 			style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			style.setAlignment(HorizontalAlignment.CENTER);
 			style.setVerticalAlignment(VerticalAlignment.CENTER);
-			// REMOVED: All border settings for clean borderless appearance
-			// style.setBorderBottom(BorderStyle.THIN);
-			// style.setBorderTop(BorderStyle.THIN);
-			// style.setBorderRight(BorderStyle.THIN);
-			// style.setBorderLeft(BorderStyle.THIN);
 		} catch (Exception e) {
 			// Fallback for older POI versions
 		}
@@ -7496,17 +7501,71 @@ public class DailyExcelTracker {
 			}
 		}
 		
-		// Use feature count as execution count (more meaningful than arbitrary count)
-		totals.executionCount = uniqueFeatures.size();
+		// FIX: Calculate execution count from Execution History, not unique features
+		// Unique features count doesn't represent actual execution runs
+		totals.executionCount = calculateExecutionRunsFromHistory(sheet, currentExecution.executionDate);
+		
+		// If execution history gives 0 (shouldn't happen), fall back to feature count
+		if (totals.executionCount == 0) {
+			totals.executionCount = Math.max(1, uniqueFeatures.size());
+		}
 		
 		// Use current execution duration (we don't store duration per scenario row)
 		totals.totalDurationMs = parseDurationToMs(currentExecution.totalDuration);
 		
-		LOGGER.info("CUMULATIVE TOTALS (from {} scenario rows): {} total tests, {} passed, {} failed, {} skipped, {} features",
+		LOGGER.info("CUMULATIVE TOTALS (from {} scenario rows): {} total tests, {} passed, {} failed, {} skipped, {} execution runs",
 				totals.totalTests, totals.totalTests, totals.passedTests, totals.failedTests, 
 				totals.skippedTests, totals.executionCount);
 
 		return totals;
+	}
+	
+	/**
+	 * Calculate actual execution runs from Execution History sheet for the given date.
+	 * This gives accurate "runs" count, unlike unique feature count which doesn't change on re-execution.
+	 */
+	private static int calculateExecutionRunsFromHistory(Sheet testResultsSheet, String targetDate) {
+		try {
+			Workbook workbook = testResultsSheet.getWorkbook();
+			Sheet historySheet = workbook.getSheet(EXECUTION_HISTORY_SHEET);
+			
+			if (historySheet == null) {
+				LOGGER.debug("No Execution History sheet found");
+				return 0;
+			}
+			
+			int executionCount = 0;
+			int lastRow = historySheet.getLastRowNum();
+			
+			// Skip header rows (usually first 2-3 rows)
+			for (int i = 3; i <= lastRow; i++) {
+				Row row = historySheet.getRow(i);
+				if (row == null) continue;
+				
+				// Date is usually in first column
+				Cell dateCell = row.getCell(0);
+				if (dateCell == null) continue;
+				
+				String dateValue = null;
+				try {
+					dateValue = dateCell.getStringCellValue();
+				} catch (Exception e) {
+					continue;
+				}
+				
+				// Check if this row is for today's date
+				if (dateValue != null && dateValue.contains(targetDate)) {
+					executionCount++;
+				}
+			}
+			
+			LOGGER.debug("Found {} execution runs in history for date {}", executionCount, targetDate);
+			return executionCount;
+			
+		} catch (Exception e) {
+			LOGGER.debug("Could not calculate execution runs from history: {}", e.getMessage());
+			return 0;
+		}
 	}
 
 	/**

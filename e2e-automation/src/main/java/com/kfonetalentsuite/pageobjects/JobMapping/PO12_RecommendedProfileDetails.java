@@ -363,7 +363,19 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 	public void validate_recommended_profile_grade_matches_with_matched_success_profile_grade() {
 		try {
 			String gradeText = getElementText(PROFILE_1_GRADE);
-			Assert.assertTrue(ProfileDetails.contains("Grade:" + gradeText));
+			LOGGER.info("Recommended Profile Grade: '{}'", gradeText);
+			LOGGER.info("Checking if Matched Profile Details contains: 'Grade:{}'", gradeText);
+			
+			boolean matches = ProfileDetails.contains("Grade:" + gradeText);
+			if (!matches) {
+				LOGGER.warn("Grade mismatch detected!");
+				LOGGER.warn("Expected (from Matched Profile): Should contain 'Grade:{}'", gradeText);
+				LOGGER.warn("Actual ProfileDetails string:\n{}", ProfileDetails);
+			}
+			
+			Assert.assertTrue(matches, 
+				"Recommended Profile Grade '" + gradeText + "' does not match Matched Success Profile. " +
+				"ProfileDetails: " + ProfileDetails);
 			PageObjectHelper.log(LOGGER, "Recommended Profile Grade matches with Matched Success Profile Grade");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_grade_matches_with_matched_success_profile_grade", "Issue validating Recommended Profile Grade", e);
@@ -406,7 +418,19 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 		try {
 			scrollToElement(driver.findElement(PROFILE_1_MANAGERIAL));
 			String managerialText = getElementText(PROFILE_1_MANAGERIAL);
-			Assert.assertTrue(ProfileDetails.contains("Managerial experience:" + managerialText));
+			LOGGER.info("Recommended Profile Managerial Experience: '{}'", managerialText);
+			LOGGER.info("Checking if Matched Profile Details contains: 'Managerial experience:{}'", managerialText);
+			
+			boolean matches = ProfileDetails.contains("Managerial experience:" + managerialText);
+			if (!matches) {
+				LOGGER.warn("Managerial Experience mismatch detected!");
+				LOGGER.warn("Expected (from Matched Profile): Should contain 'Managerial experience:{}'", managerialText);
+				LOGGER.warn("Actual ProfileDetails string:\n{}", ProfileDetails);
+			}
+			
+			Assert.assertTrue(matches,
+				"Recommended Profile Managerial Experience '" + managerialText + "' does not match Matched Success Profile. " +
+				"ProfileDetails: " + ProfileDetails);
 			PageObjectHelper.log(LOGGER, "Recommended Profile Managerial experience matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_managerial_experience_matches_with_matched_success_profile_managerial_experience", "Issue validating Recommended Profile Managerial experience", e);
@@ -453,7 +477,21 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			Thread.sleep(200);
 			expandAllViewMoreButtons(VIEW_MORE_RESPONSIBILITIES);
 			String responsibilitiesText = getElementText(PROFILE_1_RESPONSIBILITIES);
-			Assert.assertEquals(ProfileResponsibilities, responsibilitiesText);
+			
+			LOGGER.info("Recommended Profile Responsibilities length: {} chars", responsibilitiesText.length());
+			LOGGER.info("Matched Profile Responsibilities length: {} chars", ProfileResponsibilities.length());
+			
+			if (!ProfileResponsibilities.equals(responsibilitiesText)) {
+				LOGGER.warn("Responsibilities content mismatch detected!");
+				LOGGER.warn("=== RECOMMENDED PROFILE (Current) ===");
+				LOGGER.warn(responsibilitiesText);
+				LOGGER.warn("=== MATCHED SUCCESS PROFILE (Expected) ===");
+				LOGGER.warn(ProfileResponsibilities);
+				LOGGER.warn("=== END COMPARISON ===");
+			}
+			
+			Assert.assertEquals(ProfileResponsibilities, responsibilitiesText,
+				"Recommended Profile Responsibilities do not match Matched Success Profile Responsibilities");
 			PageObjectHelper.log(LOGGER, "Recommended Profile Responsibilities matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_responsibilities_matches_with_matched_success_profile_responsibilities", "Issue validating Recommended Profile Responsibilities", e);

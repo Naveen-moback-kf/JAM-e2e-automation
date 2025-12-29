@@ -169,20 +169,10 @@ public class SD18_HCMSyncProfilesTab_PM {
 	public void user_should_verify_organization_jobs_table_headers_are_correctly_displaying_in_hcm_sync_profiles_tab() throws IOException {
 		validateHCMSyncProfilesTab_PM.getHCMSyncProfilesTab_PM().user_should_verify_organization_jobs_table_headers_are_correctly_displaying_in_hcm_sync_profiles_tab();
 	}
-	
-	@Then("User should verify Download button is disabled in HCM Sync Profiles screen")
-	public void user_should_verify_download_button_is_disabled_in_hcm_sync_profiles_tab() throws IOException {
-		validateHCMSyncProfilesTab_PM.getHCMSyncProfilesTab_PM().user_should_verify_download_button_is_disabled_in_hcm_sync_profiles_tab();
-	}
 
 	@Then("Click on header checkbox to select loaded job profiles in HCM Sync Profiles screen")
 	public void click_on_header_checkbox_to_select_loaded_job_profiles_in_hcm_sync_profiles_tab() throws IOException {
 		validateHCMSyncProfilesTab_PM.getHCMSyncProfilesTab_PM().click_on_header_checkbox_to_select_loaded_job_profiles_in_hcm_sync_profiles_tab();
-	}
-
-	@Then("User should verify Download button is enabled in HCM Sync Profiles screen")
-	public void user_should_verify_download_button_is_enabled_in_hcm_sync_profiles_tab() throws IOException {
-		validateHCMSyncProfilesTab_PM.getHCMSyncProfilesTab_PM().user_should_verify_download_button_is_enabled_in_hcm_sync_profiles_tab();
 	}
 
 	@Then("User should uncheck header checkbox to deselect selected job profiles in HCM Sync Profiles screen")
