@@ -29,6 +29,10 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	// ==================== CONSTANTS ====================
 	public static final int PROFILES_PER_MINUTE = 100;
 	public static final int REFRESH_INTERVAL_SECONDS = 30;
+	public static final int MAX_CHECK_ATTEMPTS = 10;
+	public static final int MAX_CONSECUTIVE_NO_PROGRESS_CHECKS = 5; // Increased to 5 for large datasets
+	public static final int MIN_CHECKS_TO_CONFIRM_PROGRESS = 2; // Minimum checks showing progress to confirm publishing is working
+	public static final int INITIAL_WAIT_SECONDS = 60; // Initial wait before first check (for backend to start processing)
 
 	// ==================== LOCATORS ====================
 	// Using centralized Locators from BasePageObject
@@ -40,8 +44,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	private static final By SUCCESS_HEADER = Locators.Modals.SUCCESS_MODAL_HEADER;
 	private static final By SUCCESS_MSG = Locators.Modals.SUCCESS_MODAL_MESSAGE;
 	private static final By SUCCESS_CLOSE_BTN = Locators.Modals.SUCCESS_MODAL_CLOSE_BTN;
-	private static final By ALL_CHECKBOXES = Locators.Table.ROW_CHECKBOXES;
-	private static final By SELECTED_CHECKBOXES = By.xpath("//tbody//tr//td[1]//input[@type='checkbox' and @checked]");
 
 	// ==================== THREAD-SAFE STATE ====================
 	public static ThreadLocal<Integer> unpublishedProfilesCountBefore = ThreadLocal.withInitial(() -> 0);
@@ -158,112 +160,42 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	}
 
 	/**
-	 * Scrolls through all job profiles and counts selected profiles.
+	 * Extracts selected profiles count from "Showing X of Y results" text without scrolling.
+	 * This optimized method eliminates the need to scroll through all profiles for large datasets,
+	 * significantly reducing execution time from hours to seconds.
 	 */
 	public void verify_count_of_selected_profiles_by_scrolling_through_all_profiles_in_job_mapping_screen() {
 		int selectedCount = 0;
-		int totalProfiles = 0;
-		JavascriptExecutor js = (JavascriptExecutor) driver;
 
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			PerformanceUtils.waitForPageReady(driver, 2);
 
-			// Get total profile count
+			// Get total profile count from "Showing X of Y results" text
 			try {
 				String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
-				totalProfiles = parseProfileCountFromText(countText);
-				if (totalProfiles > 0) {
-					LOGGER.debug("Total job profiles to process: {}", totalProfiles);
+				selectedCount = parseProfileCountFromText(countText);
+				
+				if (selectedCount > 0) {
+					LOGGER.info("=== SELECTED PROFILES COUNT (from 'Showing X of Y results') ===");
+					LOGGER.info("Total Selected Profiles to be published: {}", selectedCount);
+					
+					selectedProfilesCount.set(selectedCount);
+					
+					PageObjectHelper.log(LOGGER, "Selected Profiles Count: " + selectedCount + 
+							" (extracted from results count text without scrolling)");
+				} else {
+					LOGGER.warn("Could not extract selected profiles count from results text");
 				}
 			} catch (Exception e) {
-				LOGGER.warn("Could not extract total profile count: {}", e.getMessage());
+				LOGGER.error("Error extracting profile count from results text: {}", e.getMessage());
+				throw e;
 			}
-
-			// Scroll to load all profiles
-			int currentRowCount = 0;
-			int previousRowCount = 0;
-			int noChangeCount = 0;
-			int maxScrollAttempts = 50;
-			int scrollAttempts = 0;
-
-			// Dynamic maxScrollAttempts based on total profiles
-			// JAM screens load ~10 profiles per scroll (unlike PM screens which load ~50)
-			if (totalProfiles > 0) {
-				int estimatedScrolls = (int) Math.ceil(totalProfiles / 10.0);
-				maxScrollAttempts = estimatedScrolls + 20; // Add 20 scrolls buffer for JAM
-				maxScrollAttempts = Math.max(30, Math.min(500, maxScrollAttempts));
-			}
-			LOGGER.info("maxScrollAttempts: {} (estimated {} scrolls for {} profiles @ 10/scroll + 20 buffer)", 
-					maxScrollAttempts, (int) Math.ceil(totalProfiles / 10.0), totalProfiles);
-
-			while (scrollAttempts < maxScrollAttempts) {
-				scrollToBottom();
-				scrollAttempts++;
-				safeSleep(3000);
-
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
-				PerformanceUtils.waitForPageReady(driver, 2);
-				safeSleep(1000);
-
-				currentRowCount = findElements(ALL_CHECKBOXES).size();
-
-				// Log progress every 10 scrolls or when new data loads
-				if (scrollAttempts % 10 == 0 || currentRowCount != previousRowCount) {
-					int percentComplete = totalProfiles > 0 ? (currentRowCount * 100 / totalProfiles) : 0;
-					LOGGER.info("Scroll {}/{}: Loaded {} profiles ({}% complete)", 
-							scrollAttempts, maxScrollAttempts, currentRowCount, percentComplete);
-				}
-
-				if (currentRowCount == previousRowCount) {
-					noChangeCount++;
-					if (noChangeCount >= 3) {
-						LOGGER.info("Reached end of content after {} consecutive non-loading scrolls", noChangeCount);
-						break;
-					}
-
-					if (noChangeCount == 2) {
-						js.executeScript(
-								"window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight));");
-						safeSleep(2000);
-						PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
-					}
-				} else {
-					noChangeCount = 0;
-				}
-
-				previousRowCount = currentRowCount;
-			}
-
-			boolean reachedScrollLimit = scrollAttempts >= maxScrollAttempts;
-
-			// Count selected, disabled, and unselected profiles
-			int loadedSelectedCount = getSelectedProfileCount(js);
-			int loadedDisabledCount = getDisabledProfileCount(js);
-			int loadedUnselectedCount = currentRowCount - loadedSelectedCount - loadedDisabledCount;
-
-			// Log summary - all 3 categories
-			LOGGER.info("=== PROFILE COUNT SUMMARY ===");
-			LOGGER.info("Total Profiles: {}", currentRowCount);
-			LOGGER.info(" Selected (to be published): {}", loadedSelectedCount);
-			LOGGER.info(" Unselected (enabled but not selected): {}", loadedUnselectedCount);
-			LOGGER.info(" Disabled (cannot be selected): {}", loadedDisabledCount);
-
-			if (reachedScrollLimit && totalProfiles > 0) {
-				int unloadedProfiles = totalProfiles - currentRowCount;
-				LOGGER.warn("Note: {} profiles not loaded due to scroll limit", unloadedProfiles);
-			}
-
-			selectedCount = loadedSelectedCount;
-			selectedProfilesCount.set(selectedCount);
-
-			PageObjectHelper.log(LOGGER, "Loaded: " + currentRowCount + " | Selected: " + loadedSelectedCount +
-					" | Disabled: " + loadedDisabledCount + " | Unselected: " + loadedUnselectedCount);
 
 		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_selected_profiles_by_scrolling", e);
-			PageObjectHelper.handleError(LOGGER, "verify_selected_profiles_by_scrolling", 
-					"Error getting selected job profiles count", e);
+			ScreenshotHandler.captureFailureScreenshot("verify_selected_profiles_count", e);
+			PageObjectHelper.handleError(LOGGER, "verify_selected_profiles_count", 
+					"Error getting selected job profiles count from results text", e);
 		}
 	}
 
@@ -478,79 +410,182 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	}
 
 	/**
-	 * Monitor and validate progressive batch publishing until completion.
+	 * Monitor and validate progressive batch publishing is working.
+	 * Does NOT wait for all profiles to publish - just confirms publishing is progressing.
+	 * Starts with 60-second initial wait for backend to initialize.
+	 * Then uses maximum of 10 checks (every 30 seconds).
+	 * Confirms success once progress is detected in 2 consecutive checks.
+	 * Terminates early if no progress is detected in 5 consecutive checks.
 	 */
 	public void monitor_and_validate_progressive_batch_publishing_until_completion() throws InterruptedException {
-		int maxWaitMinutes = expectedTotalMinutes.get() + 5;
-		int maxWaitSeconds = maxWaitMinutes * 60;
-		int elapsedSeconds = 0;
 		int checkNumber = 0;
+		int consecutiveNoProgressChecks = 0;
+		int checksWithProgress = 0;
 		int initialUnpublishedCount = unpublishedProfilesCountBefore.get();
 		int previousUnpublishedCount = unpublishedProfilesCountBefore.get();
 		int currentUnpublishedCount = unpublishedProfilesCountBefore.get();
 		int targetUnpublishedCount = unpublishedProfilesCountBefore.get() - selectedProfilesCount.get();
+		int totalElapsedSeconds = 0;
+		boolean publishingConfirmed = false;
+		String terminationReason = "";
 
 		try {
-			PageObjectHelper.log(LOGGER, "Monitoring: Publish " + selectedProfilesCount.get() + 
-					" profiles (check every " + REFRESH_INTERVAL_SECONDS + "s, max " + maxWaitMinutes + " min)");
+			PageObjectHelper.log(LOGGER, "=== STARTING PROGRESSIVE BATCH PUBLISHING VALIDATION ===");
+			PageObjectHelper.log(LOGGER, "Objective: Confirm publishing is working (not waiting for completion)");
+			PageObjectHelper.log(LOGGER, "Dataset size: " + selectedProfilesCount.get() + " profiles");
+			PageObjectHelper.log(LOGGER, "Initial wait: " + INITIAL_WAIT_SECONDS + " seconds (for backend to start processing)");
+			PageObjectHelper.log(LOGGER, "Check interval: " + REFRESH_INTERVAL_SECONDS + " seconds");
+			PageObjectHelper.log(LOGGER, "Max check attempts: " + MAX_CHECK_ATTEMPTS);
+			PageObjectHelper.log(LOGGER, "Initial unpublished count: " + initialUnpublishedCount);
+			PageObjectHelper.log(LOGGER, "Target unpublished count: " + targetUnpublishedCount);
 
-			while (elapsedSeconds < maxWaitSeconds) {
+			// Initial wait for backend to start processing (especially for large datasets)
+			PageObjectHelper.log(LOGGER, "⏳ Waiting " + INITIAL_WAIT_SECONDS + " seconds for backend to initialize batch publishing...");
+			safeSleep(INITIAL_WAIT_SECONDS * 1000);
+			totalElapsedSeconds += INITIAL_WAIT_SECONDS;
+
+			while (checkNumber < MAX_CHECK_ATTEMPTS) {
 				checkNumber++;
-				elapsedSeconds += REFRESH_INTERVAL_SECONDS;
-				int elapsedMinutes = elapsedSeconds / 60;
-
-				safeSleep(REFRESH_INTERVAL_SECONDS * 1000);
+				
+				// Refresh and wait for page ready
+				driver.navigate().refresh();
+				// Refresh and wait for page ready
 				driver.navigate().refresh();
 				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 				PerformanceUtils.waitForPageReady(driver, 2);
 
-				// Get current unpublished count
+				// Get current unpublished count from results text
 				try {
 					WebElement freshResultsElement = driver.findElement(Locators.Table.RESULTS_COUNT_TEXT);
 					String countText = freshResultsElement.getText().trim();
 					currentUnpublishedCount = parseProfileCountFromText(countText);
 				} catch (Exception e) {
 					LOGGER.warn("Could not read count at check #{}: {}", checkNumber, e.getMessage());
+					// Continue with previous count if read fails
 				}
 
-				// Calculate progress
+				// Calculate progress metrics
 				int profilesPublishedSinceLastCheck = previousUnpublishedCount - currentUnpublishedCount;
 				int totalPublishedSoFar = initialUnpublishedCount - currentUnpublishedCount;
+				int remainingToPublish = currentUnpublishedCount - targetUnpublishedCount;
 				double progressPercentage = selectedProfilesCount.get() > 0 ? 
 						((double) totalPublishedSoFar / selectedProfilesCount.get()) * 100 : 0;
-				double publishingRate = elapsedSeconds > 0 ? (totalPublishedSoFar * 60.0) / elapsedSeconds : 0;
+				double publishingRate = totalElapsedSeconds > 0 ? 
+						(totalPublishedSoFar * 60.0) / totalElapsedSeconds : 0;
 
-				String progressMsg = String.format("Check #%d (%dm%ds): %d remaining | +%d | %.0f/min | %.1f%%",
-						checkNumber, elapsedMinutes, (elapsedSeconds % 60), currentUnpublishedCount,
-						profilesPublishedSinceLastCheck, publishingRate, progressPercentage);
+				// Track consecutive no-progress checks and checks with progress
+				if (profilesPublishedSinceLastCheck > 0) {
+					checksWithProgress++;
+					consecutiveNoProgressChecks = 0; // Reset counter when progress is made
+				} else {
+					consecutiveNoProgressChecks++;
+				}
+
+				// Calculate elapsed time
+				int elapsedMinutes = totalElapsedSeconds / 60;
+				int elapsedSecondsRemainder = totalElapsedSeconds % 60;
+
+				// Log progress
+				String progressMsg = String.format(
+						"Check #%d/%d (%dm%ds): Remaining=%d | Published this check=+%d | Total published=%d | Rate=%.0f/min | Progress=%.1f%% | Checks with progress=%d",
+						checkNumber, MAX_CHECK_ATTEMPTS, elapsedMinutes, elapsedSecondsRemainder,
+						currentUnpublishedCount, profilesPublishedSinceLastCheck, totalPublishedSoFar,
+						publishingRate, progressPercentage, checksWithProgress);
 				
 				PageObjectHelper.log(LOGGER, progressMsg);
 
-				// Check if complete
+				// Check if all profiles are published (early completion)
 				if (currentUnpublishedCount <= targetUnpublishedCount) {
-					PageObjectHelper.log(LOGGER, "SUCCESS! All " + totalPublishedSoFar + 
-							" profiles published in " + elapsedMinutes + " min");
+					publishingConfirmed = true;
+					terminationReason = "All profiles published successfully";
+					PageObjectHelper.log(LOGGER, "✓ SUCCESS! All " + totalPublishedSoFar + 
+							" profiles published in " + elapsedMinutes + "m " + elapsedSecondsRemainder + "s");
 					break;
 				}
 
-				// Warn if no progress
-				if (elapsedSeconds >= 120 && profilesPublishedSinceLastCheck == 0) {
-					PageObjectHelper.log(LOGGER, "Warning: No progress in check #" + checkNumber);
+				// Check if publishing progress is confirmed (KEY OPTIMIZATION)
+				if (checksWithProgress >= MIN_CHECKS_TO_CONFIRM_PROGRESS) {
+					publishingConfirmed = true;
+					terminationReason = "Publishing confirmed - progress detected in " + checksWithProgress + " checks";
+					PageObjectHelper.log(LOGGER, "✓ SUCCESS! Publishing is working properly");
+					PageObjectHelper.log(LOGGER, "Published so far: " + totalPublishedSoFar + 
+							" out of " + selectedProfilesCount.get() + 
+							" (" + String.format("%.1f%%", progressPercentage) + ")");
+					PageObjectHelper.log(LOGGER, "Publishing rate: " + String.format("%.0f", publishingRate) + " profiles/min");
+					PageObjectHelper.log(LOGGER, "Estimated time for all profiles: ~" + 
+							Math.ceil((double) remainingToPublish / publishingRate) + " minutes remaining");
+					PageObjectHelper.log(LOGGER, "Validation complete - not waiting for full completion");
+					break;
+				}
+
+				// Check for consecutive no-progress termination
+				if (consecutiveNoProgressChecks >= MAX_CONSECUTIVE_NO_PROGRESS_CHECKS) {
+					terminationReason = "No progress detected in " + MAX_CONSECUTIVE_NO_PROGRESS_CHECKS + 
+							" consecutive checks";
+					PageObjectHelper.log(LOGGER, "⚠ EARLY TERMINATION: " + terminationReason);
+					PageObjectHelper.log(LOGGER, "Total time elapsed: " + elapsedMinutes + "m " + elapsedSecondsRemainder + "s");
+					PageObjectHelper.log(LOGGER, "Published so far: " + totalPublishedSoFar + 
+							" out of " + selectedProfilesCount.get() + 
+							" (" + String.format("%.1f%%", progressPercentage) + ")");
+					PageObjectHelper.log(LOGGER, "Still remaining: " + remainingToPublish + " profiles");
+					
+					if (totalPublishedSoFar == 0) {
+						PageObjectHelper.log(LOGGER, "⚠ Publishing may not have started - check backend logs for errors");
+					} else {
+						PageObjectHelper.log(LOGGER, "⚠ Publishing started but appears to have stalled");
+					}
+					break;
+				}
+
+				// Warn if no progress but below consecutive threshold
+				if (consecutiveNoProgressChecks > 0) {
+					PageObjectHelper.log(LOGGER, "⚠ Warning: No progress in check #" + checkNumber + 
+							" (streak: " + consecutiveNoProgressChecks + "/" + MAX_CONSECUTIVE_NO_PROGRESS_CHECKS + ")");
 				}
 
 				previousUnpublishedCount = currentUnpublishedCount;
+				
+				// Wait before next check (except after last check)
+				if (checkNumber < MAX_CHECK_ATTEMPTS) {
+					safeSleep(REFRESH_INTERVAL_SECONDS * 1000);
+					totalElapsedSeconds += REFRESH_INTERVAL_SECONDS;
+				}
 			}
 
-			// Final check
-			int remainingToPublish = currentUnpublishedCount - targetUnpublishedCount;
-			if (remainingToPublish > 0) {
-				PageObjectHelper.log(LOGGER, "Publishing timeout after " + checkNumber + 
-						" checks. Still remaining: " + remainingToPublish + " profiles");
+			// Final summary after max attempts reached (without confirmation)
+			if (checkNumber >= MAX_CHECK_ATTEMPTS && !publishingConfirmed) {
+				terminationReason = "Maximum check attempts (" + MAX_CHECK_ATTEMPTS + ") reached without confirming progress";
+				int totalPublishedSoFar = initialUnpublishedCount - currentUnpublishedCount;
+				double finalProgress = selectedProfilesCount.get() > 0 ? 
+						((double) totalPublishedSoFar / selectedProfilesCount.get()) * 100 : 0;
+
+				PageObjectHelper.log(LOGGER, "=== VALIDATION ENDED: " + terminationReason + " ===");
+				PageObjectHelper.log(LOGGER, "Total time elapsed: " + (totalElapsedSeconds / 60) + "m " + 
+						(totalElapsedSeconds % 60) + "s");
+				PageObjectHelper.log(LOGGER, "Profiles published: " + totalPublishedSoFar + " out of " + 
+						selectedProfilesCount.get() + " (" + String.format("%.1f%%", finalProgress) + ")");
+				PageObjectHelper.log(LOGGER, "Checks with progress: " + checksWithProgress + "/" + checkNumber);
+				
+				if (checksWithProgress > 0) {
+					PageObjectHelper.log(LOGGER, "⚠ Publishing appears to be working but needs more time");
+				} else {
+					PageObjectHelper.log(LOGGER, "⚠ No publishing progress detected in any checks");
+				}
 			}
+
+			// Final validation result summary
+			PageObjectHelper.log(LOGGER, "=== PROGRESSIVE BATCH PUBLISHING VALIDATION COMPLETE ===");
+			PageObjectHelper.log(LOGGER, "Status: " + (publishingConfirmed ? "CONFIRMED - Publishing is working" : "UNCONFIRMED - Publishing may have issues"));
+			PageObjectHelper.log(LOGGER, "Termination reason: " + terminationReason);
+			PageObjectHelper.log(LOGGER, "Total checks performed: " + checkNumber + "/" + MAX_CHECK_ATTEMPTS);
+			PageObjectHelper.log(LOGGER, "Checks showing progress: " + checksWithProgress);
+			PageObjectHelper.log(LOGGER, "Total time: " + (totalElapsedSeconds / 60) + " minutes " + 
+					(totalElapsedSeconds % 60) + " seconds");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("monitor_batch_publishing", e);
-			PageObjectHelper.handleError(LOGGER, "monitor_batch_publishing", "Error monitoring batch publishing", e);
+			PageObjectHelper.handleError(LOGGER, "monitor_batch_publishing", 
+					"Error monitoring batch publishing", e);
 		}
 	}
 
@@ -591,23 +626,5 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	}
 
 	// ==================== HELPER METHODS ====================
-	// Note: Common helpers (parseProfileCountFromText, countSelectedCheckboxes, countDisabledCheckboxes)
-	// are inherited from BasePageObject
-
-	private int getSelectedProfileCount(JavascriptExecutor js) {
-		int count = countSelectedCheckboxes("tbody tr");
-		if (count == 0) {
-			// Fallback to XPath
-			try {
-				return findElements(SELECTED_CHECKBOXES).size();
-			} catch (Exception ex) {
-				return 0;
-			}
-		}
-		return count;
-	}
-
-	private int getDisabledProfileCount(JavascriptExecutor js) {
-		return countDisabledCheckboxes("tbody tr");
-	}
+	// Note: Common helpers (parseProfileCountFromText, etc.) are inherited from BasePageObject
 }

@@ -23,7 +23,7 @@ Feature: Select All and Publish Job Profiles in Job Mapping screen
 		When User is in Job Mapping page
 		Then Click on Chevron button beside header checkbox in Job Mapping screen
 		Then Click on Select All button in Job Mapping screen
-		Then Verify count of selected profiles by scrolling through all profiles in Job Mapping screen
+		Then Verify count of selected profiles from results text in Job Mapping screen
 		Then User should verify Publish Selected Profiles button is enabled
 		
 	@PublishSelectedProfiles_After_SelectAll

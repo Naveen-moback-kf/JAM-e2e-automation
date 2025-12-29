@@ -44,6 +44,11 @@ public class SD30_SelectAndPublishAllJobProfiles_JAM {
 		validateSelectAndPublishAllJobProfilesinJAM.getSelectAndPublishAllJobProfiles_JAM().verify_count_of_selected_profiles_by_scrolling_through_all_profiles_in_job_mapping_screen();
 	}
 	
+	@Then("Verify count of selected profiles from results text in Job Mapping screen")
+	public void verify_count_of_selected_profiles_from_results_text_in_job_mapping_screen() throws IOException {
+		validateSelectAndPublishAllJobProfilesinJAM.getSelectAndPublishAllJobProfiles_JAM().verify_count_of_selected_profiles_by_scrolling_through_all_profiles_in_job_mapping_screen();
+	}
+	
 	@Then("Verify Async functionality message is displayed on JAM screen")
 	public void verify_async_functionality_message_is_displayed_on_jam_screen() throws IOException {
 		validateSelectAndPublishAllJobProfilesinJAM.getSelectAndPublishAllJobProfiles_JAM().verify_async_functionality_message_is_displayed_on_jam_screen();
