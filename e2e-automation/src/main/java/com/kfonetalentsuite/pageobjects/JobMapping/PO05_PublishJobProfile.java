@@ -354,24 +354,81 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			String jobName = getJobNameToSearch();
 			LOGGER.info("[Thread-{}] Searching HCM Sync by job name: '{}'", Thread.currentThread().getId(), jobName);
 			
-			PerformanceUtils.waitForPageReady(driver, 5);
+			if (jobName == null || jobName.isEmpty()) {
+				throw new Exception("Job name to search is null or empty");
+			}
+			
+			PerformanceUtils.waitForPageReady(driver, 3);
+			waitForSpinners();
+			safeSleep(500);
+			
+			// CONSISTENCY FIX: Match PO06 robust pattern - scroll to element
 			WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
+			scrollToElement(searchBox);
+			
 			String searchTerm = jobName.split("-", 2)[0].trim();
 			
-			// PARALLEL EXECUTION FIX: Clear search box properly
-			searchBox.click();
-			safeSleep(200);
-			searchBox.clear();
-			searchBox.sendKeys(Keys.CONTROL + "a");
-			searchBox.sendKeys(Keys.DELETE);
-			safeSleep(200);
+			// CONSISTENCY FIX: Robust clear with JS fallback
+			try {
+				searchBox.click();
+				safeSleep(300);
+				searchBox.clear();
+				searchBox.sendKeys(Keys.CONTROL + "a");
+				searchBox.sendKeys(Keys.DELETE);
+				safeSleep(300);
+			} catch (Exception clearEx) {
+				LOGGER.warn("Standard clear failed, using JS fallback");
+				jsClick(searchBox);
+				safeSleep(300);
+				js.executeScript("arguments[0].value = '';", searchBox);
+				safeSleep(300);
+			}
 			
+			// Type search term
 			searchBox.sendKeys(searchTerm);
+			safeSleep(500);
+			
+			// Press Enter to trigger search
 			searchBox.sendKeys(Keys.ENTER);
-			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			// CONSISTENCY FIX: Wait for search to actually filter results
 			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			// CONSISTENCY FIX: Verify search was actually applied (5-retry verification)
+			int verifyRetries = 5;
+			boolean searchApplied = false;
+			for (int v = 0; v < verifyRetries && !searchApplied; v++) {
+				safeSleep(500);
+				try {
+					// Re-fetch element to avoid stale reference
+					WebElement verifySearchBox = driver.findElement(PROFILES_SEARCH);
+					String searchValue = verifySearchBox.getAttribute("value");
+					if (searchValue != null && searchValue.trim().equalsIgnoreCase(searchTerm.trim())) {
+						searchApplied = true;
+						LOGGER.info("✓ HCM Search confirmed applied: '{}' found in search bar (attempt {}/{})", 
+							searchValue, v + 1, verifyRetries);
+					} else {
+						LOGGER.warn("HCM Search not yet applied. Expected: '{}', Found: '{}' (verify retry {}/{})", 
+							searchTerm, searchValue, v + 1, verifyRetries);
+					}
+				} catch (Exception e) {
+					LOGGER.warn("Could not verify HCM search bar value (verify retry {}/{}): {}", v + 1, verifyRetries, e.getMessage());
+				}
+			}
+			
+			if (!searchApplied) {
+				LOGGER.warn("Search term '{}' was not confirmed in search bar after {} verification attempts", searchTerm, verifyRetries);
+			}
+			
+			// Additional wait for search filtering to complete
+			safeSleep(1000);
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			PageObjectHelper.log(LOGGER, "Searched for job: " + searchTerm + " in HCM Sync Profiles");
+			LOGGER.info("✓ HCM Search completed for job: {}", searchTerm);
+			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name_in_hcm_sync_profiles_tab_in_pm", "Failed to search for job using Job Name in HCM Sync Profiles", e);
 		}
@@ -382,29 +439,82 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			String jobCode = getJobCodeForValidation();
 			LOGGER.info("[Thread-{}] Searching HCM Sync by job code: '{}'", Thread.currentThread().getId(), jobCode);
 			
-			if (jobCode == null || jobCode.equals("NOT_SET")) {
-				LOGGER.warn("Job code is NOT_SET - search may not return expected results");
+			if (jobCode == null || jobCode.isEmpty() || jobCode.equals("NOT_SET")) {
+				LOGGER.warn("Job code is null/empty/NOT_SET - search may not return expected results");
+				if (jobCode == null || jobCode.isEmpty()) {
+					throw new Exception("Job code is null or empty - cannot perform search");
+				}
 			}
 			
-			PerformanceUtils.waitForPageReady(driver, 5);
-			safeSleep(1000);
-			WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
-			
-			// PARALLEL EXECUTION FIX: Clear search box properly
-			searchBox.click();
-			safeSleep(200);
-			searchBox.clear();
-			searchBox.sendKeys(Keys.CONTROL + "a");
-			searchBox.sendKeys(Keys.DELETE);
-			safeSleep(200);
-			
-			searchBox.sendKeys(jobCode);
-			searchBox.sendKeys(Keys.ENTER);
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PerformanceUtils.waitForPageReady(driver, 3);
 			waitForSpinners();
+			safeSleep(500);
+			
+			// CONSISTENCY FIX: Match PO06 robust pattern - scroll to element
+			WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
+			scrollToElement(searchBox);
+			
+			// CONSISTENCY FIX: Robust clear with JS fallback
+			try {
+				searchBox.click();
+				safeSleep(300);
+				searchBox.clear();
+				searchBox.sendKeys(Keys.CONTROL + "a");
+				searchBox.sendKeys(Keys.DELETE);
+				safeSleep(300);
+			} catch (Exception clearEx) {
+				LOGGER.warn("Standard clear failed, using JS fallback");
+				jsClick(searchBox);
+				safeSleep(300);
+				js.executeScript("arguments[0].value = '';", searchBox);
+				safeSleep(300);
+			}
+			
+			// Type search term
+			searchBox.sendKeys(jobCode);
+			safeSleep(500);
+			
+			// Press Enter to trigger search
+			searchBox.sendKeys(Keys.ENTER);
+			
+			// CONSISTENCY FIX: Wait for search to actually filter results
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 5);
+			
+			// CONSISTENCY FIX: Verify search was actually applied (5-retry verification)
+			int verifyRetries = 5;
+			boolean searchApplied = false;
+			for (int v = 0; v < verifyRetries && !searchApplied; v++) {
+				safeSleep(500);
+				try {
+					// Re-fetch element to avoid stale reference
+					WebElement verifySearchBox = driver.findElement(PROFILES_SEARCH);
+					String searchValue = verifySearchBox.getAttribute("value");
+					if (searchValue != null && searchValue.trim().equalsIgnoreCase(jobCode.trim())) {
+						searchApplied = true;
+						LOGGER.info("✓ HCM Search confirmed applied: '{}' found in search bar (attempt {}/{})", 
+							searchValue, v + 1, verifyRetries);
+					} else {
+						LOGGER.warn("HCM Search not yet applied. Expected: '{}', Found: '{}' (verify retry {}/{})", 
+							jobCode, searchValue, v + 1, verifyRetries);
+					}
+				} catch (Exception e) {
+					LOGGER.warn("Could not verify HCM search bar value (verify retry {}/{}): {}", v + 1, verifyRetries, e.getMessage());
+				}
+			}
+			
+			if (!searchApplied) {
+				LOGGER.warn("Search term '{}' was not confirmed in search bar after {} verification attempts", jobCode, verifyRetries);
+			}
+			
+			// Additional wait for search filtering to complete
 			safeSleep(1000);
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 2);
 			
 			PageObjectHelper.log(LOGGER, "Searched for job code: " + jobCode + " in HCM Sync Profiles");
+			LOGGER.info("✓ HCM Search completed for job code: {}", jobCode);
+			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_code_in_hcm_sync_profiles_tab_in_pm", "Failed to search for job using Job Code in HCM Sync Profiles", e);
 		}
@@ -425,22 +535,103 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			
 			waitForSpinners();
 			
-			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(15));
-			WebElement jobElement = shortWait.until(ExpectedConditions.visibilityOfElementLocated(HCM_JOB_ROW_1));
-			String job1NameText = jobElement.getText();
-			String actualJobName = job1NameText.split("-", 2)[0].trim();
+			// PARALLEL EXECUTION FIX: Retry loop with element re-fetching and shorter waits
+			int maxRetries = 8; // Increased from 5 to allow more time
+			int retryCount = 0;
+			boolean verificationSuccessful = false;
+			String actualJobName = "";
+			Exception lastException = null;
 			
-			LOGGER.info("[Thread-{}] Expected: '{}', Found: '{}'", Thread.currentThread().getId(), expectedJobName, actualJobName);
+			while (retryCount < maxRetries && !verificationSuccessful) {
+				retryCount++;
+				try {
+					PerformanceUtils.waitForPageReady(driver, 2);
+					waitForSpinners();
+					safeSleep(500);
+					
+					// CRITICAL: Use shorter wait (3 seconds) per attempt to allow faster retries
+					WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
+					WebElement jobElement = null;
+					
+					try {
+						jobElement = shortWait.until(ExpectedConditions.visibilityOfElementLocated(HCM_JOB_ROW_1));
+					} catch (org.openqa.selenium.TimeoutException timeoutEx) {
+						// Element not found - could be still loading or no results
+						LOGGER.warn("[Thread-{}] Job element not visible yet (attempt {}/{}). Waiting longer...", 
+							Thread.currentThread().getId(), retryCount, maxRetries);
+						
+						// Check if "No results" or empty table
+						try {
+							List<WebElement> rows = driver.findElements(By.xpath("//tbody//tr"));
+							if (rows.isEmpty()) {
+								LOGGER.warn("No rows found in HCM table - search may have returned no results");
+							}
+						} catch (Exception e) {
+							LOGGER.debug("Could not check for empty table: {}", e.getMessage());
+						}
+						
+						if (retryCount < maxRetries) {
+							safeSleep(2000 * retryCount); // Longer wait when element not found
+							continue; // Skip to next retry
+						} else {
+							throw timeoutEx; // Throw on last attempt
+						}
+					}
+					
+					if (jobElement != null) {
+						String job1NameText = jobElement.getText();
+						actualJobName = job1NameText.split("-", 2)[0].trim();
+						
+						LOGGER.info("[Thread-{}] Attempt {}/{} - Expected: '{}', Found: '{}'", 
+							Thread.currentThread().getId(), retryCount, maxRetries, expectedJobName, actualJobName);
+						
+						if (expectedJobName.equals(actualJobName)) {
+							verificationSuccessful = true;
+							PageObjectHelper.log(LOGGER, "Published Job (Org: " + actualJobName + ") is displayed in HCM Sync Profiles");
+						} else {
+							if (retryCount < maxRetries) {
+								LOGGER.warn("Job name mismatch in HCM verification (attempt {}/{}). Expected: '{}', Found: '{}'. Retrying...", 
+									retryCount, maxRetries, expectedJobName, actualJobName);
+								safeSleep(1500 * retryCount); // Exponential backoff
+							}
+						}
+					}
+					
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					lastException = e;
+					LOGGER.warn("[Thread-{}] StaleElementReferenceException during HCM verification (attempt {}/{}). Retrying...", 
+						Thread.currentThread().getId(), retryCount, maxRetries);
+					safeSleep(1000);
+				} catch (org.openqa.selenium.TimeoutException e) {
+					lastException = e;
+					LOGGER.warn("[Thread-{}] TimeoutException - Job element not found in HCM (attempt {}/{}). Retrying...", 
+						Thread.currentThread().getId(), retryCount, maxRetries);
+					if (retryCount < maxRetries) {
+						safeSleep(2000 * retryCount); // Longer backoff for timeouts
+					}
+				} catch (Exception e) {
+					lastException = e;
+					LOGGER.warn("[Thread-{}] Error during HCM verification (attempt {}/{}): {}", 
+						Thread.currentThread().getId(), retryCount, maxRetries, e.getMessage());
+					if (retryCount < maxRetries) {
+						safeSleep(1500 * retryCount);
+					}
+				}
+			}
 			
-			if (!expectedJobName.equals(actualJobName)) {
-				String errorMsg = String.format("[Thread-%d] Expected job '%s' but found '%s' in HCM Sync Profiles.", 
-					Thread.currentThread().getId(), expectedJobName, actualJobName);
+			// Final validation
+			if (!verificationSuccessful) {
+				String errorMsg = String.format("[Thread-%d] Failed to verify job '%s' in HCM Sync Profiles after %d attempts. Last found: '%s'", 
+					Thread.currentThread().getId(), expectedJobName, maxRetries, actualJobName);
+				LOGGER.error(errorMsg);
+				
+				// Take screenshot for debugging
 				ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", 
-					new Exception(errorMsg));
+					lastException != null ? lastException : new Exception(errorMsg));
+				
 				Assert.fail(errorMsg);
 			}
 			
-			PageObjectHelper.log(LOGGER, "Published Job (Org: " + actualJobName + ") is displayed in HCM Sync Profiles");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", "Issue verifying published job in HCM Sync Profiles", e);
 		}
@@ -449,9 +640,43 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void user_should_verify_published_job_code_in_hcm_sync_profiles_tab_in_pm() {
 		try {
 			String publishedJobCode = getJobCodeForValidation();
-			String jobCode = getElementText(HCM_JOBCODE_ROW_1);
-			Assert.assertEquals(jobCode, publishedJobCode);
-			PageObjectHelper.log(LOGGER, "Job Code Verified in HCM Sync Profiles screen for Published Job: " + job1OrgCode.get());
+			LOGGER.info("[Thread-{}] Verifying job code '{}' in HCM Sync Profiles", Thread.currentThread().getId(), publishedJobCode);
+			
+			// PARALLEL EXECUTION FIX: Retry with element re-fetching
+			int maxRetries = 3;
+			int retryCount = 0;
+			boolean verificationSuccessful = false;
+			String actualJobCode = "";
+			
+			while (retryCount < maxRetries && !verificationSuccessful) {
+				retryCount++;
+				try {
+					safeSleep(300);
+					// Re-fetch element to avoid stale reference
+					String jobCode = getElementText(HCM_JOBCODE_ROW_1);
+					actualJobCode = jobCode;
+					
+					if (jobCode.equals(publishedJobCode)) {
+						verificationSuccessful = true;
+						PageObjectHelper.log(LOGGER, "Job Code Verified in HCM Sync Profiles screen for Published Job: " + job1OrgCode.get());
+					} else {
+						if (retryCount < maxRetries) {
+							LOGGER.warn("Job code mismatch (attempt {}/{}). Expected: '{}', Found: '{}'. Retrying...", 
+								retryCount, maxRetries, publishedJobCode, actualJobCode);
+							safeSleep(1000);
+						}
+					}
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					LOGGER.warn("StaleElementReferenceException during job code verification (attempt {}/{})", retryCount, maxRetries);
+					safeSleep(500);
+				}
+			}
+			
+			if (!verificationSuccessful) {
+				Assert.fail(String.format("Job code mismatch after %d attempts. Expected: '%s', Found: '%s'", 
+					maxRetries, publishedJobCode, actualJobCode));
+			}
+			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_code_in_hcm_sync_profiles_tab_in_pm", "Issue verifying published job code in hcm screen", e);
 		}
@@ -460,9 +685,43 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void user_should_verify_date_on_published_job_matches_with_current_date() {
 		try {
 			String todayDate = formatDateForDisplay();
-			String jobPublishedDate = getElementText(HCM_DATE_ROW_1);
-			Assert.assertEquals(jobPublishedDate, todayDate);
-			PageObjectHelper.log(LOGGER, "Last Modified date verified on Published Job: " + job1OrgName.get());
+			LOGGER.info("[Thread-{}] Verifying date '{}' on published job in HCM", Thread.currentThread().getId(), todayDate);
+			
+			// PARALLEL EXECUTION FIX: Retry with element re-fetching
+			int maxRetries = 3;
+			int retryCount = 0;
+			boolean verificationSuccessful = false;
+			String actualDate = "";
+			
+			while (retryCount < maxRetries && !verificationSuccessful) {
+				retryCount++;
+				try {
+					safeSleep(300);
+					// Re-fetch element to avoid stale reference
+					String jobPublishedDate = getElementText(HCM_DATE_ROW_1);
+					actualDate = jobPublishedDate;
+					
+					if (jobPublishedDate.equals(todayDate)) {
+						verificationSuccessful = true;
+						PageObjectHelper.log(LOGGER, "Last Modified date verified on Published Job: " + job1OrgName.get());
+					} else {
+						if (retryCount < maxRetries) {
+							LOGGER.warn("Date mismatch (attempt {}/{}). Expected: '{}', Found: '{}'. Retrying...", 
+								retryCount, maxRetries, todayDate, actualDate);
+							safeSleep(1000);
+						}
+					}
+				} catch (org.openqa.selenium.StaleElementReferenceException e) {
+					LOGGER.warn("StaleElementReferenceException during date verification (attempt {}/{})", retryCount, maxRetries);
+					safeSleep(500);
+				}
+			}
+			
+			if (!verificationSuccessful) {
+				Assert.fail(String.format("Date mismatch after %d attempts. Expected: '%s', Found: '%s'", 
+					maxRetries, todayDate, actualDate));
+			}
+			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_date_on_published_job_matches_with_current_date", "Issue verifying date on published job", e);
 		}
