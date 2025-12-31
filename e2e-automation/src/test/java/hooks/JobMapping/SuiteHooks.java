@@ -9,8 +9,7 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.kfonetalentsuite.pageobjects.JobMapping.*;
 import com.kfonetalentsuite.utils.common.CommonVariable;
 import com.kfonetalentsuite.utils.JobMapping.SessionManager;
-import com.kfonetalentsuite.utils.JobMapping.DailyAllureManager;
-import com.kfonetalentsuite.utils.JobMapping.AllureEnvironmentInfo;
+import com.kfonetalentsuite.utils.JobMapping.AllureReportingManager;
 
 public class SuiteHooks implements ISuiteListener {
 
@@ -24,11 +23,11 @@ public class SuiteHooks implements ISuiteListener {
 
 		// Perform Allure daily reset check (similar to Excel reporting)
 		// This will backup old reports and reset if it's a new day
-		DailyAllureManager.checkAndPerformDailyReset();
+		AllureReportingManager.checkAndPerformDailyReset();
 		
 		// Generate Allure environment information
 		// This creates environment.properties with browser, OS, and environment details
-		AllureEnvironmentInfo.generateEnvironmentInfo();
+		AllureReportingManager.generateEnvironmentInfo();
 	}
 
 	@Override

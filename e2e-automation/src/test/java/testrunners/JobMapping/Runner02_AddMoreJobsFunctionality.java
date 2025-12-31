@@ -7,7 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Listeners;
 
 import com.kfonetalentsuite.listeners.ExcelReportListener;
-import com.kfonetalentsuite.listeners.AllureScreenshotListener;
+import com.kfonetalentsuite.utils.JobMapping.AllureReportingManager;
 import io.qameta.allure.testng.AllureTestNg;
 import com.kfonetalentsuite.utils.JobMapping.JobCatalogRefresher;
 import com.kfonetalentsuite.utils.common.DynamicTagResolver;
@@ -19,7 +19,7 @@ import io.cucumber.testng.CucumberOptions;
 @Listeners({
 	ExcelReportListener.class,
 	AllureTestNg.class,
-	AllureScreenshotListener.class
+	AllureReportingManager.class
 })
 
 @CucumberOptions(

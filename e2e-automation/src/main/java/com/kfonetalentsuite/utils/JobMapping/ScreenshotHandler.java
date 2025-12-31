@@ -13,7 +13,6 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.kfonetalentsuite.listeners.AllureScreenshotListener;
 import com.kfonetalentsuite.utils.common.CommonVariable;
 
 public class ScreenshotHandler {
@@ -116,7 +115,7 @@ public class ScreenshotHandler {
 			// ENHANCEMENT: Attach screenshot to Allure report (if enabled)
 			if (isAllureReportingEnabled()) {
 				try {
-					AllureScreenshotListener.attachScreenshotToAllure(screenshotPath, 
+					AllureReportingManager.attachScreenshotToAllure(screenshotPath, 
 						"Failure Screenshot: " + methodName);
 					LOGGER.debug("Screenshot attached to Allure report");
 				} catch (Exception e) {
@@ -193,7 +192,7 @@ public class ScreenshotHandler {
 			// ENHANCEMENT: Attach screenshot to Allure report (if enabled)
 			if (isAllureReportingEnabled()) {
 				try {
-					AllureScreenshotListener.attachScreenshotToAllure(screenshotPath, description);
+					AllureReportingManager.attachScreenshotToAllure(screenshotPath, description);
 					LOGGER.debug("Screenshot attached to Allure report");
 				} catch (Exception e) {
 					LOGGER.debug("Could not attach screenshot to Allure (non-critical): {}", e.getMessage());
