@@ -1,4 +1,4 @@
-﻿package com.kfonetalentsuite.utils.JobMapping;
+package com.kfonetalentsuite.utils.JobMapping;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,22 +32,13 @@ public class DailyExcelTracker {
 
 	private static final Logger LOGGER = LogManager.getLogger(DailyExcelTracker.class);
 
-	// PARALLEL EXECUTION FIX: Lock for Excel file operations to prevent file conflicts
 	private static final ReentrantLock excelFileLock = new ReentrantLock(true); // Fair lock for FIFO access
 
-	// Configuration
 	private static final String EXCEL_REPORTS_DIR = "ExcelReports";
 	private static final String MASTER_TEST_RESULTS_FILE = "JobMappingAutomationTestResults.xlsx";
 
-	// Sheet names - Enhanced for professional presentation
 	private static final String TEST_RESULTS_SHEET = "Test Results Summary";
 	private static final String EXECUTION_HISTORY_SHEET = "Automation Execution History";
-	// REMOVED: Dashboard sheets - Excel now only contains Summary + History
-	// private static final String PROJECT_DASHBOARD_SHEET = "Automation QA Dashboard";
-	// private static final String CROSSBROWSER_DASHBOARD_SHEET = "Cross-Browser QA Dashboard";
-	private static final boolean ENABLE_VISUAL_ENHANCEMENTS = true;
-
-	// Date formatting
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -56,7 +47,6 @@ public class DailyExcelTracker {
 	}
 
 	public static void generateDailyReport(boolean incrementalUpdate) {
-		// Skip Excel reporting if disabled
 		if (CommonVariable.EXCEL_REPORTING_ENABLED != null
 				&& CommonVariable.EXCEL_REPORTING_ENABLED.equalsIgnoreCase("false")) {
 			LOGGER.debug("Excel reporting disabled");
@@ -64,15 +54,12 @@ public class DailyExcelTracker {
 		}
 
 		try {
-			// Reset scenario mapping state for clean processing
 			scenarioMappingCounter = 0;
 			usedScenarioNames.clear();
 
-			// Create reports directory and collect results
 			createReportsDirectory();
 			TestResultsSummary results = collectTestResults();
 
-			// VALIDATION: Skip Excel generation if no meaningful test execution
 			if (results.totalTests == 0) {
 				LOGGER.debug("EMPTY EXECUTION DETECTED - No Excel report generated");
 				LOGGER.debug("DEBUG INFO - Features found: {}, Suites found: {}", results.featureResults.size(),
@@ -103,7 +90,6 @@ public class DailyExcelTracker {
 			reportsDir.mkdirs();
 		}
 
-		// Create backup subdirectory silently
 		new File(reportsDir, "Backup").mkdirs();
 	}
 
@@ -114,7 +100,6 @@ public class DailyExcelTracker {
 		summary.executionDateTime = LocalDateTime.now().format(DATETIME_FORMATTER);
 		summary.environment = CommonVariable.ENVIRONMENT != null ? CommonVariable.ENVIRONMENT : "Unknown";
 
-		// Retrieve suite name from ExcelReportListener
 		try {
 			summary.suiteName = com.kfonetalentsuite.listeners.ExcelReportListener.getCurrentSuiteName();
 			LOGGER.debug("Suite: '{}'", summary.suiteName);
@@ -123,8 +108,6 @@ public class DailyExcelTracker {
 			summary.suiteName = null;
 		}
 
-		// FRESH START DETECTION: Check if Excel was manually deleted (but don't clean
-		// yet)
 		boolean shouldStartFresh = detectFreshStartRequest();
 		if (shouldStartFresh) {
 			LOGGER.debug("FRESH START DETECTED - Excel was manually deleted");
@@ -135,7 +118,6 @@ public class DailyExcelTracker {
 		collectTestNGResults(summary);
 		LOGGER.debug("TestNG: {} tests, {} features", summary.totalTests, summary.featureResults.size());
 
-		// EARLY EXIT: Skip processing if no meaningful test execution was found
 		if (summary.totalTests == 0) {
 			LOGGER.debug("NO TEST EXECUTIONS FOUND - Detailed debug info:");
 			LOGGER.debug("  - Features collected: {}", summary.featureResults.size());
@@ -150,8 +132,6 @@ public class DailyExcelTracker {
 			collectCucumberResults(summary);
 			LOGGER.debug("Collected Cucumber results");
 		} else {
-			// Fresh start: Skip old additional data sources, but collect current Cucumber
-			// data if it's fresh
 			LOGGER.debug("FRESH START - Collecting only current execution data sources...");
 			collectCurrentExecutionCucumberResults(summary);
 		}
@@ -161,13 +141,9 @@ public class DailyExcelTracker {
 			cleanOldDataSourcesAfterCollection();
 		}
 
-		// Replace generic names with real feature file content
 		replaceGenericNamesWithRealContent(summary);
 
-		// Calculate summary statistics
 		calculateSummaryStats(summary);
-
-		// Results summary logged elsewhere - no need for duplicate logging
 
 		return summary;
 	}
@@ -176,13 +152,11 @@ public class DailyExcelTracker {
 		File excelFile = new File(EXCEL_REPORTS_DIR, MASTER_TEST_RESULTS_FILE);
 		boolean excelExists = excelFile.exists();
 
-		// Check if old data source files exist
 		File testngResults = new File("test-output/testng-results.xml");
 		File cucumberReports = new File("target/cucumber-reports");
 		boolean oldDataExists = testngResults.exists()
 				|| (cucumberReports.exists() && cucumberReports.list() != null && cucumberReports.list().length > 0);
 
-		// Fresh start detected: Excel missing but old data sources present
 		boolean freshStart = !excelExists && oldDataExists;
 
 		if (freshStart) {
@@ -204,7 +178,6 @@ public class DailyExcelTracker {
 				return;
 			}
 
-			// Get only very recent JSON files (within last 5 minutes) to avoid old data
 			long currentTime = System.currentTimeMillis();
 			long fiveMinutesAgo = currentTime - (5 * 60 * 1000); // 5 minutes in milliseconds
 
@@ -233,7 +206,6 @@ public class DailyExcelTracker {
 			long currentTime = System.currentTimeMillis();
 			long tenMinutesAgo = currentTime - (10 * 60 * 1000); // 10 minutes in milliseconds
 
-			// Clean old Cucumber JSON reports (only those older than 10 minutes)
 			File cucumberReports = new File("target/cucumber-reports");
 			if (cucumberReports.exists() && cucumberReports.isDirectory()) {
 				File[] jsonFiles = cucumberReports.listFiles((dir, name) -> {
@@ -251,7 +223,6 @@ public class DailyExcelTracker {
 				}
 			}
 
-
 			LOGGER.debug("SAFE CLEANUP COMPLETE - Cleaned {} old data files (preserved current execution data)",
 					cleanedFiles);
 			LOGGER.debug("Current execution data preserved, only old files removed");
@@ -263,12 +234,8 @@ public class DailyExcelTracker {
 
 	private static void collectTestNGResults(TestResultsSummary summary) {
 		try {
-			// Try multiple locations for testng-results.xml
-			// Location 1: test-output/testng-results.xml (test suite execution)
 			File testngResults = new File("test-output", "testng-results.xml");
 
-			// Location 2: target/surefire-reports/testng-results.xml (Maven Surefire with
-			// -Dtest)
 			File surefireTestngResults = new File("target/surefire-reports", "testng-results.xml");
 
 			if (testngResults.exists()) {
@@ -282,7 +249,6 @@ public class DailyExcelTracker {
 			}
 
 		} catch (Exception e) {
-			// Silent error handling - results collection is optional
 		}
 	}
 
@@ -301,21 +267,14 @@ public class DailyExcelTracker {
 			}
 
 		} catch (Exception e) {
-			// Silent error handling - results collection is optional
 		}
 	}
 
-
-	/**
-	 * Parse actual TestNG XML results to get real test data ENHANCED: Skip empty
-	 * test executions to prevent "Unknown Runner" entries
-	 */
 	private static void parseTestNGXML(File xmlFile, TestResultsSummary summary) {
 		try {
 			List<String> lines = java.nio.file.Files.readAllLines(xmlFile.toPath());
 			String content = String.join("", lines);
 
-			// Parse basic statistics from TestNG XML
 			int rawTotalTests = DataParsingHelper.extractIntFromXML(content, "total=\"(\\d+)\"", 0);
 			int rawPassedTests = DataParsingHelper.extractIntFromXML(content, "passed=\"(\\d+)\"", 0);
 			int rawFailedTests = DataParsingHelper.extractIntFromXML(content, "failed=\"(\\d+)\"", 0);
@@ -326,34 +285,26 @@ public class DailyExcelTracker {
 			summary.failedTests = rawFailedTests;
 			summary.skippedTests = rawSkippedTests;
 
-			// VALIDATION: Skip empty test executions to prevent "Unknown Runner" entries
 			if (summary.totalTests == 0) {
-				// Skip empty test execution - no tests found in TestNG XML
 				return; // Exit early - don't create Excel entry for empty executions
 			}
 
-			// Parse duration from TestNG's duration-ms attribute
 			long durationMs = DataParsingHelper.extractLongFromXML(content, "duration-ms=\"(\\d+)\"", 0);
 			if (durationMs > 0) {
 				summary.totalDuration = DataParsingHelper.formatDuration(durationMs);
 			} else {
-				// Fallback: Try to parse from suite-level duration
 				durationMs = DataParsingHelper.extractLongFromXML(content, "<suite[^>]+duration-ms=\"(\\d+)\"", 0);
 				if (durationMs > 0) {
 					summary.totalDuration = DataParsingHelper.formatDuration(durationMs);
 				}
 			}
 
-			// Parse suite information
 			parseTestSuites(content, summary);
 
-			// Parse individual test methods to get scenario details
 			parseTestMethods(content, summary);
 
 			recalculateTestCountsForCrossBrowser(summary, content);
 
-			// ADDITIONAL VALIDATION: Double-check feature results to prevent "Unknown
-			// Runner"
 			if (summary.featureResults.isEmpty() && summary.totalTests > 0) {
 				LOGGER.debug(
 						"INCONSISTENT STATE: Found {} total tests but no features created - possible XML parsing issue",
@@ -364,14 +315,12 @@ public class DailyExcelTracker {
 		} catch (Exception e) {
 			LOGGER.debug("Could not parse TestNG XML, using fallback data: {}", e.getMessage());
 
-			// Fallback to default values
 			summary.totalTests = 25;
 			summary.passedTests = 20;
 			summary.failedTests = 3;
 			summary.skippedTests = 2;
 			summary.totalDuration = "15m 30s";
 
-			// Add default suite
 			TestSuiteResult suiteResult = new TestSuiteResult();
 			suiteResult.suiteName = "Job Mapping - Automated Testing";
 			suiteResult.totalTests = summary.totalTests;
@@ -383,11 +332,7 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Parse test suites from TestNG XML
-	 */
 	private static void parseTestSuites(String content, TestResultsSummary summary) {
-		// Look for <suite> tags
 		String[] suiteBlocks = content.split("<suite");
 		for (int i = 1; i < suiteBlocks.length; i++) {
 			String suiteBlock = suiteBlocks[i];
@@ -398,7 +343,6 @@ public class DailyExcelTracker {
 				suite.passed = DataParsingHelper.extractIntFromXML(suiteBlock, "passed=\"(\\d+)\"", 0);
 				suite.failed = DataParsingHelper.extractIntFromXML(suiteBlock, "failed=\"(\\d+)\"", 0);
 				suite.skipped = DataParsingHelper.extractIntFromXML(suiteBlock, "skipped=\"(\\d+)\"", 0);
-				// Extract duration from TestNG's duration-ms attribute
 				long suiteDurationMs = DataParsingHelper.extractLongFromXML(suiteBlock, "duration-ms=\"(\\d+)\"", 0);
 				if (suiteDurationMs > 0) {
 					suite.duration = DataParsingHelper.formatDuration(suiteDurationMs);
@@ -413,10 +357,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Parse individual test methods to create scenario details ENHANCED: Better
-	 * logging and filtering to handle multiple runners
-	 */
 	private static void parseTestMethods(String content, TestResultsSummary summary) {
 		// FIXED: Parse by class blocks first, then methods within each class
 		String[] classBlocks = content.split("<class");
@@ -424,52 +364,38 @@ public class DailyExcelTracker {
 		for (int i = 1; i < classBlocks.length; i++) {
 			String classBlock = classBlocks[i];
 
-			// Extract class name from <class name="...">
 			String className = DataParsingHelper.extractStringFromXML(classBlock, "name=\"([^\"]+)\"");
 
 			if (className != null) {
-				// Now parse test-methods within this class
 				String[] methodBlocks = classBlock.split("<test-method");
 
 				for (int j = 1; j < methodBlocks.length; j++) {
 					String methodBlock = methodBlocks[j];
 
-					// Extract method information
 					String methodName = DataParsingHelper.extractStringFromXML(methodBlock, "name=\"([^\"]+)\"");
 					String status = DataParsingHelper.extractStringFromXML(methodBlock, "status=\"([^\"]+)\"");
 
 					if (methodName != null && !methodName.isEmpty() && status != null) {
-						// Process runScenario methods (normal execution) AND runCrossBrowserTest
-						// methods (cross-browser execution)
 						if (methodName.equals("runScenario") || methodName.equals("runCrossBrowserTest")) {
 							String actualRunnerClass = className.substring(className.lastIndexOf('.') + 1);
 
 							if (methodName.equals("runCrossBrowserTest")) {
-								// Handle cross-browser test methods - create scenarios for each browser
 								LOGGER.debug("TESTNG XML - Found runCrossBrowserTest in {}", className);
 								handleCrossBrowserTestMethod(methodBlock, className, status, summary);
 							} else {
-								// Handle normal runScenario methods
 								String actualScenarioName = extractScenarioNameFromParameters(methodBlock);
 								// FIXED: Use same feature name extraction logic as cross-browser execution
 								String actualFeatureName = extractFeatureNameFromRunnerClass(actualRunnerClass);
 
-								// actualRunnerClass, actualFeatureName, actualScenarioName);
-
-								// Minimal logging for feature name verification - DISABLED
-
-								// Create scenario with actual name or fallback to temp name
 								ScenarioDetail scenario = new ScenarioDetail();
 								scenario.scenarioName = (actualScenarioName != null && !actualScenarioName.isEmpty())
 										? actualScenarioName
 										: "TEMP_SCENARIO_" + actualRunnerClass + "_" + j; // Add method index to avoid
-																							// duplicates
 								scenario.businessDescription = (actualScenarioName != null)
 										? "Test execution: " + actualScenarioName
 										: generateBusinessDescriptionFromMethodName(methodName);
 								scenario.status = StatusConverter.convertTestNGStatusToBusiness(status);
 
-								// RETRY FIX: Check if this scenario passed in retry and update status
 								if (scenario.status != null && scenario.status.contains("FAILED")) {
 									if (com.kfonetalentsuite.listeners.ExcelReportListener.didScenarioPassInRetry(actualScenarioName)) {
 										scenario.status = "PASSED";
@@ -479,7 +405,6 @@ public class DailyExcelTracker {
 
 								// ENHANCED: Capture actual exception details from ExcelReportListener
 								if (scenario.status != null && scenario.status.contains("FAILED")) {
-									// Include scenario name in testKey (matching ExcelReportListener key format)
 									String testKey = className + "." + methodName + "." + actualScenarioName;
 
 									com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails exceptionDetails = com.kfonetalentsuite.listeners.ExcelReportListener
@@ -499,19 +424,12 @@ public class DailyExcelTracker {
 									}
 								}
 
-								// scenario.scenarioName, scenario.status, className, status);
-
-								// Special debug for status conversion
-
-								// Add to appropriate feature or create new feature
 								addScenarioToFeature(summary, scenario, className, actualFeatureName);
 							}
 
 						} else {
-							// Skipping non-test method
 						}
 					} else {
-						// Skipping method block - conditions not met
 					}
 				}
 			} else {
@@ -520,27 +438,18 @@ public class DailyExcelTracker {
 
 	}
 
-	/**
-	 * Handle cross-browser test methods - create proper scenario structure for
-	 * Excel reporting DYNAMIC APPROACH: Handles both scenario-specific and
-	 * feature-specific runners
-	 */
 	private static void handleCrossBrowserTestMethod(String methodBlock, String className, String status,
 			TestResultsSummary summary) {
 		try {
-			// Extract browser name from cross-browser test parameters (first parameter)
 			String browserName = extractBrowserNameFromParameters(methodBlock);
 			if (browserName == null) {
 				browserName = "Unknown Browser";
 			}
 
-			// Get runner class name for feature identification
 			String runnerClass = className.substring(className.lastIndexOf('.') + 1);
 
-			// Determine feature name from runner class
 			String featureName = extractFeatureNameFromRunnerClass(runnerClass);
 
-			// DYNAMIC EXTRACTION: Get scenarios based on runner type
 			List<String> realScenarioNames = extractRealScenarioNamesFromFeatureFiles(runnerClass);
 			String convertedStatus = StatusConverter.convertTestNGStatusToBusiness(status);
 
@@ -550,12 +459,9 @@ public class DailyExcelTracker {
 			}
 
 			// IMPORTANT: For feature-specific runners, we need to determine which scenarios
-			// were actually executed
-			// not just which scenarios exist in the feature file
 			List<String> actuallyExecutedScenarios = filterActuallyExecutedScenarios(realScenarioNames, runnerClass);
 
 			for (String scenarioName : actuallyExecutedScenarios) {
-				// RETRY FIX: Check if this scenario passed in retry and update status
 				String finalStatus = convertedStatus;
 				if (convertedStatus != null && convertedStatus.contains("FAILED")) {
 					if (com.kfonetalentsuite.listeners.ExcelReportListener.didScenarioPassInRetry(scenarioName)) {
@@ -567,40 +473,19 @@ public class DailyExcelTracker {
 						finalStatus);
 			}
 
-			// runnerClass, actuallyExecutedScenarios.size(), browserName, convertedStatus);
-
 		} catch (Exception e) {
 			LOGGER.error("CROSS-BROWSER ERROR - Failed to handle method: {}", e.getMessage());
 		}
 	}
 
-	/**
-	 * Filter scenarios to only include those that were actually executed GENERIC:
-	 * Works for all runners - can be enhanced with actual execution detection
-	 */
 	private static List<String> filterActuallyExecutedScenarios(List<String> allScenarios, String runnerClass) {
-		// GENERIC APPROACH: Return all scenarios found (since they were extracted from
-		// actual @CucumberOptions tags)
-		// The new generic extraction already reads the ACTUAL tags from each runner's
-		// @CucumberOptions,
-		// so these scenarios should represent what was actually configured to run
-
-		// runnerClass, allScenarios.size());
 
 		return allScenarios;
 	}
 
-	/**
-	 * Add or update cross-browser scenario with browser-specific status This
-	 * prevents duplicate scenarios and aggregates browser results ENHANCED:
-	 * Maintains correct scenario execution order to match Normal execution
-	 * THREAD-SAFE: Synchronized to prevent concurrent modification in parallel
-	 * execution
-	 */
 	private static synchronized void addOrUpdateCrossBrowserScenario(TestResultsSummary summary, String className,
 			String featureName, String scenarioName, String browserName, String status) {
 
-		// Find or create the feature
 		FeatureResult feature = summary.featureResults.stream().filter(f -> className.equals(f.runnerClassName))
 				.findFirst().orElse(null);
 
@@ -614,18 +499,15 @@ public class DailyExcelTracker {
 			summary.featureResults.add(feature);
 		}
 
-		// Find existing scenario or create new one
 		ScenarioDetail existingScenario = feature.scenarios.stream().filter(s -> scenarioName.equals(s.scenarioName))
 				.findFirst().orElse(null);
 
 		if (existingScenario != null) {
-			// Update existing scenario with browser status
 			if (existingScenario.browserStatus == null) {
 				existingScenario.browserStatus = new HashMap<>();
 			}
 			existingScenario.browserStatus.put(browserName.toLowerCase(), status);
 
-			// Update overall status (prioritize failures)
 			if ("FAILED".equals(status) || existingScenario.status == null) {
 				existingScenario.status = status;
 			}
@@ -633,7 +515,6 @@ public class DailyExcelTracker {
 			LOGGER.debug("Updated existing scenario '{}' with {}: {} (browsers: {})", scenarioName, browserName, status,
 					existingScenario.browserStatus.keySet());
 		} else {
-			// CREATE NEW SCENARIO - Get correct order index from feature file
 			String runnerClass = className.substring(className.lastIndexOf('.') + 1);
 			int scenarioOrder = getScenarioOrderFromFeatureFile(runnerClass, scenarioName);
 
@@ -651,7 +532,6 @@ public class DailyExcelTracker {
 					scenarioOrder);
 		}
 
-		// Recalculate feature statistics
 		feature.totalScenarios = feature.scenarios.size();
 		feature.passed = (int) feature.scenarios.stream().filter(s -> s.status != null && s.status.contains("PASSED"))
 				.count();
@@ -661,16 +541,10 @@ public class DailyExcelTracker {
 				.count();
 	}
 
-	/**
-	 * Get the original order (index) of a scenario in the feature file This ensures
-	 * cross-browser scenarios maintain the same order as normal execution
-	 */
 	private static int getScenarioOrderFromFeatureFile(String runnerClass, String scenarioName) {
 		try {
-			// Get the actual scenario names from feature file in original order
 			List<String> orderedScenarios = extractRealScenarioNamesFromFeatureFiles(runnerClass);
 
-			// Find the index of this scenario in the original order
 			for (int i = 0; i < orderedScenarios.size(); i++) {
 				if (orderedScenarios.get(i).equals(scenarioName)) {
 					return i;
@@ -686,35 +560,21 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * FIXED: Insert scenario in correct order based on scenarioOrder field
-	 * Maintains ascending order by scenarioOrder to match feature file sequence
-	 */
 	private static void insertScenarioInOrder(List<ScenarioDetail> scenarios, ScenarioDetail newScenario) {
-		// Find correct insertion position to maintain ascending order by scenarioOrder
 		int insertIndex = scenarios.size(); // Default: insert at end
 
 		for (int i = 0; i < scenarios.size(); i++) {
 			if (scenarios.get(i).scenarioOrder > newScenario.scenarioOrder) {
-				// Found first scenario with higher order - insert before it
 				insertIndex = i;
 				break;
 			}
-			// Continue searching - don't update insertIndex here (that was the bug!)
 		}
 
 		scenarios.add(insertIndex, newScenario);
-		// newScenario.scenarioName, insertIndex, newScenario.scenarioOrder);
 	}
 
-	/**
-	 * Extract browser name from cross-browser test parameters DataProvider format:
-	 * {"chrome", "latest", "Windows"} param index="0" = browserName
-	 */
 	private static String extractBrowserNameFromParameters(String methodBlock) {
 		try {
-			// Pattern 1: CDATA format - <param
-			// index="0"><value><![CDATA[chrome]]></value></param>
 			String cdataPattern = "<param\\s+index=\"0\">.*?<value>.*?<!\\[CDATA\\[([^\\]]+)\\]\\]>.*?</value>.*?</param>";
 			java.util.regex.Pattern p = java.util.regex.Pattern.compile(cdataPattern, java.util.regex.Pattern.DOTALL);
 			java.util.regex.Matcher matcher = p.matcher(methodBlock);
@@ -724,8 +584,6 @@ public class DailyExcelTracker {
 				return browserName;
 			}
 
-			// Pattern 2: Simple value format - <param
-			// index="0"><value>chrome</value></param>
 			String simplePattern = "<param\\s+index=\"0\">.*?<value>([^<]+)</value>.*?</param>";
 			p = java.util.regex.Pattern.compile(simplePattern, java.util.regex.Pattern.DOTALL);
 			matcher = p.matcher(methodBlock);
@@ -735,8 +593,6 @@ public class DailyExcelTracker {
 				return browserName;
 			}
 
-			// Pattern 3: Quoted value format - <param
-			// index="0"><value>"chrome"</value></param>
 			String quotedPattern = "<param\\s+index=\"0\">.*?<value>.*?[\"']([^\"']+)[\"'].*?</value>.*?</param>";
 			p = java.util.regex.Pattern.compile(quotedPattern, java.util.regex.Pattern.DOTALL);
 			matcher = p.matcher(methodBlock);
@@ -761,17 +617,12 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	/**
-	 * Extract feature name from cross-browser runner class name DYNAMIC: Can be
-	 * enhanced to read actual feature names from feature files
-	 */
 	private static String extractFeatureNameFromRunnerClass(String runnerClass) {
 		String actualFeatureName = getActualFeatureNameFromFiles(runnerClass);
 		if (actualFeatureName != null && !actualFeatureName.isEmpty()) {
 			return actualFeatureName;
 		}
 
-		// Fallback to hardcoded mappings
 		if (runnerClass.contains("LoginPage") || runnerClass.contains("CrossBrowser01")) {
 			return "Login Authentication";
 		} else if (runnerClass.contains("JobProfile") || runnerClass.contains("CrossBrowser04")) {
@@ -783,14 +634,8 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Get actual feature name from feature files based on runner class (GENERIC
-	 * VERSION) Uses the new generic approach to map runner to feature file
-	 * automatically
-	 */
 	private static String getActualFeatureNameFromFiles(String runnerClass) {
 		try {
-			// GENERIC APPROACH: Use the same logic as the main scenario extraction
 			String runnerNumber = extractRunnerNumber(runnerClass);
 			String featureFilePath = mapRunnerToFeatureFile(runnerNumber);
 
@@ -804,9 +649,6 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	/**
-	 * Extract feature name from a feature file
-	 */
 	private static String extractFeatureNameFromFile(String featureFilePath) {
 		try {
 			File featureFile = new File(featureFilePath);
@@ -824,13 +666,6 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	/**
-	 * COMPLETELY GENERIC SOLUTION - Extract real scenario names for ANY
-	 * CrossBrowserXX runner Automatically detects runner number, maps to feature
-	 * file, and extracts actual @CucumberOptions tags FIXED: Now respects specific
-	 * feature files defined in @CucumberOptions, not all feature files WORKS FOR
-	 * ALL RUNNERS WITHOUT CODE CHANGES!
-	 */
 	private static List<String> extractRealScenarioNamesFromFeatureFiles(String runnerClass) {
 		List<String> allScenarios = new ArrayList<>();
 
@@ -844,7 +679,6 @@ public class DailyExcelTracker {
 
 			for (String featureFilePath : cucumberData.features) {
 
-				// ENHANCED DEBUG: Check if this is a directory path that needs expansion
 				File featureFile = new File(featureFilePath);
 				if (featureFile.isDirectory()) {
 					LOGGER.warn(
@@ -861,7 +695,6 @@ public class DailyExcelTracker {
 								cucumberData.tags);
 						allScenarios.addAll(fileScenarios);
 
-						// ENHANCED DEBUG: Special logging for CrossBrowser05
 						if (runnerClass.contains("CrossBrowser05") || runnerClass.contains("HeaderSection")) {
 							LOGGER.warn("CROSSBROWSER05 DIRECTORY FILE - {}: {} scenarios",
 									individualFeatureFile.getName(), fileScenarios.size());
@@ -875,13 +708,11 @@ public class DailyExcelTracker {
 					LOGGER.error("FEATURE FILE NOT FOUND: {}", featureFilePath);
 					continue;
 				} else {
-					// Parse scenarios from this specific feature file using all tags
 					List<String> fileScenarios = parseScenarioNamesFromFeatureFile(featureFilePath, cucumberData.tags);
 					allScenarios.addAll(fileScenarios);
 				}
 			}
 
-			// Remove duplicates (in case same scenario matches multiple tags)
 			Set<String> uniqueScenarios = new HashSet<>(allScenarios);
 			allScenarios = new ArrayList<>(uniqueScenarios);
 
@@ -890,7 +721,6 @@ public class DailyExcelTracker {
 					runnerClass, allScenarios.size(), cucumberData.features.length);
 			LOGGER.debug("EXTRACTED SCENARIOS: {}", allScenarios);
 
-			// ENHANCED DEBUG: Special logging for CrossBrowser05 to understand the issue
 			if (runnerClass.contains("CrossBrowser05") || runnerClass.contains("HeaderSection")) {
 				LOGGER.warn("=== CROSSBROWSER05 DEBUG ===");
 				LOGGER.warn("Runner: {}", runnerClass);
@@ -910,44 +740,30 @@ public class DailyExcelTracker {
 		return allScenarios;
 	}
 
-	/**
-	 * NEW METHOD: Extract feature file name from runner class name Examples: -
-	 * "Runner47_ValidateSortingFunctionalityInHCMScreen_PM" →
-	 * "47ValidateSortingFunctionalityInHCMScreen_PM.feature" -
-	 * "CrossBrowser01_LoginPageRunner" → "01KFoneLogin.feature" -
-	 * "testrunners.JobMapping.Runner02_..." →
-	 * "02ValidateAddMoreJobsFunctionality.feature"
-	 */
 	private static String extractFeatureFileName(String runnerClassName) {
 		if (runnerClassName == null || runnerClassName.isEmpty()) {
 			return "Unknown.feature";
 		}
 
 		try {
-			// Extract just the class name if full package path is provided
 			String className = runnerClassName;
 			if (className.contains(".")) {
 				className = className.substring(className.lastIndexOf(".") + 1);
 			}
 
-			// Extract runner number (e.g., "47" from "Runner47_...")
 			String runnerNumber = extractRunnerNumber(className);
 
 			if (runnerNumber != null) {
-				// Map runner number to actual feature file path
 				String featureFilePath = mapRunnerToFeatureFile(runnerNumber);
 
 				if (featureFilePath != null) {
-					// Extract just the filename from the full path
 					File featureFile = new File(featureFilePath);
 					return featureFile.getName(); // Returns "47ValidateSorting....feature"
 				} else {
-					// Fallback: construct feature file name from runner number
 					return runnerNumber + ".feature";
 				}
 			}
 
-			// Final fallback: use class name + .feature
 			return className + ".feature";
 
 		} catch (Exception e) {
@@ -956,14 +772,8 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Extract runner number from class name (01, 04, 05, 11a, 11b, 11c, etc.) Examples:
-	 * CrossBrowser01_LoginPageRunner "01", CrossBrowser04_JobProfileRunner "04",
-	 * Runner11c_ValidateFunctionSubfunctionFilters "11c"
-	 */
 	private static String extractRunnerNumber(String runnerClass) {
 		try {
-			// Pattern: CrossBrowser + NUMBER + _
 			java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("CrossBrowser(\\d+)_");
 			java.util.regex.Matcher matcher = pattern.matcher(runnerClass);
 
@@ -973,7 +783,6 @@ public class DailyExcelTracker {
 			}
 
 			// FIXED: Also try normal runner pattern: Runner + NUMBER (with optional letter suffix)
-			// This handles cases like Runner11a, Runner11b, Runner11c, etc.
 			pattern = java.util.regex.Pattern.compile("Runner(\\d+[a-z]?)");
 			matcher = pattern.matcher(runnerClass);
 			if (matcher.find()) {
@@ -987,10 +796,6 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	/**
-	 * DYNAMIC HELPER: Extract any number from text (e.g., "05ValidateHeader" ->
-	 * "05")
-	 */
 	private static String extractNumberFromText(String text) {
 		if (text == null)
 			return null;
@@ -1001,7 +806,6 @@ public class DailyExcelTracker {
 
 			if (matcher.find()) {
 				String number = matcher.group(1);
-				// Pad single digits with zero (e.g., "5" -> "05")
 				if (number.length() == 1) {
 					number = "0" + number;
 				}
@@ -1013,12 +817,6 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	/**
-	 * Map runner number to corresponding feature file automatically (WITH
-	 * SUBDIRECTORY SUPPORT) Searches both root features directory AND
-	 * subdirectories (e.g., JobMapping) Examples: 01 -> 01KFoneLogin.feature, 02 ->
-	 * JobMapping/02ValidateAddMoreJobsFunctionality.feature
-	 */
 	private static String mapRunnerToFeatureFile(String runnerNumber) {
 		if (runnerNumber == null)
 			return null;
@@ -1028,23 +826,18 @@ public class DailyExcelTracker {
 			if (featuresDir.exists() && featuresDir.isDirectory()) {
 
 				// FIXED: For alphanumeric runner numbers (like "11c"), prefer exact match
-				// First try exact match pattern: runnerNumber + "Validate" (e.g., "11cValidate")
 				File[] rootFeatureFiles = featuresDir.listFiles((dir, name) -> {
 					if (!name.endsWith(".feature")) return false;
-					// Try exact match first (e.g., "11cValidate...")
 					if (name.startsWith(runnerNumber + "Validate")) return true;
-					// Fallback to startsWith for numeric-only cases
 					return name.startsWith(runnerNumber);
 				});
 
 				if (rootFeatureFiles != null && rootFeatureFiles.length > 0) {
-					// Prefer exact match if multiple files found
 					for (File file : rootFeatureFiles) {
 						if (file.getName().startsWith(runnerNumber + "Validate")) {
 							return file.getPath();
 						}
 					}
-					// Fallback to first match
 					String featureFilePath = rootFeatureFiles[0].getPath();
 					return featureFilePath;
 				}
@@ -1054,20 +847,16 @@ public class DailyExcelTracker {
 					for (File subdir : subdirectories) {
 						File[] subFeatureFiles = subdir.listFiles((dir, name) -> {
 							if (!name.endsWith(".feature")) return false;
-							// Try exact match first (e.g., "11cValidate...")
 							if (name.startsWith(runnerNumber + "Validate")) return true;
-							// Fallback to startsWith for numeric-only cases
 							return name.startsWith(runnerNumber);
 						});
 
 						if (subFeatureFiles != null && subFeatureFiles.length > 0) {
-							// Prefer exact match if multiple files found
 							for (File file : subFeatureFiles) {
 								if (file.getName().startsWith(runnerNumber + "Validate")) {
 									return file.getPath();
 								}
 							}
-							// Fallback to first match
 							String featureFilePath = subFeatureFiles[0].getPath();
 							return featureFilePath;
 						}
@@ -1084,27 +873,18 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	/**
-	 * Extract actual @CucumberOptions tags and features from runner class using
-	 * reflection This reads the REAL tags and features from the runner class,
-	 * making it completely generic! ENHANCED: Now also extracts the features path
-	 * to ensure correct scenario counting
-	 */
 	private static CucumberOptionsData extractCucumberOptionsFromRunnerClass(String runnerClass) {
 		try {
-			// Full class name for reflection
 			String fullClassName = "testrunners.JobMapping.crossbrowser." + runnerClass;
 
 			Class<?> runnerClazz = Class.forName(fullClassName);
 
-			// Get @CucumberOptions annotation
 			if (runnerClazz.isAnnotationPresent(CucumberOptions.class)) {
 				CucumberOptions cucumberOptions = runnerClazz.getAnnotation(CucumberOptions.class);
 
 				String tagsString = cucumberOptions.tags();
 				String[] features = cucumberOptions.features();
 
-				// Parse "tag1 or tag2" format into individual tags
 				String[] individualTags = parseTagsString(tagsString);
 
 				return new CucumberOptionsData(individualTags, features);
@@ -1119,9 +899,6 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	/**
-	 * Data structure to hold CucumberOptions data
-	 */
 	private static class CucumberOptionsData {
 		public String[] tags;
 		public String[] features;
@@ -1132,10 +909,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * FIXED: Find all .feature files in a directory recursively This handles cases
-	 * where @CucumberOptions points to a directory instead of specific files
-	 */
 	private static List<File> findFeatureFilesInDirectory(File directory) {
 		List<File> featureFiles = new ArrayList<>();
 
@@ -1148,7 +921,6 @@ public class DailyExcelTracker {
 			if (files != null) {
 				for (File file : files) {
 					if (file.isDirectory()) {
-						// Recursively search subdirectories
 						featureFiles.addAll(findFeatureFilesInDirectory(file));
 					} else if (file.getName().endsWith(".feature")) {
 						featureFiles.add(file);
@@ -1162,15 +934,11 @@ public class DailyExcelTracker {
 		return featureFiles;
 	}
 
-	/**
-	 * Parse tags string like "@tag1 or @tag2" into individual tag array
-	 */
 	private static String[] parseTagsString(String tagsString) {
 		if (tagsString == null || tagsString.trim().isEmpty()) {
 			return new String[0];
 		}
 
-		// Split by " or " and clean up each tag
 		String[] rawTags = tagsString.split("\\s+or\\s+");
 		List<String> cleanedTags = new ArrayList<>();
 
@@ -1184,9 +952,6 @@ public class DailyExcelTracker {
 		return cleanedTags.toArray(new String[0]);
 	}
 
-	/**
-	 * Parse scenario names from feature file based on specific tags
-	 */
 	private static List<String> parseScenarioNamesFromFeatureFile(String featureFilePath, String[] targetTags) {
 		List<String> scenarioNames = new ArrayList<>();
 
@@ -1216,7 +981,6 @@ public class DailyExcelTracker {
 			}
 
 			if (hasFeatureLevelTag) {
-				// FEATURE-LEVEL APPROACH: Include ALL scenarios from this feature
 				for (String line : lines) {
 					line = line.trim();
 					if (line.startsWith("Scenario:")) {
@@ -1225,11 +989,9 @@ public class DailyExcelTracker {
 					}
 				}
 			} else {
-				// SCENARIO-LEVEL APPROACH: Look for scenarios with specific tags
 				for (int i = 0; i < lines.size(); i++) {
 					String line = lines.get(i).trim();
 
-					// Check if this line contains any of our target tags
 					boolean hasTargetTag = false;
 					for (String tag : targetTags) {
 						if (containsTag(line, tag)) {
@@ -1239,7 +1001,6 @@ public class DailyExcelTracker {
 					}
 
 					if (hasTargetTag) {
-						// Look for the next Scenario: line
 						for (int j = i + 1; j < lines.size(); j++) {
 							String nextLine = lines.get(j).trim();
 							if (nextLine.startsWith("Scenario:")) {
@@ -1247,7 +1008,6 @@ public class DailyExcelTracker {
 								scenarioNames.add(scenarioName);
 								break;
 							} else if (nextLine.startsWith("@")) {
-								// Stop if we hit another tag section
 								break;
 							}
 						}
@@ -1261,9 +1021,6 @@ public class DailyExcelTracker {
 		return scenarioNames;
 	}
 
-	/**
-	 * Helper method to check if a line contains a specific tag
-	 */
 	private static boolean containsTag(String line, String tag) {
 		return line.equals(tag) || // Exact line match
 				line.startsWith(tag + " ") || // Tag at start followed by space
@@ -1271,18 +1028,8 @@ public class DailyExcelTracker {
 				line.contains(" " + tag + " "); // Tag surrounded by spaces
 	}
 
-	/**
-	 * Create browser-specific status cells for the new Excel format Columns: Chrome
-	 * (2), Firefox (3), Edge (4)
-	 */
 	private static void createBrowserStatusCells(Row dataRow, ScenarioDetail scenario, Workbook workbook) {
-		// UPDATED: Define browser columns: Chrome (3), Firefox (4), Edge (5) - shifted
-		// by +1 due to new Feature File column
 		String[] browsers = { "chrome", "firefox", "edge" };
-
-		// Create browser status cells for Chrome, Firefox, Edge columns
-		// Cross-browser: All browsers get their specific status
-		// Normal execution: Only Chrome gets status, Firefox/Edge get empty cells
 
 		for (int i = 0; i < browsers.length; i++) {
 			String browser = browsers[i];
@@ -1291,10 +1038,8 @@ public class DailyExcelTracker {
 			String browserStatus = null;
 
 			if (scenario.browserStatus != null && scenario.browserStatus.containsKey(browser)) {
-				// Cross-browser test: get status for this specific browser
 				browserStatus = scenario.browserStatus.get(browser);
 			} else if (scenario.status != null && !scenario.status.trim().isEmpty()) {
-				// Normal execution: check if this browser was used
 				browserStatus = getBrowserStatusForNormalExecution(scenario, browser);
 			}
 
@@ -1303,44 +1048,26 @@ public class DailyExcelTracker {
 				browserCell.setCellStyle(ExcelStyleHelper.createStatusStyle(workbook, browserStatus));
 			} else {
 				browserCell.setCellValue(""); // Empty cell for unused browsers
-				// Apply basic styling to empty cells so they appear properly formatted
 				browserCell.setCellStyle(ExcelStyleHelper.createDataStyle(workbook));
 			}
 		}
 	}
 
-	/**
-	 * Determine browser status for normal execution (non-cross-browser tests)
-	 * FIXED: Always create cells but only populate Chrome for normal execution
-	 */
 	private static String getBrowserStatusForNormalExecution(ScenarioDetail scenario, String browser) {
-		// - Chrome gets the actual test status (since normal execution uses Chrome by
-		// default)
-		// - Firefox and Edge get empty cells (cells created but left empty)
 
 		if (browser.equals("chrome") && scenario.status != null) {
-			// Chrome: Return the actual test status for normal execution
 			return scenario.status;
 		} else {
-			// Firefox and Edge: Return empty string to create empty cell (not null which
-			// might skip cell creation)
 			return ""; // Empty cell for unused browsers in normal execution
 		}
 	}
 
-	/**
-	 * Recalculate test counts for cross-browser tests to match scenario-based
-	 * reporting This ensures cross-browser tests align with normal execution
-	 * reporting structure
-	 */
 	private static void recalculateTestCountsForCrossBrowser(TestResultsSummary summary, String content) {
 		try {
-			// Check if this is a cross-browser execution
 			boolean isCrossBrowserExecution = content.contains("runCrossBrowserTest")
 					|| content.contains("CrossBrowser");
 
 			if (isCrossBrowserExecution && !summary.featureResults.isEmpty()) {
-				// Recalculate counts based on actual scenarios created
 				int totalScenarios = 0;
 				int passedScenarios = 0;
 				int failedScenarios = 0;
@@ -1353,7 +1080,6 @@ public class DailyExcelTracker {
 					skippedScenarios += feature.skipped;
 				}
 
-				// Update summary with scenario-based counts (not TestNG test counts)
 				if (totalScenarios > 0) {
 
 					summary.totalTests = totalScenarios;
@@ -1361,7 +1087,6 @@ public class DailyExcelTracker {
 					summary.failedTests = failedScenarios;
 					summary.skippedTests = skippedScenarios;
 
-					// Recalculate rates
 					summary.passRate = totalScenarios > 0 ? (double) passedScenarios / totalScenarios * 100 : 0;
 					summary.failRate = totalScenarios > 0 ? (double) failedScenarios / totalScenarios * 100 : 0;
 					summary.skipRate = totalScenarios > 0 ? (double) skippedScenarios / totalScenarios * 100 : 0;
@@ -1371,45 +1096,35 @@ public class DailyExcelTracker {
 				}
 			}
 			
-			// RETRY FIX: Always recalculate counts from unique scenarios after retry status updates
 			recalculateCountsFromUniqueScenarios(summary);
 
 		} catch (Exception e) {
 			LOGGER.debug("Failed to recalculate cross-browser test counts: {}", e.getMessage());
 		}
 	}
-	
-	/**
-	 * RETRY FIX: Recalculate summary counts from UNIQUE scenarios (after retry status updates)
-	 * This ensures counts reflect final scenario outcomes, not accumulated TestNG invocations
-	 */
+
 	private static void recalculateCountsFromUniqueScenarios(TestResultsSummary summary) {
 		try {
 			if (summary.featureResults.isEmpty()) {
 				return;
 			}
 			
-			// First, update feature-level counts based on actual scenario statuses
 			int totalUniqueScenarios = 0;
 			int passedScenarios = 0;
 			int failedScenarios = 0;
 			int skippedScenarios = 0;
 			
-			// Track unique scenarios by name to avoid counting duplicates from retries
 			java.util.Set<String> processedScenarios = new java.util.HashSet<>();
 			
 			for (FeatureResult feature : summary.featureResults) {
-				// Reset feature counts
 				int featurePassed = 0;
 				int featureFailed = 0;
 				int featureSkipped = 0;
 				
 				if (feature.scenarios != null) {
 					for (ScenarioDetail scenario : feature.scenarios) {
-						// Create unique key for scenario (feature + scenario name)
 						String scenarioKey = (feature.featureName + "_" + scenario.scenarioName).toLowerCase().trim();
 						
-						// Skip if we've already processed this scenario (from retry runs)
 						if (processedScenarios.contains(scenarioKey)) {
 							continue;
 						}
@@ -1429,7 +1144,6 @@ public class DailyExcelTracker {
 								skippedScenarios++;
 								featureSkipped++;
 							} else {
-								// Default unknown status to failed
 								failedScenarios++;
 								featureFailed++;
 							}
@@ -1437,19 +1151,16 @@ public class DailyExcelTracker {
 					}
 				}
 				
-				// Update feature-level counts
 				feature.totalScenarios = featurePassed + featureFailed + featureSkipped;
 				feature.passed = featurePassed;
 				feature.failed = featureFailed;
 				feature.skipped = featureSkipped;
 			}
 			
-			// Only update if we have unique scenarios and counts differ from raw TestNG counts
 			if (totalUniqueScenarios > 0) {
 				int rawTotal = summary.totalTests;
 				int rawFailed = summary.failedTests;
 				
-				// Check if recalculation is needed (e.g., retries caused duplication)
 				if (rawTotal != totalUniqueScenarios || rawFailed != failedScenarios) {
 					LOGGER.debug("Retry count fix: {} raw -> {} unique ({} failed)", 
 							rawTotal, totalUniqueScenarios, failedScenarios);
@@ -1459,7 +1170,6 @@ public class DailyExcelTracker {
 					summary.failedTests = failedScenarios;
 					summary.skippedTests = skippedScenarios;
 					
-					// Recalculate rates
 					summary.passRate = totalUniqueScenarios > 0 ? (double) passedScenarios / totalUniqueScenarios * 100 : 0;
 					summary.failRate = totalUniqueScenarios > 0 ? (double) failedScenarios / totalUniqueScenarios * 100 : 0;
 					summary.skipRate = totalUniqueScenarios > 0 ? (double) skippedScenarios / totalUniqueScenarios * 100 : 0;
@@ -1474,13 +1184,8 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Extract actual scenario name from TestNG XML parameters
-	 */
 	private static String extractScenarioNameFromParameters(String methodBlock) {
 		try {
-			// Look for the first parameter (index="0") which contains scenario name in
-			// CDATA
 			String cdataPattern = "<param index=\"0\">.*?<value>.*?<!\\[CDATA\\[\"([^\"]+)\"\\]\\]>.*?</value>.*?</param>";
 			java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(cdataPattern,
 					java.util.regex.Pattern.DOTALL);
@@ -1491,7 +1196,6 @@ public class DailyExcelTracker {
 				return scenarioName;
 			}
 
-			// Fallback: try simpler pattern without CDATA
 			String simplePattern = "<param index=\"0\">.*?<value>.*?\"([^\"]+)\".*?</value>.*?</param>";
 			pattern = java.util.regex.Pattern.compile(simplePattern, java.util.regex.Pattern.DOTALL);
 			matcher = pattern.matcher(methodBlock);
@@ -1507,25 +1211,11 @@ public class DailyExcelTracker {
 		return null; // Return null to trigger fallback logic
 	}
 
-	/**
-	 * Add scenario to appropriate feature group ENHANCED: Uses exact className
-	 * matching to prevent cross-runner contamination THREAD-SAFE: Synchronized to
-	 * prevent concurrent modification in parallel execution
-	 */
 	private static synchronized void addScenarioToFeature(TestResultsSummary summary, ScenarioDetail scenario,
 			String className, String actualFeatureName) {
-		// Use actual feature name if available, otherwise fall back to class-based name
 		String featureName = (actualFeatureName != null && !actualFeatureName.isEmpty()) ? actualFeatureName
 				: extractFeatureNameFromClassName(className);
 
-		// Minimal logging for feature name verification - DISABLED
-
-		// scenario.scenarioName, className, featureName, actualFeatureName);
-
-		// Special debugging for VerifyProfileswithNoJobCode_PMRunner21
-
-		// Find existing feature by EXACT runner class name match (not partial feature
-		// name match)
 		FeatureResult feature = null;
 		if (className != null) {
 			feature = summary.featureResults.stream().filter(f -> className.equals(f.runnerClassName)).findFirst()
@@ -1544,14 +1234,9 @@ public class DailyExcelTracker {
 			LOGGER.debug("Created NEW feature: '{}' for runner: {}", featureName, className);
 		} else {
 			// FIXED: Do NOT update feature name once created - prevents scenarios from
-			// showing wrong feature names
-			// Feature name should remain consistent for all scenarios within the same
-			// runner
 			LOGGER.debug("Adding scenario to EXISTING feature: '{}' (runner: {})", feature.featureName, className);
 		}
 
-		// RETRY FIX: Check if scenario already exists (from previous run or retry)
-		// If it does, UPDATE its status instead of adding duplicate
 		ScenarioDetail existingScenario = null;
 		if (scenario.scenarioName != null && !scenario.scenarioName.isEmpty()) {
 			String scenarioNameLower = scenario.scenarioName.toLowerCase().trim();
@@ -1565,23 +1250,18 @@ public class DailyExcelTracker {
 		}
 		
 		if (existingScenario != null) {
-			// RETRY FIX: Update existing scenario's status
-			// Prefer PASSED status (from retry) over FAILED (from original run)
 			String oldStatus = existingScenario.status;
 			String newStatus = scenario.status;
 			
-			// If new status is PASSED or old status is not PASSED, update to new status
 			if (newStatus != null && (newStatus.contains("PASSED") || !oldStatus.contains("PASSED"))) {
 				existingScenario.status = newStatus;
 				existingScenario.businessDescription = scenario.businessDescription;
-				// Clear failure details if scenario passed
 				if (newStatus.contains("PASSED")) {
 					existingScenario.actualFailureReason = null;
 					existingScenario.failedStepName = null;
 					existingScenario.failedStepDetails = null;
 					existingScenario.errorStackTrace = null;
 				} else {
-					// Update failure details for failed scenarios
 					existingScenario.actualFailureReason = scenario.actualFailureReason;
 					existingScenario.failedStepName = scenario.failedStepName;
 					existingScenario.failedStepDetails = scenario.failedStepDetails;
@@ -1591,25 +1271,17 @@ public class DailyExcelTracker {
 						scenario.scenarioName, oldStatus, newStatus);
 			}
 		} else {
-			// THREAD-SAFE: ArrayList.add() is now protected by method synchronization
 			feature.scenarios.add(scenario);
 		}
 		
 		feature.totalScenarios = feature.scenarios.size();
 
-		// Recalculate counts
 		feature.passed = (int) feature.scenarios.stream().filter(s -> s.status.contains("PASSED")).count();
 		feature.failed = (int) feature.scenarios.stream().filter(s -> s.status.contains("FAILED")).count();
 		feature.skipped = (int) feature.scenarios.stream().filter(s -> s.status.contains("SKIPPED")).count();
 
-		// feature.featureName, feature.totalScenarios, feature.passed, feature.failed,
-		// feature.skipped);
 	}
 
-	/**
-	 * Extract feature name from class name ENHANCED: More specific matching to
-	 * avoid conflicts between similar class names
-	 */
 	private static String extractFeatureNameFromClassName(String className) {
 		if (className == null)
 			return "General Testing";
@@ -1617,9 +1289,6 @@ public class DailyExcelTracker {
 		String simpleName = className.substring(className.lastIndexOf('.') + 1);
 		String lowerName = simpleName.toLowerCase();
 
-		// Convert class names to business-friendly feature names with specific priority
-		// order
-		// Check more specific patterns first to avoid conflicts
 		if (lowerName.contains("header") && lowerName.contains("mapping")) {
 			return "Job Mapping Header Section";
 		} else if (lowerName.contains("jobprofile") && lowerName.contains("details")) {
@@ -1655,15 +1324,11 @@ public class DailyExcelTracker {
 		} else if (lowerName.contains("persistance") || lowerName.contains("persistence")) {
 			return "Filter Persistence Validation";
 		} else {
-			// Default to a cleaned-up version of the class name
 			String defaultName = simpleName.replaceAll("([A-Z])", " $1").trim();
 			return defaultName;
 		}
 	}
 
-	/**
-	 * Generate business description from method name
-	 */
 	private static String generateBusinessDescriptionFromMethodName(String methodName) {
 		if (methodName == null)
 			return "Business functionality validation";
@@ -1687,42 +1352,29 @@ public class DailyExcelTracker {
 		}
 	}
 
-	// Utility methods for XML parsing
-	/**
-	 * Parse actual Cucumber JSON results to extract real scenario data
-	 */
 	private static void parseCucumberJSON(File jsonFile, TestResultsSummary summary) {
 
 		try {
 			List<String> lines = java.nio.file.Files.readAllLines(jsonFile.toPath());
 			String content = String.join("", lines);
 
-			// Parse JSON structure to extract scenarios and their results
 			parseCucumberScenarios(content, summary);
-
-			// Cucumber JSON parsing completed
 
 		} catch (Exception e) {
 			LOGGER.debug("Could not parse Cucumber JSON {}, parsing feature files instead: {}", jsonFile.getName(),
 					e.getMessage());
 
-			// Fall back to parsing feature files directly
 			parseFeatureFiles(summary);
 		}
 	}
 
-	/**
-	 * Parse Cucumber scenarios from JSON content
-	 */
 	private static void parseCucumberScenarios(String jsonContent, TestResultsSummary summary) {
 		try {
-			// Simple JSON parsing - looking for key patterns
 			String[] featureBlocks = jsonContent.split("\"name\":");
 
 			for (int i = 1; i < featureBlocks.length; i++) {
 				String block = featureBlocks[i];
 
-				// Look for feature names and elements
 				if (block.contains("\"elements\"")) {
 					String featureName = extractJsonString(block, 0);
 					if (featureName != null && !featureName.isEmpty()) {
@@ -1739,9 +1391,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Parse individual feature from JSON block
-	 */
 	private static FeatureResult parseJsonFeature(String featureName, String jsonBlock) {
 		try {
 			FeatureResult feature = new FeatureResult();
@@ -1749,7 +1398,6 @@ public class DailyExcelTracker {
 			feature.businessDescription = generateBusinessDescription(featureName);
 			feature.scenarios = new ArrayList<>();
 
-			// Parse scenarios from elements array
 			String[] scenarioBlocks = jsonBlock.split("\"name\":");
 			for (int i = 1; i < scenarioBlocks.length; i++) {
 				String scenarioBlock = scenarioBlocks[i];
@@ -1763,7 +1411,6 @@ public class DailyExcelTracker {
 						scenario.businessDescription = "Test execution result: " + scenarioName;
 						scenario.status = convertCucumberStatusToBusiness(status);
 
-						// RETRY FIX: Check if this scenario passed in retry and update status
 						if (scenario.status != null && scenario.status.contains("FAILED")) {
 							if (com.kfonetalentsuite.listeners.ExcelReportListener.didScenarioPassInRetry(scenarioName)) {
 								scenario.status = "PASSED";
@@ -1776,7 +1423,6 @@ public class DailyExcelTracker {
 				}
 			}
 
-			// Calculate feature statistics
 			feature.totalScenarios = feature.scenarios.size();
 			feature.passed = (int) feature.scenarios.stream().filter(s -> s.status.contains("PASSED")).count();
 			feature.failed = (int) feature.scenarios.stream().filter(s -> s.status.contains("FAILED")).count();
@@ -1791,12 +1437,8 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Extract scenario status from JSON steps
-	 */
 	private static String extractScenarioStatus(String jsonBlock) {
 		try {
-			// Look for step results to determine overall scenario status
 			if (jsonBlock.contains("\"result\"")) {
 				if (jsonBlock.contains("\"status\":\"failed\"")) {
 					return "FAILED";
@@ -1814,9 +1456,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Convert Cucumber status to business status
-	 */
 	private static String convertCucumberStatusToBusiness(String cucumberStatus) {
 		if ("PASSED".equalsIgnoreCase(cucumberStatus)) {
 			return "PASSED";
@@ -1829,9 +1468,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Extract string value from JSON (simple approach)
-	 */
 	private static String extractJsonString(String jsonBlock, int index) {
 		try {
 			int start = jsonBlock.indexOf('"', index);
@@ -1843,14 +1479,10 @@ public class DailyExcelTracker {
 				}
 			}
 		} catch (Exception e) {
-			// Ignore
 		}
 		return null;
 	}
 
-	/**
-	 * Parse actual Cucumber feature files for business-friendly scenario details
-	 */
 	private static void parseFeatureFiles(TestResultsSummary summary) {
 		try {
 			File featuresDir = new File("src/test/resources/features");
@@ -1858,7 +1490,6 @@ public class DailyExcelTracker {
 				LOGGER.debug("Parsing feature files for business scenario details...");
 				parseFeatureDirectory(featuresDir, summary);
 			} else {
-				// Fallback to sample business-friendly data
 				addBusinessFriendlyFeatureResults(summary);
 			}
 		} catch (Exception e) {
@@ -1867,9 +1498,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Parse feature directory recursively
-	 */
 	private static void parseFeatureDirectory(File dir, TestResultsSummary summary) {
 		File[] files = dir.listFiles();
 		if (files != null) {
@@ -1883,9 +1511,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Parse individual feature file for business scenarios
-	 */
 	private static void parseFeatureFile(File featureFile, TestResultsSummary summary) {
 		try {
 			List<String> lines = java.nio.file.Files.readAllLines(featureFile.toPath());
@@ -1897,14 +1522,11 @@ public class DailyExcelTracker {
 			for (int i = 0; i < lines.size(); i++) {
 				String line = lines.get(i).trim();
 
-				// Parse Feature line
 				if (line.startsWith("Feature:")) {
 					currentFeature = line.substring(8).trim();
-					// Get feature description (As a... I want to... So that...)
 					featureDescription = extractFeatureDescription(lines, i + 1);
 				}
 
-				// Parse Scenario lines
 				if (line.startsWith("Scenario:")) {
 					String scenarioName = line.substring(9).trim();
 					String businessDescription = extractScenarioBusinessDescription(lines, i, scenarioName);
@@ -1917,7 +1539,6 @@ public class DailyExcelTracker {
 				}
 			}
 
-			// Create FeatureResult with business context
 			if (currentFeature != null && !scenarios.isEmpty()) {
 				FeatureResult feature = new FeatureResult();
 				feature.featureName = makeBusinessFriendly(currentFeature);
@@ -1926,7 +1547,6 @@ public class DailyExcelTracker {
 				feature.scenarios = scenarios;
 				feature.totalScenarios = scenarios.size();
 
-				// Calculate pass/fail based on scenario status
 				feature.passed = (int) scenarios.stream().filter(s -> "PASSED".equals(s.status)).count();
 				feature.failed = (int) scenarios.stream().filter(s -> "FAILED".equals(s.status)).count();
 				feature.skipped = (int) scenarios.stream().filter(s -> "SKIPPED".equals(s.status)).count();
@@ -1940,9 +1560,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Extract feature description (As a... I want to... So that...)
-	 */
 	private static String extractFeatureDescription(List<String> lines, int startIndex) {
 		StringBuilder description = new StringBuilder();
 		for (int i = startIndex; i < Math.min(startIndex + 10, lines.size()); i++) {
@@ -1958,14 +1575,10 @@ public class DailyExcelTracker {
 		return description.toString();
 	}
 
-	/**
-	 * Extract real business description from scenario comments and context
-	 */
 	private static String extractScenarioBusinessDescription(List<String> lines, int scenarioIndex,
 			String scenarioName) {
 		StringBuilder description = new StringBuilder();
 
-		// Look for comments above the scenario (lines before the scenario)
 		for (int i = scenarioIndex - 1; i >= 0; i--) {
 			String line = lines.get(i).trim();
 			if (line.startsWith("#") && !line.contains("@")) { // Skip tag lines
@@ -1982,11 +1595,9 @@ public class DailyExcelTracker {
 			return description.toString().trim();
 		}
 
-		// Otherwise, look at the first few steps under the scenario for context
 		for (int i = scenarioIndex + 1; i < lines.size() && i < scenarioIndex + 5; i++) {
 			String line = lines.get(i).trim();
 			if (line.startsWith("When ") || line.startsWith("Then ") || line.startsWith("Given ")) {
-				// Extract meaningful action from step
 				String step = line.replaceFirst("^(When |Then |Given )", "").trim();
 				return "Test validates: " + step.toLowerCase();
 			} else if (line.startsWith("Scenario:") || line.startsWith("Feature:")) {
@@ -1994,22 +1605,15 @@ public class DailyExcelTracker {
 			}
 		}
 
-		// Fallback: create description from scenario name itself
 		return "Validates " + scenarioName.toLowerCase().replaceAll("^(validate|verify|test)\\s+", "");
 	}
 
-	/**
-	 * Make feature names business-friendly
-	 */
 	private static String makeBusinessFriendly(String technicalName) {
 		return technicalName.replace("Validate", "Verify").replace("functionality", "capability")
 				.replace("API", "System Integration").replace("UI", "User Interface").replace("SP", "Success Profile")
 				.replace("BIC", "Business Intelligence Center").replace("PM", "Profile Manager");
 	}
 
-	/**
-	 * Generate business description from feature name
-	 */
 	private static String generateBusinessDescription(String featureName) {
 		if (featureName.toLowerCase().contains("login")) {
 			return "Ensures users can securely access the application using various authentication methods";
@@ -2024,9 +1628,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Generate scenario status (simulate based on typical results)
-	 */
 	private static String generateScenarioStatus() {
 		double random = Math.random();
 		if (random < 0.85)
@@ -2037,18 +1638,12 @@ public class DailyExcelTracker {
 			return "SKIPPED";
 	}
 
-	/**
-	 * Generate realistic duration
-	 */
 	private static String generateDuration() {
 		int minutes = (int) (Math.random() * 5 + 2);
 		int seconds = (int) (Math.random() * 60);
 		return minutes + "m " + seconds + "s";
 	}
 
-	/**
-	 * Fallback business-friendly feature results
-	 */
 	private static void addBusinessFriendlyFeatureResults(TestResultsSummary summary) {
 		String[][] businessFeatures = {
 				{ "User Authentication & Access Control",
@@ -2069,16 +1664,12 @@ public class DailyExcelTracker {
 			feature.skipped = feature.totalScenarios - feature.passed - feature.failed;
 			feature.duration = generateDuration();
 
-			// Add sample scenarios
 			feature.scenarios = generateSampleScenarios(feature.featureName, feature.totalScenarios);
 
 			summary.featureResults.add(feature);
 		}
 	}
 
-	/**
-	 * Generate sample business scenarios
-	 */
 	private static List<ScenarioDetail> generateSampleScenarios(String featureName, int count) {
 		List<ScenarioDetail> scenarios = new ArrayList<>();
 		for (int i = 1; i <= count; i++) {
@@ -2091,19 +1682,10 @@ public class DailyExcelTracker {
 		return scenarios;
 	}
 
-	/**
-	 * Replace generic business names with real feature file content Maps runner
-	 * class names directly to feature files for accurate naming FIXED: Always
-	 * ensures consistent feature naming regardless of TestNG parameter extraction
-	 * success
-	 */
 	private static void replaceGenericNamesWithRealContent(TestResultsSummary summary) {
 		LOGGER.debug("Ensuring consistent feature names for {} features", summary.featureResults.size());
 
 		// FIXED: Always standardize feature names to ensure consistency between runs
-		// This prevents the race condition where TestNG parameter extraction
-		// success/failure
-		// would produce different feature texts for the same test runner
 
 		boolean hasRealScenarioNames = summary.featureResults.stream()
 				.flatMap(f -> f.scenarios != null ? f.scenarios.stream() : java.util.stream.Stream.empty())
@@ -2113,7 +1695,6 @@ public class DailyExcelTracker {
 			LOGGER.debug("Real scenario names found from TestNG XML - attempting feature file enhancement");
 
 			// FIXED: Always try to get real feature content from .feature files first
-			// This provides the actual business-meaningful feature text
 			boolean featureFileExtractionSuccessful = enhanceWithRealFeatureContent(summary);
 
 			if (!featureFileExtractionSuccessful) {
@@ -2126,14 +1707,11 @@ public class DailyExcelTracker {
 			return;
 		}
 
-		// Original replacement logic for when we only have temp scenario names
 		LOGGER.debug("Found temp scenario names - proceeding with feature file replacement");
 
 		List<FeatureResult> updatedFeatures = new ArrayList<>();
 
-		// Process each executed feature to get real content
 		for (FeatureResult executedFeature : summary.featureResults) {
-			// executedFeature.featureName, executedFeature.runnerClassName);
 
 			List<FeatureResult> realFeatures = getRealFeatureContentFromExecution(executedFeature);
 
@@ -2144,40 +1722,26 @@ public class DailyExcelTracker {
 
 			updatedFeatures.addAll(realFeatures);
 
-			// realFeature.featureName, realFeature.scenarios.size());
 		}
 
-		// Replace the generic features with real ones
 		summary.featureResults.clear();
 		summary.featureResults.addAll(updatedFeatures);
 
-		// summary.featureResults.size());
 	}
 
-	/**
-	 * Get real feature file content based on execution results This maps from
-	 * executed runner classes to their corresponding feature files
-	 */
 	private static List<FeatureResult> getRealFeatureContentFromExecution(FeatureResult executedFeature) {
 		List<FeatureResult> realFeatures = new ArrayList<>();
 
 		try {
-			// Extract runner class information from the executed feature
 			String runnerClassName = extractRunnerClassFromFeature(executedFeature);
 
-			// Find feature files used by this runner
 			List<File> featureFiles = findFeatureFilesForRunner(runnerClassName);
-			// featureFiles.size(), runnerClassName,
-			// featureFiles.stream().map(File::getName).collect(java.util.stream.Collectors.toList()));
 
 			if (!featureFiles.isEmpty()) {
-				// Parse each feature file and create real FeatureResult with execution status
 				for (File featureFile : featureFiles) {
 					FeatureResult realFeature = parseFeatureFileWithExecutionStatus(featureFile, executedFeature);
 					if (realFeature != null) {
 						realFeatures.add(realFeature);
-						// realFeature.featureName, realFeature.scenarios.size(),
-						// featureFile.getName());
 					} else {
 						LOGGER.debug("Failed to parse feature file: {}", featureFile.getName());
 					}
@@ -2185,7 +1749,6 @@ public class DailyExcelTracker {
 			} else {
 				LOGGER.debug("No feature files found for runner: {} (from feature: {}), keeping generic feature",
 						runnerClassName, executedFeature.featureName);
-				// Keep the original feature if we can't find the files
 				realFeatures.add(executedFeature);
 			}
 
@@ -2193,36 +1756,26 @@ public class DailyExcelTracker {
 			LOGGER.debug("Could not get real content for feature '{}': {}", executedFeature.featureName,
 					e.getMessage());
 			e.printStackTrace(); // Add stack trace for debugging
-			// Keep the original feature if there's an error
 			realFeatures.add(executedFeature);
 		}
 
 		return realFeatures;
 	}
 
-	/**
-	 * ENHANCED: Extract real feature content from .feature files for
-	 * business-meaningful names This provides actual feature descriptions instead
-	 * of generated names
-	 */
 	private static boolean enhanceWithRealFeatureContent(TestResultsSummary summary) {
 		boolean allFeaturesEnhanced = true;
 
 		for (FeatureResult feature : summary.featureResults) {
 			if (feature.runnerClassName != null) {
 				try {
-					// Find the actual .feature file for this runner
 					List<File> featureFiles = findFeatureFilesForRunner(feature.runnerClassName);
 
 					if (!featureFiles.isEmpty()) {
-						// Use the first feature file found (most runners map to one file)
 						File featureFile = featureFiles.get(0);
 
-						// Extract real feature content
 						FeatureContent realContent = extractFeatureContentFromFile(featureFile);
 
 						if (realContent != null) {
-							// Update with real feature information
 							feature.featureName = realContent.featureName;
 							feature.businessDescription = realContent.businessDescription;
 							LOGGER.debug("Enhanced feature: '{}' (from {})", feature.featureName, featureFile.getName());
@@ -2244,10 +1797,6 @@ public class DailyExcelTracker {
 		return allFeaturesEnhanced;
 	}
 
-	/**
-	 * Extract ONLY feature name from a .feature file (skip description extraction)
-	 * SIMPLIFIED: User requested only real feature names, not descriptions
-	 */
 	private static FeatureContent extractFeatureContentFromFile(File featureFile) {
 		try {
 			List<String> lines = java.nio.file.Files.readAllLines(featureFile.toPath());
@@ -2257,7 +1806,6 @@ public class DailyExcelTracker {
 			for (String line : lines) {
 				String trimmed = line.trim();
 
-				// Extract ONLY Feature name - skip description extraction
 				if (trimmed.startsWith("Feature:")) {
 					featureName = trimmed.substring(8).trim();
 					break; // Found feature name - exit immediately
@@ -2267,7 +1815,6 @@ public class DailyExcelTracker {
 			if (featureName != null) {
 				FeatureContent content = new FeatureContent();
 				content.featureName = featureName;
-				// SIMPLIFIED: Use minimal business description instead of extracted text
 				content.businessDescription = "Test execution: " + featureName;
 				return content;
 			}
@@ -2279,22 +1826,14 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	/**
-	 * Helper class to hold extracted feature content
-	 */
 	private static class FeatureContent {
 		String featureName;
 		String businessDescription;
 	}
 
-	/**
-	 * FALLBACK: Ensure consistent feature names when feature file extraction fails
-	 * This prevents different feature texts for the same test runner between runs
-	 */
 	private static void ensureConsistentFeatureNames(TestResultsSummary summary) {
 		for (FeatureResult feature : summary.featureResults) {
 			if (feature.runnerClassName != null) {
-				// Generate consistent feature name based on runner class name
 				String consistentFeatureName = generateConsistentFeatureName(feature.runnerClassName);
 				String consistentBusinessDescription = generateBusinessDescription(consistentFeatureName);
 
@@ -2309,56 +1848,38 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * FIXED: Generate consistent feature name from runner class name Uses the SAME
-	 * logic as cross-browser execution for consistency
-	 */
 	private static String generateConsistentFeatureName(String runnerClassName) {
 		if (runnerClassName == null)
 			return "Unknown Test Suite";
 
-		// Extract just the class name from full package path
 		String baseName = runnerClassName;
 		if (baseName.contains(".")) {
 			baseName = baseName.substring(baseName.lastIndexOf(".") + 1);
 		}
 
 		// FIXED: Use the same feature extraction logic as cross-browser execution
-		// This ensures consistent feature names between Normal and Cross-Browser runs
 		String actualFeatureName = extractFeatureNameFromRunnerClass(baseName);
-
-		// Minimal logging for consistency verification - DISABLED
 
 		if (actualFeatureName != null && !actualFeatureName.isEmpty()) {
 			return actualFeatureName;
 		}
 
-		// Final fallback if everything else fails
 		return "Unknown Test Feature";
 	}
 
-	/**
-	 * Extract runner class name from executed feature Now uses the stored runner
-	 * class name from TestNG XML parsing
-	 */
 	private static String extractRunnerClassFromFeature(FeatureResult executedFeature) {
-		// First, try to use the stored runner class name
 		if (executedFeature.runnerClassName != null && !executedFeature.runnerClassName.isEmpty()) {
 			String className = executedFeature.runnerClassName;
 
-			// Extract just the class name from the full package path
 			if (className.contains(".")) {
 				className = className.substring(className.lastIndexOf(".") + 1);
 			}
 			return className;
 		}
 
-		// Fallback to the old pattern matching approach
 		String featureName = executedFeature.featureName;
 		LOGGER.warn(" No stored runner class name! Inferring from feature name: '{}'", featureName);
 
-		// DYNAMIC SOLUTION: Extract runner number from feature name or file path
-		// Use existing dynamic mapping instead of hardcoded text matching
 		LOGGER.debug("DYNAMIC INFERENCE - Feature: '{}'", featureName);
 
 		String extractedNumber = extractNumberFromText(featureName);
@@ -2366,7 +1887,6 @@ public class DailyExcelTracker {
 			return "Runner" + extractedNumber; // Generic runner name
 		}
 
-		// Default fallback - try to extract from any scenarios
 		if (executedFeature.scenarios != null && !executedFeature.scenarios.isEmpty()) {
 			String inferredRunner = inferRunnerFromScenarioNames(executedFeature.scenarios);
 			return inferredRunner;
@@ -2376,12 +1896,7 @@ public class DailyExcelTracker {
 		return "UnknownRunner";
 	}
 
-	/**
-	 * Infer runner class from scenario names (more reliable method)
-	 */
 	private static String inferRunnerFromScenarioNames(List<ScenarioDetail> scenarios) {
-		// DYNAMIC SOLUTION: Try to extract numbers from scenario names or use generic
-		// approach
 		LOGGER.debug("DYNAMIC SCENARIO INFERENCE - Analyzing {} scenarios", scenarios.size());
 
 		for (ScenarioDetail scenario : scenarios) {
@@ -2394,17 +1909,10 @@ public class DailyExcelTracker {
 		return "UnknownRunner";
 	}
 
-	/**
-	 * Find feature files that correspond to a specific runner class DYNAMIC: Uses
-	 * the same logic as feature name extraction to ensure consistency
-	 */
 	private static List<File> findFeatureFilesForRunner(String runnerClassName) {
 		List<File> featureFiles = new ArrayList<>();
 
 		try {
-			// DYNAMIC APPROACH: Use the same logic as getActualFeatureNameFromFiles
-			// This ensures consistency with feature name extraction and eliminates
-			// hardcoded mappings
 			String runnerNumber = extractRunnerNumber(runnerClassName);
 			String featureFilePath = mapRunnerToFeatureFile(runnerNumber);
 
@@ -2427,15 +1935,9 @@ public class DailyExcelTracker {
 					e.getMessage());
 		}
 
-		// REMOVED: No more fallback to recursive search to prevent incorrect mappings
-
 		return featureFiles;
 	}
 
-	/**
-	 * Parse feature file and combine with execution status to create real
-	 * FeatureResult
-	 */
 	private static FeatureResult parseFeatureFileWithExecutionStatus(File featureFile, FeatureResult executedFeature) {
 		try {
 			List<String> lines = java.nio.file.Files.readAllLines(featureFile.toPath());
@@ -2443,7 +1945,6 @@ public class DailyExcelTracker {
 			String realFeatureName = null;
 			List<ScenarioDetail> realScenarios = new ArrayList<>();
 
-			// Extract real feature name
 			for (String line : lines) {
 				if (line.trim().startsWith("Feature:")) {
 					realFeatureName = line.substring(8).trim();
@@ -2452,13 +1953,8 @@ public class DailyExcelTracker {
 			}
 
 			// FIXED: Only include scenarios that were actually executed
-			// Instead of reading all scenarios from feature file, map executed scenarios to
-			// real names
-			// executedFeature.scenarios != null ? executedFeature.scenarios.size() : 0,
-			// realFeatureName);
 
 			if (executedFeature.scenarios != null && !executedFeature.scenarios.isEmpty()) {
-				// Get all scenarios from feature file first
 				List<String> allFeatureScenarios = new ArrayList<>();
 				for (String line : lines) {
 					if (line.trim().startsWith("Scenario:")) {
@@ -2467,11 +1963,7 @@ public class DailyExcelTracker {
 					}
 				}
 
-				// allFeatureScenarios.size(), allFeatureScenarios);
-
-				// Now map executed scenarios to real names
 				for (ScenarioDetail executedScenario : executedFeature.scenarios) {
-					// executedScenario.scenarioName, executedScenario.status);
 
 					String matchedRealName = findBestMatchingScenarioName(allFeatureScenarios, executedScenario);
 
@@ -2489,11 +1981,9 @@ public class DailyExcelTracker {
 
 						realScenarios.add(realScenario);
 
-						// executedScenario.scenarioName, matchedRealName, realScenario.status);
 					} else {
 						LOGGER.warn("No matching real scenario found for: '{}'", executedScenario.scenarioName);
 
-						// Fallback: use executed scenario name
 						ScenarioDetail fallbackScenario = new ScenarioDetail();
 						fallbackScenario.scenarioName = executedScenario.scenarioName.replace("TEMP_SCENARIO_",
 								"Executed Test - ");
@@ -2520,7 +2010,6 @@ public class DailyExcelTracker {
 				realFeature.scenarios = realScenarios;
 				realFeature.totalScenarios = realScenarios.size();
 
-				// Calculate stats from scenario statuses
 				realFeature.passed = (int) realScenarios.stream().filter(s -> s.status.contains("PASSED")).count();
 				realFeature.failed = (int) realScenarios.stream().filter(s -> s.status.contains("FAILED")).count();
 				realFeature.skipped = (int) realScenarios.stream().filter(s -> s.status.contains("SKIPPED")).count();
@@ -2535,17 +2024,10 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	// Static counter to track scenario mapping order
 	private static int scenarioMappingCounter = 0;
 
-	// Track which scenarios have been used to avoid duplicates
 	private static java.util.Set<String> usedScenarioNames = new java.util.HashSet<>();
 
-	/**
-	 * Find the best matching real scenario name from the feature file for an
-	 * executed scenario This handles mapping from TestNG execution data to actual
-	 * feature file scenario names
-	 */
 	private static String findBestMatchingScenarioName(List<String> allFeatureScenarios,
 			ScenarioDetail executedScenario) {
 		if (allFeatureScenarios == null || allFeatureScenarios.isEmpty() || executedScenario == null) {
@@ -2557,22 +2039,17 @@ public class DailyExcelTracker {
 		// ENHANCED: Smart mapping strategy for all runners - ensure no duplicates
 		if (executedName.contains("LoginPageRunner") || executedName.contains("Runner")) {
 			String runnerName = extractRunnerNameFromExecutedName(executedName);
-			// Smart mapping: Processing scenario for runner
 
-			// Apply runner-specific mapping logic
 			String mappedScenario = applyRunnerSpecificMapping(allFeatureScenarios, executedScenario, runnerName);
 			if (mappedScenario != null) {
 				return mappedScenario;
 			}
 		}
 
-		// IMPROVED: Sequential mapping that avoids duplicates
 		if (executedName.contains("TEMP_SCENARIO_") && !allFeatureScenarios.isEmpty()) {
-			// Find first unused scenario
 			for (String realScenario : allFeatureScenarios) {
 				if (!usedScenarioNames.contains(realScenario)) {
 					usedScenarioNames.add(realScenario);
-					// scenarioMappingCounter, realScenario);
 					scenarioMappingCounter++; // Increment counter
 					return realScenario;
 				}
@@ -2586,17 +2063,14 @@ public class DailyExcelTracker {
 			return selectedScenario;
 		}
 
-		// Fallback: try to match by keywords in scenario name (avoid duplicates)
 		for (String realScenario : allFeatureScenarios) {
 			if (matchesScenarioKeywords(realScenario, executedName) && !usedScenarioNames.contains(realScenario)) {
 				usedScenarioNames.add(realScenario);
-				// Scenario keyword match found
 				scenarioMappingCounter++; // Increment counter
 				return realScenario;
 			}
 		}
 
-		// Last resort: return first unused scenario
 		for (String realScenario : allFeatureScenarios) {
 			if (!usedScenarioNames.contains(realScenario)) {
 				usedScenarioNames.add(realScenario);
@@ -2605,20 +2079,14 @@ public class DailyExcelTracker {
 			}
 		}
 
-		// Final fallback: return first available scenario (allows duplicates as last
-		// resort)
 		if (!allFeatureScenarios.isEmpty()) {
 			String firstScenario = allFeatureScenarios.get(0);
 			return firstScenario;
 		}
 
-		// No scenario match found - using executed name
 		return null;
 	}
 
-	/**
-	 * Extract runner name from executed scenario name for logging
-	 */
 	private static String extractRunnerNameFromExecutedName(String executedName) {
 		if (executedName == null)
 			return "Unknown";
@@ -2628,7 +2096,6 @@ public class DailyExcelTracker {
 		if (executedName.contains("LoginPageRunner"))
 			return "LoginPageRunner";
 		if (executedName.contains("Runner")) {
-			// Extract runner class name from TEMP_SCENARIO_RunnerClassName pattern
 			String[] parts = executedName.split("\\.");
 			for (String part : parts) {
 				if (part.contains("Runner")) {
@@ -2639,33 +2106,16 @@ public class DailyExcelTracker {
 		return "UnknownRunner";
 	}
 
-	/**
-	 * FIXED: Apply DYNAMIC scenario mapping logic (NO MORE HARDCODED RUNNERS!) Uses
-	 * the same dynamic logic for all runners
-	 */
 	private static String applyRunnerSpecificMapping(List<String> allFeatureScenarios, ScenarioDetail executedScenario,
 			String runnerName) {
 		LOGGER.debug("DYNAMIC MAPPING - Runner: '{}', Available scenarios: {}", runnerName, allFeatureScenarios.size());
 
-		// DYNAMIC SOLUTION: Use the same logic for ALL runners
-		// @CucumberOptions tags already filter to correct scenarios, just use natural
-		// order
 		return applyDynamicScenarioSelection(allFeatureScenarios);
 	}
 
-	/**
-	 * DYNAMIC SOLUTION: Use natural scenario order (NO MORE HARDCODED TEXT
-	 * MATCHING!)
-	 * 
-	 * @CucumberOptions tags already filter the correct scenarios, just use them in
-	 *                  order
-	 */
 	private static String applyDynamicScenarioSelection(List<String> allFeatureScenarios) {
-		// SIMPLE: Just return scenarios in the order they appear in the feature file
-		// The @CucumberOptions tags have already filtered to the correct scenarios
 
 		if (allFeatureScenarios != null && !allFeatureScenarios.isEmpty()) {
-			// Get the next unused scenario in natural order
 			for (String realScenario : allFeatureScenarios) {
 				if (!usedScenarioNames.contains(realScenario)) {
 					usedScenarioNames.add(realScenario);
@@ -2686,12 +2136,6 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	// REMOVED: applyGenericRunnerLogic() - replaced by
-	// applyDynamicScenarioSelection()
-
-	/**
-	 * Check if a real scenario matches an executed scenario based on keywords
-	 */
 	private static boolean matchesScenarioKeywords(String realScenario, String executedName) {
 		if (realScenario == null || executedName == null)
 			return false;
@@ -2699,7 +2143,6 @@ public class DailyExcelTracker {
 		String realLower = realScenario.toLowerCase();
 		String executedLower = executedName.toLowerCase();
 
-		// Check for common keywords
 		String[] keywords = { "login", "saml", "microsoft", "browser", "close", "cleanup" };
 
 		for (String keyword : keywords) {
@@ -2711,10 +2154,6 @@ public class DailyExcelTracker {
 		return false;
 	}
 
-	/**
-	 * Check if a scenario was actually executed (has a meaningful status) This
-	 * helps filter out non-executed scenarios from Excel display
-	 */
 	private static boolean wasScenarioActuallyExecuted(ScenarioDetail scenario) {
 		if (scenario == null || scenario.status == null)
 			return false;
@@ -2726,22 +2165,16 @@ public class DailyExcelTracker {
 			return false;
 		}
 
-		// Consider it executed if it has a real execution status
 		return status.contains("passed") || status.contains("failed") || status.contains("skipped");
 	}
 
-	/**
-	 * DEPRECATED: Old method - replaced with more direct approach
-	 */
 	@SuppressWarnings("unused")
 	private static void enhanceFeatureWithFileDetails_DEPRECATED(FeatureResult executedFeature) {
 		try {
 			File featureFile = findFeatureFileForExecutedFeature(executedFeature);
 
 			if (featureFile != null) {
-				// featureFile.getName(), executedFeature.featureName);
 
-				// Parse only the feature name and scenario names from the file
 				updateFeatureNamesFromFile(executedFeature, featureFile);
 			} else {
 			}
@@ -2749,9 +2182,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Find the feature file that corresponds to an executed feature
-	 */
 	private static File findFeatureFileForExecutedFeature(FeatureResult executedFeature) {
 		File featuresDir = new File("src/test/resources/features");
 		if (!featuresDir.exists()) {
@@ -2762,9 +2192,6 @@ public class DailyExcelTracker {
 		return searchFeatureFileRecursively(featuresDir, executedFeatureName);
 	}
 
-	/**
-	 * Search for feature file recursively
-	 */
 	private static File searchFeatureFileRecursively(File dir, String executedFeatureName) {
 		File[] files = dir.listFiles();
 		if (files == null)
@@ -2776,7 +2203,6 @@ public class DailyExcelTracker {
 				if (found != null)
 					return found;
 			} else if (file.getName().endsWith(".feature")) {
-				// Check if this feature file matches the executed feature
 				if (isMatchingFeatureFile(file, executedFeatureName)) {
 					return file;
 				}
@@ -2785,9 +2211,6 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	/**
-	 * Check if a feature file matches the executed feature name
-	 */
 	private static boolean isMatchingFeatureFile(File featureFile, String executedFeatureName) {
 		try {
 			List<String> lines = java.nio.file.Files.readAllLines(featureFile.toPath());
@@ -2795,7 +2218,6 @@ public class DailyExcelTracker {
 				if (line.trim().startsWith("Feature:")) {
 					String fileFeatureName = line.substring(8).trim().toLowerCase();
 
-					// Check for various matching patterns
 					if (fileFeatureName.equals(executedFeatureName) || executedFeatureName.contains(fileFeatureName)
 							|| fileFeatureName.contains(executedFeatureName)
 							|| areFeaturesRelated(fileFeatureName, executedFeatureName)) {
@@ -2804,19 +2226,14 @@ public class DailyExcelTracker {
 				}
 			}
 		} catch (Exception e) {
-			// Ignore file reading errors
 		}
 		return false;
 	}
 
-	/**
-	 * Update feature and scenario names from the actual feature file
-	 */
 	private static void updateFeatureNamesFromFile(FeatureResult executedFeature, File featureFile) {
 		try {
 			List<String> lines = java.nio.file.Files.readAllLines(featureFile.toPath());
 
-			// Update feature name
 			for (String line : lines) {
 				if (line.trim().startsWith("Feature:")) {
 					String realFeatureName = line.substring(8).trim();
@@ -2825,7 +2242,6 @@ public class DailyExcelTracker {
 				}
 			}
 
-			// Update scenario names for executed scenarios
 			if (executedFeature.scenarios != null) {
 				updateScenarioNamesFromFile(executedFeature.scenarios, lines);
 			}
@@ -2834,13 +2250,9 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Update scenario names from feature file lines
-	 */
 	private static void updateScenarioNamesFromFile(List<ScenarioDetail> executedScenarios, List<String> fileLines) {
 		List<String> fileScenarioNames = new ArrayList<>();
 
-		// Extract all scenario names from the feature file
 		for (String line : fileLines) {
 			if (line.trim().startsWith("Scenario:")) {
 				String scenarioName = line.substring(9).trim();
@@ -2856,9 +2268,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Find best matching scenario name from file
-	 */
 	private static String findBestScenarioMatch(String executedScenarioName, List<String> fileScenarioNames) {
 		String cleanExecutedName = executedScenarioName.toLowerCase().replaceAll("\\s", "");
 
@@ -2874,36 +2283,26 @@ public class DailyExcelTracker {
 		return null; // No good match found
 	}
 
-	/**
-	 * DEPRECATED: Old merge method - replaced with
-	 * enrichExecutedScenariosWithFeatureDetails This method is kept for reference
-	 * but will be removed in future versions
-	 */
 	@SuppressWarnings("unused")
 	private static void mergeFeatureDescriptionsWithResults_DEPRECATED(TestResultsSummary featureFileData,
 			TestResultsSummary executionResults) {
 		LOGGER.debug("Merging {} features from files with {} execution results", featureFileData.featureResults.size(),
 				executionResults.featureResults.size());
 
-		// Copy execution statistics to the main summary
 		featureFileData.totalTests = executionResults.totalTests;
 		featureFileData.passedTests = executionResults.passedTests;
 		featureFileData.failedTests = executionResults.failedTests;
 		featureFileData.skippedTests = executionResults.skippedTests;
 		featureFileData.totalDuration = executionResults.totalDuration;
 
-		// Now merge scenario execution status with feature file scenarios
 		for (FeatureResult featureFromFile : featureFileData.featureResults) {
 
 			FeatureResult matchingExecution = findMatchingExecutionFeature(featureFromFile, executionResults);
 
 			if (matchingExecution != null && matchingExecution.scenarios != null) {
-				// featureFromFile.scenarios.size(), featureFromFile.featureName);
 
-				// Update scenario statuses with real execution results
 				updateScenarioStatusesFromExecution(featureFromFile, matchingExecution);
 
-				// Update feature-level statistics from real execution results
 				featureFromFile.totalScenarios = matchingExecution.totalScenarios;
 				featureFromFile.passed = matchingExecution.passed;
 				featureFromFile.failed = matchingExecution.failed;
@@ -2911,22 +2310,15 @@ public class DailyExcelTracker {
 				featureFromFile.duration = matchingExecution.duration;
 
 			} else {
-				// No execution results found - keep simulated status but log warning
-				// Keep the simulated statuses that were generated in parseFeatureFile()
 			}
 		}
 
-		// featureFileData.featureResults.size());
 	}
 
-	/**
-	 * Find matching execution feature by name similarity
-	 */
 	private static FeatureResult findMatchingExecutionFeature(FeatureResult featureFromFile,
 			TestResultsSummary executionResults) {
 		String fileFeatureName = featureFromFile.featureName.toLowerCase();
 
-		// Look for exact or partial matches in execution results
 		for (FeatureResult executionFeature : executionResults.featureResults) {
 			String executionFeatureName = executionFeature.featureName.toLowerCase();
 
@@ -2940,9 +2332,6 @@ public class DailyExcelTracker {
 		return null; // No match found
 	}
 
-	/**
-	 * Check if features are related by common keywords
-	 */
 	private static boolean areFeaturesRelated(String featureName1, String featureName2) {
 		String[] keywords1 = featureName1.toLowerCase().split("\\s+");
 		String[] keywords2 = featureName2.toLowerCase().split("\\s+");
@@ -2962,9 +2351,6 @@ public class DailyExcelTracker {
 		return matches >= 2; // At least 2 related keywords
 	}
 
-	/**
-	 * Update scenario statuses based on execution results
-	 */
 	private static void updateScenarioStatusesFromExecution(FeatureResult featureFromFile,
 			FeatureResult executionFeature) {
 		if (featureFromFile.scenarios == null || executionFeature.scenarios == null) {
@@ -2975,16 +2361,11 @@ public class DailyExcelTracker {
 			ScenarioDetail matchingExecution = findMatchingScenario(fileScenario, executionFeature.scenarios);
 
 			if (matchingExecution != null) {
-				// Update status from execution results while keeping original description
 				fileScenario.status = matchingExecution.status;
-				// fileScenario.scenarioName, fileScenario.status);
 			}
 		}
 	}
 
-	/**
-	 * Find matching scenario by name similarity
-	 */
 	private static ScenarioDetail findMatchingScenario(ScenarioDetail fileScenario,
 			List<ScenarioDetail> executionScenarios) {
 		String fileScenarioName = fileScenario.scenarioName.toLowerCase();
@@ -2992,7 +2373,6 @@ public class DailyExcelTracker {
 		for (ScenarioDetail executionScenario : executionScenarios) {
 			String executionScenarioName = executionScenario.scenarioName.toLowerCase();
 
-			// Check for name similarity (removing emojis and extra formatting)
 			String cleanFileName = fileScenarioName.replaceAll("\\s", "");
 			String cleanExecutionName = executionScenarioName.replaceAll("\\s", "");
 
@@ -3005,9 +2385,6 @@ public class DailyExcelTracker {
 		return null; // No match found
 	}
 
-	/**
-	 * Check if scenarios are related by common keywords
-	 */
 	private static boolean areScenariosRelated(String scenario1, String scenario2) {
 		String[] words1 = scenario1.toLowerCase().split("\\s+");
 		String[] words2 = scenario2.toLowerCase().split("\\s+");
@@ -3027,9 +2404,6 @@ public class DailyExcelTracker {
 		return matches >= 3; // At least 3 common words for scenarios
 	}
 
-	/**
-	 * Calculate summary statistics with enhanced business intelligence metrics
-	 */
 	private static void calculateSummaryStats(TestResultsSummary summary) {
 		if (summary.totalTests > 0) {
 			summary.passRate = Math.round((double) summary.passedTests / summary.totalTests * 100);
@@ -3037,18 +2411,13 @@ public class DailyExcelTracker {
 			summary.skipRate = Math.round((double) summary.skippedTests / summary.totalTests * 100);
 		}
 
-		// Determine overall status - SIMPLIFIED: Only 3 statuses (PASSED, FAILED,
-		// SKIPPED)
 		if (summary.totalTests == 0) {
 			summary.overallStatus = "NO TESTS";
 		} else if (summary.failedTests > 0) {
-			// Any failures = FAILED status
 			summary.overallStatus = "FAILED";
 		} else if (summary.passedTests == summary.totalTests) {
-			// Quality Status = PASSED only if ALL scenarios are PASSED
 			summary.overallStatus = "PASSED";
 		} else {
-			// Mixed results (some passed, some skipped) OR all skipped = SKIPPED status
 			summary.overallStatus = "SKIPPED";
 		}
 
@@ -3056,32 +2425,23 @@ public class DailyExcelTracker {
 				summary.totalTests, summary.passedTests, summary.failedTests, summary.skippedTests,
 				summary.overallStatus);
 
-		// Calculate enhanced business intelligence metrics
 		calculateEnhancedMetrics(summary);
 	}
 
-	/**
-	 * Calculate enhanced business intelligence metrics for executive dashboard
-	 */
 	private static void calculateEnhancedMetrics(TestResultsSummary summary) {
-		// Feature coverage metrics
 		summary.totalFeatures = summary.featureResults.size();
 		summary.executedFeatures = (int) summary.featureResults.stream()
 				.filter(feature -> feature.scenarios != null && !feature.scenarios.isEmpty()).count();
 
-		// Health Score: Weighted metric considering pass rate and critical path
 		if (summary.totalTests > 0) {
 			double baseScore = summary.passRate;
-			// Bonus points for no critical failures
 			boolean hasCriticalFailures = summary.featureResults.stream()
 					.anyMatch(feature -> isFeatureCritical(feature.featureName) && feature.failed > 0);
 			if (!hasCriticalFailures)
 				baseScore += 5;
-			// Cap at 100%
 			summary.healthScore = Math.min(100, (int) baseScore) + "%";
 		}
 
-		// Risk Level Assessment
 		if (summary.failRate <= 5) {
 			summary.riskLevel = "LOW";
 		} else if (summary.failRate <= 15) {
@@ -3090,19 +2450,16 @@ public class DailyExcelTracker {
 			summary.riskLevel = "HIGH";
 		}
 
-		// Critical Path Status
 		boolean criticalPathPassed = summary.featureResults.stream()
 				.filter(feature -> isFeatureCritical(feature.featureName)).allMatch(feature -> feature.failed == 0);
 		summary.criticalPathStatus = criticalPathPassed ? "PASSED" : "FAILED";
 
-		// Calculate average scenario execution time
 		if (summary.totalTests > 0 && summary.totalDuration != null) {
 			long totalMs = parseDurationToMs(summary.totalDuration);
 			double avgMs = (double) totalMs / summary.totalTests;
 			summary.avgScenarioTime = String.format("%.1fs", avgMs / 1000.0);
 		}
 
-		// Configuration status from CommonVariable
 		summary.executionMode = CommonVariable.HEADLESS_MODE != null
 				&& CommonVariable.HEADLESS_MODE.equalsIgnoreCase("true") ? "Headless" : "Headed";
 		summary.browserUsed = CommonVariable.BROWSER != null ? CommonVariable.BROWSER.toUpperCase()
@@ -3110,22 +2467,15 @@ public class DailyExcelTracker {
 		summary.excelReportingStatus = CommonVariable.EXCEL_REPORTING_ENABLED != null
 				&& CommonVariable.EXCEL_REPORTING_ENABLED.equalsIgnoreCase("true") ? "Enabled" : "Disabled";
 
-		// Categorize scenarios by functional area
 		categorizeScenariosByArea(summary);
 
-		// Identify high-risk features and critical failures
 		identifyRiskFeatures(summary);
 
-		// Business Impact Assessment
 		assessBusinessImpact(summary);
 
-		// Calculate actual project scope metrics from feature files
 		calculateProjectScopeMetrics(summary);
 	}
 
-	/**
-	 * Determine if a feature is part of the critical path
-	 */
 	private static boolean isFeatureCritical(String featureName) {
 		if (featureName == null)
 			return false;
@@ -3134,12 +2484,8 @@ public class DailyExcelTracker {
 				|| name.contains("publish") || name.contains("profile");
 	}
 
-	/**
-	 * Categorize scenarios by functional area for coverage analysis
-	 */
 	private static void categorizeScenariosByArea(TestResultsSummary summary) {
 		// ENHANCED: Reset scenario counts before categorization to prevent accumulation
-		// from multiple calls
 		summary.authenticationScenarios = 0;
 		summary.autoMappingScenarios = 0;
 		summary.profileManagementScenarios = 0;
@@ -3167,12 +2513,8 @@ public class DailyExcelTracker {
 				summary.autoAIManualMappingScenarios);
 	}
 
-	/**
-	 * Identify high-risk features and critical failures
-	 */
 	private static void identifyRiskFeatures(TestResultsSummary summary) {
 		// ENHANCED: Clear existing risk features to prevent accumulation from multiple
-		// calls
 		summary.highRiskFeatures.clear();
 		summary.criticalFailures.clear();
 
@@ -3180,7 +2522,6 @@ public class DailyExcelTracker {
 			if (feature.failed > 0) {
 				summary.highRiskFeatures.add(feature.featureName);
 
-				// Check if it's a critical business function
 				if (isFeatureCritical(feature.featureName)) {
 					summary.criticalFailures.add(feature.featureName);
 				}
@@ -3188,9 +2529,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Assess overall business impact based on test results
-	 */
 	private static void assessBusinessImpact(TestResultsSummary summary) {
 		if (summary.criticalFailures.isEmpty() && summary.failRate <= 5) {
 			summary.businessImpact = "MINIMAL";
@@ -3203,22 +2541,15 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Calculate actual project scope metrics by scanning feature files on disk This
-	 * provides true project coverage regardless of execution scope
-	 */
 	private static void calculateProjectScopeMetrics(TestResultsSummary summary) {
 		try {
 			LOGGER.debug("=== CALCULATING PROJECT SCOPE METRICS ===");
 
-			// Scan features directory for all .feature files
 			ProjectScope projectScope = scanProjectFeatures();
 
-			// Update summary with actual project metrics
 			summary.totalProjectFeatures = projectScope.totalFeatures;
 			summary.totalProjectScenarios = projectScope.totalScenarios;
 
-			// Calculate coverage rates
 			if (projectScope.totalScenarios > 0) {
 				double coverageRate = (double) summary.totalTests / projectScope.totalScenarios * 100;
 				summary.projectCoverageRate = String.format("%.1f%%", coverageRate);
@@ -3233,7 +2564,6 @@ public class DailyExcelTracker {
 
 		} catch (Exception e) {
 			LOGGER.warn("Could not calculate project scope metrics: {}", e.getMessage());
-			// Set fallback values
 			summary.totalProjectFeatures = summary.totalFeatures; // Use execution data as fallback
 			summary.totalProjectScenarios = summary.totalTests;
 			summary.projectCoverageRate = "100%";
@@ -3241,13 +2571,9 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Scan the project features directory to count all features and scenarios
-	 */
 	private static ProjectScope scanProjectFeatures() {
 		ProjectScope scope = new ProjectScope();
 
-		// Define features directory path
 		String featuresBasePath = "src/test/resources/features";
 		File featuresDir = new File(featuresBasePath);
 
@@ -3265,9 +2591,6 @@ public class DailyExcelTracker {
 		return scope;
 	}
 
-	/**
-	 * Recursively scan features directory for .feature files
-	 */
 	private static void scanFeaturesDirectory(File directory, ProjectScope scope) {
 		File[] files = directory.listFiles();
 		if (files == null)
@@ -3275,13 +2598,10 @@ public class DailyExcelTracker {
 
 		for (File file : files) {
 			if (file.isDirectory()) {
-				// Recursively scan subdirectories
 				scanFeaturesDirectory(file, scope);
 			} else if (file.getName().endsWith(".feature")) {
-				// Count this feature file
 				scope.totalFeatures++;
 
-				// Count scenarios in this feature file
 				int scenarioCount = countScenariosInFeature(file);
 				scope.totalScenarios += scenarioCount;
 
@@ -3289,9 +2609,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Count scenarios in a specific feature file
-	 */
 	private static int countScenariosInFeature(File featureFile) {
 		int scenarioCount = 0;
 
@@ -3300,7 +2617,6 @@ public class DailyExcelTracker {
 			while ((line = reader.readLine()) != null) {
 				String trimmedLine = line.trim();
 
-				// Count regular scenarios and scenario outlines
 				if (trimmedLine.startsWith("Scenario:") || trimmedLine.startsWith("Scenario Outline:")) {
 					scenarioCount++;
 				}
@@ -3312,23 +2628,12 @@ public class DailyExcelTracker {
 		return scenarioCount;
 	}
 
-	/**
-	 * Data class to hold project scope metrics
-	 */
 	private static class ProjectScope {
 		int totalFeatures = 0;
 		int totalScenarios = 0;
 	}
 
-	/**
-	 * Update Excel with smart append/overwrite logic - NEW feature files: APPEND to
-	 * existing data - PREVIOUSLY RUN feature files: OVERWRITE existing data for
-	 * those features
-	 * 
-	 * PARALLEL EXECUTION FIX: Synchronized to prevent file locking conflicts
-	 */
 	private static void updateTestResultsExcel(TestResultsSummary summary) throws IOException {
-		// PARALLEL EXECUTION FIX: Acquire lock to prevent concurrent file access
 		excelFileLock.lock();
 		try {
 			LOGGER.debug("Thread {} acquired Excel file lock for updateTestResultsExcel", Thread.currentThread().getName());
@@ -3336,7 +2641,6 @@ public class DailyExcelTracker {
 			File excelFile = new File(EXCEL_REPORTS_DIR, MASTER_TEST_RESULTS_FILE);
 			Workbook workbook;
 
-			// Load existing workbook or create new one
 			if (excelFile.exists() && excelFile.length() > 0) {
 				createBackup(excelFile);
 				try (FileInputStream fis = new FileInputStream(excelFile)) {
@@ -3358,21 +2662,10 @@ public class DailyExcelTracker {
 
 		try {
 			// FIXED: Add to Execution History FIRST, so the execution count calculation
-			// can include the current runner in the count
-			// Add to Execution History sheet (NEVER resets - permanent historical log)
 			addToExecutionHistorySheet(workbook, summary);
 
-			// Smart update Test Results Summary sheet (append new, overwrite existing)
-			// This now correctly counts all runners including the current one
 			smartUpdateTestResultsSummarySheet(workbook, summary);
 
-			// REMOVED: Normal Execution Dashboard - Excel now has Summary + History only
-			// createOrUpdateProjectDashboard(workbook, summary);
-
-			// REMOVED: Cross-Browser Dashboard - All results now in main dashboard only
-			// createOrUpdateCrossBrowserDashboard(workbook, summary);
-
-			// Write to file
 			try (FileOutputStream fos = new FileOutputStream(excelFile)) {
 				workbook.write(fos);
 			}
@@ -3381,20 +2674,12 @@ public class DailyExcelTracker {
 			workbook.close();
 		}
 		} finally {
-			// PARALLEL EXECUTION FIX: Always release lock, even on exception
 			excelFileLock.unlock();
 			LOGGER.debug("Thread {} released Excel file lock for updateTestResultsExcel", Thread.currentThread().getName());
 		}
 	}
 
-	/**
-	 * ENHANCED: Incremental Excel update for individual runner completions Updates
-	 * Test Results Summary only, skips Execution History to prevent duplication
-	 * 
-	 * PARALLEL EXECUTION FIX: Synchronized to prevent file locking conflicts
-	 */
 	private static void updateTestResultsExcelIncremental(TestResultsSummary summary) throws IOException {
-		// PARALLEL EXECUTION FIX: Acquire lock to prevent concurrent file access
 		excelFileLock.lock();
 		try {
 			LOGGER.debug("Thread {} acquired Excel file lock for updateTestResultsExcelIncremental", Thread.currentThread().getName());
@@ -3402,9 +2687,7 @@ public class DailyExcelTracker {
 			File excelFile = new File(EXCEL_REPORTS_DIR, MASTER_TEST_RESULTS_FILE);
 			Workbook workbook;
 
-			// Load existing workbook or create new one
 			if (excelFile.exists()) {
-				// No backup for incremental updates to reduce I/O overhead
 				try (FileInputStream fis = new FileInputStream(excelFile)) {
 					workbook = new XSSFWorkbook(fis);
 					LOGGER.debug("Loaded existing Excel file for incremental update");
@@ -3415,16 +2698,8 @@ public class DailyExcelTracker {
 			}
 
 			try {
-			// Smart update Test Results Summary sheet only (no execution history)
 			smartUpdateTestResultsSummarySheet(workbook, summary);
 
-			// REMOVED: Normal Execution Dashboard - Excel now has Summary + History only
-			// createOrUpdateProjectDashboard(workbook, summary);
-
-			// REMOVED: Cross-Browser Dashboard - Excel now has Summary + History only
-			// createOrUpdateCrossBrowserDashboard(workbook, summary);
-
-			// Write to file
 				try (FileOutputStream fos = new FileOutputStream(excelFile)) {
 					workbook.write(fos);
 				}
@@ -3433,24 +2708,18 @@ public class DailyExcelTracker {
 				workbook.close();
 			}
 		} finally {
-			// PARALLEL EXECUTION FIX: Always release lock, even on exception
 			excelFileLock.unlock();
 			LOGGER.debug("Thread {} released Excel file lock for updateTestResultsExcelIncremental", Thread.currentThread().getName());
 		}
 	}
 
-	/**
-	 * Create backup of existing Excel file (once per day only)
-	 */
 	private static void createBackup(File originalFile) {
 		try {
 			File backupDir = new File(EXCEL_REPORTS_DIR, "Backup");
 
-			// Check if a backup already exists for today
 			String todayDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 			String backupPattern = "TestResults_Backup_" + todayDate;
 
-			// Look for existing backup for today
 			File[] existingBackups = backupDir
 					.listFiles((dir, name) -> name.startsWith(backupPattern) && name.endsWith(".xlsx"));
 
@@ -3460,12 +2729,10 @@ public class DailyExcelTracker {
 				return;
 			}
 
-			// Create new backup with timestamp
 			String backupFileName = String.format("TestResults_Backup_%s.xlsx",
 					LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")));
 			File backupFile = new File(backupDir, backupFileName);
 
-			// Copy original to backup
 			try (FileInputStream fis = new FileInputStream(originalFile);
 					FileOutputStream fos = new FileOutputStream(backupFile)) {
 				byte[] buffer = new byte[1024];
@@ -3482,10 +2749,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Smart update Test Results Summary sheet: - NEW features: APPEND to existing
-	 * data - EXISTING features: OVERWRITE their data
-	 */
 	private static void smartUpdateTestResultsSummarySheet(Workbook workbook, TestResultsSummary currentExecution) {
 		LOGGER.debug("=== SMART UPDATE TEST RESULTS SUMMARY SHEET ===");
 		LOGGER.debug("Execution: {} tests, {} passed, {} failed", currentExecution.totalTests,
@@ -3496,21 +2759,17 @@ public class DailyExcelTracker {
 		boolean needsDailyReset = false;
 
 		if (sheet == null) {
-			// Create new sheet if it doesn't exist (first time ever)
 			sheet = workbook.createSheet(TEST_RESULTS_SHEET);
 			isNewSheet = true;
 			LOGGER.debug("Creating brand new sheet - First execution ever");
 		} else {
-			// Check if we need a daily reset (new day detected)
 			needsDailyReset = isNewDayDetected(sheet, currentExecution.executionDate);
 
 			if (needsDailyReset) {
 				LOGGER.debug("New day detected - performing complete daily reset");
 
 				LOGGER.debug("Clearing all content from Test Results Summary sheet and starting fresh");
-				// Remove the existing sheet completely
 				workbook.removeSheetAt(workbook.getSheetIndex(sheet));
-				// Create a fresh new sheet
 				sheet = workbook.createSheet(TEST_RESULTS_SHEET);
 				isNewSheet = true; // Treat as new sheet after reset
 			} else {
@@ -3529,28 +2788,20 @@ public class DailyExcelTracker {
 		LOGGER.debug("=== TEST RESULTS SUMMARY SHEET UPDATE COMPLETE ===");
 	}
 
-	/**
-	 * Create new test results sheet (when no existing sheet)
-	 */
 	private static void createNewTestResultsSheet(Workbook workbook, Sheet sheet, TestResultsSummary summary) {
 
-		// Create styles
 		CellStyle headerStyle = createHeaderStyle(workbook);
-		// Note: dataStyle removed - now using row-level styling based on status
 
 		int rowNum = 0;
 
-		// Title and summary info
 		Row titleRow = sheet.createRow(rowNum++);
 		Cell titleCell = titleRow.createCell(0);
 		titleCell.setCellValue("Test Results Summary - " + summary.executionDateTime);
 		titleCell.setCellStyle(headerStyle);
 		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 6)); // UPDATED: Span 7 columns (0-6) for new Feature File
-																	// column
 
 		rowNum++; // Empty row
 
-		// Quick summary row (initial daily totals with date)
 		Row quickSummaryRow = sheet.createRow(rowNum++);
 		quickSummaryRow.createCell(0)
 				.setCellValue("Daily Status [" + summary.executionDate + "]: " + summary.overallStatus + " (1 run)");
@@ -3562,8 +2813,6 @@ public class DailyExcelTracker {
 
 		rowNum++; // Empty row
 
-		// Column headers for detailed results - ENHANCED for cross-browser support with
-		// Feature File Name
 		Row headerRow = sheet.createRow(rowNum++);
 		String[] headers = { "Feature File", "Feature", "Scenario", "Chrome", "Firefox", "Edge", "Execution Details",
 				"Comments" };
@@ -3573,12 +2822,10 @@ public class DailyExcelTracker {
 			cell.setCellStyle(headerStyle);
 		}
 
-		// Add detailed feature and scenario results
 		for (FeatureResult feature : summary.featureResults) {
 			if (feature.scenarios != null && !feature.scenarios.isEmpty()) {
 
 				// ENHANCED: Sort scenarios by original feature file order for cross-browser
-				// execution
 				List<ScenarioDetail> sortedScenarios = new ArrayList<>(feature.scenarios);
 				sortedScenarios.sort((s1, s2) -> {
 					// FIXED: Improved sorting logic for better cross-browser scenario ordering
@@ -3593,18 +2840,15 @@ public class DailyExcelTracker {
 				});
 
 				for (ScenarioDetail scenario : sortedScenarios) {
-					// TARGETED FIX: Only show scenarios that were actually executed
 					if (!wasScenarioActuallyExecuted(scenario)) {
 						continue; // Skip scenarios that weren't executed
 					}
 
 					Row dataRow = sheet.createRow(rowNum++);
 
-					// NEW COLUMN 0: Feature File Name (extracted from runner class name)
 					String featureFileName = extractFeatureFileName(feature.runnerClassName);
 					dataRow.createCell(0).setCellValue(featureFileName);
 
-					// SHIFTED COLUMN 1: Feature name (clean, from feature file)
 					String featureName = feature.featureName != null ? feature.featureName.trim() : "";
 					if (featureName.isEmpty()) {
 						featureName = "KF-ARCHITECT Login"; // Fallback feature name
@@ -3612,7 +2856,6 @@ public class DailyExcelTracker {
 
 					dataRow.createCell(1).setCellValue(featureName);
 
-					// SHIFTED COLUMN 2: Scenario name (cleaned for Excel display)
 					String cleanedScenarioName = cleanScenarioNameForExcelDisplay(scenario.scenarioName);
 					if (cleanedScenarioName == null || cleanedScenarioName.trim().isEmpty()) {
 						cleanedScenarioName = scenario.scenarioName != null ? scenario.scenarioName
@@ -3621,22 +2864,16 @@ public class DailyExcelTracker {
 
 					dataRow.createCell(2).setCellValue(cleanedScenarioName);
 
-					// SHIFTED COLUMNS 3,4,5: Browser-specific status columns (Chrome, Firefox,
-					// Edge)
 					createBrowserStatusCells(dataRow, scenario, workbook);
 
-					// SHIFTED COLUMN 6: Execution details - Clear and concise format
 					String executionDetails = String.format("Time: %s | Total: %d | Pass: %d | Fail: %d",
 							summary.executionDateTime.split(" ")[1], // Just time part
 							feature.totalScenarios, feature.passed, feature.failed);
 					dataRow.createCell(6).setCellValue(executionDetails);
 
-					// SHIFTED COLUMN 7: Comments - Enhanced business-friendly failure reason with
-					// step details
 					String comments = generateEnhancedBusinessFriendlyComment(scenario, cleanedScenarioName, feature);
 
 					if (comments == null || comments.trim().isEmpty()) {
-						// Fallback comment for consistency
 						comments = scenario.status != null && scenario.status.contains("FAILED")
 								? "Test execution failed - requires investigation"
 								: "Test executed successfully";
@@ -3644,31 +2881,19 @@ public class DailyExcelTracker {
 
 					dataRow.createCell(7).setCellValue(comments); // SHIFTED: Column 7 (was 6)
 
-					// feature.featureName, scenario.scenarioName, scenario.status, comments,
-					// feature.failed);
-					// scenario.scenarioName, scenario.status, feature.failed);
-
-					// UPDATED: Apply row-level styling but SKIP browser status columns (3, 4, 5) to
-					// preserve bold formatting
-					// Apply to Feature File, Feature and Scenario columns (0, 1, 2)
 					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 0, 1, 2 });
-					// Apply to Execution Details column (6) - normal style - SHIFTED from 5
 					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 6 });
-					// Apply to Comments column (7) without text wrapping - SHIFTED from 6
 					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 7 });
 				}
 			}
 		}
 
-		// UPDATED: Auto-size all columns (8 columns total: Feature File, Feature,
-		// Scenario, Chrome, Firefox, Edge, Execution Details, Comments)
 		for (int i = 0; i < 8; i++) {
 			sheet.autoSizeColumn(i);
 
-			// Set minimum widths for specific columns
 			int currentWidth = sheet.getColumnWidth(i);
 			int minWidth = 0;
 			
@@ -3700,35 +2925,20 @@ public class DailyExcelTracker {
 			}
 		}
 
-		// NEW: Merge consecutive cells with same values for cleaner appearance
 		mergeConsecutiveCellsInColumn(sheet, workbook, 0, "Feature File"); // Feature File column
 		mergeConsecutiveCellsInColumn(sheet, workbook, 1, "Feature"); // Feature column
 	}
 
-	/**
-	 * NEW METHOD: Merge consecutive cells with same value in a specified column
-	 * Generic method that works for any column ENHANCED: Applies green/red
-	 * background color based on feature status BUGFIX: Aggressively removes ALL old
-	 * merged regions before reapplying to prevent style persistence
-	 * 
-	 * @param sheet       The worksheet to process
-	 * @param workbook    The workbook (for creating styles)
-	 * @param columnIndex The column index to merge (0 = Feature File, 1 = Feature,
-	 *                    etc.)
-	 * @param columnName  The column name for logging purposes
-	 */
 	private static void mergeConsecutiveCellsInColumn(Sheet sheet, Workbook workbook, int columnIndex,
 			String columnName) {
 		try {
 			int lastRowNum = sheet.getLastRowNum();
 			int dataStartRow = -1;
 
-			// Find the data start row (skip headers and summary rows)
 			for (int i = 0; i <= lastRowNum; i++) {
 				Row row = sheet.getRow(i);
 				if (row != null) {
 					Cell cell = row.getCell(0);
-					// Find header row by looking for "Feature File" in column 0
 					if (cell != null && "Feature File".equals(cell.getStringCellValue())) {
 						dataStartRow = i + 1; // Data starts after header row
 						break;
@@ -3741,10 +2951,6 @@ public class DailyExcelTracker {
 				return;
 			}
 
-			// CRITICAL BUGFIX: Aggressively remove ALL existing merged regions in this
-			// column
-			// This prevents red backgrounds from persisting when consecutive runs change
-			// from FAILED to PASSED
 			int removedCount = 0;
 			for (int i = sheet.getNumMergedRegions() - 1; i >= 0; i--) {
 				CellRangeAddress mergedRegion = sheet.getMergedRegion(i);
@@ -3757,7 +2963,6 @@ public class DailyExcelTracker {
 			LOGGER.debug("Removed {} old merged regions from column {} ({}) before reapplying", removedCount,
 					columnIndex, columnName);
 
-			// Create passed style (green background) for merged cells - LEFT aligned
 			CellStyle passedStyle = workbook.createCellStyle();
 			passedStyle.setAlignment(HorizontalAlignment.LEFT);
 			passedStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -3768,7 +2973,6 @@ public class DailyExcelTracker {
 			passedStyle.setBorderLeft(BorderStyle.THIN);
 			passedStyle.setBorderRight(BorderStyle.THIN);
 
-			// Create failed style (red/rose background) for merged cells - LEFT aligned
 			CellStyle failedStyle = workbook.createCellStyle();
 			failedStyle.setAlignment(HorizontalAlignment.LEFT);
 			failedStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -3779,14 +2983,12 @@ public class DailyExcelTracker {
 			failedStyle.setBorderLeft(BorderStyle.THIN);
 			failedStyle.setBorderRight(BorderStyle.THIN);
 
-			// Track consecutive cells with same value
 			String currentValue = null;
 			int mergeStartRow = dataStartRow;
 
 			for (int i = dataStartRow; i <= lastRowNum + 1; i++) {
 				String cellValue = null;
 
-				// Get cell value for current row (if not past last row)
 				if (i <= lastRowNum) {
 					Row row = sheet.getRow(i);
 					if (row != null) {
@@ -3797,21 +2999,15 @@ public class DailyExcelTracker {
 					}
 				}
 
-				// Check if we need to merge previous group
 				if (!Objects.equals(cellValue, currentValue)) {
-					// Process previous group (merge if multiple rows, style if single row)
 					if (currentValue != null) {
 						// ENHANCED: Determine feature status (check if any scenario failed in this
-						// group)
-						// BUGFIX: More robust detection - check ALL browser cells and look for
-						// PASSED/FAILED/SKIPPED
 						boolean hasFailure = false;
 						boolean hasAnyStatus = false; // Track if we found any status at all
 
 						for (int rowIndex = mergeStartRow; rowIndex < i; rowIndex++) {
 							Row checkRow = sheet.getRow(rowIndex);
 							if (checkRow != null) {
-								// Check browser status columns (3=Chrome, 4=Firefox, 5=Edge)
 								for (int browserCol = 3; browserCol <= 5; browserCol++) {
 									Cell browserCell = checkRow.getCell(browserCol);
 									if (browserCell != null) {
@@ -3819,13 +3015,10 @@ public class DailyExcelTracker {
 										if (browserStatus != null && !browserStatus.trim().isEmpty()) {
 											hasAnyStatus = true;
 											String statusUpper = browserStatus.toUpperCase();
-											// Check for failure indicators: "FAILED" or ❌
-											if (statusUpper.contains("FAILED") || browserStatus.contains("❌")) {
+											if (statusUpper.contains("FAILED") || browserStatus.contains("?")) {
 												hasFailure = true;
 												break;
 											}
-											// BUGFIX: Explicitly check for PASSED to ensure we're not missing status
-											// (SKIPPED is treated as non-failure)
 										}
 									}
 								}
@@ -3834,9 +3027,6 @@ public class DailyExcelTracker {
 							}
 						}
 
-						// BUGFIX: If no status found in browser columns, fall back to checking Scenario
-						// column (column 2)
-						// This handles edge cases where browser columns might be empty
 						if (!hasAnyStatus) {
 							LOGGER.warn(
 									"No browser status found for feature '{}' (rows {}-{}), checking Scenario column as fallback",
@@ -3846,11 +3036,9 @@ public class DailyExcelTracker {
 								if (checkRow != null) {
 									Cell scenarioCell = checkRow.getCell(2);
 									if (scenarioCell != null) {
-										// Check if the row itself has FAILED styling
 										CellStyle cellStyle = scenarioCell.getCellStyle();
 										if (cellStyle != null) {
 											short bgColor = cellStyle.getFillForegroundColor();
-											// ROSE color index indicates FAILED
 											if (bgColor == IndexedColors.ROSE.getIndex()) {
 												hasFailure = true;
 												break;
@@ -3861,24 +3049,17 @@ public class DailyExcelTracker {
 							}
 						}
 
-						// Apply style based on feature status (green if all passed, red if any failed)
 						CellStyle styleToApply = hasFailure ? failedStyle : passedStyle;
 
 						if (mergeStartRow < i - 1) {
-							// Multiple rows - merge cells from mergeStartRow to i-1
 							sheet.addMergedRegion(new CellRangeAddress(mergeStartRow, i - 1, columnIndex, columnIndex));
 							LOGGER.debug("Merged {} cells: {} (rows {}-{}) - Status: {}", columnName, currentValue,
 									mergeStartRow, i - 1, hasFailure ? "FAILED (Red)" : "PASSED (Green)");
 						} else {
-							// Single row - just apply color (no merge needed)
 							LOGGER.debug("Single row {} cell: {} (row {}) - Status: {}", columnName, currentValue,
 									mergeStartRow, hasFailure ? "FAILED (Red)" : "PASSED (Green)");
 						}
 
-						// BUGFIX: Apply fresh style to ALL cells in the merged range (not just first
-						// cell)
-						// This ensures old styles don't persist when status changes from FAILED to
-						// PASSED
 						// FIXED: Get or create cells to ensure styling is always applied
 						for (int rowIndex = mergeStartRow; rowIndex < i; rowIndex++) {
 							Row targetRow = sheet.getRow(rowIndex);
@@ -3893,7 +3074,6 @@ public class DailyExcelTracker {
 						}
 					}
 
-					// Start new group
 					currentValue = cellValue;
 					mergeStartRow = i;
 				}
@@ -3906,23 +3086,14 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Smart merge current execution with existing sheet data - Remove rows for
-	 * features that are being re-executed (overwrite) - Append new features that
-	 * haven't been seen before ENHANCED: Handles multiple runners executed together
-	 * without data loss
-	 */
 	private static void smartMergeWithExistingSheet(Workbook workbook, Sheet sheet,
 			TestResultsSummary currentExecution) {
 		LOGGER.debug("=== SMART MERGE WITH EXISTING SHEET ===");
-		// Cumulative logic applied below
 		LOGGER.debug("Current execution has {} features and {} total tests", currentExecution.featureResults.size(),
 				currentExecution.totalTests);
 
 		Set<String> allFeatureNames = currentExecution.featureResults.stream().map(f -> f.featureName)
 				.collect(java.util.stream.Collectors.toSet());
-
-		// Features extracted from TestNG XML
 
 		Set<String> actuallyReExecutedFeatures = identifyReExecutedFeatures(sheet, currentExecution);
 
@@ -3930,10 +3101,6 @@ public class DailyExcelTracker {
 		LOGGER.debug("Adding features: {}", allFeatureNames.stream()
 				.filter(f -> !actuallyReExecutedFeatures.contains(f)).collect(java.util.stream.Collectors.toSet()));
 
-		// ENHANCED FIX: Smart deduplication logic
-		// - Remove duplicate scenarios within current execution (handles retries)
-		// - Keep scenarios from previous daily runs (accumulate across runs)
-		// - This prevents over-counting from retries while still accumulating daily totals
 		if (!actuallyReExecutedFeatures.isEmpty()) {
 			LOGGER.debug("Re-executed features detected: {} - Applying smart deduplication", 
 				actuallyReExecutedFeatures);
@@ -3943,19 +3110,13 @@ public class DailyExcelTracker {
 		}
 
 		// FIXED: Append scenarios FIRST, then calculate summary
-		// This ensures the summary counts include all scenarios in the sheet
 		appendCurrentExecutionResults(workbook, sheet, currentExecution);
 
-		// Apply cumulative logic via updateSheetSummaryInfo
-		// This now correctly counts all scenarios including the ones just appended
 		updateSheetSummaryInfo(sheet, currentExecution);
 
-		// UPDATED: Auto-size all 8 columns (Feature File, Feature, Scenario, Chrome,
-		// Firefox, Edge, Execution Details, Comments)
 		for (int i = 0; i < 8; i++) {
 			sheet.autoSizeColumn(i);
 
-			// Set minimum widths for specific columns
 			int currentWidth = sheet.getColumnWidth(i);
 			int minWidth = 0;
 			
@@ -3987,30 +3148,19 @@ public class DailyExcelTracker {
 			}
 		}
 
-		// NEW: Merge consecutive cells with same values for cleaner appearance
 		mergeConsecutiveCellsInColumn(sheet, workbook, 0, "Feature File"); // Feature File column
 		mergeConsecutiveCellsInColumn(sheet, workbook, 1, "Feature"); // Feature column
 
-		// CRITICAL FIX: Re-apply row-level styling to ALL data rows after merge
-		// This ensures existing rows (not being re-executed) retain their background colors
 		reapplyRowLevelStylingToAllDataRows(workbook, sheet);
 
 	}
 
-	/**
-	 * Find the data start row (first row after the header row).
-	 * Looks for "Feature File" header in column 0 to identify the header row.
-	 * 
-	 * @param sheet The sheet to search
-	 * @return The row index where data starts, or -1 if not found
-	 */
 	private static int findDataStartRow(Sheet sheet) {
 		int lastRowNum = sheet.getLastRowNum();
 		for (int i = 0; i <= lastRowNum; i++) {
 			Row row = sheet.getRow(i);
 			if (row != null) {
 				Cell cell = row.getCell(0);
-				// Find header row by looking for "Feature File" in column 0
 				if (cell != null) {
 					try {
 						String value = cell.getStringCellValue();
@@ -4018,7 +3168,6 @@ public class DailyExcelTracker {
 							return i + 1; // Data starts after header row
 						}
 					} catch (Exception e) {
-						// Ignore non-string cells
 					}
 				}
 			}
@@ -4026,17 +3175,9 @@ public class DailyExcelTracker {
 		return -1; // Not found
 	}
 
-	/**
-	 * Re-apply row-level styling to ALL data rows in the sheet.
-	 * This is called after merge operations to ensure existing rows retain their background colors.
-	 * 
-	 * IMPORTANT: This fixes the issue where executing Runner01 -> Runner02 -> Runner01 again
-	 * would cause Runner02's background colors to reset.
-	 */
 	private static void reapplyRowLevelStylingToAllDataRows(Workbook workbook, Sheet sheet) {
 		LOGGER.debug("Re-applying row-level styling to all data rows");
 		
-		// Find data start row (after headers)
 		int dataStartRow = findDataStartRow(sheet);
 		int lastRowNum = sheet.getLastRowNum();
 		
@@ -4051,7 +3192,6 @@ public class DailyExcelTracker {
 			Row row = sheet.getRow(rowIndex);
 			if (row == null) continue;
 			
-			// Determine status from Chrome column (3) - this has the test status
 			String status = "PASSED"; // Default to passed
 			Cell chromeCell = row.getCell(3);
 			if (chromeCell != null) {
@@ -4061,17 +3201,12 @@ public class DailyExcelTracker {
 						status = chromeStatus.trim();
 					}
 				} catch (Exception e) {
-					// If we can't read the cell, default to PASSED
 				}
 			}
 			
-			// Apply styling to columns 2, 6, 7 (Scenario, Execution Details, Comments)
-			// Columns 0 and 1 are handled by the merge logic
 			int[] columnsToStyle = {2, 6, 7};
 			ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, row, status, columnsToStyle);
 			
-			// Re-apply browser status styling to columns 3, 4, 5 (Chrome, Firefox, Edge)
-			// These columns use bold status styling (different from row-level styling)
 			reapplyBrowserStatusStyling(workbook, row, status);
 			
 			styledCount++;
@@ -4080,23 +3215,13 @@ public class DailyExcelTracker {
 		LOGGER.debug("Re-applied styling to {} data rows", styledCount);
 	}
 
-	/**
-	 * Re-apply browser status styling to columns 3, 4, 5 (Chrome, Firefox, Edge).
-	 * These columns use bold styling for status text, different from row-level styling.
-	 * 
-	 * @param workbook The workbook
-	 * @param row The row to style
-	 * @param defaultStatus The default status to use if cell is empty
-	 */
 	private static void reapplyBrowserStatusStyling(Workbook workbook, Row row, String defaultStatus) {
-		// Browser columns: 3=Chrome, 4=Firefox, 5=Edge
 		for (int colIndex = 3; colIndex <= 5; colIndex++) {
 			Cell cell = row.getCell(colIndex);
 			if (cell == null) {
 				cell = row.createCell(colIndex);
 			}
 			
-			// Get the cell's current value to determine its status
 			String cellStatus = defaultStatus;
 			try {
 				String cellValue = cell.getStringCellValue();
@@ -4104,43 +3229,29 @@ public class DailyExcelTracker {
 					cellStatus = cellValue.trim();
 				}
 			} catch (Exception e) {
-				// Use default status
 			}
 			
-			// Apply browser status styling (bold text with colored background)
 			if (cellStatus != null && !cellStatus.trim().isEmpty()) {
 				cell.setCellStyle(ExcelStyleHelper.createStatusStyle(workbook, cellStatus));
 			} else {
-				// Empty cell - apply basic data style with row background color
 				cell.setCellStyle(ExcelStyleHelper.createRowStatusStyle(workbook, defaultStatus));
 			}
 		}
 	}
 
-	/**
-	 * Identify which features are actually being re-executed vs just present in
-	 * TestNG XML This handles the case where multiple runners are executed together
-	 */
 	private static Set<String> identifyReExecutedFeatures(Sheet sheet, TestResultsSummary currentExecution) {
 		Set<String> reExecutedFeatures = new java.util.HashSet<>();
 
-		// Check if this is the first run (empty sheet) - if so, nothing is being
-		// re-executed
 		if (sheet.getLastRowNum() < 1) {
 			return reExecutedFeatures; // Empty set - nothing to re-execute
 		}
 
-		// Get existing features from the sheet
 		Set<String> existingFeatures = getExistingFeaturesFromSheet(sheet);
 
-		// Only mark a feature as "re-executed" if there's strong evidence it was run
-		// recently
 		for (FeatureResult feature : currentExecution.featureResults) {
 			String featureName = feature.featureName;
 
-			// Check if this feature already exists in the sheet
 			if (existingFeatures.contains(featureName)) {
-				// Additional heuristics to determine if this is a true re-execution
 				if (isLikelyReExecution(feature, sheet)) {
 					reExecutedFeatures.add(featureName);
 				} else {
@@ -4151,9 +3262,6 @@ public class DailyExcelTracker {
 		return reExecutedFeatures;
 	}
 
-	/**
-	 * Get all existing feature names from the Excel sheet
-	 */
 	private static Set<String> getExistingFeaturesFromSheet(Sheet sheet) {
 		Set<String> existingFeatures = new java.util.HashSet<>();
 		int lastRowNum = sheet.getLastRowNum();
@@ -4161,12 +3269,9 @@ public class DailyExcelTracker {
 		for (int i = 1; i <= lastRowNum; i++) { // Skip header row
 			Row row = sheet.getRow(i);
 			if (row != null) {
-				// UPDATED: Feature name is now in column 1 (was column 0 before Feature File
-				// column was added)
 				Cell featureCell = row.getCell(1);
 				if (featureCell != null && !featureCell.getStringCellValue().isEmpty()) {
 					String featureName = featureCell.getStringCellValue();
-					// Skip summary/header rows
 					if (!featureName.startsWith("Total") && !featureName.contains("Summary")) {
 						existingFeatures.add(featureName);
 					}
@@ -4177,16 +3282,8 @@ public class DailyExcelTracker {
 		return existingFeatures;
 	}
 
-	/**
-	 * Determine if a feature is likely being re-executed vs just present in TestNG XML.
-	 * 
-	 * FIXED: Now returns true if feature already exists in sheet (indicating re-execution).
-	 * This enables the UPDATE behavior instead of always appending duplicates.
-	 */
 	private static boolean isLikelyReExecution(FeatureResult feature, Sheet sheet) {
-		// If the feature has actual test results (scenarios executed), it's a re-execution
 		if (feature.scenarios != null && !feature.scenarios.isEmpty()) {
-			// Check if any scenario was actually executed (has a status)
 			for (ScenarioDetail scenario : feature.scenarios) {
 				if (scenario.status != null && !scenario.status.isEmpty()) {
 					LOGGER.debug("Feature '{}' is being re-executed (has executed scenarios)", feature.featureName);
@@ -4195,7 +3292,6 @@ public class DailyExcelTracker {
 			}
 		}
 		
-		// Also consider it a re-execution if the feature has pass/fail counts
 		if (feature.passed > 0 || feature.failed > 0 || feature.skipped > 0) {
 			LOGGER.debug("Feature '{}' is being re-executed (has pass/fail/skip counts)", feature.featureName);
 			return true;
@@ -4204,22 +3300,11 @@ public class DailyExcelTracker {
 		return false; // No evidence of execution
 	}
 
-	/**
-	 * Smart deduplication: Remove only scenarios from current execution that already exist in sheet.
-	 * This handles:
-	 * 1. Retry attempts - updates existing scenario status instead of adding duplicate
-	 * 2. Suite + Individual runner - prevents double counting same scenario
-	 * 3. Multiple daily runs - keeps scenarios from previous runs (accumulation)
-	 * 
-	 * Logic: For each re-executed feature, only remove scenarios that match BOTH feature AND scenario name
-	 * from current execution. Scenarios from previous runs that aren't in current execution are preserved.
-	 */
 	private static void smartDeduplicateScenarios(Sheet sheet, TestResultsSummary currentExecution, 
 			Set<String> reExecutedFeatures) {
 		
 		LOGGER.debug("Starting smart deduplication for {} re-executed features", reExecutedFeatures.size());
 		
-		// Build map of scenarios in current execution: "FeatureName|ScenarioName" -> ScenarioDetail
 		Map<String, ScenarioDetail> currentScenarios = new HashMap<>();
 		for (FeatureResult feature : currentExecution.featureResults) {
 			if (reExecutedFeatures.contains(feature.featureName)) {
@@ -4235,7 +3320,6 @@ public class DailyExcelTracker {
 			return;
 		}
 		
-		// Find and remove rows that match scenarios in current execution
 		int dataStartRow = findDataStartRow(sheet);
 		if (dataStartRow < 0) {
 			LOGGER.debug("No data rows found - nothing to deduplicate");
@@ -4249,7 +3333,6 @@ public class DailyExcelTracker {
 			Row row = sheet.getRow(i);
 			if (row == null) continue;
 			
-			// Get feature name (column 1) and scenario name (column 2)
 			Cell featureCell = row.getCell(1);
 			Cell scenarioCell = row.getCell(2);
 			
@@ -4267,7 +3350,6 @@ public class DailyExcelTracker {
 			
 			if (featureName == null || scenarioName == null) continue;
 			
-			// Check if this exact scenario exists in current execution
 			String key = featureName + "|" + scenarioName;
 			if (currentScenarios.containsKey(key)) {
 				rowsToRemove.add(i);
@@ -4275,12 +3357,9 @@ public class DailyExcelTracker {
 			}
 		}
 		
-		// Remove rows in reverse order to maintain indices
 		if (!rowsToRemove.isEmpty()) {
 			LOGGER.debug("Removing {} duplicate scenario rows", rowsToRemove.size());
 			
-			// CRITICAL FIX: Remove merged regions in affected area BEFORE shifting rows
-			// This prevents "overlapping merged regions" error
 			removeMergedRegionsInRowRange(sheet, Collections.min(rowsToRemove), sheet.getLastRowNum());
 			
 			Collections.reverse(rowsToRemove);
@@ -4288,7 +3367,6 @@ public class DailyExcelTracker {
 				Row row = sheet.getRow(rowIndex);
 				if (row != null) {
 					sheet.removeRow(row);
-					// Shift rows up to fill gap
 					if (rowIndex < sheet.getLastRowNum()) {
 						sheet.shiftRows(rowIndex + 1, sheet.getLastRowNum(), -1);
 					}
@@ -4299,25 +3377,18 @@ public class DailyExcelTracker {
 			LOGGER.debug("No duplicate scenarios found - all scenarios are new");
 		}
 	}
-	
-	/**
-	 * Remove all merged regions that overlap with the specified row range.
-	 * This prevents "overlapping merged regions" errors when shifting rows.
-	 */
+
 	private static void removeMergedRegionsInRowRange(Sheet sheet, int startRow, int endRow) {
 		try {
 			List<Integer> regionsToRemove = new ArrayList<>();
 			
-			// Find merged regions that overlap with the row range
 			for (int i = 0; i < sheet.getNumMergedRegions(); i++) {
 				CellRangeAddress region = sheet.getMergedRegion(i);
-				// Check if merged region overlaps with our row range
 				if (region.getFirstRow() <= endRow && region.getLastRow() >= startRow) {
 					regionsToRemove.add(i);
 				}
 			}
 			
-			// Remove in reverse order to maintain indices
 			Collections.reverse(regionsToRemove);
 			for (Integer index : regionsToRemove) {
 				sheet.removeMergedRegion(index);
@@ -4331,16 +3402,12 @@ public class DailyExcelTracker {
 			LOGGER.warn("Could not remove merged regions: {}", e.getMessage());
 		}
 	}
-	
-	/**
-	 * Update summary information at the top of the sheet
-	 */
+
 	private static void updateSheetSummaryInfo(Sheet sheet, TestResultsSummary currentExecution) {
 		LOGGER.debug("=== UPDATING SHEET SUMMARY INFO ===");
 		LOGGER.debug("Current execution - Total: {}, Passed: {}, Failed: {}", currentExecution.totalTests,
 				currentExecution.passedTests, currentExecution.failedTests);
 
-		// Find and update the title row
 		Row titleRow = sheet.getRow(0);
 		if (titleRow != null) {
 			Cell titleCell = titleRow.getCell(0);
@@ -4349,7 +3416,6 @@ public class DailyExcelTracker {
 			}
 		}
 
-		// Find summary row and apply data-driven cumulative logic
 		boolean summaryRowFound = false;
 		for (int i = 1; i <= 10; i++) {
 			Row row = sheet.getRow(i);
@@ -4359,7 +3425,6 @@ public class DailyExcelTracker {
 				if (cellValue != null
 						&& (cellValue.startsWith("Overall Status:") || cellValue.startsWith("Daily Status"))) {
 					LOGGER.debug("Summary row at {}", i);
-					// Apply data-driven cumulative logic
 					updateSummaryRow(row, currentExecution);
 					summaryRowFound = true;
 					break;
@@ -4372,9 +3437,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Update the summary row with cumulative statistics
-	 */
 	private static void updateSummaryRow(Row summaryRow, TestResultsSummary currentExecution) {
 		LOGGER.debug("=== DATA-DRIVEN CUMULATIVE LOGIC ===");
 		LOGGER.debug("Calculating cumulative totals from Excel scenario data...");
@@ -4386,10 +3448,8 @@ public class DailyExcelTracker {
 				cumulativeTotals.executionCount, cumulativeTotals.totalTests, cumulativeTotals.passedTests,
 				cumulativeTotals.failedTests, cumulativeTotals.skippedTests);
 
-		// Determine overall daily status
 		String dailyStatus = determineDailyStatus(cumulativeTotals);
 
-		// Update summary row with calculated cumulative totals
 		String statusCell = "Daily Status [" + currentExecution.executionDate + "]: " + dailyStatus + " ("
 				+ cumulativeTotals.executionCount + " runs)";
 		summaryRow.getCell(0).setCellValue(statusCell);
@@ -4405,29 +3465,18 @@ public class DailyExcelTracker {
 			summaryRow.getCell(5)
 					.setCellValue("Duration: " + DataParsingHelper.formatDuration(cumulativeTotals.totalDurationMs));
 
-		// cumulativeTotals.executionCount, cumulativeTotals.totalTests,
-		// cumulativeTotals.passedTests, cumulativeTotals.failedTests,
-		// cumulativeTotals.skippedTests);
 	}
 
-	/**
-	 * Append current execution results to the existing sheet
-	 */
 	private static void appendCurrentExecutionResults(Workbook workbook, Sheet sheet,
 			TestResultsSummary currentExecution) {
 		LOGGER.debug("Appending {} features to existing sheet", currentExecution.featureResults.size());
 
-		// Find the next available row (after existing data)
 		int nextRowIndex = sheet.getLastRowNum() + 1;
 
-		// Note: dataStyle removed - now using row-level styling based on status
-
-		// Add current execution results
 		for (FeatureResult feature : currentExecution.featureResults) {
 			if (feature.scenarios != null && !feature.scenarios.isEmpty()) {
 
 				// ENHANCED: Sort scenarios by original feature file order for cross-browser
-				// execution
 				List<ScenarioDetail> sortedScenarios = new ArrayList<>(feature.scenarios);
 				sortedScenarios.sort((s1, s2) -> {
 					// FIXED: Improved sorting logic for better cross-browser scenario ordering
@@ -4442,21 +3491,15 @@ public class DailyExcelTracker {
 				});
 
 				for (ScenarioDetail scenario : sortedScenarios) {
-					// TARGETED FIX: Only show scenarios that were actually executed
 					if (!wasScenarioActuallyExecuted(scenario)) {
-						// scenario.scenarioName, scenario.status);
 						continue; // Skip scenarios that weren't executed
 					}
 
-					// scenario.scenarioName, scenario.status);
-
 					Row dataRow = sheet.createRow(nextRowIndex++);
 
-					// NEW COLUMN 0: Feature File Name (extracted from runner class name)
 					String featureFileName = extractFeatureFileName(feature.runnerClassName);
 					dataRow.createCell(0).setCellValue(featureFileName);
 
-					// SHIFTED COLUMN 1: Feature name (clean, from feature file)
 					String featureName = feature.featureName != null ? feature.featureName.trim() : "";
 					if (featureName.isEmpty()) {
 						featureName = "KF-ARCHITECT Login"; // Fallback feature name
@@ -4464,28 +3507,21 @@ public class DailyExcelTracker {
 
 					dataRow.createCell(1).setCellValue(featureName);
 
-					// SHIFTED COLUMN 2: Scenario name (cleaned for Excel display)
 					String cleanedScenarioName = cleanScenarioNameForExcelDisplay(scenario.scenarioName);
 					if (cleanedScenarioName == null || cleanedScenarioName.trim().isEmpty()) {
 						cleanedScenarioName = scenario.scenarioName != null ? scenario.scenarioName
 								: "Unknown Scenario";
 					}
 
-					// Cleaned scenario name ready for Excel
-
 					dataRow.createCell(2).setCellValue(cleanedScenarioName);
 
-					// SHIFTED COLUMNS 3,4,5: Browser-specific status columns (Chrome, Firefox,
-					// Edge)
 					createBrowserStatusCells(dataRow, scenario, workbook);
 
-					// SHIFTED COLUMN 6: Execution details - Clear and concise format
 					String executionDetails = String.format("Time: %s | Total: %d | Pass: %d | Fail: %d",
 							currentExecution.executionDateTime.split(" ")[1], // Just time part
 							feature.totalScenarios, feature.passed, feature.failed);
 					dataRow.createCell(6).setCellValue(executionDetails);
 
-					// SHIFTED COLUMN 7: Comments - Ensure consistent comment generation
 					String comments = generateEnhancedBusinessFriendlyComment(scenario, scenario.scenarioName, feature);
 
 					if (comments == null || comments.trim().isEmpty()) {
@@ -4496,15 +3532,10 @@ public class DailyExcelTracker {
 
 					dataRow.createCell(7).setCellValue(comments);
 
-					// UPDATED: Apply row-level styling but SKIP browser status columns (3, 4, 5) to
-					// preserve bold formatting
-					// Apply to Feature File, Feature and Scenario columns (0, 1, 2)
 					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 0, 1, 2 });
-					// Apply to Execution Details column (6) - normal style - SHIFTED from 5
 					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 6 });
-					// Apply to Comments column (7) without text wrapping - SHIFTED from 6
 					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 7 });
 
@@ -4515,9 +3546,6 @@ public class DailyExcelTracker {
 		LOGGER.debug("Appended current execution scenarios to sheet");
 	}
 
-	/**
-	 * Detect execution type: "Normal" vs "Cross-Browser"
-	 */
 	private static String detectExecutionType(TestResultsSummary summary) {
 		String runnerName = getPrimaryRunnerName(summary);
 		if (runnerName != null && runnerName.toLowerCase().contains("crossbrowser")) {
@@ -4526,20 +3554,13 @@ public class DailyExcelTracker {
 		return "Normal";
 	}
 
-	/**
-	 * Get browser results for execution history Normal: "CHROME" (actual browser
-	 * used) Cross-Browser: "Chrome:Firefox:Edge:" (status summary with actual
-	 * results)
-	 */
 	private static String getBrowserResults(TestResultsSummary summary) {
 		String executionType = detectExecutionType(summary);
 
 		if ("Cross-Browser".equals(executionType)) {
 			// FIXED: Cross-browser execution - Show ACTUAL browser status summary from test
-			// results
 			StringBuilder browserResults = new StringBuilder();
 
-			// Analyze actual browser statuses from scenario results
 			String[] browsers = { "Chrome", "Firefox", "Edge" };
 			for (int i = 0; i < browsers.length; i++) {
 				String browser = browsers[i];
@@ -4555,15 +3576,10 @@ public class DailyExcelTracker {
 
 			return browserResults.toString();
 		} else {
-			// Normal execution: Detect actual browser used
 			return detectNormalExecutionBrowser();
 		}
 	}
 
-	/**
-	 * FIXED: Analyze actual browser status from cross-browser test results Returns
-	 * if all scenarios passed in that browser, if any scenario failed
-	 */
 	private static String analyzeBrowserStatus(TestResultsSummary summary, String browserName) {
 		String browserKey = browserName.toLowerCase();
 
@@ -4573,7 +3589,6 @@ public class DailyExcelTracker {
 		LOGGER.debug("Analyzing browser status for '{}' (key: '{}'), featureResults count: {}", browserName,
 				browserKey, summary.featureResults != null ? summary.featureResults.size() : 0);
 
-		// Check all feature results and their scenarios
 		for (FeatureResult feature : summary.featureResults) {
 			if (feature.scenarios != null) {
 				LOGGER.debug("Feature '{}' has {} scenarios", feature.featureName, feature.scenarios.size());
@@ -4602,21 +3617,14 @@ public class DailyExcelTracker {
 			return ""; // Question mark for unknown status
 		}
 
-		// Return appropriate status icon
 		String finalStatus = hasAnyFailure ? "" : "";
 		LOGGER.debug("Browser {}: {} (fail:{}, result:{})", browserName, finalStatus,
 				hasAnyFailure, hasAnyResult);
 		return finalStatus; // Fail if any scenario failed, pass if all passed
 	}
 
-	/**
-	 * Detect which browser was used in normal execution
-	 */
 	private static String detectNormalExecutionBrowser() {
-		// Strategy 1: Check CommonVariable.BROWSER (primary source for normal
-		// execution)
 		try {
-			// Use reflection to access CommonVariable.BROWSER to avoid direct dependency
 			Class<?> commonVariableClass = Class.forName("com.kfonetalentsuite.utils.common.CommonVariable");
 			java.lang.reflect.Field browserField = commonVariableClass.getField("BROWSER");
 			String browser = (String) browserField.get(null);
@@ -4628,13 +3636,11 @@ public class DailyExcelTracker {
 			LOGGER.debug("Could not access CommonVariable.BROWSER: {}", e.getMessage());
 		}
 
-		// Strategy 2: Check system properties set by WebDriver
 		String browser = System.getProperty("browser.name", "").toUpperCase();
 		if (!browser.isEmpty()) {
 			return browser;
 		}
 
-		// Strategy 3: Check WebDriver class name patterns from logs/properties
 		String webdriverType = System.getProperty("webdriver.type", "");
 		if (webdriverType.toLowerCase().contains("chrome")) {
 			return "CHROME";
@@ -4644,17 +3650,9 @@ public class DailyExcelTracker {
 			return "EDGE";
 		}
 
-		// Strategy 4: Default assumption (most common)
 		return "CHROME"; // Default assumption
 	}
 
-	/**
-	 * Add current execution to the execution history sheet (ENHANCED: With
-	 * Execution Type & Browser Results)
-	 * 
-	 * ENHANCED: Now UPDATES existing row if same Runner/Suite is executed on same day
-	 * instead of appending duplicate rows.
-	 */
 	private static void addToExecutionHistorySheet(Workbook workbook, TestResultsSummary summary) {
 		LOGGER.debug("=== UPDATING EXECUTION HISTORY SHEET ===");
 		Sheet sheet = workbook.getSheet(EXECUTION_HISTORY_SHEET);
@@ -4662,7 +3660,6 @@ public class DailyExcelTracker {
 			sheet = workbook.createSheet(EXECUTION_HISTORY_SHEET);
 
 			// Create business-friendly headers for new sheet (ENHANCED: Added User Name,
-			// Client Name, Execution Type & Browser Results)
 			Row headerRow = sheet.createRow(0);
 			String[] headers = { "User Name", "Client Name", "Testing Date", "Time", "Environment", "Execution Type",
 					"Browser Results", "Runner / Suite File", "Functions Tested", "Working", "Issues Found", "Skipped",
@@ -4674,7 +3671,6 @@ public class DailyExcelTracker {
 				cell.setCellValue(headers[i]);
 				cell.setCellStyle(headerStyle);
 
-				// Set specific width for columns to ensure full visibility
 				if (i == 0) { // User Name column
 					sheet.setColumnWidth(i, 4000);
 				} else if (i == 1) { // Client Name column
@@ -4693,7 +3689,6 @@ public class DailyExcelTracker {
 			ExcelStyleHelper.setExecutionHistoryColumnWidths(sheet);
 		}
 
-		// Get runner name for this execution
 		String currentRunnerName = getPrimaryRunnerName(summary);
 		
 		// ENHANCED: Check if there's an existing row for same Runner/Suite on same date
@@ -4701,12 +3696,10 @@ public class DailyExcelTracker {
 		
 		Row dataRow;
 		if (existingRowIndex != -1) {
-			// UPDATE existing row instead of creating new one
 			dataRow = sheet.getRow(existingRowIndex);
 			LOGGER.debug("Updating history row {} for '{}'", 
 					currentRunnerName, summary.executionDate, existingRowIndex + 1);
 		} else {
-			// No existing row found - create new row (original append behavior)
 			int insertRowIndex = findOptimalInsertPosition(sheet, summary.executionDate, summary.executionDateTime);
 			int lastRowNum = sheet.getLastRowNum();
 
@@ -4718,12 +3711,10 @@ public class DailyExcelTracker {
 			LOGGER.debug("Adding history row for '{}'", currentRunnerName);
 		}
 
-		// Get username and client name from PO01_KFoneLogin (ThreadLocal)
 		String testerUsername = getUsernameForExcel();
 		String clientName = getClientNameForExcel();
 
 		// Update/Add execution data (ENHANCED: With User Name, Client Name, Execution
-		// Type & Browser Results columns)
 		getOrCreateCell(dataRow, 0).setCellValue(testerUsername); // User Name
 		getOrCreateCell(dataRow, 1).setCellValue(clientName); // Client Name
 		getOrCreateCell(dataRow, 2).setCellValue(summary.executionDate); // Testing Date
@@ -4741,13 +3732,10 @@ public class DailyExcelTracker {
 		Cell statusCell = getOrCreateCell(dataRow, 14); // Quality Status
 		statusCell.setCellValue(summary.overallStatus);
 
-		// Apply row-level styling based on Quality Status
 		ExcelStyleHelper.applyRowLevelStyling(workbook, dataRow, summary.overallStatus, 14, 14);
 
-		// Apply comprehensive column width settings
 		ExcelStyleHelper.setExecutionHistoryColumnWidths(sheet);
 
-		// Auto-sizing for dynamic content with enhanced minimum widths
 		for (int i = 0; i < 15; i++) {
 			sheet.autoSizeColumn(i);
 
@@ -4769,14 +3757,6 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Find existing row in Execution History sheet for the same Runner/Suite on same date.
-	 * 
-	 * @param sheet The Execution History sheet
-	 * @param executionDate The date to match (e.g., "2025-12-08")
-	 * @param runnerName The runner/suite name to match
-	 * @return Row index if found, -1 if not found
-	 */
 	private static int findExistingExecutionHistoryRow(Sheet sheet, String executionDate, String runnerName) {
 		if (sheet == null || executionDate == null || runnerName == null) {
 			return -1;
@@ -4788,9 +3768,7 @@ public class DailyExcelTracker {
 			Row row = sheet.getRow(i);
 			if (row == null) continue;
 
-			// Column 2: Testing Date
 			String rowDate = getCellValueAsString(row.getCell(2));
-			// Column 7: Runner / Suite File
 			String rowRunner = getCellValueAsString(row.getCell(7));
 
 			if (executionDate.equals(rowDate) && runnerName.equals(rowRunner)) {
@@ -4802,10 +3780,6 @@ public class DailyExcelTracker {
 		return -1; // No existing row found
 	}
 
-	/**
-	 * Get existing cell or create new one if it doesn't exist.
-	 * Used for updating existing rows.
-	 */
 	private static Cell getOrCreateCell(Row row, int columnIndex) {
 		Cell cell = row.getCell(columnIndex);
 		if (cell == null) {
@@ -4814,17 +3788,6 @@ public class DailyExcelTracker {
 		return cell;
 	}
 
-	/**
-	 * Find the optimal insertion position for execution history entry LOGIC: -
-	 * Different dates: descending order (latest dates first) - Same dates:
-	 * ascending time order (earliest times first)
-	 *
-	 * @param sheet                The execution history sheet
-	 * @param newExecutionDate     Date of the new execution (e.g., "2025-09-05")
-	 * @param newExecutionDateTime Full date-time of the new execution (e.g.,
-	 *                             "2025-09-05 18:53:20")
-	 * @return The row index where the new entry should be inserted
-	 */
 	private static int findOptimalInsertPosition(Sheet sheet, String newExecutionDate, String newExecutionDateTime) {
 		int totalRows = sheet.getLastRowNum() + 1;
 
@@ -4832,60 +3795,43 @@ public class DailyExcelTracker {
 			return 1;
 		}
 
-		// Extract time part from the new execution
 		String newTimeOnly = newExecutionDateTime.split(" ")[1]; // e.g., "18:53:20"
 
-		// Scan through existing rows to find the correct position
 		for (int i = 1; i < totalRows; i++) { // Start from row 1 (skip header)
 			Row existingRow = sheet.getRow(i);
 			if (existingRow == null)
 				continue;
 
-			// Get date and time from existing row
 			String existingDate = getCellValueAsString(existingRow.getCell(0));
 			String existingTime = getCellValueAsString(existingRow.getCell(1));
 
 			if (existingDate == null || existingDate.trim().isEmpty())
 				continue;
 
-			// Compare dates
 			int dateComparison = newExecutionDate.compareTo(existingDate);
 
 			if (dateComparison > 0) {
-				// New date is later than existing date -> insert before this row (descending
-				// date order)
 				return i;
 			} else if (dateComparison == 0) {
-				// Same date -> check time for DESCENDING order within the same date (latest
-				// time first)
 				if (existingTime == null || existingTime.trim().isEmpty())
 					continue;
 
 				int timeComparison = newTimeOnly.compareTo(existingTime);
 				if (timeComparison >= 0) {
-					// New time is later or equal -> insert before this row (descending time order
-					// for same date)
 					return i;
 				}
-				// Continue searching for the correct time position within this date group
 			}
 		}
 
 		return totalRows;
 	}
 
-	/**
-	 * Get cross-browser runner information from system properties set by
-	 * ExcelReportListener
-	 */
 	private static String getCrossBrowserRunnerFromProperties() {
 		try {
-			// Look for cross-browser runner class names in system properties
 			for (String propName : System.getProperties().stringPropertyNames()) {
 				if (propName.startsWith("current.runner.class.")) {
 					String runnerClassName = System.getProperty(propName);
 					if (runnerClassName != null && runnerClassName.contains("CrossBrowser")) {
-						// Clean up the class name for display
 						String cleanName = runnerClassName.contains(".")
 								? runnerClassName.substring(runnerClassName.lastIndexOf('.') + 1)
 								: runnerClassName;
@@ -4900,21 +3846,13 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	// PERSISTENT STORAGE: Store last known user/client info for suite-level
-	// reporting
 	private static volatile String lastKnownUsername = null;
 	private static volatile String lastKnownClientName = null;
 
-	/**
-	 * Proactively cache username and client name from PO01_KFoneLogin This should
-	 * be called early in test execution to ensure cache is populated for
-	 * suite-level reporting
-	 */
 	public static void cacheUserAndClientInfo() {
 		try {
 			Class<?> loginClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin");
 
-			// Cache username (exclude "NOT_SET")
 			java.lang.reflect.Field usernameField = loginClass.getField("username");
 			@SuppressWarnings("unchecked")
 			ThreadLocal<String> usernameThreadLocal = (ThreadLocal<String>) usernameField.get(null);
@@ -4924,7 +3862,6 @@ public class DailyExcelTracker {
 				LOGGER.debug("Cached username for Excel reporting: {}", lastKnownUsername);
 			}
 
-			// Cache client name
 			java.lang.reflect.Field clientNameField = loginClass.getField("clientName");
 			@SuppressWarnings("unchecked")
 			ThreadLocal<String> clientNameThreadLocal = (ThreadLocal<String>) clientNameField.get(null);
@@ -4938,14 +3875,7 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Get username from PO01_KFoneLogin for Excel reporting Uses reflection to
-	 * access the ThreadLocal variable ENHANCED: Caches last known value for
-	 * suite-level reporting
-	 */
 	private static String getUsernameForExcel() {
-		// PRIMARY: Get username from PO01_KFoneLogin (ThreadLocal)
-		// Try multiple times to catch username after login completes
 		for (int attempt = 0; attempt < 3; attempt++) {
 			try {
 				Class<?> loginClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin");
@@ -4954,7 +3884,6 @@ public class DailyExcelTracker {
 				ThreadLocal<String> usernameThreadLocal = (ThreadLocal<String>) usernameField.get(null);
 				String username = usernameThreadLocal.get();
 
-				// Check if username is set (not null, not empty, and not "NOT_SET")
 				if (username != null && !username.trim().isEmpty() && !"NOT_SET".equalsIgnoreCase(username.trim())) {
 					lastKnownUsername = username.trim(); // Cache for later use
 					LOGGER.debug("Retrieved username from PO01_KFoneLogin: {}", username.trim());
@@ -4966,7 +3895,6 @@ public class DailyExcelTracker {
 				}
 			}
 			
-			// Small delay before retry (in case login is still in progress)
 			if (attempt < 2) {
 				try {
 					Thread.sleep(100);
@@ -4977,13 +3905,11 @@ public class DailyExcelTracker {
 			}
 		}
 
-		// Fallback 1: Use last known username from previous execution in this suite
 		if (lastKnownUsername != null && !lastKnownUsername.trim().isEmpty() && !"NOT_SET".equalsIgnoreCase(lastKnownUsername)) {
 			LOGGER.debug("Using cached username from previous execution: {}", lastKnownUsername);
 			return lastKnownUsername;
 		}
 
-		// Fallback 2: Try to get from CommonVariable (environment config)
 		String configUsername = "SSO".equalsIgnoreCase(CommonVariable.LOGIN_TYPE) 
 				? CommonVariable.SSO_USERNAME 
 				: CommonVariable.NON_SSO_USERNAME;
@@ -4992,7 +3918,6 @@ public class DailyExcelTracker {
 			return configUsername.trim();
 		}
 
-		// Fallback 3: Try to get from system properties or environment
 		String systemUser = System.getProperty("user.name");
 		if (systemUser != null && !systemUser.trim().isEmpty()) {
 			return systemUser.trim();
@@ -5001,13 +3926,8 @@ public class DailyExcelTracker {
 		return "Unknown User";
 	}
 
-	/**
-	 * Get client name for Excel reporting (from PO01_KFoneLogin.clientName
-	 * ThreadLocal) ENHANCED: Caches last known value for suite-level reporting
-	 */
 	private static String getClientNameForExcel() {
 		try {
-			// Use reflection to access PO01_KFoneLogin.clientName ThreadLocal
 			Class<?> loginClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin");
 			java.lang.reflect.Field clientNameField = loginClass.getField("clientName");
 			@SuppressWarnings("unchecked")
@@ -5022,7 +3942,6 @@ public class DailyExcelTracker {
 			LOGGER.debug("Could not retrieve client name from PO01_KFoneLogin: {}", e.getMessage());
 		}
 
-		// Fallback: Use last known client name from previous execution in this suite
 		if (lastKnownClientName != null && !lastKnownClientName.trim().isEmpty()) {
 			LOGGER.debug("Using cached client name: {}", lastKnownClientName);
 			return lastKnownClientName;
@@ -5031,11 +3950,6 @@ public class DailyExcelTracker {
 		return "N/A";
 	}
 
-	/**
-	 * Get comprehensive runner names from the test execution summary ENHANCED:
-	 * Shows all runners in test suite executions, not just primary FIXED: Enhanced
-	 * cross-browser runner detection
-	 */
 	private static String getPrimaryRunnerName(TestResultsSummary summary) {
 		if (summary.featureResults == null || summary.featureResults.isEmpty()) {
 			String crossBrowserRunner = getCrossBrowserRunnerFromProperties();
@@ -5047,18 +3961,15 @@ public class DailyExcelTracker {
 			return "Unknown Runner";
 		}
 
-		// NEW APPROACH: Collect all unique runner names in the execution
 		Set<String> allRunnerNames = summary.featureResults.stream()
 				.map(feature -> cleanRunnerName(feature.runnerClassName, feature.featureName))
 				.collect(java.util.stream.Collectors.toSet());
 
-		// Strategy 1: Single runner execution
 		if (allRunnerNames.size() == 1) {
 			String runnerName = allRunnerNames.iterator().next();
 			return runnerName;
 		}
 
-		// Strategy 2: Multiple runners (test suite) - show suite name if available
 		if (allRunnerNames.size() > 1) {
 			// ENHANCED: Use suite name from TestNG XML if available
 			if (summary.suiteName != null && !summary.suiteName.trim().isEmpty()) {
@@ -5066,14 +3977,12 @@ public class DailyExcelTracker {
 				return summary.suiteName;
 			}
 
-			// Fallback: Show all individual runner names (legacy behavior)
 			LOGGER.debug("No suite name available, showing {} individual runners", allRunnerNames.size());
 			String combinedRunners = allRunnerNames.stream().sorted()
 					.collect(java.util.stream.Collectors.joining(", "));
 			return combinedRunners;
 		}
 
-		// Fallback - should not happen, but try cross-browser runner detection
 		String crossBrowserRunner = getCrossBrowserRunnerFromProperties();
 		if (crossBrowserRunner != null) {
 			LOGGER.debug("No standard runners found, using cross-browser runner: {}", crossBrowserRunner);
@@ -5084,27 +3993,20 @@ public class DailyExcelTracker {
 		return "Unknown Runner";
 	}
 
-	/**
-	 * Clean up runner name for display in Excel
-	 */
 	private static String cleanRunnerName(String runnerClassName, String featureName) {
 
 		if (runnerClassName != null && !runnerClassName.isEmpty()) {
-			// Extract just the class name from full package path
 			String className = runnerClassName.contains(".")
 					? runnerClassName.substring(runnerClassName.lastIndexOf('.') + 1)
 					: runnerClassName;
 
-			// Special handling for cross-browser runners
 			if (className.contains("CrossBrowser")) {
 				return className; // Keep full cross-browser runner name
 			}
 
-			// Keep full runner name - don't truncate for better visibility
 			return className;
 		}
 
-		// Fallback to feature name if no runner class available - keep full name
 		if (featureName != null && !featureName.isEmpty()) {
 			return featureName;
 		}
@@ -5113,423 +4015,8 @@ public class DailyExcelTracker {
 		return "Unknown";
 	}
 
-	// Feature Breakdown method removed - content moved to Test Results Summary
-	// sheet
-
-	/**
-	 * Calculate unique runner cumulative metrics for Project Dashboard This ensures
-	 * dashboard shows unique coverage without duplication from multiple runs
-	 */
-	private static TestResultsSummary calculateUniqueRunnerCumulativeMetrics(Workbook workbook,
-			TestResultsSummary currentSession) {
-		LOGGER.debug("=== CALCULATING UNIQUE RUNNER CUMULATIVE METRICS FOR DASHBOARD ===");
-
-		// Start with current session as base, then adjust for unique cumulative logic
-		TestResultsSummary cumulativeSummary = new TestResultsSummary();
-
-		// Copy metadata from current session
-		cumulativeSummary.executionDate = currentSession.executionDate;
-		cumulativeSummary.executionDateTime = currentSession.executionDateTime;
-		cumulativeSummary.environment = currentSession.environment;
-		cumulativeSummary.suiteName = currentSession.suiteName; // Preserve suite name
-		cumulativeSummary.executionMode = currentSession.executionMode;
-		cumulativeSummary.browserUsed = currentSession.browserUsed;
-		cumulativeSummary.excelReportingStatus = currentSession.excelReportingStatus;
-
-		// Get execution history to find unique runners for today
-		Sheet executionHistorySheet = workbook.getSheet(EXECUTION_HISTORY_SHEET);
-
-		if (executionHistorySheet != null) {
-			// FIXED: Filter to Normal executions only for Normal Execution Dashboard
-			Map<String, ExecutionRecord> uniqueRunners = extractUniqueRunnersForToday(executionHistorySheet,
-					currentSession.executionDate, "Normal");
-
-			LOGGER.debug("Found {} unique runners executed today", uniqueRunners.size());
-
-			// ENHANCED: Calculate metrics from unique ExecutionRecords (avoid double
-			// counting)
-			long totalDurationMs = 0;
-
-			for (ExecutionRecord record : uniqueRunners.values()) {
-				// ENHANCED: Use direct ExecutionRecord counts (more reliable than scenario
-				// parsing)
-				// record.runnerName, record.totalTests, record.passedTests,
-				// record.failedTests);
-
-				// Directly accumulate test counts from ExecutionRecord
-				cumulativeSummary.totalTests += record.totalTests;
-				cumulativeSummary.passedTests += record.passedTests;
-				cumulativeSummary.failedTests += record.failedTests;
-				cumulativeSummary.skippedTests += record.skippedTests;
-
-				// Add unique features (avoid duplicating features across runners)
-				for (FeatureResult feature : record.featureResults) {
-					boolean featureAlreadyExists = cumulativeSummary.featureResults.stream()
-							.anyMatch(existing -> existing.featureName.equals(feature.featureName));
-					if (!featureAlreadyExists) {
-						// Add feature (scenario counts already accumulated from ExecutionRecord above)
-						cumulativeSummary.featureResults.add(feature);
-						// feature.featureName, feature.scenarios != null ? feature.scenarios.size() :
-						// 0);
-					} else {
-					}
-				}
-
-				// ENHANCED: Accumulate timing data from each unique runner
-				if (record.featureResults != null) {
-					for (FeatureResult feature : record.featureResults) {
-						if (feature.duration != null) {
-							long featureDurationMs = parseDurationToMs(feature.duration);
-							totalDurationMs += featureDurationMs;
-							// feature.duration, featureDurationMs, totalDurationMs);
-						} else {
-						}
-					}
-				}
-			}
-
-			// ENHANCED: Convert accumulated timing to readable format
-			cumulativeSummary.totalDuration = DataParsingHelper.formatDuration(totalDurationMs);
-
-			LOGGER.info(
-					"UNIQUE CUMULATIVE TOTALS - Tests: {}, Passed: {}, Failed: {}, Skipped: {}, Features: {}, Duration: {}",
-					cumulativeSummary.totalTests, cumulativeSummary.passedTests, cumulativeSummary.failedTests,
-					cumulativeSummary.skippedTests, cumulativeSummary.featureResults.size(),
-					cumulativeSummary.totalDuration);
-
-			// feature.scenarios != null ? feature.scenarios.size() : "null");
-
-		} else {
-			LOGGER.debug("No execution history found, using current session data");
-			cumulativeSummary.totalTests = currentSession.totalTests;
-			cumulativeSummary.passedTests = currentSession.passedTests;
-			cumulativeSummary.failedTests = currentSession.failedTests;
-			cumulativeSummary.skippedTests = currentSession.skippedTests;
-			cumulativeSummary.featureResults = new ArrayList<>(currentSession.featureResults);
-		}
-
-		// Calculate summary statistics for unique cumulative data
-		calculateSummaryStats(cumulativeSummary);
-		LOGGER.debug("Dashboard: {} tests, {} passed, {} failed ({}%)",
-				cumulativeSummary.totalTests, cumulativeSummary.passedTests, cumulativeSummary.failedTests,
-				cumulativeSummary.passRate);
-
-		// FIXED: Count unique features from Test Results Summary sheet (more accurate than Execution History)
-		// This ensures Suite executions show correct feature count (e.g., 8 features instead of 1 suite)
-		int uniqueFeatureCount = countUniqueFeaturesFromTestResultsSummary(workbook);
-		if (uniqueFeatureCount > 0) {
-			cumulativeSummary.executedFeatures = uniqueFeatureCount;
-			LOGGER.debug("Feature count: {}", uniqueFeatureCount);
-		} else {
-			// Fallback to featureResults.size() if Test Results Summary sheet is not available
-			cumulativeSummary.executedFeatures = cumulativeSummary.featureResults.size();
-			LOGGER.debug("Feature count fallback to featureResults.size() = {}", cumulativeSummary.executedFeatures);
-		}
-
-		// ENHANCED: Calculate enhanced metrics including timing and test coverage
-		// analytics
-		calculateEnhancedMetrics(cumulativeSummary);
-
-		// ENHANCED: Categorize scenarios by functional area for Test Coverage Analytics
-		categorizeScenariosByArea(cumulativeSummary);
-
-		// ENHANCED: Identify risk features and business impact
-		identifyRiskFeatures(cumulativeSummary);
-		assessBusinessImpact(cumulativeSummary);
-
-		// Copy project scope metrics from current session
-		cumulativeSummary.totalProjectFeatures = currentSession.totalProjectFeatures;
-		cumulativeSummary.totalProjectScenarios = currentSession.totalProjectScenarios;
-
-		// ENHANCED: Ensure scenario counts don't exceed project scope (prevent inflated
-		// counts)
-		if (cumulativeSummary.totalProjectScenarios > 0
-				&& cumulativeSummary.totalTests > cumulativeSummary.totalProjectScenarios) {
-			LOGGER.warn(
-					"CORRECTING INFLATED SCENARIO COUNT: Executed scenarios ({}) exceeds total project scenarios ({}). Capping to project total.",
-					cumulativeSummary.totalTests, cumulativeSummary.totalProjectScenarios);
-
-			// Cap the scenario counts to project maximum and redistribute proportionally
-			double scaleFactor = (double) cumulativeSummary.totalProjectScenarios / cumulativeSummary.totalTests;
-			cumulativeSummary.totalTests = cumulativeSummary.totalProjectScenarios;
-			cumulativeSummary.passedTests = Math.min((int) (cumulativeSummary.passedTests * scaleFactor),
-					cumulativeSummary.totalProjectScenarios);
-			cumulativeSummary.failedTests = Math.min((int) (cumulativeSummary.failedTests * scaleFactor),
-					cumulativeSummary.totalProjectScenarios - cumulativeSummary.passedTests);
-			cumulativeSummary.skippedTests = cumulativeSummary.totalTests - cumulativeSummary.passedTests
-					- cumulativeSummary.failedTests;
-
-			// Recalculate percentages after capping
-			calculateSummaryStats(cumulativeSummary);
-
-			LOGGER.debug("Corrected counts: {} total, {} passed, {} failed",
-					cumulativeSummary.totalTests, cumulativeSummary.passedTests, cumulativeSummary.failedTests,
-					cumulativeSummary.skippedTests);
-		}
-
-		// Recalculate coverage rates based on corrected cumulative data
-		if (cumulativeSummary.totalProjectScenarios > 0) {
-			double coverageRate = (double) cumulativeSummary.totalTests / cumulativeSummary.totalProjectScenarios * 100;
-			cumulativeSummary.projectCoverageRate = String.format("%.1f%%", Math.min(coverageRate, 100.0));
-		} else {
-			cumulativeSummary.projectCoverageRate = "0%";
-		}
-
-		if (cumulativeSummary.totalProjectFeatures > 0) {
-			double featureCoverage = (double) cumulativeSummary.featureResults.size()
-					/ cumulativeSummary.totalProjectFeatures * 100;
-			cumulativeSummary.featureCoverageRate = String.format("%.1f%%", Math.min(featureCoverage, 100.0));
-		} else {
-			cumulativeSummary.featureCoverageRate = "0%";
-		}
-
-		LOGGER.debug("Coverage: Project {}, Feature {}", cumulativeSummary.projectCoverageRate, cumulativeSummary.featureCoverageRate);
-
-		return cumulativeSummary;
-	}
-
-	/**
-	 * Extract unique runners executed today from Execution History sheet with
-	 * execution type filtering
-	 * 
-	 * @param executionTypeFilter null = all, "Normal" = normal only,
-	 *                            "Cross-Browser" = cross-browser only
-	 */
-	private static Map<String, ExecutionRecord> extractUniqueRunnersForToday(Sheet executionHistorySheet,
-			String targetDate, String executionTypeFilter) {
-		Map<String, ExecutionRecord> uniqueRunners = new HashMap<>();
-		Map<String, ExecutionRecord> suiteRecords = new HashMap<>(); // Track suite records separately
-
-		String filterMessage = executionTypeFilter != null ? " (filtering: " + executionTypeFilter + ")"
-				: " (no filter)";
-		LOGGER.debug("Scanning Execution History for unique runners on date: {}{}", targetDate, filterMessage);
-
-		// Skip header row, scan all execution records
-		int totalRows = executionHistorySheet.getLastRowNum() + 1;
-		for (int i = 1; i < totalRows; i++) {
-			try {
-				Row row = executionHistorySheet.getRow(i);
-				if (row != null) {
-					Cell dateCell = row.getCell(2); // Testing Date column (shifted from 1 to 2 after adding Client
-													// Name)
-					Cell executionTypeCell = row.getCell(5); // Execution Type column (shifted from 4 to 5)
-					Cell runnerCell = row.getCell(7); // Runner / Suite File column (shifted from 6 to 7)
-					Cell totalTestsCell = row.getCell(8); // Functions Tested column (shifted from 7 to 8)
-					Cell passedTestsCell = row.getCell(9); // Working column (shifted from 8 to 9)
-					Cell failedTestsCell = row.getCell(10); // Issues Found column (shifted from 9 to 10)
-					Cell skippedTestsCell = row.getCell(11); // Skipped column (shifted from 10 to 11)
-					Cell durationCell = row.getCell(13); // Duration column (shifted from 12 to 13)
-
-					if (dateCell != null && runnerCell != null) {
-						String executionDate = dateCell.getStringCellValue();
-						String executionType = executionTypeCell != null ? executionTypeCell.getStringCellValue()
-								: "Normal";
-						String runnerName = runnerCell.getStringCellValue();
-
-						// Apply execution type filter if specified
-						if (executionTypeFilter != null && !executionTypeFilter.equals(executionType)) {
-							continue; // Skip this row if it doesn't match the filter
-						}
-
-						// Only process records for today
-						if (executionDate.equals(targetDate)) {
-							// SMART DEDUPLICATION: Separate suite records from individual runners
-							boolean isSuiteRecord = runnerName.contains("Suite") && !runnerName.startsWith("Runner");
-
-							ExecutionRecord record = new ExecutionRecord();
-
-							// ENHANCED: Use latest execution data with robust cell value extraction
-							if (totalTestsCell != null) {
-								record.totalTests = getCellValueAsInt(totalTestsCell);
-								LOGGER.debug("FIXED: {} {}: totalTests = {} (from Functions Tested column)",
-										isSuiteRecord ? "Suite" : "Runner", runnerName, record.totalTests);
-							}
-							if (passedTestsCell != null) {
-								record.passedTests = getCellValueAsInt(passedTestsCell);
-								LOGGER.debug("FIXED: {} {}: passedTests = {} (from Working column)",
-										isSuiteRecord ? "Suite" : "Runner", runnerName, record.passedTests);
-							}
-							if (failedTestsCell != null) {
-								record.failedTests = getCellValueAsInt(failedTestsCell);
-								LOGGER.debug("FIXED: {} {}: failedTests = {} (from Issues Found column)",
-										isSuiteRecord ? "Suite" : "Runner", runnerName, record.failedTests);
-							}
-							if (skippedTestsCell != null) {
-								record.skippedTests = getCellValueAsInt(skippedTestsCell);
-							}
-
-							// Create mock feature result for this runner/suite
-							FeatureResult mockFeature = new FeatureResult();
-							// FIXED: Use proper feature name extraction instead of simple replacement
-							// This prevents truncated names like "_ValidateApplicationPerformance..."
-							String actualFeatureName = extractFeatureNameFromRunnerClass(runnerName);
-							mockFeature.featureName = actualFeatureName != null ? actualFeatureName : runnerName;
-							mockFeature.passed = record.passedTests;
-							mockFeature.failed = record.failedTests;
-
-							// ENHANCED: Extract duration from execution history
-							if (durationCell != null) {
-								try {
-									mockFeature.duration = durationCell.getStringCellValue();
-								} catch (Exception e) {
-									mockFeature.duration = "0m 0s"; // Fallback
-								}
-							} else {
-								mockFeature.duration = "0m 0s"; // Fallback if duration cell is missing
-							}
-
-							// ENHANCED: Create mock scenarios for Test Coverage Analytics
-							mockFeature.scenarios = new ArrayList<>();
-							for (int s = 0; s < record.totalTests; s++) {
-								ScenarioDetail mockScenario = new ScenarioDetail();
-								mockScenario.scenarioName = "Scenario " + (s + 1);
-								mockScenario.status = s < record.passedTests ? "PASSED"
-										: (s < record.passedTests + record.failedTests ? "FAILED" : "SKIPPED");
-								mockFeature.scenarios.add(mockScenario);
-							}
-
-							record.featureResults = Arrays.asList(mockFeature);
-
-							// SMART DEDUPLICATION: Store in appropriate map
-							if (isSuiteRecord) {
-								suiteRecords.put(runnerName, record);
-								LOGGER.debug("Stored suite record: {} ({} tests)", runnerName, record.totalTests);
-							} else {
-								uniqueRunners.put(runnerName, record);
-								LOGGER.debug("Stored runner record: {} ({} tests)", runnerName, record.totalTests);
-							}
-						}
-					}
-				}
-			} catch (Exception e) {
-				LOGGER.warn("Error processing execution history row {}: {}", i, e.getMessage());
-			}
-		}
-
-		// ADDITIVE COUNTING LOGIC: Include both individual runners AND suite records
-		LOGGER.debug("Found {} individual runners and {} suite records for today", uniqueRunners.size(),
-				suiteRecords.size());
-
-		// Combine both maps - suites and individual runners are counted together
-		Map<String, ExecutionRecord> combinedRecords = new HashMap<>();
-
-		// Add all individual runners
-		combinedRecords.putAll(uniqueRunners);
-
-		// Add all suite records
-		combinedRecords.putAll(suiteRecords);
-
-		if (!combinedRecords.isEmpty()) {
-			int individualRunnerTotal = uniqueRunners.values().stream().mapToInt(r -> r.totalTests).sum();
-			int suiteTotal = suiteRecords.values().stream().mapToInt(r -> r.totalTests).sum();
-			int combinedTotal = individualRunnerTotal + suiteTotal;
-
-			LOGGER.debug("ADDITIVE COUNTING: Dashboard will show {} total tests", combinedTotal);
-			LOGGER.info("   - Individual Runners: {} tests from {} runners", individualRunnerTotal,
-					uniqueRunners.size());
-			LOGGER.info("   - Suite Executions: {} tests from {} suites", suiteTotal, suiteRecords.size());
-
-			if (uniqueRunners.size() > 0 && suiteRecords.size() > 0) {
-				LOGGER.info(
-						"ℹ️ NOTE: Dashboard counts both individual runners AND suite executions (may include overlapping scenarios)");
-			}
-
-			return combinedRecords;
-
-		} else {
-			// No executions found for today
-			LOGGER.warn("⚠️ No runners or suites found for today's date: {}", targetDate);
-			return new HashMap<>();
-		}
-	}
-
-	/**
-	 * Count unique features from Test Results Summary sheet
-	 * This provides accurate feature count even when Suite executions are recorded
-	 * as single entries in Execution History
-	 * 
-	 * @param workbook The Excel workbook containing Test Results Summary sheet
-	 * @return Number of unique features found in the sheet, or 0 if sheet not found
-	 */
-	private static int countUniqueFeaturesFromTestResultsSummary(Workbook workbook) {
-		Sheet summarySheet = workbook.getSheet(TEST_RESULTS_SHEET);
-		if (summarySheet == null) {
-			LOGGER.debug("Test Results Summary sheet not found, cannot count unique features");
-			return 0;
-		}
-
-		Set<String> uniqueFeatures = new java.util.HashSet<>();
-		int lastRowNum = summarySheet.getLastRowNum();
-
-		for (int i = 1; i <= lastRowNum; i++) { // Skip header row
-			Row row = summarySheet.getRow(i);
-			if (row != null) {
-				// Feature name is in column 1 (after Feature File column was added)
-				Cell featureCell = row.getCell(1);
-				if (featureCell != null) {
-					String featureName = null;
-					try {
-						featureName = featureCell.getStringCellValue();
-					} catch (Exception e) {
-						// Ignore non-string cells
-					}
-					
-					if (featureName != null && !featureName.isEmpty() 
-							&& !featureName.equals("Feature") // Skip header
-							&& !featureName.startsWith("Total") // Skip summary rows
-							&& !featureName.contains("Summary")) {
-						uniqueFeatures.add(featureName);
-					}
-				}
-			}
-		}
-
-		LOGGER.debug("Found {} unique features in Test Results Summary sheet: {}", 
-				uniqueFeatures.size(), uniqueFeatures);
-		return uniqueFeatures.size();
-	}
-
-	/**
-	 * Data class for tracking execution records by runner
-	 */
-	private static class ExecutionRecord {
-		// Removed unused fields: runnerName, executionDate (only assigned but never
-		// read)
-		int totalTests = 0;
-		int passedTests = 0;
-		int failedTests = 0;
-		int skippedTests = 0;
-		List<FeatureResult> featureResults = new ArrayList<>();
-	}
-
-	/**
-	 * Create or update the Project Dashboard sheet with comprehensive project
-	 * insights This is a separate sheet focused on project-level business
-	 * intelligence
-	 */
 	@SuppressWarnings({ "unused", "all" }) // Suppress warnings for revertible visual enhancements (else branches are
-											// intentional fallbacks)
-	private static void createOrUpdateProjectDashboard(Workbook workbook, TestResultsSummary summary) {
-		// DISABLED: Dashboard sheet no longer generated
-		// Excel now contains only: Test Results Summary + Execution History
-		LOGGER.debug("Project Dashboard generation skipped (feature disabled)");
-		return;
-	}
 
-	/**
-	 * Create or update Cross-Browser QA Dashboard sheet 
-	 * DISABLED: Cross-Browser Dashboard removed - all results now in main dashboard
-	 */
-	private static void createOrUpdateCrossBrowserDashboard(Workbook workbook, TestResultsSummary summary) {
-		// DISABLED: Cross-Browser Dashboard sheet no longer generated
-		// All cross-browser test results are now shown in the main QA Dashboard only
-		LOGGER.debug("Cross-Browser Dashboard generation skipped (feature disabled)");
-		return;
-	}
-
-	/**
-	 * Cross-Browser Analytics Data Structure
-	 */
 	public static class CrossBrowserMetrics {
 		public int totalCrossBrowserRuns = 0;
 		public Map<String, BrowserStats> browserStats = new HashMap<>();
@@ -5544,9 +4031,6 @@ public class DailyExcelTracker {
 		public double crossBrowserValue = 3.0; // 3x coverage multiplier
 	}
 
-	/**
-	 * Browser-Specific Statistics
-	 */
 	public static class BrowserStats {
 		public String browserName = "";
 		public int totalRuns = 0;
@@ -5558,1627 +4042,6 @@ public class DailyExcelTracker {
 		public int totalScenariosExecuted = 0;
 	}
 
-	/**
-	 * Analyze cross-browser execution history to extract browser-specific analytics
-	 * FIXED: Now filters by current day only to enable daily dashboard reset
-	 * functionality
-	 */
-	private static CrossBrowserMetrics analyzeCrossBrowserExecutionHistory(Workbook workbook,
-			TestResultsSummary currentSession) {
-		LOGGER.debug("=== ANALYZING CROSS-BROWSER EXECUTION HISTORY (CURRENT DAY ONLY) ===");
-		CrossBrowserMetrics metrics = new CrossBrowserMetrics();
-
-		// Initialize browser stats
-		metrics.browserStats.put("Chrome", new BrowserStats());
-		metrics.browserStats.put("Firefox", new BrowserStats());
-		metrics.browserStats.put("Edge", new BrowserStats());
-
-		for (BrowserStats stats : metrics.browserStats.values()) {
-			stats.browserName = stats == metrics.browserStats.get("Chrome") ? "Chrome"
-					: stats == metrics.browserStats.get("Firefox") ? "Firefox" : "Edge";
-		}
-
-		Sheet executionHistorySheet = workbook.getSheet(EXECUTION_HISTORY_SHEET);
-		if (executionHistorySheet == null) {
-			LOGGER.debug("No execution history found, using current session data");
-			return populateDefaultCrossBrowserMetrics(currentSession);
-		}
-
-		try {
-			// FIXED: Analyze CURRENT DAY ONLY cross-browser executions (like other
-			// dashboards)
-			int totalRows = executionHistorySheet.getLastRowNum() + 1;
-			double totalDurationSeconds = 0;
-
-			for (int i = 1; i < totalRows; i++) {
-				Row row = executionHistorySheet.getRow(i);
-				if (row == null)
-					continue;
-
-				try {
-					String executionType = getCellValueAsString(row.getCell(5)); // Execution Type column (shifted from
-																					// 4 to 5 after adding Client Name)
-					String browserResults = getCellValueAsString(row.getCell(6)); // Browser Results column (shifted
-																					// from 5 to 6)
-					int functionsTeated = getCellValueAsInt(row.getCell(8)); // Functions Tested column (shifted from 7
-																				// to 8)
-					int working = getCellValueAsInt(row.getCell(9)); // Working column (shifted from 8 to 9)
-					int issues = getCellValueAsInt(row.getCell(10)); // Issues Found column (shifted from 9 to 10)
-					String duration = getCellValueAsString(row.getCell(13)); // Duration column (shifted from 12 to 13)
-					String executionDate = getCellValueAsString(row.getCell(2)); // Testing Date column (shifted from 1
-																					// to 2)
-
-					// FIXED: Only process Cross-Browser executions FROM CURRENT DAY ONLY
-					// Extract date from execution date and compare with current session date
-					String extractedDate = extractDateFromText(executionDate);
-					boolean isCurrentDay = extractedDate != null && extractedDate.equals(currentSession.executionDate);
-
-					if ("Cross-Browser".equals(executionType) && browserResults != null && isCurrentDay) {
-						metrics.totalCrossBrowserRuns++;
-						metrics.totalScenariosExecuted += functionsTeated;
-						metrics.totalIssuesFound += issues;
-						metrics.lastExecutionDate = executionDate;
-
-						// Parse duration and add to total
-						totalDurationSeconds += parseDurationToSeconds(duration);
-
-						// Analyze individual browser results
-						analyzeBrowserResultsForMetrics(browserResults, functionsTeated, working, issues, executionDate,
-								metrics);
-
-						// Add to recent executions
-						if (metrics.recentCrossBrowserExecutions.size() < 5) {
-							String status = working == functionsTeated ? "" : "";
-							metrics.recentCrossBrowserExecutions
-									.add(String.format("%s %d scenarios (%s)", status, functionsTeated, executionDate));
-						}
-					}
-				} catch (Exception e) {
-					LOGGER.debug("Error analyzing cross-browser row {}: {}", i, e.getMessage());
-				}
-			}
-
-			// Calculate overall metrics
-			if (metrics.totalCrossBrowserRuns > 0) {
-				metrics.avgCrossBrowserDuration = formatDurationFromSeconds(
-						totalDurationSeconds / metrics.totalCrossBrowserRuns);
-
-				// Calculate overall compatibility score
-				double totalSuccessRate = 0;
-				int browserCount = 0;
-				String mostReliable = "Chrome";
-				String leastReliable = "Edge";
-				double highestRate = 0;
-				double lowestRate = 100;
-
-				for (Map.Entry<String, BrowserStats> entry : metrics.browserStats.entrySet()) {
-					String browser = entry.getKey();
-					BrowserStats stats = entry.getValue();
-
-					if (stats.totalRuns > 0) {
-						totalSuccessRate += stats.successRate;
-						browserCount++;
-
-						if (stats.successRate > highestRate) {
-							highestRate = stats.successRate;
-							mostReliable = browser;
-						}
-
-						if (stats.successRate < lowestRate) {
-							lowestRate = stats.successRate;
-							leastReliable = browser;
-						}
-
-						// Assign reliability ranks
-						if (stats.successRate >= 95)
-							stats.reliabilityRank = "";
-						else if (stats.successRate >= 90)
-							stats.reliabilityRank = "";
-						else
-							stats.reliabilityRank = "";
-					}
-				}
-
-				metrics.overallCompatibilityScore = browserCount > 0 ? totalSuccessRate / browserCount : 0;
-				metrics.mostReliableBrowser = mostReliable;
-				metrics.leastReliableBrowser = leastReliable;
-			}
-
-			LOGGER.info(
-					"Cross-browser analysis completed: {} runs FOR CURRENT DAY ONLY ({}), {:.1f}% compatibility score",
-					metrics.totalCrossBrowserRuns, currentSession.executionDate, metrics.overallCompatibilityScore);
-
-		} catch (Exception e) {
-			LOGGER.error("Error analyzing cross-browser execution history: {}", e.getMessage());
-			return populateDefaultCrossBrowserMetrics(currentSession);
-		}
-
-		return metrics;
-	}
-
-	/**
-	 * Parse browser results and update browser-specific metrics
-	 */
-	private static void analyzeBrowserResultsForMetrics(String browserResults, int functionsTeated, int working,
-			int issues, String executionDate, CrossBrowserMetrics metrics) {
-		if (browserResults == null)
-			return;
-
-		// Parse browser results like "Chrome:Firefox:Edge:"
-		String[] browsers = { "Chrome", "Firefox", "Edge" };
-
-		for (String browser : browsers) {
-			BrowserStats stats = metrics.browserStats.get(browser);
-			if (stats == null)
-				continue;
-
-			stats.totalRuns++;
-			stats.totalScenariosExecuted += functionsTeated;
-			stats.lastExecutionDate = executionDate;
-
-			if (browserResults.contains(browser + ":")) {
-				// Browser passed
-				stats.successRate = ((stats.successRate * (stats.totalRuns - 1)) + 100.0) / stats.totalRuns;
-			} else if (browserResults.contains(browser + ":")) {
-				// Browser failed
-				stats.successRate = ((stats.successRate * (stats.totalRuns - 1)) + 0.0) / stats.totalRuns;
-				stats.issuesFound++;
-			}
-		}
-	}
-
-	/**
-	 * Parse duration string to seconds for calculations (duplicate method, but
-	 * needed for cross-browser analytics)
-	 */
-	private static double parseDurationToSeconds(String duration) {
-		if (duration == null || duration.isEmpty())
-			return 0;
-
-		try {
-			double totalSeconds = 0;
-
-			if (duration.contains("h")) {
-				String[] parts = duration.split("h");
-				totalSeconds += Double.parseDouble(parts[0].trim()) * 3600;
-				duration = parts.length > 1 ? parts[1].trim() : "";
-			}
-
-			if (duration.contains("m")) {
-				String[] parts = duration.split("m");
-				totalSeconds += Double.parseDouble(parts[0].trim()) * 60;
-				duration = parts.length > 1 ? parts[1].trim() : "";
-			}
-
-			if (duration.contains("s")) {
-				String[] parts = duration.split("s");
-				totalSeconds += Double.parseDouble(parts[0].trim());
-			}
-
-			return totalSeconds;
-		} catch (Exception e) {
-			return 0;
-		}
-	}
-
-	/**
-	 * Format seconds back to human-readable duration (duplicate method, but needed
-	 * for cross-browser analytics)
-	 */
-	private static String formatDurationFromSeconds(double seconds) {
-		if (seconds < 60) {
-			return String.format("%.0fs", seconds);
-		} else if (seconds < 3600) {
-			int minutes = (int) (seconds / 60);
-			int remainingSeconds = (int) (seconds % 60);
-			return remainingSeconds > 0 ? String.format("%dm %ds", minutes, remainingSeconds)
-					: String.format("%dm", minutes);
-		} else {
-			int hours = (int) (seconds / 3600);
-			int minutes = (int) ((seconds % 3600) / 60);
-			return String.format("%dh %dm", hours, minutes);
-		}
-	}
-
-	/**
-	 * Populate default cross-browser metrics when no historical data is available
-	 */
-	private static CrossBrowserMetrics populateDefaultCrossBrowserMetrics(TestResultsSummary currentSession) {
-		CrossBrowserMetrics metrics = new CrossBrowserMetrics();
-
-		// Check if current session is cross-browser
-		boolean isCrossBrowser = currentSession.executionMode != null
-				&& currentSession.executionMode.toLowerCase().contains("cross");
-
-		if (isCrossBrowser) {
-			metrics.totalCrossBrowserRuns = 1;
-			metrics.totalScenariosExecuted = currentSession.totalTests;
-			metrics.totalIssuesFound = currentSession.failedTests;
-			metrics.overallCompatibilityScore = currentSession.passRate;
-			metrics.lastExecutionDate = currentSession.executionDate;
-			metrics.avgCrossBrowserDuration = currentSession.totalDuration;
-
-			// Default browser stats
-			for (String browser : new String[] { "Chrome", "Firefox", "Edge" }) {
-				BrowserStats stats = new BrowserStats();
-				stats.browserName = browser;
-				stats.totalRuns = 1;
-				stats.successRate = currentSession.passRate;
-				stats.avgDuration = currentSession.totalDuration;
-				stats.totalScenariosExecuted = currentSession.totalTests;
-				stats.lastExecutionDate = currentSession.executionDate;
-				stats.reliabilityRank = currentSession.passRate >= 95 ? "" : currentSession.passRate >= 90 ? "" : "";
-
-				metrics.browserStats.put(browser, stats);
-			}
-		}
-
-		return metrics;
-	}
-
-	/**
-	 * Create Cross-Browser Dashboard layout - IDENTICAL structure to Normal
-	 * Dashboard Uses same styling, sections, and format but with cross-browser
-	 * specific metrics ENHANCED: Includes all standard sections plus cross-browser
-	 * specific enhancements
-	 */
-	private static void createCrossBrowserDashboardLayout(Sheet sheet, CrossBrowserMetrics metrics,
-			TestResultsSummary summary, Workbook workbook) {
-		CellStyle headerStyle = createHeaderStyle(workbook);
-		CellStyle titleStyle = createTitleStyle(workbook);
-		CellStyle subtitleStyle = createSubtitleStyle(workbook);
-
-		// Initialize visual enhancement styles if enabled
-		VisualStyles visualStyles = ENABLE_VISUAL_ENHANCEMENTS ? new VisualStyles(workbook) : null;
-
-		int rowNum = 0;
-
-		// === MAIN TITLE ===
-		Row mainTitleRow = sheet.createRow(rowNum++);
-		Cell mainTitle = mainTitleRow.createCell(0);
-		mainTitle.setCellValue("Job Mapping - CROSS-BROWSER QA DASHBOARD");
-		mainTitle.setCellStyle(titleStyle);
-		sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-		// === SUBTITLE ===
-		Row subtitleRow = sheet.createRow(rowNum++);
-		Cell subtitleCell = subtitleRow.createCell(0);
-		subtitleCell.setCellValue(
-				String.format("Generated: %s | Environment: %s | Focus: Cross-Browser Multi-Platform Execution",
-						summary.executionDateTime, summary.environment));
-		subtitleCell.setCellStyle(subtitleStyle);
-		sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-		rowNum++; // Empty row
-
-		// === EXECUTIVE SCORECARD (Cross-Browser Enhanced) ===
-		Row scorecardHeader = sheet.createRow(rowNum++);
-		Cell scorecardCell = scorecardHeader.createCell(0);
-		scorecardCell.setCellValue("EXECUTIVE SCORECARD");
-		scorecardCell.setCellStyle(headerStyle);
-		sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-		// Cross-browser adapted health metrics
-		Row metricsRow1 = sheet.createRow(rowNum++);
-
-		// Compatibility Score (Cross-Browser Health Score)
-		Cell healthLabelCell = metricsRow1.createCell(0);
-		healthLabelCell.setCellValue("Compatibility Score:");
-		// Visual enhancements always enabled
-
-		healthLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		Cell healthValueCell = metricsRow1.createCell(1);
-		String compatibilityScore = String.format("%.1f%%", metrics.overallCompatibilityScore);
-		// Visual enhancements always enabled - simplified condition
-		healthValueCell.setCellValue(addStatusIcon(compatibilityScore, metrics.overallCompatibilityScore));
-		healthValueCell.setCellStyle(getPerformanceStyle(visualStyles, metrics.overallCompatibilityScore));
-
-		// Cross-Browser Success Rate
-		Cell successLabelCell = metricsRow1.createCell(3);
-		successLabelCell.setCellValue("Cross-Browser Success Rate:");
-		// Visual enhancements always enabled
-
-		successLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		Cell successValueCell = metricsRow1.createCell(4);
-		// Visual enhancements always enabled - simplified condition
-		successValueCell.setCellValue(addStatusIcon(compatibilityScore, metrics.overallCompatibilityScore));
-		successValueCell.setCellStyle(getPerformanceStyle(visualStyles, metrics.overallCompatibilityScore));
-
-		// Business Impact (Enhanced for Cross-Browser)
-		Cell impactLabelCell = metricsRow1.createCell(6);
-		impactLabelCell.setCellValue("Business Impact:");
-		// Visual enhancements always enabled
-
-		impactLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		Cell impactValueCell = metricsRow1.createCell(7);
-		// FIXED: Correct Business Impact logic - Higher compatibility = Lower business
-		// impact
-		String crossBrowserImpact = metrics.overallCompatibilityScore >= 95 ? "MINIMAL"
-				: metrics.overallCompatibilityScore >= 85 ? "LOW"
-						: metrics.overallCompatibilityScore >= 70 ? "MEDIUM" : "HIGH";
-		// Visual enhancements always enabled - simplified condition
-		String impactIcon = getBusinessImpactIcon(crossBrowserImpact);
-		impactValueCell.setCellValue(impactIcon + " " + crossBrowserImpact);
-		impactValueCell.setCellStyle(getBusinessImpactStyle(visualStyles, crossBrowserImpact));
-
-		// Second row of metrics
-		Row metricsRow2 = sheet.createRow(rowNum++);
-
-		// Risk Level (Cross-Browser Specific)
-		Cell riskLabelCell = metricsRow2.createCell(0);
-		riskLabelCell.setCellValue("Risk Level:");
-		// Visual enhancements always enabled
-
-		riskLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		Cell riskValueCell = metricsRow2.createCell(1);
-		String riskLevel = metrics.overallCompatibilityScore >= 95 ? "LOW"
-				: metrics.overallCompatibilityScore >= 85 ? "MEDIUM" : "HIGH";
-		// Visual enhancements always enabled - simplified condition
-		riskValueCell.setCellValue(addRiskIcon(riskLevel));
-		riskValueCell.setCellStyle(getRiskStyle(visualStyles, riskLevel));
-
-		// Critical Path (Browser Compatibility)
-		Cell criticalLabelCell = metricsRow2.createCell(3);
-		criticalLabelCell.setCellValue("Critical Path:");
-		// Visual enhancements always enabled
-
-		criticalLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		Cell criticalValueCell = metricsRow2.createCell(4);
-		String criticalStatus = metrics.overallCompatibilityScore >= 90 ? "PASSED" : "FAILED";
-		criticalValueCell.setCellValue(criticalStatus);
-		// Visual enhancements always enabled - simplified condition
-		if (metrics.overallCompatibilityScore >= 90) {
-			criticalValueCell.setCellStyle(visualStyles.excellentStyle);
-		} else {
-			criticalValueCell.setCellStyle(visualStyles.criticalStyle);
-		}
-
-		// Execution Mode (Cross-Browser)
-		Cell modeLabelCell = metricsRow2.createCell(6);
-		modeLabelCell.setCellValue("Execution Mode:");
-		// Visual enhancements always enabled
-		modeLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		Cell modeValueCell = metricsRow2.createCell(7);
-		modeValueCell.setCellValue("Cross-Browser");
-		// Visual enhancements always enabled
-		modeValueCell.setCellStyle(visualStyles.excellentStyle);
-
-		rowNum++; // Empty row
-
-		// === PROJECT OVERVIEW (Cross-Browser Adapted) ===
-		Row overviewHeader = sheet.createRow(rowNum++);
-		Cell overviewCell = overviewHeader.createCell(0);
-		overviewCell.setCellValue("PROJECT OVERVIEW");
-		overviewCell.setCellStyle(headerStyle);
-		sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-		// Overview metrics with cross-browser context
-		Row overviewRow1 = sheet.createRow(rowNum++);
-
-		// Total Features in Project
-		Cell totalFeaturesLabelCell = overviewRow1.createCell(0);
-		totalFeaturesLabelCell.setCellValue("Total Features in Project:");
-		// Visual enhancements always enabled
-
-		totalFeaturesLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell totalFeaturesValueCell = overviewRow1.createCell(1);
-		totalFeaturesValueCell.setCellValue("" + summary.totalProjectFeatures);
-		// Visual enhancements always enabled
-
-		totalFeaturesValueCell.setCellStyle(visualStyles.neutralStyle);
-
-		// Total Scenarios in Project
-		Cell totalScenariosLabelCell = overviewRow1.createCell(3);
-		totalScenariosLabelCell.setCellValue("Total Scenarios in Project:");
-		// Visual enhancements always enabled
-
-		totalScenariosLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell totalScenariosValueCell = overviewRow1.createCell(4);
-		totalScenariosValueCell.setCellValue("" + summary.totalProjectScenarios);
-		// Visual enhancements always enabled
-
-		totalScenariosValueCell.setCellStyle(visualStyles.neutralStyle);
-
-		// Avg Execution Time (Per Browser)
-		Cell avgTimeLabelCell = overviewRow1.createCell(6);
-		avgTimeLabelCell.setCellValue("Avg Cross-Browser Time:");
-		// Visual enhancements always enabled
-
-		avgTimeLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell avgTimeValueCell = overviewRow1.createCell(7);
-		avgTimeValueCell.setCellValue("" + metrics.avgCrossBrowserDuration);
-		// Visual enhancements always enabled
-
-		avgTimeValueCell.setCellStyle(visualStyles.neutralStyle);
-
-		// Second row of overview
-		Row overviewRow2 = sheet.createRow(rowNum++);
-
-		// Features Executed (Cross-Browser)
-		Cell featuresExecLabelCell = overviewRow2.createCell(0);
-		featuresExecLabelCell.setCellValue("Features Executed:");
-		// Visual enhancements always enabled
-
-		featuresExecLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell featuresExecValueCell = overviewRow2.createCell(1);
-		// FIXED: Use metrics.totalCrossBrowserRuns for cumulative count (not just
-		// current session)
-		int crossBrowserFeatures = metrics.totalCrossBrowserRuns;
-		String featuresExecText = String.format("%d of %d (%.1f%%)", crossBrowserFeatures, summary.totalProjectFeatures,
-				summary.totalProjectFeatures > 0 ? (double) crossBrowserFeatures / summary.totalProjectFeatures * 100
-						: 0);
-		featuresExecValueCell.setCellValue(featuresExecText);
-		if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-			double featurePercentage = summary.totalProjectFeatures > 0
-					? (double) crossBrowserFeatures / summary.totalProjectFeatures * 100
-					: 0;
-			featuresExecValueCell.setCellStyle(getPerformanceStyle(visualStyles, featurePercentage));
-		}
-
-		// Scenarios Executed (Cross-Browser Total)
-		Cell scenariosExecLabelCell = overviewRow2.createCell(3);
-		scenariosExecLabelCell.setCellValue("Cross-Browser Scenarios:");
-		// Visual enhancements always enabled
-
-		scenariosExecLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell scenariosExecValueCell = overviewRow2.createCell(4);
-		String scenariosExecText = String.format("%d scenarios (3x browsers)", metrics.totalScenariosExecuted);
-		scenariosExecValueCell.setCellValue(scenariosExecText);
-		// Visual enhancements always enabled
-
-		scenariosExecValueCell.setCellStyle(visualStyles.goodStyle);
-
-		// Environment
-		Cell envLabelCell = overviewRow2.createCell(6);
-		envLabelCell.setCellValue("Environment:");
-		// Visual enhancements always enabled
-
-		envLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell envValueCell = overviewRow2.createCell(7);
-		envValueCell.setCellValue("" + summary.environment);
-		// Visual enhancements always enabled
-
-		envValueCell.setCellStyle(visualStyles.neutralStyle);
-
-		// Third row of overview
-		Row overviewRow3 = sheet.createRow(rowNum++);
-
-		// Total Duration (Cross-Browser)
-		Cell durationLabelCell = overviewRow3.createCell(0);
-		durationLabelCell.setCellValue("Total Duration:");
-		// Visual enhancements always enabled
-
-		durationLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell durationValueCell = overviewRow3.createCell(1);
-		durationValueCell.setCellValue("" + metrics.avgCrossBrowserDuration);
-		// Visual enhancements always enabled
-
-		durationValueCell.setCellStyle(visualStyles.neutralStyle);
-
-		// Cross-Browser Coverage
-		Cell coverageLabelCell = overviewRow3.createCell(3);
-		coverageLabelCell.setCellValue("Cross-Browser Coverage:");
-		// Visual enhancements always enabled
-
-		coverageLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell coverageValueCell = overviewRow3.createCell(4);
-		String coverageText = String.format("%.1fx Testing Multiplier", metrics.crossBrowserValue);
-		// Visual enhancements always enabled - simplified condition
-		coverageValueCell.setCellValue(addStatusIcon(coverageText, metrics.crossBrowserValue * 30)); // Scale for color
-		coverageValueCell.setCellStyle(getPerformanceStyle(visualStyles, metrics.crossBrowserValue * 30));
-
-		// Browser Compatibility Rate
-		Cell compatLabelCell = overviewRow3.createCell(6);
-		compatLabelCell.setCellValue("Browser Compatibility:");
-		// Visual enhancements always enabled
-
-		compatLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell compatValueCell = overviewRow3.createCell(7);
-		String compatText = String.format("%.1f%%", metrics.overallCompatibilityScore);
-		// Visual enhancements always enabled - simplified condition
-		compatValueCell.setCellValue(addStatusIcon(compatText, metrics.overallCompatibilityScore));
-		compatValueCell.setCellStyle(getPerformanceStyle(visualStyles, metrics.overallCompatibilityScore));
-
-		rowNum++; // Empty row
-
-		// === TEST COVERAGE ANALYTICS (Cross-Browser Enhanced) ===
-		Row coverageAnalyticsHeader = sheet.createRow(rowNum++);
-		Cell coverageAnalyticsCell = coverageAnalyticsHeader.createCell(0);
-		coverageAnalyticsCell.setCellValue("CROSS-BROWSER TEST COVERAGE ANALYTICS");
-		coverageAnalyticsCell.setCellStyle(headerStyle);
-		sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-		// Browser-by-Browser Coverage
-		Row browserCoverageRow1 = sheet.createRow(rowNum++);
-
-		// Chrome Coverage
-		Cell chromeLabelCell = browserCoverageRow1.createCell(0);
-		chromeLabelCell.setCellValue("Chrome Coverage:");
-		// Visual enhancements always enabled
-
-		chromeLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell chromeValueCell = browserCoverageRow1.createCell(1);
-		BrowserStats chromeStats = metrics.browserStats.get("Chrome");
-		if (chromeStats != null && chromeStats.totalRuns > 0) {
-			String chromeText = String.format("%s %.1f%% (%d scenarios)", chromeStats.reliabilityRank,
-					chromeStats.successRate, chromeStats.totalScenariosExecuted);
-			if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-				chromeValueCell.setCellStyle(getPerformanceStyle(visualStyles, chromeStats.successRate));
-			}
-			chromeValueCell.setCellValue(chromeText);
-		} else {
-			chromeValueCell.setCellValue("No data");
-			// Visual enhancements always enabled
-
-			chromeValueCell.setCellStyle(visualStyles.neutralStyle);
-		}
-
-		// Firefox Coverage
-		Cell firefoxLabelCell = browserCoverageRow1.createCell(3);
-		firefoxLabelCell.setCellValue("Firefox Coverage:");
-		// Visual enhancements always enabled
-
-		firefoxLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell firefoxValueCell = browserCoverageRow1.createCell(4);
-		BrowserStats firefoxStats = metrics.browserStats.get("Firefox");
-		if (firefoxStats != null && firefoxStats.totalRuns > 0) {
-			String firefoxText = String.format("%s %.1f%% (%d scenarios)", firefoxStats.reliabilityRank,
-					firefoxStats.successRate, firefoxStats.totalScenariosExecuted);
-			if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-				firefoxValueCell.setCellStyle(getPerformanceStyle(visualStyles, firefoxStats.successRate));
-			}
-			firefoxValueCell.setCellValue(firefoxText);
-		} else {
-			firefoxValueCell.setCellValue("No data");
-			// Visual enhancements always enabled
-
-			firefoxValueCell.setCellStyle(visualStyles.neutralStyle);
-		}
-
-		// Edge Coverage
-		Cell edgeLabelCell = browserCoverageRow1.createCell(6);
-		edgeLabelCell.setCellValue("Edge Coverage:");
-		// Visual enhancements always enabled
-
-		edgeLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell edgeValueCell = browserCoverageRow1.createCell(7);
-		BrowserStats edgeStats = metrics.browserStats.get("Edge");
-		if (edgeStats != null && edgeStats.totalRuns > 0) {
-			String edgeText = String.format("%s %.1f%% (%d scenarios)", edgeStats.reliabilityRank,
-					edgeStats.successRate, edgeStats.totalScenariosExecuted);
-			if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-				edgeValueCell.setCellStyle(getPerformanceStyle(visualStyles, edgeStats.successRate));
-			}
-			edgeValueCell.setCellValue(edgeText);
-		} else {
-			edgeValueCell.setCellValue("No data");
-			// Visual enhancements always enabled
-
-			edgeValueCell.setCellStyle(visualStyles.neutralStyle);
-		}
-
-		// Results Breakdown for Cross-Browser
-		Row resultsRow = sheet.createRow(rowNum++);
-
-		// Cross-Browser Results Summary
-		Cell resultsLabelCell = resultsRow.createCell(0);
-		resultsLabelCell.setCellValue("Results Breakdown:");
-		// Visual enhancements always enabled
-
-		resultsLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		// FIXED: Calculate cross-browser totals from CUMULATIVE metrics (all today's
-		// runs)
-		int totalPassed = 0, totalFailed = 0, totalSkipped = 0;
-
-		LOGGER.info(
-				"DEBUG - Results Breakdown calculation starting (CUMULATIVE). Total cross-browser runs: {}, total scenarios executed: {}",
-				metrics.totalCrossBrowserRuns, metrics.totalScenariosExecuted);
-
-		// Calculate cumulative results from all browsers across all today's
-		// cross-browser runs
-		String[] browsers = { "Chrome", "Firefox", "Edge" };
-		for (String browser : browsers) {
-			BrowserStats stats = metrics.browserStats.get(browser);
-			if (stats != null && stats.totalScenariosExecuted > 0) {
-				// FIXED: Use totalScenariosExecuted (total scenario executions) instead of
-				// totalRuns
-				int browserPassed = (int) Math.round(stats.totalScenariosExecuted * stats.successRate / 100.0);
-				int browserFailed = stats.totalScenariosExecuted - browserPassed;
-
-				totalPassed += browserPassed;
-				totalFailed += browserFailed;
-
-				LOGGER.debug("Browser {}: {} scenario executions, {:.1f}% success, {} passed, {} failed", browser,
-						stats.totalScenariosExecuted, stats.successRate, browserPassed, browserFailed);
-			} else {
-				LOGGER.debug("Browser {} has no scenario executions today", browser);
-			}
-		}
-
-		// FALLBACK: If no results found, try to use browser metrics data as backup
-		if (totalPassed == 0 && totalFailed == 0 && totalSkipped == 0) {
-			LOGGER.debug("No results from browser status analysis, trying fallback method");
-
-			for (String browser : browsers) {
-				BrowserStats stats = metrics.browserStats.get(browser);
-				if (stats != null && stats.totalScenariosExecuted > 0) {
-					LOGGER.debug("Fallback: Browser {} has {} scenarios, successRate: {}%", browser,
-							stats.totalScenariosExecuted, stats.successRate);
-
-					if (stats.successRate >= 100.0) {
-						totalPassed += stats.totalScenariosExecuted;
-					} else if (stats.successRate <= 0.0) {
-						totalFailed += stats.totalScenariosExecuted;
-					} else {
-						int passed = (int) Math.round(stats.totalScenariosExecuted * stats.successRate / 100.0);
-						int failed = stats.totalScenariosExecuted - passed;
-						totalPassed += passed;
-						totalFailed += failed;
-					}
-				}
-			}
-		}
-
-		LOGGER.debug("Cross-browser totals: Passed={}, Failed={}, Skipped={}",
-				totalPassed, totalFailed, totalSkipped);
-
-		Cell passedCell = resultsRow.createCell(1);
-		passedCell.setCellValue("" + totalPassed + " Passed");
-		// Visual enhancements always enabled
-
-		passedCell.setCellStyle(visualStyles.excellentStyle);
-
-		Cell failedCell = resultsRow.createCell(3);
-		failedCell.setCellValue("" + totalFailed + " Failed");
-		if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-			// FIXED: Apply styling even when count is 0 (0 failures = excellent, >0
-			// failures = critical)
-			CellStyle failedStyle = totalFailed == 0 ? visualStyles.excellentStyle : visualStyles.criticalStyle;
-			failedCell.setCellStyle(failedStyle);
-		}
-
-		Cell skippedCell = resultsRow.createCell(5);
-		skippedCell.setCellValue("" + totalSkipped + " Skipped");
-		if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-			// FIXED: Apply styling even when count is 0 (0 skipped = excellent, >0 skipped
-			// = neutral)
-			CellStyle skippedStyle = totalSkipped == 0 ? visualStyles.excellentStyle : visualStyles.neutralStyle;
-			skippedCell.setCellStyle(skippedStyle);
-		}
-
-		rowNum++; // Empty row
-
-		// === PERFORMANCE & CONFIGURATION (Cross-Browser Enhanced) ===
-		Row performanceHeader = sheet.createRow(rowNum++);
-		Cell performanceCell = performanceHeader.createCell(0);
-		performanceCell.setCellValue("CROSS-BROWSER PERFORMANCE & CONFIGURATION");
-		performanceCell.setCellStyle(headerStyle);
-		sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-		// Performance metrics
-		Row perfRow1 = sheet.createRow(rowNum++);
-
-		// Browser Matrix
-		Cell browserMatrixLabelCell = perfRow1.createCell(0);
-		browserMatrixLabelCell.setCellValue("Browser Matrix:");
-		// Visual enhancements always enabled
-
-		browserMatrixLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell browserMatrixValueCell = perfRow1.createCell(1);
-		browserMatrixValueCell.setCellValue("Chrome + Firefox + Edge");
-		// Visual enhancements always enabled
-
-		browserMatrixValueCell.setCellStyle(visualStyles.excellentStyle);
-
-		// Excel Reporting
-		Cell excelLabelCell = perfRow1.createCell(3);
-		excelLabelCell.setCellValue("Excel Reporting:");
-		// Visual enhancements always enabled
-
-		excelLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell excelValueCell = perfRow1.createCell(4);
-		excelValueCell.setCellValue("Enabled");
-		// Visual enhancements always enabled
-
-		excelValueCell.setCellStyle(visualStyles.excellentStyle);
-
-		// Framework Version
-		Cell frameworkLabelCell = perfRow1.createCell(6);
-		frameworkLabelCell.setCellValue("Framework Version:");
-		// Visual enhancements always enabled
-
-		frameworkLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell frameworkValueCell = perfRow1.createCell(7);
-		frameworkValueCell.setCellValue("v2.1.0");
-		// Visual enhancements always enabled
-
-		frameworkValueCell.setCellStyle(visualStyles.goodStyle);
-
-		// Second row of performance
-		Row perfRow2 = sheet.createRow(rowNum++);
-
-		// Most Reliable Browser
-		Cell reliableBrowserLabelCell = perfRow2.createCell(0);
-		reliableBrowserLabelCell.setCellValue("Most Reliable Browser:");
-		// Visual enhancements always enabled
-
-		reliableBrowserLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell reliableBrowserValueCell = perfRow2.createCell(1);
-		reliableBrowserValueCell.setCellValue("" + metrics.mostReliableBrowser);
-		// Visual enhancements always enabled
-
-		reliableBrowserValueCell.setCellStyle(visualStyles.excellentStyle);
-
-		// Cross-Browser Session Recovery
-		Cell sessionLabelCell = perfRow2.createCell(3);
-		sessionLabelCell.setCellValue("Session Recovery:");
-		// Visual enhancements always enabled
-
-		sessionLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell sessionValueCell = perfRow2.createCell(4);
-		sessionValueCell.setCellValue("Multi-Browser");
-		// Visual enhancements always enabled
-
-		sessionValueCell.setCellStyle(visualStyles.goodStyle);
-
-		// Enhanced Page Objects
-		Cell pageObjectsLabelCell = perfRow2.createCell(6);
-		pageObjectsLabelCell.setCellValue("Page Objects:");
-		// Visual enhancements always enabled
-
-		pageObjectsLabelCell.setCellStyle(visualStyles.labelStyle);
-		Cell pageObjectsValueCell = perfRow2.createCell(7);
-		pageObjectsValueCell.setCellValue("Cross-Browser Enhanced");
-		// Visual enhancements always enabled
-
-		pageObjectsValueCell.setCellStyle(visualStyles.goodStyle);
-
-		// Auto-size columns for better visibility - IDENTICAL to Normal Dashboard
-		for (int i = 0; i <= 7; i++) {
-			sheet.autoSizeColumn(i);
-
-			// Set minimum widths for key columns (same as Normal Dashboard)
-			if (i == 0)
-				sheet.setColumnWidth(i, 5000); // Labels column
-			if (i == 1)
-				sheet.setColumnWidth(i, 4500); // Values column
-			if (i == 2)
-				sheet.setColumnWidth(i, 3000); // Secondary labels
-			if (i == 3)
-				sheet.setColumnWidth(i, 5000); // Comparison labels
-			if (i == 4)
-				sheet.setColumnWidth(i, 4500); // Comparison values
-			if (i == 5)
-				sheet.setColumnWidth(i, 3000); // Tertiary labels
-			if (i == 6)
-				sheet.setColumnWidth(i, 4500); // Final labels
-			if (i == 7)
-				sheet.setColumnWidth(i, 4500); // Final values
-		}
-
-		LOGGER.info(
-				"Cross-Browser Dashboard layout created with identical structure to Normal Dashboard plus cross-browser enhancements");
-	}
-
-	/**
-	 * Create the comprehensive Project Dashboard layout with business intelligence
-	 * metrics
-	 */
-	private static void createProjectDashboardLayout(Sheet sheet, TestResultsSummary summary, Workbook workbook) {
-		CellStyle headerStyle = createHeaderStyle(workbook);
-		CellStyle titleStyle = createTitleStyle(workbook);
-		CellStyle subtitleStyle = createSubtitleStyle(workbook);
-
-		// Initialize visual enhancement styles if enabled
-		VisualStyles visualStyles = ENABLE_VISUAL_ENHANCEMENTS ? new VisualStyles(workbook) : null;
-
-		int rowNum = 0;
-
-		// === MAIN TITLE ===
-		Row mainTitleRow = sheet.createRow(rowNum++);
-		Cell mainTitle = mainTitleRow.createCell(0);
-		mainTitle.setCellValue("Job Mapping - NORMAL EXECUTION QA DASHBOARD");
-		mainTitle.setCellStyle(titleStyle);
-		sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-		// === SUBTITLE (Header Information Row) ===
-		Row subtitleRow = sheet.createRow(rowNum++);
-		Cell subtitleCell = subtitleRow.createCell(0);
-		subtitleCell
-				.setCellValue(String.format("Generated: %s | Environment: %s | Focus: Normal Single-Browser Execution",
-						summary.executionDateTime, summary.environment));
-		subtitleCell.setCellStyle(subtitleStyle); // Apply the new subtitle style
-		sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-		rowNum++; // Empty row
-
-		// === EXECUTIVE SCORECARD ===
-		Row scorecardHeader = sheet.createRow(rowNum++);
-		Cell scorecardCell = scorecardHeader.createCell(0);
-		scorecardCell.setCellValue("EXECUTIVE SCORECARD");
-		scorecardCell.setCellStyle(headerStyle);
-		sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-		// Quality metrics grid with visual indicators
-		Row metricsRow1 = sheet.createRow(rowNum++);
-
-		// Health Score with visual styling
-		Cell healthLabelCell = metricsRow1.createCell(0);
-		healthLabelCell.setCellValue("Health Score:");
-		// Visual enhancements always enabled
-
-		healthLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		Cell healthValueCell = metricsRow1.createCell(1);
-		// Visual enhancements always enabled - simplified condition
-		double healthPercentage = Double.parseDouble(summary.healthScore.replace("%", ""));
-		healthValueCell.setCellValue(addStatusIcon(summary.healthScore, healthPercentage));
-		healthValueCell.setCellStyle(getPerformanceStyle(visualStyles, healthPercentage));
-
-		// Risk Level with visual styling
-		Cell riskLabelCell = metricsRow1.createCell(3);
-		riskLabelCell.setCellValue("Risk Level:");
-		// Visual enhancements always enabled
-
-		riskLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		Cell riskValueCell = metricsRow1.createCell(4);
-		// Visual enhancements always enabled - simplified condition
-		riskValueCell.setCellValue(addRiskIcon(summary.riskLevel));
-		riskValueCell.setCellStyle(getRiskStyle(visualStyles, summary.riskLevel));
-
-		// Business Impact with visual styling
-		Cell impactLabelCell = metricsRow1.createCell(6);
-		impactLabelCell.setCellValue("Business Impact:");
-		// Visual enhancements always enabled
-
-		impactLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		Cell impactValueCell = metricsRow1.createCell(7);
-		// Visual enhancements always enabled - simplified condition
-		String impactIcon = getBusinessImpactIcon(summary.businessImpact);
-		impactValueCell.setCellValue(impactIcon + " " + summary.businessImpact);
-		impactValueCell.setCellStyle(getBusinessImpactStyle(visualStyles, summary.businessImpact));
-
-		// Second row of metrics
-		Row metricsRow2 = sheet.createRow(rowNum++);
-
-		// Success Rate with visual styling
-		Cell successLabelCell = metricsRow2.createCell(0);
-		successLabelCell.setCellValue("Success Rate:");
-		// Visual enhancements always enabled
-
-		successLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		Cell successValueCell = metricsRow2.createCell(1);
-		// Visual enhancements always enabled - simplified condition
-		successValueCell.setCellValue(addStatusIcon(summary.passRate + "%", summary.passRate));
-		successValueCell.setCellStyle(getPerformanceStyle(visualStyles, summary.passRate));
-
-		// Critical Path with visual styling
-		Cell pathLabelCell = metricsRow2.createCell(3);
-		pathLabelCell.setCellValue("Critical Path:");
-		// Visual enhancements always enabled
-
-		pathLabelCell.setCellStyle(visualStyles.labelStyle);
-
-		Cell pathValueCell = metricsRow2.createCell(4);
-		pathValueCell.setCellValue(summary.criticalPathStatus);
-		if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-			boolean pathPassed = summary.criticalPathStatus.contains("PASSED");
-			pathValueCell.setCellStyle(pathPassed ? visualStyles.excellentStyle : visualStyles.criticalStyle);
-		}
-
-		// Execution Mode
-		Cell modeLabel = metricsRow2.createCell(6);
-		modeLabel.setCellValue("Execution Mode:");
-		// Visual enhancements always enabled
-
-		modeLabel.setCellStyle(visualStyles.labelStyle);
-
-		Cell modeValue = metricsRow2.createCell(7);
-		// Visual enhancements always enabled - simplified condition
-		String modeIcon = summary.executionMode.equals("Headless") ? "" : "";
-		modeValue.setCellValue(modeIcon + summary.executionMode);
-		modeValue.setCellStyle(visualStyles.neutralStyle);
-
-		rowNum++; // Empty row
-
-		// === PROJECT OVERVIEW ===
-		Row overviewHeader = sheet.createRow(rowNum++);
-		Cell overviewCell = overviewHeader.createCell(0);
-		overviewCell.setCellValue("PROJECT OVERVIEW");
-		overviewCell.setCellStyle(headerStyle);
-		sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-		// Project scope metrics (actual counts from feature files) with visual styling
-		Row overviewRow1 = sheet.createRow(rowNum++);
-
-		// Total Features in Project
-		Cell totalFeaturesLabel = overviewRow1.createCell(0);
-		totalFeaturesLabel.setCellValue("Total Features in Project:");
-		// Visual enhancements always enabled
-
-		totalFeaturesLabel.setCellStyle(visualStyles.labelStyle);
-
-		Cell totalFeaturesValue = overviewRow1.createCell(1);
-		// Visual enhancements always enabled - simplified condition
-		totalFeaturesValue.setCellValue("" + String.valueOf(summary.totalProjectFeatures));
-		totalFeaturesValue.setCellStyle(visualStyles.neutralStyle);
-
-		// Total Scenarios in Project
-		Cell totalScenariosLabel = overviewRow1.createCell(3);
-		totalScenariosLabel.setCellValue("Total Scenarios in Project:");
-		// Visual enhancements always enabled
-
-		totalScenariosLabel.setCellStyle(visualStyles.labelStyle);
-
-		Cell totalScenariosValue = overviewRow1.createCell(4);
-		// Visual enhancements always enabled - simplified condition
-		totalScenariosValue.setCellValue("" + String.valueOf(summary.totalProjectScenarios));
-		totalScenariosValue.setCellStyle(visualStyles.neutralStyle);
-
-		// Avg Execution Time
-		Cell avgTimeLabel = overviewRow1.createCell(6);
-		avgTimeLabel.setCellValue("Avg Execution Time:");
-		// Visual enhancements always enabled
-
-		avgTimeLabel.setCellStyle(visualStyles.labelStyle);
-
-		Cell avgTimeValue = overviewRow1.createCell(7);
-		if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-			// Parse avg time to determine performance (assuming target is 2s per scenario)
-			double avgTimeSeconds = parseExecutionTime(summary.avgScenarioTime);
-			CellStyle timeStyle = avgTimeSeconds <= 1.0 ? visualStyles.excellentStyle
-					: avgTimeSeconds <= 2.0 ? visualStyles.goodStyle
-							: avgTimeSeconds <= 3.0 ? visualStyles.warningStyle : visualStyles.criticalStyle;
-			avgTimeValue.setCellValue("" + summary.avgScenarioTime);
-			avgTimeValue.setCellStyle(timeStyle);
-
-			// Execution vs Project comparison metrics with visual indicators
-			Row overviewRow2 = sheet.createRow(rowNum++);
-
-			// Features Executed with visual styling
-			Cell featuresExecutedLabel = overviewRow2.createCell(0);
-			featuresExecutedLabel.setCellValue("Features Executed:");
-			// Visual enhancements always enabled
-
-			featuresExecutedLabel.setCellStyle(visualStyles.labelStyle);
-
-			Cell featuresExecutedValue = overviewRow2.createCell(1);
-			String featuresText = String.format("%d of %d (%s)", summary.executedFeatures, summary.totalProjectFeatures,
-					summary.featureCoverageRate);
-			// Visual enhancements always enabled - simplified condition
-			double featureCoverage = Double.parseDouble(summary.featureCoverageRate.replace("%", ""));
-			featuresExecutedValue.setCellValue(addStatusIcon(featuresText, featureCoverage));
-			featuresExecutedValue.setCellStyle(getPerformanceStyle(visualStyles, featureCoverage));
-
-			// Scenarios Executed with visual styling
-			Cell scenariosExecutedLabel = overviewRow2.createCell(3);
-			scenariosExecutedLabel.setCellValue("Scenarios Executed:");
-			// Visual enhancements always enabled
-
-			scenariosExecutedLabel.setCellStyle(visualStyles.labelStyle);
-
-			Cell scenariosExecutedValue = overviewRow2.createCell(4);
-			String scenariosText = String.format("%d of %d (%s)", summary.totalTests, summary.totalProjectScenarios,
-					summary.projectCoverageRate);
-			if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-				double projectCoverage = Double.parseDouble(summary.projectCoverageRate.replace("%", ""));
-				scenariosExecutedValue.setCellValue(addStatusIcon(scenariosText, projectCoverage));
-				scenariosExecutedValue.setCellStyle(getPerformanceStyle(visualStyles, projectCoverage));
-
-				// Environment
-				Cell environmentLabel = overviewRow2.createCell(6);
-				environmentLabel.setCellValue("Environment:");
-				// Visual enhancements always enabled
-
-				environmentLabel.setCellStyle(visualStyles.labelStyle);
-
-				Cell environmentValue = overviewRow2.createCell(7);
-				// Visual enhancements always enabled - simplified condition
-				String envIcon = getEnvironmentIcon(summary.environment);
-				environmentValue.setCellValue(envIcon + " " + summary.environment);
-				environmentValue.setCellStyle(visualStyles.neutralStyle);
-
-				// Duration and coverage summary with visual indicators
-				Row overviewRow3 = sheet.createRow(rowNum++);
-
-				// Total Duration
-				Cell durationLabel = overviewRow3.createCell(0);
-				durationLabel.setCellValue("Total Duration:");
-				// Visual enhancements always enabled
-
-				durationLabel.setCellStyle(visualStyles.labelStyle);
-
-				Cell durationValue = overviewRow3.createCell(1);
-				if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-					durationValue.setCellValue("" + summary.totalDuration);
-					durationValue.setCellStyle(visualStyles.neutralStyle);
-
-					// Project Coverage
-					Cell projectCoverageLabel = overviewRow3.createCell(3);
-					projectCoverageLabel.setCellValue("Project Coverage:");
-					// Visual enhancements always enabled
-
-					projectCoverageLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell projectCoverageValue = overviewRow3.createCell(4);
-					// Visual enhancements always enabled - simplified condition
-					double projCoverage = Double.parseDouble(summary.projectCoverageRate.replace("%", ""));
-					projectCoverageValue.setCellValue(addStatusIcon(summary.projectCoverageRate, projCoverage));
-					projectCoverageValue.setCellStyle(getPerformanceStyle(visualStyles, projCoverage));
-
-					// Feature Coverage
-					Cell featureCoverageLabel = overviewRow3.createCell(6);
-					featureCoverageLabel.setCellValue("Feature Coverage:");
-					// Visual enhancements always enabled
-
-					featureCoverageLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell featureCoverageValue = overviewRow3.createCell(7);
-					// Visual enhancements always enabled - simplified condition
-					double featCoverage = Double.parseDouble(summary.featureCoverageRate.replace("%", ""));
-					featureCoverageValue.setCellValue(addStatusIcon(summary.featureCoverageRate, featCoverage));
-					featureCoverageValue.setCellStyle(getPerformanceStyle(visualStyles, featCoverage));
-					rowNum++; // Empty row
-
-					// === TEST COVERAGE ANALYTICS ===
-					Row coverageHeader = sheet.createRow(rowNum++);
-					Cell coverageCell = coverageHeader.createCell(0);
-					coverageCell.setCellValue("TEST COVERAGE ANALYTICS");
-					coverageCell.setCellStyle(headerStyle);
-					sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-					// Functional area breakdown with visual styling
-					Row functionalRow1 = sheet.createRow(rowNum++);
-
-					// Authentication scenarios
-					Cell authLabel = functionalRow1.createCell(0);
-					authLabel.setCellValue("Authentication:");
-					// Visual enhancements always enabled
-
-					authLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell authValue = functionalRow1.createCell(1);
-					// Visual enhancements always enabled - simplified condition
-					authValue.setCellValue("" + summary.authenticationScenarios + " scenarios");
-					// Color based on coverage - green if has auth tests, yellow if none
-					CellStyle authStyle = summary.authenticationScenarios > 0 ? visualStyles.excellentStyle
-							: visualStyles.warningStyle;
-					authValue.setCellStyle(authStyle);
-
-					// AI AutoMapping scenarios
-					Cell autoMappingLabel = functionalRow1.createCell(3);
-					autoMappingLabel.setCellValue("AI AutoMapping:");
-					// Visual enhancements always enabled
-
-					autoMappingLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell autoMappingValue = functionalRow1.createCell(4);
-					// Visual enhancements always enabled - simplified condition
-					autoMappingValue.setCellValue("" + summary.autoMappingScenarios + " scenarios");
-					// Color based on coverage - this is the core functionality
-					CellStyle autoMappingStyle = summary.autoMappingScenarios >= 20 ? visualStyles.excellentStyle
-							: summary.autoMappingScenarios >= 10 ? visualStyles.goodStyle
-									: summary.autoMappingScenarios >= 5 ? visualStyles.warningStyle
-											: visualStyles.criticalStyle;
-					autoMappingValue.setCellStyle(autoMappingStyle);
-
-					Row functionalRow2 = sheet.createRow(rowNum++);
-
-					// Profile Management scenarios
-					Cell profileLabel = functionalRow2.createCell(0);
-					profileLabel.setCellValue("Profile Management:");
-					// Visual enhancements always enabled
-
-					profileLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell profileValue = functionalRow2.createCell(1);
-					if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-						profileValue.setCellValue("" + summary.profileManagementScenarios + " scenarios");
-						CellStyle profileStyle = summary.profileManagementScenarios >= 10 ? visualStyles.excellentStyle
-								: summary.profileManagementScenarios >= 5 ? visualStyles.goodStyle
-										: summary.profileManagementScenarios >= 2 ? visualStyles.warningStyle
-												: visualStyles.criticalStyle;
-						profileValue.setCellStyle(profileStyle);
-					}
-
-					// AutoAI Manual Mapping scenarios
-					Cell autoAILabel = functionalRow2.createCell(3);
-					autoAILabel.setCellValue("AutoAI Manual Mapping:");
-					// Visual enhancements always enabled
-
-					autoAILabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell autoAIValue = functionalRow2.createCell(4);
-					if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-						autoAIValue.setCellValue("" + summary.autoAIManualMappingScenarios + " scenarios");
-						// Special feature - green if covered, yellow if not
-						CellStyle autoAIStyle = summary.autoAIManualMappingScenarios >= 2 ? visualStyles.excellentStyle
-								: summary.autoAIManualMappingScenarios >= 1 ? visualStyles.goodStyle
-										: visualStyles.warningStyle;
-						autoAIValue.setCellStyle(autoAIStyle);
-					}
-
-					// Test results breakdown with enhanced visual styling
-					Row resultsRow = sheet.createRow(rowNum++);
-
-					Cell resultsLabel = resultsRow.createCell(0);
-					resultsLabel.setCellValue("Results Breakdown:");
-					// Visual enhancements always enabled
-
-					resultsLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell passedCell = resultsRow.createCell(1);
-					if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-						passedCell.setCellValue(String.format("%d Passed", summary.passedTests));
-						passedCell.setCellStyle(visualStyles.excellentStyle);
-					}
-
-					Cell failedCell = resultsRow.createCell(3);
-					if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-						failedCell.setCellValue(String.format("%d Failed", summary.failedTests));
-						CellStyle failedStyle = summary.failedTests == 0 ? visualStyles.excellentStyle
-								: summary.failedTests <= 2 ? visualStyles.warningStyle : visualStyles.criticalStyle;
-						failedCell.setCellStyle(failedStyle);
-					}
-
-					Cell skippedCell = resultsRow.createCell(5);
-					if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-						skippedCell.setCellValue(String.format("%d Skipped", summary.skippedTests));
-						CellStyle skippedStyle = summary.skippedTests == 0 ? visualStyles.excellentStyle
-								: summary.skippedTests <= 2 ? visualStyles.goodStyle : visualStyles.warningStyle;
-						skippedCell.setCellStyle(skippedStyle);
-					}
-
-					rowNum++; // Empty row
-
-					// === PERFORMANCE & CONFIGURATION ===
-					Row perfHeader = sheet.createRow(rowNum++);
-					Cell perfCell = perfHeader.createCell(0);
-					perfCell.setCellValue("PERFORMANCE & CONFIGURATION");
-					perfCell.setCellStyle(headerStyle);
-					sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 7));
-
-					// Configuration details with visual styling
-					Row configRow1 = sheet.createRow(rowNum++);
-
-					// Browser configuration
-					Cell browserLabel = configRow1.createCell(0);
-					browserLabel.setCellValue("Browser:");
-					// Visual enhancements always enabled
-
-					browserLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell browserValue = configRow1.createCell(1);
-					if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-						String browserIcon = getBrowserIcon(summary.browserUsed);
-						browserValue.setCellValue(browserIcon + " " + summary.browserUsed);
-						browserValue.setCellStyle(visualStyles.neutralStyle);
-					}
-
-					// Excel Reporting status
-					Cell excelLabel = configRow1.createCell(3);
-					excelLabel.setCellValue("Excel Reporting:");
-					// Visual enhancements always enabled
-
-					excelLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell excelValue = configRow1.createCell(4);
-					if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-						boolean isEnabled = summary.excelReportingStatus.equalsIgnoreCase("Enabled");
-						String statusIcon = isEnabled ? "" : "";
-						excelValue.setCellValue(statusIcon + " " + summary.excelReportingStatus);
-						CellStyle excelStyle = isEnabled ? visualStyles.excellentStyle : visualStyles.warningStyle;
-						excelValue.setCellStyle(excelStyle);
-					}
-
-					// Framework Version
-					Cell frameworkLabel = configRow1.createCell(6);
-					frameworkLabel.setCellValue("Framework Version:");
-					// Visual enhancements always enabled
-
-					frameworkLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell frameworkValue = configRow1.createCell(7);
-					if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-						frameworkValue.setCellValue("v2.1.0");
-						frameworkValue.setCellStyle(visualStyles.excellentStyle); // Latest version is always good
-					}
-
-					// Additional configuration row
-					Row configRow2 = sheet.createRow(rowNum++);
-
-					// Screenshot Capture
-					Cell screenshotLabel = configRow2.createCell(0);
-					screenshotLabel.setCellValue("Screenshot Capture:");
-					// Visual enhancements always enabled
-
-					screenshotLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell screenshotValue = configRow2.createCell(1);
-					if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-						screenshotValue.setCellValue("Enabled");
-						screenshotValue.setCellStyle(visualStyles.excellentStyle);
-					}
-
-					// Session Recovery
-					Cell sessionLabel = configRow2.createCell(3);
-					sessionLabel.setCellValue("Session Recovery:");
-					// Visual enhancements always enabled
-
-					sessionLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell sessionValue = configRow2.createCell(4);
-					if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-						sessionValue.setCellValue("Active");
-						sessionValue.setCellStyle(visualStyles.excellentStyle);
-					}
-
-					// Page Objects count
-					Cell pageObjectsLabel = configRow2.createCell(6);
-					pageObjectsLabel.setCellValue("Page Objects:");
-					// Visual enhancements always enabled
-
-					pageObjectsLabel.setCellStyle(visualStyles.labelStyle);
-
-					Cell pageObjectsValue = configRow2.createCell(7);
-					if (ENABLE_VISUAL_ENHANCEMENTS && visualStyles != null) {
-						pageObjectsValue.setCellValue("24 Enhanced");
-						pageObjectsValue.setCellStyle(visualStyles.goodStyle);
-					}
-
-					// === RISK ANALYSIS SECTION REMOVED ===
-					// Risk Analysis section has been removed from the dashboard
-
-					// Auto-size columns
-					LOGGER.debug("Auto-sizing dashboard columns...");
-
-					// First pass: Apply auto-sizing to all columns
-					for (int i = 0; i < 8; i++) {
-						try {
-							sheet.autoSizeColumn(i);
-						} catch (Exception e) {
-						}
-					}
-
-					// Second pass: Apply intelligent width management with consistent alignment
-					for (int i = 0; i < 8; i++) {
-						try {
-							int currentWidth = sheet.getColumnWidth(i);
-							int adjustedWidth;
-
-							// Column-specific width optimization
-							if (i == 0) {
-								// Column A: Consistent with other label columns, remove extra margins
-								adjustedWidth = Math.max(currentWidth, 4500); // Slightly wider for labels
-								adjustedWidth = Math.min(adjustedWidth, 8000); // Cap to prevent excessive width
-							} else if (i == 1) {
-								// Column B: ENHANCED - Allow wider width for data values
-								// This column displays various metric values that may contain long text
-								adjustedWidth = Math.max(currentWidth, 3800); // Uniform minimum for data
-								adjustedWidth = Math.min(adjustedWidth, 20000); // Cap to prevent excessive width
-							} else if (i == 3 || i == 4 || i == 6 || i == 7) {
-								// Other data columns: Standard sizing for alignment
-								adjustedWidth = Math.max(currentWidth, 3800); // Uniform minimum for data
-								adjustedWidth = Math.min(adjustedWidth, 10000); // Reasonable maximum
-							} else {
-								// Other columns: Standard sizing
-								adjustedWidth = Math.max(currentWidth, 3500);
-								adjustedWidth = Math.min(adjustedWidth, 12000);
-							}
-
-							sheet.setColumnWidth(i, adjustedWidth);
-							// adjustedWidth > currentWidth ? "expanded" : adjustedWidth < currentWidth ?
-							// "reduced" : "unchanged");
-
-						} catch (Exception e) {
-							// Fallback: Set column-specific default width
-							int defaultWidth = (i == 0) ? 4500 : 4000;
-							sheet.setColumnWidth(i, defaultWidth);
-						}
-					}
-
-					// Third pass: Row height optimization for better vertical alignment
-					try {
-						for (int i = 0; i <= sheet.getLastRowNum(); i++) {
-							Row row = sheet.getRow(i);
-							if (row != null) {
-								// Set consistent row height for better alignment (especially Row 2)
-								row.setHeightInPoints(18); // Slightly increased for better readability
-							}
-						}
-					} catch (Exception e) {
-					}
-				}
-			}
-		}
-
-		LOGGER.debug("Dashboard auto-sizing completed");
-	}
-
-	/**
-	 * Create enhanced title style for dashboard headers
-	 */
-	private static CellStyle createTitleStyle(Workbook workbook) {
-		CellStyle style = workbook.createCellStyle();
-		Font font = workbook.createFont();
-		font.setBold(true);
-		font.setFontHeightInPoints((short) 18);
-		font.setColor(IndexedColors.WHITE.getIndex());
-		style.setFont(font);
-		style.setFillForegroundColor(IndexedColors.ROYAL_BLUE.getIndex());
-		try {
-			style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-			style.setAlignment(HorizontalAlignment.CENTER);
-			style.setVerticalAlignment(VerticalAlignment.CENTER);
-			style.setBorderBottom(BorderStyle.MEDIUM);
-			style.setBorderTop(BorderStyle.MEDIUM);
-			style.setBorderRight(BorderStyle.MEDIUM);
-			style.setBorderLeft(BorderStyle.MEDIUM);
-		} catch (Exception e) {
-			// Fallback for older POI versions
-		}
-		return style;
-	}
-
-	/**
-	 * Create subtitle style for header information row (Generated, Environment,
-	 * Framework) ENHANCED: Borderless design for clean appearance
-	 */
-	private static CellStyle createSubtitleStyle(Workbook workbook) {
-		CellStyle style = workbook.createCellStyle();
-		Font font = workbook.createFont();
-		font.setBold(false);
-		font.setFontHeightInPoints((short) 11);
-		font.setColor(IndexedColors.BLACK.getIndex());
-		style.setFont(font);
-		style.setFillForegroundColor(IndexedColors.LIGHT_CORNFLOWER_BLUE.getIndex());
-		try {
-			style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-			style.setAlignment(HorizontalAlignment.CENTER);
-			style.setVerticalAlignment(VerticalAlignment.CENTER);
-		} catch (Exception e) {
-			// Fallback for older POI versions
-		}
-		return style;
-	}
-
-	/**
-	 * Create visual quality indicator styles for enhanced dashboard visibility
-	 * These styles provide color coding based on quality metrics
-	 */
-	private static class VisualStyles {
-		CellStyle excellentStyle; // Green - 90%+ performance
-		CellStyle goodStyle; // Light Green - 80-89% performance
-		CellStyle warningStyle; // Yellow - 70-79% performance
-		CellStyle criticalStyle; // Red - <70% performance
-		CellStyle neutralStyle; // Gray - informational data
-		CellStyle labelStyle; // Bold labels for metrics
-		// Removed unused field: dataStyle (replaced by row-level styling)
-
-		VisualStyles(Workbook workbook) {
-			this.excellentStyle = createStatusStyle(workbook, IndexedColors.GREEN, IndexedColors.WHITE);
-			this.goodStyle = createStatusStyle(workbook, IndexedColors.LIGHT_GREEN, IndexedColors.BLACK);
-			this.warningStyle = createStatusStyle(workbook, IndexedColors.YELLOW, IndexedColors.BLACK);
-			this.criticalStyle = createStatusStyle(workbook, IndexedColors.RED, IndexedColors.WHITE);
-			this.neutralStyle = createStatusStyle(workbook, IndexedColors.GREY_25_PERCENT, IndexedColors.BLACK);
-			this.labelStyle = createLabelStyle(workbook);
-			// Removed unused dataStyle initialization
-		}
-
-		private CellStyle createStatusStyle(Workbook workbook, IndexedColors bgColor, IndexedColors fontColor) {
-			CellStyle style = workbook.createCellStyle();
-			Font font = workbook.createFont();
-			font.setColor(fontColor.getIndex());
-			font.setBold(true);
-			font.setFontHeightInPoints((short) 11); // Consistent font size
-			style.setFont(font);
-			style.setFillForegroundColor(bgColor.getIndex());
-			try {
-				style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-				style.setBorderBottom(BorderStyle.THIN);
-				style.setBorderTop(BorderStyle.THIN);
-				style.setBorderRight(BorderStyle.THIN);
-				style.setBorderLeft(BorderStyle.THIN);
-				style.setAlignment(HorizontalAlignment.CENTER); // Ensure data is centered
-				style.setVerticalAlignment(VerticalAlignment.CENTER);
-			} catch (Exception e) {
-				// Fallback for older POI versions
-			}
-			return style;
-		}
-
-		private CellStyle createLabelStyle(Workbook workbook) {
-			CellStyle style = workbook.createCellStyle();
-			Font font = workbook.createFont();
-			font.setBold(true);
-			font.setFontHeightInPoints((short) 11);
-			style.setFont(font);
-			// Light blue background for labels to make them stand out
-			style.setFillForegroundColor(IndexedColors.PALE_BLUE.getIndex());
-			try {
-				style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-				style.setBorderBottom(BorderStyle.THIN);
-				style.setBorderTop(BorderStyle.THIN);
-				style.setBorderRight(BorderStyle.THIN);
-				style.setBorderLeft(BorderStyle.THIN);
-				style.setAlignment(HorizontalAlignment.LEFT); // Labels stay left-aligned
-				style.setVerticalAlignment(VerticalAlignment.CENTER);
-			} catch (Exception e) {
-				// Fallback for older POI versions
-			}
-			return style;
-		}
-
-		// Removed unused createDataCellStyle method (dataStyle field was removed)
-	}
-
-	/**
-	 * Get appropriate visual style based on performance percentage
-	 */
-	private static CellStyle getPerformanceStyle(VisualStyles styles, double percentage) {
-		if (percentage >= 90)
-			return styles.excellentStyle;
-		if (percentage >= 80)
-			return styles.goodStyle;
-		if (percentage >= 70)
-			return styles.warningStyle;
-		return styles.criticalStyle;
-	}
-
-	/**
-	 * Get risk level style based on risk assessment
-	 */
-	private static CellStyle getRiskStyle(VisualStyles styles, String riskLevel) {
-		switch (riskLevel.toUpperCase()) {
-		case "LOW":
-			return styles.excellentStyle;
-		case "MEDIUM":
-			return styles.warningStyle;
-		case "HIGH":
-			return styles.criticalStyle;
-		default:
-			return styles.neutralStyle;
-		}
-	}
-
-	/**
-	 * Add visual status icon based on metric value
-	 */
-	private static String addStatusIcon(String text, double percentage) {
-		if (percentage >= 90)
-			return "" + text;
-		if (percentage >= 80)
-			return "" + text;
-		if (percentage >= 70)
-			return "" + text;
-		return "" + text;
-	}
-
-	/**
-	 * Add status icon for risk level
-	 */
-	private static String addRiskIcon(String riskLevel) {
-		switch (riskLevel.toUpperCase()) {
-		case "LOW":
-			return "" + riskLevel;
-		case "MEDIUM":
-			return "" + riskLevel;
-		case "HIGH":
-			return "" + riskLevel;
-		default:
-			return "" + riskLevel;
-		}
-	}
-
-	/**
-	 * Get business impact icon
-	 */
-	private static String getBusinessImpactIcon(String businessImpact) {
-		switch (businessImpact.toUpperCase()) {
-		case "MINIMAL":
-			return "";
-		case "LOW":
-			return "";
-		case "MEDIUM":
-			return "";
-		case "HIGH":
-			return "";
-		default:
-			return "";
-		}
-	}
-
-	/**
-	 * Get business impact style
-	 */
-	private static CellStyle getBusinessImpactStyle(VisualStyles styles, String businessImpact) {
-		switch (businessImpact.toUpperCase()) {
-		case "MINIMAL":
-			return styles.excellentStyle;
-		case "LOW":
-			return styles.goodStyle;
-		case "MEDIUM":
-			return styles.warningStyle;
-		case "HIGH":
-			return styles.criticalStyle;
-		default:
-			return styles.neutralStyle;
-		}
-	}
-
-	/**
-	 * Get environment icon
-	 */
-	private static String getEnvironmentIcon(String environment) {
-		switch (environment.toUpperCase()) {
-		case "PROD":
-		case "PRODUCTION":
-			return "";
-		case "STAGE":
-		case "STAGING":
-			return "";
-		case "TEST":
-			return "";
-		case "DEV":
-		case "DEVELOPMENT":
-			return "";
-		default:
-			return "";
-		}
-	}
-
-	/**
-	 * Parse execution time string to seconds for performance evaluation
-	 */
-	private static double parseExecutionTime(String timeStr) {
-		if (timeStr == null || timeStr.trim().isEmpty())
-			return 0.0;
-		try {
-			// Handle formats like "1.2s", "0.5s", etc.
-			if (timeStr.endsWith("s")) {
-				return Double.parseDouble(timeStr.replace("s", "").trim());
-			}
-			// Handle other time formats if needed
-			return 0.0;
-		} catch (NumberFormatException e) {
-			return 0.0; // Default for unparseable time strings
-		}
-	}
-
-	/**
-	 * Get browser icon based on browser name
-	 */
-	private static String getBrowserIcon(String browser) {
-		if (browser == null)
-			return "";
-		switch (browser.toUpperCase()) {
-		case "CHROME":
-			return "";
-		case "FIREFOX":
-			return "";
-		case "EDGE":
-			return "";
-		case "SAFARI":
-			return "";
-		case "OPERA":
-			return "";
-		default:
-			return "";
-		}
-	}
-
-	// Utility methods for Excel styling
-
 	private static CellStyle createHeaderStyle(Workbook workbook) {
 		CellStyle style = workbook.createCellStyle();
 		Font font = workbook.createFont();
@@ -7187,7 +4050,6 @@ public class DailyExcelTracker {
 		font.setColor(IndexedColors.WHITE.getIndex());
 		style.setFont(font);
 		style.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
-		// POI 3.17 compatible style settings
 		try {
 			style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 			style.setBorderBottom(BorderStyle.THIN);
@@ -7197,18 +4059,15 @@ public class DailyExcelTracker {
 			style.setAlignment(HorizontalAlignment.LEFT); // Changed from CENTER to LEFT
 			style.setVerticalAlignment(VerticalAlignment.CENTER);
 		} catch (Exception e) {
-			// Fallback for older POI versions - minimal styling
 		}
 		return style;
 	}
 
-	// Data classes for organizing test results
 	public static class TestResultsSummary {
 		public String executionDate;
 		public String executionDateTime;
 		public String environment;
 		public String suiteName; // ENHANCED: Store suite name from TestNG XML (null if individual runner
-									// execution)
 		public int totalTests = 0;
 		public int passedTests = 0;
 		public int failedTests = 0;
@@ -7221,11 +4080,9 @@ public class DailyExcelTracker {
 		public List<TestSuiteResult> testSuites = new ArrayList<>();
 		public List<FeatureResult> featureResults = new ArrayList<>();
 
-		// Enhanced business intelligence metrics
 		public int totalFeatures = 0; // From execution (legacy)
 		public int executedFeatures = 0;
 
-		// PROJECT SCOPE METRICS (actual counts from feature files)
 		public int totalProjectFeatures = 0; // Total .feature files in project
 		public int totalProjectScenarios = 0; // Total scenarios across all .feature files
 		public String projectCoverageRate = "0%"; // Executed vs Available ratio
@@ -7247,9 +4104,6 @@ public class DailyExcelTracker {
 		public Set<String> criticalFailures = new HashSet<>(); // FIXED: Use Set to prevent duplicates
 	}
 
-	/**
-	 * Data class for tracking cumulative daily totals
-	 */
 	public static class DailyCumulativeTotals {
 		public String date;
 		public int totalTests = 0;
@@ -7288,10 +4142,8 @@ public class DailyExcelTracker {
 
 		// ENHANCED: Browser-specific status tracking for cross-browser tests
 		public Map<String, String> browserStatus; // Map of browser -> status (chrome -> PASSED, firefox -> FAILED,
-													// etc.)
 
 		// ENHANCED: Scenario execution order for maintaining correct order in Excel
-		// reports
 		public int scenarioOrder = -1; // Order of scenario in original feature file (0-based index)
 
 		// ENHANCED: Fields for capturing actual failure information
@@ -7300,12 +4152,9 @@ public class DailyExcelTracker {
 		public String failedStepDetails; // Details of the failed step
 		public String errorStackTrace; // Full stack trace if available
 
-		// Constructor for backward compatibility
 		public ScenarioDetail() {
-			// Default constructor
 		}
 
-		// Enhanced constructor for capturing failure details
 		public ScenarioDetail(String scenarioName, String status, String failureReason) {
 			this.scenarioName = scenarioName;
 			this.status = status;
@@ -7313,18 +4162,11 @@ public class DailyExcelTracker {
 		}
 	}
 
-	// Removed complex cell parsing methods - no longer needed with data-driven
-	// approach!
-
-	/**
-	 * Parse duration string to milliseconds for accumulation
-	 */
 	private static long parseDurationToMs(String duration) {
 		if (duration == null || duration.trim().isEmpty())
 			return 0;
 
 		try {
-			// Use the same parsing logic as DataParsingHelper for consistency
 			return DataParsingHelper.parseDurationToMs(duration);
 		} catch (Exception e) {
 			LOGGER.warn("Could not parse duration '{}', treating as 0: {}", duration, e.getMessage());
@@ -7332,69 +4174,16 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * ENHANCED: Safely extract integer value from Excel cell (handles both numeric
-	 * and string cells)
-	 * 
-	 * @param cell Excel cell that may contain numeric or string representation of
-	 *             integer
-	 * @return Integer value from cell, or 0 if extraction fails
-	 */
-	private static int getCellValueAsInt(Cell cell) {
-		if (cell == null)
-			return 0;
-
-		try {
-			switch (cell.getCellType()) {
-			case NUMERIC:
-				return (int) cell.getNumericCellValue();
-			case STRING:
-				String stringValue = cell.getStringCellValue().trim();
-				if (stringValue.isEmpty())
-					return 0;
-				return Integer.parseInt(stringValue);
-			case FORMULA:
-				try {
-					return (int) cell.getNumericCellValue();
-				} catch (Exception e) {
-					String formulaResult = cell.getStringCellValue().trim();
-					return formulaResult.isEmpty() ? 0 : Integer.parseInt(formulaResult);
-				}
-			default:
-				LOGGER.debug("Unsupported cell type {} for integer extraction, returning 0", cell.getCellType());
-				return 0;
-			}
-		} catch (Exception e) {
-			LOGGER.warn("Failed to extract integer from cell (type: {}): {}", cell.getCellType(), e.getMessage());
-			return 0;
-		}
-	}
-
-	/**
-	 * Calculate cumulative totals from actual scenario data rows in Test Results Summary sheet
-	 * 
-	 * FIXED: Now counts directly from scenario data rows in the sheet, not from Execution History.
-	 * This ensures accurate counts when:
-	 * - A Suite is executed (e.g., Sanity Suite with 69 scenarios)
-	 * - Then an individual Runner from that Suite is re-executed (e.g., Runner22)
-	 * - The counts should remain at 69 (since Runner22's rows are UPDATED, not added)
-	 * 
-	 * Previous bug: Was reading from Execution History which would show Suite(69) + Runner22(13) = 82
-	 */
 	private static DailyCumulativeTotals calculateCumulativeTotalsFromExcelData(Sheet sheet,
 			TestResultsSummary currentExecution) {
 		DailyCumulativeTotals totals = new DailyCumulativeTotals();
 		totals.date = currentExecution.executionDate;
 
 		// FIXED: Count directly from scenario data rows in Test Results Summary sheet
-		// This is more accurate than reading from Execution History because:
-		// 1. Re-executed scenarios UPDATE existing rows (not append)
-		// 2. Prevents double counting when Suite + individual Runner are executed
 		
 		int dataStartRow = findDataStartRow(sheet);
 		if (dataStartRow < 0) {
-			LOGGER.warn("⚠️ No data rows found in Test Results Summary - using current execution counts");
-			// Fall back to current execution counts
+			LOGGER.warn("?? No data rows found in Test Results Summary - using current execution counts");
 			totals.totalTests = currentExecution.totalTests;
 			totals.passedTests = currentExecution.passedTests;
 			totals.failedTests = currentExecution.failedTests;
@@ -7411,7 +4200,6 @@ public class DailyExcelTracker {
 			Row row = sheet.getRow(i);
 			if (row == null) continue;
 			
-			// Check if this is a valid data row (has scenario name in column 2)
 			Cell scenarioCell = row.getCell(2);
 			if (scenarioCell == null) continue;
 			
@@ -7428,11 +4216,9 @@ public class DailyExcelTracker {
 				continue;
 			}
 			
-			// This is a valid scenario row - count it
 			totals.totalTests++;
 			LOGGER.debug("  Row {}: Counted scenario '{}'", i, scenarioName);
 			
-			// Determine status from Chrome column (column 3)
 			Cell chromeCell = row.getCell(3);
 			String status = "PASSED"; // Default
 			if (chromeCell != null) {
@@ -7456,7 +4242,6 @@ public class DailyExcelTracker {
 				totals.passedTests++; // Default to passed
 			}
 			
-			// Track unique features for execution count
 			Cell featureCell = row.getCell(1);
 			if (featureCell != null) {
 				try {
@@ -7465,21 +4250,16 @@ public class DailyExcelTracker {
 						uniqueFeatures.add(featureName);
 					}
 				} catch (Exception e) {
-					// Ignore
 				}
 			}
 		}
 		
-		// FIX: Calculate execution count from Execution History, not unique features
-		// Unique features count doesn't represent actual execution runs
 		totals.executionCount = calculateExecutionRunsFromHistory(sheet, currentExecution.executionDate);
 		
-		// If execution history gives 0 (shouldn't happen), fall back to feature count
 		if (totals.executionCount == 0) {
 			totals.executionCount = Math.max(1, uniqueFeatures.size());
 		}
 		
-		// Use current execution duration (we don't store duration per scenario row)
 		totals.totalDurationMs = parseDurationToMs(currentExecution.totalDuration);
 		
 		LOGGER.info("CUMULATIVE TOTALS (from {} scenario rows): {} total tests, {} passed, {} failed, {} skipped, {} execution runs",
@@ -7488,18 +4268,14 @@ public class DailyExcelTracker {
 
 		return totals;
 	}
-	
-	/**
-	 * Calculate actual execution runs from Execution History sheet for the given date.
-	 * This gives accurate "runs" count, unlike unique feature count which doesn't change on re-execution.
-	 */
+
 	private static int calculateExecutionRunsFromHistory(Sheet testResultsSheet, String targetDate) {
 		try {
 			Workbook workbook = testResultsSheet.getWorkbook();
 			Sheet historySheet = workbook.getSheet(EXECUTION_HISTORY_SHEET);
 			
 			if (historySheet == null) {
-				LOGGER.warn("⚠️ No Execution History sheet found - cannot calculate execution runs");
+				LOGGER.warn("?? No Execution History sheet found - cannot calculate execution runs");
 				return 0;
 			}
 			
@@ -7508,13 +4284,11 @@ public class DailyExcelTracker {
 			
 			LOGGER.debug("Scanning Execution History sheet (rows 1 to {}) for date: {}", lastRow, targetDate);
 			
-			// Skip header row (row 0), start from row 1
 			for (int i = 1; i <= lastRow; i++) {
 				Row row = historySheet.getRow(i);
 				if (row == null) continue;
 				
 				// FIXED: Date is in column 2 (Testing Date), not column 0
-				// Column 0 = User Name, Column 1 = Client Name, Column 2 = Testing Date
 				Cell dateCell = row.getCell(2);
 				if (dateCell == null) continue;
 				
@@ -7525,9 +4299,7 @@ public class DailyExcelTracker {
 					continue;
 				}
 				
-				// Check if this row is for today's date
 				if (dateValue != null && dateValue.contains(targetDate)) {
-					// Also get runner name for debug logging
 					Cell runnerCell = row.getCell(7); // Runner / Suite File column
 					String runnerName = runnerCell != null ? getCellValueAsString(runnerCell) : "Unknown";
 					
@@ -7536,20 +4308,15 @@ public class DailyExcelTracker {
 				}
 			}
 			
-			LOGGER.info("✅ Execution runs count for {}: {} runs found in history", targetDate, executionCount);
+			LOGGER.info("? Execution runs count for {}: {} runs found in history", targetDate, executionCount);
 			return executionCount;
 			
 		} catch (Exception e) {
-			LOGGER.error("❌ Could not calculate execution runs from history: {}", e.getMessage(), e);
+			LOGGER.error("? Could not calculate execution runs from history: {}", e.getMessage(), e);
 			return 0;
 		}
 	}
 
-	/**
-	 * Determine overall daily status based on cumulative results Note: Skipped
-	 * tests from historical executions not tracked, but current execution skipped
-	 * tests still considered
-	 */
 	private static String determineDailyStatus(DailyCumulativeTotals totals) {
 		if (totals.totalTests == 0)
 			return "NO_TESTS";
@@ -7560,14 +4327,6 @@ public class DailyExcelTracker {
 		return "ALL_PASSED";
 	}
 
-	/**
-	 * Check if a new day has been detected by comparing current date with existing
-	 * data in sheet Returns true if the sheet should be completely reset (new day),
-	 * false if same day
-	 *
-	 * FIXED: Enhanced date detection to handle both suite and individual execution
-	 * scenarios
-	 */
 	private static boolean isNewDayDetected(Sheet sheet, String currentDate) {
 		LOGGER.debug("=== CHECKING FOR NEW DAY RESET ===");
 		LOGGER.debug("Current execution date: '{}'", currentDate);
@@ -7578,7 +4337,6 @@ public class DailyExcelTracker {
 			return true;
 		}
 
-		// Look for any existing date indicators in the sheet
 		String existingDate = findExistingDateInSheet(sheet);
 
 		if (existingDate == null) {
@@ -7606,33 +4364,21 @@ public class DailyExcelTracker {
 		return isNewDay;
 	}
 
-	/**
-	 * Find existing date in the Test Results Summary sheet by scanning for date
-	 * patterns ENHANCED: More thorough scanning and debugging for suite vs
-	 * individual execution differences
-	 */
 	private static String findExistingDateInSheet(Sheet sheet) {
 		LOGGER.debug("=== SCANNING SHEET FOR EXISTING DATE PATTERNS ===");
 
-		// Scan first 25 rows for date patterns (increased from 20 for better coverage)
 		int maxRows = Math.min(25, sheet.getLastRowNum() + 1);
 
 		for (int i = 0; i < maxRows; i++) {
 			Row row = sheet.getRow(i);
 			if (row != null) {
 
-				// Check all cells in the row for date patterns (increased from 6 to 8 columns)
 				for (int j = 0; j < Math.min(8, row.getLastCellNum()); j++) {
 					Cell cell = row.getCell(j);
 					if (cell != null) {
 						String cellValue = getCellStringValue(cell);
 						if (cellValue != null && !cellValue.trim().isEmpty()) {
 
-							// Look for date patterns like:
-							// "Daily Status [2024-08-22]: ..."
-							// "2024-08-22 14:30:25"
-							// "Test Results Summary - Last Updated: 2024-08-22 14:30:25"
-							// "Test Results Summary - 2024-08-22 14:30:25"
 							String extractedDate = extractDateFromText(cellValue);
 							if (extractedDate != null) {
 								return extractedDate;
@@ -7648,18 +4394,12 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	/**
-	 * Extract date from various text formats (flexible date extraction) ENHANCED:
-	 * More robust pattern matching for different execution scenarios
-	 */
 	private static String extractDateFromText(String text) {
 		if (text == null || text.trim().isEmpty()) {
 			return null;
 		}
 
 		try {
-			// Pattern 1: [YYYY-MM-DD] format (from status cells like "Daily Status
-			// [2024-08-22]: PASSED (1 run)")
 			if (text.contains("[") && (text.contains("]:") || text.contains("]"))) {
 				int startIdx = text.indexOf("[") + 1;
 				int endIdx = text.indexOf("]:") != -1 ? text.indexOf("]:") : text.indexOf("]");
@@ -7672,7 +4412,6 @@ public class DailyExcelTracker {
 				}
 			}
 
-			// Pattern 2: "Test Results Summary - YYYY-MM-DD HH:mm:ss" format
 			if (text.startsWith("Test Results Summary -") && text.matches(".*\\d{4}-\\d{2}-\\d{2}.*")) {
 				java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(\\d{4}-\\d{2}-\\d{2})");
 				java.util.regex.Matcher matcher = pattern.matcher(text);
@@ -7684,7 +4423,6 @@ public class DailyExcelTracker {
 				}
 			}
 
-			// Pattern 3: Any YYYY-MM-DD format (general fallback)
 			if (text.matches(".*\\d{4}-\\d{2}-\\d{2}.*")) {
 				java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(\\d{4}-\\d{2}-\\d{2})");
 				java.util.regex.Matcher matcher = pattern.matcher(text);
@@ -7702,12 +4440,8 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	/**
-	 * Safe cell value extraction to handle POI version compatibility
-	 */
 	private static String getCellStringValue(Cell cell) {
 		try {
-			// First try as string cell
 			return cell.getStringCellValue();
 		} catch (Exception e) {
 			try {
@@ -7718,16 +4452,12 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Validate if a string is in YYYY-MM-DD format
-	 */
 	private static boolean isValidDateFormat(String dateStr) {
 		if (dateStr == null || dateStr.length() != 10) {
 			return false;
 		}
 
 		try {
-			// Simple validation: YYYY-MM-DD format
 			String[] parts = dateStr.split("-");
 			if (parts.length != 3) {
 				return false;
@@ -7737,18 +4467,12 @@ public class DailyExcelTracker {
 			int month = Integer.parseInt(parts[1]);
 			int day = Integer.parseInt(parts[2]);
 
-			// Basic range validation
 			return year >= 2020 && year <= 2030 && month >= 1 && month <= 12 && day >= 1 && day <= 31;
 		} catch (NumberFormatException e) {
 			return false;
 		}
 	}
 
-	/**
-	 * Generate enhanced business-friendly comments with specific test step failure
-	 * details ENHANCED: Always prioritize actual exception messages over generic
-	 * comments
-	 */
 	private static String generateEnhancedBusinessFriendlyComment(ScenarioDetail scenario, String scenarioName,
 			FeatureResult feature) {
 		if (scenario == null || scenario.status == null) {
@@ -7758,53 +4482,42 @@ public class DailyExcelTracker {
 		String status = scenario.status;
 
 		if (status.contains("PASSED")) {
-			// FEATURE 41 PERFORMANCE TESTING: Check if performance metrics are available
 			com.kfonetalentsuite.listeners.ExcelReportListener.PerformanceMetrics perfMetrics = com.kfonetalentsuite.listeners.ExcelReportListener
 					.getPerformanceMetrics(scenarioName);
 
 			if (perfMetrics != null) {
-				// Return performance metrics comment for Feature 41 scenarios
 				return perfMetrics.getFormattedMetricsForExcel();
 			}
 
-			// For non-performance scenarios, return empty (generic "test executed
-			// successfully" will be used as fallback)
 			return "";
 		}
 
 		if (status.contains("SKIPPED")) {
-			// PRIORITY 1: Try direct scenario name lookup
 			String actualSkipReason = getActualSkipExceptionMessage(scenario, scenarioName);
 			if (actualSkipReason != null && !actualSkipReason.trim().isEmpty()) {
 				return actualSkipReason;
 			}
 
-			// PRIORITY 2: Try to get skip reason from exception details directly
 			String exceptionBasedSkipReason = getSkipReasonFromExceptionDetails(scenario, scenarioName);
 			if (exceptionBasedSkipReason != null && !exceptionBasedSkipReason.trim().isEmpty()) {
 				return exceptionBasedSkipReason;
 			}
 
-			// LAST RESORT: Generic skip message
 			return "Test was skipped - may indicate dependency issues or test configuration";
 		}
 
 		if (status.contains("FAILED")) {
-			// PRIORITY 1: Try to get actual failure exception message (checks
-			// scenario.actualFailureReason first)
 			String actualFailureReason = getActualFailureExceptionMessage(scenario, scenarioName);
 			if (actualFailureReason != null && !actualFailureReason.trim().isEmpty()) {
 				return actualFailureReason;
 			}
 
-			// PRIORITY 2: Try existing specific failure comment generation
 			String specificFailureComment = generateSpecificFailureComment(scenario, scenarioName);
 			if (specificFailureComment != null && !specificFailureComment.trim().isEmpty()
 					&& !specificFailureComment.equals("Test execution failed - requires investigation")) {
 				return specificFailureComment;
 			}
 
-			// LAST RESORT: Generic failure message
 			LOGGER.warn("No exception details found for failed scenario '{}', using generic message", scenarioName);
 			return "Test execution failed - requires investigation";
 		}
@@ -7812,29 +4525,21 @@ public class DailyExcelTracker {
 		return "Unexpected test status - requires technical review";
 	}
 
-	/**
-	 * Get actual failure exception message from captured exception details
-	 */
 	private static String getActualFailureExceptionMessage(ScenarioDetail scenario, String scenarioName) {
 		try {
-			// PRIORITY 0: Check if scenario already has actualFailureReason populated (most
-			// reliable for suite execution)
 			if (scenario != null && scenario.actualFailureReason != null
 					&& !scenario.actualFailureReason.trim().isEmpty()) {
 				return scenario.actualFailureReason;
 			}
 
-			// PRIORITY 1: Get all captured exception details from ExcelReportListener
 			java.util.Map<String, com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails> allExceptionDetails = getAllCapturedExceptionDetails();
 
 			if (allExceptionDetails != null && !allExceptionDetails.isEmpty()) {
-				// Look for failure exceptions that match this scenario
 				for (java.util.Map.Entry<String, com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails> entry : allExceptionDetails
 						.entrySet()) {
 					com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails details = entry.getValue();
 
 					if (details != null && "FAILED".equals(details.testStatus)) {
-						// Match by scenario name
 						if (isScenarioMatch(details.scenarioName, scenarioName,
 								scenario != null ? scenario.scenarioName : null)) {
 							String failureMessage = details.getFormattedExceptionForExcel();
@@ -7854,20 +4559,14 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Get skip reason directly from exception details (alternative approach)
-	 */
 	private static String getSkipReasonFromExceptionDetails(ScenarioDetail scenario, String scenarioName) {
 		try {
-			// Get all captured exception details from ExcelReportListener
 			java.util.Map<String, com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails> allExceptionDetails = getAllCapturedExceptionDetails();
 
 			if (allExceptionDetails != null && !allExceptionDetails.isEmpty()) {
-				// Look for skip exceptions that match this scenario
 				for (com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails details : allExceptionDetails
 						.values()) {
 					if (details != null && "SKIPPED".equals(details.testStatus)) {
-						// Match by scenario name
 						if (isScenarioMatch(details.scenarioName, scenarioName,
 								scenario != null ? scenario.scenarioName : null)) {
 							String skipMessage = details.getFormattedExceptionForExcel();
@@ -7890,13 +4589,8 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * ENHANCED: Get actual skip exception message from ExcelReportListener's
-	 * captured exception details
-	 */
 	private static String getActualSkipExceptionMessage(ScenarioDetail scenario, String scenarioName) {
 		try {
-			// APPROACH 1: Try direct scenario name lookup (most reliable)
 			String directSkipReason = com.kfonetalentsuite.listeners.ExcelReportListener
 					.getSkipReasonByScenarioName(scenarioName);
 			if (directSkipReason != null && !directSkipReason.trim().isEmpty()
@@ -7905,7 +4599,6 @@ public class DailyExcelTracker {
 				return directSkipReason;
 			}
 
-			// APPROACH 1.5: Try with "Scenario:" prefix added
 			String withPrefix = "Scenario: " + scenarioName;
 			String prefixSkipReason = com.kfonetalentsuite.listeners.ExcelReportListener
 					.getSkipReasonByScenarioName(withPrefix);
@@ -7915,7 +4608,6 @@ public class DailyExcelTracker {
 				return prefixSkipReason;
 			}
 
-			// APPROACH 2: Try with scenario detail name if different
 			if (scenario != null && scenario.scenarioName != null && !scenario.scenarioName.equals(scenarioName)) {
 				String detailSkipReason = com.kfonetalentsuite.listeners.ExcelReportListener
 						.getSkipReasonByScenarioName(scenario.scenarioName);
@@ -7926,15 +4618,12 @@ public class DailyExcelTracker {
 				}
 			}
 
-			// APPROACH 3: Fallback to exception details lookup (complex matching)
 			java.util.Map<String, com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails> allExceptionDetails = getAllCapturedExceptionDetails();
 
 			if (allExceptionDetails != null && !allExceptionDetails.isEmpty()) {
-				// Look for skip exceptions that match this scenario
 				for (com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails details : allExceptionDetails
 						.values()) {
 					if (details != null && "SKIPPED".equals(details.testStatus)) {
-						// Match by scenario name (fuzzy matching to handle variations)
 						if (isScenarioMatch(details.scenarioName, scenarioName,
 								scenario != null ? scenario.scenarioName : null)) {
 							String skipMessage = details.getFormattedExceptionForExcel();
@@ -7956,13 +4645,8 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Get all captured exception details from ExcelReportListener (direct method
-	 * access)
-	 */
 	private static java.util.Map<String, com.kfonetalentsuite.listeners.ExcelReportListener.ExceptionDetails> getAllCapturedExceptionDetails() {
 		try {
-			// Use the public method instead of reflection for better reliability
 			return com.kfonetalentsuite.listeners.ExcelReportListener.getAllExceptionDetails();
 		} catch (Exception e) {
 			LOGGER.debug("Could not access captured exception details: {}", e.getMessage());
@@ -7970,52 +4654,41 @@ public class DailyExcelTracker {
 		}
 	}
 
-	/**
-	 * Check if scenario names match (fuzzy matching to handle variations in naming)
-	 */
 	private static boolean isScenarioMatch(String capturedScenarioName, String currentScenarioName,
 			String scenarioDetailName) {
 		if (capturedScenarioName == null)
 			return false;
 
-		// Direct match
 		if (capturedScenarioName.equals(currentScenarioName) || capturedScenarioName.equals(scenarioDetailName)) {
 			return true;
 		}
 
-		// Normalize strings for better matching
 		String captured = capturedScenarioName.toLowerCase().trim();
 		String current = currentScenarioName != null ? currentScenarioName.toLowerCase().trim() : "";
 		String detail = scenarioDetailName != null ? scenarioDetailName.toLowerCase().trim() : "";
 
 		// ENHANCED: Remove common variations that cause mismatch
-		// Remove "scenario:" prefix if present
 		captured = captured.replaceAll("^scenario:\\s*", "");
 		current = current.replaceAll("^scenario:\\s*", "");
 		detail = detail.replaceAll("^scenario:\\s*", "");
 
-		// Remove extra whitespace
 		captured = captured.replaceAll("\\s+", " ");
 		current = current.replaceAll("\\s+", " ");
 		detail = detail.replaceAll("\\s+", " ");
 
-		// Direct match after normalization
 		if (captured.equals(current) || captured.equals(detail)) {
 			return true;
 		}
 
-		// Fuzzy match - check if one contains the other
 		if (captured.contains(current) || current.contains(captured) || captured.contains(detail)
 				|| detail.contains(captured)) {
 			return true;
 		}
 
 		// ENHANCED: For Feature16 scenarios - try matching by key words
-		// Extract key words (words longer than 3 characters)
 		String[] capturedWords = captured.split("\\s+");
 		String[] currentWords = current.split("\\s+");
 
-		// Count matching significant words
 		int matchCount = 0;
 		int significantWords = 0;
 
@@ -8031,7 +4704,6 @@ public class DailyExcelTracker {
 			}
 		}
 
-		// If 70% or more of significant words match, consider it a match
 		if (significantWords > 0 && matchCount >= (significantWords * 0.7)) {
 			LOGGER.debug("SCENARIO MATCH - Fuzzy word match: {}/{} words matched between '{}' and '{}'", matchCount,
 					significantWords, captured, current);
@@ -8041,10 +4713,6 @@ public class DailyExcelTracker {
 		return false;
 	}
 
-	/**
-	 * Generate specific failure comments based on test step analysis and scenario
-	 * patterns
-	 */
 	private static String generateSpecificFailureComment(ScenarioDetail scenario, String scenarioName) {
 		String stepFailureInfo = extractFailureStepDetails(scenario);
 
@@ -8052,38 +4720,25 @@ public class DailyExcelTracker {
 			return stepFailureInfo;
 		}
 
-		// Fallback to pattern-based analysis if no specific step info available
 		return generatePatternBasedFailureComment(scenarioName);
 	}
 
-	/**
-	 * Extract specific test step failure information from scenario details
-	 */
 	private static String extractFailureStepDetails(ScenarioDetail scenario) {
 		// ENHANCED: Try to get actual failure information from test execution
 
-		// First priority: Use actual failure reason if captured (now includes real
-		// exceptions!)
 		if (scenario.actualFailureReason != null && !scenario.actualFailureReason.trim().isEmpty()) {
-			// scenario.actualFailureReason.length() > 100 ?
-			// scenario.actualFailureReason.substring(0, 100) + "..." :
-			// scenario.actualFailureReason);
 			return scenario.actualFailureReason;
 		}
 
-		// Second priority: Use failed step information if available
 		if (scenario.failedStepName != null && !scenario.failedStepName.trim().isEmpty()) {
 			String stepDetails = scenario.failedStepDetails != null ? scenario.failedStepDetails
 					: "Step execution failed";
 			return "Failed at step: " + scenario.failedStepName + " - " + stepDetails;
 		}
 
-		// Third priority: Check if business description contains specific failure
-		// details
 		if (scenario.businessDescription != null && !scenario.businessDescription.trim().isEmpty()) {
 			String description = scenario.businessDescription.toLowerCase();
 
-			// Look for specific error patterns in business description
 			if (description.contains("element not found") || description.contains("no such element")) {
 				return "UI element not found - page may not have loaded completely or element locator needs updating";
 			}
@@ -8107,17 +4762,12 @@ public class DailyExcelTracker {
 		return null; // Fall back to pattern-based analysis only if no actual failure info available
 	}
 
-	/**
-	 * Clean scenario name for Excel display - remove unwanted prefixes while
-	 * preserving core name
-	 */
 	private static String cleanScenarioNameForExcelDisplay(String scenarioName) {
 		if (scenarioName == null)
 			return "Unknown Scenario";
 
 		String cleaned = scenarioName.trim();
 
-		// Remove common unwanted prefixes that appear due to extraction issues
 		String[] prefixesToRemove = { "o:", "s:", "n:", "e:", "a:", "t:", "i:", "r:" };
 		for (String prefix : prefixesToRemove) {
 			if (cleaned.toLowerCase().startsWith(prefix)) {
@@ -8126,7 +4776,6 @@ public class DailyExcelTracker {
 			}
 		}
 
-		// Remove other unwanted patterns for display purposes
 		cleaned = cleaned.replaceAll("^[a-zA-Z]:\\s*", ""); // Remove single letter followed by colon
 		cleaned = cleaned.replaceAll("\\s+", " "); // Normalize whitespace
 		cleaned = cleaned.trim();
@@ -8138,78 +4787,59 @@ public class DailyExcelTracker {
 		return cleaned;
 	}
 
-	/**
-	 * Generate pattern-based failure comments based on scenario name patterns
-	 * (fallback method)
-	 */
 	private static String generatePatternBasedFailureComment(String scenarioName) {
 		LOGGER.warn(" USING GENERIC PATTERN-BASED COMMENT FOR: '{}' - Consider capturing actual failure reason instead",
 				scenarioName);
 		String scenario = scenarioName.toLowerCase();
 
-		// Login/Authentication related failures
 		if (scenario.contains("login") || scenario.contains("authentication") || scenario.contains("sign in")) {
 			return "User authentication issue - check credentials or login system availability";
 		}
 
-		// Navigation related failures
 		if (scenario.contains("navigate") || scenario.contains("menu") || scenario.contains("waffle")) {
 			return "Navigation issue - page elements may not be loading properly";
 		}
 
-		// Upload related failures - MORE SPECIFIC MATCHING
 		if ((scenario.contains("upload") && scenario.contains("file"))
 				|| (scenario.contains("import") && scenario.contains("file"))) {
 			return "File upload/import functionality issue - check file path, format, and system capacity";
 		}
 
-		// File-related failures (but not necessarily upload issues)
 		if (scenario.contains("file") && !scenario.contains("upload") && !scenario.contains("import")) {
 			return "File-related functionality issue - check file accessibility and permissions";
 		}
 
-		// Job mapping/publishing related failures
 		if (scenario.contains("job") && (scenario.contains("publish") || scenario.contains("mapping"))) {
 			return "Job processing issue - may be related to data validation or system processing";
 		}
 
-		// Data validation failures
 		if (scenario.contains("validate") || scenario.contains("verify") || scenario.contains("check")) {
 			return "Data validation failed - expected information was not found or incorrect";
 		}
 
-		// Button/UI element interaction failures
 		if (scenario.contains("button") || scenario.contains("click") || scenario.contains("select")) {
 			return "User interface interaction issue - page elements may not be responsive";
 		}
 
-		// Search/filter related failures
 		if (scenario.contains("search") || scenario.contains("filter") || scenario.contains("find")) {
 			return "Search or filtering functionality issue - results may not be displaying correctly";
 		}
 
-		// Download related failures
 		if (scenario.contains("download") || scenario.contains("export")) {
 			return "Download/export functionality issue - file generation may have failed";
 		}
 
-		// Profile/user management failures
 		if (scenario.contains("profile") || scenario.contains("user") || scenario.contains("account")) {
 			return "User profile or account management issue - check permissions and data integrity";
 		}
 
-		// General page loading failures
 		if (scenario.contains("page") || scenario.contains("screen") || scenario.contains("display")) {
 			return "Page loading or display issue - content may not be rendering correctly";
 		}
 
-		// Default failure message for unrecognized scenarios
 		return "System functionality issue - requires technical investigation to determine root cause";
 	}
 
-	/**
-	 * Helper method to get cell value as string safely
-	 */
 	private static String getCellValueAsString(Cell cell) {
 		if (cell == null)
 			return "";
@@ -8234,7 +4864,6 @@ public class DailyExcelTracker {
 				return "";
 			}
 		} catch (Exception e) {
-			// Fallback for POI compatibility issues
 			return cell.toString();
 		}
 	}
