@@ -1,4 +1,4 @@
-package com.kfonetalentsuite.utils.JobMapping;
+﻿package com.kfonetalentsuite.utils.JobMapping;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,8 +42,9 @@ public class DailyExcelTracker {
 	// Sheet names - Enhanced for professional presentation
 	private static final String TEST_RESULTS_SHEET = "Test Results Summary";
 	private static final String EXECUTION_HISTORY_SHEET = "Automation Execution History";
-	private static final String PROJECT_DASHBOARD_SHEET = "Automation QA Dashboard";
-	private static final String CROSSBROWSER_DASHBOARD_SHEET = "Cross-Browser QA Dashboard";
+	// REMOVED: Dashboard sheets - Excel now only contains Summary + History
+	// private static final String PROJECT_DASHBOARD_SHEET = "Automation QA Dashboard";
+	// private static final String CROSSBROWSER_DASHBOARD_SHEET = "Cross-Browser QA Dashboard";
 	private static final boolean ENABLE_VISUAL_ENHANCEMENTS = true;
 
 	// Date formatting
@@ -1354,9 +1355,6 @@ public class DailyExcelTracker {
 
 				// Update summary with scenario-based counts (not TestNG test counts)
 				if (totalScenarios > 0) {
-					LOGGER.info(
-							"Cross-browser execution detected - Recalculating from {} TestNG tests to {} Cucumber scenarios",
-							summary.totalTests, totalScenarios);
 
 					summary.totalTests = totalScenarios;
 					summary.passedTests = passedScenarios;
@@ -3358,27 +3356,30 @@ public class DailyExcelTracker {
 				LOGGER.debug("Creating new Excel file");
 			}
 
-			try {
-				// Smart update Test Results Summary sheet (append new, overwrite existing)
-				smartUpdateTestResultsSummarySheet(workbook, summary);
+		try {
+			// FIXED: Add to Execution History FIRST, so the execution count calculation
+			// can include the current runner in the count
+			// Add to Execution History sheet (NEVER resets - permanent historical log)
+			addToExecutionHistorySheet(workbook, summary);
 
-				// Add to Execution History sheet (NEVER resets - permanent historical log)
-				addToExecutionHistorySheet(workbook, summary);
+			// Smart update Test Results Summary sheet (append new, overwrite existing)
+			// This now correctly counts all runners including the current one
+			smartUpdateTestResultsSummarySheet(workbook, summary);
 
-				// Create or update Project Dashboard sheet (Normal Execution focus)
-				createOrUpdateProjectDashboard(workbook, summary);
+			// REMOVED: Normal Execution Dashboard - Excel now has Summary + History only
+			// createOrUpdateProjectDashboard(workbook, summary);
 
-				// Create or update Cross-Browser Dashboard sheet
-				createOrUpdateCrossBrowserDashboard(workbook, summary);
+			// REMOVED: Cross-Browser Dashboard - All results now in main dashboard only
+			// createOrUpdateCrossBrowserDashboard(workbook, summary);
 
-				// Write to file
-				try (FileOutputStream fos = new FileOutputStream(excelFile)) {
-					workbook.write(fos);
-				}
-
-			} finally {
-				workbook.close();
+			// Write to file
+			try (FileOutputStream fos = new FileOutputStream(excelFile)) {
+				workbook.write(fos);
 			}
+
+		} finally {
+			workbook.close();
+		}
 		} finally {
 			// PARALLEL EXECUTION FIX: Always release lock, even on exception
 			excelFileLock.unlock();
@@ -3414,16 +3415,16 @@ public class DailyExcelTracker {
 			}
 
 			try {
-				// Smart update Test Results Summary sheet only (no execution history)
-				smartUpdateTestResultsSummarySheet(workbook, summary);
+			// Smart update Test Results Summary sheet only (no execution history)
+			smartUpdateTestResultsSummarySheet(workbook, summary);
 
-				// Create or update Project Dashboard sheet (Normal Execution focus)
-				createOrUpdateProjectDashboard(workbook, summary);
+			// REMOVED: Normal Execution Dashboard - Excel now has Summary + History only
+			// createOrUpdateProjectDashboard(workbook, summary);
 
-				// Create or update Cross-Browser Dashboard sheet
-				createOrUpdateCrossBrowserDashboard(workbook, summary);
+			// REMOVED: Cross-Browser Dashboard - Excel now has Summary + History only
+			// createOrUpdateCrossBrowserDashboard(workbook, summary);
 
-				// Write to file
+			// Write to file
 				try (FileOutputStream fos = new FileOutputStream(excelFile)) {
 					workbook.write(fos);
 				}
@@ -3941,10 +3942,13 @@ public class DailyExcelTracker {
 			LOGGER.debug("All features will be appended - no re-execution detected");
 		}
 
-		// Apply cumulative logic via updateSheetSummaryInfo
-		updateSheetSummaryInfo(sheet, currentExecution);
-
+		// FIXED: Append scenarios FIRST, then calculate summary
+		// This ensures the summary counts include all scenarios in the sheet
 		appendCurrentExecutionResults(workbook, sheet, currentExecution);
+
+		// Apply cumulative logic via updateSheetSummaryInfo
+		// This now correctly counts all scenarios including the ones just appended
+		updateSheetSummaryInfo(sheet, currentExecution);
 
 		// UPDATED: Auto-size all 8 columns (Feature File, Feature, Scenario, Chrome,
 		// Firefox, Edge, Execution Details, Comments)
@@ -5506,55 +5510,21 @@ public class DailyExcelTracker {
 	@SuppressWarnings({ "unused", "all" }) // Suppress warnings for revertible visual enhancements (else branches are
 											// intentional fallbacks)
 	private static void createOrUpdateProjectDashboard(Workbook workbook, TestResultsSummary summary) {
-		LOGGER.debug("=== CREATING/UPDATING PROJECT DASHBOARD SHEET ===");
-
-		// Calculate unique runner cumulative metrics for dashboard
-		TestResultsSummary dashboardSummary = calculateUniqueRunnerCumulativeMetrics(workbook, summary);
-
-		// Remove existing dashboard sheet if it exists (always recreate for latest
-		// data)
-		Sheet existingSheet = workbook.getSheet(PROJECT_DASHBOARD_SHEET);
-		if (existingSheet != null) {
-			workbook.removeSheetAt(workbook.getSheetIndex(existingSheet));
-			LOGGER.debug("Removed existing Project Dashboard sheet for refresh");
-		}
-
-		// Create new dashboard sheet
-		Sheet dashboardSheet = workbook.createSheet(PROJECT_DASHBOARD_SHEET);
-
-		// Create the comprehensive dashboard layout with unique cumulative data
-		createProjectDashboardLayout(dashboardSheet, dashboardSummary, workbook);
-
-		LOGGER.debug("Dashboard: {} features, {} scenarios",
-				dashboardSummary.totalFeatures, dashboardSummary.totalTests);
+		// DISABLED: Dashboard sheet no longer generated
+		// Excel now contains only: Test Results Summary + Execution History
+		LOGGER.debug("Project Dashboard generation skipped (feature disabled)");
+		return;
 	}
 
 	/**
-	 * Create or update Cross-Browser QA Dashboard sheet Focuses on cross-browser
-	 * testing analytics with browser-specific metrics
+	 * Create or update Cross-Browser QA Dashboard sheet 
+	 * DISABLED: Cross-Browser Dashboard removed - all results now in main dashboard
 	 */
 	private static void createOrUpdateCrossBrowserDashboard(Workbook workbook, TestResultsSummary summary) {
-		LOGGER.debug("=== CREATING/UPDATING CROSS-BROWSER DASHBOARD SHEET ===");
-
-		// Collect cross-browser analytics from execution history
-		CrossBrowserMetrics crossBrowserMetrics = analyzeCrossBrowserExecutionHistory(workbook, summary);
-
-		// Remove existing cross-browser dashboard sheet if it exists (always recreate
-		// for latest data)
-		Sheet existingSheet = workbook.getSheet(CROSSBROWSER_DASHBOARD_SHEET);
-		if (existingSheet != null) {
-			workbook.removeSheetAt(workbook.getSheetIndex(existingSheet));
-			LOGGER.debug("Removed existing Cross-Browser Dashboard sheet for refresh");
-		}
-
-		// Create new cross-browser dashboard sheet
-		Sheet dashboardSheet = workbook.createSheet(CROSSBROWSER_DASHBOARD_SHEET);
-
-		// Create the cross-browser dashboard layout
-		createCrossBrowserDashboardLayout(dashboardSheet, crossBrowserMetrics, summary, workbook);
-
-		LOGGER.debug("Cross-Browser Dashboard: {} executions, {} browsers",
-				crossBrowserMetrics.totalCrossBrowserRuns, crossBrowserMetrics.browserStats.size());
+		// DISABLED: Cross-Browser Dashboard sheet no longer generated
+		// All cross-browser test results are now shown in the main QA Dashboard only
+		LOGGER.debug("Cross-Browser Dashboard generation skipped (feature disabled)");
+		return;
 	}
 
 	/**
@@ -7423,7 +7393,7 @@ public class DailyExcelTracker {
 		
 		int dataStartRow = findDataStartRow(sheet);
 		if (dataStartRow < 0) {
-			LOGGER.debug("No data rows found in Test Results Summary - using current execution counts");
+			LOGGER.warn("⚠️ No data rows found in Test Results Summary - using current execution counts");
 			// Fall back to current execution counts
 			totals.totalTests = currentExecution.totalTests;
 			totals.passedTests = currentExecution.passedTests;
@@ -7434,8 +7404,6 @@ public class DailyExcelTracker {
 			return totals;
 		}
 
-		LOGGER.debug("Counting scenarios from Test Results Summary data rows starting at row {}", dataStartRow);
-		
 		int lastRowNum = sheet.getLastRowNum();
 		Set<String> uniqueFeatures = new java.util.HashSet<>();
 		
@@ -7462,6 +7430,7 @@ public class DailyExcelTracker {
 			
 			// This is a valid scenario row - count it
 			totals.totalTests++;
+			LOGGER.debug("  Row {}: Counted scenario '{}'", i, scenarioName);
 			
 			// Determine status from Chrome column (column 3)
 			Cell chromeCell = row.getCell(3);
@@ -7530,20 +7499,23 @@ public class DailyExcelTracker {
 			Sheet historySheet = workbook.getSheet(EXECUTION_HISTORY_SHEET);
 			
 			if (historySheet == null) {
-				LOGGER.debug("No Execution History sheet found");
+				LOGGER.warn("⚠️ No Execution History sheet found - cannot calculate execution runs");
 				return 0;
 			}
 			
 			int executionCount = 0;
 			int lastRow = historySheet.getLastRowNum();
 			
-			// Skip header rows (usually first 2-3 rows)
-			for (int i = 3; i <= lastRow; i++) {
+			LOGGER.debug("Scanning Execution History sheet (rows 1 to {}) for date: {}", lastRow, targetDate);
+			
+			// Skip header row (row 0), start from row 1
+			for (int i = 1; i <= lastRow; i++) {
 				Row row = historySheet.getRow(i);
 				if (row == null) continue;
 				
-				// Date is usually in first column
-				Cell dateCell = row.getCell(0);
+				// FIXED: Date is in column 2 (Testing Date), not column 0
+				// Column 0 = User Name, Column 1 = Client Name, Column 2 = Testing Date
+				Cell dateCell = row.getCell(2);
 				if (dateCell == null) continue;
 				
 				String dateValue = null;
@@ -7555,15 +7527,20 @@ public class DailyExcelTracker {
 				
 				// Check if this row is for today's date
 				if (dateValue != null && dateValue.contains(targetDate)) {
+					// Also get runner name for debug logging
+					Cell runnerCell = row.getCell(7); // Runner / Suite File column
+					String runnerName = runnerCell != null ? getCellValueAsString(runnerCell) : "Unknown";
+					
 					executionCount++;
+					LOGGER.debug("  Row {}: Found execution for '{}' on {}", i, runnerName, dateValue);
 				}
 			}
 			
-			LOGGER.debug("Found {} execution runs in history for date {}", executionCount, targetDate);
+			LOGGER.info("✅ Execution runs count for {}: {} runs found in history", targetDate, executionCount);
 			return executionCount;
 			
 		} catch (Exception e) {
-			LOGGER.debug("Could not calculate execution runs from history: {}", e.getMessage());
+			LOGGER.error("❌ Could not calculate execution runs from history: {}", e.getMessage(), e);
 			return 0;
 		}
 	}
@@ -7636,7 +7613,6 @@ public class DailyExcelTracker {
 	 */
 	private static String findExistingDateInSheet(Sheet sheet) {
 		LOGGER.debug("=== SCANNING SHEET FOR EXISTING DATE PATTERNS ===");
-		LOGGER.info("Sheet has {} rows total", sheet.getLastRowNum() + 1);
 
 		// Scan first 25 rows for date patterns (increased from 20 for better coverage)
 		int maxRows = Math.min(25, sheet.getLastRowNum() + 1);
@@ -7659,8 +7635,6 @@ public class DailyExcelTracker {
 							// "Test Results Summary - 2024-08-22 14:30:25"
 							String extractedDate = extractDateFromText(cellValue);
 							if (extractedDate != null) {
-								LOGGER.info(" FOUND DATE '{}' in row {}, cell {}: '{}'", extractedDate, i, j,
-										cellValue);
 								return extractedDate;
 							}
 						}

@@ -12,6 +12,8 @@ import java.time.format.DateTimeFormatter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.kfonetalentsuite.utils.common.CommonVariable;
+
 /**
  * Daily Allure Report Manager
  * 
@@ -40,6 +42,13 @@ public class DailyAllureManager {
 	 * Called from SuiteHooks.onStart() before test execution
 	 */
 	public static void checkAndPerformDailyReset() {
+		// CONFIGURATION CHECK: Skip Allure daily reset if disabled in config.properties
+		if (CommonVariable.ALLURE_REPORTING_ENABLED != null
+				&& CommonVariable.ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false")) {
+			LOGGER.info("Allure reporting is disabled in config.properties (allure.reporting=false) - Skipping Allure daily reset");
+			return; // Exit early - Allure reporting is disabled
+		}
+		
 		try {
 			LOGGER.info("=== ALLURE DAILY RESET CHECK ===");
 			

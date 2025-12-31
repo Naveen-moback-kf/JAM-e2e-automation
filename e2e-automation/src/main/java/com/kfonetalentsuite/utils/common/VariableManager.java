@@ -90,16 +90,12 @@ public class VariableManager {
 		String env = System.getProperty("env", DEFAULT_ENV).toLowerCase();
 		String envFile = "/environments/" + env + ".properties";
 		
-		LOGGER.info("═══════════════════════════════════════════════════════════");
-		LOGGER.info("🌍 Loading Environment: {} ({})", env.toUpperCase(), envFile);
-		LOGGER.info("═══════════════════════════════════════════════════════════");
-		
 		envConfig = new Properties();
 		
 		try (InputStream is = getClass().getResourceAsStream(envFile)) {
 			if (is != null) {
 				envConfig.load(is);
-				LOGGER.info("✅ Environment configuration loaded: {}", env);
+				LOGGER.info("🌍 Environment configuration loaded: {}", env);
 			} else {
 				LOGGER.warn("⚠️ Environment file not found: {} - using config.properties fallback", envFile);
 				LOGGER.info("   Available environments: dev, qa, stage, prod-us, prod-eu");
@@ -158,6 +154,27 @@ public class VariableManager {
 		
 		CommonVariable.EXCEL_REPORTING_ENABLED = config.getProperty("excel.reporting");
 		CommonVariable.ALLURE_REPORTING_ENABLED = config.getProperty("allure.reporting");
+		
+		// Configure Allure system properties based on allure.reporting setting
+		if (CommonVariable.ALLURE_REPORTING_ENABLED != null 
+				&& CommonVariable.ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false")) {
+			// Skip Maven Allure plugin
+			System.setProperty("skipAllure", "true");
+			
+			// Redirect to target directory (cleaned by Maven, won't persist)
+			// allure.properties now defaults to target/ so this reinforces it
+			System.setProperty("allure.results.directory", "target/allure-results");
+			LOGGER.info("⚠️ ALLURE REPORTING DISABLED");
+		} else {
+			// Enable Maven Allure plugin
+			System.setProperty("skipAllure", "false");
+			
+			// Use AllureReports folder at project root (persistent)
+			System.setProperty("allure.results.directory", "AllureReports/allure-results");
+			
+			LOGGER.debug("Allure reporting ENABLED - using AllureReports/ folder");
+		}
+		
 		CommonVariable.KEEP_SYSTEM_AWAKE = config.getProperty("keep.system.awake");
 		
 		// URLs

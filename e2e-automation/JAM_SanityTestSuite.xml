@@ -9,6 +9,7 @@
     <listeners> 
         <listener class-name="com.kfonetalentsuite.listeners.ExcelReportListener" />
         <listener class-name="hooks.JobMapping.SuiteHooks" />
+        <!-- AllureScreenshotListener: Only activates if allure.reporting=true in config.properties -->
         <listener class-name="com.kfonetalentsuite.listeners.AllureScreenshotListener" />
         <listener class-name="com.kfonetalentsuite.testNGAnalyzer.MyTransform" />
         <listener class-name="com.kfonetalentsuite.testNGAnalyzer.SuiteRetryListener" />
