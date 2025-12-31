@@ -275,10 +275,10 @@ public class DailyExcelTracker {
 			List<String> lines = java.nio.file.Files.readAllLines(xmlFile.toPath());
 			String content = String.join("", lines);
 
-			int rawTotalTests = DataParsingHelper.extractIntFromXML(content, "total=\"(\\d+)\"", 0);
-			int rawPassedTests = DataParsingHelper.extractIntFromXML(content, "passed=\"(\\d+)\"", 0);
-			int rawFailedTests = DataParsingHelper.extractIntFromXML(content, "failed=\"(\\d+)\"", 0);
-			int rawSkippedTests = DataParsingHelper.extractIntFromXML(content, "skipped=\"(\\d+)\"", 0);
+			int rawTotalTests = ExcelReportingHelper.extractIntFromXML(content, "total=\"(\\d+)\"", 0);
+			int rawPassedTests = ExcelReportingHelper.extractIntFromXML(content, "passed=\"(\\d+)\"", 0);
+			int rawFailedTests = ExcelReportingHelper.extractIntFromXML(content, "failed=\"(\\d+)\"", 0);
+			int rawSkippedTests = ExcelReportingHelper.extractIntFromXML(content, "skipped=\"(\\d+)\"", 0);
 
 			summary.totalTests = rawTotalTests;
 			summary.passedTests = rawPassedTests;
@@ -289,13 +289,13 @@ public class DailyExcelTracker {
 				return; // Exit early - don't create Excel entry for empty executions
 			}
 
-			long durationMs = DataParsingHelper.extractLongFromXML(content, "duration-ms=\"(\\d+)\"", 0);
+			long durationMs = ExcelReportingHelper.extractLongFromXML(content, "duration-ms=\"(\\d+)\"", 0);
 			if (durationMs > 0) {
-				summary.totalDuration = DataParsingHelper.formatDuration(durationMs);
+				summary.totalDuration = ExcelReportingHelper.formatDuration(durationMs);
 			} else {
-				durationMs = DataParsingHelper.extractLongFromXML(content, "<suite[^>]+duration-ms=\"(\\d+)\"", 0);
+				durationMs = ExcelReportingHelper.extractLongFromXML(content, "<suite[^>]+duration-ms=\"(\\d+)\"", 0);
 				if (durationMs > 0) {
-					summary.totalDuration = DataParsingHelper.formatDuration(durationMs);
+					summary.totalDuration = ExcelReportingHelper.formatDuration(durationMs);
 				}
 			}
 
@@ -338,14 +338,14 @@ public class DailyExcelTracker {
 			String suiteBlock = suiteBlocks[i];
 			if (suiteBlock.contains("name=\"")) {
 				TestSuiteResult suite = new TestSuiteResult();
-				suite.suiteName = DataParsingHelper.extractStringFromXML(suiteBlock, "name=\"([^\"]+)\"");
-				suite.totalTests = DataParsingHelper.extractIntFromXML(suiteBlock, "total=\"(\\d+)\"", 0);
-				suite.passed = DataParsingHelper.extractIntFromXML(suiteBlock, "passed=\"(\\d+)\"", 0);
-				suite.failed = DataParsingHelper.extractIntFromXML(suiteBlock, "failed=\"(\\d+)\"", 0);
-				suite.skipped = DataParsingHelper.extractIntFromXML(suiteBlock, "skipped=\"(\\d+)\"", 0);
-				long suiteDurationMs = DataParsingHelper.extractLongFromXML(suiteBlock, "duration-ms=\"(\\d+)\"", 0);
+				suite.suiteName = ExcelReportingHelper.extractStringFromXML(suiteBlock, "name=\"([^\"]+)\"");
+				suite.totalTests = ExcelReportingHelper.extractIntFromXML(suiteBlock, "total=\"(\\d+)\"", 0);
+				suite.passed = ExcelReportingHelper.extractIntFromXML(suiteBlock, "passed=\"(\\d+)\"", 0);
+				suite.failed = ExcelReportingHelper.extractIntFromXML(suiteBlock, "failed=\"(\\d+)\"", 0);
+				suite.skipped = ExcelReportingHelper.extractIntFromXML(suiteBlock, "skipped=\"(\\d+)\"", 0);
+				long suiteDurationMs = ExcelReportingHelper.extractLongFromXML(suiteBlock, "duration-ms=\"(\\d+)\"", 0);
 				if (suiteDurationMs > 0) {
-					suite.duration = DataParsingHelper.formatDuration(suiteDurationMs);
+					suite.duration = ExcelReportingHelper.formatDuration(suiteDurationMs);
 				} else {
 					suite.duration = "0m 0s";
 				}
@@ -364,7 +364,7 @@ public class DailyExcelTracker {
 		for (int i = 1; i < classBlocks.length; i++) {
 			String classBlock = classBlocks[i];
 
-			String className = DataParsingHelper.extractStringFromXML(classBlock, "name=\"([^\"]+)\"");
+			String className = ExcelReportingHelper.extractStringFromXML(classBlock, "name=\"([^\"]+)\"");
 
 			if (className != null) {
 				String[] methodBlocks = classBlock.split("<test-method");
@@ -372,8 +372,8 @@ public class DailyExcelTracker {
 				for (int j = 1; j < methodBlocks.length; j++) {
 					String methodBlock = methodBlocks[j];
 
-					String methodName = DataParsingHelper.extractStringFromXML(methodBlock, "name=\"([^\"]+)\"");
-					String status = DataParsingHelper.extractStringFromXML(methodBlock, "status=\"([^\"]+)\"");
+					String methodName = ExcelReportingHelper.extractStringFromXML(methodBlock, "name=\"([^\"]+)\"");
+					String status = ExcelReportingHelper.extractStringFromXML(methodBlock, "status=\"([^\"]+)\"");
 
 					if (methodName != null && !methodName.isEmpty() && status != null) {
 						if (methodName.equals("runScenario") || methodName.equals("runCrossBrowserTest")) {
@@ -394,7 +394,7 @@ public class DailyExcelTracker {
 								scenario.businessDescription = (actualScenarioName != null)
 										? "Test execution: " + actualScenarioName
 										: generateBusinessDescriptionFromMethodName(methodName);
-								scenario.status = StatusConverter.convertTestNGStatusToBusiness(status);
+								scenario.status = convertTestNGStatusToBusiness(status);
 
 								if (scenario.status != null && scenario.status.contains("FAILED")) {
 									if (com.kfonetalentsuite.listeners.ExcelReportListener.didScenarioPassInRetry(actualScenarioName)) {
@@ -451,7 +451,7 @@ public class DailyExcelTracker {
 			String featureName = extractFeatureNameFromRunnerClass(runnerClass);
 
 			List<String> realScenarioNames = extractRealScenarioNamesFromFeatureFiles(runnerClass);
-			String convertedStatus = StatusConverter.convertTestNGStatusToBusiness(status);
+			String convertedStatus = convertTestNGStatusToBusiness(status);
 
 			if (realScenarioNames.isEmpty()) {
 				LOGGER.debug("CROSS-BROWSER ISSUE - No real scenario names found for {}, using fallback", runnerClass);
@@ -1045,10 +1045,10 @@ public class DailyExcelTracker {
 
 			if (browserStatus != null && !browserStatus.trim().isEmpty()) {
 				browserCell.setCellValue(browserStatus);
-				browserCell.setCellStyle(ExcelStyleHelper.createStatusStyle(workbook, browserStatus));
+				browserCell.setCellStyle(ExcelReportingHelper.createStatusStyle(workbook, browserStatus));
 			} else {
 				browserCell.setCellValue(""); // Empty cell for unused browsers
-				browserCell.setCellStyle(ExcelStyleHelper.createDataStyle(workbook));
+				browserCell.setCellStyle(ExcelReportingHelper.createDataStyle(workbook));
 			}
 		}
 	}
@@ -2881,11 +2881,11 @@ public class DailyExcelTracker {
 
 					dataRow.createCell(7).setCellValue(comments); // SHIFTED: Column 7 (was 6)
 
-					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
+					ExcelReportingHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 0, 1, 2 });
-					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
+					ExcelReportingHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 6 });
-					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
+					ExcelReportingHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 7 });
 				}
 			}
@@ -3205,7 +3205,7 @@ public class DailyExcelTracker {
 			}
 			
 			int[] columnsToStyle = {2, 6, 7};
-			ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, row, status, columnsToStyle);
+			ExcelReportingHelper.applyRowLevelStylingToSpecificColumns(workbook, row, status, columnsToStyle);
 			
 			reapplyBrowserStatusStyling(workbook, row, status);
 			
@@ -3232,9 +3232,9 @@ public class DailyExcelTracker {
 			}
 			
 			if (cellStatus != null && !cellStatus.trim().isEmpty()) {
-				cell.setCellStyle(ExcelStyleHelper.createStatusStyle(workbook, cellStatus));
+				cell.setCellStyle(ExcelReportingHelper.createStatusStyle(workbook, cellStatus));
 			} else {
-				cell.setCellStyle(ExcelStyleHelper.createRowStatusStyle(workbook, defaultStatus));
+				cell.setCellStyle(ExcelReportingHelper.createRowStatusStyle(workbook, defaultStatus));
 			}
 		}
 	}
@@ -3463,7 +3463,7 @@ public class DailyExcelTracker {
 			summaryRow.getCell(4).setCellValue("Skipped: " + cumulativeTotals.skippedTests);
 		if (summaryRow.getCell(5) != null)
 			summaryRow.getCell(5)
-					.setCellValue("Duration: " + DataParsingHelper.formatDuration(cumulativeTotals.totalDurationMs));
+					.setCellValue("Duration: " + ExcelReportingHelper.formatDuration(cumulativeTotals.totalDurationMs));
 
 	}
 
@@ -3532,11 +3532,11 @@ public class DailyExcelTracker {
 
 					dataRow.createCell(7).setCellValue(comments);
 
-					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
+					ExcelReportingHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 0, 1, 2 });
-					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
+					ExcelReportingHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 6 });
-					ExcelStyleHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
+					ExcelReportingHelper.applyRowLevelStylingToSpecificColumns(workbook, dataRow, scenario.status,
 							new int[] { 7 });
 
 				}
@@ -3664,7 +3664,7 @@ public class DailyExcelTracker {
 			String[] headers = { "User Name", "Client Name", "Testing Date", "Time", "Environment", "Execution Type",
 					"Browser Results", "Runner / Suite File", "Functions Tested", "Working", "Issues Found", "Skipped",
 					"Success Rate", "Duration", "Quality Status" };
-			CellStyle headerStyle = ExcelStyleHelper.createHeaderStyle(workbook);
+			CellStyle headerStyle = ExcelReportingHelper.createHeaderStyle(workbook);
 
 			for (int i = 0; i < headers.length; i++) {
 				Cell cell = headerRow.createCell(i);
@@ -3686,7 +3686,7 @@ public class DailyExcelTracker {
 				}
 			}
 
-			ExcelStyleHelper.setExecutionHistoryColumnWidths(sheet);
+			ExcelReportingHelper.setExecutionHistoryColumnWidths(sheet);
 		}
 
 		String currentRunnerName = getPrimaryRunnerName(summary);
@@ -3732,9 +3732,9 @@ public class DailyExcelTracker {
 		Cell statusCell = getOrCreateCell(dataRow, 14); // Quality Status
 		statusCell.setCellValue(summary.overallStatus);
 
-		ExcelStyleHelper.applyRowLevelStyling(workbook, dataRow, summary.overallStatus, 14, 14);
+		ExcelReportingHelper.applyRowLevelStyling(workbook, dataRow, summary.overallStatus, 14, 14);
 
-		ExcelStyleHelper.setExecutionHistoryColumnWidths(sheet);
+		ExcelReportingHelper.setExecutionHistoryColumnWidths(sheet);
 
 		for (int i = 0; i < 15; i++) {
 			sheet.autoSizeColumn(i);
@@ -4167,7 +4167,7 @@ public class DailyExcelTracker {
 			return 0;
 
 		try {
-			return DataParsingHelper.parseDurationToMs(duration);
+			return ExcelReportingHelper.parseDurationToMs(duration);
 		} catch (Exception e) {
 			LOGGER.warn("Could not parse duration '{}', treating as 0: {}", duration, e.getMessage());
 			return 0;
@@ -4865,6 +4865,23 @@ public class DailyExcelTracker {
 			}
 		} catch (Exception e) {
 			return cell.toString();
+		}
+	}
+
+	private static String convertTestNGStatusToBusiness(String testngStatus) {
+		if (testngStatus == null) {
+			return "UNKNOWN";
+		}
+
+		switch (testngStatus.toUpperCase()) {
+		case "PASS":
+			return "PASSED";
+		case "FAIL":
+			return "FAILED";
+		case "SKIP":
+			return "SKIPPED";
+		default:
+			return "UNKNOWN";
 		}
 	}
 

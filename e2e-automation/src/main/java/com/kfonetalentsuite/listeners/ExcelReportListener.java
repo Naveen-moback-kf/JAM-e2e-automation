@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 import com.kfonetalentsuite.utils.JobMapping.DailyExcelTracker;
-import com.kfonetalentsuite.utils.JobMapping.ProgressBarUtil;
 import com.kfonetalentsuite.utils.common.CommonVariable;
 import com.kfonetalentsuite.utils.JobMapping.KeepAwakeUtil;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
@@ -82,6 +81,31 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 	// ENHANCED: Store current suite name for Excel reporting (Suite vs Individual
 	// Runner execution)
 	private static volatile String currentSuiteName = null;
+
+	// ========================================
+	// PROGRESS BAR FUNCTIONALITY (Merged from ProgressBarUtil)
+	// ========================================
+
+	// Progress tracking
+	private static int totalRunners = 0;
+	private static int completedRunners = 0;
+
+	// Configuration
+	private static final boolean PROGRESS_BAR_ENABLED = Boolean
+			.parseBoolean(System.getProperty("progress.bar.enabled", "true"));
+
+	// ANSI Color codes for console output
+	private static final String ANSI_RESET = "\u001B[0m";
+	private static final String ANSI_GREEN = "\u001B[32m";
+	private static final String ANSI_BRIGHT_GREEN = "\u001B[92m";
+	private static final String ANSI_YELLOW = "\u001B[33m";
+	private static final String ANSI_CYAN = "\u001B[36m";
+	private static final String ANSI_DARK_GREY = "\u001B[90m";
+
+	// Progress bar characters - solid blocks for clean appearance
+	private static final String PROGRESS_FILLED = "-";
+	private static final String PROGRESS_EMPTY = "-";
+	private static final String PROGRESS_ARROW = "-";
 
 	public static void setCurrentScenario(String threadId, String scenarioName) {
 		currentScenarios.put(threadId, scenarioName);
@@ -191,7 +215,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 
 			if (totalTestContexts.get() > 0) {
 				LOGGER.debug("Suite '{}' - {} runners", suite.getName(), totalTestContexts.get());
-				ProgressBarUtil.initializeProgress(totalTestContexts.get());
+				initializeProgress(totalTestContexts.get());
 			}
 		} catch (Exception e) {
 			LOGGER.debug("Progress tracking init failed");
@@ -232,7 +256,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		if (totalTestContexts.get() > 0) {
 			completedTestContexts.incrementAndGet();
 			String testName = context.getName();
-			ProgressBarUtil.updateProgress(testName);
+			updateProgress(testName);
 		}
 
 		// Individual test completed - Excel update deferred to execution completion
@@ -267,7 +291,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 			clearExceptionDetails();
 			clearScenariosPassedInRetry();
 			crossBrowserRunnerNames.clear();
-			ProgressBarUtil.resetProgress();
+			resetProgress();
 			System.gc();
 
 		} catch (Exception e) {
@@ -986,5 +1010,146 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 			return String.format("ExecutionStats{total=%d, passed=%d, failed=%d, skipped=%d, successRate=%.1f%%}",
 					totalTests, passed, failed, skipped, getSuccessRate());
 		}
+	}
+
+	// ========================================
+	// PROGRESS BAR METHODS (Merged from ProgressBarUtil)
+	// ========================================
+
+	private static synchronized void initializeProgress(int totalCount) {
+		if (!PROGRESS_BAR_ENABLED || totalCount <= 0) {
+			return;
+		}
+
+		totalRunners = totalCount;
+		completedRunners = 0;
+
+		displayProgressBar("Initializing...", false);
+	}
+
+	private static synchronized void updateProgress(String runnerName) {
+		if (!PROGRESS_BAR_ENABLED || totalRunners <= 0) {
+			return;
+		}
+
+		completedRunners++;
+
+		String cleanRunnerName = cleanRunnerName(runnerName);
+
+		displayProgressBar("... Completed: " + cleanRunnerName, true);
+
+		if (completedRunners >= totalRunners) {
+			logWithProgress(" All runners completed successfully! ({}/{})", completedRunners, totalRunners);
+		}
+	}
+
+	private static void displayProgressBar(String statusMessage, boolean showCompleted) {
+		if (totalRunners <= 0)
+			return;
+
+		double progressPercent = (double) completedRunners / totalRunners;
+		int barWidth = 40;
+		int filledWidth = (int) (progressPercent * barWidth);
+
+		StringBuilder progressBar = new StringBuilder();
+
+		if (supportsColors()) {
+			progressBar.append("[");
+			for (int i = 0; i < barWidth; i++) {
+				if (i < filledWidth) {
+					progressBar.append(ANSI_BRIGHT_GREEN).append(PROGRESS_FILLED).append(ANSI_RESET);
+				} else if (i == filledWidth && showCompleted) {
+					progressBar.append(ANSI_GREEN).append(PROGRESS_ARROW).append(ANSI_RESET);
+				} else {
+					progressBar.append(ANSI_DARK_GREY).append(PROGRESS_EMPTY).append(ANSI_RESET);
+				}
+			}
+			progressBar.append("]");
+
+			progressBar.append(ANSI_CYAN).append(String.format(" %3.0f%% ", progressPercent * 100)).append(ANSI_YELLOW)
+					.append(String.format("(%d/%d runners)", completedRunners, totalRunners)).append(ANSI_RESET);
+		} else {
+			progressBar.append("[");
+			for (int i = 0; i < barWidth; i++) {
+				if (i < filledWidth) {
+					progressBar.append("=");
+				} else if (i == filledWidth && showCompleted) {
+					progressBar.append(">");
+				} else {
+					progressBar.append("-");
+				}
+			}
+			progressBar.append("]");
+			progressBar.append(
+					String.format(" %3.0f%% (%d/%d runners)", progressPercent * 100, completedRunners, totalRunners));
+		}
+
+		if (statusMessage != null && !statusMessage.isEmpty()) {
+			LOGGER.info(" PROGRESS: {} {}", statusMessage, progressBar.toString());
+		} else {
+			LOGGER.info(" PROGRESS: {}", progressBar.toString());
+		}
+	}
+
+	private static String cleanRunnerName(String runnerName) {
+		if (runnerName == null)
+			return "Unknown Runner";
+
+		String cleaned = runnerName;
+		if (cleaned.contains(".")) {
+			cleaned = cleaned.substring(cleaned.lastIndexOf('.') + 1);
+		}
+		if (cleaned.endsWith("Runner")) {
+			cleaned = cleaned.substring(0, cleaned.length() - 6);
+		}
+
+		cleaned = cleaned.replaceAll("([A-Z])", " $1").trim();
+
+		if (cleaned.length() > 35) {
+			cleaned = cleaned.substring(0, 32) + "...";
+		}
+
+		return cleaned;
+	}
+
+	private static boolean supportsColors() {
+		boolean forceColors = Boolean.parseBoolean(System.getProperty("progress.colors.force", "false"));
+		if (forceColors) {
+			return true;
+		}
+
+		boolean colorsDisabled = Boolean.parseBoolean(System.getProperty("progress.colors.disabled", "false"));
+		if (colorsDisabled) {
+			return false;
+		}
+
+		String logAppenders = System.getProperty("log4j.configuration.appenders", "");
+		boolean isConsoleLogging = logAppenders.contains("console") || logAppenders.isEmpty();
+
+		String term = System.getenv("TERM");
+		String os = System.getProperty("os.name", "").toLowerCase();
+		boolean isWindows = os.contains("windows");
+
+		boolean isTerminal = term != null && !term.equals("dumb");
+		if (isWindows) {
+			String wtSession = System.getenv("WT_SESSION");
+			String conEmuANSI = System.getenv("ConEmuANSI");
+			isTerminal = isTerminal || wtSession != null || conEmuANSI != null || forceColors;
+		}
+
+		boolean colorsSupported = isConsoleLogging && isTerminal;
+
+		return colorsSupported;
+	}
+
+	private static void logWithProgress(String message, Object... args) {
+		if (PROGRESS_BAR_ENABLED) {
+			LOGGER.info(" " + message, args);
+		}
+	}
+
+	private static synchronized void resetProgress() {
+		totalRunners = 0;
+		completedRunners = 0;
 	}
 }
