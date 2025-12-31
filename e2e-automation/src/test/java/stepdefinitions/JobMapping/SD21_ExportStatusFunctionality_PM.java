@@ -88,7 +88,6 @@ public class SD21_ExportStatusFunctionality_PM {
 		ValidateExportStatusFunctionality_PM.getExportStatusFunctionality_PM().user_should_be_navigated_to_sp_details_page_after_saving_sp_details();
 	}
 
-
 	@Then("User should verify Recently Modified Success Profile is displaying on Top of the Job Proifles List")
 	public void user_should_verify_recently_modified_success_profile_is_displaying_on_top_of_the_job_proifles_list() throws IOException {
 		ValidateExportStatusFunctionality_PM.getExportStatusFunctionality_PM().user_should_verify_recently_modified_success_profile_is_displaying_on_top_of_the_job_proifles_list();
@@ -98,7 +97,5 @@ public class SD21_ExportStatusFunctionality_PM {
 	public void user_should_verify_recently_exported_and_modified_success_profile_export_status_updated_as_exported_modfied() throws IOException {
 		ValidateExportStatusFunctionality_PM.getExportStatusFunctionality_PM().user_should_verify_recently_exported_and_modified_success_profile_export_status_updated_as_exported_modfied();
 	}
-
-
 
 }

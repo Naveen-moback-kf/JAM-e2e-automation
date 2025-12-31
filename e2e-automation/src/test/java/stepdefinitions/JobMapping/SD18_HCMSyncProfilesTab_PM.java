@@ -109,7 +109,6 @@ public class SD18_HCMSyncProfilesTab_PM {
 		validateHCMSyncProfilesTab_PM.getHCMSyncProfilesTab_PM().user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table_in_hcm_sync_profiles_tab();
 	}
 
-	
 	@When("User is in HCM Sync Profiles screen")
 	public void user_is_in_hcm_sync_profiles_screen() throws IOException {
 		validateHCMSyncProfilesTab_PM.getHCMSyncProfilesTab_PM().user_is_in_hcm_sync_profiles_screen();

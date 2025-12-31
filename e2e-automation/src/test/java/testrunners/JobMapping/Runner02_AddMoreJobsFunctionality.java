@@ -40,10 +40,6 @@ import io.cucumber.testng.CucumberOptions;
 public class Runner02_AddMoreJobsFunctionality extends CustomizeTestNGCucumberRunner {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 	
-	/**
-	 * Refreshes Job Catalog CSV with unique Job Codes and Job Titles
-	 * This runs BEFORE the test class setup to ensure fresh unique data
-	 */
 	@BeforeClass(alwaysRun = true)
 	public void refreshJobCatalogBeforeTests() {
 		try {

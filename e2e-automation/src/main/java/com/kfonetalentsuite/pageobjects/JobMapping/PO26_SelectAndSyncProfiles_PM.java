@@ -11,15 +11,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-/**
- * Consolidated Page Object for Select and Sync Profiles in HCM Sync Profiles (PM) screen.
- * 
- * Supports two selection methods:
- * 1. Header Checkbox - Selects only LOADED profiles (lazy loading aware)
- * 2. Select All (Chevron + Select All) - Selects ALL profiles including those not yet loaded
- * 
- * Merged from: PO33_ValidateSelectAndHCMSyncLoadedProfiles_PM and PO34_ValidateSelectAndSyncAllProfiles_PM
- */
 public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO26_SelectAndSyncProfiles_PM.class);
@@ -39,18 +30,6 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 	// FLOW 1: HEADER CHECKBOX SELECTION (Loaded Profiles)
 	// =====================================================
 
-	/**
-	 * Verifies that profiles loaded after clicking the header checkbox are NOT selected.
-	 * 
-	 * Expected Flow:
-	 * 1. Loaded Profiles on screen (BEFORE Header checkbox is clicked): 100 profiles
-	 * 2. Header checkbox is clicked - Selects 61 profiles (39 are disabled, cannot be selected)
-	 * 3. User scrolls - Loads 50 MORE profiles (Total now = 150)
-	 * 4. These 50 newly loaded profiles should NOT be selected
-	 * 
-	 * This validates that the "header checkbox select" only selects currently
-	 * LOADED profiles, not profiles that load later via lazy loading/scrolling.
-	 */
 	public void verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen() {
 		int loadedProfilesBeforeHeaderCheckboxClick = PO18_HCMSyncProfilesTab_PM.loadedProfilesBeforeHeaderCheckboxClick.get();
 		int selectedProfilesAfterHeaderCheckboxClick = PO18_HCMSyncProfilesTab_PM.selectedProfilesAfterHeaderCheckboxClick.get();
@@ -159,9 +138,6 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 	// FLOW 2: SELECT ALL (Chevron + Select All Button)
 	// =====================================================
 
-	/**
-	 * Clicks on Chevron Button beside Header Checkbox in HCM Sync Profiles screen.
-	 */
 	public void click_on_chevron_button_beside_header_checkbox_in_hcm_sync_profiles_screen() {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.PAGE_LOAD_SPINNER));
@@ -188,10 +164,6 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Clicks on Select All button in HCM Sync Profiles screen.
-	 * The dropdown appears immediately after chevron click without page load spinner.
-	 */
 	public void click_on_select_all_button_in_hcm_sync_profiles_screen() {
 		try {
 			// Wait directly for Select All button to be clickable (dropdown appears immediately after chevron click)
@@ -215,17 +187,6 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Scrolls through all profiles and counts the number of selected profiles based on checkbox state.
-	 * This method handles lazy loading by scrolling to the bottom with increased wait times.
-	 * 
-	 * Process:
-	 * 1. Get total profile count from "Showing X of Y" text
-	 * 2. Scroll to bottom repeatedly with longer waits to load all profiles
-	 * 3. Count checkboxes that are enabled (excluding disabled ones)
-	 * 
-	 * Example: If 2842 total profiles exist and 42 are disabled, this returns 2800
-	 */
 	public void verify_count_of_selected_profiles_by_scrolling_through_all_profiles() {
 		int selectedCount = 0;
 		int totalProfiles = 0;

@@ -11,12 +11,6 @@ import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 
 import io.cucumber.testng.CucumberOptions;
 
-/**
- * Cross-Browser Publish Center PM Test Runner
- * 
- * Command: mvn test -Dtest=CrossBrowser20_PublishCenter_PMRunner
- * Result: Chrome + Firefox + Edge run automatically
- */
 @Listeners({
     ExcelReportListener.class,
     AllureTestNg.class

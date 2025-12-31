@@ -11,12 +11,6 @@ import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 
 import io.cucumber.testng.CucumberOptions;
 
-/**
- * Cross-Browser Info Message For Missing Data Profiles Test Runner
- * 
- * Command: mvn test -Dtest=CrossBrowser23_InfoMessageMissingDataProfilesRunner
- * Result: Chrome + Firefox + Edge run automatically
- */
 @Listeners({
     ExcelReportListener.class,
     AllureTestNg.class

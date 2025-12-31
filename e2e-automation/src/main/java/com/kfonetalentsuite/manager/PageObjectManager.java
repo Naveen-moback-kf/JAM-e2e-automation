@@ -287,10 +287,6 @@ public class PageObjectManager {
 		return deleteJobProfiles;
 	}
 
-	/**
-	 * Reset all page object instances (useful for cleanup between tests)
-	 * This ensures a fresh start for each test scenario when needed
-	 */
 	public void resetPageObjects() {
 		kfoneLogin = null;
 		addMoreJobsFunctionality = null;

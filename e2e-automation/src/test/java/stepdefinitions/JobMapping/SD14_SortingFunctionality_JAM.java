@@ -37,7 +37,6 @@ public class SD14_SortingFunctionality_JAM {
 		validateSortingFunctionality_JAM.getSortingFunctionality_JAM().user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles();
 	}
 
-	
 	@Then("User should verify first thirty job profiles in default order before applying sorting")
 	public void user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting() throws IOException {
 		validateSortingFunctionality_JAM.getSortingFunctionality_JAM().user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting();
@@ -117,6 +116,5 @@ public class SD14_SortingFunctionality_JAM {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_in_descending_order_and_organization_job_name_in_ascending_order() throws IOException {
 		validateSortingFunctionality_JAM.getSortingFunctionality_JAM().user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_in_descending_order_and_organization_job_name_in_ascending_order();
 	}
-
 
 }

@@ -11,7 +11,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-
 public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO31_ApplicationPerformance_JAM_and_HCM.class);
@@ -174,10 +173,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		super();
 	}
 
-	/**
-	 * Measures the time taken to load Job Mapping page.
-	 * Captures both navigation time and page ready time.
-	 */
 	public void user_measures_the_time_taken_to_load_job_mapping_page() {
 		try {
 			// Start measuring
@@ -204,10 +199,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates that page load time is within acceptable threshold.
-	 * Fails the test if performance is below expectations.
-	 */
 	public void user_validates_page_load_time_is_within_acceptable_threshold() {
 		try {
 			validateThreshold(totalPageLoadTime.get(), PAGE_LOAD_THRESHOLD_MS, "Page Load", "page_load");
@@ -218,10 +209,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies that all critical page components are loaded correctly.
-	 * Validates presence and visibility of key UI elements.
-	 */
 	public void user_verifies_all_critical_page_components_are_loaded() {
 		try {
 			int totalComponents = 7;
@@ -261,9 +248,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Helper method to verify individual component by locator.
-	 */
 	private boolean verifyComponentByLocator(String componentName, By locator) {
 		try {
 			WebElement element = driver.findElement(locator);
@@ -278,17 +262,10 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// HELPER METHODS - CODE OPTIMIZATION
 	// ========================================
 
-	/**
-	 * Helper method to log section headers consistently Reduced verbosity - only
-	 * for major sections
-	 */
 	private void logSectionHeader(String title) {
 		LOGGER.debug("- " + title);
 	}
 
-	/**
-	 * Calculates performance rating based on actual time vs threshold
-	 */
 	private String getPerformanceRating(long actualTime, long threshold) {
 		double percentage = (actualTime / (double) threshold) * 100;
 
@@ -304,9 +281,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			return " VERY POOR";
 	}
 
-	/**
-	 * Helper method to extract results count from "Showing X of Y results" text
-	 */
 	private int extractResultsCount(String resultsText) {
 		try {
 			if (resultsText != null && resultsText.contains("of")) {
@@ -322,11 +296,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		return 0;
 	}
 
-	/**
-	 * Generic helper method to validate performance threshold Logs performance
-	 * metrics and rating Does NOT fail test if threshold exceeded - only reports
-	 * rating ENHANCED: Captures performance metrics for Excel reporting
-	 */
 	private void validateThreshold(long actualTime, long threshold, String operationName, String screenshotPrefix) {
 		if (actualTime == 0) {
 			String errorMsg = " TECHNICAL FAILURE: " + operationName + " time was not measured";
@@ -369,10 +338,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Reset performance metrics for next test.
-	 * Uses ThreadLocal.remove() to clear values for the current thread.
-	 */
 	public static void resetPerformanceMetrics() {
 		pageLoadStartTime.remove();
 		pageLoadEndTime.remove();
@@ -452,10 +417,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// SCENARIO 2: SEARCH PERFORMANCE TESTING
 	// ========================================
 
-	/**
-	 * Validates user is on Job Mapping page with loaded profiles.
-	 * Ensures page is ready for search performance testing.
-	 */
 	public void user_is_on_job_mapping_page_with_loaded_profiles() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -473,10 +434,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Measures time to perform search with dynamic keyword.
-	 * Extracts a job name substring from visible profiles and performs search.
-	 */
 	public void user_measures_time_to_perform_search_with_dynamic_keyword() {
 		try {
 			// Extract dynamic search keyword
@@ -512,10 +469,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates that search response time is within acceptable threshold.
-	 * Fails the test if search performance is below expectations.
-	 */
 	public void user_validates_search_response_time_is_within_acceptable_threshold() {
 		try {
 			validateThreshold(totalSearchTime.get(), SEARCH_THRESHOLD_MS, "Search", "search");
@@ -526,11 +479,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies search results information (informational only for performance testing).
-	 * For performance tests, we don't care if search returns 0 or 100 results.
-	 * We only measure how FAST the search executes, not the accuracy.
-	 */
 	public void user_verifies_search_results_are_accurate() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -562,10 +510,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates that search suggestions appear instantly.
-	 * Verifies UI responsiveness during search operation.
-	 */
 	public void user_validates_search_suggestions_appear_instantly() {
 		try {
 			long instantThreshold = 1000;
@@ -595,10 +539,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// SCENARIO 3: CLEAR SEARCH PERFORMANCE
 	// ==========================================
 
-	/**
-	 * Validates that user has performed search operation with filtered results.
-	 * Ensures search is already performed and ready for clear operation.
-	 */
 	public void user_has_performed_search_operation_with_filtered_results() {
 		try {
 			if (searchKeyword.get() == null || searchKeyword.get().isEmpty() || resultsCountAfterSearch.get() == 0) {
@@ -620,10 +560,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Measures time to clear search.
-	 * Clears search bar and waits for all profiles to be restored.
-	 */
 	public void user_measures_time_to_clear_search() {
 		try {
 			wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BAR));
@@ -663,10 +599,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates that clear search time is within acceptable threshold.
-	 * Fails the test if clear search performance is below expectations.
-	 */
 	public void user_validates_clear_search_time_is_within_acceptable_threshold() {
 		try {
 			validateThreshold(totalClearSearchTime.get(), CLEAR_SEARCH_THRESHOLD_MS, "Clear Search", "clear_search");
@@ -677,10 +609,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies that all profiles are restored correctly after clearing search.
-	 * Validates that profile count matches the original count before search.
-	 */
 	public void user_verifies_all_profiles_are_restored_correctly() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -711,10 +639,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates that UI remains responsive during clear operation.
-	 * Verifies no freeze or lag during clear search.
-	 */
 	public void user_validates_ui_remains_responsive_during_clear_operation() {
 		try {
 			long instantThreshold = 1000;
@@ -744,9 +668,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// SCENARIO 4: SINGLE FILTER PERFORMANCE
 	// =========================================
 
-	/**
-	 * Measures time to open filters dropdown.
-	 */
 	public void user_measures_time_to_open_filters_dropdown() {
 		try {
 			wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
@@ -774,10 +695,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Measures time to apply single filter dynamically.
-	 * Uses dynamic filter selection from available filter options.
-	 */
 	public void user_measures_time_to_apply_single_filter_dynamically() {
 		try {
 			logSectionHeader("PERFORMANCE MEASUREMENT: Apply Single Filter");
@@ -915,9 +832,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates filter application time is within acceptable threshold.
-	 */
 	public void user_validates_filter_application_time_is_within_acceptable_threshold() {
 		try {
 			validateThreshold(totalSingleFilterTime.get(), SINGLE_FILTER_THRESHOLD_MS, "Single Filter", "filter");
@@ -928,9 +842,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies filtered results are displayed correctly.
-	 */
 	public void user_verifies_filtered_results_are_displayed_correctly() {
 		try {
 			boolean clearFiltersVisible = false;
@@ -958,9 +869,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates UI remains responsive during filter operation.
-	 */
 	public void user_validates_ui_remains_responsive_during_filter_operation() {
 		try {
 			long instantThreshold = 2000;
@@ -990,9 +898,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// SCENARIO 5: MULTIPLE FILTERS PERFORMANCE
 	// ==========================================
 
-	/**
-	 * Measures time to apply multiple filters dynamically from available options.
-	 */
 	public void user_measures_time_to_apply_multiple_filters_dynamically_from_available_options() {
 		try {
 			wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
@@ -1127,9 +1032,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates multiple filter application time is within acceptable threshold.
-	 */
 	public void user_validates_multiple_filter_application_time_is_within_acceptable_threshold() {
 		try {
 			validateThreshold(totalMultipleFiltersTime.get(), MULTIPLE_FILTERS_THRESHOLD_MS,
@@ -1141,9 +1043,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies combined filtered results are displayed correctly.
-	 */
 	public void user_verifies_combined_filtered_results_are_displayed_correctly() {
 		try {
 			boolean resultsDecreased = resultsCountAfterFilter.get() <= resultsCountBeforeFilter.get();
@@ -1181,9 +1080,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates no UI lag during multi-filter operation.
-	 */
 	public void user_validates_no_ui_lag_during_multi_filter_operation() {
 		try {
 			long smoothThreshold = 3000;
@@ -1207,10 +1103,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// SCENARIO 6: CLEAR FILTERS PERFORMANCE
 	// ==========================================
 
-	/**
-	 * User has applied filters and has filtered results (prerequisite for clear filters scenario).
-	 * IMPORTANT: Clears any existing filters first to capture true baseline count.
-	 */
 	public void user_has_applied_filters_and_has_filtered_results() {
 		try {
 			// Clear any existing filters from previous scenarios
@@ -1380,9 +1272,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Measures time to click Clear All Filters button.
-	 */
 	public void user_measures_time_to_click_clear_all_filters_button() {
 		try {
 			js.executeScript("window.scrollTo(0, 0);");
@@ -1434,9 +1323,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates clear filters operation time is within acceptable threshold.
-	 */
 	public void user_validates_clear_filters_operation_time_is_within_acceptable_threshold() {
 		try {
 			validateThreshold(totalClearFiltersTime.get(), CLEAR_FILTERS_THRESHOLD_MS, "Clear Filters", "clear_filters");
@@ -1447,9 +1333,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies all profiles are restored correctly after clearing filters.
-	 */
 	public void user_verifies_all_profiles_are_restored_correctly_after_clearing_filters() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -1479,9 +1362,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates no UI freeze during filter clearing.
-	 */
 	public void user_validates_no_ui_freeze_during_filter_clearing() {
 		try {
 			long instantThreshold = 1000;
@@ -1505,10 +1385,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// SCENARIO 7: SCROLL AND LAZY LOAD PERFORMANCE
 	// =========================================
 
-	/**
-	 * Measures time to scroll through 3-4 pages to check lazy load performance.
-	 * Focused on lazy load performance testing rather than loading all profiles.
-	 */
 	public void user_measures_time_to_scroll_through_all_profiles() {
 		try {
 			wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
@@ -1574,10 +1450,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates that lazy loading triggers at appropriate intervals.
-	 * Verifies lazy load performance is consistent.
-	 */
 	public void user_validates_lazy_loading_triggers_at_appropriate_intervals() {
 		try {
 			if (lazyLoadTimes.get().isEmpty()) {
@@ -1598,10 +1470,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies scroll performance is smooth without lag.
-	 * Validates no significant delays or UI freezes during scrolling.
-	 */
 	public void user_verifies_scroll_performance_is_smooth_without_lag() {
 		try {
 			validateThreshold(totalScrollTime.get(), SCROLL_OPERATION_THRESHOLD_MS, "Scroll Operation", "scroll");
@@ -1612,10 +1480,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates newly loaded profiles render within acceptable time.
-	 * Checks individual lazy load render times.
-	 */
 	public void user_validates_newly_loaded_profiles_render_within_acceptable_time() {
 		try {
 			if (lazyLoadTimes.get().isEmpty()) {
@@ -1649,10 +1513,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies total time to load profiles via scrolling (3-4 pages test).
-	 * Provides comprehensive scroll and lazy load performance summary.
-	 */
 	public void user_verifies_total_time_to_load_all_profiles_via_scrolling() {
 		try {
 			String summaryMsg = String.format(
@@ -1685,16 +1545,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// SCENARIO 8: NAVIGATION PERFORMANCE
 	// =========================================
 
-	/**
-	 * Prerequisite: User is on Job Mapping page with loaded profiles (reuses
-	 * existing method) Uses user_is_on_job_mapping_page_with_loaded_profiles() from
-	 * Scenario 2
-	 */
-
-	/**
-	 * Measures time to navigate to Job Comparison screen from Job Mapping.
-	 * Note: Job Comparison is accessed via "View Other Matches" button on a profile.
-	 */
 	public void user_measures_time_to_navigate_to_job_comparison_screen_from_job_mapping() {
 		try {
 			navigationToComparisonStartTime.set(System.currentTimeMillis());
@@ -1765,9 +1615,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates navigation time is within acceptable threshold.
-	 */
 	public void user_validates_navigation_time_is_within_acceptable_threshold() {
 		try {
 			validateThreshold(totalNavigationToComparisonTime.get(), NAVIGATION_THRESHOLD_MS, "Navigation to Job Comparison",
@@ -1780,9 +1627,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies Job Comparison screen loads without delay.
-	 */
 	public void user_verifies_job_comparison_screen_loads_without_delay() {
 		try {
 			WebElement headerElement = wait.until(ExpectedConditions.visibilityOfElementLocated(JOB_COMPARISON_HEADER));
@@ -1805,10 +1649,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Measures time to navigate back to Job Mapping screen.
-	 * Uses browser back navigation.
-	 */
 	public void user_measures_time_to_navigate_back_to_job_mapping_screen() {
 		try {
 			navigationBackToMappingStartTime.set(System.currentTimeMillis());
@@ -1829,9 +1669,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates back navigation time is within acceptable threshold.
-	 */
 	public void user_validates_back_navigation_time_is_within_acceptable_threshold() {
 		try {
 			validateThreshold(totalNavigationBackToMappingTime.get(), NAVIGATION_THRESHOLD_MS,
@@ -1844,9 +1681,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies Job Mapping screen loads correctly after navigation.
-	 */
 	public void user_verifies_job_mapping_screen_loads_correctly_after_navigation() {
 		try {
 			wait.until(ExpectedConditions.presenceOfElementLocated(JOB_MAPPING_PAGE_CONTAINER));
@@ -1869,10 +1703,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// SCENARIO 9: SORT PERFORMANCE
 	// =========================================
 
-	/**
-	 * Prerequisite: User is on Job Mapping page with maximum loaded profiles.
-	 * Scrolls to load maximum profiles before testing sort performance.
-	 */
 	public void user_is_on_job_mapping_page_with_maximum_loaded_profiles() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -1907,9 +1737,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Measures time to sort profiles by Job Title.
-	 */
 	public void user_measures_time_to_sort_profiles_by_job_title() {
 		try {
 			sortByJobTitleStartTime.set(System.currentTimeMillis());
@@ -1939,9 +1766,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Measures time to sort profiles by Grade.
-	 */
 	public void user_measures_time_to_sort_profiles_by_grade() {
 		try {
 			sortByGradeStartTime.set(System.currentTimeMillis());
@@ -1971,9 +1795,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates sorting operation time is within acceptable threshold.
-	 */
 	public void user_validates_sorting_operation_time_is_within_acceptable_threshold() {
 		try {
 			validateThreshold(totalSortByJobTitleTime.get(), SORT_OPERATION_THRESHOLD_MS, "Sort by Job Title",
@@ -1990,9 +1811,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies sorted results are accurate (informational check).
-	 */
 	public void user_verifies_sorted_results_are_accurate() {
 		try {
 			wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -2011,9 +1829,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates UI remains responsive during sorting.
-	 */
 	public void user_validates_ui_remains_responsive_during_sorting() {
 		try {
 			long maxSortTime = Math.max(totalSortByJobTitleTime.get(), totalSortByGradeTime.get());
@@ -2043,15 +1858,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// SCENARIO 10: SELECT ALL PERFORMANCE
 	// =========================================
 
-	/**
-	 * Prerequisite: User is on Job Mapping page with maximum loaded profiles
-	 * (reuses existing method). Uses
-	 * user_is_on_job_mapping_page_with_maximum_loaded_profiles() from Scenario 9.
-	 */
-
-	/**
-	 * Measures time to click chevron button beside header checkbox.
-	 */
 	public void user_measures_time_to_click_chevron_button_beside_header_checkbox() {
 		try {
 			js.executeScript("window.scrollTo(0, 0);");
@@ -2086,9 +1892,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Measures time to click Select All option.
-	 */
 	public void user_measures_time_to_click_select_all_option() {
 		try {
 			selectAllClickStartTime.set(System.currentTimeMillis());
@@ -2118,9 +1921,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates select all operation time is within acceptable threshold.
-	 */
 	public void user_validates_select_all_operation_time_is_within_acceptable_threshold() {
 		try {
 			long totalSelectAllOperationTime = totalChevronClickTime.get() + totalSelectAllClickTime.get();
@@ -2138,9 +1938,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies all profiles are selected after Select All operation.
-	 */
 	public void user_verifies_all_profiles_are_selected() {
 		try {
 			for (int i = 0; i < 3; i++) {
@@ -2175,9 +1972,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates UI remains responsive during bulk selection.
-	 */
 	public void user_validates_ui_remains_responsive_during_bulk_selection() {
 		try {
 			long totalOperationTime = totalChevronClickTime.get() + totalSelectAllClickTime.get();
@@ -2208,13 +2002,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// SCENARIO 11: HCM PAGE LOAD PERFORMANCE
 	// =========================================
 
-	/**
-	 * Prerequisite: User is on Job Mapping page (reuses existing condition).
-	 */
-
-	/**
-	 * Navigates to Profile Manager screen from KFone Global Menu.
-	 */
 	public void user_navigates_to_profile_manager_screen() {
 		try {
 			// Wait for page to be ready
@@ -2261,9 +2048,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Clicks on HCM Sync Profiles tab.
-	 */
 	public void user_clicks_on_hcm_sync_profiles_tab() {
 		try {
 			wait.until(ExpectedConditions.elementToBeClickable(HCM_SYNC_PROFILES_HEADER_TAB)).click();
@@ -2278,9 +2062,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Measures time to load HCM Sync Profiles page.
-	 */
 	public void user_measures_time_to_load_hcm_sync_profiles_page() {
 		try {
 			hcmPageLoadStartTime.set(System.currentTimeMillis());
@@ -2300,9 +2081,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates HCM page load time is within acceptable threshold.
-	 */
 	public void user_validates_hcm_page_load_time_is_within_acceptable_threshold() {
 		try {
 			validateThreshold(totalHCMPageLoadTime.get(), HCM_PAGE_LOAD_THRESHOLD_MS, "HCM Page Load", "hcm_page_load");
@@ -2314,9 +2092,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies all HCM profiles are loaded correctly.
-	 */
 	public void user_verifies_all_hcm_profiles_are_loaded_correctly() {
 		try {
 			try {
@@ -2345,10 +2120,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	// SCENARIO 12: HCM SYNC PERFORMANCE
 	// =========================================
 
-	/**
-	 * Prerequisite: User is on HCM Sync Profiles page with selected profiles.
-	 * Selects profiles using header checkbox.
-	 */
 	public void user_is_on_hcm_sync_profiles_page_with_selected_profiles() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -2398,9 +2169,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Measures time to click Sync Selected Profiles button.
-	 */
 	public void user_measures_time_to_click_sync_selected_profiles_button() {
 		try {
 			syncClickStartTime.set(System.currentTimeMillis());
@@ -2426,9 +2194,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates sync operation processing time.
-	 */
 	public void user_validates_sync_operation_processing_time() {
 		try {
 			syncProcessStartTime.set(System.currentTimeMillis());
@@ -2445,9 +2210,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies sync operation completes within acceptable threshold.
-	 */
 	public void user_verifies_sync_operation_completes_within_acceptable_threshold() {
 		try {
 			long totalSyncTime = totalSyncClickTime.get() + totalSyncProcessTime.get();
@@ -2465,9 +2227,6 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates sync status updates appear promptly.
-	 */
 	public void user_validates_sync_status_updates_appear_promptly() {
 		try {
 			// PARALLEL EXECUTION FIX: Use wait with locator instead of direct findElement

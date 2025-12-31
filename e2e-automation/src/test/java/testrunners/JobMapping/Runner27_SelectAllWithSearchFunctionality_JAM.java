@@ -13,14 +13,6 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.cucumber.testng.CucumberOptions;
 
-/**
- * Runner for Select All / Loaded Profiles Selection with Search - JAM (Job Mapping).
- * 
- * Tags available:
- * - @SelectAll_JAM - All Select All scenarios in JAM
- * - @LoadedProfiles_JAM - Loaded Profiles scenarios in JAM
- * - @SelectAll_With_Search_JAM - Run all JAM scenarios
- */
 @Listeners({
 	ExcelReportListener.class,
 	AllureTestNg.class

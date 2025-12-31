@@ -49,7 +49,6 @@ public class SD12_RecommendedProfileDetails {
 		validateRecommendedProfileDetails.getRecommendedProfileDetails().user_is_in_job_comparison_page();
 	}
 
-	
 	@Then("Validate organization job name and code in job comparison page")
 	public void validate_organization_job_name_and_code() throws IOException {
 		validateRecommendedProfileDetails.getRecommendedProfileDetails().validate_organization_job_name_and_code_in_job_comparison_page();

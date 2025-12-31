@@ -113,7 +113,6 @@ public class SD10_CustomSPinJobComparison {
 	public void verify_custom_sp_profile_skills() throws IOException {
 		addandVerifyCustomSPinJobComparisonPage.getCustomSPinJobComparison().verify_custom_sp_profile_skills();
 	}
-	
 
 	@Then("Clear text in Search bar with clear button in the Search bar")
 	public void clear_text_in_search_bar_with_clear_button_in_the_search_bar() throws IOException {
@@ -124,7 +123,6 @@ public class SD10_CustomSPinJobComparison {
 	public void user_should_verify_added_custom_sp_is_not_cleared_from_profiles_list_in_job_comparison_page() throws IOException {
 		addandVerifyCustomSPinJobComparisonPage.getCustomSPinJobComparison().user_should_verify_added_custom_sp_is_not_cleared_from_profiles_list_in_job_comparison_page();
 	}
-
 
 	@Then("Select Third Custom SP from search results")
 	public void select_third_custom_sp_from_search_results() throws IOException {

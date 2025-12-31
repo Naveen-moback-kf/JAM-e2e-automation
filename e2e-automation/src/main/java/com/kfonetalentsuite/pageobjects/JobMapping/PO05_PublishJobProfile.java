@@ -687,11 +687,6 @@ public class PO05_PublishJobProfile extends BasePageObject {
 		}
 	}
 	
-	/**
-	 * Dismisses the temporary Profile Manager notification banner if it's displayed.
-	 * This notification appears when landing on Profile Manager and can interfere with tests.
-	 * Silently continues if notification is not present.
-	 */
 	private void dismissProfileManagerNotificationIfPresent() {
 		try {
 			// Set implicit wait to 0 to check quickly
@@ -878,11 +873,6 @@ public class PO05_PublishJobProfile extends BasePageObject {
 		return jobName;
 	}
 
-	/**
-	 * Gets the job code to use for validation across different screens.
-	 * Checks multiple sources as different flows use different ThreadLocal variables.
-	 * @return The job code string
-	 */
 	public String getJobCodeForValidation() {
 		// Check multiple sources for job code (different flows use different ThreadLocal variables)
 		String jobCode = job1OrgCode.get();

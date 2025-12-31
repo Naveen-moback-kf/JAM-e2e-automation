@@ -36,7 +36,6 @@ import io.cucumber.testng.CucumberOptions;
 public class Runner24_InfoMessageManualMappingProfiles extends CustomizeTestNGCucumberRunner {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 
-
 	@Override
 	protected String getTagExpressionTemplate() {
 		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @Verify_Info_Message_Manual_Mapping_Profiles";

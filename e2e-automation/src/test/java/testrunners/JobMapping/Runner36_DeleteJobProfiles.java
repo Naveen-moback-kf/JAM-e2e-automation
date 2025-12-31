@@ -33,7 +33,6 @@ import io.qameta.allure.testng.AllureTestNg;
 		}
 		)
 
-
 public class Runner36_DeleteJobProfiles extends CustomizeTestNGCucumberRunner {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 

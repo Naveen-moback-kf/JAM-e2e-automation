@@ -82,10 +82,6 @@ public class PO01_KFoneLogin extends BasePageObject {
 		}
 	}
 	
-	/**
-	 * Hides WebDriver-related properties from JavaScript to prevent bot detection and 403 errors.
-	 * This method removes automation indicators that cause APIs to return 403 Forbidden.
-	 */
 	private void hideWebDriverProperties() {
 		try {
 			js.executeScript(

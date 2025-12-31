@@ -14,10 +14,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-/**
- * Page Object for validating selection of unmapped jobs in Job Mapping (JAM) screen.
- * Verifies that unmapped jobs cannot be selected and that checkboxes/header are disabled.
- */
 public class PO33_UnmappedJobs_JAM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO33_UnmappedJobs_JAM.class);
@@ -37,10 +33,6 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		super();
 	}
 
-	/**
-	 * Selects Unmapped jobs option from Mapping Status Filters dropdown.
-	 * If Unmapped option is not found, the scenario will be skipped.
-	 */
 	public void select_unmapped_jobs_option_in_mapping_status_filters_dropdown() {
 		skipScenario.set(false);
 
@@ -99,10 +91,6 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies that Header Checkbox is disabled in Job Mapping screen.
-	 * When Unmapped filter is applied, users cannot select unmapped jobs.
-	 */
 	public void verify_header_checkbox_is_disabled_in_job_mapping_screen() {
 		if (skipScenario.get()) {
 			throw new SkipException("Skipping validation - Unmapped Jobs option not available in Mapping Status Filters");
@@ -128,9 +116,6 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies chevron button is disabled for unmapped jobs.
-	 */
 	public void verify_chevron_button_is_disabled_in_job_mapping_screen() {
 		if (skipScenario.get()) {
 			throw new SkipException("Skipping validation - Unmapped option not available in Mapping Status Filters");
@@ -174,9 +159,6 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies that all individual unmapped job checkboxes are disabled with tooltip.
-	 */
 	public void verify_checkbox_of_all_unmapped_jobs_is_disabled_with_tooltip() {
 		if (skipScenario.get()) {
 			throw new SkipException("Skipping validation - Unmapped option not available in Mapping Status Filters");

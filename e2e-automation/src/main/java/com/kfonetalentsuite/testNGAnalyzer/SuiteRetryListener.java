@@ -17,23 +17,6 @@ import org.testng.xml.XmlClass;
 import org.testng.xml.XmlSuite;
 import org.testng.xml.XmlTest;
 
-/**
- * SuiteRetryListener - Retries FAILED runners/features at the END of suite execution
- * 
- * This listener implements the "Retry at End of Suite" pattern:
- * 1. All runners execute normally (no immediate retry)
- * 2. Failed runners are tracked during execution
- * 3. After ALL runners complete, failed ones are retried
- * 4. Supports configurable max retry attempts
- * 
- * Benefits over immediate retry:
- * - Transient issues (network, timing) often resolve by end of suite
- * - Fresh browser session for each retry
- * - Clean reporting: see all failures first, then retries
- * - Better for CI/CD pipelines
- * 
- * @author Automation Team
- */
 public class SuiteRetryListener implements ISuiteListener {
 
 	private static final Logger LOGGER = LogManager.getLogger(SuiteRetryListener.class);
@@ -50,9 +33,6 @@ public class SuiteRetryListener implements ISuiteListener {
 	// Flag to indicate if we're in retry mode (to prevent infinite loops)
 	private static volatile boolean isRetryRun = false;
 
-	/**
-	 * Called before suite starts - initialize tracking
-	 */
 	@Override
 	public void onStart(ISuite suite) {
 		// Only clear on first run, not on retry runs
@@ -66,9 +46,6 @@ public class SuiteRetryListener implements ISuiteListener {
 		}
 	}
 
-	/**
-	 * Called after suite completes - trigger retries for failed tests
-	 */
 	@Override
 	public void onFinish(ISuite suite) {
 		// Collect failed tests from this suite run
@@ -121,9 +98,6 @@ public class SuiteRetryListener implements ISuiteListener {
 		}
 	}
 
-	/**
-	 * Collect failed tests from the suite results
-	 */
 	private void collectFailedTests(ISuite suite) {
 		Map<String, ISuiteResult> results = suite.getResults();
 
@@ -166,9 +140,6 @@ public class SuiteRetryListener implements ISuiteListener {
 		}
 	}
 
-	/**
-	 * Get list of tests that should be retried (haven't exceeded max attempts)
-	 */
 	private List<FailedTestInfo> getTestsToRetry() {
 		List<FailedTestInfo> testsToRetry = new ArrayList<>();
 
@@ -185,10 +156,6 @@ public class SuiteRetryListener implements ISuiteListener {
 		return testsToRetry;
 	}
 
-	/**
-	 * Execute retries with a loop to handle multiple retry attempts
-	 * This continues retrying until all tests pass or max attempts are exhausted
-	 */
 	private void executeRetriesWithLoop(ISuite originalSuite) {
 		// EXCEL FIX: Mark retry run start to prevent counter reset and defer Excel generation
 		com.kfonetalentsuite.listeners.ExcelReportListener.markRetryRunStart();
@@ -246,9 +213,6 @@ public class SuiteRetryListener implements ISuiteListener {
 		}
 	}
 
-	/**
-	 * Execute a single retry round for failed tests
-	 */
 	private void executeRetries(ISuite originalSuite, List<FailedTestInfo> testsToRetry) {
 		if (testsToRetry.isEmpty()) {
 			return;
@@ -325,9 +289,6 @@ public class SuiteRetryListener implements ISuiteListener {
 		}
 	}
 
-	/**
-	 * Find the original XmlTest configuration for a test class
-	 */
 	private XmlTest findOriginalXmlTest(ISuite suite, String className) {
 		for (XmlTest xmlTest : suite.getXmlSuite().getTests()) {
 			for (XmlClass xmlClass : xmlTest.getClasses()) {
@@ -339,39 +300,24 @@ public class SuiteRetryListener implements ISuiteListener {
 		return null;
 	}
 
-	/**
-	 * Truncate string for logging
-	 */
 	private String truncate(String str, int maxLength) {
 		if (str == null) return "null";
 		str = str.replace("\n", " ").replace("\r", "");
 		return str.length() > maxLength ? str.substring(0, maxLength) + "..." : str;
 	}
 
-	/**
-	 * Get max retry attempts (for external reference)
-	 */
 	public static int getMaxRetryAttempts() {
 		return MAX_RETRY_ATTEMPTS;
 	}
 
-	/**
-	 * Check if there are any permanently failed tests
-	 */
 	public static boolean hasFailedTests() {
 		return !failedTests.isEmpty();
 	}
 
-	/**
-	 * Get count of failed tests
-	 */
 	public static int getFailedTestCount() {
 		return failedTests.size();
 	}
 
-	/**
-	 * Data class to hold failed test information
-	 */
 	private static class FailedTestInfo {
 		final String className;
 		final String testName;

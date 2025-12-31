@@ -11,12 +11,6 @@ import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 
 import io.cucumber.testng.CucumberOptions;
 
-/**
- * Cross-Browser Profiles with No Job Code PM Test Runner
- * 
- * Command: mvn test -Dtest=CrossBrowser19_ProfileswithNoJobCode_PMRunner
- * Result: Chrome + Firefox + Edge run automatically
- */
 @Listeners({
     ExcelReportListener.class,
     AllureTestNg.class

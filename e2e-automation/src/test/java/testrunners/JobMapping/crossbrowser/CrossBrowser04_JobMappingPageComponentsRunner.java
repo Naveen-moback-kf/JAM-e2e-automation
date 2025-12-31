@@ -11,12 +11,6 @@ import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 
 import io.cucumber.testng.CucumberOptions;
 
-/**
- * Cross-Browser Job Mapping Page Components Test Runner
- * 
- * Command: mvn test -Dtest=CrossBrowser04_JobMappingPageComponentsRunner
- * Result: Chrome + Firefox + Edge run automatically
- */
 @Listeners({
     ExcelReportListener.class,
     AllureTestNg.class

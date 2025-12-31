@@ -1,16 +1,7 @@
 package com.kfonetalentsuite.utils.JobMapping;
 
-/**
- * Status Converter - Centralized status conversion utilities
- * 
- * Extracted from DailyExcelTracker to reduce complexity and ensure consistent
- * status handling across TestNG, Cucumber, and business reporting formats.
- */
 public class StatusConverter {
 
-	/**
-	 * Convert TestNG status to business-friendly status
-	 */
 	public static String convertTestNGStatusToBusiness(String testngStatus) {
 		if (testngStatus == null) {
 			return "UNKNOWN";
@@ -28,9 +19,6 @@ public class StatusConverter {
 		}
 	}
 
-	/**
-	 * Convert Cucumber status to business status
-	 */
 	public static String convertCucumberStatusToBusiness(String cucumberStatus) {
 		if (cucumberStatus == null) {
 			return "UNKNOWN";
@@ -49,9 +37,6 @@ public class StatusConverter {
 		}
 	}
 
-	/**
-	 * Generate business-friendly comment for failed scenarios
-	 */
 	public static String generateBusinessFriendlyComment(String scenarioName, String status) {
 		if ("PASSED".equals(status)) {
 			return ""; // No comment needed for passed tests
@@ -85,9 +70,6 @@ public class StatusConverter {
 		}
 	}
 
-	/**
-	 * Enhanced business-friendly comment with step analysis
-	 */
 	public static String generateEnhancedBusinessFriendlyComment(String scenarioName, String status) {
 		if ("PASSED".equals(status)) {
 			return "";
@@ -107,9 +89,6 @@ public class StatusConverter {
 		return generateBusinessFriendlyComment(scenarioName, status);
 	}
 
-	/**
-	 * Extract failure step details for more specific comments
-	 */
 	private static String extractFailureStepDetails(String scenarioName) {
 		if (scenarioName == null) {
 			return "";
@@ -141,9 +120,6 @@ public class StatusConverter {
 		return ""; // No specific step identified
 	}
 
-	/**
-	 * Determine overall daily status based on cumulative results
-	 */
 	public static String determineDailyStatus(int passedTests, int failedTests, int skippedTests) {
 		if (failedTests == 0 && passedTests > 0) {
 			return "ALL TESTS PASSED";
@@ -158,9 +134,6 @@ public class StatusConverter {
 		}
 	}
 
-	/**
-	 * Check if scenario was actually executed (not just a placeholder)
-	 */
 	public static boolean wasScenarioActuallyExecuted(String scenarioName, String status) {
 		if (status == null) {
 			return false;

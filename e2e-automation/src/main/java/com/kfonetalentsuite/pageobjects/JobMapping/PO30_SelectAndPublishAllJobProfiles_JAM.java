@@ -12,12 +12,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-/**
- * Page Object for validating Select All and Publish functionality in Job Mapping (JAM) screen.
- * Handles selecting all profiles, publishing them, and monitoring batch publishing progress.
- * 
- * Enhanced to extend BasePageObject for consistency and code reuse.
- */
 public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO30_SelectAndPublishAllJobProfiles_JAM.class);
@@ -55,9 +49,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	public static ThreadLocal<Integer> profilesToBePublished = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> selectedProfilesCount = ThreadLocal.withInitial(() -> 0);
 
-	/**
-	 * Verifies count of total un-published profiles before publishing.
-	 */
 	public void verify_count_of_total_un_published_profiles_before_publishing_selected_profiles() {
 		try {
 			String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
@@ -75,9 +66,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies count of total published profiles before publishing.
-	 */
 	public void verify_count_of_total_published_profiles_before_publishing_selected_profiles() {
 		try {
 			String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
@@ -95,9 +83,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Clicks on View Published toggle button to turn OFF.
-	 */
 	public void click_on_view_published_toggle_button_to_turn_off() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -116,9 +101,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Clicks chevron button beside header checkbox in Job Mapping screen.
-	 */
 	public void click_on_chevron_button_beside_header_checkbox_in_job_mapping_screen() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 1);
@@ -142,9 +124,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Clicks on Select All button in Job Mapping screen.
-	 */
 	public void click_on_select_all_button_in_job_mapping_screen() {
 		try {
 			clickElement(Locators.Table.SELECT_ALL_BTN);
@@ -159,11 +138,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Extracts selected profiles count from "Showing X of Y results" text without scrolling.
-	 * This optimized method eliminates the need to scroll through all profiles for large datasets,
-	 * significantly reducing execution time from hours to seconds.
-	 */
 	public void verify_count_of_selected_profiles_by_scrolling_through_all_profiles_in_job_mapping_screen() {
 		int selectedCount = 0;
 
@@ -199,9 +173,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies async functionality message is displayed.
-	 */
 	public void verify_async_functionality_message_is_displayed_on_jam_screen() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -219,9 +190,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Refreshes page after publishing and handles success popup if appears.
-	 */
 	public void refresh_job_mapping_page_after_specified_time_in_message() throws InterruptedException {
 		try {
 			LOGGER.debug("Checking for success popup...");
@@ -264,9 +232,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies count of total un-published profiles after publishing.
-	 */
 	public void verify_count_of_total_un_published_profiles_after_publishing_selected_profiles() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -292,9 +257,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Gets count of published profiles.
-	 */
 	public void get_count_of_published_profiles_in_job_mapping_screen() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -329,9 +291,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies count of total published profiles after publishing.
-	 */
 	public void verify_count_of_total_published_profiles_after_publishing_selected_profiles() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -352,9 +311,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies published profiles count matches in View Published screen.
-	 */
 	public void verify_published_profiles_count_matches_in_view_published_screen() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -373,9 +329,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verify user is on Job Mapping page after initial refresh.
-	 */
 	public void user_is_in_job_mapping_page_after_initial_refresh() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -388,9 +341,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Calculate expected total time for batch publishing.
-	 */
 	public void calculate_expected_total_time_for_batch_publishing_based_on_profile_count() {
 		try {
 			profilesToBePublished.set(selectedProfilesCount.get());
@@ -405,14 +355,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Monitor and validate progressive batch publishing is working.
-	 * Does NOT wait for all profiles to publish - just confirms publishing is progressing.
-	 * Starts with 60-second initial wait for backend to initialize.
-	 * Then uses maximum of 10 checks (every 30 seconds).
-	 * Confirms success once progress is detected in 2 consecutive checks.
-	 * Terminates early if no progress is detected in 5 consecutive checks.
-	 */
 	public void monitor_and_validate_progressive_batch_publishing_until_completion() throws InterruptedException {
 		int checkNumber = 0;
 		int consecutiveNoProgressChecks = 0;
@@ -585,9 +527,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verify all selected profiles are published successfully.
-	 */
 	public void verify_all_profiles_are_published_successfully() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -623,10 +562,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	// ==================== HELPER METHODS ====================
 	
-	/**
-	 * Close success popup with multiple fallback strategies.
-	 * Tries various selectors and methods to ensure popup closes.
-	 */
 	private void closeSuccessPopupWithFallback() {
 		// Try multiple close button selectors
 		By[] closeButtonSelectors = {

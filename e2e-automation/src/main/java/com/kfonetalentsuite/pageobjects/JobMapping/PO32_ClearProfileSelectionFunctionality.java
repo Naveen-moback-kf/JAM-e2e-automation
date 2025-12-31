@@ -38,24 +38,14 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	// ═══════════════════════════════════════════════════════════════════════════
 	// getHeaderCheckboxLocator() and getScreenName() are inherited from BasePageObject
 
-	/**
-	 * Get all checkboxes locator based on screen type
-	 */
 	private By getAllCheckboxesLocator(String screen) {
 		return screen.equalsIgnoreCase("PM") ? PM_ALL_CHECKBOXES : JAM_ALL_CHECKBOXES;
 	}
 
-	/**
-	 * Get None button locator based on screen type
-	 */
 	private By getNoneButtonLocator(String screen) {
 		return screen.equalsIgnoreCase("PM") ? PM_NONE_BTN : JAM_NONE_BTN;
 	}
 
-	/**
-	 * Check if a checkbox is selected based on screen type
-	 * PM uses kf-icon[icon="checkbox-check"] inside the checkbox, JAM uses isSelected()
-	 */
 	private boolean isCheckboxSelected(WebElement checkbox, String screen) {
 		if (screen.equalsIgnoreCase("PM")) {
 			try {
@@ -75,9 +65,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Check if a checkbox is disabled based on screen type
-	 */
 	private boolean isCheckboxDisabled(WebElement checkbox, String screen) {
 		if (screen.equalsIgnoreCase("PM")) {
 			String classAttribute = checkbox.getAttribute("class");
@@ -93,9 +80,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	// HEADER CHECKBOX METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Clicks on header checkbox to select loaded job profiles
-	 */
 	public void click_on_header_checkbox_to_select_loaded_job_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -137,9 +121,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Clicks on header checkbox to unselect loaded job profiles
-	 */
 	public void click_on_header_checkbox_to_unselect_loaded_job_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -195,9 +176,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	// NONE BUTTON METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Clicks on None button to unselect all profiles
-	 */
 	public void click_on_none_button(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -231,10 +209,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	// VERIFICATION METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Verifies that loaded profiles are unselected
-	 * Uses JavaScript counting for performance (avoids iterating through thousands of elements)
-	 */
 	public void verify_loaded_profiles_are_unselected(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -271,9 +245,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies that newly loaded profiles (after scrolling) are still selected
-	 */
 	public void verify_newly_loaded_profiles_are_still_selected(String screen) {
 		int selectedInNewlyLoaded = 0;
 		int disabledInNewlyLoaded = 0;
@@ -357,10 +328,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies that all loaded profiles are unselected (used after None button click)
-	 * Uses JavaScript counting for performance
-	 */
 	public void verify_all_loaded_profiles_are_unselected(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -392,10 +359,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies that profiles loaded after clicking header checkbox are not selected
-	 * Uses JavaScript counting for performance
-	 */
 	public void verify_profiles_loaded_after_header_checkbox_are_not_selected(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -437,9 +400,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	// SCROLL AND REFRESH METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Scroll page to view more job profiles
-	 */
 	public void scroll_page_to_view_more_job_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -454,9 +414,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Refresh the screen
-	 */
 	public void refresh_screen(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -479,9 +436,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	// ACTION BUTTON VERIFICATION METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Verify action button is enabled (Sync with HCM for PM, Publish for JAM)
-	 */
 	public void verify_action_button_is_enabled(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -511,9 +465,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verify action button is disabled
-	 */
 	public void verify_action_button_is_disabled(String screen) {
 		try {
 			currentScreen.set(screen);

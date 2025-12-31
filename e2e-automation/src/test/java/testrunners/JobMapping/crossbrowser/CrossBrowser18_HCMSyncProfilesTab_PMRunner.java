@@ -11,12 +11,6 @@ import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 
 import io.cucumber.testng.CucumberOptions;
 
-/**
- * Cross-Browser HCM Sync Profiles Tab PM Test Runner
- * 
- * Command: mvn test -Dtest=CrossBrowser18_HCMSyncProfilesTab_PMRunner
- * Result: Chrome + Firefox + Edge run automatically
- */
 @Listeners({
     ExcelReportListener.class,
     AllureTestNg.class

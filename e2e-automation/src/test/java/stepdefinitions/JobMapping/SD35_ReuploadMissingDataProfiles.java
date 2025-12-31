@@ -147,7 +147,6 @@ public class SD35_ReuploadMissingDataProfiles {
 		reuploadMissingDataProfiles.getReuploadMissingDataProfiles().verify_updated_csv_file_has_no_empty_required_fields();
 	}
 
-
 	@Then("Capture the count of jobs with missing data before re-upload")
 	public void capture_the_count_of_jobs_with_missing_data_before_reupload() throws IOException {
 		reuploadMissingDataProfiles.getReuploadMissingDataProfiles().capture_the_count_of_jobs_with_missing_data_before_reupload();

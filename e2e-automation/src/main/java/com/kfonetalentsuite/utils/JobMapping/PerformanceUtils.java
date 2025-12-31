@@ -11,28 +11,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-/**
- * Performance Optimized Utilities - Smart Wait Strategies
- * 
- * This class replaces Thread.sleep() calls with intelligent, condition-based
- * waits to dramatically improve test execution performance.
- * 
- * KEY BENEFITS: No blocking waits - waits only as long as necessary
- * Condition-based - waits for specific states, not arbitrary time Performance
- * optimized - significantly faster than Thread.sleep() Failure-resilient -
- * proper timeout handling
- * 
- * USAGE EXAMPLES:
- * 
- * Instead of: Thread.sleep(2000); Use:
- * PerformanceUtils.waitForPageReady(driver);
- * 
- * Instead of: Thread.sleep(3000); // wait for element Use:
- * PerformanceUtils.waitForElement(driver, element);
- * 
- * Instead of: Thread.sleep(5000); // wait for spinner Use:
- * PerformanceUtils.waitForSpinnersToDisappear(driver);
- */
 public class PerformanceUtils {
 
 	private static final Logger LOGGER = (Logger) LogManager.getLogger(PerformanceUtils.class);
@@ -51,10 +29,6 @@ public class PerformanceUtils {
 			"//img[contains(@src,'loader') or contains(@src,'spinner')]" // Spinner images
 	};
 
-	/**
-	 * PERFORMANCE: Smart wait for page readiness (replaces Thread.sleep(2000-5000))
-	 * Waits for all common loading indicators to disappear
-	 */
 	public static void waitForPageReady(WebDriver driver) {
 		waitForPageReady(driver, DEFAULT_TIMEOUT_SECONDS);
 	}
@@ -134,10 +108,6 @@ public class PerformanceUtils {
 		}
 	}
 
-	/**
-	 * PERFORMANCE: Smart wait for specific spinners (replaces Thread.sleep after
-	 * spinner waits)
-	 */
 	public static void waitForSpinnersToDisappear(WebDriver driver) {
 		waitForSpinnersToDisappear(driver, DEFAULT_TIMEOUT_SECONDS);
 	}
@@ -279,10 +249,6 @@ public class PerformanceUtils {
 		}
 	}
 
-	/**
-	 * PERFORMANCE: Smart wait for element to be ready for interaction Combines
-	 * visibility and clickability checks
-	 */
 	public static WebElement waitForElement(WebDriver driver, WebElement element) {
 		return waitForElement(driver, element, DEFAULT_TIMEOUT_SECONDS);
 	}
@@ -312,9 +278,6 @@ public class PerformanceUtils {
 		}
 	}
 
-	/**
-	 * PERFORMANCE: Smart wait for element by locator
-	 */
 	public static WebElement waitForElement(WebDriver driver, By locator) {
 		return waitForElement(driver, locator, DEFAULT_TIMEOUT_SECONDS);
 	}
@@ -330,10 +293,6 @@ public class PerformanceUtils {
 		}
 	}
 
-	/**
-	 * PERFORMANCE: Smart wait for form/dropdown interactions Waits for dropdown
-	 * options to be loaded and visible
-	 */
 	public static void waitForDropdownOptions(WebDriver driver, By dropdownLocator) {
 		waitForDropdownOptions(driver, dropdownLocator, DEFAULT_TIMEOUT_SECONDS);
 	}
@@ -358,9 +317,6 @@ public class PerformanceUtils {
 		}
 	}
 
-	/**
-	 * PERFORMANCE: Smart wait for search results to load
-	 */
 	public static void waitForSearchResults(WebDriver driver, By resultsLocator) {
 		waitForSearchResults(driver, resultsLocator, DEFAULT_TIMEOUT_SECONDS);
 	}
@@ -382,10 +338,6 @@ public class PerformanceUtils {
 		}
 	}
 
-	/**
-	 * PERFORMANCE: Optimized wait for UI stability after actions Replaces
-	 * Thread.sleep(1000-3000) with smart condition checking
-	 */
 	public static void waitForUIStability(WebDriver driver) {
 		waitForUIStability(driver, SHORT_TIMEOUT_SECONDS);
 	}
@@ -424,12 +376,6 @@ public class PerformanceUtils {
 		}
 	}
 
-	/**
-	 * Short intelligent wait - replaces Thread.sleep(1000-3000)
-	 * Waits for page readiness first, then minimal additional time
-	 * 
-	 * @param driver WebDriver instance
-	 */
 	public static void shortWait(WebDriver driver) {
 		try {
 			waitForPageReady(driver, SHORT_TIMEOUT_SECONDS);
@@ -438,12 +384,6 @@ public class PerformanceUtils {
 		}
 	}
 
-	/**
-	 * Wait for element to be clickable
-	 * 
-	 * @param driver  WebDriver instance
-	 * @param element WebElement to wait for
-	 */
 	public static void waitForElementClickable(WebDriver driver, WebElement element) {
 		waitForElementClickable(driver, element, DEFAULT_TIMEOUT_SECONDS);
 	}
@@ -453,12 +393,6 @@ public class PerformanceUtils {
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 	}
 
-	/**
-	 * Wait for element to become invisible (useful for loading indicators)
-	 * 
-	 * @param driver  WebDriver instance
-	 * @param element WebElement to wait for invisibility
-	 */
 	public static void waitForElementInvisible(WebDriver driver, WebElement element) {
 		waitForElementInvisible(driver, element, DEFAULT_TIMEOUT_SECONDS);
 	}

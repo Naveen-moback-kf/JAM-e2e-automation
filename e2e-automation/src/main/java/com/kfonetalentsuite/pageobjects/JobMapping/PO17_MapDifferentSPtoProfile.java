@@ -613,11 +613,6 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies Publish Profile button is available on popup screen of mapped
-	 * profile ENHANCED FOR HEADLESS MODE: Scrolls popup to bottom to ensure button
-	 * is visible
-	 */
 	public void user_should_verify_publish_profile_button_is_available_on_popup_screen_of_mapped_profile() {
 		if (mapSP.get() | manualMapping.get()) {
 			try {

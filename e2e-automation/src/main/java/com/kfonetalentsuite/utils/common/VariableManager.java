@@ -8,19 +8,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
-/**
- * Variable Manager - Loads configuration from environment-specific property files.
- * 
- * Usage:
- *   mvn test -Denv=qa                         → Use QA environment
- *   mvn test -Denv=stage -Dlogin.type=SSO     → Use Stage with SSO override
- *   mvn test -Denv=dev -Dheadless.mode=false  → Use Dev without headless mode
- * 
- * Configuration Priority (highest first):
- *   1. System Properties (-Dproperty=value)
- *   2. Environment-specific config (environments/{env}.properties)
- *   3. Common config (config.properties)
- */
 public class VariableManager {
 
 	private static final Logger LOGGER = (Logger) LogManager.getLogger(VariableManager.class);
@@ -83,9 +70,6 @@ public class VariableManager {
 		}
 	}
 	
-	/**
-	 * Load environment-specific configuration based on -Denv parameter
-	 */
 	private void loadEnvironmentConfig() {
 		String env = System.getProperty("env", DEFAULT_ENV).toLowerCase();
 		String envFile = "/environments/" + env + ".properties";
@@ -105,9 +89,6 @@ public class VariableManager {
 		}
 	}
 	
-	/**
-	 * Get property with priority: System Property > Environment Config > Common Config
-	 */
 	private String getProperty(String envKey, String configKey) {
 		// Priority 1: System property
 		String value = System.getProperty(envKey);
@@ -236,9 +217,6 @@ public class VariableManager {
 		LOGGER.info("╚═══════════════════════════════════════════════════════════╝");
 	}
 
-	/**
-	 * Pad string to specified length for box formatting
-	 */
 	private String padRight(String value, int length) {
 		if (value == null) value = "N/A";
 		if (value.length() >= length) return value.substring(0, length);

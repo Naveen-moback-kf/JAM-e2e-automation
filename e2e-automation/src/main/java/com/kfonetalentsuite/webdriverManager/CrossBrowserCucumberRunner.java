@@ -13,15 +13,6 @@ import com.kfonetalentsuite.utils.common.DynamicTagResolver;
 import io.cucumber.testng.PickleWrapper;
 import io.cucumber.testng.TestNGCucumberRunner;
 
-/**
- * Base class for Cross-Browser Test Runners.
- * Simplifies cross-browser testing by handling browser initialization,
- * scenario execution, and cleanup automatically.
- * 
- * Usage: Extend this class and override getTagExpressionTemplate() and resolveLoginTag()
- * 
- * @author AI Assistant
- */
 @Listeners({ com.kfonetalentsuite.listeners.ExcelReportListener.class })
 public abstract class CrossBrowserCucumberRunner {
 
@@ -29,22 +20,12 @@ public abstract class CrossBrowserCucumberRunner {
     
     private TestNGCucumberRunner testNGCucumberRunner;
     
-    /**
-     * Override to provide the tag expression for this runner
-     */
     protected abstract String getTagExpressionTemplate();
     
-    /**
-     * Override to customize login tag resolution
-     */
     protected String resolveLoginTag() {
         return DynamicTagResolver.getKFoneLoginTag();
     }
     
-    /**
-     * Provides browser configurations for cross-browser testing.
-     * Override to customize browsers.
-     */
     @DataProvider(name = "browsers", parallel = false)
     public Object[][] getBrowsers() {
         return new Object[][] {
@@ -54,9 +35,6 @@ public abstract class CrossBrowserCucumberRunner {
         };
     }
     
-    /**
-     * Main test method - runs all scenarios on each browser
-     */
     @Test(dataProvider = "browsers", description = "Cross-Browser Testing")
     public void runCrossBrowserTest(String browserName, String browserVersion, String platform) {
         String runnerName = this.getClass().getSimpleName();

@@ -14,7 +14,6 @@ public class SD04_JobMappingPageComponents extends DriverManager{
 	public SD04_JobMappingPageComponents() {
 		super();		
 	}
-	
 
 	@Then("User should be landed on Job Mapping page")
 	public void user_should_be_landed_on_job_profile_mapping_page() throws IOException {
@@ -45,8 +44,7 @@ public class SD04_JobMappingPageComponents extends DriverManager{
 	public void verify_title_description_below_the_title_header() throws IOException {
 		verifyJobMappingPageComponents.getJobMappingPageComponents().verify_title_description_below_the_title_header();
 	}
-	
-	
+
 	@Then("Verify Organization Jobs Search bar text box is clickable")
 	public void verify_organization_jobs_search_bar_text_box_is_clickable() throws IOException {
 		verifyJobMappingPageComponents.getJobMappingPageComponents().verify_organization_jobs_search_bar_text_box_is_clickable();
@@ -116,7 +114,6 @@ public class SD04_JobMappingPageComponents extends DriverManager{
 	public void user_should_verify_publish_selected_profiles_button_is_disabled() throws IOException {
 		verifyJobMappingPageComponents.getJobMappingPageComponents().user_should_verify_publish_selected_profiles_button_is_disabled();
 	}
-	
 
 	@Then("Click on header checkbox to select loaded job profiles in Job Mapping screen")
 	public void click_on_header_checkbox_to_select_loaded_job_profiles_in_job_mapping_screen() throws IOException {
@@ -217,8 +214,7 @@ public class SD04_JobMappingPageComponents extends DriverManager{
 	public void user_should_verify_matched_success_profiles_table_title_and_headers() throws IOException {
 		verifyJobMappingPageComponents.getJobMappingPageComponents().user_should_verify_matched_success_profiles_table_title_and_headers();
 	}
-	
-	
+
 	@Then("Click on View Other Matches button")
 	public void click_on_view_other_matches_button() throws IOException {
 		verifyJobMappingPageComponents.getJobMappingPageComponents().click_on_view_other_matches_button();

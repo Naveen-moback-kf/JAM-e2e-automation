@@ -91,25 +91,12 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 
 	// getRowIndex method moved to BasePageObject
 
-	/**
-	 * Calculate profile number based on row index (each profile spans 3 rows)
-	 */
 	private int getProfileNumber(int rowIndex) {
 		if (rowIndex <= 0)
 			return -1;
 		return (int) Math.ceil((double) rowIndex / 3.0);
 	}
 
-	/**
-	 * ENHANCED: Efficiently check current visible profiles for Manual Mapping ones
-	 * with info messages Returns immediately upon finding the first Manual Mapping
-	 * profile to optimize performance
-	 * 
-	 * @param infoMessages  List of current info message elements
-	 * @param searchAttempt Current search attempt number for logging
-	 * @return true if Manual Mapping profile found and details extracted, false
-	 *         otherwise
-	 */
 	private boolean checkCurrentProfilesForManualMapped(List<WebElement> infoMessages, int searchAttempt) {
 		LOGGER.info(" Checking {} visible profiles for Manual Mapping ones (search attempt {})", infoMessages.size(),
 				searchAttempt);
@@ -170,15 +157,6 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		return false; // No Manual Mapping profile found in current visible profiles
 	}
 
-	/**
-	 * ENHANCED: Efficiently check current visible profiles for second Manual
-	 * Mapping one (different from globally tracked first) Returns immediately upon
-	 * finding a different Manual Mapping profile to optimize performance
-	 * 
-	 * @param infoMessages  List of current info message elements
-	 * @param searchAttempt Current search attempt number for logging
-	 * @return WebElement of second Manual Mapping profile if found, null otherwise
-	 */
 	private WebElement checkCurrentProfilesForSecondManualMapped(List<WebElement> infoMessages, int searchAttempt) {
 		LOGGER.info(
 				" Checking {} visible profiles for second Manual Mapping one (different from GLOBAL first: row {}, profile {})",
@@ -263,15 +241,6 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		return null; // No second Manual Mapping profile found in current visible profiles
 	}
 
-	/**
-	 * ENHANCED: Validate if profile is Manual Mapping (has "Search a different
-	 * profile") or AutoMapped (has "View Other Matches") This file should ONLY
-	 * process Manual Mapping profiles and skip AutoMapped profiles
-	 * 
-	 * @param rowIndex Row index of the profile to check
-	 * @return true if profile is Manual Mapping (has "Search a different profile"),
-	 *         false if AutoMapped or unclear
-	 */
 	private boolean isManualMappingProfile(int rowIndex) {
 		try {
 			// PERFORMANCE: Use JavaScript to check for buttons instantly (no 20-second
@@ -309,11 +278,6 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 
-	/**
-	 * ENHANCED: Scroll down to find more Manual Mapping profiles with info messages
-	 * 
-	 * @return true if additional profiles were loaded after scrolling
-	 */
 	private boolean scrollDownAndFindMoreManualMappingProfiles() {
 		try {
 			LOGGER.debug("Scrolling...");
@@ -632,9 +596,6 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Extract job details from the specified row for manual profile
-	 */
 	private void extractJobDetailsFromRowForManualProfile(int jobDetailsRowIndex) {
 		try {
 			// Get the job details row (contains job name, code, grade, department)
@@ -684,9 +645,6 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Extract function/subfunction from the info message row for manual profile
-	 */
 	private void extractFunctionSubfunctionFromRowForManualProfile(int infoMessageRowIndex) {
 		try {
 			WebElement infoMessageRow = driver.findElement(

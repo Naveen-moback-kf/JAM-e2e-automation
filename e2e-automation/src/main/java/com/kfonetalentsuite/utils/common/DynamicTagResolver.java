@@ -1,13 +1,5 @@
 package com.kfonetalentsuite.utils.common;
 
-/**
- * Dynamically resolves login tags based on environment configuration.
- * Supports CI/CD overrides via system properties.
- * 
- * Usage:
- *   mvn test -Denv=qa -Dlogin.type=SSO    → Uses SSO login tag
- *   mvn test -Denv=qa -Dlogin.type=NON_SSO → Uses NON_SSO login tag
- */
 public class DynamicTagResolver {
 
 	public static final String SSO_LOGIN = "SSO";
@@ -20,9 +12,6 @@ public class DynamicTagResolver {
 	private static String cachedLoginTag = null;
 	private static String cachedLoginType = null;
 
-	/**
-	 * Get login tag based on configured login type
-	 */
 	public static String getKFoneLoginTag() {
 		if (cachedLoginTag != null) {
 			return cachedLoginTag;
@@ -39,10 +28,6 @@ public class DynamicTagResolver {
 		return cachedLoginTag;
 	}
 
-	/**
-	 * Get login type from configuration
-	 * Priority: System Property > Environment Config > Default (NON_SSO)
-	 */
 	public static String getLoginType() {
 		if (cachedLoginType != null) {
 			return cachedLoginType;

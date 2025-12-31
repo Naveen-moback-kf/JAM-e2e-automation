@@ -83,38 +83,22 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 	// Runner execution)
 	private static volatile String currentSuiteName = null;
 
-	/**
-	 * Store current scenario name for a thread (called from ScenarioHooks)
-	 */
 	public static void setCurrentScenario(String threadId, String scenarioName) {
 		currentScenarios.put(threadId, scenarioName);
 	}
 
-	/**
-	 * Get the current suite name (returns null if executing individual runner)
-	 */
 	public static String getCurrentSuiteName() {
 		return currentSuiteName;
 	}
 
-	/**
-	 * Get current scenario name for a thread (called from page objects for
-	 * performance tracking)
-	 */
 	public static String getCurrentScenarioName(String threadId) {
 		return currentScenarios.get(threadId);
 	}
 
-	/**
-	 * Remove scenario name when scenario completes (called from ScenarioHooks)
-	 */
 	public static void clearCurrentScenario(String threadId) {
 		currentScenarios.remove(threadId);
 	}
 
-	/**
-	 * Set cross-browser runner information for Excel reporting
-	 */
 	private void setCrossBrowserRunnerInfo(ITestResult result) {
 		try {
 			String testClassName = result.getTestClass().getName();
@@ -142,16 +126,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		}
 	}
 
-	/**
-	 * Get cross-browser runner name for current thread
-	 */
 	public static String getCrossBrowserRunnerName(String threadId) {
 		return crossBrowserRunnerNames.get(threadId);
 	}
 
-	/**
-	 * Get current scenario name for logging
-	 */
 	private String getCurrentScenarioName() {
 		String threadId = Thread.currentThread().getName();
 		String scenarioName = currentScenarios.get(threadId);
@@ -336,9 +314,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		}
 	}
 
-	/**
-	 * ENHANCED: Capture comprehensive failure exception details
-	 */
 	private void captureFailureExceptionDetails(ITestResult result, String scenarioInfo) {
 		try {
 			Throwable throwable = result.getThrowable();
@@ -379,9 +354,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		}
 	}
 
-	/**
-	 * Extract the most meaningful exception message from a throwable chain
-	 */
 	private String extractMostMeaningfulExceptionMessage(Throwable throwable) {
 		if (throwable == null)
 			return "Unknown failure";
@@ -413,9 +385,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		return mostMeaningful;
 	}
 
-	/**
-	 * Determine if a message is more meaningful than the current best message
-	 */
 	private boolean isMoreMeaningfulMessage(String newMessage, String currentBest) {
 		if (newMessage == null)
 			return false;
@@ -505,9 +474,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		}
 	}
 
-	/**
-	 * Extract meaningful scenario information from test result - optimized
-	 */
 	private String extractScenarioInfo(ITestResult result) {
 		// Strategy 0: PRIORITY - Try current scenario name from thread context FIRST
 		// (most reliable for Cucumber scenarios)
@@ -561,9 +527,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		return methodName;
 	}
 
-	/**
-	 * Extract scenario name from parameter string - optimized
-	 */
 	private String extractScenarioNameFromParam(String paramString) {
 		try {
 			// Strategy 1: Look for PickleWrapper with scenario name
@@ -615,9 +578,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		return null;
 	}
 
-	/**
-	 * Get current execution statistics
-	 */
 	public static ExecutionStats getExecutionStats() {
 		ExecutionStats stats = new ExecutionStats();
 		stats.totalTests = totalTestMethods.get();
@@ -627,17 +587,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		return stats;
 	}
 
-	/**
-	 * Check if Excel reporting is enabled (public method for external access)
-	 */
 	public static boolean isExcelReportingEnabledPublic() {
 		return isExcelReportingEnabled();
 	}
 
-	/**
-	 * Manually trigger Excel report generation (for testing or manual execution)
-	 * ENHANCED: Added debug info for troubleshooting data collection issues
-	 */
 	public static void generateManualReport() {
 		try {
 			LOGGER.debug("Manual Excel generation - Total: {}, Passed: {}, Failed: {}, Skipped: {}",
@@ -649,18 +602,11 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		}
 	}
 
-	/**
-	 * Force Excel generation with current execution data (for immediate testing)
-	 */
 	public static void forceGenerateReport() {
 		LOGGER.debug("Force generating Excel report");
 		generateManualReport();
 	}
 
-	/**
-	 * ENHANCED: Capture actual skip exception details from test skip (including
-	 * role-based skip reasons)
-	 */
 	private void captureSkipExceptionDetails(ITestResult result, String scenarioInfo) {
 		try {
 			Throwable throwable = result.getThrowable();
@@ -724,10 +670,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		}
 	}
 
-	/**
-	 * Extract a clean runner key from full class name for global skip reason
-	 * storage
-	 */
 	private String extractRunnerKey(String fullClassName) {
 		if (fullClassName == null)
 			return "unknown";
@@ -740,9 +682,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		return className.toLowerCase().replace("runner", "").replace("_", "");
 	}
 
-	/**
-	 * Convert exception stack trace to string
-	 */
 	private String getStackTraceAsString(Throwable throwable) {
 		try {
 			StringWriter sw = new StringWriter();
@@ -761,26 +700,14 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		}
 	}
 
-	/**
-	 * Get captured exception details for a test (used by Excel reporting)
-	 */
 	public static ExceptionDetails getExceptionDetails(String testKey) {
 		return testExceptionDetails.get(testKey);
 	}
 
-	/**
-	 * Get all captured exception details (used by DailyExcelTracker for skip
-	 * message lookup)
-	 */
 	public static Map<String, ExceptionDetails> getAllExceptionDetails() {
 		return new HashMap<>(testExceptionDetails); // Return a copy for thread safety
 	}
 
-	/**
-	 * Get skip reason by scenario name (used by DailyExcelTracker for direct
-	 * scenario lookup) ENHANCED: Universal approach for ALL features, not just
-	 * Feature 16
-	 */
 	public static String getSkipReasonByScenarioName(String scenarioName) {
 		if (scenarioName == null)
 			return null;
@@ -827,10 +754,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		return null;
 	}
 
-	/**
-	 * Check if a scenario could belong to a specific runner (universal matching
-	 * logic)
-	 */
 	private static boolean couldScenarioBelongToRunner(String scenarioName, String runnerKey) {
 		if (scenarioName == null || runnerKey == null)
 			return false;
@@ -927,51 +850,31 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		clearPerformanceMetrics(); // Also clear performance metrics
 	}
 
-	/**
-	 * RETRY FIX: Called by SuiteRetryListener before starting retry execution
-	 * This prevents counter reset and Excel generation during retry
-	 */
 	public static void markRetryRunStart() {
 		isRetryRun = true;
 		skipExcelGenerationDuringRetry = true;
 		LOGGER.debug("Retry run started");
 	}
 
-	/**
-	 * RETRY FIX: Called by SuiteRetryListener after retry execution completes
-	 * This allows final Excel generation with accumulated results
-	 */
 	public static void markRetryRunComplete() {
 		isRetryRun = false;
 		skipExcelGenerationDuringRetry = false;
 		LOGGER.debug("Retry run complete");
 	}
 
-	/**
-	 * RETRY FIX: Check if we're in a retry run
-	 */
 	public static boolean isInRetryRun() {
 		return isRetryRun;
 	}
 
-	/**
-	 * RETRY FIX: Check if a scenario passed in retry
-	 */
 	public static boolean didScenarioPassInRetry(String scenarioName) {
 		if (scenarioName == null) return false;
 		return scenariosPassedInRetry.containsKey(scenarioName.toLowerCase().trim());
 	}
 
-	/**
-	 * RETRY FIX: Get all scenarios that passed in retry
-	 */
 	public static Map<String, String> getScenariosPassedInRetry() {
 		return new HashMap<>(scenariosPassedInRetry);
 	}
 
-	/**
-	 * RETRY FIX: Clear scenarios passed in retry (called after Excel generation)
-	 */
 	public static void clearScenariosPassedInRetry() {
 		int count = scenariosPassedInRetry.size();
 		scenariosPassedInRetry.clear();
@@ -980,9 +883,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		}
 	}
 
-	/**
-	 * PERFORMANCE METRICS: Store performance test metrics for Feature 41
-	 */
 	public static class PerformanceMetrics {
 		public String scenarioName;
 		public long thresholdTimeMs;
@@ -1007,10 +907,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		}
 	}
 
-	/**
-	 * PERFORMANCE METRICS: Store performance metrics for a scenario Called from
-	 * PO41_ValidateApplicationPerformance_JAM_and_HCM
-	 */
 	public static void setPerformanceMetrics(String scenarioName, long thresholdTimeMs, long actualTimeMs,
 			String performanceRating, String operationName) {
 		if (scenarioName != null && !scenarioName.trim().isEmpty()) {
@@ -1020,17 +916,10 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		}
 	}
 
-	/**
-	 * PERFORMANCE METRICS: Get performance metrics for a scenario
-	 */
 	public static PerformanceMetrics getPerformanceMetrics(String scenarioName) {
 		return scenarioPerformanceMetrics.get(scenarioName);
 	}
 
-	/**
-	 * PERFORMANCE METRICS: Clear all performance metrics (called after Excel
-	 * generation)
-	 */
 	public static void clearPerformanceMetrics() {
 		scenarioPerformanceMetrics.clear();
 	}

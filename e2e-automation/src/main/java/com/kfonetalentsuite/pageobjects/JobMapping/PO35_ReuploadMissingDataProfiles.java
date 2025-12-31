@@ -19,7 +19,6 @@ import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-
 public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO35_ReuploadMissingDataProfiles.class);

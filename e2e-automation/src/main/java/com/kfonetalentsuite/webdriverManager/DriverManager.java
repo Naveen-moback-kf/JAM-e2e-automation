@@ -150,10 +150,6 @@ public class DriverManager {
 	private static volatile boolean firefoxDriverDownloaded = false;
 	private static volatile boolean edgeDriverDownloaded = false;
 
-	/**
-	 * Setup ChromeDriver with parallel execution optimization.
-	 * Uses volatile flag + synchronized method for thread-safe double-check pattern.
-	 */
 	private static synchronized void setupChromeDriver() {
 		if (chromeDriverDownloaded) {
 			return;
@@ -183,10 +179,6 @@ public class DriverManager {
 		}
 	}
 
-	/**
-	 * Setup FirefoxDriver with parallel execution optimization.
-	 * Uses volatile flag to ensure driver is downloaded only once.
-	 */
 	private static synchronized void setupFirefoxDriver() {
 		if (firefoxDriverDownloaded) {
 			return;
@@ -207,10 +199,6 @@ public class DriverManager {
 		}
 	}
 
-	/**
-	 * Setup EdgeDriver with parallel execution optimization.
-	 * Uses volatile flag to ensure driver is downloaded only once.
-	 */
 	private static synchronized void setupEdgeDriver() {
 		if (edgeDriverDownloaded) {
 			return;
@@ -231,11 +219,6 @@ public class DriverManager {
 		}
 	}
 
-	/**
-	 * Configure Chrome options with all necessary arguments PARALLEL EXECUTION
-	 * OPTIMIZED: Isolates each Chrome instance with unique user-data-dir
-	 * ANTI-BOT DETECTION: Prevents 403 errors by hiding automation flags
-	 */
 	private static ChromeOptions configureChromeOptions(boolean isHeadless) {
 		ChromeOptions options = new ChromeOptions();
 
@@ -311,9 +294,6 @@ public class DriverManager {
 		return options;
 	}
 
-	/**
-	 * Configure Firefox options Extracted to reduce code duplication
-	 */
 	private static FirefoxOptions configureFirefoxOptions(boolean isHeadless) {
 		FirefoxOptions options = new FirefoxOptions();
 
@@ -333,9 +313,6 @@ public class DriverManager {
 		return options;
 	}
 
-	/**
-	 * Configure timeouts and browser window settings
-	 */
 	private static void configureTimeoutsAndBrowser(boolean isHeadless) {
 		WebDriver currentDriver = driver.get();
 
@@ -363,23 +340,14 @@ public class DriverManager {
 		}
 	}
 
-	/**
-	 * THREAD-SAFE: Gets the WebDriverWait instance for the current thread
-	 */
 	public static WebDriverWait getWait() {
 		return wait.get();
 	}
 
-	/**
-	 * THREAD-SAFE: Sets the WebDriverWait instance for the current thread
-	 */
 	public static void setWait(WebDriverWait newWait) {
 		wait.set(newWait);
 	}
 
-	/**
-	 * Clears all browser data for clean test state
-	 */
 	public static void clearAllBrowserData() {
 		WebDriver currentDriver = driver.get();
 		if (currentDriver == null) {
@@ -405,9 +373,6 @@ public class DriverManager {
 		}
 	}
 
-	/**
-	 * Helper method to execute JavaScript silently (ignore errors)
-	 */
 	private static void executeJavaScriptSilently(org.openqa.selenium.JavascriptExecutor js, String script) {
 		try {
 			js.executeScript(script);
@@ -416,9 +381,6 @@ public class DriverManager {
 		}
 	}
 
-	/**
-	 * Helper method to execute actions silently (ignore errors)
-	 */
 	private static void executeActionSilently(Runnable action) {
 		try {
 			action.run();
@@ -427,9 +389,6 @@ public class DriverManager {
 		}
 	}
 
-	/**
-	 * Quick cache clear - lightweight version for between test steps
-	 */
 	public static void clearCookiesAndStorage() {
 		if (driver.get() == null) {
 			return;
@@ -444,9 +403,6 @@ public class DriverManager {
 		}
 	}
 
-	/**
-	 * Gets the WebDriver instance for the current thread
-	 */
 	public static WebDriver getDriver() {
 		if (driver.get() == null) {
 			launchBrowser();
@@ -454,9 +410,6 @@ public class DriverManager {
 		return driver.get();
 	}
 
-	/**
-	 * Checks if the WebDriver session is active
-	 */
 	public static boolean isSessionActive() {
 		if (driver.get() == null) {
 			return false;
@@ -473,9 +426,6 @@ public class DriverManager {
 		}
 	}
 
-	/**
-	 * Attempts to recover an inactive WebDriver session
-	 */
 	public static boolean recoverSession() {
 		if (!isSessionActive()) {
 			try {
@@ -501,9 +451,6 @@ public class DriverManager {
 		return executeWithRecovery(operation, operationName, 3);
 	}
 
-	/**
-	 * Executes an operation with automatic session recovery
-	 */
 	public static <T> T executeWithRecovery(java.util.function.Supplier<T> operation, String operationName,
 			int maxRetries) {
 		for (int attempt = 1; attempt <= maxRetries; attempt++) {
@@ -538,10 +485,6 @@ public class DriverManager {
 		}, operationName);
 	}
 
-	/**
-	 * Closes the browser and cleans up resources PARALLEL EXECUTION OPTIMIZED: Also
-	 * cleans up isolated Chrome profile directory
-	 */
 	public static void closeBrowser() {
 		if (driver.get() != null) {
 			try {
@@ -560,10 +503,6 @@ public class DriverManager {
 		}
 	}
 
-	/**
-	 * Cleans up the isolated Chrome profile directory created for this thread
-	 * Prevents disk space issues in parallel execution
-	 */
 	private static void cleanupChromeProfile() {
 		try {
 			long threadId = Thread.currentThread().getId();
@@ -578,9 +517,6 @@ public class DriverManager {
 		}
 	}
 
-	/**
-	 * Recursively deletes a directory and its contents
-	 */
 	private static void deleteDirectory(File directory) {
 		File[] files = directory.listFiles();
 		if (files != null) {
@@ -595,9 +531,6 @@ public class DriverManager {
 		directory.delete();
 	}
 
-	/**
-	 * Force cleanup of all Chrome/ChromeDriver processes
-	 */
 	public static void forceKillChromeProcesses() {
 		try {
 			Process killChrome = Runtime.getRuntime().exec("taskkill /F /IM chrome.exe /T");

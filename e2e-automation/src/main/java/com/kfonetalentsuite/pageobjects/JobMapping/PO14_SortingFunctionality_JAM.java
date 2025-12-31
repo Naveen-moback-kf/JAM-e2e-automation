@@ -298,11 +298,6 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Sorts job profiles by job name in descending order (clicks header twice) Page
-	 * already loaded, directly clicks to sort Enhanced with proper waits for
-	 * HEADLESS MODE compatibility
-	 */
 	public void sort_job_profiles_by_organiztion_job_name_in_descending_order() {
 		try {
 			PageObjectHelper.log(LOGGER, "First click on Organization job name header to sort ascending...");
@@ -459,11 +454,6 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Sorts job profiles by matched SP grade in ascending order Page already
-	 * loaded, directly clicks header to sort ENHANCED: Added loader wait for
-	 * stability
-	 */
 	public void sort_job_profiles_by_matched_success_profile_grade_in_ascending_order() {
 		try {
 			clickElement(MATCHED_SP_GRADE_HEADER);
@@ -627,11 +617,6 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Sorts job profiles by matched SP grade in descending order (clicks header
-	 * twice) Page already loaded, directly clicks to sort Enhanced with proper
-	 * waits for HEADLESS MODE compatibility
-	 */
 	public void sort_job_profiles_by_matched_success_profile_grade_in_descending_order() {
 		try {
 			PageObjectHelper.log(LOGGER, "First click on SP Grade header to sort ascending...");
@@ -802,10 +787,6 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Sorts job profiles by matched SP name in ascending order Page already loaded,
-	 * directly clicks header to sort
-	 */
 	public void sort_job_profiles_by_matched_success_profile_name_in_ascending_order() {
 		try {
 			clickElement(MATCHED_SP_NAME_HEADER);
@@ -926,10 +907,6 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Sorts job profiles by organization grade in ascending order Page already
-	 * loaded, clicks header and waits for sort to complete
-	 */
 	public void sort_job_profiles_by_organization_grade_in_ascending_order() {
 		try {
 			clickElement(ORG_JOB_GRADE_HEADER);
@@ -1049,10 +1026,6 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Sorts job profiles by organization grade in descending order (clicks header
-	 * twice) Enhanced with proper waits for HEADLESS MODE compatibility
-	 */
 	public void sort_job_profiles_by_organization_grade_in_descending_order() {
 		try {
 			PageObjectHelper.log(LOGGER, "First click on Organization Grade header to sort ascending...");
@@ -1187,10 +1160,6 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	// PARAMETERIZED METHODS FOR SCENARIO OUTLINE SUPPORT
 	// ============================================================================
 
-	/**
-	 * Parameterized sort method - dispatches to specific sort methods based on column and order
-	 * Used by Scenario Outline in feature file
-	 */
 	public void sort_job_profiles_by_column_in_order(String column, String order) {
 		try {
 			String columnLower = column.toLowerCase().trim();
@@ -1227,10 +1196,6 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Parameterized verification method - dispatches to specific verification methods based on column and order
-	 * Used by Scenario Outline in feature file
-	 */
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_column_in_order(String column, String order) {
 		try {
 			String columnLower = column.toLowerCase().trim();

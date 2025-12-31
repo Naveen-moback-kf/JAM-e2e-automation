@@ -15,17 +15,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-/**
- * Consolidated Page Object for Select All / Loaded Profiles Selection with Filters functionality.
- * Supports both PM (HCM Sync Profiles) and JAM (Job Mapping) screens.
- * 
- * NOTE: This PO only contains FILTER-SPECIFIC methods.
- * Common methods (chevron, select all, header checkbox, scroll, verify, capture baseline)
- * are provided by PO35_SelectAllWithSearchFunctionality and PO42_ClearProfileSelectionFunctionality.
- * 
- * PM Filters: KF Grade, Levels
- * JAM Filters: Grades, Departments
- */
 public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO28_SelectAllWithFiltersFunctionality.class);
@@ -66,11 +55,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 	// ==================== FILTER APPLICATION METHODS ====================
 
-	/**
-	 * Applies a filter and verifies profiles count in the specified screen.
-	 * PM: Uses KF Grade or Levels filter
-	 * JAM: Uses Grades or Departments filter
-	 */
 	public void apply_filter_and_verify_profiles_count(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -193,9 +177,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 	// ==================== SCROLL AND VALIDATION METHODS ====================
 
-	/**
-	 * Scrolls down to load filtered results for validation.
-	 */
 	public void user_should_scroll_down_to_view_last_filtered_result(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -259,9 +240,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates that all filtered results match the applied filter criteria.
-	 */
 	public void user_should_validate_all_filtered_results_match_the_applied_filter(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -296,9 +274,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 	// ==================== CLEAR FILTER METHODS ====================
 
-	/**
-	 * Clears all applied filters.
-	 */
 	public void click_on_clear_all_filters_button(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -319,9 +294,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Closes the Filters dropdown (JAM specific).
-	 */
 	public void close_filters_dropdown(String screen) {
 		try {
 			if ("JAM".equalsIgnoreCase(screen)) {
@@ -337,10 +309,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 	// ==================== VERIFICATION METHODS ====================
 
-	/**
-	 * Verifies only filtered profiles remain selected after clearing filters.
-	 * Uses full page scroll to load all profiles and count selected.
-	 */
 	public void verify_only_filtered_profiles_are_selected_after_clearing_all_filters(String screen) {
 		int totalProfilesVisible = 0;
 		int previousTotalProfilesVisible = 0;
@@ -521,9 +489,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 	// ==================== ALTERNATIVE VALIDATION ====================
 
-	/**
-	 * Applies a different filter for alternative validation.
-	 */
 	public void apply_different_filter_for_alternative_validation(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -595,9 +560,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Scrolls to load second filter results and validates selection.
-	 */
 	public void scroll_down_to_load_all_second_filter_results(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -628,9 +590,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies profiles from second filter are NOT selected.
-	 */
 	public void verify_all_loaded_profiles_in_second_filter_are_not_selected(String screen) {
 		try {
 			currentScreen.set(screen);

@@ -2,18 +2,8 @@ package com.kfonetalentsuite.utils.JobMapping;
 
 import org.apache.poi.ss.usermodel.*;
 
-/**
- * Excel Style Helper - Centralized styling for Excel reports
- * 
- * Extracted from DailyExcelTracker to reduce complexity and improve
- * maintainability. Handles all Excel cell styling, colors, fonts, and
- * formatting.
- */
 public class ExcelStyleHelper {
 
-	/**
-	 * Create header style for Excel sheets
-	 */
 	public static CellStyle createHeaderStyle(Workbook workbook) {
 		CellStyle headerStyle = workbook.createCellStyle();
 		Font headerFont = workbook.createFont();
@@ -36,9 +26,6 @@ public class ExcelStyleHelper {
 		return headerStyle;
 	}
 
-	/**
-	 * Create data style for Excel sheets
-	 */
 	public static CellStyle createDataStyle(Workbook workbook) {
 		CellStyle dataStyle = workbook.createCellStyle();
 		Font dataFont = workbook.createFont();
@@ -58,9 +45,6 @@ public class ExcelStyleHelper {
 		return dataStyle;
 	}
 
-	/**
-	 * Create status-specific style based on test result
-	 */
 	public static CellStyle createStatusStyle(Workbook workbook, String status) {
 		CellStyle statusStyle = workbook.createCellStyle();
 		Font statusFont = workbook.createFont();
@@ -98,9 +82,6 @@ public class ExcelStyleHelper {
 		return statusStyle;
 	}
 
-	/**
-	 * Create summary style for summary rows
-	 */
 	public static CellStyle createSummaryStyle(Workbook workbook) {
 		CellStyle summaryStyle = workbook.createCellStyle();
 		Font summaryFont = workbook.createFont();
@@ -123,9 +104,6 @@ public class ExcelStyleHelper {
 		return summaryStyle;
 	}
 
-	/**
-	 * Set borders for a cell style
-	 */
 	private static void setBorders(CellStyle style, BorderStyle borderStyle) {
 		style.setBorderTop(borderStyle);
 		style.setBorderBottom(borderStyle);
@@ -133,9 +111,6 @@ public class ExcelStyleHelper {
 		style.setBorderRight(borderStyle);
 	}
 
-	/**
-	 * Set column widths for standard report layout
-	 */
 	public static void setStandardColumnWidths(Sheet sheet) {
 		// Feature name column - wider
 		sheet.setColumnWidth(0, 8000);
@@ -153,10 +128,6 @@ public class ExcelStyleHelper {
 		sheet.setColumnWidth(4, 10000);
 	}
 
-	/**
-	 * Set column widths for ENHANCED execution history layout (15 columns) UPDATED:
-	 * Added User Name, Client Name, Execution Type & Browser Results columns
-	 */
 	public static void setExecutionHistoryColumnWidths(Sheet sheet) {
 		String[] columnNames = { "User Name", "Client Name", "Testing Date", "Time", "Environment", "Execution Type",
 				"Browser Results", "Runner / Suite File", "Functions Tested", "Working", "Issues Found", "Skipped",
@@ -176,19 +147,6 @@ public class ExcelStyleHelper {
 	// Purpose: Apply same background color to entire row (A-I) as Quality Status
 	// column (J)
 
-	/**
-	 * Create row-level data style with status-based background coloring This
-	 * applies the same background color to columns A-I as used in the status column
-	 * J
-	 * 
-	 * FIXED: Now handles status variations like "PASS", "FAIL", "SKIP" in addition
-	 * to "PASSED", "FAILED", "SKIPPED". Also treats null/unknown status as PASSED
-	 * (green) by default since most tests pass.
-	 * 
-	 * @param workbook - The Excel workbook
-	 * @param status   - Test status (PASSED, FAILED, SKIPPED, or variations)
-	 * @return CellStyle with appropriate background color for the entire row
-	 */
 	public static CellStyle createRowStatusStyle(Workbook workbook, String status) {
 		CellStyle rowStyle = workbook.createCellStyle();
 		Font dataFont = workbook.createFont();
@@ -228,9 +186,6 @@ public class ExcelStyleHelper {
 		return rowStyle;
 	}
 
-	/**
-	 * Create row status style with text wrapping enabled (for Comments column)
-	 */
 	public static CellStyle createRowStatusStyleWithWrapping(Workbook workbook, String status) {
 		CellStyle rowStyle = createRowStatusStyle(workbook, status);
 		rowStyle.setWrapText(true); // Enable text wrapping for multi-line content
@@ -238,17 +193,6 @@ public class ExcelStyleHelper {
 		return rowStyle;
 	}
 
-	/**
-	 * Create enhanced status style for the Quality Status column (J) Maintains bold
-	 * formatting while ensuring consistent coloring with row
-	 * 
-	 * FIXED: Now handles status variations like "PASS", "FAIL", "SKIP" in addition
-	 * to "PASSED", "FAILED", "SKIPPED".
-	 * 
-	 * @param workbook - The Excel workbook
-	 * @param status   - Test status (PASSED, FAILED, SKIPPED, or variations)
-	 * @return CellStyle for the status column with bold font and matching colors
-	 */
 	public static CellStyle createEnhancedStatusStyle(Workbook workbook, String status) {
 		CellStyle statusStyle = workbook.createCellStyle();
 		Font statusFont = workbook.createFont();
@@ -286,20 +230,6 @@ public class ExcelStyleHelper {
 		return statusStyle;
 	}
 
-	/**
-	 * Apply row-level styling to an entire data row This method applies the
-	 * status-based background color to columns A-I and the enhanced status style to
-	 * column J
-	 * 
-	 * FIXED: Now gets or creates cells to ensure styling is applied even when updating
-	 * existing rows (prevents background color reset issue)
-	 * 
-	 * @param workbook          - The Excel workbook
-	 * @param dataRow           - The row to style
-	 * @param status            - Test status (PASSED, FAILED, SKIPPED)
-	 * @param numDataColumns    - Number of data columns (usually 9 for A-I)
-	 * @param statusColumnIndex - Index of status column (usually 9 for J)
-	 */
 	public static void applyRowLevelStyling(Workbook workbook, Row dataRow, String status, int numDataColumns,
 			int statusColumnIndex) {
 
@@ -326,19 +256,6 @@ public class ExcelStyleHelper {
 		statusCell.setCellStyle(enhancedStatusStyle);
 	}
 
-	/**
-	 * Apply row-level styling to specific columns only (CROSS-BROWSER FIX) This
-	 * preserves existing formatting in other columns (like bold browser status
-	 * columns)
-	 * 
-	 * FIXED: Now gets or creates cells to ensure styling is applied even when updating
-	 * existing rows (prevents background color reset issue)
-	 * 
-	 * @param workbook      - Excel workbook for creating styles
-	 * @param dataRow       - Row to apply styling to
-	 * @param status        - Test status (PASSED, FAILED, SKIPPED)
-	 * @param columnIndices - Array of column indices to apply styling to
-	 */
 	public static void applyRowLevelStylingToSpecificColumns(Workbook workbook, Row dataRow, String status,
 			int[] columnIndices) {
 		// Create row status style

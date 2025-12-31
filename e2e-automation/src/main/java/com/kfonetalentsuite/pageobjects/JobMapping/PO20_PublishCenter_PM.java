@@ -842,10 +842,6 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 	// ==================== HELPER METHODS ====================
 
-	/**
-	 * Gets the count of available JPH rows on screen (max 30).
-	 * Dynamically counts actual rows instead of assuming 30 are loaded.
-	 */
 	private int getAvailableJPHRowCount() {
 		int actualRowCount = driver.findElements(By.xpath("//*/kf-page-content/div[2]/div[2]/div[div[1]/span]")).size();
 		int rowsToValidate = Math.min(30, actualRowCount);

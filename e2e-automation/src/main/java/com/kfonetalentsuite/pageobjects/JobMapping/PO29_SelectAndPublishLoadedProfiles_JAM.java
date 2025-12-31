@@ -13,10 +13,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-/**
- * Page Object for validating select and publish loaded profiles in Job Mapping (JAM) screen.
- * Verifies that profiles loaded after clicking header checkbox are NOT selected.
- */
 public class PO29_SelectAndPublishLoadedProfiles_JAM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO29_SelectAndPublishLoadedProfiles_JAM.class);

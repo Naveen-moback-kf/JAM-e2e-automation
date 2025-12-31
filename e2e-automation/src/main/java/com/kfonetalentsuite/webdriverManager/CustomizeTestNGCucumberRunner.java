@@ -71,38 +71,12 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager {
 		testNGCucumberRunner = new TestNGCucumberRunner(this.getClass());
 	}
 
-	/**
-	 * Run individual Cucumber scenario via DataProvider.
-	 * 
-	 * RETRY BEHAVIOR: End-of-Suite Retry (via SuiteRetryListener)
-	 * - Each scenario runs as a separate test (for proper Excel reporting)
-	 * - If ANY scenario fails, the entire Runner class is marked as failed
-	 * - SuiteRetryListener collects failed Runner classes at end of suite
-	 * - Failed Runners are re-executed (all their scenarios run again)
-	 * 
-	 * This approach gives us:
-	 * - Individual scenario tracking for Excel reporting (via DataProvider params)
-	 * - Feature-level retry at end of suite (entire Runner re-runs)
-	 */
 	@SuppressWarnings("unused")
 	@Test(groups = "cucumber", description = "Runs Cucumber Scenarios", dataProvider = "scenarios")
 	public void runScenario(PickleWrapper pickleWrapper, FeatureWrapper featureWrapper) {
 		testNGCucumberRunner.runScenario(pickleWrapper.getPickle());
 	}
 
-	/**
-	 * THREAD-SAFE DataProvider for Cucumber scenarios
-	 * 
-	 * IMPORTANT: Do NOT use parallel=true here! - parallel=true would parallelize
-	 * scenarios WITHIN a runner, causing chaos - We want each runner to execute its
-	 * scenarios sequentially on its own thread - TestNG parallel="tests" already
-	 * ensures each runner runs on a separate thread
-	 * 
-	 * Thread Safety: - Each runner class instance has its own testNGCucumberRunner
-	 * - TestNG creates separate instances for each <test> in parallel execution -
-	 * This ensures scenarios from Runner01 stay with Thread-1, Runner02 with
-	 * Thread-2, etc.
-	 */
 	@DataProvider
 	public Object[][] scenarios() {
 		if (testNGCucumberRunner == null) {

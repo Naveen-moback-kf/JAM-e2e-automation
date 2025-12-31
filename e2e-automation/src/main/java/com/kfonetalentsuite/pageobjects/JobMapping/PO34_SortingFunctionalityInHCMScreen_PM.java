@@ -13,12 +13,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-/**
- * Page Object for validating Sorting functionality in HCM Sync Profiles (PM) screen.
- * Handles single-level and multi-level sorting validation by various columns.
- * 
- * Enhanced to extend BasePageObject for consistency and code reuse.
- */
 public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO34_SortingFunctionalityInHCMScreen_PM.class);
@@ -34,9 +28,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 	private static final By FUNCTION_ELEMENTS = By.xpath("//tbody//tr//td[5]//div//span[1]");
 	private static final By EXPORT_STATUS_ELEMENTS = By.xpath("//tbody//tr//td[8]//div//span[1]");
 
-	/**
-	 * Sorts profiles by Name in ascending order (single click).
-	 */
 	public void sort_profiles_by_name_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
 			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_NAME);
@@ -51,9 +42,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies profiles are sorted by Name in ascending order.
-	 */
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_name_in_ascending_order() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -113,9 +101,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Sorts profiles by Level in descending order (clicks header twice).
-	 */
 	public void sort_profiles_by_level_in_descending_order_in_hcm_sync_profiles_screen() {
 		try {
 			WebElement levelHeader = findElement(Locators.HCMSyncProfiles.TABLE_HEADER_LEVEL);
@@ -146,9 +131,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies profiles are sorted by Level in descending order.
-	 */
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_level_in_descending_order() {
 		try {
 			// Loader may not always appear - wait gracefully
@@ -210,9 +192,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Sorts profiles by Job Status in ascending order (single click).
-	 */
 	public void sort_profiles_by_job_status_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
 			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_STATUS);
@@ -303,7 +282,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		}
 	}
 
-
 	public void sort_profiles_by_export_status_in_descending_order_in_hcm_sync_profiles_screen() {
 		try {
 			WebElement exportStatusHeader = findElement(Locators.HCMSyncProfiles.TABLE_HEADER_EXPORT_STATUS);
@@ -336,9 +314,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Sorts profiles by Function in ascending order (single click).
-	 */
 	public void sort_profiles_by_function_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
 			WebElement functionHeader = findElement(Locators.HCMSyncProfiles.TABLE_HEADER_FUNCTION);
@@ -359,9 +334,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Sorts profiles by Function in descending order (clicks header twice).
-	 */
 	public void sort_profiles_by_function_in_descending_order_in_hcm_sync_profiles_screen() {
 		try {
 			// First click - ascending
@@ -388,9 +360,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies profiles are sorted by Job Status (ascending) and Function (descending).
-	 */
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_in_ascending_and_function_in_descending_order() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -441,9 +410,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies three-level sorting: Job Status (asc), Export Status (desc), Function (asc).
-	 */
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_ascending_export_status_descending_and_function_ascending() {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
@@ -500,10 +466,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 	// PARAMETERIZED METHODS FOR SCENARIO OUTLINE SUPPORT
 	// ============================================================================
 
-	/**
-	 * Parameterized sort method - dispatches to specific sort methods based on column and order
-	 * Used by Scenario Outline in feature file
-	 */
 	public void sort_profiles_by_column_in_order_in_hcm_sync_profiles_screen(String column, String order) {
 		try {
 			String columnLower = column.toLowerCase().trim();
@@ -557,10 +519,6 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Parameterized verification method - dispatches to specific verification methods based on column and order
-	 * Used by Scenario Outline in feature file
-	 */
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_column_in_order(String column, String order) {
 		try {
 			String columnLower = column.toLowerCase().trim();

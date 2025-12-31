@@ -19,11 +19,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-/**
- * Page Object for Missing Data Validation
- * 
- * Handles all data types (Grade, Department, Function, Subfunction) through parameterization.
- */
 public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO25_MissingDataFunctionality.class);
@@ -68,9 +63,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// UTILITY METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Get column index based on data type
-	 */
 	private int getColumnIndex(String dataType) {
 		switch (dataType.toLowerCase()) {
 			case "grade": return GRADE_COLUMN_INDEX;
@@ -81,9 +73,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Check if value indicates missing data
-	 */
 	private boolean isMissingValue(String value) {
 		if (value == null) return true;
 		String normalized = value.trim().toLowerCase();
@@ -91,12 +80,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			   normalized.equals("na") || normalized.equals("null") || normalized.equals("--");
 	}
 
-	/**
-	 * Check if a specific part (Function or Subfunction) is missing from "Function | Subfunction" format
-	 * @param functionSubfunctionValue The combined "Function | Subfunction" value
-	 * @param dataType "Function" or "Subfunction" to specify which part to check
-	 * @return true if the specified part is missing (N/A, -, empty)
-	 */
 	private boolean isSpecificPartMissing(String functionSubfunctionValue, String dataType) {
 		if (functionSubfunctionValue == null || functionSubfunctionValue.isEmpty()) {
 			return true;
@@ -123,10 +106,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		return isMissingValue(functionSubfunctionValue);
 	}
 
-	/**
-	 * Clean job name by removing timestamp suffix and extra formatting
-	 * (Matching original PO29 pattern)
-	 */
 	private String cleanJobNameLocal(String rawJobName) {
 		if (rawJobName == null || rawJobName.isEmpty()) {
 			return "";
@@ -156,10 +135,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		return cleaned;
 	}
 
-	/**
-	 * Normalize field values - handle null, empty, dashes, and N/A consistently
-	 * (Matching original PO29 pattern)
-	 */
 	private String normalizeFieldValue(String fieldValue, String fieldName) {
 		if (fieldValue == null || fieldValue.trim().isEmpty() || "-".equals(fieldValue.trim())) {
 			return "N/A";
@@ -204,10 +179,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// SORTING METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Sort job profiles by specified column in ascending order
-	 * Uses proven XPaths from PO17_ValidateSortingFunctionality_JAM
-	 */
 	public void sort_job_profiles_by_column_in_ascending_order(String columnName) throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Sorting job profiles by " + columnName + " in ascending order");
@@ -251,9 +222,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// NAVIGATION VERIFICATION METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Verify user is navigated to Jobs with Missing Data screen
-	 */
 	public void verify_user_is_navigated_to_jobs_with_missing_data_screen(String dataType) throws IOException {
 		try {
 			currentDataType.set(dataType);
@@ -312,9 +280,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verify user is back on Job Mapping page
-	 */
 	public void verify_user_is_back_on_job_mapping_page(String dataType) throws IOException {
 		try {
 			LOGGER.debug("Verifying user is back on Job Mapping page after {} validation", dataType);
@@ -373,9 +338,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// FIND MISSING DATA METHODS - FORWARD FLOW (Job Mapping Page)
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Find job profile in Job Mapping page where specified data type is missing
-	 */
 	public void find_job_profile_in_job_mapping_page_where_data_is_missing(String dataType) throws IOException {
 		try {
 			currentDataType.set(dataType);
@@ -546,9 +508,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Extract job details from found profile in Job Mapping page
-	 */
 	public void extract_job_details_from_found_profile_in_job_mapping_page(String dataType) throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Extracting " + dataType + " job details from found profile in Job Mapping page");
@@ -639,9 +598,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// FIND MISSING DATA METHODS - REVERSE FLOW (Missing Data Screen)
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Find job in Jobs Missing Data screen where specified data type is N/A
-	 */
 	public void find_job_in_jobs_missing_data_screen_where_data_is_na(String dataType) throws IOException {
 		try {
 			currentDataType.set(dataType);
@@ -754,9 +710,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Extract all available job details from Jobs with Missing Data screen
-	 */
 	public void extract_all_available_job_details_from_jobs_with_missing_data_screen(String dataType) throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Extracting all job details from Missing " + dataType + " Data screen");
@@ -814,11 +767,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// SEARCH METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Search for extracted job profile by name in Jobs Missing Data screen
-	 * NOTE: Missing Data screen has NO search functionality - must traverse all jobs
-	 * (Matching original PO29 logic)
-	 */
 	public void search_for_extracted_job_profile_in_jobs_missing_data_screen(String dataType) throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Traversing all jobs in Missing Data screen (no search functionality)...");
@@ -935,10 +883,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Search for extracted job profile by name in Job Mapping page
-	 * Uses jobName from jobDetailsFromMissingDataScreen (matching original PO29 logic)
-	 */
 	public void search_for_extracted_job_profile_in_job_mapping_page(String dataType) throws IOException {
 		try {
 			// Use job name from Missing Data screen details (matching original PO pattern)
@@ -997,9 +941,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// VERIFICATION METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Verify job profile is found and displayed in Jobs Missing Data screen search results
-	 */
 	public void verify_job_profile_found_in_jobs_missing_data_screen_search_results(String dataType) throws IOException {
 		try {
 			String expectedJobName = extractedJobName.get();
@@ -1020,10 +961,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verify job profile is found and displayed in Job Mapping page search results
-	 * Validates both Job Name AND Job Code match (matching original PO29 logic)
-	 */
 	public void verify_job_profile_found_in_job_mapping_page_search_results(String dataType) throws IOException {
 		try {
 			// Get target values from Missing Data screen (matching original PO pattern)
@@ -1120,9 +1057,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Extract job details from found profile in Jobs Missing Data screen
-	 */
 	public void extract_job_details_from_found_profile_in_jobs_missing_data_screen(String dataType) throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Extracting " + dataType + " job details from found profile in Missing Data screen");
@@ -1171,9 +1105,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Extract job details from searched profile in Job Mapping page
-	 */
 	public void extract_job_details_from_searched_profile_in_job_mapping_page(String dataType) throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Extracting " + dataType + " job details from searched profile in Job Mapping page");
@@ -1251,9 +1182,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// COMPARISON METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Verify all job details match between Job Mapping page and Jobs Missing Data screen (Forward Flow)
-	 */
 	public void verify_all_job_details_match_forward_flow(String dataType) throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Verifying " + dataType + " job details match (Forward Flow)");
@@ -1314,9 +1242,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verify all job details match between Jobs Missing Data screen and Job Mapping page (Reverse Flow)
-	 */
 	public void verify_all_job_details_match_reverse_flow(String dataType) throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Verifying " + dataType + " job details match (Reverse Flow)");
@@ -1385,9 +1310,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// INFO MESSAGE VERIFICATION METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Verify Info Message is displayed on searched profile indicating missing data
-	 */
 	public void verify_info_message_is_displayed_indicating_missing_data(String dataType) throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Verifying Info Message indicates missing " + dataType + " data");
@@ -1431,9 +1353,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verify Info Message contains text about reduced match accuracy
-	 */
 	public void verify_info_message_contains_reduced_accuracy_text(String dataType) throws IOException {
 		PageObjectHelper.log(LOGGER, "✅ Info Message text about reduced accuracy verified for " + dataType + " (included in previous step)");
 	}
@@ -1442,9 +1361,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// CLOSE AND NAVIGATION METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Click on Close button to return to Job Mapping page
-	 */
 	public void click_on_close_button_to_return_to_job_mapping_page(String dataType) throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Clicking Close button to return to Job Mapping page");
@@ -1490,10 +1406,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Force close the Missing Data screen using alternative methods
-	 * (Enhanced with multiple strategies from original PO files)
-	 */
 	public void force_close_missing_data_screen() throws IOException {
 		LOGGER.debug("Force closing Missing Data screen...");
 		

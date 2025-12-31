@@ -35,7 +35,6 @@ import io.cucumber.testng.CucumberOptions;
 
 public class Runner06_PublishSelectedProfiles extends CustomizeTestNGCucumberRunner {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
-	
 
 	@Override
 	protected String getTagExpressionTemplate() {

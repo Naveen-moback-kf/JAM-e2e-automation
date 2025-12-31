@@ -22,11 +22,6 @@ public class SD17_MapDifferentSPtoProfile {
 		super();		
 	}
 	
-	/**
-	 * Before hook to check if dependent scenarios should be skipped
-	 * If the foundational scenario (@VerifyOrganizationJobDetails) was skipped,
-	 * all subsequent scenarios in this feature should also be skipped
-	 */
 	@Before(value = "@Map_Different_SP_in_AutoAI", order = 1)
 	public void checkFoundationalScenarioStatus(Scenario scenario) {
 		// Check if this is the foundational scenario
@@ -45,9 +40,6 @@ public class SD17_MapDifferentSPtoProfile {
 		}
 	}
 	
-	/**
-	 * After hook to detect if foundational scenario was skipped
-	 */
 	@io.cucumber.java.After(value = "@VerifyOrganizationJobDetails", order = 1)
 	public void captureFoundationalScenarioResult(Scenario scenario) {
 		// Check if the scenario was skipped
@@ -301,6 +293,5 @@ public class SD17_MapDifferentSPtoProfile {
 	public void search_for_organization_job_with_manually_mapped_sp() throws IOException {
 		mapDifferentSPtoProfileInAutoAI.getMapDifferentSPtoProfile().search_for_organization_job_with_manually_mapped_sp();
 	}
-
 
 }

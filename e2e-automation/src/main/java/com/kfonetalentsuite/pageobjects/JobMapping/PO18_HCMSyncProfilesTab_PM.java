@@ -230,17 +230,6 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Enters job profile name in search bar with dynamic fallback retry logic.
-	 * 
-	 * Strategy: 1. Try each profile name from SEARCH_PROFILE_NAME_OPTIONS array 2.
-	 * Check if search returns results (not "Showing 0 of X") 3. If results found,
-	 * use that profile name and stop 4. If no results, try next profile name 5. If
-	 * all profile names fail, use the last one and proceed
-	 * 
-	 * This ensures we never get 0 results when searching (unless all options
-	 * exhausted).
-	 */
 	public void enter_job_profile_name_in_search_bar_in_hcm_sync_profiles_tab() {
 		boolean foundResults = false;
 		String selectedProfileName = SEARCH_PROFILE_NAME_OPTIONS[0]; // Default to first option
@@ -1058,10 +1047,6 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Applies a DIFFERENT (second) Levels filter option - for alternative validation scenarios.
-	 * Unlike the regular method which selects the 1st option, this selects the 2nd option.
-	 */
 	public void apply_different_levels_filter_in_hcm_sync_profiles_tab() {
 		try {
 			try {
@@ -1548,9 +1533,6 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Helper method to verify table header text
-	 */
 	private void verifyHeaderText(By headerLocator, String expectedText) {
 		String actualText = wait.until(ExpectedConditions.visibilityOf(findElement(headerLocator))).getText();
 		Assert.assertEquals(actualText, expectedText, "Header mismatch: expected '" + expectedText + "' but got '" + actualText + "'");
@@ -1712,9 +1694,6 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Helper method to check if a profile checkbox is selected
-	 */
 	private boolean isCheckboxSelected(int rowNumber) {
 		try {
 			driver.findElement(By.xpath("//tbody//tr[" + rowNumber + "]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']"));
@@ -2029,9 +2008,6 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		}
 	}
 	
-	/**
-	 * Helper method to safely close popup without failing the test
-	 */
 	private void closePopupSafely() {
 		try {
 			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));

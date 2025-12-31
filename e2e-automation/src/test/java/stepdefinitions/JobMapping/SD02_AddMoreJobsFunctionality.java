@@ -39,7 +39,6 @@ public class SD02_AddMoreJobsFunctionality {
 		validateAddMoreJobsFunctionality.getAddMoreJobsFunctionality().verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs();
 	}
 
-	
 	@Then("Verify Last Synced Info on Add Job Data screen before adding more jobs")
 	public void verify_last_synced_info_on_add_job_data_screen_before_adding_more_jobs() throws IOException {
 		validateAddMoreJobsFunctionality.getAddMoreJobsFunctionality().verify_last_synced_info_on_add_job_data_screen_before_adding_more_jobs();
@@ -99,7 +98,5 @@ public class SD02_AddMoreJobsFunctionality {
 	public void user_is_in_kfone_add_job_data_page_afer_uploading_file() throws IOException {
 		validateAddMoreJobsFunctionality.getAddMoreJobsFunctionality().user_is_in_kfone_add_job_data_page_afer_uploading_file();
 	}
-
-
 
 }

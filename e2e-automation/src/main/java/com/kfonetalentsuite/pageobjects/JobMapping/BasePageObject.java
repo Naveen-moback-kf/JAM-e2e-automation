@@ -21,23 +21,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
-/**
- * BasePageObject - Centralized repository for common locators and utilities
- * 
- * PURPOSE:
- * - Single source of truth for shared XPaths across all page objects
- * - Common utility methods for element interactions
- * - Reduces duplication and simplifies maintenance
- * 
- * USAGE:
- * - Extend this class in your page objects: public class PO04_Example extends BasePageObject
- * - Access locators: driver.findElement(Locators.Spinners.PAGE_LOAD_SPINNER)
- * - Use utility methods: clickElement(element), waitForElement(locator)
- * 
- * MAINTENANCE:
- * - When UI changes, update XPaths here ONLY
- * - All page objects automatically get the updated locators
- */
 public class BasePageObject {
 
 	// =============================================
@@ -48,9 +31,6 @@ public class BasePageObject {
 	protected JavascriptExecutor js;
 	protected static final Logger LOGGER = LogManager.getLogger(BasePageObject.class);
 
-	/**
-	 * Default constructor - initializes WebDriver and common components
-	 */
 	public BasePageObject() {
 		this.driver = DriverManager.getDriver();
 		this.wait = DriverManager.getWait();
@@ -62,10 +42,6 @@ public class BasePageObject {
 	// CENTRALIZED LOCATORS - Update XPaths here only
 	// =============================================
 
-	/**
-	 * Locators class - Centralized repository for all shared XPaths
-	 * Organized by UI component/section for easy navigation
-	 */
 	public static class Locators {
 
 		// -----------------------------------------
@@ -276,10 +252,6 @@ public class BasePageObject {
 	// COMMON UTILITY METHODS
 	// =============================================
 
-	/**
-	 * Click on element with multiple fallback strategies
-	 * Tries: Regular click -> JS click -> JS executor click
-	 */
 	protected void clickElement(WebElement element) {
 		try {
 			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
@@ -292,19 +264,10 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Click on element by locator with fallback strategies
-	 * PARALLEL EXECUTION ENHANCED: Handles stale elements and page readiness
-	 */
 	protected void clickElement(By locator) {
 		clickElementSafely(locator, 10);
 	}
 
-	/**
-	 * PARALLEL EXECUTION FIX: Safe element click with stale element retry and page readiness check
-	 * @param locator Element locator
-	 * @param timeoutSeconds Maximum wait time
-	 */
 	protected void clickElementSafely(By locator, int timeoutSeconds) {
 		// Wait for page to be ready before interaction
 		PerformanceUtils.waitForPageReady(driver, 2);
@@ -366,18 +329,10 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * JavaScript click - bypasses overlay issues
-	 */
 	protected void jsClick(WebElement element) {
 		js.executeScript("arguments[0].click();", element);
 	}
 
-	/**
-	 * Try multiple click strategies for stubborn elements
-	 * Strategies: Regular click -> JS click -> Actions click
-	 * @return true if any strategy succeeded
-	 */
 	protected boolean tryClickWithStrategies(WebElement element) {
 		try {
 			if (element.isDisplayed() && element.isEnabled()) {
@@ -405,9 +360,6 @@ public class BasePageObject {
 		return false;
 	}
 
-	/**
-	 * Try multiple click strategies using By locator with logging
-	 */
 	protected boolean tryClickWithStrategies(By locator, String elementName) {
 		try {
 			WebElement element = waitForClickable(locator);
@@ -422,10 +374,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Handle cookies banner if present.
-	 * Uses short wait (5 seconds) to avoid blocking if banner doesn't appear.
-	 */
 	protected void handleCookiesBanner() {
 		try {
 			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
@@ -437,9 +385,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Wait for element to be visible and return it
-	 */
 	protected WebElement waitForElement(By locator) {
 		return waitForElement(locator, 10);
 	}
@@ -449,46 +394,27 @@ public class BasePageObject {
 		return customWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 	}
 
-	/**
-	 * Wait for element to be clickable and return it
-	 */
 	protected WebElement waitForClickable(By locator) {
 		return wait.until(ExpectedConditions.elementToBeClickable(locator));
 	}
 
-	/**
-	 * Find element by locator - wrapper for driver.findElement
-	 */
 	protected WebElement findElement(By locator) {
 		return driver.findElement(locator);
 	}
 
-	/**
-	 * Find elements by locator - wrapper for driver.findElements
-	 */
 	protected java.util.List<WebElement> findElements(By locator) {
 		return driver.findElements(locator);
 	}
 
-	/**
-	 * Safely get the first element from a locator, returns null if no elements found.
-	 * Use this instead of findElements(locator).get(0) to avoid IndexOutOfBoundsException.
-	 */
 	protected WebElement getFirstElementOrNull(By locator) {
 		List<WebElement> elements = driver.findElements(locator);
 		return elements.isEmpty() ? null : elements.get(0);
 	}
 
-	/**
-	 * Check if elements exist for a locator (returns true if at least one element found)
-	 */
 	protected boolean hasElements(By locator) {
 		return !driver.findElements(locator).isEmpty();
 	}
 
-	/**
-	 * Check if element is displayed (with safe handling)
-	 */
 	protected boolean isElementDisplayed(By locator) {
 		try {
 			return driver.findElement(locator).isDisplayed();
@@ -497,9 +423,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Get text from element safely
-	 */
 	protected String getElementText(By locator) {
 		try {
 			return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).getText();
@@ -509,9 +432,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Scroll element into view
-	 */
 	protected void scrollToElement(WebElement element) {
 		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
 		try {
@@ -521,16 +441,10 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Scroll to top of page
-	 */
 	protected void scrollToTop() {
 		js.executeScript("window.scrollTo(0, 0);");
 	}
 
-	/**
-	 * Scroll to bottom of page
-	 */
 	protected void scrollToBottom() {
 		js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 	}
@@ -539,26 +453,15 @@ public class BasePageObject {
 	// COMMON PAGE OPERATIONS
 	// =============================================
 
-	/**
-	 * Wait for page to be fully loaded (spinners disappeared)
-	 */
 	protected void waitForPageLoad() {
 		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 3);
 	}
 
-	/**
-	 * Wait for spinners to disappear with enhanced timeout and fallback
-	 * PARALLEL EXECUTION FIX: Increased timeout and added fallback for persistent spinners
-	 */
 	protected void waitForSpinners() {
 		waitForSpinners(15); // Increased default timeout from 10s to 15s
 	}
 	
-	/**
-	 * Wait for spinners with custom timeout
-	 * @param timeoutSeconds Maximum time to wait for spinners to disappear
-	 */
 	protected void waitForSpinners(int timeoutSeconds) {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, timeoutSeconds);
@@ -574,9 +477,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Refresh the page and wait for load
-	 */
 	protected void refreshPage() {
 		driver.navigate().refresh();
 		waitForPageLoad();
@@ -588,25 +488,16 @@ public class BasePageObject {
 	// NAVIGATION HELPERS
 	// =============================================
 
-	/**
-	 * Click on KF Talent Suite logo
-	 */
 	protected void clickLogo() {
 		clickElement(Locators.Navigation.KF_TALENT_SUITE_LOGO);
 		PageObjectHelper.log(LOGGER, "Clicked on KF Talent Suite Logo");
 	}
 
-	/**
-	 * Open global navigation menu
-	 */
 	protected void openGlobalNavMenu() {
 		clickElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
 		PerformanceUtils.waitForUIStability(driver, 1);
 	}
 
-	/**
-	 * Navigate to Job Mapping from global menu
-	 */
 	protected void navigateToJobMapping() {
 		openGlobalNavMenu();
 		clickElement(Locators.Navigation.JOB_MAPPING_BTN);
@@ -614,17 +505,11 @@ public class BasePageObject {
 		PageObjectHelper.log(LOGGER, "Navigated to Job Mapping screen");
 	}
 
-	/**
-	 * Open user profile dropdown
-	 */
 	protected void openUserProfile() {
 		clickElement(Locators.UserProfile.PROFILE_BTN);
 		PerformanceUtils.waitForUIStability(driver, 1);
 	}
 
-	/**
-	 * Sign out from application
-	 */
 	protected void signOut() {
 		openUserProfile();
 		clickElement(Locators.UserProfile.SIGN_OUT_BTN);
@@ -636,19 +521,11 @@ public class BasePageObject {
 	// TABLE HELPERS
 	// =============================================
 
-	/**
-	 * Get results count from "Showing X of Y results" text element.
-	 * Uses parseProfileCountFromText() for parsing logic.
-	 * @return Total count (Y value) or 0 if not found
-	 */
 	protected int getResultsCount() {
 		String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
 		return parseProfileCountFromText(countText);
 	}
 
-	/**
-	 * Click Select All button (after clicking chevron)
-	 */
 	protected void selectAllProfiles() {
 		clickElement(Locators.Table.HEADER_CHEVRON_BTN);
 		PerformanceUtils.waitForPageReady(driver, 1);
@@ -657,9 +534,6 @@ public class BasePageObject {
 		PageObjectHelper.log(LOGGER, "Selected all profiles");
 	}
 
-	/**
-	 * Click None button to deselect all
-	 */
 	protected void deselectAllProfiles() {
 		clickElement(Locators.Table.HEADER_CHEVRON_BTN);
 		PerformanceUtils.waitForPageReady(driver, 1);
@@ -672,17 +546,11 @@ public class BasePageObject {
 	// FILTER HELPERS
 	// =============================================
 
-	/**
-	 * Open filters panel
-	 */
 	protected void openFilters() {
 		clickElement(Locators.SearchAndFilters.FILTERS_BTN);
 		PerformanceUtils.waitForUIStability(driver, 1);
 	}
 
-	/**
-	 * Clear all filters
-	 */
 	protected void clearFilters() {
 		openFilters();
 		clickElement(Locators.SearchAndFilters.CLEAR_FILTERS_BTN);
@@ -690,9 +558,6 @@ public class BasePageObject {
 		PageObjectHelper.log(LOGGER, "Cleared all filters");
 	}
 
-	/**
-	 * Enter text in search bar
-	 */
 	protected void searchFor(String searchText) {
 		WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR);
 		searchBar.clear();
@@ -703,9 +568,6 @@ public class BasePageObject {
 
 	// ==================== COMMON HELPER METHODS ====================
 
-	/**
-	 * Safe sleep with exception handling - use sparingly, prefer explicit waits
-	 */
 	protected void safeSleep(int milliseconds) {
 		try {
 			Thread.sleep(milliseconds);
@@ -714,10 +576,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Expand all "View More" buttons within a section
-	 * ENHANCED: Loops until no more buttons exist (handles dynamically loaded buttons)
-	 */
 	protected void expandAllViewMoreButtons(By viewMoreLocator) {
 		try {
 			int maxAttempts = 20; // Safety limit to prevent infinite loops
@@ -768,9 +626,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Extract text from a table cell element
-	 */
 	protected String extractCellText(WebElement cell) {
 		if (cell == null) return "";
 		try {
@@ -784,18 +639,12 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Format current date as MM/dd/yyyy
-	 */
 	protected String formatCurrentDate() {
 		java.time.LocalDate today = java.time.LocalDate.now();
 		java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy");
 		return today.format(formatter);
 	}
 
-	/**
-	 * Clean job name by removing extra characters
-	 */
 	protected String cleanJobName(String rawJobName) {
 		if (rawJobName == null || rawJobName.isEmpty()) return "";
 		// Remove leading/trailing whitespace and normalize
@@ -807,9 +656,6 @@ public class BasePageObject {
 		return cleaned;
 	}
 
-	/**
-	 * Extract job name for search from full job name string
-	 */
 	protected String extractJobNameForSearch(String fullJobName) {
 		if (fullJobName == null || fullJobName.isEmpty()) return "";
 		String cleaned = cleanJobName(fullJobName);
@@ -821,11 +667,6 @@ public class BasePageObject {
 		return cleaned;
 	}
 
-	/**
-	 * Check if a field value indicates missing data.
-	 * Returns true for: null, empty, whitespace-only, "n/a", "-", "na", "null", "none"
-	 * This is the primary method for checking missing/empty values.
-	 */
 	protected boolean isMissingData(String value) {
 		if (value == null || value.trim().isEmpty()) return true;
 		String normalized = value.trim().toLowerCase();
@@ -833,9 +674,6 @@ public class BasePageObject {
 				|| normalized.equals("null") || normalized.equals("none");
 	}
 
-	/**
-	 * Normalize field value for comparison
-	 */
 	protected String normalizeFieldValue(String fieldValue) {
 		if (fieldValue == null) return "";
 		String normalized = fieldValue.trim();
@@ -845,9 +683,6 @@ public class BasePageObject {
 		return normalized;
 	}
 
-	/**
-	 * Verify search results contain the search term
-	 */
 	protected void verifySearchResultsContainSearchTerm(String searchTerm, By resultsLocator) {
 		try {
 			List<WebElement> results = findElements(resultsLocator);
@@ -866,10 +701,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Format current date for display in "Mon DD, YYYY" format (e.g., "Dec 04, 2025")
-	 * Used for verifying publish dates and other date comparisons
-	 */
 	protected String formatDateForDisplay() {
 		LocalDate currentDate = LocalDate.now();
 		int currentYear = currentDate.getYear();
@@ -879,9 +710,6 @@ public class BasePageObject {
 		return currentMonth.toString().substring(0, 1) + currentMonth.toString().substring(1, 3).toLowerCase() + " " + dayStr + ", " + currentYear;
 	}
 
-	/**
-	 * Get row index from a table row element
-	 */
 	protected int getRowIndex(WebElement rowElement) {
 		try {
 			// Try to get from data attribute first
@@ -902,9 +730,6 @@ public class BasePageObject {
 		return -1;
 	}
 
-	/**
-	 * Check new profiles for invalid selections (used in Select All validations)
-	 */
 	protected int checkNewProfilesForInvalidSelections(int startIndex, int endIndex, By checkboxLocator, boolean expectSelected) {
 		int invalidCount = 0;
 		try {
@@ -932,13 +757,6 @@ public class BasePageObject {
 
 	// ==================== COMMON PARSING HELPERS ====================
 
-	/**
-	 * Parses profile count from "Showing X of Y results" text.
-	 * Returns the total count (Y) from the text.
-	 * 
-	 * @param countText Text like "Showing 10 of 1428 results"
-	 * @return The total count (1428) or 0 if parsing fails
-	 */
 	protected int parseProfileCountFromText(String countText) {
 		try {
 			if (countText != null && countText.contains("of")) {
@@ -954,14 +772,6 @@ public class BasePageObject {
 		return 0;
 	}
 
-	/**
-	 * Gets value or returns "[EMPTY]" placeholder for missing data.
-	 * Useful for logging table cell values.
-	 * Uses isMissingData() for consistency.
-	 * 
-	 * @param value The value to check
-	 * @return The value or "[EMPTY]" if missing
-	 */
 	protected String getValueOrEmpty(String value) {
 		return isMissingData(value) ? "[EMPTY]" : value;
 	}
@@ -969,13 +779,6 @@ public class BasePageObject {
 	// ==================== COMMON CHECKBOX COUNTING HELPERS ====================
 	// Supports both kf-checkbox components (PM screens) and native checkboxes (JAM screens)
 
-	/**
-	 * Counts selected (checked) checkboxes.
-	 * Supports both PM screens (kf-icon with checkbox-check) and JAM screens (native checkbox).
-	 * 
-	 * @param containerSelector CSS selector for the container (e.g., "tbody tr")
-	 * @return Count of selected checkboxes
-	 */
 	protected int countSelectedCheckboxes(String containerSelector) {
 		try {
 			// First try PM screens - kf-icon with checkbox-check icon (XPath-based, more reliable)
@@ -997,13 +800,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Counts disabled checkboxes using JavaScript for performance.
-	 * Supports both kf-checkbox components (PM screens) and native checkboxes (JAM screens).
-	 * 
-	 * @param containerSelector CSS selector for the container
-	 * @return Count of disabled checkboxes
-	 */
 	protected int countDisabledCheckboxes(String containerSelector) {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		try {
@@ -1027,13 +823,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Counts total checkboxes using JavaScript for performance.
-	 * Supports both kf-checkbox components (PM screens) and native checkboxes (JAM screens).
-	 * 
-	 * @param containerSelector CSS selector for the container
-	 * @return Count of all checkboxes
-	 */
 	protected int countTotalCheckboxes(String containerSelector) {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		try {
@@ -1057,13 +846,6 @@ public class BasePageObject {
 		}
 	}
 	
-	/**
-	 * Logs all 3 profile categories: Selected, Unselected (enabled but not selected), and Disabled.
-	 * 
-	 * @param total Total number of profiles
-	 * @param selected Count of selected profiles
-	 * @param disabled Count of disabled profiles
-	 */
 	protected void logProfileCountSummary(int total, int selected, int disabled) {
 		int unselected = total - selected - disabled;
 		LOGGER.info("=== PROFILE COUNT SUMMARY ===");
@@ -1077,81 +859,44 @@ public class BasePageObject {
 	// These methods return screen-specific locators based on the "PM" or "JAM" parameter
 	// Used by PO35, PO36, PO42, and other consolidated Page Objects
 
-	/**
-	 * Returns human-readable screen name for logging.
-	 * @param screen "PM" or "JAM"
-	 * @return "HCM Sync Profiles" or "Job Mapping"
-	 */
 	protected String getScreenName(String screen) {
 		return "PM".equalsIgnoreCase(screen) ? "HCM Sync Profiles" : "Job Mapping";
 	}
 
-	/**
-	 * Returns the "Showing X of Y" results count locator for the specified screen.
-	 */
 	protected By getShowingResultsCountLocator(String screen) {
 		return "PM".equalsIgnoreCase(screen) ? Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT : Locators.JAMScreen.SHOWING_RESULTS_COUNT;
 	}
 
-	/**
-	 * Returns the locator for all profile rows in the specified screen.
-	 */
 	protected By getAllProfileRowsLocator(String screen) {
 		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.ALL_PROFILE_ROWS : Locators.JAMScreen.ALL_PROFILE_ROWS;
 	}
 
-	/**
-	 * Returns the locator for selected profile rows in the specified screen.
-	 */
 	protected By getSelectedProfileRowsLocator(String screen) {
 		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SELECTED_PROFILE_ROWS : Locators.JAMScreen.SELECTED_PROFILE_ROWS;
 	}
 
-	/**
-	 * Returns the chevron button locator for the specified screen.
-	 */
 	protected By getChevronButtonLocator(String screen) {
 		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.CHEVRON_BUTTON : Locators.JAMScreen.CHEVRON_BUTTON;
 	}
 
-	/**
-	 * Returns the header checkbox locator for the specified screen.
-	 */
 	protected By getHeaderCheckboxLocator(String screen) {
 		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.HEADER_CHECKBOX : Locators.JAMScreen.HEADER_CHECKBOX;
 	}
 
-	/**
-	 * Returns the action button locator (Sync/Publish) for the specified screen.
-	 */
 	protected By getActionButtonLocator(String screen) {
 		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SYNC_BUTTON : Locators.JAMScreen.PUBLISH_BUTTON;
 	}
 
-	/**
-	 * Returns the search bar locator for the specified screen.
-	 */
 	protected By getSearchBarLocator(String screen) {
 		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SEARCH_BAR : Locators.JAMScreen.SEARCH_BAR;
 	}
 
-	/**
-	 * Returns the clear filters button locator for the specified screen.
-	 */
 	protected By getClearFiltersButtonLocator(String screen) {
 		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.CLEAR_ALL_FILTERS_BTN : Locators.JAMScreen.CLEAR_FILTERS_BTN;
 	}
 
 	// ==================== SCREEN-BASED JAVASCRIPT COUNTING ====================
 
-	/**
-	 * Counts selected profiles using JavaScript for performance.
-	 * Supports both PM (kf-checkbox) and JAM (native checkbox) screens.
-	 * FIX: For PM, only counts ENABLED selected checkboxes (excludes disabled with check icons)
-	 * 
-	 * @param screen "PM" or "JAM"
-	 * @return Count of selected profiles
-	 */
 	protected int countSelectedProfilesJS(String screen) {
 		try {
 			JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -1182,12 +927,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Counts all visible profile rows using JavaScript for performance.
-	 * 
-	 * @param screen "PM" or "JAM"
-	 * @return Count of visible profile rows
-	 */
 	protected int countAllProfilesJS(String screen) {
 		try {
 			return findElements(getAllProfileRowsLocator(screen)).size();
@@ -1199,25 +938,11 @@ public class BasePageObject {
 
 	// ==================== COMMON SORTING VALIDATION HELPERS ====================
 
-	/**
-	 * Normalizes a string for sorting comparison.
-	 * Removes hyphens, quotes, parentheses, and other punctuation that UI may ignore.
-	 * 
-	 * @param value The value to normalize
-	 * @return Normalized string for comparison
-	 */
 	protected String normalizeForSorting(String value) {
 		if (value == null) return "";
 		return value.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
 	}
 
-	/**
-	 * Validates that a list of strings is in ascending order.
-	 * Uses normalized comparison to match UI sorting behavior.
-	 * 
-	 * @param values List of values to validate
-	 * @return Number of sort violations found
-	 */
 	protected int validateAscendingOrder(List<String> values) {
 		int violations = 0;
 		for (int i = 0; i < values.size() - 1; i++) {
@@ -1238,13 +963,6 @@ public class BasePageObject {
 		return violations;
 	}
 
-	/**
-	 * Validates that a list of strings is in descending order.
-	 * Uses normalized comparison to match UI sorting behavior.
-	 * 
-	 * @param values List of values to validate
-	 * @return Number of sort violations found
-	 */
 	protected int validateDescendingOrder(List<String> values) {
 		int violations = 0;
 		for (int i = 0; i < values.size() - 1; i++) {
@@ -1265,32 +983,14 @@ public class BasePageObject {
 		return violations;
 	}
 
-	/**
-	 * Checks if a string starts with a non-ASCII character.
-	 * 
-	 * @param value The value to check
-	 * @return true if first character is non-ASCII
-	 */
 	protected boolean isNonAscii(String value) {
 		return value != null && !value.isEmpty() && value.charAt(0) > 127;
 	}
 
-	/**
-	 * Checks if a value should be skipped in sorting validation.
-	 * Uses isMissingData() for consistency with other empty/missing checks.
-	 * 
-	 * @param value The value to check
-	 * @return true if value should be skipped
-	 */
 	protected boolean shouldSkipInSortValidation(String value) {
 		return isMissingData(value);
 	}
 
-	/**
-	 * Waits for the background API that loads ~100K job records.
-	 * Monitors network activity to detect when API completes.
-	 * Should be called after navigating to Job Mapping or HCM Sync Profiles screens.
-	 */
 	protected void waitForBackgroundDataLoad() {
 		try {
 			LOGGER.info("Waiting for background data API to complete...");

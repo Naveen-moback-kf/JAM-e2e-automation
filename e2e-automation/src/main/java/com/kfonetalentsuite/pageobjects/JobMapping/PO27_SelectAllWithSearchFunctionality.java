@@ -17,10 +17,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
-/**
- * Consolidated Page Object for Select All / Loaded Profiles Selection with Search functionality.
- * Supports both PM (HCM Sync Profiles) and JAM (Job Mapping) screens.
- */
 public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO27_SelectAllWithSearchFunctionality.class);
@@ -68,10 +64,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 	// ==================== SCROLL AND VIEW METHODS ====================
 
-	/**
-	 * Scrolls down to load a sample of search results for validation.
-	 * Does NOT try to load all results - just enough for sample validation.
-	 */
 	public void user_should_scroll_down_to_view_last_search_result(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -118,9 +110,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates that all search results contain the substring used for searching.
-	 */
 	public void user_should_validate_all_search_results_contains_substring(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -157,9 +146,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 	// ==================== SELECTION METHODS ====================
 
-	/**
-	 * Clicks on Chevron button beside header checkbox.
-	 */
 	public void click_on_chevron_button_beside_header_checkbox(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -180,9 +166,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Clicks on Select All button.
-	 */
 	public void click_on_select_all_button(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -202,9 +185,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Clicks on header checkbox to select loaded profiles.
-	 */
 	public void click_on_header_checkbox_to_select_loaded_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -228,9 +208,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies action button (Sync with HCM / Publish Selected) is enabled.
-	 */
 	public void verify_action_button_is_enabled(String screen) {
 		String buttonName = "PM".equalsIgnoreCase(screen) ? "Sync with HCM" : "Publish Selected Profiles";
 		LOGGER.info("Verifying {} button is enabled in {}...", buttonName, getScreenName(screen));
@@ -263,9 +240,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Scrolls page to view more job profiles.
-	 */
 	public void scroll_page_to_view_more_job_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -285,10 +259,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies profiles loaded after clicking header checkbox are NOT selected.
-	 * Uses fast count-based approach instead of iterating through elements.
-	 */
 	public void verify_profiles_loaded_after_header_checkbox_are_not_selected(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -324,11 +294,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Captures the baseline of selected profiles after selection.
-	 * Scrolls through all profiles to count actual selected checkboxes.
-	 * Fast scrolling for both PM and JAM (100K API preloads all data).
-	 */
 	public void capture_baseline_of_selected_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -430,9 +395,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Clears the search bar.
-	 */
 	public void clear_search_bar(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -511,10 +473,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 	// ==================== VERIFICATION METHODS ====================
 
-	/**
-	 * Verifies that only searched profiles remain selected after clearing search.
-	 * Fast scrolling for both PM and JAM (100K API preloads all data).
-	 */
 	public void verify_only_searched_profiles_are_selected_after_clearing_search_bar(String screen) {
 		int totalProfilesVisible = 0;
 		int previousTotalProfilesVisible = 0;
@@ -689,9 +647,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 	// ==================== ALTERNATIVE VALIDATION METHODS ====================
 
-	/**
-	 * Enters a different job name substring in search bar for alternative validation.
-	 */
 	public void enter_different_job_name_substring_for_alternative_validation(String screen) {
 		boolean foundResults = false;
 		String firstSearchSubstring = getSearchSubstring(screen);
@@ -814,10 +769,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Validates second search results - checks that profiles from second search are NOT selected.
-	 * Only validates initially visible profiles (no scrolling needed for this validation).
-	 */
 	public void scroll_down_to_load_all_second_search_results(String screen) throws InterruptedException {
 		String secondSearchSubstring = alternativeSearchSubstring.get();
 		String firstSearchSubstring = getSearchSubstring(screen);
@@ -891,9 +842,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verifies that all loaded profiles in second search are NOT selected.
-	 */
 	public void verify_all_loaded_profiles_in_second_search_are_not_selected(String screen) {
 		PageObjectHelper.log(LOGGER, "✅ Validation completed in previous step for " + getScreenName(screen));
 	}
@@ -1033,5 +981,4 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	}
 
 }
-
 

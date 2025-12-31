@@ -11,21 +11,6 @@ import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 
 import io.cucumber.testng.CucumberOptions;
 
-/**
- * Cross-Browser Clear Profile Selection Functionality Test Runner
- * 
- * Command: mvn test -Dtest=CrossBrowser32_ClearProfileSelectionFunctionalityRunner
- * Result: Chrome + Firefox + Edge run automatically
- * 
- * Run specific combinations using tags:
- * - @Clear_Profile_Selection - Run all clear selection tests
- * - @Clear_PM - Run PM (HCM Sync Profiles) tests only
- * - @Clear_JAM - Run JAM (Job Mapping) tests only
- * - @Clear_PM_HeaderCheckbox - PM with Header Checkbox
- * - @Clear_PM_NoneButton - PM with None Button
- * - @Clear_JAM_HeaderCheckbox - JAM with Header Checkbox
- * - @Clear_JAM_NoneButton - JAM with None Button
- */
 @Listeners({
     ExcelReportListener.class,
     AllureTestNg.class

@@ -15,18 +15,6 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import com.kfonetalentsuite.utils.common.CommonVariable;
 
-/**
- * Allure Environment Information Generator
- * 
- * Generates environment.properties file for Allure reports with:
- * - Browser version
- * - Operating system
- * - Test environment (QA, UAT, Prod)
- * - Application version
- * - Execution date/time
- * 
- * This file is automatically read by Allure when generating reports.
- */
 public class AllureEnvironmentInfo {
 
 	private static final Logger LOGGER = LogManager.getLogger(AllureEnvironmentInfo.class);
@@ -36,10 +24,6 @@ public class AllureEnvironmentInfo {
 	
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-	/**
-	 * Generate environment.properties file for Allure reports
-	 * Called automatically from SuiteHooks.onStart()
-	 */
 	public static void generateEnvironmentInfo() {
 		// CONFIGURATION CHECK: Skip Allure environment info if disabled in config.properties
 		if (CommonVariable.ALLURE_REPORTING_ENABLED != null
@@ -92,9 +76,6 @@ public class AllureEnvironmentInfo {
 		}
 	}
 
-	/**
-	 * Write browser information to environment file
-	 */
 	private static void writeBrowserInfo(FileWriter writer) throws IOException {
 		writer.write("# Browser Information\n");
 		
@@ -141,9 +122,6 @@ public class AllureEnvironmentInfo {
 		writer.write("\n");
 	}
 
-	/**
-	 * Write operating system information
-	 */
 	private static void writeOperatingSystemInfo(FileWriter writer) throws IOException {
 		writer.write("# Operating System\n");
 		writer.write("OS=" + System.getProperty("os.name") + "\n");
@@ -152,9 +130,6 @@ public class AllureEnvironmentInfo {
 		writer.write("\n");
 	}
 
-	/**
-	 * Write test environment information
-	 */
 	private static void writeTestEnvironmentInfo(FileWriter writer) throws IOException {
 		writer.write("# Test Environment\n");
 		
@@ -172,9 +147,6 @@ public class AllureEnvironmentInfo {
 		writer.write("\n");
 	}
 
-	/**
-	 * Write application version information
-	 */
 	private static void writeApplicationVersionInfo(FileWriter writer) throws IOException {
 		writer.write("# Application Information\n");
 		
@@ -188,9 +160,6 @@ public class AllureEnvironmentInfo {
 		writer.write("\n");
 	}
 
-	/**
-	 * Write execution information
-	 */
 	private static void writeExecutionInfo(FileWriter writer) throws IOException {
 		writer.write("# Execution Information\n");
 		writer.write("Execution Date=" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) + "\n");
@@ -201,9 +170,6 @@ public class AllureEnvironmentInfo {
 		writer.write("\n");
 	}
 
-	/**
-	 * Write Java information
-	 */
 	private static void writeJavaInfo(FileWriter writer) throws IOException {
 		writer.write("# Java Information\n");
 		writer.write("Java Version=" + System.getProperty("java.version") + "\n");
@@ -212,9 +178,6 @@ public class AllureEnvironmentInfo {
 		writer.write("\n");
 	}
 
-	/**
-	 * Get browser name from configuration
-	 */
 	private static String getBrowserFromConfig() {
 		try {
 			// Try CommonVariable.BROWSER
@@ -235,9 +198,6 @@ public class AllureEnvironmentInfo {
 		}
 	}
 
-	/**
-	 * Get hostname
-	 */
 	private static String getHostName() {
 		try {
 			return java.net.InetAddress.getLocalHost().getHostName();
@@ -246,9 +206,6 @@ public class AllureEnvironmentInfo {
 		}
 	}
 
-	/**
-	 * Get base URL from configuration
-	 */
 	private static String getBaseUrl() {
 		try {
 			// Try different URL variables based on environment
@@ -275,9 +232,6 @@ public class AllureEnvironmentInfo {
 		}
 	}
 
-	/**
-	 * Capitalize first letter of string
-	 */
 	private static String capitalize(String str) {
 		if (str == null || str.isEmpty()) {
 			return str;

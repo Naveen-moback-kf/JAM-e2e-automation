@@ -6,20 +6,10 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Data Parsing Helper - Centralized parsing utilities
- * 
- * Extracted from DailyExcelTracker to reduce complexity and improve
- * reusability. Handles XML/JSON parsing, string extraction, and data conversion
- * operations.
- */
 public class DataParsingHelper {
 
 	private static final Logger LOGGER = LogManager.getLogger(DataParsingHelper.class);
 
-	/**
-	 * Extract integer value from XML content using regex pattern
-	 */
 	public static int extractIntFromXML(String content, String pattern, int defaultValue) {
 		try {
 			Pattern regex = Pattern.compile(pattern);
@@ -33,9 +23,6 @@ public class DataParsingHelper {
 		return defaultValue;
 	}
 
-	/**
-	 * Extract long value from XML content using regex pattern
-	 */
 	public static long extractLongFromXML(String content, String pattern, long defaultValue) {
 		try {
 			Pattern regex = Pattern.compile(pattern);
@@ -49,9 +36,6 @@ public class DataParsingHelper {
 		return defaultValue;
 	}
 
-	/**
-	 * Extract string value from XML content using regex pattern
-	 */
 	public static String extractStringFromXML(String content, String pattern) {
 		try {
 			Pattern regex = Pattern.compile(pattern);
@@ -65,9 +49,6 @@ public class DataParsingHelper {
 		return null;
 	}
 
-	/**
-	 * Extract JSON string value by index (simplified approach)
-	 */
 	public static String extractJsonString(String jsonBlock, int index) {
 		try {
 			// Simple pattern to extract string values from JSON
@@ -87,9 +68,6 @@ public class DataParsingHelper {
 		return "";
 	}
 
-	/**
-	 * Extract scenario status from JSON block
-	 */
 	public static String extractScenarioStatus(String jsonBlock) {
 		// Look for common status patterns in JSON
 		if (jsonBlock.contains("\"passed\"") || jsonBlock.contains("\"status\":\"passed\"")) {
@@ -102,9 +80,6 @@ public class DataParsingHelper {
 		return "UNKNOWN";
 	}
 
-	/**
-	 * Format duration from milliseconds to readable format
-	 */
 	public static String formatDuration(long milliseconds) {
 		if (milliseconds <= 0) {
 			return "0m 0s";
@@ -121,9 +96,6 @@ public class DataParsingHelper {
 		}
 	}
 
-	/**
-	 * Parse duration string to milliseconds
-	 */
 	public static long parseDurationToMs(String durationStr) {
 		if (durationStr == null || durationStr.trim().isEmpty()) {
 			return 0;
@@ -154,9 +126,6 @@ public class DataParsingHelper {
 		}
 	}
 
-	/**
-	 * Clean scenario name for Excel display
-	 */
 	public static String cleanScenarioNameForExcelDisplay(String scenarioName) {
 		if (scenarioName == null || scenarioName.trim().isEmpty()) {
 			return "Unknown Scenario";
@@ -184,9 +153,6 @@ public class DataParsingHelper {
 		return cleaned;
 	}
 
-	/**
-	 * Extract runner class name from method signature
-	 */
 	public static String extractRunnerClassFromSignature(String methodBlock) {
 		try {
 			// Look for class name patterns in TestNG method signatures
@@ -208,9 +174,6 @@ public class DataParsingHelper {
 		return null;
 	}
 
-	/**
-	 * Make technical names more business-friendly
-	 */
 	public static String makeBusinessFriendly(String technicalName) {
 		if (technicalName == null || technicalName.trim().isEmpty()) {
 			return "Business Process";

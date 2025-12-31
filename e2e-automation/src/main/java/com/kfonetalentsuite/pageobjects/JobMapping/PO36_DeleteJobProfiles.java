@@ -35,9 +35,6 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 		super();
 	}
 
-	/**
-	 * Verify Delete button is disabled (no profiles selected)
-	 */
 	public void user_should_verify_delete_button_is_disabled() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
@@ -59,9 +56,6 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verify Delete button is enabled (profiles selected)
-	 */
 	public void user_should_verify_delete_button_is_enabled() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
@@ -83,9 +77,6 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Click on Delete button in Job Mapping screen
-	 */
 	public void click_on_delete_button_in_job_mapping() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
@@ -103,9 +94,6 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verify Delete Confirmation popup is displayed with title and message
-	 */
 	public void verify_delete_confirmation_popup_is_displayed() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
@@ -131,9 +119,6 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Click Cancel button on Delete Confirmation popup
-	 */
 	public void click_on_cancel_button_on_delete_confirmation_popup() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
@@ -150,9 +135,6 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Click Delete button on Delete Confirmation popup (to confirm deletion)
-	 */
 	public void click_on_delete_button_on_delete_confirmation_popup() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
@@ -169,9 +151,6 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Verify Delete success popup appears on screen
-	 */
 	public void user_should_verify_delete_success_popup_appears_on_screen() {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);

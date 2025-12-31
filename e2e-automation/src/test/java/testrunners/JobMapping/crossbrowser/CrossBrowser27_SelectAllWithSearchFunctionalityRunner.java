@@ -9,12 +9,6 @@ import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 
 import io.cucumber.testng.CucumberOptions;
 
-/**
- * Cross-Browser Runner for Select All / Loaded Profiles Selection with Search functionality.
- * 
- * Command: mvn test -Dtest=CrossBrowser27_SelectAllWithSearchFunctionalityRunner
- * Result: Chrome + Firefox + Edge run automatically
- */
 @Listeners({
     ExcelReportListener.class,
     AllureTestNg.class

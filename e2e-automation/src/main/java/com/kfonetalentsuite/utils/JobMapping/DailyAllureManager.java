@@ -14,16 +14,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.kfonetalentsuite.utils.common.CommonVariable;
 
-/**
- * Daily Allure Report Manager
- * 
- * Similar to DailyExcelTracker, this utility handles:
- * - Daily reset of Allure reports (detects new day)
- * - Automatic backup of old reports to Backup folder
- * - Prevents accumulation of old report data
- * 
- * Integration: Called from SuiteHooks.onStart() before test execution
- */
 public class DailyAllureManager {
 
 	private static final Logger LOGGER = LogManager.getLogger(DailyAllureManager.class);
@@ -37,10 +27,6 @@ public class DailyAllureManager {
 	// Marker file to track last reset date
 	private static final String LAST_RESET_MARKER = "AllureReports/.last-reset-date";
 
-	/**
-	 * Main entry point: Check for daily reset and perform backup if needed
-	 * Called from SuiteHooks.onStart() before test execution
-	 */
 	public static void checkAndPerformDailyReset() {
 		// CONFIGURATION CHECK: Skip Allure daily reset if disabled in config.properties
 		if (CommonVariable.ALLURE_REPORTING_ENABLED != null
@@ -73,9 +59,6 @@ public class DailyAllureManager {
 		}
 	}
 
-	/**
-	 * Check if it's a new day by comparing current date with last reset date
-	 */
 	private static boolean isNewDayDetected() {
 		try {
 			String currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -106,9 +89,6 @@ public class DailyAllureManager {
 		}
 	}
 
-	/**
-	 * Perform daily reset: Backup existing reports and clean results
-	 */
 	private static void performDailyReset() {
 		try {
 			LOGGER.info("Starting Allure daily reset process...");
@@ -145,9 +125,6 @@ public class DailyAllureManager {
 		}
 	}
 
-	/**
-	 * Create AllureReports directory structure (similar to ExcelReports)
-	 */
 	private static void createBackupDirectories() {
 		try {
 			// Create main AllureReports directory
@@ -188,9 +165,6 @@ public class DailyAllureManager {
 		}
 	}
 
-	/**
-	 * Backup Allure results directory to Backup folder (once per day only)
-	 */
 	private static void backupAllureResults(File resultsDir) {
 		try {
 			String todayDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -223,9 +197,6 @@ public class DailyAllureManager {
 		}
 	}
 
-	/**
-	 * Backup Allure report directory to Backup folder (once per day only)
-	 */
 	private static void backupAllureReport(File reportDir) {
 		try {
 			String todayDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -258,9 +229,6 @@ public class DailyAllureManager {
 		}
 	}
 
-	/**
-	 * Copy directory recursively
-	 */
 	private static void copyDirectory(File sourceDir, File destDir) throws IOException {
 		if (!destDir.exists()) {
 			destDir.mkdirs();
@@ -288,9 +256,6 @@ public class DailyAllureManager {
 		}
 	}
 
-	/**
-	 * Clean Allure results and report directories
-	 */
 	private static void cleanAllureDirectories() {
 		try {
 			// Clean results directory
@@ -311,9 +276,6 @@ public class DailyAllureManager {
 		}
 	}
 
-	/**
-	 * Delete all contents of a directory (but keep the directory itself)
-	 */
 	private static void deleteDirectoryContents(File directory) throws IOException {
 		File[] files = directory.listFiles();
 		if (files == null) {
@@ -329,9 +291,6 @@ public class DailyAllureManager {
 		}
 	}
 
-	/**
-	 * Delete directory recursively
-	 */
 	private static void deleteDirectory(File directory) throws IOException {
 		File[] files = directory.listFiles();
 		if (files != null) {
@@ -346,9 +305,6 @@ public class DailyAllureManager {
 		Files.delete(directory.toPath());
 	}
 
-	/**
-	 * Update reset marker file with current date
-	 */
 	private static void updateResetMarker() {
 		try {
 			String currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));

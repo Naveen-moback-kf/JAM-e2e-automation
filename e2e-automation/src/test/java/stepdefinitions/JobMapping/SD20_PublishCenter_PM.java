@@ -104,7 +104,6 @@ public class SD20_PublishCenter_PM {
 		ValidatePublishCenter_PM.getPublishCenter_PM().user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles_in_job_profile_history_screen();
 	}
 
-	
 	@Then("User should verify first thirty job profiles in default order before applying sorting in Job Profile History screen")
 	public void user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting_in_job_profile_history_screen() throws IOException {
 		ValidatePublishCenter_PM.getPublishCenter_PM().user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting_in_job_profile_history_screen();

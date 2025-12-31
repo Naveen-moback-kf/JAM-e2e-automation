@@ -3,18 +3,6 @@ package com.kfonetalentsuite.utils.JobMapping;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Progress Bar Utility for Test Suite Execution
- * 
- * FEATURES: - Displays colorful progress bar during test suite execution -
- * Shows runner completion count (e.g., "3/10 runners completed") - Works with
- * both console and file logging - Green color coding for visual appeal -
- * Thread-safe implementation
- * 
- * INTEGRATION: - Called from ExcelReportListener during test execution -
- * Automatically detects console vs file logging - Non-intrusive - doesn't
- * affect test execution
- */
 public class ProgressBarUtil {
 
 	private static final Logger LOGGER = LogManager.getLogger(ProgressBarUtil.class);
@@ -42,11 +30,6 @@ public class ProgressBarUtil {
 	private static final String PROGRESS_EMPTY = "-"; // Solid block for empty sections too
 	private static final String PROGRESS_ARROW = "-"; // Solid block for arrow too (cleaner look)
 
-	/**
-	 * Initialize progress tracking for a new test suite execution
-	 * 
-	 * @param totalCount Total number of runners in the test suite
-	 */
 	public static synchronized void initializeProgress(int totalCount) {
 		if (!PROGRESS_BAR_ENABLED || totalCount <= 0) {
 			return;
@@ -59,11 +42,6 @@ public class ProgressBarUtil {
 		displayProgressBar("Initializing...", false);
 	}
 
-	/**
-	 * Update progress when a runner completes
-	 * 
-	 * @param runnerName Name of the completed runner
-	 */
 	public static synchronized void updateProgress(String runnerName) {
 		if (!PROGRESS_BAR_ENABLED || totalRunners <= 0) {
 			return;
@@ -82,12 +60,6 @@ public class ProgressBarUtil {
 		}
 	}
 
-	/**
-	 * Display the progress bar with current status
-	 * 
-	 * @param statusMessage Current status message
-	 * @param showCompleted Whether to show completion indicator
-	 */
 	private static void displayProgressBar(String statusMessage, boolean showCompleted) {
 		if (totalRunners <= 0)
 			return;
@@ -144,9 +116,6 @@ public class ProgressBarUtil {
 		}
 	}
 
-	/**
-	 * Clean up runner name for display
-	 */
 	private static String cleanRunnerName(String runnerName) {
 		if (runnerName == null)
 			return "Unknown Runner";
@@ -171,10 +140,6 @@ public class ProgressBarUtil {
 		return cleaned;
 	}
 
-	/**
-	 * Check if the current logging environment supports ANSI colors ENHANCED:
-	 * Better Windows support and force enable option
-	 */
 	private static boolean supportsColors() {
 		// Check if colors are explicitly forced on
 		boolean forceColors = Boolean.parseBoolean(System.getProperty("progress.colors.force", "false"));
@@ -222,18 +187,12 @@ public class ProgressBarUtil {
 		return colorsSupported;
 	}
 
-	/**
-	 * Log a message with progress context
-	 */
 	private static void logWithProgress(String message, Object... args) {
 		if (PROGRESS_BAR_ENABLED) {
 			LOGGER.info(" " + message, args);
 		}
 	}
 
-	/**
-	 * Reset progress tracking (for cleanup)
-	 */
 	public static synchronized void resetProgress() {
 		totalRunners = 0;
 		completedRunners = 0;

@@ -5,23 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
 
-/**
- * RetryAnalyzer - Automatically retries failed FEATURES (entire test)
- * 
- * This class implements TestNG's IRetryAnalyzer to automatically retry
- * failed tests up to a configurable number of times.
- * 
- * FEATURE-LEVEL RETRY BEHAVIOR:
- * - When ANY scenario in a feature fails, the ENTIRE FEATURE is retried
- * - All scenarios in the feature will be re-executed from the beginning
- * - Up to MAX_RETRY_COUNT retry attempts for the whole feature
- * 
- * This is achieved by running all scenarios in a single @Test method (runFeature)
- * in CustomizeTestNGCucumberRunner. When the test method fails, RetryAnalyzer
- * retries the entire method, which re-runs all scenarios.
- * 
- * @author Automation Team
- */
 public class RetryAnalyzer implements IRetryAnalyzer {
 
 	private static final Logger LOGGER = LogManager.getLogger(RetryAnalyzer.class);
@@ -33,12 +16,6 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 	// Maximum number of retry attempts (can be made configurable via config.properties)
 	private static final int MAX_RETRY_COUNT = 2;
 
-	/**
-	 * Determines whether a failed test (feature) should be retried.
-	 * 
-	 * @param result The test result of the failed test
-	 * @return true if the test should be retried, false otherwise
-	 */
 	@Override
 	public boolean retry(ITestResult result) {
 		if (retryCount < MAX_RETRY_COUNT) {
@@ -74,9 +51,6 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 		return false;
 	}
 
-	/**
-	 * Try to extract the failed scenario name from the error message.
-	 */
 	private String extractFailedScenarioFromError(String errorMessage) {
 		if (errorMessage == null) return "Unknown Scenario";
 		
@@ -92,18 +66,12 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 		return "See error details above";
 	}
 
-	/**
-	 * Get simple class name from fully qualified name.
-	 */
 	private String getSimpleClassName(String fullClassName) {
 		if (fullClassName == null) return "Unknown";
 		int lastDot = fullClassName.lastIndexOf('.');
 		return lastDot > 0 ? fullClassName.substring(lastDot + 1) : fullClassName;
 	}
 
-	/**
-	 * Truncates a message if it exceeds the specified length.
-	 */
 	private String truncateMessage(String message, int maxLength) {
 		if (message == null) {
 			return "null";
@@ -116,11 +84,6 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 		return message;
 	}
 
-	/**
-	 * Get the maximum retry count configured.
-	 * 
-	 * @return Maximum number of retries
-	 */
 	public static int getMaxRetryCount() {
 		return MAX_RETRY_COUNT;
 	}

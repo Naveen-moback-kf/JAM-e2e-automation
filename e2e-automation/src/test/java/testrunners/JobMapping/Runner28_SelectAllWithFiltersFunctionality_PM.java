@@ -13,14 +13,6 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.cucumber.testng.CucumberOptions;
 
-/**
- * Runner for Select All / Loaded Profiles Selection with Filters - PM (HCM Sync Profiles).
- * 
- * Tags available:
- * - @SelectAll_PM - All Select All scenarios in PM
- * - @LoadedProfiles_PM - Loaded Profiles scenarios in PM
- * - @SelectAll_With_Filters_PM - Run all PM scenarios
- */
 @Listeners({
 	ExcelReportListener.class,
 	AllureTestNg.class

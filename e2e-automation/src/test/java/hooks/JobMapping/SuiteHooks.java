@@ -12,12 +12,6 @@ import com.kfonetalentsuite.utils.JobMapping.SessionManager;
 import com.kfonetalentsuite.utils.JobMapping.DailyAllureManager;
 import com.kfonetalentsuite.utils.JobMapping.AllureEnvironmentInfo;
 
-/**
- * Suite-level hooks for test execution lifecycle management
- * Implements ISuiteListener to properly integrate with TestNG
- * 
- * PARALLEL EXECUTION: Includes ThreadLocal cleanup to prevent memory leaks
- */
 public class SuiteHooks implements ISuiteListener {
 
 	protected static final Logger LOGGER = LogManager.getLogger(SuiteHooks.class);
@@ -56,14 +50,6 @@ public class SuiteHooks implements ISuiteListener {
 		LOGGER.info("==================================================");
 	}
 
-	/**
-	 * PARALLEL EXECUTION OPTIMIZATION: Clean up all ThreadLocal variables
-	 * Prevents memory leaks in long-running test suites
-	 * 
-	 * ThreadLocal variables store thread-specific data. When tests complete,
-	 * these variables should be cleared to free memory and prevent stale data
-	 * from affecting subsequent test runs.
-	 */
 	private void cleanupAllThreadLocals() {
 		try {
 			LOGGER.info("Cleaning up ThreadLocal variables...");

@@ -102,10 +102,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Selects a DIFFERENT (second) option in Grades filter - for alternative validation scenarios.
-	 * Unlike select_two_options which selects BOTH 1st and 2nd, this selects ONLY the 2nd option.
-	 */
 	public void select_different_option_in_grades_filters_dropdown() throws Exception {
 		try {
 			wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(GRADES_CHECKBOXES));
@@ -1081,10 +1077,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	// CONSOLIDATED/PARAMETERIZED METHODS - For unified filter handling
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	/**
-	 * Unified method to click on any filter dropdown by filter type
-	 * @param filterType - Grades, Departments, FunctionsSubfunctions, MappingStatus
-	 */
 	public void click_on_filter_dropdown_button(String filterType) throws Exception {
 		try {
 			waitForSpinners();
@@ -1113,10 +1105,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Unified method to select one option in any filter dropdown
-	 * @param filterType - Grades, Departments, FunctionsSubfunctions, MappingStatus
-	 */
 	public void select_one_option_in_filter_dropdown(String filterType) throws Exception {
 		try {
 			switch (filterType.toLowerCase().replace(" ", "").replace("_", "")) {
@@ -1142,10 +1130,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Unified method to select two options in any filter dropdown
-	 * @param filterType - Grades, Departments (FunctionsSubfunctions has separate handling)
-	 */
 	public void select_two_options_in_filter_dropdown(String filterType) throws Exception {
 		try {
 			switch (filterType.toLowerCase().replace(" ", "").replace("_", "")) {
@@ -1171,10 +1155,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		}
 	}
 
-	/**
-	 * Unified method to validate filter results for any filter type
-	 * @param filterType - Grades, Departments, FunctionsSubfunctions, MappingStatus
-	 */
 	public void validate_filter_results(String filterType) throws Exception {
 		try {
 			switch (filterType.toLowerCase().replace(" ", "").replace("_", "")) {

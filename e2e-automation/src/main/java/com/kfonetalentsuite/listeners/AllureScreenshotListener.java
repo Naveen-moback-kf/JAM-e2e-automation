@@ -15,17 +15,6 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.qameta.allure.Allure;
 
-/**
- * Allure Screenshot Listener
- * 
- * Automatically attaches screenshots to Allure reports on test failures.
- * Integrates with existing ScreenshotHandler for seamless screenshot management.
- * 
- * Features:
- * - Automatic screenshot attachment on test failure
- * - Manual screenshot attachment support
- * - Integrates with existing screenshot infrastructure
- */
 public class AllureScreenshotListener implements ITestListener {
 
 	private static final Logger LOGGER = LogManager.getLogger(AllureScreenshotListener.class);
@@ -63,12 +52,6 @@ public class AllureScreenshotListener implements ITestListener {
 		}
 	}
 
-	/**
-	 * Attach screenshot file to Allure report
-	 * 
-	 * @param screenshotPath Path to the screenshot file
-	 * @param attachmentName Name for the attachment in Allure report
-	 */
 	public static void attachScreenshotToAllure(String screenshotPath, String attachmentName) {
 		try {
 			File screenshotFile = new File(screenshotPath);
@@ -94,13 +77,6 @@ public class AllureScreenshotListener implements ITestListener {
 		}
 	}
 
-	/**
-	 * Attach screenshot from byte array to Allure report
-	 * Useful for capturing screenshots directly without saving to file first
-	 * 
-	 * @param screenshotBytes Screenshot as byte array
-	 * @param attachmentName Name for the attachment in Allure report
-	 */
 	public static void attachScreenshotBytesToAllure(byte[] screenshotBytes, String attachmentName) {
 		try {
 			if (screenshotBytes == null || screenshotBytes.length == 0) {
@@ -123,13 +99,6 @@ public class AllureScreenshotListener implements ITestListener {
 		}
 	}
 
-	/**
-	 * Capture and attach screenshot directly to Allure (without saving to file)
-	 * Useful for quick screenshots during test execution
-	 * 
-	 * @param attachmentName Name for the attachment in Allure report
-	 * @return true if screenshot was captured and attached, false otherwise
-	 */
 	public static boolean captureAndAttachScreenshot(String attachmentName) {
 		try {
 			org.openqa.selenium.WebDriver driver = DriverManager.getDriver();
@@ -155,10 +124,6 @@ public class AllureScreenshotListener implements ITestListener {
 		}
 	}
 
-	/**
-	 * Check if Allure reporting is enabled in config.properties
-	 * Similar to Excel reporting flag check
-	 */
 	private static boolean isAllureReportingEnabled() {
 		return CommonVariable.ALLURE_REPORTING_ENABLED == null
 				|| !CommonVariable.ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false");
