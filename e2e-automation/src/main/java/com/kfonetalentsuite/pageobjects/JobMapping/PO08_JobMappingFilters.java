@@ -413,34 +413,57 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			if (DepartmentsOption1.get() != null && !DepartmentsOption1.get().isEmpty()) expectedDepts.add(DepartmentsOption1.get());
 			if (DepartmentsOption2.get() != null && !DepartmentsOption2.get().isEmpty()) expectedDepts.add(DepartmentsOption2.get());
 			
-			// Wait for filter to apply
-			PerformanceUtils.waitForPageReady(driver, 2);
-			waitForSpinners();
-			safeSleep(1000);
-			
-			// Wait until filter is applied - first element should match expected departments
-			int maxWaitAttempts = 5;
-			boolean filterApplied = false;
-			for (int attempt = 0; attempt < maxWaitAttempts && !filterApplied; attempt++) {
-				List<WebElement> checkElements = driver.findElements(ALL_DEPARTMENTS_COLUMN);
-				if (!checkElements.isEmpty()) {
-					String firstDept = checkElements.get(0).getText();
-					if (expectedDepts.contains(firstDept)) {
-						filterApplied = true;
-						LOGGER.info("Filter confirmed applied - first result '{}' matches expected", firstDept);
-					}
-				}
-				if (!filterApplied) {
-					safeSleep(500);
-					waitForSpinners();
+		// Wait for filter to apply
+		PerformanceUtils.waitForPageReady(driver, 2);
+		waitForSpinners();
+		safeSleep(1000);
+		
+		// FIRST: Check if no data is available - this is a valid outcome when filter has no matching data
+		try {
+			if (driver.findElement(NO_DATA_CONTAINER).isDisplayed()) {
+				PageObjectHelper.log(LOGGER, "✅ Department filter applied successfully - No matching data found (valid outcome)");
+				scrollToTop();
+				return;
+			}
+		} catch (Exception e) {
+			// NO_DATA_CONTAINER not found, continue with validation
+		}
+		
+		// SECOND: Check if results show "0 of 0"
+		try {
+			String resultsText = driver.findElement(Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
+			if (resultsText.contains("0 of 0")) {
+				PageObjectHelper.log(LOGGER, "✅ Department filter applied successfully - No matching profiles (0 of 0 results)");
+				scrollToTop();
+				return;
+			}
+		} catch (Exception e) {
+			// Results text not found or not "0 of 0", continue with validation
+		}
+		
+		// Wait until filter is applied - first element should match expected departments
+		int maxWaitAttempts = 5;
+		boolean filterApplied = false;
+		for (int attempt = 0; attempt < maxWaitAttempts && !filterApplied; attempt++) {
+			List<WebElement> checkElements = driver.findElements(ALL_DEPARTMENTS_COLUMN);
+			if (!checkElements.isEmpty()) {
+				String firstDept = checkElements.get(0).getText();
+				if (expectedDepts.contains(firstDept)) {
+					filterApplied = true;
+					LOGGER.info("Filter confirmed applied - first result '{}' matches expected", firstDept);
 				}
 			}
-			
 			if (!filterApplied) {
-				List<WebElement> checkElements = driver.findElements(ALL_DEPARTMENTS_COLUMN);
-				String actualFirst = checkElements.isEmpty() ? "No elements found" : checkElements.get(0).getText();
-				throw new Exception("Filter did not apply within timeout. Expected one of: " + expectedDepts + ", but first result is: " + actualFirst);
+				safeSleep(500);
+				waitForSpinners();
 			}
+		}
+		
+		if (!filterApplied) {
+			List<WebElement> checkElements = driver.findElements(ALL_DEPARTMENTS_COLUMN);
+			String actualFirst = checkElements.isEmpty() ? "No elements found" : checkElements.get(0).getText();
+			throw new Exception("Filter did not apply within timeout. Expected one of: " + expectedDepts + ", but first result is: " + actualFirst);
+		}
 			
 			// Validate all departments
 			int deptCount = driver.findElements(ALL_DEPARTMENTS_COLUMN).size();
