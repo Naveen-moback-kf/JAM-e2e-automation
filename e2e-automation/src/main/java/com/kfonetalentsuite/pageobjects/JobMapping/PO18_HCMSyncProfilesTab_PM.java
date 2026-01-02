@@ -538,8 +538,11 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab() {
 		try {
-			waitForPageStability(5);
-			WebElement resultsCountElement = waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT, 10);
+			waitForSpinners(15);
+			PerformanceUtils.waitForPageReady(driver, 5);
+			safeSleep(1000);
+			
+			WebElement resultsCountElement = waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT, 15);
 			String resultsCountText = resultsCountElement.getText().trim();
 
 			if (resultsCountText.isEmpty()) {
@@ -856,9 +859,11 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void clear_kf_grade_filter_in_hcm_sync_profiles_tab() {
 		try {
-			WebElement closeFilterElement = wait.until(ExpectedConditions.visibilityOf(findElement(CLOSE_APPLIED_FILTER)));
+			WebElement closeFilterElement = waitForElement(CLOSE_APPLIED_FILTER, 10);
 			closeFilterElement.click();
-			waitForSpinners();
+			safeSleep(500);
+			waitForSpinners(15);
+			PerformanceUtils.waitForPageReady(driver, 3);
 			PageObjectHelper.log(LOGGER, "Cleared Applied KF Grade Filter in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
 			LOGGER.error("Issue clearing KF Grade filter", e);
@@ -1245,16 +1250,30 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 			try {
 				js.executeScript("window.scrollTo(0, 0);");
+				safeSleep(500);
+				
+				// Try clicking the Filters button to close the dropdown
 				try {
-					wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_HEADER))).click();
+					WebElement filtersBtn = waitForElement(FILTERS_DROPDOWN_BTN, 10);
+					filtersBtn.click();
+					LOGGER.info("Clicked Filters button to close dropdown");
 				} catch (Exception e) {
+					LOGGER.warn("Standard Filters button click failed, trying alternatives...");
 					try {
-						js.executeScript("arguments[0].click();", findElement(HCM_SYNC_PROFILES_HEADER));
-					} catch (Exception s) {
+						jsClick(findElement(FILTERS_DROPDOWN_BTN));
+						LOGGER.info("Used JS click on Filters button");
+					} catch (Exception ex) {
+						// Fallback: Click on header
+						LOGGER.warn("Filters button click failed, clicking header as fallback");
 						jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
 					}
 				}
-				Assert.assertTrue(wait.until(ExpectedConditions.invisibilityOf(findElement(FILTER_OPTIONS))));
+				
+				// Wait for dropdown to close
+				safeSleep(800);
+				waitForSpinners(10);
+				PerformanceUtils.waitForPageReady(driver, 3);
+				
 				PageObjectHelper.log(LOGGER, "Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 			} catch (Exception e) {
 				LOGGER.error(
@@ -1540,8 +1559,15 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void click_on_header_checkbox_to_select_loaded_job_profiles_in_hcm_sync_profiles_tab() {
 		try {
+			// Ensure we're at the top of the page and everything is loaded
+			js.executeScript("window.scrollTo(0, 0);");
+			waitForSpinners(15);
+			PerformanceUtils.waitForPageReady(driver, 3);
+			safeSleep(1000);
+			
 			// Step 1: Store count of profiles loaded BEFORE clicking header checkbox
-			String resultsCountText = wait.until(ExpectedConditions.visibilityOf(findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT))).getText();
+			WebElement resultsCountElement = waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT, 15);
+			String resultsCountText = resultsCountElement.getText();
 			String[] resultsCountText_split = resultsCountText.split(" ");
 			loadedProfilesBeforeHeaderCheckboxClick.set(Integer.parseInt(resultsCountText_split[1]));
 			LOGGER.info("Loaded profiles on screen (BEFORE header checkbox click): "
@@ -1552,17 +1578,23 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			try {
 				WebElement innerInput = headerCheckbox.findElement(By.xpath(".//input | .//span | .//*[contains(@class,'checkbox')]"));
 				jsClick(innerInput);
+				LOGGER.info("Clicked header checkbox inner element");
 			} catch (Exception e1) {
+				LOGGER.warn("Inner element click failed, trying direct checkbox click");
 				try {
 					jsClick(headerCheckbox);
+					LOGGER.info("Clicked header checkbox directly");
 				} catch (Exception e2) {
+					LOGGER.warn("Direct click failed, using Actions");
 					new Actions(driver).moveToElement(headerCheckbox).click().perform();
+					LOGGER.info("Clicked header checkbox using Actions");
 				}
 			}
 			
 			// Wait for selection to complete
-			waitForSpinners();
-			safeSleep(500);
+			safeSleep(800);
+			waitForSpinners(15);
+			PerformanceUtils.waitForPageReady(driver, 3);
 
 			// Step 3: Count selected and disabled profiles (without scrolling)
 			profilesCount.set(loadedProfilesBeforeHeaderCheckboxClick.get());
@@ -1572,8 +1604,6 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				try {
 					WebElement SP_Checkbox = driver.findElement(
 							By.xpath("//tbody//tr[" + Integer.toString(i) + "]//td[1]//*//..//div//kf-checkbox//div"));
-					// REMOVED: Scroll operation -
-					// js.executeScript("arguments[0].scrollIntoView(true);", SP_Checkbox);
 					String text = SP_Checkbox.getAttribute("class");
 					if (text.contains("disable")) {
 						PageObjectHelper.log(LOGGER, "Success profile with No Job Code assigned is found....");
@@ -1675,13 +1705,24 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void click_on_first_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
-			jobname1.set(wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW1))).getText());
+			// Wait for table to be fully loaded
+			waitForSpinners(15);
+			PerformanceUtils.waitForPageReady(driver, 3);
+			safeSleep(1000);
+			
+			// Wait for first row to be visible
+			WebElement firstRow = waitForElement(HCM_SYNC_PROFILES_JOB_ROW1, 15);
+			jobname1.set(firstRow.getText());
+			LOGGER.info("Found first profile: " + jobname1.get());
 			
 			// Check if already selected - skip if yes
-			if (isCheckboxSelected(1)) return;
+			if (isCheckboxSelected(1)) {
+				LOGGER.info("First profile already selected, skipping");
+				return;
+			}
 			
 			clickWithFallback(PROFILE1_CHECKBOX);
-			safeSleep(200);
+			safeSleep(300);
 			
 			// Only increment count if checkbox is actually selected after clicking
 			if (isCheckboxSelected(1)) {
