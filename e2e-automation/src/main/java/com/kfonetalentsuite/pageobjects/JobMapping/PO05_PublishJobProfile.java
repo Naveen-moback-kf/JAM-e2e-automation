@@ -361,86 +361,33 @@ public class PO05_PublishJobProfile extends BasePageObject {
 				throw new Exception("Job name to search is null or empty");
 			}
 			
-			int maxSearchAttempts = 5;
-			boolean searchSuccessful = false;
+			// Perform search
+			PerformanceUtils.waitForPageReady(driver, 2);
+			waitForSpinners();
+			safeSleep(300);
 			
-			// SIMPLE APPROACH: Search until first result matches what we searched for
-			for (int attempt = 1; attempt <= maxSearchAttempts && !searchSuccessful; attempt++) {
-				try {
-					LOGGER.info("Search attempt {}/{} for '{}'", attempt, maxSearchAttempts, searchTerm);
-					
-					// Perform search
-					PerformanceUtils.waitForPageReady(driver, 2);
-					waitForSpinners();
-					safeSleep(300);
-					
-					WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
-					scrollToElement(searchBox);
-					
-					// Clear thoroughly
-					try {
-						searchBox.click();
-						safeSleep(200);
-						searchBox.clear();
-						searchBox.sendKeys(Keys.CONTROL + "a");
-						searchBox.sendKeys(Keys.DELETE);
-						safeSleep(200);
-					} catch (Exception clearEx) {
-						jsClick(searchBox);
-						safeSleep(200);
-						js.executeScript("arguments[0].value = '';", searchBox);
-						safeSleep(200);
-					}
-					
-					// Type and search
-					searchBox.sendKeys(searchTerm);
-					safeSleep(300);
-					searchBox.sendKeys(Keys.ENTER);
-					
-					// Wait for search to complete
-					waitForSpinners();
-					PerformanceUtils.waitForPageReady(driver, 3);
-					safeSleep(1000);
-					
-					// VERIFY: Check if first result matches search term
-					try {
-						WebElement firstRow = waitForElement(HCM_JOB_ROW_1, 5);
-						String firstRowText = firstRow.getText();
-						String actualJobName = firstRowText.split("-", 2)[0].trim();
-						
-						if (actualJobName.equalsIgnoreCase(searchTerm)) {
-							// SUCCESS! Search returned correct result
-							searchSuccessful = true;
-							LOGGER.info("✓ Search successful! First result '{}' matches search term '{}' (attempt {})", 
-								actualJobName, searchTerm, attempt);
-							PageObjectHelper.log(LOGGER, "Searched for job: " + searchTerm + " in HCM Sync Profiles");
-						} else {
-							// Wrong result - will retry
-							LOGGER.warn("Search returned wrong job. Expected: '{}', Found: '{}'. Retrying search... (attempt {}/{})", 
-								searchTerm, actualJobName, attempt, maxSearchAttempts);
-							safeSleep(1500 * attempt); // Exponential backoff
-						}
-					} catch (org.openqa.selenium.TimeoutException e) {
-						LOGGER.warn("No results found or results not loaded yet (attempt {}/{})", attempt, maxSearchAttempts);
-						safeSleep(2000);
-					}
-					
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					LOGGER.warn("Stale element during search (attempt {}/{}). Retrying...", attempt, maxSearchAttempts);
-					safeSleep(1000);
-				} catch (Exception e) {
-					LOGGER.warn("Error during search attempt {}/{}: {}", attempt, maxSearchAttempts, e.getMessage());
-					safeSleep(1500 * attempt);
-				}
-			}
+			WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
+			scrollToElement(searchBox);
 			
-			// Final check
-			if (!searchSuccessful) {
-				String errorMsg = String.format("[Thread-%d] Search failed to return correct results for '%s' after %d attempts", 
-					Thread.currentThread().getId(), searchTerm, maxSearchAttempts);
-				LOGGER.error(errorMsg);
-				throw new Exception(errorMsg);
-			}
+			// Clear search box
+			searchBox.click();
+			safeSleep(200);
+			searchBox.clear();
+			searchBox.sendKeys(Keys.CONTROL + "a");
+			searchBox.sendKeys(Keys.DELETE);
+			safeSleep(200);
+			
+			// Type and search
+			searchBox.sendKeys(searchTerm);
+			safeSleep(300);
+			searchBox.sendKeys(Keys.ENTER);
+			
+			// Wait for search to complete
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 3);
+			safeSleep(1500);
+			
+			PageObjectHelper.log(LOGGER, "Searched for job: " + searchTerm + " in HCM Sync Profiles");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name_in_hcm_sync_profiles_tab_in_pm", 
@@ -454,92 +401,36 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			LOGGER.info("[Thread-{}] Searching HCM Sync by job code: '{}'", Thread.currentThread().getId(), jobCode);
 			
 			if (jobCode == null || jobCode.isEmpty() || jobCode.equals("NOT_SET")) {
-				LOGGER.warn("Job code is null/empty/NOT_SET - search may not return expected results");
-				if (jobCode == null || jobCode.isEmpty()) {
-					throw new Exception("Job code is null or empty - cannot perform search");
-				}
+				throw new Exception("Job code is null, empty, or NOT_SET - cannot perform search");
 			}
 			
-			int maxSearchAttempts = 5;
-			boolean searchSuccessful = false;
+			// Perform search
+			PerformanceUtils.waitForPageReady(driver, 2);
+			waitForSpinners();
+			safeSleep(300);
 			
-			// SIMPLE APPROACH: Search until results are correct
-			for (int attempt = 1; attempt <= maxSearchAttempts && !searchSuccessful; attempt++) {
-				try {
-					LOGGER.info("Search attempt {}/{} for job code '{}'", attempt, maxSearchAttempts, jobCode);
-					
-					// Perform search
-					PerformanceUtils.waitForPageReady(driver, 2);
-					waitForSpinners();
-					safeSleep(300);
-					
-					WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
-					scrollToElement(searchBox);
-					
-					// Clear thoroughly
-					try {
-						searchBox.click();
-						safeSleep(200);
-						searchBox.clear();
-						searchBox.sendKeys(Keys.CONTROL + "a");
-						searchBox.sendKeys(Keys.DELETE);
-						safeSleep(200);
-					} catch (Exception clearEx) {
-						jsClick(searchBox);
-						safeSleep(200);
-						js.executeScript("arguments[0].value = '';", searchBox);
-						safeSleep(200);
-					}
-					
-					// Type and search
-					searchBox.sendKeys(jobCode);
-					safeSleep(300);
-					searchBox.sendKeys(Keys.ENTER);
-					
-					// Wait for search to complete
-					waitForSpinners();
-					PerformanceUtils.waitForPageReady(driver, 3);
-					safeSleep(1000);
-					
-				// VERIFY: Check if results contain the job code
-				try {
-					WebElement firstRow = waitForElement(HCM_JOBCODE_ROW_1, 5);
-					String actualJobCode = firstRow.getText().trim();
-					
-					// Job code should match exactly in the dedicated job code column
-					if (actualJobCode.equals(jobCode)) {
-						// SUCCESS! Search returned correct result
-						searchSuccessful = true;
-						LOGGER.info("✓ Search successful! Job code '{}' found in results (attempt {})", 
-							jobCode, attempt);
-						PageObjectHelper.log(LOGGER, "Searched for job code: " + jobCode + " in HCM Sync Profiles");
-					} else {
-						// Wrong result - will retry
-						LOGGER.warn("Search returned wrong result. Expected code: '{}', Found: '{}'. Retrying... (attempt {}/{})", 
-							jobCode, actualJobCode, attempt, maxSearchAttempts);
-						safeSleep(1500 * attempt); // Exponential backoff
-					}
-				} catch (org.openqa.selenium.TimeoutException e) {
-					LOGGER.warn("No results found or results not loaded yet (attempt {}/{})", attempt, maxSearchAttempts);
-					safeSleep(2000);
-				}
-					
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					LOGGER.warn("Stale element during search (attempt {}/{}). Retrying...", attempt, maxSearchAttempts);
-					safeSleep(1000);
-				} catch (Exception e) {
-					LOGGER.warn("Error during search attempt {}/{}: {}", attempt, maxSearchAttempts, e.getMessage());
-					safeSleep(1500 * attempt);
-				}
-			}
+			WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
+			scrollToElement(searchBox);
 			
-			// Final check
-			if (!searchSuccessful) {
-				String errorMsg = String.format("[Thread-%d] Search failed to return correct results for job code '%s' after %d attempts", 
-					Thread.currentThread().getId(), jobCode, maxSearchAttempts);
-				LOGGER.error(errorMsg);
-				throw new Exception(errorMsg);
-			}
+			// Clear search box
+			searchBox.click();
+			safeSleep(200);
+			searchBox.clear();
+			searchBox.sendKeys(Keys.CONTROL + "a");
+			searchBox.sendKeys(Keys.DELETE);
+			safeSleep(200);
+			
+			// Type and search
+			searchBox.sendKeys(jobCode);
+			safeSleep(300);
+			searchBox.sendKeys(Keys.ENTER);
+			
+			// Wait for search to complete
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 3);
+			safeSleep(1500);
+			
+			PageObjectHelper.log(LOGGER, "Searched for job code: " + jobCode + " in HCM Sync Profiles");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_code_in_hcm_sync_profiles_tab_in_pm", 
