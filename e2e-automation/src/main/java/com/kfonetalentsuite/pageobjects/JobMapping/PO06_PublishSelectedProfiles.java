@@ -37,109 +37,33 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				throw new Exception("Job name to search is null or empty");
 			}
 			
-			LOGGER.info("Starting search for job: {}", jobName);
+			LOGGER.info("Searching for job: {}", jobName);
 			PerformanceUtils.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(500);
 			
-			// ENHANCED PARALLEL EXECUTION FIX: Retry entire search operation if needed
-			int searchAttempts = 0;
-			int maxSearchAttempts = 3;
-			boolean searchSuccessful = false;
+			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
+			scrollToElement(searchBar);
 			
-			while (searchAttempts < maxSearchAttempts && !searchSuccessful) {
-				searchAttempts++;
-				
-				try {
-					// Re-fetch search bar element for each attempt to avoid stale references
-					WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
-					scrollToElement(searchBar);
-					safeSleep(300);
-					
-					// Thorough clearing with multiple methods
-					try {
-						searchBar.click();
-						safeSleep(300);
-						searchBar.clear();
-						safeSleep(200);
-						searchBar.sendKeys(Keys.CONTROL + "a");
-						searchBar.sendKeys(Keys.DELETE);
-						safeSleep(300);
-					} catch (Exception clearEx) {
-						LOGGER.warn("Standard clear failed, using JS (attempt {}): {}", searchAttempts, clearEx.getMessage());
-						searchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR); // Re-fetch
-						jsClick(searchBar);
-						safeSleep(300);
-						js.executeScript("arguments[0].value = '';", searchBar);
-						safeSleep(300);
-					}
-					
-					// Re-fetch search bar before typing (might be stale after clearing)
-					searchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR);
-					searchBar.click();
-					safeSleep(200);
-					
-					// Type search term
-					searchBar.sendKeys(jobName);
-					safeSleep(500);
-					
-					// Re-fetch before pressing Enter
-					searchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR);
-					searchBar.sendKeys(Keys.ENTER);
-					LOGGER.info("Submitted search for: {} (attempt {})", jobName, searchAttempts);
-					
-					// Wait for search to process
-					waitForSpinners();
-					PerformanceUtils.waitForPageReady(driver, 5);
-					safeSleep(1000);
-					
-					// Verify search was actually applied
-					int verifyRetries = 5;
-					boolean searchApplied = false;
-					for (int v = 0; v < verifyRetries && !searchApplied; v++) {
-						safeSleep(500);
-						try {
-							WebElement verifySearchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR);
-							String searchValue = verifySearchBar.getAttribute("value");
-							if (searchValue != null && searchValue.trim().equalsIgnoreCase(jobName.trim())) {
-								searchApplied = true;
-								searchSuccessful = true;
-								LOGGER.info("✓ Search confirmed applied: '{}' (attempt {}/{})", searchValue, searchAttempts, maxSearchAttempts);
-							} else {
-								LOGGER.warn("Search not yet applied (verify {}/{}). Expected: '{}', Found: '{}'", 
-									v + 1, verifyRetries, jobName, searchValue);
-							}
-						} catch (Exception e) {
-							LOGGER.warn("Could not verify search bar value (verify {}/{}): {}", v + 1, verifyRetries, e.getMessage());
-						}
-					}
-					
-					if (searchSuccessful) {
-						// Final wait for results to filter
-						safeSleep(1000);
-						waitForSpinners();
-						PerformanceUtils.waitForPageReady(driver, 2);
-						LOGGER.info("✓ Search completed successfully for job: {}", jobName);
-						PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
-						break;
-					} else {
-						LOGGER.warn("Search not confirmed after verification retries (attempt {}/{})", searchAttempts, maxSearchAttempts);
-						if (searchAttempts < maxSearchAttempts) {
-							safeSleep(1000 * searchAttempts); // Exponential backoff
-						}
-					}
-					
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					LOGGER.warn("Stale element during search (attempt {}/{}): {}", searchAttempts, maxSearchAttempts, e.getMessage());
-					if (searchAttempts < maxSearchAttempts) {
-						safeSleep(1000);
-					}
-				}
-			}
+			// Clear search box
+			searchBar.click();
+			safeSleep(300);
+			searchBar.clear();
+			searchBar.sendKeys(Keys.CONTROL + "a");
+			searchBar.sendKeys(Keys.DELETE);
+			safeSleep(300);
 			
-			if (!searchSuccessful) {
-				throw new Exception("Failed to complete search after " + maxSearchAttempts + " attempts");
-			}
+			// Type and search
+			searchBar.sendKeys(jobName);
+			safeSleep(500);
+			searchBar.sendKeys(Keys.ENTER);
+			
+			// Wait for search to complete
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 5);
+			safeSleep(1500);
+			
+			PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("search_for_published_job_name1", e);
@@ -232,109 +156,33 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				throw new Exception("Job name to search is null or empty");
 			}
 			
-			LOGGER.info("Starting search for job: {}", jobName);
+			LOGGER.info("Searching for job: {}", jobName);
 			PerformanceUtils.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(500);
 			
-			// ENHANCED PARALLEL EXECUTION FIX: Retry entire search operation if needed
-			int searchAttempts = 0;
-			int maxSearchAttempts = 3;
-			boolean searchSuccessful = false;
+			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
+			scrollToElement(searchBar);
 			
-			while (searchAttempts < maxSearchAttempts && !searchSuccessful) {
-				searchAttempts++;
-				
-				try {
-					// Re-fetch search bar element for each attempt to avoid stale references
-					WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
-					scrollToElement(searchBar);
-					safeSleep(300);
-					
-					// Thorough clearing with multiple methods
-					try {
-						searchBar.click();
-						safeSleep(300);
-						searchBar.clear();
-						safeSleep(200);
-						searchBar.sendKeys(Keys.CONTROL + "a");
-						searchBar.sendKeys(Keys.DELETE);
-						safeSleep(300);
-					} catch (Exception clearEx) {
-						LOGGER.warn("Standard clear failed, using JS (attempt {}): {}", searchAttempts, clearEx.getMessage());
-						searchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR); // Re-fetch
-						jsClick(searchBar);
-						safeSleep(300);
-						js.executeScript("arguments[0].value = '';", searchBar);
-						safeSleep(300);
-					}
-					
-					// Re-fetch search bar before typing (might be stale after clearing)
-					searchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR);
-					searchBar.click();
-					safeSleep(200);
-					
-					// Type search term
-					searchBar.sendKeys(jobName);
-					safeSleep(500);
-					
-					// Re-fetch before pressing Enter
-					searchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR);
-					searchBar.sendKeys(Keys.ENTER);
-					LOGGER.info("Submitted search for: {} (attempt {})", jobName, searchAttempts);
-					
-					// Wait for search to process
-					waitForSpinners();
-					PerformanceUtils.waitForPageReady(driver, 5);
-					safeSleep(1000);
-					
-					// Verify search was actually applied
-					int verifyRetries = 5;
-					boolean searchApplied = false;
-					for (int v = 0; v < verifyRetries && !searchApplied; v++) {
-						safeSleep(500);
-						try {
-							WebElement verifySearchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR);
-							String searchValue = verifySearchBar.getAttribute("value");
-							if (searchValue != null && searchValue.trim().equalsIgnoreCase(jobName.trim())) {
-								searchApplied = true;
-								searchSuccessful = true;
-								LOGGER.info("✓ Search confirmed applied: '{}' (attempt {}/{})", searchValue, searchAttempts, maxSearchAttempts);
-							} else {
-								LOGGER.warn("Search not yet applied (verify {}/{}). Expected: '{}', Found: '{}'", 
-									v + 1, verifyRetries, jobName, searchValue);
-							}
-						} catch (Exception e) {
-							LOGGER.warn("Could not verify search bar value (verify {}/{}): {}", v + 1, verifyRetries, e.getMessage());
-						}
-					}
-					
-					if (searchSuccessful) {
-						// Final wait for results to filter
-						safeSleep(1000);
-						waitForSpinners();
-						PerformanceUtils.waitForPageReady(driver, 2);
-						LOGGER.info("✓ Search completed successfully for job: {}", jobName);
-						PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
-						break;
-					} else {
-						LOGGER.warn("Search not confirmed after verification retries (attempt {}/{})", searchAttempts, maxSearchAttempts);
-						if (searchAttempts < maxSearchAttempts) {
-							safeSleep(1000 * searchAttempts); // Exponential backoff
-						}
-					}
-					
-				} catch (org.openqa.selenium.StaleElementReferenceException e) {
-					LOGGER.warn("Stale element during search (attempt {}/{}): {}", searchAttempts, maxSearchAttempts, e.getMessage());
-					if (searchAttempts < maxSearchAttempts) {
-						safeSleep(1000);
-					}
-				}
-			}
+			// Clear search box
+			searchBar.click();
+			safeSleep(300);
+			searchBar.clear();
+			searchBar.sendKeys(Keys.CONTROL + "a");
+			searchBar.sendKeys(Keys.DELETE);
+			safeSleep(300);
 			
-			if (!searchSuccessful) {
-				throw new Exception("Failed to complete search after " + maxSearchAttempts + " attempts");
-			}
+			// Type and search
+			searchBar.sendKeys(jobName);
+			safeSleep(500);
+			searchBar.sendKeys(Keys.ENTER);
+			
+			// Wait for search to complete
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 5);
+			safeSleep(1500);
+			
+			PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("search_for_published_job_name2", e);
