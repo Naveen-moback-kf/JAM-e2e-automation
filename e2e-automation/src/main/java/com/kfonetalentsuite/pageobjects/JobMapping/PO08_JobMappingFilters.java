@@ -58,17 +58,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		super();
 	}
 
-	public void click_on_grades_filters_dropdown_button() {
-		try {
-			waitForSpinners();
-			clickElement(GRADES_DROPDOWN);
-			PageObjectHelper.log(LOGGER, "Clicked on Grades dropdown in Filters");
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_grades_filters_dropdown_button", "Issue clicking Grades dropdown in Filters", e);
-			throw e;
-		}
-	}
-
 	public void select_one_option_in_grades_filters_dropdown() throws Exception {
 		try {
 			wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(GRADES_CHECKBOXES));
@@ -359,21 +348,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		}
 	}
 
-	public void click_on_departments_filters_dropdown_button() throws Exception {
-		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
-			scrollToElement(driver.findElement(DEPARTMENTS_DROPDOWN));
-			Thread.sleep(300);
-			clickElement(DEPARTMENTS_DROPDOWN);
-			Thread.sleep(300);
-			waitForSpinners();
-			PageObjectHelper.log(LOGGER, "Clicked on Departments dropdown in Filters");
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_departments_filters_dropdown_button", "Issue clicking Departments dropdown", e);
-			throw e;
-		}
-	}
-
 	public void select_one_option_in_departments_filters_dropdown() throws Exception {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
@@ -516,18 +490,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		}
 	}
 
-	public void click_on_functions_subfunctions_filters_dropdown_button() throws Exception {
-		try {
-			PerformanceUtils.waitForPageReady(driver, 1);
-			scrollToElement(driver.findElement(FUNCTIONS_DROPDOWN));
-			Thread.sleep(200);
-			clickElement(FUNCTIONS_DROPDOWN);
-			PageObjectHelper.log(LOGGER, "Clicked on Functions / Subfunctions dropdown in Filters");
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_functions_subfunctions_filters_dropdown_button", "Issue clicking Functions dropdown", e);
-			throw e;
-		}
-	}
 
 	public void select_a_function_and_verify_all_subfunctions_inside_function_are_selected_automatically() throws Exception {
 		PerformanceUtils.waitForPageReady(driver, 3);
@@ -1048,17 +1010,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		scrollToTop();
 	}
 
-	public void click_on_mapping_status_filters_dropdown_button() throws Exception {
-		try {
-			scrollToElement(driver.findElement(MAPPING_STATUS_DROPDOWN));
-			clickElement(MAPPING_STATUS_DROPDOWN);
-			PageObjectHelper.log(LOGGER, "Clicked on Mapping Status dropdown in Filters");
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_mapping_status_filters_dropdown_button", "Issue clicking Mapping Status dropdown", e);
-			throw e;
-		}
-	}
-
 	public void select_one_option_in_mapping_status_filters_dropdown() throws Exception {
 		try {
 			PerformanceUtils.waitForPageReady(driver, 2);
@@ -1100,27 +1051,47 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	// CONSOLIDATED/PARAMETERIZED METHODS - For unified filter handling
 	// ═══════════════════════════════════════════════════════════════════════════
 
+	/**
+	 * Generic method to click on any filter dropdown button.
+	 * Replaces 4 duplicate methods for better maintainability.
+	 * 
+	 * @param filterType Filter name: "Grades", "Departments", "Functions_SubFunctions", or "MappingStatus"
+	 */
 	public void click_on_filter_dropdown_button(String filterType) throws Exception {
 		try {
 			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			switch (filterType.toLowerCase().replace(" ", "").replace("_", "")) {
+			By dropdownLocator;
+			String normalizedFilterType = filterType.toLowerCase().replace(" ", "").replace("_", "");
+			
+			switch (normalizedFilterType) {
 				case "grades":
-					click_on_grades_filters_dropdown_button();
+					dropdownLocator = GRADES_DROPDOWN;
 					break;
 				case "departments":
-					click_on_departments_filters_dropdown_button();
+					dropdownLocator = DEPARTMENTS_DROPDOWN;
+					scrollToElement(driver.findElement(dropdownLocator));
+					safeSleep(300);
 					break;
 				case "functionssubfunctions":
-					click_on_functions_subfunctions_filters_dropdown_button();
+					dropdownLocator = FUNCTIONS_DROPDOWN;
+					scrollToElement(driver.findElement(dropdownLocator));
+					safeSleep(200);
 					break;
 				case "mappingstatus":
-					click_on_mapping_status_filters_dropdown_button();
+					dropdownLocator = MAPPING_STATUS_DROPDOWN;
+					scrollToElement(driver.findElement(dropdownLocator));
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown filter type: " + filterType);
 			}
+			
+			clickElement(dropdownLocator);
+			if (!"grades".equals(normalizedFilterType)) {
+				safeSleep(300); // Extra stabilization for departments/functions/mapping
+			}
+			
 			PageObjectHelper.log(LOGGER, "Clicked on " + filterType + " filter dropdown");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_filter_dropdown_button", "Issue clicking " + filterType + " dropdown", e);

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -21,6 +22,57 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
+/**
+ * BasePageObject - Common utilities and locators for all Page Objects
+ * 
+ * ===== QUICK REFERENCE GUIDE =====
+ * 
+ * SCROLLING:
+ *   scrollToTop()              - Scroll to page top
+ *   scrollToBottom()           - Scroll to page bottom
+ *   scrollToElement(element)   - Scroll element into center view
+ * 
+ * SEARCHING:
+ *   searchFor(String)                  - Basic search using default search bar
+ *   clearAndSearch(By, String)         - NEW! Clear search bar and search (robust)
+ *   clearSearchBar(By)                 - NEW! Clear search bar only
+ * 
+ * CLICKING:
+ *   clickElement(By)                   - Smart click with retries
+ *   clickElementSafely(By)             - Click with 10s timeout + 3 retries
+ *   clickElementSafely(By, int)        - Click with custom timeout + 3 retries
+ *   jsClick(WebElement)                - JavaScript click fallback
+ *   tryClickWithStrategies(element)    - Multiple click strategies (normal/JS/Actions)
+ * 
+ * WAITING:
+ *   waitForSpinners()                  - Wait for all spinners (15s timeout)
+ *   waitForSpinners(int)               - Wait for spinners with custom timeout
+ *   waitForElement(By)                 - Wait for visibility (10s timeout)
+ *   waitForElement(By, int)            - Wait for visibility with custom timeout
+ *   waitForClickable(By)               - Wait for element to be clickable (10s)
+ *   waitForPageLoad()                  - Wait for spinners + page ready
+ * 
+ * FILTERS:
+ *   openFilters()                      - Open filters panel
+ *   clearFilters()                     - Clear all applied filters
+ * 
+ * PROFILE SELECTION:
+ *   selectAllProfiles()                - Select all profiles in table
+ *   deselectAllProfiles()              - Deselect all profiles
+ * 
+ * ELEMENT CHECKS:
+ *   isElementDisplayed(By)             - Check if element is visible
+ *   hasElements(By)                    - Check if any elements exist
+ *   getElementText(By)                 - Get text from element (with wait)
+ * 
+ * USAGE TIPS:
+ * - Use clearAndSearch() instead of manually clearing search bars (handles stubborn inputs)
+ * - Use clickElementSafely() for elements that sometimes go stale
+ * - Always call waitForSpinners() after actions that trigger data loading
+ * - Use PerformanceUtils.waitForPageReady() after critical page interactions
+ * 
+ * ================================
+ */
 public class BasePageObject {
 
 	// =============================================
@@ -558,12 +610,104 @@ public class BasePageObject {
 		PageObjectHelper.log(LOGGER, "Cleared all filters");
 	}
 
+	/**
+	 * Closes the filters panel (if open).
+	 * Useful after selecting filters without using "Apply" button.
+	 */
+	protected void closeFilters() {
+		try {
+			clickElement(Locators.SearchAndFilters.FILTERS_BTN);
+			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.log(LOGGER, "Closed filters panel");
+		} catch (Exception e) {
+			LOGGER.debug("Filters panel already closed or not present");
+		}
+	}
+
+	/**
+	 * Opens a specific filter dropdown by name.
+	 * Useful for filter panels with multiple expandable sections.
+	 * 
+	 * @param filterName Name of the filter (e.g., "Grades", "Departments", "Levels")
+	 */
+	protected void openFilterDropdown(String filterName) {
+		try {
+			By filterLocator = By.xpath("//div[contains(text(),'" + filterName + "')]");
+			clickElement(filterLocator);
+			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.log(LOGGER, "Opened " + filterName + " filter dropdown");
+		} catch (Exception e) {
+			LOGGER.error("Failed to open " + filterName + " filter dropdown", e);
+			throw new RuntimeException("Filter dropdown open failed: " + filterName, e);
+		}
+	}
+
 	protected void searchFor(String searchText) {
 		WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR);
 		searchBar.clear();
 		searchBar.sendKeys(searchText);
 		waitForSpinners();
 		PageObjectHelper.log(LOGGER, "Searched for: " + searchText);
+	}
+
+	/**
+	 * Clears search input and performs search with robust clearing strategy.
+	 * This method handles search bars that don't clear properly with .clear() alone.
+	 * 
+	 * @param searchLocator By locator for the search input element
+	 * @param searchTerm Text to search for
+	 */
+	protected void clearAndSearch(By searchLocator, String searchTerm) {
+		try {
+			WebElement searchBar = waitForElement(searchLocator, 10);
+			searchBar.click();
+			safeSleep(200);
+			
+			// Robust clear strategy - some inputs need extra help
+			searchBar.clear();
+			searchBar.sendKeys(Keys.CONTROL + "a");
+			searchBar.sendKeys(Keys.DELETE);
+			safeSleep(200);
+			
+			// Type and submit search
+			searchBar.sendKeys(searchTerm);
+			safeSleep(300);
+			searchBar.sendKeys(Keys.ENTER);
+			
+			// Wait for results to load
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 3);
+			
+			PageObjectHelper.log(LOGGER, "Searched for: " + searchTerm);
+		} catch (Exception e) {
+			LOGGER.error("Failed to clear and search for: " + searchTerm, e);
+			throw new RuntimeException("Search operation failed", e);
+		}
+	}
+
+	/**
+	 * Clears search input without performing search.
+	 * Useful for resetting search state before next operation.
+	 * 
+	 * @param searchLocator By locator for the search input element
+	 */
+	protected void clearSearchBar(By searchLocator) {
+		try {
+			WebElement searchBar = waitForElement(searchLocator, 10);
+			searchBar.click();
+			safeSleep(200);
+			
+			// Robust clear strategy
+			searchBar.clear();
+			searchBar.sendKeys(Keys.CONTROL + "a");
+			searchBar.sendKeys(Keys.DELETE);
+			safeSleep(200);
+			
+			PageObjectHelper.log(LOGGER, "Cleared search bar");
+		} catch (Exception e) {
+			LOGGER.error("Failed to clear search bar", e);
+			throw new RuntimeException("Clear search operation failed", e);
+		}
 	}
 
 	// ==================== COMMON HELPER METHODS ====================
@@ -1009,7 +1153,7 @@ public class BasePageObject {
 				"    window._pendingRequests++;" +
 				"    this.addEventListener('load', function() { " +
 				"      window._pendingRequests--;" +
-				"      if (this.responseURL && this.responseURL.includes('limit=100000')) {" +
+				"      if (this.responseURL && (this.responseURL.includes('limit=100000') || this.responseURL.includes('pageSize=100000'))) {" +
 				"        window._dataApiComplete = true;" +
 				"      }" +
 				"    });" +
@@ -1024,7 +1168,7 @@ public class BasePageObject {
 				"    window._pendingRequests++;" +
 				"    return origFetch.apply(this, arguments).then(function(response) {" +
 				"      window._pendingRequests--;" +
-				"      if (response.url && response.url.includes('limit=100000')) {" +
+				"      if (response.url && (response.url.includes('limit=100000') || response.url.includes('pageSize=100000'))) {" +
 				"        window._dataApiComplete = true;" +
 				"      }" +
 				"      return response;" +
@@ -1072,7 +1216,7 @@ public class BasePageObject {
 											  activePending != null ? activePending : 0);
 				
 				if (Boolean.TRUE.equals(apiComplete)) {
-					LOGGER.info("✓ Background data API (limit=100000) completed after {} seconds", waited);
+					LOGGER.info("✓ Background data API (limit=100000 or pageSize=100000) completed after {} seconds", waited);
 					safeSleep(3000);
 					return;
 				}

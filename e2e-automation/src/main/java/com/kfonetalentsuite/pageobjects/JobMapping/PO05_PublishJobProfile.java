@@ -243,23 +243,9 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
 			scrollToElement(searchBar);
 			
-			// Clear any existing search
-			searchBar.click();
-			safeSleep(300);
-			searchBar.clear();
-			searchBar.sendKeys(Keys.CONTROL + "a");
-			searchBar.sendKeys(Keys.DELETE);
-			safeSleep(300);
-			
-			// Type search term and submit
-			searchBar.sendKeys(jobName);
-			safeSleep(500);
-			searchBar.sendKeys(Keys.ENTER);
-			
-			// Wait for search to complete
-			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 5);
-			safeSleep(1500);
+			// Use new clearAndSearch helper
+			clearAndSearch(Locators.SearchAndFilters.SEARCH_BAR, jobName);
+			safeSleep(1500); // Extra wait for results stability
 			
 			LOGGER.info("Search completed for job: '{}'", jobName);
 			PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
@@ -369,23 +355,9 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
 			scrollToElement(searchBox);
 			
-			// Clear search box
-			searchBox.click();
-			safeSleep(200);
-			searchBox.clear();
-			searchBox.sendKeys(Keys.CONTROL + "a");
-			searchBox.sendKeys(Keys.DELETE);
-			safeSleep(200);
-			
-			// Type and search
-			searchBox.sendKeys(searchTerm);
-			safeSleep(300);
-			searchBox.sendKeys(Keys.ENTER);
-			
-			// Wait for search to complete
-			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
-			safeSleep(1500);
+			// Use new clearAndSearch helper
+			clearAndSearch(PROFILES_SEARCH, searchTerm);
+			safeSleep(1500); // Extra wait for results stability
 			
 			PageObjectHelper.log(LOGGER, "Searched for job: " + searchTerm + " in HCM Sync Profiles");
 			
@@ -412,23 +384,9 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
 			scrollToElement(searchBox);
 			
-			// Clear search box
-			searchBox.click();
-			safeSleep(200);
-			searchBox.clear();
-			searchBox.sendKeys(Keys.CONTROL + "a");
-			searchBox.sendKeys(Keys.DELETE);
-			safeSleep(200);
-			
-			// Type and search
-			searchBox.sendKeys(jobCode);
-			safeSleep(300);
-			searchBox.sendKeys(Keys.ENTER);
-			
-			// Wait for search to complete
-			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
-			safeSleep(1500);
+			// Use new clearAndSearch helper
+			clearAndSearch(PROFILES_SEARCH, jobCode);
+			safeSleep(1500); // Extra wait for results stability
 			
 			PageObjectHelper.log(LOGGER, "Searched for job code: " + jobCode + " in HCM Sync Profiles");
 			

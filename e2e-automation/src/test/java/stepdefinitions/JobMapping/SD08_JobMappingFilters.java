@@ -14,8 +14,8 @@ public class SD08_JobMappingFilters {
 	}
 	
 	@Then("Click on Grades Filters dropdown button")
-	public void click_on_grades_filters_dropdown_button() throws IOException {
-		validateJobMappingFiltersFunctionality.getJobMappingFilters().click_on_grades_filters_dropdown_button();
+	public void click_on_grades_filters_dropdown_button() throws IOException, Exception {
+		validateJobMappingFiltersFunctionality.getJobMappingFilters().click_on_filter_dropdown_button("Grades");
 	}
 
 	@Then("Select one option in Grades Filters dropdown")
@@ -55,7 +55,7 @@ public class SD08_JobMappingFilters {
 	
 	@Then("Click on Departments Filters dropdown button")
 	public void click_on_departments_filters_dropdown_button() throws InterruptedException, Exception {
-	    validateJobMappingFiltersFunctionality.getJobMappingFilters().click_on_departments_filters_dropdown_button();
+	    validateJobMappingFiltersFunctionality.getJobMappingFilters().click_on_filter_dropdown_button("Departments");
 	}
 
 	@Then("Select one option in Departments Filters dropdown")
@@ -75,7 +75,7 @@ public class SD08_JobMappingFilters {
 	
 	@Then("Click on Functions Subfunctions Filters dropdown button")
 	public void click_on_functions_subfunctions_filters_dropdown_button() throws InterruptedException, Exception {
-		validateJobMappingFiltersFunctionality.getJobMappingFilters().click_on_functions_subfunctions_filters_dropdown_button();
+		validateJobMappingFiltersFunctionality.getJobMappingFilters().click_on_filter_dropdown_button("Functions_SubFunctions");
 	}
 
 	@Then("Select a Function and verify all Subfunctions inside Function are selected automatically")
@@ -125,7 +125,7 @@ public class SD08_JobMappingFilters {
 	
 	@Then("Click on Mapping Status Filters dropdown button")
 	public void click_on_mapping_status_filters_dropdown_button() throws Exception {
-		validateJobMappingFiltersFunctionality.getJobMappingFilters().click_on_mapping_status_filters_dropdown_button();
+		validateJobMappingFiltersFunctionality.getJobMappingFilters().click_on_filter_dropdown_button("MappingStatus");
 	}
 
 	@Then("Select one option in Mapping Status Filters dropdown")

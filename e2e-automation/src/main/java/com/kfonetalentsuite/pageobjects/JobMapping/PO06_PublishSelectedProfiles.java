@@ -3,7 +3,6 @@ package com.kfonetalentsuite.pageobjects.JobMapping;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
@@ -45,23 +44,9 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
 			scrollToElement(searchBar);
 			
-			// Clear search box
-			searchBar.click();
-			safeSleep(300);
-			searchBar.clear();
-			searchBar.sendKeys(Keys.CONTROL + "a");
-			searchBar.sendKeys(Keys.DELETE);
-			safeSleep(300);
-			
-			// Type and search
-			searchBar.sendKeys(jobName);
-			safeSleep(500);
-			searchBar.sendKeys(Keys.ENTER);
-			
-			// Wait for search to complete
-			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 5);
-			safeSleep(1500);
+			// Use new clearAndSearch helper
+			clearAndSearch(Locators.SearchAndFilters.SEARCH_BAR, jobName);
+			safeSleep(1500); // Extra wait for results stability
 			
 			PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
 			
@@ -164,23 +149,9 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
 			scrollToElement(searchBar);
 			
-			// Clear search box
-			searchBar.click();
-			safeSleep(300);
-			searchBar.clear();
-			searchBar.sendKeys(Keys.CONTROL + "a");
-			searchBar.sendKeys(Keys.DELETE);
-			safeSleep(300);
-			
-			// Type and search
-			searchBar.sendKeys(jobName);
-			safeSleep(500);
-			searchBar.sendKeys(Keys.ENTER);
-			
-			// Wait for search to complete
-			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 5);
-			safeSleep(1500);
+			// Use new clearAndSearch helper
+			clearAndSearch(Locators.SearchAndFilters.SEARCH_BAR, jobName);
+			safeSleep(1500); // Extra wait for results stability
 			
 			PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
 			
@@ -302,57 +273,13 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			waitForSpinners();
 			safeSleep(500);
 			
-			// PARALLEL EXECUTION FIX: Clear search bar more thoroughly and wait for it to be ready
 			WebElement searchBar = waitForElement(HCM_PROFILES_SEARCH, 10);
 			scrollToElement(searchBar);
 			
-			// Clear any existing search
-			try {
-				searchBar.click();
-				safeSleep(300);
-				searchBar.clear();
-				searchBar.sendKeys(Keys.CONTROL + "a");
-				searchBar.sendKeys(Keys.DELETE);
-				safeSleep(300);
-			} catch (Exception clearEx) {
-				jsClick(searchBar);
-				safeSleep(300);
-				js.executeScript("arguments[0].value = '';", searchBar);
-				safeSleep(300);
-			}
+			// Use new clearAndSearch helper (includes all waits and retry logic)
+			clearAndSearch(HCM_PROFILES_SEARCH, jobName);
 			
-			// Type search term
-			searchBar.sendKeys(jobName);
-			safeSleep(500);
-			
-			// Press Enter and wait for search to complete
-			searchBar.sendKeys(Keys.ENTER);
-			
-			// PARALLEL EXECUTION FIX: Wait for search to actually filter results
-			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 5);
-			
-			// Verify search was actually applied by checking search bar value
-			int verifyRetries = 5;
-			boolean searchApplied = false;
-			for (int v = 0; v < verifyRetries && !searchApplied; v++) {
-				safeSleep(500);
-				try {
-					WebElement verifySearchBar = driver.findElement(HCM_PROFILES_SEARCH);
-					String searchValue = verifySearchBar.getAttribute("value");
-					if (searchValue != null && searchValue.contains(jobName)) {
-						searchApplied = true;
-						LOGGER.info("HCM Search confirmed applied: '{}' found in search bar", searchValue);
-					} else {
-						LOGGER.warn("HCM Search not yet applied (attempt {}/{}). Expected: '{}', Found: '{}'", 
-							v + 1, verifyRetries, jobName, searchValue);
-					}
-				} catch (Exception e) {
-					LOGGER.warn("Could not verify HCM search bar value (attempt {}/{}): {}", v + 1, verifyRetries, e.getMessage());
-				}
-			}
-			
-			// Additional wait for search filtering to complete
+			// Additional wait for HCM sync profile filtering
 			safeSleep(1000);
 			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
@@ -375,57 +302,13 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			waitForSpinners();
 			safeSleep(500);
 			
-			// PARALLEL EXECUTION FIX: Clear search bar more thoroughly and wait for it to be ready
 			WebElement searchBar = waitForElement(HCM_PROFILES_SEARCH, 10);
 			scrollToElement(searchBar);
 			
-			// Clear any existing search
-			try {
-				searchBar.click();
-				safeSleep(300);
-				searchBar.clear();
-				searchBar.sendKeys(Keys.CONTROL + "a");
-				searchBar.sendKeys(Keys.DELETE);
-				safeSleep(300);
-			} catch (Exception clearEx) {
-				jsClick(searchBar);
-				safeSleep(300);
-				js.executeScript("arguments[0].value = '';", searchBar);
-				safeSleep(300);
-			}
+			// Use new clearAndSearch helper (includes all waits and retry logic)
+			clearAndSearch(HCM_PROFILES_SEARCH, jobCode);
 			
-			// Type search term
-			searchBar.sendKeys(jobCode);
-			safeSleep(500);
-			
-			// Press Enter and wait for search to complete
-			searchBar.sendKeys(Keys.ENTER);
-			
-			// PARALLEL EXECUTION FIX: Wait for search to actually filter results
-			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 5);
-			
-			// Verify search was actually applied by checking search bar value
-			int verifyRetries = 5;
-			boolean searchApplied = false;
-			for (int v = 0; v < verifyRetries && !searchApplied; v++) {
-				safeSleep(500);
-				try {
-					WebElement verifySearchBar = driver.findElement(HCM_PROFILES_SEARCH);
-					String searchValue = verifySearchBar.getAttribute("value");
-					if (searchValue != null && searchValue.contains(jobCode)) {
-						searchApplied = true;
-						LOGGER.info("HCM Search confirmed applied: '{}' found in search bar", searchValue);
-					} else {
-						LOGGER.warn("HCM Search not yet applied (attempt {}/{}). Expected: '{}', Found: '{}'", 
-							v + 1, verifyRetries, jobCode, searchValue);
-					}
-				} catch (Exception e) {
-					LOGGER.warn("Could not verify HCM search bar value (attempt {}/{}): {}", v + 1, verifyRetries, e.getMessage());
-				}
-			}
-			
-			// Additional wait for search filtering to complete
+			// Additional wait for HCM sync profile filtering
 			safeSleep(1000);
 			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 2);
