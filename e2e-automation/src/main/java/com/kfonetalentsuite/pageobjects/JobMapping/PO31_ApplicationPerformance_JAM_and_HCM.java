@@ -200,13 +200,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	}
 
 	public void user_validates_page_load_time_is_within_acceptable_threshold() {
-		try {
-			validateThreshold(totalPageLoadTime.get(), PAGE_LOAD_THRESHOLD_MS, "Page Load", "page_load");
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_page_load_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate page load threshold: " + e.getMessage());
-			Assert.fail("Failed to validate page load threshold: " + e.getMessage());
-		}
+		safeValidateThreshold(totalPageLoadTime.get(), PAGE_LOAD_THRESHOLD_MS, "Page Load", "page_load");
 	}
 
 	public void user_verifies_all_critical_page_components_are_loaded() {
@@ -335,6 +329,16 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			PageObjectHelper.log(LOGGER, warnMsg);
 			// Note: Performance warnings are logged but don't capture failure screenshots
 			// as they are alerts, not test failures
+		}
+	}
+
+	private void safeValidateThreshold(long actualTime, long threshold, String operationName, String screenshotPrefix) {
+		try {
+			validateThreshold(actualTime, threshold, operationName, screenshotPrefix);
+		} catch (Exception e) {
+			ScreenshotHandler.captureFailureScreenshot("validate_" + screenshotPrefix + "_threshold_failed", e);
+			PageObjectHelper.log(LOGGER, " Failed to validate " + operationName.toLowerCase() + " threshold: " + e.getMessage());
+			Assert.fail("Failed to validate " + operationName.toLowerCase() + " threshold: " + e.getMessage());
 		}
 	}
 
@@ -470,13 +474,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	}
 
 	public void user_validates_search_response_time_is_within_acceptable_threshold() {
-		try {
-			validateThreshold(totalSearchTime.get(), SEARCH_THRESHOLD_MS, "Search", "search");
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_search_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate search threshold: " + e.getMessage());
-			Assert.fail("Failed to validate search threshold: " + e.getMessage());
-		}
+		safeValidateThreshold(totalSearchTime.get(), SEARCH_THRESHOLD_MS, "Search", "search");
 	}
 
 	public void user_verifies_search_results_are_accurate() {
@@ -600,13 +598,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	}
 
 	public void user_validates_clear_search_time_is_within_acceptable_threshold() {
-		try {
-			validateThreshold(totalClearSearchTime.get(), CLEAR_SEARCH_THRESHOLD_MS, "Clear Search", "clear_search");
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_clear_search_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate clear search threshold: " + e.getMessage());
-			Assert.fail("Failed to validate clear search threshold: " + e.getMessage());
-		}
+		safeValidateThreshold(totalClearSearchTime.get(), CLEAR_SEARCH_THRESHOLD_MS, "Clear Search", "clear_search");
 	}
 
 	public void user_verifies_all_profiles_are_restored_correctly() {
@@ -833,13 +825,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	}
 
 	public void user_validates_filter_application_time_is_within_acceptable_threshold() {
-		try {
-			validateThreshold(totalSingleFilterTime.get(), SINGLE_FILTER_THRESHOLD_MS, "Single Filter", "filter");
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_filter_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate filter threshold: " + e.getMessage());
-			Assert.fail("Failed to validate filter threshold: " + e.getMessage());
-		}
+		safeValidateThreshold(totalSingleFilterTime.get(), SINGLE_FILTER_THRESHOLD_MS, "Single Filter", "filter");
 	}
 
 	public void user_verifies_filtered_results_are_displayed_correctly() {
@@ -1033,14 +1019,8 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	}
 
 	public void user_validates_multiple_filter_application_time_is_within_acceptable_threshold() {
-		try {
-			validateThreshold(totalMultipleFiltersTime.get(), MULTIPLE_FILTERS_THRESHOLD_MS,
-					"Multiple Filters (" + numberOfFiltersApplied.get() + " filters)", "multiple_filters");
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_multiple_filters_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate multiple filters threshold: " + e.getMessage());
-			Assert.fail("Failed to validate multiple filters threshold: " + e.getMessage());
-		}
+		safeValidateThreshold(totalMultipleFiltersTime.get(), MULTIPLE_FILTERS_THRESHOLD_MS,
+				"Multiple Filters (" + numberOfFiltersApplied.get() + " filters)", "multiple_filters");
 	}
 
 	public void user_verifies_combined_filtered_results_are_displayed_correctly() {
@@ -1324,13 +1304,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	}
 
 	public void user_validates_clear_filters_operation_time_is_within_acceptable_threshold() {
-		try {
-			validateThreshold(totalClearFiltersTime.get(), CLEAR_FILTERS_THRESHOLD_MS, "Clear Filters", "clear_filters");
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_clear_filters_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate clear filters threshold: " + e.getMessage());
-			Assert.fail("Failed to validate clear filters threshold: " + e.getMessage());
-		}
+		safeValidateThreshold(totalClearFiltersTime.get(), CLEAR_FILTERS_THRESHOLD_MS, "Clear Filters", "clear_filters");
 	}
 
 	public void user_verifies_all_profiles_are_restored_correctly_after_clearing_filters() {
@@ -1471,13 +1445,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	}
 
 	public void user_verifies_scroll_performance_is_smooth_without_lag() {
-		try {
-			validateThreshold(totalScrollTime.get(), SCROLL_OPERATION_THRESHOLD_MS, "Scroll Operation", "scroll");
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("verify_scroll_performance_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify scroll performance: " + e.getMessage());
-			Assert.fail("Failed to verify scroll performance: " + e.getMessage());
-		}
+		safeValidateThreshold(totalScrollTime.get(), SCROLL_OPERATION_THRESHOLD_MS, "Scroll Operation", "scroll");
 	}
 
 	public void user_validates_newly_loaded_profiles_render_within_acceptable_time() {
@@ -1616,15 +1584,8 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	}
 
 	public void user_validates_navigation_time_is_within_acceptable_threshold() {
-		try {
-			validateThreshold(totalNavigationToComparisonTime.get(), NAVIGATION_THRESHOLD_MS, "Navigation to Job Comparison",
-					"navigation_to_comparison");
-
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_navigation_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate navigation threshold: " + e.getMessage());
-			Assert.fail("Failed to validate navigation threshold: " + e.getMessage());
-		}
+		safeValidateThreshold(totalNavigationToComparisonTime.get(), NAVIGATION_THRESHOLD_MS, "Navigation to Job Comparison",
+				"navigation_to_comparison");
 	}
 
 	public void user_verifies_job_comparison_screen_loads_without_delay() {
@@ -1670,15 +1631,8 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	}
 
 	public void user_validates_back_navigation_time_is_within_acceptable_threshold() {
-		try {
-			validateThreshold(totalNavigationBackToMappingTime.get(), NAVIGATION_THRESHOLD_MS,
-					"Navigation Back to Job Mapping", "navigation_back");
-
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_back_navigation_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate back navigation threshold: " + e.getMessage());
-			Assert.fail("Failed to validate back navigation threshold: " + e.getMessage());
-		}
+		safeValidateThreshold(totalNavigationBackToMappingTime.get(), NAVIGATION_THRESHOLD_MS,
+				"Navigation Back to Job Mapping", "navigation_back");
 	}
 
 	public void user_verifies_job_mapping_screen_loads_correctly_after_navigation() {
@@ -1797,9 +1751,9 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 	public void user_validates_sorting_operation_time_is_within_acceptable_threshold() {
 		try {
-			validateThreshold(totalSortByJobTitleTime.get(), SORT_OPERATION_THRESHOLD_MS, "Sort by Job Title",
+			safeValidateThreshold(totalSortByJobTitleTime.get(), SORT_OPERATION_THRESHOLD_MS, "Sort by Job Title",
 					"sort_by_title");
-			validateThreshold(totalSortByGradeTime.get(), SORT_OPERATION_THRESHOLD_MS, "Sort by Grade", "sort_by_grade");
+			safeValidateThreshold(totalSortByGradeTime.get(), SORT_OPERATION_THRESHOLD_MS, "Sort by Grade", "sort_by_grade");
 
 			long avgSortTime = (totalSortByJobTitleTime.get() + totalSortByGradeTime.get()) / 2;
 			LOGGER.info(String.format(" Average Sort Time: %d ms (%.2f sec)", avgSortTime, avgSortTime / 1000.0));
@@ -1925,7 +1879,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		try {
 			long totalSelectAllOperationTime = totalChevronClickTime.get() + totalSelectAllClickTime.get();
 
-			validateThreshold(totalSelectAllOperationTime, SELECT_ALL_THRESHOLD_MS,
+			safeValidateThreshold(totalSelectAllOperationTime, SELECT_ALL_THRESHOLD_MS,
 					"Select All Operation (Chevron + Select All)", "select_all_operation");
 
 			LOGGER.info(String.format(" Breakdown: Chevron (%d ms) + Select All (%d ms) = Total (%d ms)",
@@ -2082,14 +2036,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	}
 
 	public void user_validates_hcm_page_load_time_is_within_acceptable_threshold() {
-		try {
-			validateThreshold(totalHCMPageLoadTime.get(), HCM_PAGE_LOAD_THRESHOLD_MS, "HCM Page Load", "hcm_page_load");
-
-		} catch (Exception e) {
-			ScreenshotHandler.captureFailureScreenshot("validate_hcm_page_load_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate HCM page load threshold: " + e.getMessage());
-			Assert.fail("Failed to validate HCM page load threshold: " + e.getMessage());
-		}
+		safeValidateThreshold(totalHCMPageLoadTime.get(), HCM_PAGE_LOAD_THRESHOLD_MS, "HCM Page Load", "hcm_page_load");
 	}
 
 	public void user_verifies_all_hcm_profiles_are_loaded_correctly() {
@@ -2214,7 +2161,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		try {
 			long totalSyncTime = totalSyncClickTime.get() + totalSyncProcessTime.get();
 
-			validateThreshold(totalSyncTime, SYNC_OPERATION_THRESHOLD_MS, "Sync Operation (Click + Process)",
+			safeValidateThreshold(totalSyncTime, SYNC_OPERATION_THRESHOLD_MS, "Sync Operation (Click + Process)",
 					"sync_operation");
 
 			LOGGER.info(String.format(" Breakdown: Click (%d ms) + Process (%d ms) = Total (%d ms)", totalSyncClickTime.get(),
