@@ -986,28 +986,22 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void clear_search_bar_in_job_mapping_page() {
 		try {
 			// Wait for any modal/loading overlay to disappear before interacting
-			try {
-				new WebDriverWait(driver, Duration.ofSeconds(15))
-					.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector("div.modal-parent")));
-			} catch (Exception ignored) {
-				// Modal may not be present, continue
-			}
-			
-			WebElement searchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR);
-			scrollToElement(searchBar);
-			
-			// Use JS click to bypass any remaining overlay issues
-			jsClick(searchBar);
-			try {
-				searchBar.sendKeys(Keys.CONTROL + "a");
-				searchBar.sendKeys(Keys.DELETE);
-			} catch (Exception c) {
-				js.executeScript("arguments[0].value = '';", searchBar);
-				js.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", searchBar);
-			}
-			PerformanceUtils.waitForPageReady(driver, 2);
-			PageObjectHelper.log(LOGGER, "Search bar successfully cleared in Job Mapping page");
-		} catch (Exception e) {
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(15))
+				.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector("div.modal-parent")));
+		} catch (Exception ignored) {
+			// Modal may not be present, continue
+		}
+		
+		WebElement searchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR);
+		scrollToElement(searchBar);
+		
+		// Use clearSearchBar helper (handles all edge cases)
+		clearSearchBar(Locators.SearchAndFilters.SEARCH_BAR);
+		PerformanceUtils.waitForPageReady(driver, 2);
+		
+		PageObjectHelper.log(LOGGER, "Search bar successfully cleared in Job Mapping page");
+	} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "clear_search_bar_in_job_mapping_page", "Issue clearing search bar", e);
 		}
 	}

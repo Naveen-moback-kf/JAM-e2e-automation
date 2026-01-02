@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -432,38 +431,17 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			}
 			
 			Boolean cleared = (Boolean) js.executeScript(clearScript);
-			
-			if (cleared == null || !cleared) {
-				// Fallback to WebElement approach with fresh element references
-				LOGGER.debug("JS clear failed, trying WebElement approach");
-				WebElement searchBar = wait.until(ExpectedConditions.elementToBeClickable(searchBarLocator));
-				js.executeScript("arguments[0].scrollIntoView({block: 'center'});", searchBar);
-				safeSleep(300);
-				
-				// Re-find and click
-				searchBar = driver.findElement(searchBarLocator);
-				js.executeScript("arguments[0].click();", searchBar);
-				safeSleep(200);
-				
-				// Re-find and clear
-				searchBar = driver.findElement(searchBarLocator);
-				searchBar.sendKeys(Keys.CONTROL + "a");
-				safeSleep(100);
-				
-				// Re-find and delete
-				searchBar = driver.findElement(searchBarLocator);
-				searchBar.sendKeys(Keys.DELETE);
-				safeSleep(100);
-				
-				// Re-find and press Enter
-				searchBar = driver.findElement(searchBarLocator);
-				searchBar.sendKeys(Keys.ENTER);
-			}
+		
+		if (cleared == null || !cleared) {
+			// Fallback to clearAndSearch helper (search with empty string clears results)
+			LOGGER.debug("JS clear failed, using clearAndSearch helper");
+			clearAndSearch(searchBarLocator, "");
+		}
 
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			safeSleep(1500); // Wait for results to reload
+		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		safeSleep(1500); // Wait for results to reload
 
-			PageObjectHelper.log(LOGGER, "Cleared search bar in " + getScreenName(screen));
+		PageObjectHelper.log(LOGGER, "Cleared search bar in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "clear_search_bar",
@@ -714,16 +692,8 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 					Boolean searched = (Boolean) js.executeScript(clearAndSearchScript);
 					
 					if (searched == null || !searched) {
-						// Fallback to WebElement approach
-						searchBarElement = driver.findElement(searchBarLocator);
-						searchBarElement.click();
-						safeSleep(200);
-						searchBarElement.sendKeys(Keys.CONTROL + "a");
-						searchBarElement.sendKeys(Keys.DELETE);
-						safeSleep(200);
-						searchBarElement = driver.findElement(searchBarLocator);
-						searchBarElement.sendKeys(substring);
-						searchBarElement.sendKeys(Keys.ENTER);
+						// Fallback to clearAndSearch helper
+						clearAndSearch(searchBarLocator, substring);
 					}
 
 					// Wait for spinners and page to stabilize
@@ -861,16 +831,8 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		
 		// Actually execute the fallback search
 		try {
-			WebElement searchBarElement = wait.until(ExpectedConditions.elementToBeClickable(getSearchBarLocator(screen)));
-			searchBarElement.click();
-			searchBarElement.sendKeys(Keys.CONTROL + "a");
-			searchBarElement.sendKeys(Keys.DELETE);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
-			
-			searchBarElement = wait.until(ExpectedConditions.visibilityOfElementLocated(getSearchBarLocator(screen)));
-			searchBarElement.sendKeys(selectedSubstring);
-			searchBarElement.sendKeys(Keys.ENTER);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			// Use clearAndSearch helper for cleaner implementation
+			clearAndSearch(getSearchBarLocator(screen), selectedSubstring);
 			safeSleep(500);
 		} catch (Exception applyEx) {
 			LOGGER.warn("Failed to apply fallback search: {}", applyEx.getMessage());

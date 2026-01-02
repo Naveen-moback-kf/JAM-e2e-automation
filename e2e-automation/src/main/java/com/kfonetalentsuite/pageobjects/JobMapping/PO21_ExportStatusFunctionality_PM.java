@@ -1,6 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.time.Duration;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -8,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.testng.Assert;
@@ -44,45 +42,6 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			waitForSpinners();
 			safeSleep(1000);
 				return driver.findElement(By.xpath(xpath));
-		}
-	}
-
-	private boolean waitForPageNavigation(int timeoutSeconds) {
-		try {
-			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
-			try {
-				shortWait.until(ExpectedConditions.or(
-						ExpectedConditions.presenceOfElementLocated(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT),
-						ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Select your view')]"))));
-
-				String currentUrl = driver.getCurrentUrl();
-				if (currentUrl.contains("/search")) {
-					return false;
-				}
-				waitForSpinners();
-				return true;
-			} catch (Exception e) {
-				String currentUrl = driver.getCurrentUrl();
-				if (currentUrl.contains("/search")) {
-					return false;
-				}
-				String urlPath = "";
-				try {
-					java.net.URL url = new java.net.URL(currentUrl);
-					urlPath = url.getPath() + (url.getRef() != null ? "#" + url.getRef() : "");
-				} catch (Exception urlEx) {
-					urlPath = currentUrl;
-				}
-				boolean isDetailsPage = urlPath.contains("/sp/") || urlPath.contains("/success-profile/")
-						|| urlPath.contains("/details/");
-				if (isDetailsPage) {
-					waitForSpinners();
-					return true;
-				}
-				return false;
-			}
-		} catch (Exception e) {
-			return false;
 		}
 	}
 
@@ -358,9 +317,10 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 	public void user_should_click_on_recently_exported_success_profile_job_name() {
 		try {
-			waitForSpinners();
-			waitForPageLoad();
+			waitForSpinners(15);
+			PerformanceUtils.waitForPageReady(driver, 3);
 
+			// Scroll to appropriate position
 			if (rowNumber.get() == 1) {
 				scrollToElement(waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT));
 			} else if (rowNumber.get() < 5) {
@@ -372,58 +332,112 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 				scrollToElement(spJobName);
 			}
 
-			PerformanceUtils.waitForUIStability(driver, 1);
+			safeSleep(1000);
+			PerformanceUtils.waitForUIStability(driver, 2);
 
-			WebElement jobNameElement = null;
-			String primaryXpath = "//tbody//tr[" + rowNumber.get() + "]//td[1]//*";
-			String fallbackXpath = "//tbody//tr[" + rowNumber.get() + "]//td[1]//a";
-			String fallbackXpath2 = "//tbody//tr[" + rowNumber.get() + "]//td[1]//span";
+			// Find the job name link element (must be <a> tag for navigation)
+			String linkXpath = "//tbody//tr[" + rowNumber.get() + "]//td[1]//a";
+			
+			WebElement jobNameLink = waitForElement(By.xpath(linkXpath), 10);
 
-			try {
-				jobNameElement = waitForElement(By.xpath(primaryXpath));
-			} catch (Exception e1) {
-				try {
-					jobNameElement = waitForElement(By.xpath(fallbackXpath));
-				} catch (Exception e2) {
-					jobNameElement = waitForElement(By.xpath(fallbackXpath2));
-				}
-			}
-
-			Assert.assertEquals(jobNameElement.getText(), SPJobName.get());
-			scrollToElement(jobNameElement);
+			// Verify it's the right element
+			Assert.assertEquals(jobNameLink.getText(), SPJobName.get());
+			
+			// Scroll element to center of viewport
+			js.executeScript("arguments[0].scrollIntoView({behavior: 'instant', block: 'center'});", jobNameLink);
+			safeSleep(500);
 			waitForSpinners();
 
+			// Clear any text selection that might interfere
+			js.executeScript("window.getSelection().removeAllRanges();");
+
 			boolean navigationSuccessful = false;
+			String currentUrl = driver.getCurrentUrl();
 
-			try {
-				org.openqa.selenium.interactions.Actions actions = new org.openqa.selenium.interactions.Actions(driver);
-				actions.moveToElement(jobNameElement).pause(java.time.Duration.ofMillis(200)).doubleClick()
-						.pause(java.time.Duration.ofMillis(300)).build().perform();
-				if (waitForPageNavigation(5)) {
-					navigationSuccessful = true;
-				}
-			} catch (Exception e) {
-				LOGGER.debug("Double-click strategy failed: {}", e.getMessage());
-			}
-
+			// Strategy 1: Regular click on link element
 			if (!navigationSuccessful) {
 				try {
-					jsClick(jobNameElement);
-					if (waitForPageNavigation(5)) {
+					WebElement clickableLink = wait.until(ExpectedConditions.elementToBeClickable(jobNameLink));
+					clickableLink.click();
+					safeSleep(1500);
+					
+					// Check if URL changed
+					if (!driver.getCurrentUrl().equals(currentUrl)) {
+						waitForSpinners(10);
 						navigationSuccessful = true;
+						LOGGER.info("Regular click successful");
 					}
 				} catch (Exception e) {
-					LOGGER.debug("JS click strategy failed: {}", e.getMessage());
+					LOGGER.debug("Regular click failed: {}", e.getMessage());
+				}
+			}
+
+			// Strategy 2: JS click on link element
+			if (!navigationSuccessful) {
+				try {
+					// Re-find element to avoid stale reference
+					jobNameLink = driver.findElement(By.xpath(linkXpath));
+					js.executeScript("arguments[0].click();", jobNameLink);
+					safeSleep(1500);
+					
+					// Check if URL changed
+					if (!driver.getCurrentUrl().equals(currentUrl)) {
+						waitForSpinners(10);
+						navigationSuccessful = true;
+						LOGGER.info("JS click successful");
+					}
+				} catch (Exception e) {
+					LOGGER.debug("JS click failed: {}", e.getMessage());
+				}
+			}
+
+			// Strategy 3: Navigate directly via href attribute
+			if (!navigationSuccessful) {
+				try {
+					jobNameLink = driver.findElement(By.xpath(linkXpath));
+					String href = jobNameLink.getAttribute("href");
+					if (href != null && !href.isEmpty()) {
+						LOGGER.info("Navigating directly to: {}", href);
+						driver.navigate().to(href);
+						safeSleep(1500);
+						waitForSpinners(10);
+						navigationSuccessful = true;
+						LOGGER.info("Direct navigation successful via href");
+					}
+				} catch (Exception e) {
+					LOGGER.debug("Direct navigation failed: {}", e.getMessage());
+				}
+			}
+
+			// Strategy 4: Actions single click with move
+			if (!navigationSuccessful) {
+				try {
+					jobNameLink = driver.findElement(By.xpath(linkXpath));
+					org.openqa.selenium.interactions.Actions actions = new org.openqa.selenium.interactions.Actions(driver);
+					actions.moveToElement(jobNameLink).pause(java.time.Duration.ofMillis(500))
+							.click().build().perform();
+					safeSleep(1500);
+					
+					// Check if URL changed
+					if (!driver.getCurrentUrl().equals(currentUrl)) {
+						waitForSpinners(10);
+						navigationSuccessful = true;
+						LOGGER.info("Actions click successful");
+					}
+				} catch (Exception e) {
+					LOGGER.debug("Actions click failed: {}", e.getMessage());
 				}
 			}
 
 			if (!navigationSuccessful) {
-				LOGGER.error("Navigation failed for profile: {} (row {})", SPJobName.get(), rowNumber.get());
+				LOGGER.error("All navigation strategies failed for profile: {} (row {})", SPJobName.get(), rowNumber.get());
+				LOGGER.error("Current URL: {}", driver.getCurrentUrl());
+				LOGGER.error("Expected to navigate from: {}", currentUrl);
 				throw new Exception("Failed to navigate to Success Profile details page for: " + SPJobName.get());
 			}
 
 			PageObjectHelper.log(LOGGER, "Clicked on Recently Exported Success Profile with name: " + SPJobName.get());
-			waitForSpinners();
+			
 		} catch (Exception e) {
 			PageObjectHelper.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e,
 					"Click operation failed");
