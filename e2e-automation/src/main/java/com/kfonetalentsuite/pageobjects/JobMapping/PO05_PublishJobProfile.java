@@ -329,7 +329,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 		try {
 			clickElement(Locators.HCMSyncProfiles.SEARCH_DROPDOWN);
 			PageObjectHelper.log(LOGGER, "Clicked on search dropdown button in HCM Sync Profiles screen");
-			safeSleep(1000);
+			safeSleep(3000);
 			clickElement(Locators.HCMSyncProfiles.SEARCH_BY_JOBCODE);
 			PageObjectHelper.log(LOGGER,"Search type successfully changed to Job Code");
 		} catch(Exception e) {
@@ -499,28 +499,28 @@ public class PO05_PublishJobProfile extends BasePageObject {
 					PerformanceUtils.waitForPageReady(driver, 3);
 					safeSleep(1000);
 					
-					// VERIFY: Check if results contain the job code
-					try {
-						WebElement firstRow = waitForElement(HCM_JOB_ROW_1, 5);
-						String firstRowText = firstRow.getText();
-						
-						// Job code appears after the job name in format: "Job Name - (JOB-CODE)"
-						if (firstRowText.contains(jobCode)) {
-							// SUCCESS! Search returned correct result
-							searchSuccessful = true;
-							LOGGER.info("✓ Search successful! First result contains job code '{}' (attempt {})", 
-								jobCode, attempt);
-							PageObjectHelper.log(LOGGER, "Searched for job code: " + jobCode + " in HCM Sync Profiles");
-						} else {
-							// Wrong result - will retry
-							LOGGER.warn("Search returned wrong result. Expected code: '{}', Found: '{}'. Retrying... (attempt {}/{})", 
-								jobCode, firstRowText, attempt, maxSearchAttempts);
-							safeSleep(1500 * attempt); // Exponential backoff
-						}
-					} catch (org.openqa.selenium.TimeoutException e) {
-						LOGGER.warn("No results found or results not loaded yet (attempt {}/{})", attempt, maxSearchAttempts);
-						safeSleep(2000);
+				// VERIFY: Check if results contain the job code
+				try {
+					WebElement firstRow = waitForElement(HCM_JOBCODE_ROW_1, 5);
+					String actualJobCode = firstRow.getText().trim();
+					
+					// Job code should match exactly in the dedicated job code column
+					if (actualJobCode.equals(jobCode)) {
+						// SUCCESS! Search returned correct result
+						searchSuccessful = true;
+						LOGGER.info("✓ Search successful! Job code '{}' found in results (attempt {})", 
+							jobCode, attempt);
+						PageObjectHelper.log(LOGGER, "Searched for job code: " + jobCode + " in HCM Sync Profiles");
+					} else {
+						// Wrong result - will retry
+						LOGGER.warn("Search returned wrong result. Expected code: '{}', Found: '{}'. Retrying... (attempt {}/{})", 
+							jobCode, actualJobCode, attempt, maxSearchAttempts);
+						safeSleep(1500 * attempt); // Exponential backoff
 					}
+				} catch (org.openqa.selenium.TimeoutException e) {
+					LOGGER.warn("No results found or results not loaded yet (attempt {}/{})", attempt, maxSearchAttempts);
+					safeSleep(2000);
+				}
 					
 				} catch (org.openqa.selenium.StaleElementReferenceException e) {
 					LOGGER.warn("Stale element during search (attempt {}/{}). Retrying...", attempt, maxSearchAttempts);

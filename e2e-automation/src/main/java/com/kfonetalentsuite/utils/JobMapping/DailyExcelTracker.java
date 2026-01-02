@@ -4308,11 +4308,11 @@ public class DailyExcelTracker {
 				}
 			}
 			
-			LOGGER.info("? Execution runs count for {}: {} runs found in history", targetDate, executionCount);
+			LOGGER.info("Execution runs count for {}: {} runs found in history", targetDate, executionCount);
 			return executionCount;
 			
 		} catch (Exception e) {
-			LOGGER.error("? Could not calculate execution runs from history: {}", e.getMessage(), e);
+			LOGGER.error("Could not calculate execution runs from history: {}", e.getMessage(), e);
 			return 0;
 		}
 	}

@@ -151,7 +151,7 @@ Feature: Publish Job Profile from Different Sources in Job Mapping
     Then Click on toggle button to turn off
     
   @Publish_From_Popup @VerifyInHCMSync_withJobCode  
-  Scenario: Verify job published from listing table appears in HCM Sync Profiles with Job Code
+  Scenario: Verify job published from details popup appears in HCM Sync Profiles with Job Code
     Then Skip scenario if user does not have HCM Sync access
     Then Click on KFONE Global Menu in Job Mapping UI
     Then Click on Profile Manager application button in KFONE Global Menu

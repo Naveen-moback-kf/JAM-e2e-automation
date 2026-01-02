@@ -997,25 +997,44 @@ public class BasePageObject {
 			
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			
-			// Inject script to monitor XHR/fetch requests
-			js.executeScript(
-				"if (!window._pendingRequests) {" +
-				"  window._pendingRequests = 0;" +
-				"  window._dataApiComplete = false;" +
-				"  var origOpen = XMLHttpRequest.prototype.open;" +
-				"  XMLHttpRequest.prototype.open = function() {" +
-				"    window._pendingRequests++;" +
-				"    this.addEventListener('load', function() { " +
-				"      window._pendingRequests--;" +
-				"      if (this.responseURL && this.responseURL.includes('limit=100000')) {" +
-				"        window._dataApiComplete = true;" +
-				"      }" +
-				"    });" +
-				"    this.addEventListener('error', function() { window._pendingRequests--; });" +
-				"    origOpen.apply(this, arguments);" +
-				"  };" +
-				"}"
-			);
+		// Inject script to monitor XHR/fetch requests
+		js.executeScript(
+			"if (!window._pendingRequests) {" +
+			"  window._pendingRequests = 0;" +
+			"  window._dataApiComplete = false;" +
+			
+			// Monitor XMLHttpRequest
+			"  var origOpen = XMLHttpRequest.prototype.open;" +
+			"  XMLHttpRequest.prototype.open = function() {" +
+			"    window._pendingRequests++;" +
+			"    this.addEventListener('load', function() { " +
+			"      window._pendingRequests--;" +
+			"      if (this.responseURL && this.responseURL.includes('limit=100000')) {" +
+			"        window._dataApiComplete = true;" +
+			"      }" +
+			"    });" +
+			"    this.addEventListener('error', function() { window._pendingRequests--; });" +
+			"    this.addEventListener('abort', function() { window._pendingRequests--; });" +
+			"    origOpen.apply(this, arguments);" +
+			"  };" +
+			
+			// Monitor fetch API
+			"  var origFetch = window.fetch;" +
+			"  window.fetch = function() {" +
+			"    window._pendingRequests++;" +
+			"    return origFetch.apply(this, arguments).then(function(response) {" +
+			"      window._pendingRequests--;" +
+			"      if (response.url && response.url.includes('limit=100000')) {" +
+			"        window._dataApiComplete = true;" +
+			"      }" +
+			"      return response;" +
+			"    }).catch(function(error) {" +
+			"      window._pendingRequests--;" +
+			"      throw error;" +
+			"    });" +
+			"  };" +
+			"}"
+		);
 			
 			// Wait for the 100K API to complete (max 120 seconds)
 			int maxWaitSeconds = 120;
@@ -1030,34 +1049,35 @@ public class BasePageObject {
 				Boolean apiComplete = (Boolean) js.executeScript("return window._dataApiComplete === true;");
 				Long pending = (Long) js.executeScript("return window._pendingRequests || 0;");
 				
-				if (Boolean.TRUE.equals(apiComplete)) {
-					LOGGER.info("Background data API completed after {} seconds", waited);
-					safeSleep(10000); // Small buffer after API completes
-					return;
-				}
-				
-				// If 0 pending requests for 3 consecutive checks (6+ seconds), API likely already completed before monitoring started
-				if (pending == 0) {
-					consecutiveZeroPending++;
-					if (consecutiveZeroPending >= 3) {
-						LOGGER.info("No pending requests for {}+ seconds - API already completed or no data to load", consecutiveZeroPending * 2);
-						safeSleep(10000);
-						return;
-					}
-				} else {
-					consecutiveZeroPending = 0; // Reset if requests appear
-				}
-				
-				// Log progress every 20 seconds
-				if (waited % 20 == 0) {
-					LOGGER.info("Waiting for data API... {}s elapsed, {} pending requests", waited, pending);
-				}
+			if (Boolean.TRUE.equals(apiComplete)) {
+				LOGGER.info("✓ Background data API completed after {} seconds", waited);
+				safeSleep(3000);
+				return;
 			}
 			
-			LOGGER.debug("Data API wait timeout after {} seconds", maxWaitSeconds);
+			// If 0 pending requests for 3 consecutive checks (6+ seconds), API likely already completed before monitoring started
+			if (pending == 0) {
+				consecutiveZeroPending++;
+				if (consecutiveZeroPending >= 3) {
+					LOGGER.info("✓ No pending requests for {}+ seconds - API already completed or no data to load", consecutiveZeroPending * 2);
+					safeSleep(3000);
+					return;
+				}
+			} else {
+				consecutiveZeroPending = 0;
+				LOGGER.debug("Active requests detected: {} pending", pending);
+			}
 			
-		} catch (Exception e) {
-			LOGGER.debug("Error monitoring API: {}. Using fallback wait.", e.getMessage());
+			// Log progress every 20 seconds
+			if (waited % 20 == 0) {
+				LOGGER.info("⏳ Waiting for data API... {}s elapsed, {} pending requests", waited, pending);
+			}
+			}
+		
+		LOGGER.warn("⚠️ Data API wait timeout after {} seconds - proceeding anyway", maxWaitSeconds);
+		
+	} catch (Exception e) {
+		LOGGER.warn("Error monitoring API: {}. Using fallback wait.", e.getMessage());
 			// Fallback: simple fixed wait
 			safeSleep(15000);
 		}

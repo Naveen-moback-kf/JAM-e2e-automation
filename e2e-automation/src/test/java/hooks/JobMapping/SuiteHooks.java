@@ -5,11 +5,21 @@ import org.apache.logging.log4j.Logger;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
 
-import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.kfonetalentsuite.pageobjects.JobMapping.*;
-import com.kfonetalentsuite.utils.common.CommonVariable;
-import com.kfonetalentsuite.utils.JobMapping.SessionManager;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO18_HCMSyncProfilesTab_PM;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO19_ProfileswithNoJobCode_PM;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO21_ExportStatusFunctionality_PM;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO22_MissingDataTipMessage;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO25_MissingDataFunctionality;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO27_SelectAllWithSearchFunctionality;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO28_SelectAllWithFiltersFunctionality;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO30_SelectAndPublishAllJobProfiles_JAM;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO32_ClearProfileSelectionFunctionality;
+import com.kfonetalentsuite.pageobjects.JobMapping.PO33_UnmappedJobs_JAM;
 import com.kfonetalentsuite.utils.JobMapping.AllureReportingManager;
+import com.kfonetalentsuite.utils.JobMapping.SessionManager;
+import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 public class SuiteHooks implements ISuiteListener {
 

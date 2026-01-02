@@ -254,7 +254,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			safeSleep(120000);
 			refreshPage();
 			PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
-
+			safeSleep(2000);
 			WebElement resultsCount = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
 			String countAfter = resultsCount.getText().split(" ")[3];
 			PageObjectHelper.log(LOGGER, "Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
@@ -265,7 +265,24 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				throw new Exception("Unpublished Jobs count NOT UPDATED (Before: " + ResultsCountBeforeAddingMoreJobs.get() + ", After: " + countAfter + ")");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_unpublished_jobs_count_after_adding_more_jobs", "Issue in verifying Unpublished jobs count", e);
+			try {
+				PageObjectHelper.log(LOGGER, "Waiting for 1 more minute before validating uploaded jobs count...");
+				safeSleep(60000);
+				refreshPage();
+				PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
+				safeSleep(2000);
+				WebElement resultsCount = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+				String countAfter = resultsCount.getText().split(" ")[3];
+				PageObjectHelper.log(LOGGER, "Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
+
+				if (!ResultsCountBeforeAddingMoreJobs.get().equals(countAfter)) {
+					PageObjectHelper.log(LOGGER, "Unpublished Jobs count UPDATED as expected");
+				} else {
+					throw new Exception("Unpublished Jobs count NOT UPDATED (Before: " + ResultsCountBeforeAddingMoreJobs.get() + ", After: " + countAfter + ")");
+				}
+			} catch(Exception d) {
+				PageObjectHelper.handleError(LOGGER, "verify_unpublished_jobs_count_after_adding_more_jobs", "Issue in verifying Unpublished jobs count", e);
+			}
 		}
 	}
 
