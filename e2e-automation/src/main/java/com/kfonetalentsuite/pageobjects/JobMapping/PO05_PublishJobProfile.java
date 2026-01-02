@@ -329,8 +329,9 @@ public class PO05_PublishJobProfile extends BasePageObject {
 		try {
 			clickElement(Locators.HCMSyncProfiles.SEARCH_DROPDOWN);
 			PageObjectHelper.log(LOGGER, "Clicked on search dropdown button in HCM Sync Profiles screen");
-			safeSleep(3000);
+			safeSleep(1000);
 			clickElement(Locators.HCMSyncProfiles.SEARCH_BY_JOBCODE);
+			safeSleep(2000); // Wait for search type to fully change before proceeding
 			PageObjectHelper.log(LOGGER,"Search type successfully changed to Job Code");
 		} catch(Exception e) {
 			PageObjectHelper.handleError(LOGGER, "change_search_type_to_search_by_job_code_in_hcm_sync_profiles_screen_in_pm", "Failed to change search type in HCM Sync Profiles", e);
@@ -343,6 +344,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			PageObjectHelper.log(LOGGER, "Clicked on search dropdown button in HCM Sync Profiles screen");
 			safeSleep(1000);
 			clickElement(Locators.HCMSyncProfiles.SEARCH_BY_JOBPROFILE);
+			safeSleep(2000); // Wait for search type to fully change before proceeding
 			PageObjectHelper.log(LOGGER,"Search type successfully changed to Job Profile");
 		} catch(Exception e) {
 			PageObjectHelper.handleError(LOGGER, "change_search_type_to_search_by_job_profile_in_hcm_sync_profiles_screen_in_pm", "Failed to change search type in HCM Sync Profiles", e);
