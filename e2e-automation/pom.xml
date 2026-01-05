@@ -22,6 +22,10 @@
 		<!-- Default test suite - can be overridden via -DsuiteXmlFile=<suite>.xml -->
 		<suiteXmlFile>JAM_SanityTestSuite.xml</suiteXmlFile>
 		
+		<!-- Allure reporting control: Set to true to skip, false to enable -->
+		<!-- Can be overridden via: mvn test -DskipAllure=true -->
+		<skipAllure>false</skipAllure>
+		
 		<!-- Cross-browser testing now handled by individual runners like AutoRun_CrossBrowser_LoginPageRunner01 -->
 	</properties>
 
@@ -202,6 +206,7 @@
 			</plugin>
 
 			<!-- ADDED: Allure Maven Plugin for Report Generation -->
+			<!-- SKIP THIS PLUGIN: Set -Dallure.reporting=false or allure.reporting=false in config.properties -->
 			<plugin>
 				<groupId>io.qameta.allure</groupId>
 				<artifactId>allure-maven</artifactId>
@@ -213,6 +218,8 @@
 					<resultsDirectory>${project.basedir}/AllureReports/allure-results</resultsDirectory>
 					<!-- Report generated at project root (not in target/) -->
 					<reportDirectory>${project.basedir}/AllureReports/allure-report</reportDirectory>
+					<!-- Skip plugin execution when allure.reporting=false -->
+					<skip>${skipAllure}</skip>
 				</configuration>
 				<executions>
 					<!-- Automatically generate report after tests complete -->

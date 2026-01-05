@@ -10,24 +10,6 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * ENHANCED Utility class to manage system power settings during test execution
- * Prevents system from going to sleep during long test runs
- * 
- * FEATURES: - Intelligently backs up YOUR actual current power settings before
- * modifying - Restores YOUR original settings (not hardcoded defaults) - Safety
- * check on startup to detect and restore if settings were left modified -
- * Survives crashes and flag changes
- * 
- * POWER SETTINGS BEHAVIOR:
- * 
- * When keepSystemAwake=false: Applies Windows Recommended settings: Plugged in:
- * Screen 5min, Sleep 5min On battery: Screen 3min, Sleep 3min
- * 
- * When keepSystemAwake=true: Individual Runner execution (initialize()): All
- * timeouts: 30 minutes Test Suite execution (initializeForSuite()): All
- * timeouts: Never (0)
- */
 public class KeepAwakeUtil {
 
 	private static final Logger LOGGER = (Logger) LogManager.getLogger();
@@ -37,23 +19,10 @@ public class KeepAwakeUtil {
 	private static boolean isSuiteExecution = false;
 	private static final String BACKUP_MARKER_FILE = ".power_settings_modified";
 
-	/**
-	 * Initialize keep awake functionality for test execution Sets
-	 * timeouts to 30 minutes when keepSystemAwake=true
-	 */
 	public static void initialize() {
 		initializeInternal(false);
 	}
 
-	/**
-	 * Internal initialization method SUITE-LEVEL: This method should be called ONCE
-	 * at the start of test execution Thread-safe implementation prevents duplicate
-	 * initialization
-	 * 
-	 * ENHANCED: Now includes safety check to restore settings if they were left
-	 * modified CRITICAL: Safety check runs REGARDLESS of flag state to ensure
-	 * system protection
-	 */
 	private static void initializeInternal(boolean isSuite) {
 		synchronized (lock) {
 			try {
@@ -91,13 +60,6 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * Shutdown keep awake functionality SUITE-LEVEL: This method should be called
-	 * ONCE at the end of test suite execution Thread-safe implementation prevents
-	 * duplicate shutdown
-	 * 
-	 * ENHANCED: Now restores YOUR original settings (not hardcoded defaults)
-	 */
 	public static void shutdown() {
 		synchronized (lock) {
 			try {
@@ -127,17 +89,10 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * Check if keep awake functionality is enabled in configuration
-	 */
 	private static boolean isKeepAwakeEnabled() {
 		return CommonVariable.KEEP_SYSTEM_AWAKE != null && CommonVariable.KEEP_SYSTEM_AWAKE.equalsIgnoreCase("true");
 	}
 
-	/**
-	 * ENHANCED: Backup current power settings before modifying them Queries actual
-	 * Windows power configuration and saves to file
-	 */
 	private static boolean backupCurrentPowerSettings() {
 		try {
 			// Backing up current power settings silently
@@ -169,10 +124,6 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * Query a specific power setting from Windows Uses powercfg /query with
-	 * appropriate subgroup (SUB_SLEEP or SUB_VIDEO)
-	 */
 	private static String queryPowerSetting(String settingName) {
 		// Return null on non-Windows systems
 		if (!isWindows()) {
@@ -235,9 +186,6 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * Get the friendly name for a power setting
-	 */
 	private static String getSettingFriendlyName(String settingName) {
 		if (settingName.contains("standby")) {
 			return "Sleep after";
@@ -249,9 +197,6 @@ public class KeepAwakeUtil {
 		return settingName;
 	}
 
-	/**
-	 * Get the GUID for a power setting (for more reliable matching)
-	 */
 	private static String getSettingGuid(String settingName) {
 		// Common power setting GUIDs
 		if (settingName.contains("standby")) {
@@ -264,9 +209,6 @@ public class KeepAwakeUtil {
 		return null;
 	}
 
-	/**
-	 * ENHANCED: Restore original power settings from backup file
-	 */
 	private static boolean restoreOriginalPowerSettings() {
 		try {
 			File backupFile = new File(BACKUP_FILE);
@@ -309,10 +251,6 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * ENHANCED: Safety check - detect if settings were left modified from previous
-	 * run
-	 */
 	private static void checkAndRestoreIfNeeded() {
 		try {
 			File markerFile = new File(BACKUP_MARKER_FILE);
@@ -333,11 +271,6 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * NEW: Apply Windows Recommended power settings when Keep Awake is disabled
-	 * Sets power settings to Windows default recommended values: - Plugged in:
-	 * Screen 5min, Sleep 5min - On battery: Screen 3min, Sleep 3min
-	 */
 	private static void applyRecommendedPowerSettings() {
 		try {
 			// Windows Recommended values (as per Windows 11 defaults)
@@ -359,9 +292,6 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * Create a marker file to indicate settings have been modified
-	 */
 	private static void createModificationMarker() {
 		try {
 			File markerFile = new File(BACKUP_MARKER_FILE);
@@ -374,9 +304,6 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * Remove the modification marker file
-	 */
 	private static void removeModificationMarker() {
 		try {
 			File markerFile = new File(BACKUP_MARKER_FILE);
@@ -389,9 +316,6 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * Clean up the backup file after successful restoration
-	 */
 	private static void cleanupBackupFile() {
 		try {
 			File backupFile = new File(BACKUP_FILE);
@@ -404,11 +328,6 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * Enable keep awake functionality using Windows powercfg commands - Test Suite:
-	 * Sets all timeouts to 0 (Never) - Individual Runner: Sets all timeouts to 30
-	 * minutes
-	 */
 	private static void enableKeepAwake() {
 		try {
 			int timeout;
@@ -441,11 +360,6 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * FALLBACK: Disable keep awake functionality and restore safe default power
-	 * settings NOTE: This is only used as a fallback when backup restoration fails
-	 * Normal operation uses restoreOriginalPowerSettings() instead
-	 */
 	private static void disableKeepAwake() {
 		try {
 			// Restore safe default sleep timeout (30 minutes)
@@ -467,17 +381,11 @@ public class KeepAwakeUtil {
 		}
 	}
 
-	/**
-	 * Check if running on Windows OS
-	 */
 	private static boolean isWindows() {
 		String os = System.getProperty("os.name").toLowerCase();
 		return os.contains("win");
 	}
 
-	/**
-	 * Execute Windows powercfg command (Windows only)
-	 */
 	private static void executePowerCommand(String command) {
 		// Skip power commands on non-Windows systems (Linux, Mac, etc.)
 		if (!isWindows()) {

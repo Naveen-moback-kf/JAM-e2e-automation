@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -22,21 +23,55 @@ import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 /**
- * BasePageObject - Centralized repository for common locators and utilities
+ * BasePageObject - Common utilities and locators for all Page Objects
  * 
- * PURPOSE:
- * - Single source of truth for shared XPaths across all page objects
- * - Common utility methods for element interactions
- * - Reduces duplication and simplifies maintenance
+ * ===== QUICK REFERENCE GUIDE =====
  * 
- * USAGE:
- * - Extend this class in your page objects: public class PO04_Example extends BasePageObject
- * - Access locators: driver.findElement(Locators.Spinners.PAGE_LOAD_SPINNER)
- * - Use utility methods: clickElement(element), waitForElement(locator)
+ * SCROLLING:
+ *   scrollToTop()              - Scroll to page top
+ *   scrollToBottom()           - Scroll to page bottom
+ *   scrollToElement(element)   - Scroll element into center view
  * 
- * MAINTENANCE:
- * - When UI changes, update XPaths here ONLY
- * - All page objects automatically get the updated locators
+ * SEARCHING:
+ *   searchFor(String)                  - Basic search using default search bar
+ *   clearAndSearch(By, String)         - NEW! Clear search bar and search (robust)
+ *   clearSearchBar(By)                 - NEW! Clear search bar only
+ * 
+ * CLICKING:
+ *   clickElement(By)                   - Smart click with retries
+ *   clickElementSafely(By)             - Click with 10s timeout + 3 retries
+ *   clickElementSafely(By, int)        - Click with custom timeout + 3 retries
+ *   jsClick(WebElement)                - JavaScript click fallback
+ *   tryClickWithStrategies(element)    - Multiple click strategies (normal/JS/Actions)
+ * 
+ * WAITING:
+ *   waitForSpinners()                  - Wait for all spinners (15s timeout)
+ *   waitForSpinners(int)               - Wait for spinners with custom timeout
+ *   waitForElement(By)                 - Wait for visibility (10s timeout)
+ *   waitForElement(By, int)            - Wait for visibility with custom timeout
+ *   waitForClickable(By)               - Wait for element to be clickable (10s)
+ *   waitForPageLoad()                  - Wait for spinners + page ready
+ * 
+ * FILTERS:
+ *   openFilters()                      - Open filters panel
+ *   clearFilters()                     - Clear all applied filters
+ * 
+ * PROFILE SELECTION:
+ *   selectAllProfiles()                - Select all profiles in table
+ *   deselectAllProfiles()              - Deselect all profiles
+ * 
+ * ELEMENT CHECKS:
+ *   isElementDisplayed(By)             - Check if element is visible
+ *   hasElements(By)                    - Check if any elements exist
+ *   getElementText(By)                 - Get text from element (with wait)
+ * 
+ * USAGE TIPS:
+ * - Use clearAndSearch() instead of manually clearing search bars (handles stubborn inputs)
+ * - Use clickElementSafely() for elements that sometimes go stale
+ * - Always call waitForSpinners() after actions that trigger data loading
+ * - Use PerformanceUtils.waitForPageReady() after critical page interactions
+ * 
+ * ================================
  */
 public class BasePageObject {
 
@@ -48,9 +83,6 @@ public class BasePageObject {
 	protected JavascriptExecutor js;
 	protected static final Logger LOGGER = LogManager.getLogger(BasePageObject.class);
 
-	/**
-	 * Default constructor - initializes WebDriver and common components
-	 */
 	public BasePageObject() {
 		this.driver = DriverManager.getDriver();
 		this.wait = DriverManager.getWait();
@@ -62,10 +94,6 @@ public class BasePageObject {
 	// CENTRALIZED LOCATORS - Update XPaths here only
 	// =============================================
 
-	/**
-	 * Locators class - Centralized repository for all shared XPaths
-	 * Organized by UI component/section for easy navigation
-	 */
 	public static class Locators {
 
 		// -----------------------------------------
@@ -86,6 +114,9 @@ public class BasePageObject {
 			public static final By WAFFLE_MENU = By.xpath("//div[@data-testid='menu-icon']");
 			public static final By CLIENT_NAME = By.xpath("//button[contains(@class,'global-nav-client-name')]//span");
 			public static final By JOB_MAPPING_BTN = By.xpath("//button[@aria-label='Job Mapping']");
+			// KFONE Menu Application Buttons
+			public static final By KFONE_MENU_PM_BTN = By.xpath("//span[@aria-label='Profile Manager']");
+			public static final By KFONE_MENU_ARCHITECT_BTN = By.xpath("//span[@aria-label='Architect']");
 		}
 
 		// -----------------------------------------
@@ -141,6 +172,12 @@ public class BasePageObject {
 			public static final By SUCCESS_MODAL_CLOSE_BTN = By.xpath("//button[@id='close-success-modal-btn']");
 			public static final By PROFILE_DETAILS_POPUP_HEADER = By.xpath("//h2[@id='summary-modal']");
 			public static final By PROFILE_DETAILS_CLOSE_BTN = By.xpath("//button[@id='close-profile-summary']");
+			// Publish Success Messages
+			public static final By PUBLISH_SUCCESS_MSG = By.xpath("//p[contains(text(),'Success profile published')]/..");
+			public static final By PUBLISH_SUCCESS_MSG_DIRECT = By.xpath("//p[contains(text(),'Success profile published')]");
+			public static final By PUBLISH_SUCCESS_MSG_FLEXIBLE = By.xpath("//*[contains(text(),'profile published') or contains(text(),'successfully published')]");
+			public static final By PUBLISHED_SUCCESS_MSG = By.xpath("//p[@id='modal-message']");
+			public static final By PUBLISHED_SUCCESS_CLOSE_BTN = By.xpath("//button[@aria-label='Close']");
 		}
 
 		// -----------------------------------------
@@ -189,21 +226,56 @@ public class BasePageObject {
 		}
 
 		// -----------------------------------------
-		// HCM SYNC PROFILES (Used in PO22,PO23,PO25)
+		// HCM SYNC PROFILES (Used in PO18,PO19,PO21,PO22,PO23,PO25,PO31)
 		// -----------------------------------------
 		public static class HCMSyncProfiles {
+			public static final By HCM_SYNC_TAB = By.xpath("//span[contains(text(),'HCM Sync')]");
 			public static final By SYNC_PROFILES_TITLE = By.xpath("//h1[contains(text(),'Sync Profiles')]");
 			public static final By PROFILE_MANAGER_HEADER = By.xpath("//h1[contains(text(),'Profile Manager')]");
 			public static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing')]");
 			public static final By TABLE_HEADER_NAME = By.xpath("//thead//tr//div[@kf-sort-header='name']//div");
 			public static final By TABLE_HEADER_STATUS = By.xpath("//thead//tr//div//div[text()=' Status ']");
+			public static final By TABLE_HEADER_JOB_CODE = By.xpath("//thead//tr//div//div[text()=' Job Code ']");
 			public static final By TABLE_HEADER_KF_GRADE = By.xpath("//thead//tr//div//div[text()=' kf grade ']");
 			public static final By TABLE_HEADER_LEVEL = By.xpath("//thead//tr//div//div[text()=' Level ']");
 			public static final By TABLE_HEADER_FUNCTION = By.xpath("//thead//tr//div//div[text()=' Function ']");
 			public static final By TABLE_HEADER_CREATED_BY = By.xpath("//thead//tr//div//div[text()=' Created By ']");
 			public static final By TABLE_HEADER_LAST_MODIFIED = By.xpath("//thead//tr//div//div[text()=' Last Modified ']");
 			public static final By TABLE_HEADER_EXPORT_STATUS = By.xpath("//thead//tr//div//div[text()=' Export status ']");
-			public static final By DOWNLOAD_BTN = By.xpath("//button[contains(@class,'border-button')]");
+			public static final By TABLE_HEADER_CHECKBOX = By.xpath("//thead//tr//div//kf-checkbox");
+			public static final By SP_DETAILS_PAGE_TEXT = By.xpath("//span[contains(text(),'Select your view')]");
+			public static final By SYNC_WITH_HCM_BTN = By.xpath("//button[contains(@class,'custom-export')] | //*[contains(text(),'Sync with HCM')]");
+			public static final By SEARCH_DROPDOWN = By.xpath("//div[@class='search-type-toggle']");
+			public static final By SEARCH_BY_JOBPROFILE = By.xpath("//div[contains(@class,'search-type-item') and contains(text(),'Job Profile')]");
+			public static final By SEARCH_BY_JOBCODE = By.xpath("//div[contains(@class,'search-type-item') and contains(text(),'Job Code')]");
+		}
+
+		// -----------------------------------------
+		// PM SCREEN LOCATORS (HCM Sync Profiles - Used in PO35, PO36, PO42)
+		// -----------------------------------------
+	public static class PMScreen {
+		public static final By ALL_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-checkbox]");
+		public static final By SELECTED_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]");
+		// FIXED: More specific locator to target chevron beside table header checkbox, not search dropdown
+		public static final By CHEVRON_BUTTON = By.xpath("//thead//th//kf-icon[contains(@class,'arrow-down') or @icon='arrow-down'] | //thead//th//*[contains(@class,'chevron')]");
+		public static final By HEADER_CHECKBOX = By.xpath("//thead//tr//th[1]//div[1]//kf-checkbox//div");
+			public static final By SYNC_BUTTON = By.xpath("//button[contains(@class,'custom-export')] | //button[contains(text(),'Sync with HCM')]");
+			public static final By SEARCH_BAR = By.xpath("//input[@type='search']");
+			public static final By CLEAR_ALL_FILTERS_BTN = By.xpath("//a[contains(text(),'Clear All')]");
+		}
+
+		// -----------------------------------------
+		// JAM SCREEN LOCATORS (Job Mapping - Used in PO35, PO36, PO42)
+		// -----------------------------------------
+		public static class JAMScreen {
+			public static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
+			public static final By ALL_PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]");
+			public static final By SELECTED_PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox' and @checked]]");
+			public static final By CHEVRON_BUTTON = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]");
+			public static final By HEADER_CHECKBOX = By.xpath("//thead//input[@type='checkbox']");
+			public static final By PUBLISH_BUTTON = By.xpath("//button[contains(@id,'publish-approved-mappings-btn')] | //button[contains(text(),'Publish Selected')]");
+			public static final By SEARCH_BAR = By.xpath("//input[@id='search-job-title-input-search-input']");
+			public static final By CLEAR_FILTERS_BTN = By.xpath("//button[@data-testid='Clear Filters']");
 		}
 
 		// -----------------------------------------
@@ -214,6 +286,17 @@ public class BasePageObject {
 			public static final By FIRST_ROW_PROFILE_MATCH = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
 			public static final By FIRST_ROW_JOB_TITLE = By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr[1]//td[1]//div");
 			public static final By SEARCH_INPUT = By.xpath("//input[@type='search']");
+			// JAM Table Row Locators
+			public static final By JOB_NAME_ROW_1 = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
+			public static final By JOB_1_PUBLISH_BTN = By.xpath("//tbody//tr[2]//button[@id='publish-btn'][1]");
+			public static final By JOB_1_PUBLISHED_BTN = By.xpath("//tbody//tr[2]//button[text()='Published'][1]");
+			// HCM Sync Profiles Row Locators
+			public static final By HCM_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//span[1]//a");
+			public static final By HCM_JOBCODE_ROW_1 = By.xpath("//tbody//tr[1]//td[3]//span");
+			public static final By HCM_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[8]//span");
+			// Architect Row Locators
+			public static final By ARCHITECT_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//div//a");
+			public static final By ARCHITECT_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[9]");
 		}
 	}
 
@@ -221,10 +304,6 @@ public class BasePageObject {
 	// COMMON UTILITY METHODS
 	// =============================================
 
-	/**
-	 * Click on element with multiple fallback strategies
-	 * Tries: Regular click -> JS click -> JS executor click
-	 */
 	protected void clickElement(WebElement element) {
 		try {
 			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
@@ -237,19 +316,10 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Click on element by locator with fallback strategies
-	 * PARALLEL EXECUTION ENHANCED: Handles stale elements and page readiness
-	 */
 	protected void clickElement(By locator) {
 		clickElementSafely(locator, 10);
 	}
 
-	/**
-	 * PARALLEL EXECUTION FIX: Safe element click with stale element retry and page readiness check
-	 * @param locator Element locator
-	 * @param timeoutSeconds Maximum wait time
-	 */
 	protected void clickElementSafely(By locator, int timeoutSeconds) {
 		// Wait for page to be ready before interaction
 		PerformanceUtils.waitForPageReady(driver, 2);
@@ -311,18 +381,10 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * JavaScript click - bypasses overlay issues
-	 */
 	protected void jsClick(WebElement element) {
 		js.executeScript("arguments[0].click();", element);
 	}
 
-	/**
-	 * Try multiple click strategies for stubborn elements
-	 * Strategies: Regular click -> JS click -> Actions click
-	 * @return true if any strategy succeeded
-	 */
 	protected boolean tryClickWithStrategies(WebElement element) {
 		try {
 			if (element.isDisplayed() && element.isEnabled()) {
@@ -350,9 +412,6 @@ public class BasePageObject {
 		return false;
 	}
 
-	/**
-	 * Try multiple click strategies using By locator with logging
-	 */
 	protected boolean tryClickWithStrategies(By locator, String elementName) {
 		try {
 			WebElement element = waitForClickable(locator);
@@ -367,10 +426,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Handle cookies banner if present.
-	 * Uses short wait (5 seconds) to avoid blocking if banner doesn't appear.
-	 */
 	protected void handleCookiesBanner() {
 		try {
 			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
@@ -382,9 +437,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Wait for element to be visible and return it
-	 */
 	protected WebElement waitForElement(By locator) {
 		return waitForElement(locator, 10);
 	}
@@ -394,46 +446,27 @@ public class BasePageObject {
 		return customWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 	}
 
-	/**
-	 * Wait for element to be clickable and return it
-	 */
 	protected WebElement waitForClickable(By locator) {
 		return wait.until(ExpectedConditions.elementToBeClickable(locator));
 	}
 
-	/**
-	 * Find element by locator - wrapper for driver.findElement
-	 */
 	protected WebElement findElement(By locator) {
 		return driver.findElement(locator);
 	}
 
-	/**
-	 * Find elements by locator - wrapper for driver.findElements
-	 */
 	protected java.util.List<WebElement> findElements(By locator) {
 		return driver.findElements(locator);
 	}
 
-	/**
-	 * Safely get the first element from a locator, returns null if no elements found.
-	 * Use this instead of findElements(locator).get(0) to avoid IndexOutOfBoundsException.
-	 */
 	protected WebElement getFirstElementOrNull(By locator) {
 		List<WebElement> elements = driver.findElements(locator);
 		return elements.isEmpty() ? null : elements.get(0);
 	}
 
-	/**
-	 * Check if elements exist for a locator (returns true if at least one element found)
-	 */
 	protected boolean hasElements(By locator) {
 		return !driver.findElements(locator).isEmpty();
 	}
 
-	/**
-	 * Check if element is displayed (with safe handling)
-	 */
 	protected boolean isElementDisplayed(By locator) {
 		try {
 			return driver.findElement(locator).isDisplayed();
@@ -442,9 +475,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Get text from element safely
-	 */
 	protected String getElementText(By locator) {
 		try {
 			return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).getText();
@@ -454,9 +484,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Scroll element into view
-	 */
 	protected void scrollToElement(WebElement element) {
 		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
 		try {
@@ -466,16 +493,10 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Scroll to top of page
-	 */
 	protected void scrollToTop() {
 		js.executeScript("window.scrollTo(0, 0);");
 	}
 
-	/**
-	 * Scroll to bottom of page
-	 */
 	protected void scrollToBottom() {
 		js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 	}
@@ -484,26 +505,15 @@ public class BasePageObject {
 	// COMMON PAGE OPERATIONS
 	// =============================================
 
-	/**
-	 * Wait for page to be fully loaded (spinners disappeared)
-	 */
 	protected void waitForPageLoad() {
 		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 		PerformanceUtils.waitForPageReady(driver, 3);
 	}
 
-	/**
-	 * Wait for spinners to disappear with enhanced timeout and fallback
-	 * PARALLEL EXECUTION FIX: Increased timeout and added fallback for persistent spinners
-	 */
 	protected void waitForSpinners() {
 		waitForSpinners(15); // Increased default timeout from 10s to 15s
 	}
 	
-	/**
-	 * Wait for spinners with custom timeout
-	 * @param timeoutSeconds Maximum time to wait for spinners to disappear
-	 */
 	protected void waitForSpinners(int timeoutSeconds) {
 		try {
 			PerformanceUtils.waitForSpinnersToDisappear(driver, timeoutSeconds);
@@ -519,9 +529,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Refresh the page and wait for load
-	 */
 	protected void refreshPage() {
 		driver.navigate().refresh();
 		waitForPageLoad();
@@ -533,25 +540,16 @@ public class BasePageObject {
 	// NAVIGATION HELPERS
 	// =============================================
 
-	/**
-	 * Click on KF Talent Suite logo
-	 */
 	protected void clickLogo() {
 		clickElement(Locators.Navigation.KF_TALENT_SUITE_LOGO);
 		PageObjectHelper.log(LOGGER, "Clicked on KF Talent Suite Logo");
 	}
 
-	/**
-	 * Open global navigation menu
-	 */
 	protected void openGlobalNavMenu() {
 		clickElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
 		PerformanceUtils.waitForUIStability(driver, 1);
 	}
 
-	/**
-	 * Navigate to Job Mapping from global menu
-	 */
 	protected void navigateToJobMapping() {
 		openGlobalNavMenu();
 		clickElement(Locators.Navigation.JOB_MAPPING_BTN);
@@ -559,17 +557,11 @@ public class BasePageObject {
 		PageObjectHelper.log(LOGGER, "Navigated to Job Mapping screen");
 	}
 
-	/**
-	 * Open user profile dropdown
-	 */
 	protected void openUserProfile() {
 		clickElement(Locators.UserProfile.PROFILE_BTN);
 		PerformanceUtils.waitForUIStability(driver, 1);
 	}
 
-	/**
-	 * Sign out from application
-	 */
 	protected void signOut() {
 		openUserProfile();
 		clickElement(Locators.UserProfile.SIGN_OUT_BTN);
@@ -581,19 +573,11 @@ public class BasePageObject {
 	// TABLE HELPERS
 	// =============================================
 
-	/**
-	 * Get results count from "Showing X of Y results" text element.
-	 * Uses parseProfileCountFromText() for parsing logic.
-	 * @return Total count (Y value) or 0 if not found
-	 */
 	protected int getResultsCount() {
 		String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
 		return parseProfileCountFromText(countText);
 	}
 
-	/**
-	 * Click Select All button (after clicking chevron)
-	 */
 	protected void selectAllProfiles() {
 		clickElement(Locators.Table.HEADER_CHEVRON_BTN);
 		PerformanceUtils.waitForPageReady(driver, 1);
@@ -602,9 +586,6 @@ public class BasePageObject {
 		PageObjectHelper.log(LOGGER, "Selected all profiles");
 	}
 
-	/**
-	 * Click None button to deselect all
-	 */
 	protected void deselectAllProfiles() {
 		clickElement(Locators.Table.HEADER_CHEVRON_BTN);
 		PerformanceUtils.waitForPageReady(driver, 1);
@@ -617,17 +598,11 @@ public class BasePageObject {
 	// FILTER HELPERS
 	// =============================================
 
-	/**
-	 * Open filters panel
-	 */
 	protected void openFilters() {
 		clickElement(Locators.SearchAndFilters.FILTERS_BTN);
 		PerformanceUtils.waitForUIStability(driver, 1);
 	}
 
-	/**
-	 * Clear all filters
-	 */
 	protected void clearFilters() {
 		openFilters();
 		clickElement(Locators.SearchAndFilters.CLEAR_FILTERS_BTN);
@@ -636,8 +611,37 @@ public class BasePageObject {
 	}
 
 	/**
-	 * Enter text in search bar
+	 * Closes the filters panel (if open).
+	 * Useful after selecting filters without using "Apply" button.
 	 */
+	protected void closeFilters() {
+		try {
+			clickElement(Locators.SearchAndFilters.FILTERS_BTN);
+			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.log(LOGGER, "Closed filters panel");
+		} catch (Exception e) {
+			LOGGER.debug("Filters panel already closed or not present");
+		}
+	}
+
+	/**
+	 * Opens a specific filter dropdown by name.
+	 * Useful for filter panels with multiple expandable sections.
+	 * 
+	 * @param filterName Name of the filter (e.g., "Grades", "Departments", "Levels")
+	 */
+	protected void openFilterDropdown(String filterName) {
+		try {
+			By filterLocator = By.xpath("//div[contains(text(),'" + filterName + "')]");
+			clickElement(filterLocator);
+			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.log(LOGGER, "Opened " + filterName + " filter dropdown");
+		} catch (Exception e) {
+			LOGGER.error("Failed to open " + filterName + " filter dropdown", e);
+			throw new RuntimeException("Filter dropdown open failed: " + filterName, e);
+		}
+	}
+
 	protected void searchFor(String searchText) {
 		WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR);
 		searchBar.clear();
@@ -646,11 +650,68 @@ public class BasePageObject {
 		PageObjectHelper.log(LOGGER, "Searched for: " + searchText);
 	}
 
-	// ==================== COMMON HELPER METHODS ====================
+	/**
+	 * Clears search input and performs search with robust clearing strategy.
+	 * This method handles search bars that don't clear properly with .clear() alone.
+	 * 
+	 * @param searchLocator By locator for the search input element
+	 * @param searchTerm Text to search for
+	 */
+	protected void clearAndSearch(By searchLocator, String searchTerm) {
+		try {
+			WebElement searchBar = waitForElement(searchLocator, 10);
+			searchBar.click();
+			safeSleep(200);
+			
+			// Robust clear strategy - some inputs need extra help
+			searchBar.clear();
+			searchBar.sendKeys(Keys.CONTROL + "a");
+			searchBar.sendKeys(Keys.DELETE);
+			safeSleep(200);
+			
+			// Type and submit search
+			searchBar.sendKeys(searchTerm);
+			safeSleep(300);
+			searchBar.sendKeys(Keys.ENTER);
+			
+			// Wait for results to load
+			waitForSpinners();
+			PerformanceUtils.waitForPageReady(driver, 3);
+			
+			PageObjectHelper.log(LOGGER, "Searched for: " + searchTerm);
+		} catch (Exception e) {
+			LOGGER.error("Failed to clear and search for: " + searchTerm, e);
+			throw new RuntimeException("Search operation failed", e);
+		}
+	}
 
 	/**
-	 * Safe sleep with exception handling - use sparingly, prefer explicit waits
+	 * Clears search input without performing search.
+	 * Useful for resetting search state before next operation.
+	 * 
+	 * @param searchLocator By locator for the search input element
 	 */
+	protected void clearSearchBar(By searchLocator) {
+		try {
+			WebElement searchBar = waitForElement(searchLocator, 10);
+			searchBar.click();
+			safeSleep(200);
+			
+			// Robust clear strategy
+			searchBar.clear();
+			searchBar.sendKeys(Keys.CONTROL + "a");
+			searchBar.sendKeys(Keys.DELETE);
+			safeSleep(200);
+			
+			PageObjectHelper.log(LOGGER, "Cleared search bar");
+		} catch (Exception e) {
+			LOGGER.error("Failed to clear search bar", e);
+			throw new RuntimeException("Clear search operation failed", e);
+		}
+	}
+
+	// ==================== COMMON HELPER METHODS ====================
+
 	protected void safeSleep(int milliseconds) {
 		try {
 			Thread.sleep(milliseconds);
@@ -659,30 +720,56 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Expand all "View More" buttons within a section
-	 */
 	protected void expandAllViewMoreButtons(By viewMoreLocator) {
 		try {
-			List<WebElement> viewMoreBtns = findElements(viewMoreLocator);
-			for (WebElement btn : viewMoreBtns) {
-				try {
-					js.executeScript("arguments[0].scrollIntoView(true);", btn);
-					safeSleep(200);
-					jsClick(btn);
-					safeSleep(300);
-				} catch (Exception e) {
-					LOGGER.debug("Could not click View More button: " + e.getMessage());
+			int maxAttempts = 20; // Safety limit to prevent infinite loops
+			int attemptCount = 0;
+			int totalClicked = 0;
+			
+			while (attemptCount < maxAttempts) {
+				List<WebElement> viewMoreBtns = findElements(viewMoreLocator);
+				
+				if (viewMoreBtns.isEmpty()) {
+					LOGGER.debug("No more View More buttons found. Total clicked: {}", totalClicked);
+					break;
 				}
+				
+				// Click the first visible button (after clicking, new buttons may appear)
+				boolean buttonClicked = false;
+				for (WebElement btn : viewMoreBtns) {
+					try {
+						if (btn.isDisplayed()) {
+							js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", btn);
+							safeSleep(300);
+							jsClick(btn);
+							safeSleep(400);
+							totalClicked++;
+							buttonClicked = true;
+							LOGGER.debug("Clicked View More button #{}", totalClicked);
+							break; // Exit inner loop, re-query for new buttons
+						}
+					} catch (Exception e) {
+						LOGGER.debug("Could not click View More button: {}", e.getMessage());
+					}
+				}
+				
+				if (!buttonClicked) {
+					// No button was successfully clicked, exit to avoid infinite loop
+					LOGGER.debug("No clickable View More button found, stopping. Total clicked: {}", totalClicked);
+					break;
+				}
+				
+				attemptCount++;
+			}
+			
+			if (attemptCount >= maxAttempts) {
+				LOGGER.warn("Reached max attempts ({}) for clicking View More buttons. Total clicked: {}", maxAttempts, totalClicked);
 			}
 		} catch (Exception e) {
-			LOGGER.debug("No View More buttons found or error expanding: " + e.getMessage());
+			LOGGER.debug("Error expanding View More buttons: {}", e.getMessage());
 		}
 	}
 
-	/**
-	 * Extract text from a table cell element
-	 */
 	protected String extractCellText(WebElement cell) {
 		if (cell == null) return "";
 		try {
@@ -696,18 +783,12 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Format current date as MM/dd/yyyy
-	 */
 	protected String formatCurrentDate() {
 		java.time.LocalDate today = java.time.LocalDate.now();
 		java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy");
 		return today.format(formatter);
 	}
 
-	/**
-	 * Clean job name by removing extra characters
-	 */
 	protected String cleanJobName(String rawJobName) {
 		if (rawJobName == null || rawJobName.isEmpty()) return "";
 		// Remove leading/trailing whitespace and normalize
@@ -719,9 +800,6 @@ public class BasePageObject {
 		return cleaned;
 	}
 
-	/**
-	 * Extract job name for search from full job name string
-	 */
 	protected String extractJobNameForSearch(String fullJobName) {
 		if (fullJobName == null || fullJobName.isEmpty()) return "";
 		String cleaned = cleanJobName(fullJobName);
@@ -733,11 +811,6 @@ public class BasePageObject {
 		return cleaned;
 	}
 
-	/**
-	 * Check if a field value indicates missing data.
-	 * Returns true for: null, empty, whitespace-only, "n/a", "-", "na", "null", "none"
-	 * This is the primary method for checking missing/empty values.
-	 */
 	protected boolean isMissingData(String value) {
 		if (value == null || value.trim().isEmpty()) return true;
 		String normalized = value.trim().toLowerCase();
@@ -745,9 +818,6 @@ public class BasePageObject {
 				|| normalized.equals("null") || normalized.equals("none");
 	}
 
-	/**
-	 * Normalize field value for comparison
-	 */
 	protected String normalizeFieldValue(String fieldValue) {
 		if (fieldValue == null) return "";
 		String normalized = fieldValue.trim();
@@ -757,9 +827,6 @@ public class BasePageObject {
 		return normalized;
 	}
 
-	/**
-	 * Verify search results contain the search term
-	 */
 	protected void verifySearchResultsContainSearchTerm(String searchTerm, By resultsLocator) {
 		try {
 			List<WebElement> results = findElements(resultsLocator);
@@ -778,10 +845,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Format current date for display in "Mon DD, YYYY" format (e.g., "Dec 04, 2025")
-	 * Used for verifying publish dates and other date comparisons
-	 */
 	protected String formatDateForDisplay() {
 		LocalDate currentDate = LocalDate.now();
 		int currentYear = currentDate.getYear();
@@ -791,9 +854,6 @@ public class BasePageObject {
 		return currentMonth.toString().substring(0, 1) + currentMonth.toString().substring(1, 3).toLowerCase() + " " + dayStr + ", " + currentYear;
 	}
 
-	/**
-	 * Get row index from a table row element
-	 */
 	protected int getRowIndex(WebElement rowElement) {
 		try {
 			// Try to get from data attribute first
@@ -814,9 +874,6 @@ public class BasePageObject {
 		return -1;
 	}
 
-	/**
-	 * Check new profiles for invalid selections (used in Select All validations)
-	 */
 	protected int checkNewProfilesForInvalidSelections(int startIndex, int endIndex, By checkboxLocator, boolean expectSelected) {
 		int invalidCount = 0;
 		try {
@@ -844,13 +901,6 @@ public class BasePageObject {
 
 	// ==================== COMMON PARSING HELPERS ====================
 
-	/**
-	 * Parses profile count from "Showing X of Y results" text.
-	 * Returns the total count (Y) from the text.
-	 * 
-	 * @param countText Text like "Showing 10 of 1428 results"
-	 * @return The total count (1428) or 0 if parsing fails
-	 */
 	protected int parseProfileCountFromText(String countText) {
 		try {
 			if (countText != null && countText.contains("of")) {
@@ -866,14 +916,6 @@ public class BasePageObject {
 		return 0;
 	}
 
-	/**
-	 * Gets value or returns "[EMPTY]" placeholder for missing data.
-	 * Useful for logging table cell values.
-	 * Uses isMissingData() for consistency.
-	 * 
-	 * @param value The value to check
-	 * @return The value or "[EMPTY]" if missing
-	 */
 	protected String getValueOrEmpty(String value) {
 		return isMissingData(value) ? "[EMPTY]" : value;
 	}
@@ -881,13 +923,6 @@ public class BasePageObject {
 	// ==================== COMMON CHECKBOX COUNTING HELPERS ====================
 	// Supports both kf-checkbox components (PM screens) and native checkboxes (JAM screens)
 
-	/**
-	 * Counts selected (checked) checkboxes.
-	 * Supports both PM screens (kf-icon with checkbox-check) and JAM screens (native checkbox).
-	 * 
-	 * @param containerSelector CSS selector for the container (e.g., "tbody tr")
-	 * @return Count of selected checkboxes
-	 */
 	protected int countSelectedCheckboxes(String containerSelector) {
 		try {
 			// First try PM screens - kf-icon with checkbox-check icon (XPath-based, more reliable)
@@ -909,13 +944,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Counts disabled checkboxes using JavaScript for performance.
-	 * Supports both kf-checkbox components (PM screens) and native checkboxes (JAM screens).
-	 * 
-	 * @param containerSelector CSS selector for the container
-	 * @return Count of disabled checkboxes
-	 */
 	protected int countDisabledCheckboxes(String containerSelector) {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		try {
@@ -939,13 +967,6 @@ public class BasePageObject {
 		}
 	}
 
-	/**
-	 * Counts total checkboxes using JavaScript for performance.
-	 * Supports both kf-checkbox components (PM screens) and native checkboxes (JAM screens).
-	 * 
-	 * @param containerSelector CSS selector for the container
-	 * @return Count of all checkboxes
-	 */
 	protected int countTotalCheckboxes(String containerSelector) {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		try {
@@ -969,13 +990,6 @@ public class BasePageObject {
 		}
 	}
 	
-	/**
-	 * Logs all 3 profile categories: Selected, Unselected (enabled but not selected), and Disabled.
-	 * 
-	 * @param total Total number of profiles
-	 * @param selected Count of selected profiles
-	 * @param disabled Count of disabled profiles
-	 */
 	protected void logProfileCountSummary(int total, int selected, int disabled) {
 		int unselected = total - selected - disabled;
 		LOGGER.info("=== PROFILE COUNT SUMMARY ===");
@@ -985,27 +999,94 @@ public class BasePageObject {
 		LOGGER.info(" Disabled (cannot be selected): {}", disabled);
 	}
 
+	// ==================== SCREEN-BASED LOCATOR HELPERS (PM/JAM) ====================
+	// These methods return screen-specific locators based on the "PM" or "JAM" parameter
+	// Used by PO35, PO36, PO42, and other consolidated Page Objects
+
+	protected String getScreenName(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? "HCM Sync Profiles" : "Job Mapping";
+	}
+
+	protected By getShowingResultsCountLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT : Locators.JAMScreen.SHOWING_RESULTS_COUNT;
+	}
+
+	protected By getAllProfileRowsLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.ALL_PROFILE_ROWS : Locators.JAMScreen.ALL_PROFILE_ROWS;
+	}
+
+	protected By getSelectedProfileRowsLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SELECTED_PROFILE_ROWS : Locators.JAMScreen.SELECTED_PROFILE_ROWS;
+	}
+
+	protected By getChevronButtonLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.CHEVRON_BUTTON : Locators.JAMScreen.CHEVRON_BUTTON;
+	}
+
+	protected By getHeaderCheckboxLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.HEADER_CHECKBOX : Locators.JAMScreen.HEADER_CHECKBOX;
+	}
+
+	protected By getActionButtonLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SYNC_BUTTON : Locators.JAMScreen.PUBLISH_BUTTON;
+	}
+
+	protected By getSearchBarLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SEARCH_BAR : Locators.JAMScreen.SEARCH_BAR;
+	}
+
+	protected By getClearFiltersButtonLocator(String screen) {
+		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.CLEAR_ALL_FILTERS_BTN : Locators.JAMScreen.CLEAR_FILTERS_BTN;
+	}
+
+	// ==================== SCREEN-BASED JAVASCRIPT COUNTING ====================
+
+	protected int countSelectedProfilesJS(String screen) {
+		try {
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			Object result;
+			
+			if ("PM".equalsIgnoreCase(screen)) {
+				// FIX: Count only ENABLED selected checkboxes (exclude disabled with check icons)
+				String jsScript = 
+					"return Array.from(document.querySelectorAll('tbody tr td:first-child kf-checkbox')).filter(cb => " +
+					"  cb.querySelector('kf-icon[icon=\"checkbox-check\"]') && " +
+					"  !cb.querySelector('div.disable')" +
+					").length;";
+				result = js.executeScript(jsScript);
+				int count = result != null ? ((Long) result).intValue() : 0;
+				// Fallback to locator if JS returns 0
+				if (count == 0) {
+					count = findElements(Locators.PMScreen.SELECTED_PROFILE_ROWS).size();
+				}
+				return count;
+			} else {
+				String jsScript = "return Array.from(document.querySelectorAll('#org-job-container tbody tr td:first-child input[type=\"checkbox\"]')).filter(cb => cb.checked).length;";
+				result = js.executeScript(jsScript);
+				return result != null ? ((Long) result).intValue() : 0;
+			}
+		} catch (Exception e) {
+			LOGGER.debug("JS counting failed for {}: {}", screen, e.getMessage());
+			return findElements(getSelectedProfileRowsLocator(screen)).size();
+		}
+	}
+
+	protected int countAllProfilesJS(String screen) {
+		try {
+			return findElements(getAllProfileRowsLocator(screen)).size();
+		} catch (Exception e) {
+			LOGGER.debug("Profile counting failed for {}: {}", screen, e.getMessage());
+			return 0;
+		}
+	}
+
 	// ==================== COMMON SORTING VALIDATION HELPERS ====================
 
-	/**
-	 * Normalizes a string for sorting comparison.
-	 * Removes hyphens, quotes, parentheses, and other punctuation that UI may ignore.
-	 * 
-	 * @param value The value to normalize
-	 * @return Normalized string for comparison
-	 */
 	protected String normalizeForSorting(String value) {
 		if (value == null) return "";
 		return value.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
 	}
 
-	/**
-	 * Validates that a list of strings is in ascending order.
-	 * Uses normalized comparison to match UI sorting behavior.
-	 * 
-	 * @param values List of values to validate
-	 * @return Number of sort violations found
-	 */
 	protected int validateAscendingOrder(List<String> values) {
 		int violations = 0;
 		for (int i = 0; i < values.size() - 1; i++) {
@@ -1026,13 +1107,6 @@ public class BasePageObject {
 		return violations;
 	}
 
-	/**
-	 * Validates that a list of strings is in descending order.
-	 * Uses normalized comparison to match UI sorting behavior.
-	 * 
-	 * @param values List of values to validate
-	 * @return Number of sort violations found
-	 */
 	protected int validateDescendingOrder(List<String> values) {
 		int violations = 0;
 		for (int i = 0; i < values.size() - 1; i++) {
@@ -1053,25 +1127,138 @@ public class BasePageObject {
 		return violations;
 	}
 
-	/**
-	 * Checks if a string starts with a non-ASCII character.
-	 * 
-	 * @param value The value to check
-	 * @return true if first character is non-ASCII
-	 */
 	protected boolean isNonAscii(String value) {
 		return value != null && !value.isEmpty() && value.charAt(0) > 127;
 	}
 
-	/**
-	 * Checks if a value should be skipped in sorting validation.
-	 * Uses isMissingData() for consistency with other empty/missing checks.
-	 * 
-	 * @param value The value to check
-	 * @return true if value should be skipped
-	 */
 	protected boolean shouldSkipInSortValidation(String value) {
 		return isMissingData(value);
+	}
+
+	protected void waitForBackgroundDataLoad() {
+		try {
+			LOGGER.info("Waiting for background data API to complete...");
+			
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			
+			// Step 1: Check if data API already completed (pre-check)
+			Boolean alreadyComplete = (Boolean) js.executeScript(
+				"if (window.performance && window.performance.getEntriesByType) {" +
+				"  var resources = window.performance.getEntriesByType('resource');" +
+				"  var requests = resources.filter(function(r) { " +
+				"    return (r.initiatorType === 'xmlhttprequest' || r.initiatorType === 'fetch') && r.name;" +
+				"  });" +
+				"  var found = requests.some(function(r) { " +
+				"    var url = r.name.toLowerCase();" +
+				"    var isEndpoint = url.includes('/search') || url.includes('/fetch-jobs');" +
+				"    var hasParam = url.includes('limit=100000') || url.includes('pagesize=100000');" +
+				"    return isEndpoint && hasParam;" +
+				"  });" +
+				"  return found;" +
+				"}" +
+				"return false;"
+			);
+			
+			if (Boolean.TRUE.equals(alreadyComplete)) {
+				LOGGER.info("✓ Data API already completed");
+				safeSleep(2000);
+				return;
+			}
+			
+			// Step 2: Inject monitoring for future requests
+			js.executeScript(
+				"if (!window._dataApiMonitor) {" +
+				"  window._dataApiMonitor = true;" +
+				"  window._requestPending = 0;" +
+				"  window._dataApiComplete = false;" +
+				
+				// Monitor XHR
+				"  var origXHR = XMLHttpRequest.prototype.open;" +
+				"  XMLHttpRequest.prototype.open = function() {" +
+				"    window._requestPending++;" +
+				"    this.addEventListener('load', function() { " +
+				"      window._requestPending--;" +
+				"      if (this.responseURL) {" +
+				"        var url = this.responseURL.toLowerCase();" +
+				"        var isEndpoint = url.includes('/search') || url.includes('/fetch-jobs');" +
+				"        var hasParam = url.includes('limit=100000') || url.includes('pagesize=100000');" +
+				"        if (isEndpoint && hasParam) window._dataApiComplete = true;" +
+				"      }" +
+				"    });" +
+				"    this.addEventListener('error', function() { window._requestPending--; });" +
+				"    this.addEventListener('abort', function() { window._requestPending--; });" +
+				"    origXHR.apply(this, arguments);" +
+				"  };" +
+				
+				// Monitor Fetch
+				"  var origFetch = window.fetch;" +
+				"  window.fetch = function() {" +
+				"    window._requestPending++;" +
+				"    return origFetch.apply(this, arguments).then(function(response) {" +
+				"      window._requestPending--;" +
+				"      if (response.url) {" +
+				"        var url = response.url.toLowerCase();" +
+				"        var isEndpoint = url.includes('/search') || url.includes('/fetch-jobs');" +
+				"        var hasParam = url.includes('limit=100000') || url.includes('pagesize=100000');" +
+				"        if (isEndpoint && hasParam) window._dataApiComplete = true;" +
+				"      }" +
+				"      return response;" +
+				"    }).catch(function(error) {" +
+				"      window._requestPending--;" +
+				"      throw error;" +
+				"    });" +
+				"  };" +
+				"}"
+			);
+			
+			// Step 3: Wait for API completion (max 120 seconds)
+			int maxWaitSeconds = 120;
+			int waited = 0;
+			int consecutiveZero = 0;
+			
+			while (waited < maxWaitSeconds) {
+				safeSleep(2000);
+				waited += 2;
+				
+				Boolean apiComplete = (Boolean) js.executeScript("return window._dataApiComplete === true;");
+				Long pending = (Long) js.executeScript("return window._requestPending || 0;");
+				
+				if (Boolean.TRUE.equals(apiComplete)) {
+					LOGGER.info("✓ Data API completed after {} seconds", waited);
+					safeSleep(3000);
+					return;
+				}
+				
+				// Skip zero-check during initial load
+				if (waited <= 10) {
+					if (pending != null && pending > 0) consecutiveZero = 0;
+					continue;
+				}
+				
+				// After 10s, check for sustained zero pending
+				if (pending == null || pending == 0) {
+					consecutiveZero++;
+					if (consecutiveZero >= 5) {
+						LOGGER.info("✓ No active requests for 10s - proceeding");
+						safeSleep(3000);
+						return;
+					}
+				} else {
+					consecutiveZero = 0;
+				}
+				
+				// Log progress every 20 seconds
+				if (waited % 20 == 0) {
+					LOGGER.info("⏳ Waiting... {}s elapsed, {} pending", waited, pending);
+				}
+			}
+			
+			LOGGER.warn("⚠️ Wait timeout after {} seconds - proceeding anyway", maxWaitSeconds);
+			
+		} catch (Exception e) {
+			LOGGER.warn("Error monitoring API: {}. Using fallback wait.", e.getMessage());
+			safeSleep(15000);
+		}
 	}
 }
 

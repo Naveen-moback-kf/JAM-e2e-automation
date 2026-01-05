@@ -13,19 +13,6 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * SessionManager - Handles session validation, expiration detection, and
- * automatic re-authentication
- * 
- * Features: - Detects 401 Unauthorized errors and session expiration -
- * Validates session before critical operations - Automatic re-login when
- * session expires - Thread-safe for parallel execution - Configurable session
- * timeout
- * 
- * Usage: SessionManager.validateSession(); // Check and refresh if needed
- * SessionManager.executeWithSessionValidation(() -> { ... }); // Auto-retry
- * with re-login
- */
 public class SessionManager {
 	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
 
@@ -39,11 +26,6 @@ public class SessionManager {
 	// Configuration: Maximum re-login attempts
 	private static final int MAX_RELOGIN_ATTEMPTS = 2;
 
-	/**
-	 * Check if session is still valid
-	 * 
-	 * @return true if session is valid, false if expired or invalid
-	 */
 	public static boolean isSessionValid() {
 		try {
 			WebDriver driver = DriverManager.getDriver();
@@ -105,12 +87,6 @@ public class SessionManager {
 		}
 	}
 
-	/**
-	 * Validate session and refresh if needed Call this before critical operations
-	 * (e.g., navigation, data submission)
-	 * 
-	 * @return true if session is valid or successfully refreshed, false otherwise
-	 */
 	public static boolean validateSession() {
 		try {
 			// Check if we need to validate (based on interval)
@@ -140,11 +116,6 @@ public class SessionManager {
 		}
 	}
 
-	/**
-	 * Perform automatic re-login when session expires
-	 * 
-	 * @return true if re-login successful, false otherwise
-	 */
 	private static boolean reLogin() {
 		LOGGER.info("🔄 Starting automatic re-login process...");
 
@@ -209,27 +180,10 @@ public class SessionManager {
 		return false;
 	}
 
-	/**
-	 * Execute an operation with automatic session validation and re-login If
-	 * session expires during operation, automatically re-login and retry
-	 * 
-	 * @param operation     The operation to execute
-	 * @param operationName Name for logging
-	 * @return Result of the operation
-	 */
 	public static <T> T executeWithSessionValidation(java.util.function.Supplier<T> operation, String operationName) {
 		return executeWithSessionValidation(operation, operationName, 2);
 	}
 
-	/**
-	 * Execute an operation with automatic session validation and re-login (with
-	 * retry count)
-	 * 
-	 * @param operation     The operation to execute
-	 * @param operationName Name for logging
-	 * @param maxRetries    Maximum retry attempts
-	 * @return Result of the operation
-	 */
 	public static <T> T executeWithSessionValidation(java.util.function.Supplier<T> operation, String operationName,
 			int maxRetries) {
 		// Validate session before operation
@@ -275,9 +229,6 @@ public class SessionManager {
 		throw new RuntimeException("Unexpected state in executeWithSessionValidation for: " + operationName);
 	}
 
-	/**
-	 * Execute a void operation with automatic session validation
-	 */
 	public static void executeWithSessionValidation(Runnable operation, String operationName) {
 		executeWithSessionValidation(() -> {
 			operation.run();
@@ -285,42 +236,27 @@ public class SessionManager {
 		}, operationName);
 	}
 
-	/**
-	 * Mark session as authenticated (call after successful login)
-	 */
 	public static void markAuthenticated() {
 		isAuthenticated.set(true);
 		lastSessionCheck.set(Instant.now());
 		LOGGER.info("✅ Session marked as authenticated");
 	}
 
-	/**
-	 * Mark session as expired (call when 401 detected)
-	 */
 	public static void markExpired() {
 		isAuthenticated.set(false);
 		LOGGER.warn("⚠️ Session marked as expired");
 	}
 
-	/**
-	 * Reset session state (call during cleanup)
-	 */
 	public static void reset() {
 		isAuthenticated.set(false);
 		lastSessionCheck.set(Instant.now());
 		LOGGER.info("Session state reset");
 	}
 
-	/**
-	 * Get time since last session check
-	 */
 	public static Duration getTimeSinceLastCheck() {
 		return Duration.between(lastSessionCheck.get(), Instant.now());
 	}
 
-	/**
-	 * Check if authenticated flag is set
-	 */
 	public static boolean isMarkedAuthenticated() {
 		return isAuthenticated.get();
 	}

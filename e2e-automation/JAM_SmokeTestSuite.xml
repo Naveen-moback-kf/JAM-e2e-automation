@@ -6,15 +6,16 @@
     <listeners> 
         <listener class-name="com.kfonetalentsuite.listeners.ExcelReportListener" />
         <listener class-name="hooks.JobMapping.SuiteHooks" />
-        <listener class-name="com.kfonetalentsuite.listeners.AllureScreenshotListener" />
+        <listener class-name="com.kfonetalentsuite.utils.JobMapping.AllureReportingManager" />
         <listener class-name="com.kfonetalentsuite.testNGAnalyzer.MyTransform" />
+        <listener class-name="com.kfonetalentsuite.testNGAnalyzer.SuiteRetryListener" />
     </listeners>
     
-    <!-- SMOKE TESTS - Quick Validation (18 tests) -->
+    <!-- SMOKE TESTS - Quick Validation -->
     <!-- Purpose: Validate major features work. Run before each release. -->
     <!-- Estimated Time: 15-25 minutes -->
     
-    <!-- ========== SANITY TESTS (7 tests) - Critical Path ========== -->
+    <!-- ========== SANITY TESTS - Critical Path ========== -->
     
     <!-- 1. Login -->
     <test name="KFone Login">
@@ -24,125 +25,132 @@
     </test>
     
     <!-- 2. Core job loading functionality -->
-    <test name="Validate Add More Jobs Functionality">
+    <test name="Add More Jobs Functionality">
         <classes>
-            <class name="testrunners.JobMapping.Runner02_ValidateAddMoreJobsFunctionality" />
+            <class name="testrunners.JobMapping.Runner02_AddMoreJobsFunctionality" />
         </classes>
     </test>
     
     <!-- 3. Basic UI loads correctly -->
-    <test name="Verify Job Mapping Page Components">
+    <test name="Job Mapping Page Components">
         <classes>
-            <class name="testrunners.JobMapping.Runner04_VerifyJobMappingPageComponents" />
+            <class name="testrunners.JobMapping.Runner04_JobMappingPageComponents" />
         </classes>
     </test>
     
     <!-- 4. Core publish workflow works -->
-    <test name="Publish Job From Details Popup">
+    <test name="Publish Job Profile">
         <classes>
-            <class name="testrunners.JobMapping.Runner08_PublishJobFromDetailsPopup" />
+            <class name="testrunners.JobMapping.Runner05_PublishJobProfile" />
         </classes>
     </test>
     
     <!-- 5. Basic filtering works -->
-    <test name="Validate Function Subfunction Filters">
+    <test name="Job Mapping Filters">
         <classes>
-            <class name="testrunners.JobMapping.Runner11c_ValidateFunctionSubfunctionFilters" />
+            <class name="testrunners.JobMapping.Runner08_JobMappingFilters" />
         </classes>
     </test>
     
     <!-- 6. PM module accessible -->
-    <test name="Validate HCM Sync Profiles Tab in PM">
+    <test name="HCM Sync Profiles Tab PM">
         <classes>
-            <class name="testrunners.JobMapping.Runner22_ValidateHCMSyncProfilesTab_PM" />
+            <class name="testrunners.JobMapping.Runner18_HCMSyncProfilesTab_PM" />
         </classes>
     </test>
     
     <!-- 7. JAM module accessible -->
-    <test name="Validate Select And Publish Loaded Profiles in JAM">
+    <test name="Select And Publish Loaded Profiles JAM">
         <classes>
-            <class name="testrunners.JobMapping.Runner37_ValidateSelectAndPublishLoadedProfiles_JAM" />
+            <class name="testrunners.JobMapping.Runner29_SelectAndPublishLoadedProfiles_JAM" />
         </classes>
     </test>
     
-    <!-- ========== ADDITIONAL SMOKE TESTS (11 tests) ========== -->
+    <!-- ========== ADDITIONAL SMOKE TESTS ========== -->
     
-    <!-- 8. Additional publish path -->
-    <test name="Publish Job Profile">
+    <!-- 8. Publish selected profiles -->
+    <test name="Publish Selected Profiles">
         <classes>
-            <class name="testrunners.JobMapping.Runner06_PublishJobProfile" />
+            <class name="testrunners.JobMapping.Runner06_PublishSelectedProfiles" />
         </classes>
     </test>
     
     <!-- 9. Search functionality -->
-    <test name="Validate Screen1 Search Results">
+    <test name="Screen1 Search Results">
         <classes>
-            <class name="testrunners.JobMapping.Runner10_ValidateScreen1SearchResults" />
+            <class name="testrunners.JobMapping.Runner07_Screen1SearchResults" />
         </classes>
     </test>
     
     <!-- 10. Sorting works in JAM -->
-    <test name="Validate Sorting Functionality in Job Mapping">
+    <test name="Sorting Functionality JAM">
         <classes>
-            <class name="testrunners.JobMapping.Runner17_ValidateSortingFunctionality_JAM" />
+            <class name="testrunners.JobMapping.Runner14_SortingFunctionality_JAM" />
         </classes>
     </test>
     
     <!-- 11. Sorting works in HCM -->
-    <test name="Validate Sorting Functionality in HCM Screen">
+    <test name="Sorting Functionality In HCM Screen PM">
         <classes>
-            <class name="testrunners.JobMapping.Runner47_ValidateSortingFunctionalityInHCMScreen_PM" />
+            <class name="testrunners.JobMapping.Runner34_SortingFunctionalityInHCMScreen_PM" />
         </classes>
     </test>
     
     <!-- 12. Basic persistence -->
-    <test name="Validate Basic Sorting Persistence">
+    <test name="Sorting Persistence">
         <classes>
-            <class name="testrunners.JobMapping.Runner18a_ValidateBasicSortingPersistence" />
+            <class name="testrunners.JobMapping.Runner15_SortingPersistence" />
         </classes>
     </test>
     
     <!-- 13. AI mapping feature -->
-    <test name="Map Different SP to Profile In Auto AI">
+    <test name="Map Different SP to Profile">
         <classes>
-            <class name="testrunners.JobMapping.Runner21_MapDifferentSPtoProfileInAutoAI" />
+            <class name="testrunners.JobMapping.Runner17_MapDifferentSPtoProfile" />
         </classes>
     </test>
     
     <!-- 14. PM publish center -->
-    <test name="Validate Publish Center in PM">
+    <test name="Publish Center PM">
         <classes>
-            <class name="testrunners.JobMapping.Runner24_ValidatePublishCenter_PM" />
+            <class name="testrunners.JobMapping.Runner20_PublishCenter_PM" />
         </classes>
     </test>
     
     <!-- 15. Data validation messages -->
-    <test name="Verify Info Message For Missing Data Profiles">
+    <test name="Info Message Missing Data Profiles">
         <classes>
-            <class name="testrunners.JobMapping.Runner27_VerifyInfoMessageForMissingDataProfiles" />
+            <class name="testrunners.JobMapping.Runner23_InfoMessageMissingDataProfiles" />
         </classes>
     </test>
     
     <!-- 16. Sync functionality in PM -->
-    <test name="Validate Select And Sync All Profiles in PM">
+    <test name="Select And Sync Profiles PM">
         <classes>
-            <class name="testrunners.JobMapping.Runner34_ValidateSelectAndSyncAllProfiles_PM" />
+            <class name="testrunners.JobMapping.Runner26_SelectAndSyncProfiles_PM" />
         </classes>
     </test>
     
-    <!-- 17. PM selection -->
-    <test name="Validate Select All With Search Functionality in PM">
+    <!-- 17. PM selection with search -->
+    <test name="Select All With Search Functionality PM">
         <classes>
-            <class name="testrunners.JobMapping.Runner35_ValidateSelectAllWithSearchFunctionality_PM" />
+            <class name="testrunners.JobMapping.Runner27_SelectAllWithSearchFunctionality_PM" />
         </classes>
     </test>
     
-    <!-- 18. JAM selection -->
-    <test name="Validate Select All With Search Functionality in JAM">
+    <!-- 18. JAM selection with search -->
+    <test name="Select All With Search Functionality JAM">
         <classes>
-            <class name="testrunners.JobMapping.Runner38_ValidateSelectAllWithSearchFunctionality_JAM" />
+            <class name="testrunners.JobMapping.Runner27_SelectAllWithSearchFunctionality_JAM" />
         </classes>
     </test>
+    
+    <!-- 19. JAM Delete Job Profiles 
+    <test name="Delete Job Profiles in Job Mapping">
+        <classes>
+            <class name="testrunners.JobMapping.Runner36_DeleteJObProfiles" />
+        </classes>
+    </test>
+    -->
     
 </suite>
-

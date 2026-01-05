@@ -1,0 +1,56 @@
+package testrunners.JobMapping;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.Listeners;
+
+import com.kfonetalentsuite.listeners.ExcelReportListener;
+import com.kfonetalentsuite.utils.common.DynamicTagResolver;
+import com.kfonetalentsuite.webdriverManager.CustomizeTestNGCucumberRunner;
+import com.kfonetalentsuite.webdriverManager.DriverManager;
+
+import io.cucumber.testng.CucumberOptions;
+import io.qameta.allure.testng.AllureTestNg;
+
+@Listeners({
+	ExcelReportListener.class,
+	AllureTestNg.class
+})
+
+@CucumberOptions(
+		features = {
+			"src/test/resources/features/01KFoneLogin.feature",
+			"src/test/resources/features/JobMapping/36_DeleteJobProfiles.feature"
+		},
+		tags = "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @DeleteJobProfiles_JAM",
+		glue = {"stepdefinitions.JobMapping", "hooks.JobMapping"},
+		dryRun = false,
+		plugin = {
+			"html:target/cucumber-reports/cucumber.html", 
+			"json:target/cucumber-reports/cucumber.json",
+			"io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
+		}
+		)
+
+public class Runner36_DeleteJobProfiles extends CustomizeTestNGCucumberRunner {
+	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
+
+	@Override
+	protected String getTagExpressionTemplate() {
+		return "@SSO_Login_via_KFONE or @NON_SSO_Login_via_KFONE or @Client_with_PM_Access or @DeleteJobProfiles_JAM";
+	}
+	
+	@Override
+	protected String resolveLoginTag() {
+		return DynamicTagResolver.getKFoneLoginTag();
+	}
+
+	@AfterTest
+	public void after_test() {
+		LOGGER.info("Successfully completed validation of Delete Job Profiles Functionality in Job Mapping screen");
+		LOGGER.info("Login Type Used: " + DynamicTagResolver.getCurrentLoginType());
+		DriverManager.closeBrowser();
+	}
+
+}

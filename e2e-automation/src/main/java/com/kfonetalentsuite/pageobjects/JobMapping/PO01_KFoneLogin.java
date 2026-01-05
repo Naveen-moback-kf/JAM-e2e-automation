@@ -2,7 +2,6 @@ package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.logging.log4j.LogManager;
@@ -18,8 +17,6 @@ import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.SessionManager;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.utils.common.CommonVariable;
-import com.kfonetalentsuite.utils.common.ExcelConfigProvider;
-import com.kfonetalentsuite.utils.common.ExcelDataProvider;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 public class PO01_KFoneLogin extends BasePageObject {
@@ -35,7 +32,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 	private static final By PROCEED_BTN = By.xpath("//*[text()='Proceed']");
 	private static final By MICROSOFT_SUBMIT_BTN = By.xpath("//input[@type='submit']");
 	private static final By MICROSOFT_PASSWORD_HEADER = By.xpath("//div[text()='Enter password']");
-	private static final By PM_HEADER = By.xpath("//h1[contains(text(),'Profile Manager')]");
+	private static final By PM_HEADER = Locators.HCMSyncProfiles.PROFILE_MANAGER_HEADER;
 	private static final By CLIENTS_TABLE = By.xpath("//table[@id='iam-clients-list-table-content']");
 	private static final By CLIENTS_TABLE_BODY = By.xpath("//tbody[@class='table-body']");
 	private static final By CLIENT_SEARCH_BAR = By.xpath("//input[@id='search-client-input-search']");
@@ -75,9 +72,30 @@ public class PO01_KFoneLogin extends BasePageObject {
 			String environment = getEnvironment();
 			String url = getUrlForEnvironment(environment);
 			driver.get(url);
+			
+			// ANTI-BOT DETECTION: Hide WebDriver properties immediately after page load
+			hideWebDriverProperties();
+			
 			PageObjectHelper.log(LOGGER, "Successfully Launched KFONE " + environment + " Environment URL: " + url);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "launch_the_kfone_application", "Issue in launching KFONE application", e);
+		}
+	}
+	
+	private void hideWebDriverProperties() {
+		try {
+			js.executeScript(
+				"Object.defineProperty(navigator, 'webdriver', {get: () => undefined});" +
+				"Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});" +
+				"Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});" +
+				"window.navigator.chrome = {runtime: {}};" +
+				"Object.defineProperty(navigator, 'permissions', {get: () => ({query: () => Promise.resolve({state: 'granted'})})});" +
+				"delete navigator.__proto__.webdriver;"
+			);
+			LOGGER.debug("WebDriver properties hidden to prevent bot detection");
+		} catch (Exception e) {
+			// Non-critical - log but don't fail
+			LOGGER.warn("Could not hide WebDriver properties: {}", e.getMessage());
 		}
 	}
 
@@ -135,35 +153,6 @@ public class PO01_KFoneLogin extends BasePageObject {
 		jsClick(wait.until(ExpectedConditions.elementToBeClickable(KFONE_SIGNIN_BTN)));
 		PerformanceUtils.waitForPageReady(driver, 10);
 		PageObjectHelper.log(LOGGER, "Entered password and submitted login");
-	}
-
-	public void login_using_excel_data(String testId) {
-		try {
-			Map<String, String> testData = ExcelDataProvider.getTestData("LoginData", testId);
-			String userType = testData.get("UserType");
-			String excelUsername = testData.get("Username");
-			String excelPassword = testData.get("Password");
-
-			PageObjectHelper.log(LOGGER, "Data-Driven Login: TestID=" + testId + ", UserType=" + userType);
-			handleCookiesBanner();
-
-			wait.until(ExpectedConditions.elementToBeClickable(USERNAME_INPUT)).sendKeys(excelUsername);
-			username.set(excelUsername);
-			jsClick(driver.findElement(KFONE_SIGNIN_BTN));
-
-			if ("SSO".equalsIgnoreCase(userType)) {
-				wait.until(ExpectedConditions.visibilityOfElementLocated(MICROSOFT_PASSWORD_HEADER));
-				wait.until(ExpectedConditions.elementToBeClickable(PASSWORD_INPUT)).sendKeys(excelPassword);
-				jsClick(driver.findElement(MICROSOFT_SUBMIT_BTN));
-				wait.until(ExpectedConditions.elementToBeClickable(MICROSOFT_SUBMIT_BTN)).click();
-			} else {
-				wait.until(ExpectedConditions.elementToBeClickable(PASSWORD_INPUT)).sendKeys(excelPassword);
-				jsClick(driver.findElement(KFONE_SIGNIN_BTN));
-			}
-			PerformanceUtils.waitForPageReady(driver, 10);
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "login_using_excel_data", "Failed to login using Excel data for TestID: " + testId, e);
-		}
 	}
 
 	public void verify_the_kfone_landing_page() {
@@ -408,30 +397,22 @@ public class PO01_KFoneLogin extends BasePageObject {
 	// =============================================
 
 	private String getEnvironment() {
-		Map<String, String> login = ExcelConfigProvider.getDefaultLogin();
-		if (login != null && login.get("Environment") != null && !login.get("Environment").isEmpty()) {
-			return login.get("Environment").trim();
-		}
-		return CommonVariable.ENVIRONMENT != null ? CommonVariable.ENVIRONMENT : "QA";
+		return CommonVariable.ENVIRONMENT != null ? CommonVariable.ENVIRONMENT : "qa";
 	}
 
 	private String getUrlForEnvironment(String env) {
-		return switch (env) {
-			case "Stage" -> CommonVariable.KFONE_STAGEURL;
-			case "ProdEU" -> CommonVariable.KFONE_PRODEUURL;
-			case "ProdUS" -> CommonVariable.KFONE_PRODUSURL;
-			case "Dev" -> CommonVariable.KFONE_DEVURL;
-			default -> CommonVariable.KFONE_QAURL;
+		if (env == null) return CommonVariable.KFONE_QAURL;
+		
+		return switch (env.toLowerCase()) {
+			case "stage" -> CommonVariable.KFONE_STAGEURL;
+			case "prod-eu", "prodeu" -> CommonVariable.KFONE_PRODEUURL;
+			case "prod-us", "produs" -> CommonVariable.KFONE_PRODUSURL;
+			case "dev" -> CommonVariable.KFONE_DEVURL;
+			default -> CommonVariable.KFONE_QAURL; // qa is default
 		};
 	}
 
 	private String getCredential(String userType, String field) {
-		try {
-			Map<String, String> login = ExcelConfigProvider.getLoginByType(userType);
-			if (login != null) return login.get(field);
-		} catch (Exception e) {
-			LOGGER.debug("Excel read failed: {}", e.getMessage());
-		}
 		if ("SSO".equalsIgnoreCase(userType)) {
 			return "Username".equals(field) ? CommonVariable.SSO_USERNAME : CommonVariable.SSO_PASSWORD;
 		}
@@ -439,8 +420,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 	}
 
 	private String getPamsId() {
-		String pamsId = ExcelConfigProvider.getActivePamsId();
-		return (pamsId != null && !pamsId.trim().isEmpty()) ? pamsId.trim() : CommonVariable.TARGET_PAMS_ID;
+		return CommonVariable.TARGET_PAMS_ID;
 	}
 
 	private void verifyOnClientsPage() {

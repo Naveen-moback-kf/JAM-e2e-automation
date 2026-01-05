@@ -77,19 +77,6 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager {
 		testNGCucumberRunner.runScenario(pickleWrapper.getPickle());
 	}
 
-	/**
-	 * THREAD-SAFE DataProvider for Cucumber scenarios
-	 * 
-	 * IMPORTANT: Do NOT use parallel=true here! - parallel=true would parallelize
-	 * scenarios WITHIN a runner, causing chaos - We want each runner to execute its
-	 * scenarios sequentially on its own thread - TestNG parallel="tests" already
-	 * ensures each runner runs on a separate thread
-	 * 
-	 * Thread Safety: - Each runner class instance has its own testNGCucumberRunner
-	 * - TestNG creates separate instances for each <test> in parallel execution -
-	 * This ensures scenarios from Runner01 stay with Thread-1, Runner02 with
-	 * Thread-2, etc.
-	 */
 	@DataProvider
 	public Object[][] scenarios() {
 		if (testNGCucumberRunner == null) {

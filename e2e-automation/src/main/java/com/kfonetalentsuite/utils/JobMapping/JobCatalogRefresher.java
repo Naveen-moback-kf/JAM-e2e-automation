@@ -8,15 +8,6 @@ import java.nio.file.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-/**
- * JobCatalogRefresher - Automatically refreshes Job Catalog CSV with unique
- * identifiers
- * 
- * This utility runs automatically before each Runner execution to ensure unique
- * Job Codes and Job Titles for every test run.
- * 
- * @author AI Assistant
- */
 public class JobCatalogRefresher {
 
 	private static final Logger LOGGER = LogManager.getLogger(JobCatalogRefresher.class);
@@ -24,12 +15,6 @@ public class JobCatalogRefresher {
 	private static final String BACKUP_DIR = "src/test/resources/JobCatalogBackups";
 	private static boolean hasRefreshedThisSession = false;
 
-	/**
-	 * Refreshes the Job Catalog CSV with unique identifiers based on current
-	 * timestamp Only refreshes once per JVM session to avoid multiple refreshes
-	 * 
-	 * @return true if refresh successful or already refreshed, false otherwise
-	 */
 	public static synchronized boolean refreshJobCatalog() {
 		// Skip if already refreshed in this session
 		if (hasRefreshedThisSession) {
@@ -90,18 +75,11 @@ public class JobCatalogRefresher {
 		}
 	}
 
-	/**
-	 * Generates unique timestamp suffix in format: YYYYMMDDHHmmss Example:
-	 * 20251023143025 (Oct 23, 2025 at 2:30:25 PM)
-	 */
 	private static String generateUniqueTimestamp() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 		return sdf.format(new Date());
 	}
 
-	/**
-	 * Updates a single CSV line with new unique Job Code and Title
-	 */
 	private static String updateJobCodeAndTitle(String line, String uniqueSuffix, int lineNumber) {
 		try {
 			// Split CSV line preserving commas
@@ -134,10 +112,6 @@ public class JobCatalogRefresher {
 		}
 	}
 
-	/**
-	 * Extracts base job code (e.g., "JOB-ABCDE01-20251023143025" -> "JOB-ABCDE")
-	 * Also handles: "JOB-ABCDE01" -> "JOB-ABCDE"
-	 */
 	private static String extractBaseJobCode(String jobCode) {
 		// Remove timestamp suffix (e.g., "-20251023143025" or similar patterns)
 		String withoutTimestamp = jobCode.replaceAll("-\\d{10,}$", "");
@@ -148,35 +122,21 @@ public class JobCatalogRefresher {
 		return base.isEmpty() ? "JOB-ABCDE" : base;
 	}
 
-	/**
-	 * Extracts base job title (removes old timestamp suffix) Example: "Automation
-	 * Engineer ABCDE0809" -> "Automation Engineer"
-	 */
 	private static String extractBaseJobTitle(String jobTitle) {
 		// Remove timestamp-like suffix (alphanumeric pattern at end)
 		String base = jobTitle.replaceAll("\\s+[A-Z0-9]+\\d{4,}\\s*$", "");
 		return base.isEmpty() ? jobTitle : base.trim();
 	}
 
-	/**
-	 * Force refresh even if already refreshed (useful for testing)
-	 */
 	public static synchronized boolean forceRefresh() {
 		hasRefreshedThisSession = false;
 		return refreshJobCatalog();
 	}
 
-	/**
-	 * Reset the session flag (useful for testing)
-	 */
 	public static synchronized void resetSessionFlag() {
 		hasRefreshedThisSession = false;
 	}
 
-	/**
-	 * Create backup of Job Catalog CSV for every refresh Backups are stored in
-	 * src/test/resources/JobCatalogBackups/ directory with unique timestamps
-	 */
 	private static void createBackup(Path originalFile) {
 		try {
 			// Create backup directory if it doesn't exist

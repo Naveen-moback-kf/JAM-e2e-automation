@@ -171,15 +171,6 @@ public class Utilities {
 		}
 	}
 
-
-	/**
-	 * Extract user role from session storage and store it globally Navigates:
-	 * Session Storage -> HayGroup.user.roles -> [0] -> name Stores the role in
-	 * CommonVariable.CURRENT_USER_ROLE (ThreadLocal) for use across all feature
-	 * files
-	 * 
-	 * @return User role name (e.g., "KF Super User") or null if not found
-	 */
 	public static String getUserRoleFromSessionStorage() {
 		try {
 			WebDriver driver = DriverManager.getDriver();
@@ -245,12 +236,6 @@ public class Utilities {
 		}
 	}
 
-	/**
-	 * Fetch userLevelJobMappingEnabled and userLevelPermission from session storage
-	 * and store them globally for use across all feature files.
-	 * 
-	 * @param js JavascriptExecutor instance
-	 */
 	private static void fetchAndStoreUserLevelSettings(JavascriptExecutor js) {
 		try {
 			// Fetch userLevelJobMappingEnabled
@@ -303,70 +288,34 @@ public class Utilities {
 		}
 	}
 
-	/**
-	 * Get the current user level job mapping enabled status
-	 * 
-	 * @return Boolean value or null if not set
-	 */
 	public static Boolean isUserLevelJobMappingEnabled() {
 		return CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.get();
 	}
 
-	/**
-	 * Check if current user has access to Job Mapping screen.
-	 * This is determined by the userLevelJobMappingEnabled session storage value.
-	 * 
-	 * @return true if user has Job Mapping access, false otherwise
-	 */
 	public static boolean hasJobMappingAccess() {
 		Boolean enabled = CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.get();
 		return Boolean.TRUE.equals(enabled);
 	}
 
-	/**
-	 * Get the current user level permission
-	 * 
-	 * @return Permission string ("true"/"false") or null if not set
-	 */
 	public static String getUserLevelPermission() {
 		return CommonVariable.USER_LEVEL_PERMISSION.get();
 	}
 
-	/**
-	 * Check if current user has access to HCM Sync Profiles screen in Profile Manager.
-	 * This is determined by the userLevelPermission session storage value.
-	 * 
-	 * @return true if user has HCM Sync access, false otherwise
-	 */
 	public static boolean hasHCMSyncAccess() {
 		String permission = CommonVariable.USER_LEVEL_PERMISSION.get();
 		return "true".equalsIgnoreCase(permission);
 	}
 
-	/**
-	 * Clear all user level settings (useful for cleanup between tests)
-	 */
 	public static void clearUserLevelSettings() {
 		CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
 		CommonVariable.USER_LEVEL_PERMISSION.set(null);
 		LOGGER.info("Cleared user level settings");
 	}
 
-	/**
-	 * Get the currently stored user role (set after login)
-	 * 
-	 * @return Current user role from global variable, or null if not set
-	 */
 	public static String getCurrentUserRole() {
 		return CommonVariable.CURRENT_USER_ROLE.get();
 	}
 
-	/**
-	 * Check if user has a specific role
-	 * 
-	 * @param expectedRole Role to check against
-	 * @return true if current user role matches expected role
-	 */
 	public static boolean hasRole(String expectedRole) {
 		String currentRole = CommonVariable.CURRENT_USER_ROLE.get();
 		if (currentRole == null || expectedRole == null) {
@@ -375,31 +324,16 @@ public class Utilities {
 		return currentRole.equals(expectedRole);
 	}
 
-	/**
-	 * Set user session details after login and store them globally.
-	 * This method fetches the following from session storage:
-	 * - User Role (from HayGroup.user.roles)
-	 * - userLevelJobMappingEnabled
-	 * - userLevelPermission
-	 * 
-	 * @return true if details were successfully retrieved and stored, false otherwise
-	 */
 	public static boolean setUserSessionDetailsFromSessionStorage() {
 		String role = getUserRoleFromSessionStorage();
 		return role != null;
 	}
 	
-	/**
-	 * @deprecated Use {@link #setUserSessionDetailsFromSessionStorage()} instead
-	 */
 	@Deprecated
 	public static boolean setCurrentUserRoleFromSessionStorage() {
 		return setUserSessionDetailsFromSessionStorage();
 	}
 
-	/**
-	 * Clear the stored user role and user level settings (useful for cleanup between tests)
-	 */
 	public static void clearCurrentUserRole() {
 		CommonVariable.CURRENT_USER_ROLE.set(null);
 		CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
@@ -407,15 +341,6 @@ public class Utilities {
 		LOGGER.info("Cleared stored user role and user level settings");
 	}
 
-	/**
-	 * Verify user role after login and log the result Now uses the globally stored
-	 * role for validation across feature files
-	 * 
-	 * @param expectedRole Expected role name (optional - if null, just logs the
-	 *                     found role)
-	 * @return true if role matches expected (or if no expected role provided),
-	 *         false otherwise
-	 */
 	public static boolean verifyUserRole(String expectedRole) {
 		try {
 			// First try to get from global variable

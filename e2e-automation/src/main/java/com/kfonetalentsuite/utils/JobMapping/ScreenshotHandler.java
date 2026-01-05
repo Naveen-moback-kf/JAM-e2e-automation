@@ -13,36 +13,8 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.kfonetalentsuite.listeners.AllureScreenshotListener;
 import com.kfonetalentsuite.utils.common.CommonVariable;
 
-/**
- * Consolidated Screenshot Handler - Unified screenshot management
- * 
- * FUNCTIONALITY: - Captures screenshots on test failures with enhanced context
- * - Provides both low-level and high-level interfaces - Standardizes error
- * handling and logging across test methods - Organizes screenshots in structured directories
- * 
- * CONSOLIDATED FEATURES: - Screenshot capture with descriptive names and
- * timestamps - Easy-to-use helper methods for test failure scenarios -
- * Configurable screenshot directory structure - Backward compatibility with existing code
- * - Allure Reporting integration for screenshot attachments
- * 
- * USAGE EXAMPLES:
- * 
- * 1. Basic screenshot capture:
- * ScreenshotHandler.captureFailureScreenshot("methodName", exception);
- * 
- * 2. Test failure with screenshot:
- * ScreenshotHandler.handleTestFailure("methodName", exception, "Custom
- * message");
- * 
- * 3. Quick failure with screenshot:
- * ScreenshotHandler.failWithScreenshot("methodName", "Error occurred");
- * 
- * 4. Non-failing screenshot with log:
- * ScreenshotHandler.captureAndLog("methodName", "Issue detected");
- */
 public class ScreenshotHandler {
 
 	private static final Logger LOGGER = LogManager.getLogger(ScreenshotHandler.class);
@@ -84,13 +56,6 @@ public class ScreenshotHandler {
 	// CORE SCREENSHOT CAPTURE METHODS
 	// ========================================
 
-	/**
-	 * Capture screenshot on test failure with method context
-	 * 
-	 * @param methodName   The name of the test method that failed
-	 * @param errorMessage The error message or exception details
-	 * @return String path to the saved screenshot file
-	 */
 	public static String captureFailureScreenshot(String methodName, String errorMessage) {
 		try {
 			// PERFORMANCE OPTIMIZATION: Early exit conditions
@@ -128,9 +93,6 @@ public class ScreenshotHandler {
 		}
 	}
 
-	/**
-	 * PERFORMANCE OPTIMIZATION: Synchronous screenshot capture (original behavior)
-	 */
 	private static String captureScreenshotSync(String methodName, String errorMessage, WebDriver driver) {
 		try {
 			// Create screenshot directory structure
@@ -153,7 +115,7 @@ public class ScreenshotHandler {
 			// ENHANCEMENT: Attach screenshot to Allure report (if enabled)
 			if (isAllureReportingEnabled()) {
 				try {
-					AllureScreenshotListener.attachScreenshotToAllure(screenshotPath, 
+					AllureReportingManager.attachScreenshotToAllure(screenshotPath, 
 						"Failure Screenshot: " + methodName);
 					LOGGER.debug("Screenshot attached to Allure report");
 				} catch (Exception e) {
@@ -170,9 +132,6 @@ public class ScreenshotHandler {
 		}
 	}
 
-	/**
-	 * PERFORMANCE OPTIMIZATION: Asynchronous screenshot capture (non-blocking)
-	 */
 	private static String captureScreenshotAsync(String methodName, String errorMessage, WebDriver driver) {
 		try {
 			String screenshotPath = createScreenshotPath(methodName);
@@ -204,24 +163,11 @@ public class ScreenshotHandler {
 		}
 	}
 
-	/**
-	 * Wrapper method for easy integration with existing catch blocks
-	 * 
-	 * @param methodName The test method name
-	 * @param throwable  The caught throwable (exception or error)
-	 * @return Screenshot path or null if failed
-	 */
 	public static String captureFailureScreenshot(String methodName, Throwable throwable) {
 		String errorMessage = throwable != null ? throwable.getMessage() : "Unknown error";
 		return captureFailureScreenshot(methodName, errorMessage);
 	}
 
-	/**
-	 * Capture screenshot with custom description
-	 * 
-	 * @param description Custom description for the screenshot
-	 * @return String path to the saved screenshot file
-	 */
 	public static String captureScreenshotWithDescription(String description) {
 		try {
 			WebDriver driver = DriverManager.getDriver();
@@ -246,7 +192,7 @@ public class ScreenshotHandler {
 			// ENHANCEMENT: Attach screenshot to Allure report (if enabled)
 			if (isAllureReportingEnabled()) {
 				try {
-					AllureScreenshotListener.attachScreenshotToAllure(screenshotPath, description);
+					AllureReportingManager.attachScreenshotToAllure(screenshotPath, description);
 					LOGGER.debug("Screenshot attached to Allure report");
 				} catch (Exception e) {
 					LOGGER.debug("Could not attach screenshot to Allure (non-critical): {}", e.getMessage());
@@ -266,13 +212,6 @@ public class ScreenshotHandler {
 	// HIGH-LEVEL FAILURE HANDLING METHODS
 	// ========================================
 
-	/**
-	 * Handle test failure with screenshot capture and standardized logging
-	 * 
-	 * @param methodName    The name of the test method
-	 * @param exception     The caught exception
-	 * @param customMessage Custom error message (optional)
-	 */
 	public static void handleTestFailure(String methodName, Exception exception, String customMessage) {
 		try {
 			// Capture screenshot on failure
@@ -304,24 +243,11 @@ public class ScreenshotHandler {
 		}
 	}
 
-	/**
-	 * Handle test failure with screenshot (using exception message)
-	 * 
-	 * @param methodName The name of the test method
-	 * @param exception  The caught exception
-	 */
 	public static void handleTestFailure(String methodName, Exception exception) {
 		String defaultMessage = "Issue in " + formatMethodName(methodName) + "...Please Investigate!!!";
 		handleTestFailure(methodName, exception, defaultMessage);
 	}
 
-	/**
-	 * Handle test failure with Throwable support (includes Error and Exception)
-	 * 
-	 * @param methodName    The name of the test method
-	 * @param throwable     The caught throwable
-	 * @param customMessage Custom error message (optional)
-	 */
 	public static void handleTestFailure(String methodName, Throwable throwable, String customMessage) {
 		try {
 			// Capture screenshot on failure
@@ -353,12 +279,6 @@ public class ScreenshotHandler {
 		}
 	}
 
-	/**
-	 * Fail test with screenshot and custom message (no exception)
-	 * 
-	 * @param methodName   The name of the test method
-	 * @param errorMessage The error message
-	 */
 	public static void failWithScreenshot(String methodName, String errorMessage) {
 		try {
 			// Capture screenshot
@@ -383,13 +303,6 @@ public class ScreenshotHandler {
 		}
 	}
 
-	/**
-	 * Capture screenshot and log without failing the test
-	 * 
-	 * @param methodName The name of the test method
-	 * @param logMessage The log message
-	 * @return Screenshot path or null if failed
-	 */
 	public static String captureAndLog(String methodName, String logMessage) {
 		try {
 			String screenshotPath = captureFailureScreenshot(methodName, logMessage);
@@ -412,10 +325,6 @@ public class ScreenshotHandler {
 	// UTILITY AND HELPER METHODS
 	// ========================================
 
-	/**
-	 * Create structured screenshot file path Filename format ensures ascending
-	 * chronological order when sorted alphabetically
-	 */
 	private static String createScreenshotPath(String methodName) {
 		String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
 		String date = LocalDateTime.now().format(DATE_FORMATTER);
@@ -431,9 +340,6 @@ public class ScreenshotHandler {
 				File.separator, date, File.separator, fileName);
 	}
 
-	/**
-	 * Create screenshot path with custom description
-	 */
 	private static String createScreenshotPathWithDescription(String description) {
 		String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
 		String date = LocalDateTime.now().format(DATE_FORMATTER);
@@ -445,9 +351,6 @@ public class ScreenshotHandler {
 				File.separator, date, File.separator, fileName);
 	}
 
-	/**
-	 * Clean method name for file system compatibility
-	 */
 	private static String cleanMethodNameForFile(String methodName) {
 		if (methodName == null) {
 			return "UnknownMethod";
@@ -458,9 +361,6 @@ public class ScreenshotHandler {
 				.replaceAll("^_|_$", ""); // Remove leading/trailing underscores
 	}
 
-	/**
-	 * Format method name for user-friendly display
-	 */
 	private static String formatMethodName(String methodName) {
 		if (methodName == null || methodName.trim().isEmpty()) {
 			return "Unknown Method";
@@ -480,7 +380,6 @@ public class ScreenshotHandler {
 		return result.toString().trim();
 	}
 
-
 	// ========================================
 	// CONFIGURATION AND MANAGEMENT METHODS
 	// ========================================
@@ -489,10 +388,6 @@ public class ScreenshotHandler {
 	// PERFORMANCE OPTIMIZATION METHODS
 	// ========================================
 
-	/**
-	 * PERFORMANCE: Determine if screenshot should be captured based on performance
-	 * rules
-	 */
 	private static boolean shouldCaptureScreenshot(String methodName, String errorMessage) {
 		// Always capture if performance mode is disabled
 		if (!performanceModeEnabled.get()) {
@@ -526,9 +421,6 @@ public class ScreenshotHandler {
 		return true; // Capture screenshot
 	}
 
-	/**
-	 * PERFORMANCE: Check if this is a critical failure that always needs screenshot
-	 */
 	private static boolean isCriticalFailure(String errorMessage) {
 		if (errorMessage == null)
 			return false;
@@ -538,9 +430,6 @@ public class ScreenshotHandler {
 				|| msg.contains("not found") || msg.contains("invalid");
 	}
 
-	/**
-	 * PERFORMANCE: Check if this is a minor issue that can skip screenshot
-	 */
 	private static boolean isMinorIssue(String errorMessage) {
 		if (errorMessage == null)
 			return false;
@@ -550,9 +439,6 @@ public class ScreenshotHandler {
 				|| msg.contains("spinner") || msg.contains("element not immediately visible");
 	}
 
-	/**
-	 * PERFORMANCE: Get reason why screenshot was skipped
-	 */
 	private static String getSkipReason(String methodName, String errorMessage) {
 		if (!performanceModeEnabled.get()) {
 			return "Performance mode disabled";
@@ -575,17 +461,11 @@ public class ScreenshotHandler {
 		return "Unknown reason";
 	}
 
-	/**
-	 * PERFORMANCE: Update screenshot throttling counters
-	 */
 	private static void updateScreenshotCounters(String methodName) {
 		lastScreenshotTime.put(methodName, System.currentTimeMillis());
 		screenshotCount.put(methodName, screenshotCount.getOrDefault(methodName, 0) + 1);
 	}
 
-	/**
-	 * PERFORMANCE: Check if async capture is enabled
-	 */
 	private static boolean isAsyncCaptureEnabled() {
 		return Boolean.parseBoolean(System.getProperty("screenshot.async", "true"));
 	}
@@ -594,9 +474,6 @@ public class ScreenshotHandler {
 	// PERFORMANCE CONFIGURATION METHODS
 	// ========================================
 
-	/**
-	 * Enable or disable performance mode for screenshots
-	 */
 	public static void setPerformanceModeEnabled(boolean enabled) {
 		performanceModeEnabled.set(enabled);
 		LOGGER.info("Screenshot performance mode {}", enabled ? "ENABLED" : "DISABLED");
@@ -609,24 +486,15 @@ public class ScreenshotHandler {
 		}
 	}
 
-	/**
-	 * Check if performance mode is enabled
-	 */
 	public static boolean isPerformanceModeEnabled() {
 		return performanceModeEnabled.get();
 	}
 
-	/**
-	 * Reset screenshot counters for new test run
-	 */
 	public static void resetCounters() {
 		lastScreenshotTime.clear();
 		screenshotCount.clear();
 	}
 
-	/**
-	 * Get current performance statistics
-	 */
 	public static String getPerformanceStats() {
 		int totalMethods = screenshotCount.size();
 		int totalScreenshots = screenshotCount.values().stream().mapToInt(Integer::intValue).sum();
@@ -635,31 +503,19 @@ public class ScreenshotHandler {
 				totalMethods, totalScreenshots, totalMethods > 0 ? (double) totalScreenshots / totalMethods : 0.0);
 	}
 
-	/**
-	 * Check if screenshot capture is enabled
-	 */
 	public static boolean isScreenshotEnabled() {
 		return Boolean.parseBoolean(System.getProperty("screenshot.enabled", "true"));
 	}
 
-	/**
-	 * Enable or disable screenshot capture
-	 */
 	public static void setScreenshotEnabled(boolean enabled) {
 		System.setProperty("screenshot.enabled", String.valueOf(enabled));
 		LOGGER.info("Screenshot capture {}", enabled ? "ENABLED" : "DISABLED");
 	}
 
-	/**
-	 * Get screenshots directory path
-	 */
 	public static String getScreenshotsDirectory() {
 		return SCREENSHOTS_BASE_DIR;
 	}
 
-	/**
-	 * Clean up old screenshots (older than specified days)
-	 */
 	public static void cleanupOldScreenshots(int daysToKeep) {
 		try {
 			File screenshotsDir = new File(SCREENSHOTS_BASE_DIR);
@@ -678,9 +534,6 @@ public class ScreenshotHandler {
 		}
 	}
 
-	/**
-	 * Recursively clean up directory
-	 */
 	private static void cleanupDirectory(File directory, long cutoffTime) {
 		File[] files = directory.listFiles();
 		if (files == null)
@@ -704,40 +557,19 @@ public class ScreenshotHandler {
 	// BACKWARD COMPATIBILITY METHODS
 	// ========================================
 
-	/**
-	 * Create a standardized catch block for test methods This is a template method
-	 * that can be copied into test methods
-	 * 
-	 * Usage: } catch(Exception e) {
-	 * ScreenshotHandler.standardCatchBlock("methodName", e, "Custom error
-	 * message"); }
-	 */
 	public static void standardCatchBlock(String methodName, Exception exception, String customMessage) {
 		handleTestFailure(methodName, exception, customMessage);
 	}
 
-	/**
-	 * Check if screenshot functionality is available
-	 */
 	public static boolean isScreenshotAvailable() {
 		return isScreenshotEnabled();
 	}
 
-	/**
-	 * Get example catch block code for easy copy-paste
-	 */
 	public static String getExampleCatchBlock(String methodName) {
 		return String.format("} catch(Exception e) {\n" + "    ScreenshotHandler.handleTestFailure(\"%s\", e);\n" + "}",
 				methodName);
 	}
 
-	/**
-	 * Get all failure screenshots for a specific date in ascending chronological
-	 * order
-	 * 
-	 * @param date Date in format yyyy-MM-dd (e.g., "2025-10-27")
-	 * @return List of screenshot files sorted in ascending order (oldest first)
-	 */
 	public static java.util.List<File> getFailureScreenshotsAscending(String date) {
 		try {
 			File dateDir = new File(
@@ -763,20 +595,11 @@ public class ScreenshotHandler {
 		}
 	}
 
-	/**
-	 * Get all failure screenshots for today in ascending chronological order
-	 * 
-	 * @return List of screenshot files sorted in ascending order (oldest first)
-	 */
 	public static java.util.List<File> getTodayFailureScreenshotsAscending() {
 		String today = LocalDateTime.now().format(DATE_FORMATTER);
 		return getFailureScreenshotsAscending(today);
 	}
 
-	/**
-	 * Check if Allure reporting is enabled in config.properties
-	 * Similar to Excel reporting flag check
-	 */
 	private static boolean isAllureReportingEnabled() {
 		return CommonVariable.ALLURE_REPORTING_ENABLED == null
 				|| !CommonVariable.ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false");

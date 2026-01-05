@@ -13,21 +13,6 @@ import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 
-/**
- * Conditional Scenario Skip Manager
- * 
- * SPECIFIC USE CASE: ManualMappingofSPinAutoAI Feature (Feature 20 & 21)
- * - Detects when "All Profiles are Mapped with BIC Profiles" condition occurs
- * - Automatically skips remaining scenarios in the feature file
- * - Completely safe - doesn't affect other test execution
- * 
- * TRIGGER CONDITION: When PO21_MapDifferentSPtoProfileInAutoAI.mapSP is set to false
- * (indicating all profiles are already mapped with BIC profiles)
- * 
- * BEHAVIOR: First scenario runs normally and checks for unmapped profiles
- * If no unmapped profiles found -> Skip all remaining scenarios in that feature
- * Other features continue to run normally
- */
 public class ConditionalScenarioSkip {
 
 	private static final Logger LOGGER = LogManager.getLogger(ConditionalScenarioSkip.class);
@@ -120,16 +105,11 @@ public class ConditionalScenarioSkip {
 		}
 	}
 
-	/**
-	 * Check if all profiles are mapped by looking for the static flag set by
-	 * PO21_MapDifferentSPtoProfileInAutoAI.mapSP ThreadLocal variable.
-	 * This integrates with your existing code without any modifications.
-	 */
 	private boolean checkIfAllProfilesMapped() {
 		try {
-			// Access the ThreadLocal flag set by PO21_MapDifferentSPtoProfileInAutoAI class
+			// Access the ThreadLocal flag set by PO17_MapDifferentSPtoProfile class
 			// This flag is set to false when all profiles are mapped
-			Class<?> mapClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO21_MapDifferentSPtoProfileInAutoAI");
+			Class<?> mapClass = Class.forName("com.kfonetalentsuite.pageobjects.JobMapping.PO17_MapDifferentSPtoProfile");
 			java.lang.reflect.Field mapSPField = mapClass.getDeclaredField("mapSP");
 			mapSPField.setAccessible(true);
 			
@@ -141,9 +121,9 @@ public class ConditionalScenarioSkip {
 			boolean allMapped = (mapSPValue == null || !mapSPValue);
 
 			if (allMapped) {
-				LOGGER.info("CONDITION CHECK: PO21_MapDifferentSPtoProfileInAutoAI.mapSP = {} (All profiles mapped)", mapSPValue);
+				LOGGER.info("CONDITION CHECK: PO17_MapDifferentSPtoProfile.mapSP = {} (All profiles mapped)", mapSPValue);
 			} else {
-				LOGGER.info("CONDITION CHECK: PO21_MapDifferentSPtoProfileInAutoAI.mapSP = true (Unmapped profiles available)");
+				LOGGER.info("CONDITION CHECK: PO17_MapDifferentSPtoProfile.mapSP = true (Unmapped profiles available)");
 			}
 
 			return allMapped;
@@ -154,17 +134,11 @@ public class ConditionalScenarioSkip {
 		}
 	}
 
-	/**
-	 * Check if the feature is one of the target features (Feature 20 or 21)
-	 */
 	private boolean isTargetFeature(String featureName) {
 		return TARGET_FEATURE_20.equals(featureName) || TARGET_FEATURE_21.equals(featureName)
 				|| featureName.contains("ManualMapping") || featureName.contains("MapDifferentSP");
 	}
 
-	/**
-	 * Check if scenario is a browser cleanup scenario that should always execute
-	 */
 	private boolean isCloseBrowserScenario(Scenario scenario) {
 		// Check if scenario has @CloseBrowser tag
 		return scenario.getSourceTagNames().contains("@CloseBrowser")
@@ -172,9 +146,6 @@ public class ConditionalScenarioSkip {
 						&& scenario.getName().toLowerCase().contains("browser"));
 	}
 
-	/**
-	 * Extract feature file name from URI
-	 */
 	private String extractFeatureName(String uri) {
 		if (uri == null || uri.isEmpty()) {
 			return "";
@@ -187,27 +158,18 @@ public class ConditionalScenarioSkip {
 		return fileName;
 	}
 
-	/**
-	 * Utility method to manually enable skip condition (for testing)
-	 */
 	public static void enableSkipForFeature(String featureName) {
 		skipEnabledFeatures.add(featureName);
 		LogManager.getLogger(ConditionalScenarioSkip.class).info(" SKIP ENABLED: All scenarios in '{}' will be skipped",
 				featureName);
 	}
 
-	/**
-	 * Utility method to clear skip conditions (for cleanup)
-	 */
 	public static void clearSkipConditions() {
 		skipEnabledFeatures.clear();
 		LogManager.getLogger(ConditionalScenarioSkip.class)
 				.info(" SKIP CONDITIONS CLEARED: All features reset to normal execution");
 	}
 
-	/**
-	 * Check if a feature is currently set to skip scenarios
-	 */
 	public static boolean isSkipEnabled(String featureName) {
 		return skipEnabledFeatures.contains(featureName);
 	}

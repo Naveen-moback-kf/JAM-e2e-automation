@@ -16,9 +16,6 @@ public class ScenarioHooks {
 	// ThreadLocal to store current scenario for access in step definitions
 	private static final ThreadLocal<Scenario> currentScenario = new ThreadLocal<>();
 
-	/**
-	 * Get the current scenario for the running thread
-	 */
 	public static Scenario getCurrentScenario() {
 		return currentScenario.get();
 	}

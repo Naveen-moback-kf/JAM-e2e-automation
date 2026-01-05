@@ -1,6 +1,7 @@
 package com.kfonetalentsuite.utils.common;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -13,10 +14,12 @@ public class VariableManager {
 	private static volatile VariableManager instance;
 	private static final ReentrantLock lock = new ReentrantLock();
 	private static volatile Properties config;
+	private static volatile Properties envConfig;
 	private static volatile boolean isInitialized = false;
+	
+	private static final String DEFAULT_ENV = "qa";
 
 	private VariableManager() {
-
 	}
 
 	public static VariableManager getInstance() {
@@ -25,7 +28,6 @@ public class VariableManager {
 			try {
 				if (instance == null) {
 					instance = new VariableManager();
-
 				}
 			} finally {
 				lock.unlock();
@@ -44,6 +46,8 @@ public class VariableManager {
 			if (isInitialized) {
 				return true;
 			}
+			
+			// Step 1: Load common config.properties
 			config = new Properties();
 			try {
 				config.load(getClass().getResourceAsStream("/config.properties"));
@@ -51,7 +55,13 @@ public class VariableManager {
 				LOGGER.error("Failed to load config.properties: " + e.getMessage());
 				return false;
 			}
+			
+			// Step 2: Load environment-specific config
+			loadEnvironmentConfig();
+			
+			// Step 3: Populate CommonVariable fields
 			populateCommonVariables();
+			
 			isInitialized = true;
 			return true;
 
@@ -59,19 +69,105 @@ public class VariableManager {
 			lock.unlock();
 		}
 	}
+	
+	private void loadEnvironmentConfig() {
+		String env = System.getProperty("env", DEFAULT_ENV).toLowerCase();
+		String envFile = "/environments/" + env + ".properties";
+		
+		envConfig = new Properties();
+		
+		try (InputStream is = getClass().getResourceAsStream(envFile)) {
+			if (is != null) {
+				envConfig.load(is);
+				LOGGER.info("🌍 Environment configuration loaded: {}", env);
+			} else {
+				LOGGER.warn("⚠️ Environment file not found: {} - using config.properties fallback", envFile);
+				LOGGER.info("   Available environments: dev, qa, stage, prod-us, prod-eu");
+			}
+		} catch (IOException e) {
+			LOGGER.warn("⚠️ Failed to load {}: {} - using fallback", envFile, e.getMessage());
+		}
+	}
+	
+	private String getProperty(String envKey, String configKey) {
+		// Priority 1: System property
+		String value = System.getProperty(envKey);
+		if (value != null && !value.isEmpty()) {
+			return value;
+		}
+		
+		// Priority 2: Environment-specific config
+		if (envConfig != null) {
+			value = envConfig.getProperty(envKey);
+			if (value != null && !value.isEmpty()) {
+				return value;
+			}
+		}
+		
+		// Priority 3: Common config.properties
+		return config.getProperty(configKey);
+	}
 
 	private void populateCommonVariables() {
-		// CI/CD override: Check system property first, then config.properties
-		String envOverride = System.getProperty("Environment");
-		CommonVariable.ENVIRONMENT = (envOverride != null && !envOverride.isEmpty()) 
-				? envOverride 
-				: config.getProperty("Environment");
+		// ========================================
+		// Environment-Specific Values
+		// ========================================
+		CommonVariable.ENVIRONMENT = getProperty("environment", "Environment");
+		CommonVariable.LOGIN_TYPE = getProperty("login.type", "login.type");
+		CommonVariable.TARGET_PAMS_ID = getProperty("pams.id", "target.pams.id");
+		CommonVariable.SSO_USERNAME = getProperty("sso.username", "SSO_Login_Username");
+		CommonVariable.SSO_PASSWORD = getProperty("sso.password", "SSO_Login_Password");
+		CommonVariable.NON_SSO_USERNAME = getProperty("nonsso.username", "NON_SSO_Login_Username");
+		CommonVariable.NON_SSO_PASSWORD = getProperty("nonsso.password", "NON_SSO_Login_Password");
 		
-		// CI/CD override: Check system property first, then config.properties
+		// ========================================
+		// Common Settings (from config.properties)
+		// ========================================
 		String browserOverride = System.getProperty("browser");
 		CommonVariable.BROWSER = (browserOverride != null && !browserOverride.isEmpty()) 
 				? browserOverride 
 				: config.getProperty("browser");
+		
+		String headlessOverride = System.getProperty("headless.mode");
+		CommonVariable.HEADLESS_MODE = (headlessOverride != null && !headlessOverride.isEmpty()) 
+				? headlessOverride 
+				: config.getProperty("headless.mode");
+		
+		CommonVariable.EXCEL_REPORTING_ENABLED = config.getProperty("excel.reporting");
+		CommonVariable.ALLURE_REPORTING_ENABLED = config.getProperty("allure.reporting");
+		
+		// Configure Allure system properties based on allure.reporting setting
+		if (CommonVariable.ALLURE_REPORTING_ENABLED != null 
+				&& CommonVariable.ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false")) {
+			// Skip Maven Allure plugin
+			System.setProperty("skipAllure", "true");
+			
+			// Redirect to target directory (cleaned by Maven, won't persist)
+			// allure.properties now defaults to target/ so this reinforces it
+			System.setProperty("allure.results.directory", "target/allure-results");
+			LOGGER.info("⚠️ ALLURE REPORTING DISABLED");
+		} else {
+			// Enable Maven Allure plugin
+			System.setProperty("skipAllure", "false");
+			
+			// Use AllureReports folder at project root (persistent)
+			System.setProperty("allure.results.directory", "AllureReports/allure-results");
+			
+			LOGGER.debug("Allure reporting ENABLED - using AllureReports/ folder");
+		}
+		
+		CommonVariable.KEEP_SYSTEM_AWAKE = config.getProperty("keep.system.awake");
+		
+		// URLs
+		CommonVariable.KFONE_DEVURL = config.getProperty("KFONE_DevUrl");
+		CommonVariable.KFONE_QAURL = config.getProperty("KFONE_QAUrl");
+		CommonVariable.KFONE_STAGEURL = config.getProperty("KFONE_StageUrl");
+		CommonVariable.KFONE_PRODEUURL = config.getProperty("KFONE_ProdEUUrl");
+		CommonVariable.KFONE_PRODUSURL = config.getProperty("KFONE_ProdUSUrl");
+		
+		// ========================================
+		// Legacy Fields (backward compatibility)
+		// ========================================
 		CommonVariable.Super_USERNAME = config.getProperty("super_Username");
 		CommonVariable.Super_PASSWORD = config.getProperty("super_Password");
 		CommonVariable.USERNAME = config.getProperty("username");
@@ -108,37 +204,23 @@ public class VariableManager {
 		CommonVariable.IC_THpassword = config.getProperty("IC_THpassword");
 		CommonVariable.SAML_USERNAME = config.getProperty("AI_AUTO_SAML_Username");
 		CommonVariable.SAML_PASSWORD = config.getProperty("AI_AUTO_SAML_Password");
-		CommonVariable.KFONE_QAURL = config.getProperty("KFONE_QAUrl");
-		CommonVariable.KFONE_DEVURL = config.getProperty("KFONE_DevUrl");
-		CommonVariable.KFONE_STAGEURL = config.getProperty("KFONE_StageUrl");
-		CommonVariable.KFONE_PRODEUURL = config.getProperty("KFONE_ProdEUUrl");
-		CommonVariable.KFONE_PRODUSURL = config.getProperty("KFONE_ProdUSUrl");
-		CommonVariable.SSO_USERNAME = config.getProperty("SSO_Login_Username");
-		CommonVariable.SSO_PASSWORD = config.getProperty("SSO_Login_Password");
-		CommonVariable.NON_SSO_USERNAME = config.getProperty("NON_SSO_Login_Username");
-		CommonVariable.NON_SSO_PASSWORD = config.getProperty("NON_SSO_Login_Password");
 		
-		// CI/CD override: Check system property first, then config.properties
-		String headlessOverride = System.getProperty("headless.mode");
-		CommonVariable.HEADLESS_MODE = (headlessOverride != null && !headlessOverride.isEmpty()) 
-				? headlessOverride 
-				: config.getProperty("headless.mode");
-		CommonVariable.EXCEL_REPORTING_ENABLED = config.getProperty("excel.reporting");
-		CommonVariable.ALLURE_REPORTING_ENABLED = config.getProperty("allure.reporting");
-		
-		// CI/CD override: Check system property first, then config.properties
-		String loginTypeOverride = System.getProperty("login.type");
-		CommonVariable.LOGIN_TYPE = (loginTypeOverride != null && !loginTypeOverride.isEmpty()) 
-				? loginTypeOverride 
-				: config.getProperty("login.type");
-		
-		CommonVariable.KEEP_SYSTEM_AWAKE = config.getProperty("keep.system.awake");
-		
-		// CI/CD override: Check system property first, then config.properties
-		String pamsIdOverride = System.getProperty("target.pams.id");
-		CommonVariable.TARGET_PAMS_ID = (pamsIdOverride != null && !pamsIdOverride.isEmpty()) 
-				? pamsIdOverride 
-				: config.getProperty("target.pams.id");
+		// Log configuration
+		LOGGER.info("╔═══════════════════════════════════════════════════════════╗");
+		LOGGER.info("║ CONFIGURATION LOADED                                      ║");
+		LOGGER.info("╠═══════════════════════════════════════════════════════════╣");
+		LOGGER.info("║ Environment  : {}", padRight(CommonVariable.ENVIRONMENT, 43) + "║");
+		LOGGER.info("║ Login Type   : {}", padRight(CommonVariable.LOGIN_TYPE, 43) + "║");
+		LOGGER.info("║ PAMS ID      : {}", padRight(CommonVariable.TARGET_PAMS_ID, 43) + "║");
+		LOGGER.info("║ Browser      : {}", padRight(CommonVariable.BROWSER, 43) + "║");
+		LOGGER.info("║ Headless     : {}", padRight(CommonVariable.HEADLESS_MODE, 43) + "║");
+		LOGGER.info("╚═══════════════════════════════════════════════════════════╝");
+	}
+
+	private String padRight(String value, int length) {
+		if (value == null) value = "N/A";
+		if (value.length() >= length) return value.substring(0, length);
+		return String.format("%-" + length + "s", value);
 	}
 
 	public static boolean isInitialized() {
