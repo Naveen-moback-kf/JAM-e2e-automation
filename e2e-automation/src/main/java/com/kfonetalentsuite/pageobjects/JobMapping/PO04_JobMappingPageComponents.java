@@ -515,6 +515,10 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			clickElement(ADD_MORE_JOBS_CLOSE_BTN);
 			PageObjectHelper.log(LOGGER, "Clicked on Add more jobs Close button(X)");
 			waitForSpinners();
+			
+			// AUTOMATION FIX: Handle "Keep working?" popup (method now in BasePageObject)
+			dismissKeepWorkingPopupIfPresent();
+			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "close_add_more_jobs_page", "Issue closing Add more jobs page", e);
 		}

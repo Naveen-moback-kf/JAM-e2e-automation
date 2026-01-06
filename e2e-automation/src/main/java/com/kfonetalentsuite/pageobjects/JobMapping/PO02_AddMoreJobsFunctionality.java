@@ -1,14 +1,12 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.File;
-import java.time.Duration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
@@ -246,74 +244,11 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			PageObjectHelper.log(LOGGER, "Clicked on Add more jobs Close button");
 			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
 			
-			// AUTOMATION FIX: Handle "Keep working?" popup that appears when client selection is lost
+			// AUTOMATION FIX: Handle "Keep working?" popup (method now in BasePageObject)
 			dismissKeepWorkingPopupIfPresent();
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "close_add_job_data_screen", "Issue in closing Add more jobs page", e);
-		}
-	}
-	
-	/**
-	 * Dismisses the "Keep working?" popup if it appears after closing Add Job Data screen.
-	 * This popup appears only in automation when the session loses track of client selection.
-	 */
-	private void dismissKeepWorkingPopupIfPresent() {
-		try {
-			// Set implicit wait to 0 for fast detection
-			driver.manage().timeouts().implicitlyWait(Duration.ZERO);
-			
-			// Try to find the "Keep working?" popup with multiple possible locators
-			By[] popupLocators = {
-				By.xpath("//h2[contains(text(),'Keep working?')]"),
-				By.xpath("//*[contains(text(),'lost track of your client selection')]"),
-				By.xpath("//div[contains(@class,'modal') or contains(@class,'dialog')]//h2[contains(text(),'Keep')]")
-			};
-			
-			By[] continueButtonLocators = {
-				By.xpath("//button[contains(text(),'Continue')]"),
-				By.xpath("//button[@type='button' and contains(text(),'Continue')]"),
-				By.xpath("//div[contains(@class,'modal')]//button[contains(text(),'Continue')]")
-			};
-			
-			WebDriverWait quickWait = new WebDriverWait(driver, Duration.ofSeconds(3));
-			
-			// Check if popup is present
-			boolean popupFound = false;
-			for (By locator : popupLocators) {
-				try {
-					WebElement popup = quickWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-					if (popup.isDisplayed()) {
-						popupFound = true;
-						LOGGER.info("'Keep working?' popup detected - dismissing...");
-						break;
-					}
-				} catch (Exception e) {
-					// Continue to next locator
-				}
-			}
-			
-			// If popup found, click Continue button
-			if (popupFound) {
-				for (By buttonLocator : continueButtonLocators) {
-					try {
-						WebElement continueBtn = quickWait.until(ExpectedConditions.elementToBeClickable(buttonLocator));
-						continueBtn.click();
-						LOGGER.info("Clicked 'Continue' button to dismiss 'Keep working?' popup");
-						safeSleep(1000);
-						PerformanceUtils.waitForPageReady(driver, 3);
-						break;
-					} catch (Exception e) {
-						// Continue to next button locator
-					}
-				}
-			}
-			
-		} catch (Exception e) {
-			LOGGER.debug("'Keep working?' popup not present or already dismissed: {}", e.getMessage());
-		} finally {
-			// Restore implicit wait to default (20 seconds)
-			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
 		}
 	}
 
