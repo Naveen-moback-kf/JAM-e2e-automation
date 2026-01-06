@@ -288,8 +288,8 @@ public class BasePageObject {
 			public static final By SEARCH_INPUT = By.xpath("//input[@type='search']");
 			// JAM Table Row Locators
 			public static final By JOB_NAME_ROW_1 = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
-			public static final By JOB_1_PUBLISH_BTN = By.xpath("//tbody//tr[2]//button[@id='publish-btn'][1]");
-			public static final By JOB_1_PUBLISHED_BTN = By.xpath("//tbody//tr[2]//button[text()='Published'][1]");
+			public static final By JOB_1_PUBLISH_BTN = By.xpath("//tbody//tr[1]//button[@id='publish-btn'][1]");
+			public static final By JOB_1_PUBLISHED_BTN = By.xpath("//tbody//tr[1]//button[text()='Published'][1]");
 			// HCM Sync Profiles Row Locators
 			public static final By HCM_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//span[1]//a");
 			public static final By HCM_JOBCODE_ROW_1 = By.xpath("//tbody//tr[1]//td[3]//span");
