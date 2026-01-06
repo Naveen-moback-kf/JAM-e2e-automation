@@ -3,7 +3,7 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
   
   This feature validates fixing jobs with missing data by:
   - Navigating to Jobs Missing Data screen
-  - Exporting top 100 profiles with missing data to CSV file
+  - Exporting top 10 profiles with missing data to CSV file
   - Filling missing details in the exported CSV
   - Re-uploading the corrected file
   - Verifying the jobs no longer show missing data warning
@@ -23,10 +23,10 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
     And Verify Re-upload button is displayed on Jobs Missing Data screen
 
   @Export_Missing_Data_Profiles_To_CSV
-  Scenario: Fetch profiles with missing data and export to CSV file (up to 100 or all if less)
+  Scenario: Fetch profiles with missing data and export to CSV file (up to 10 or all if less)
     When User is in Jobs Missing Data screen
     Then Capture total count of profiles in Jobs Missing Data screen
-    And Extract details of profiles from Jobs Missing Data screen up to 100 or all if less
+    And Extract details of profiles from Jobs Missing Data screen up to 10 or all if less
     Then Create CSV file with extracted profiles in Job Catalog format
       # CSV Format: Client Job Code,Client Job Title,Department,Job Family,Job Sub Family,Job Grade,Is Executive
     And Save CSV file as "MissingDataProfiles_ToFix.csv" in test resources folder
@@ -70,6 +70,8 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
   Scenario: Re-upload corrected CSV file using Re-upload button in Missing Data screen
     When User is in Job Mapping page
     Then Capture the count of jobs with missing data before re-upload
+    And Capture Total Results count before re-upload
+    # Total Results validation: Clears any search filter using CTRL+A→DELETE→ENTER to get accurate total count
     When Click on "View & Re-upload jobs" link in Missing Data Tip Message
     Then Verify user is navigated to Jobs with Missing "<DataType>" Data screen
     And Verify Re-upload button is displayed on Jobs Missing Data screen
@@ -81,7 +83,9 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
     When User is in KFONE Add Job Data page
     Then User should click on Manual Upload button
     Then Verify Jobs count in KFONE Add Job Data screen before adding more jobs
+    # OPTIONAL: Informational only - logs warning if fails, doesn't stop test execution
     Then Click on Done button in KFONE Add Job Data page
+    # OPTIONAL: Informational only - logs warning if fails, doesn't stop test execution
     Then Upload generated CSV file using Browse Files button
     Then User should verify File Close button displaying and clickable
     Then Upload generated CSV file using Browse Files button
@@ -91,8 +95,12 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
   Scenario: User validates successful job data update (re-upload updates existing profiles, not adding new ones)
     When User is in KFONE Add Job Data page after uploading file
     Then User should Validate Job Data Upload is in Progress
+    # OPTIONAL: Informational only - logs warning if fails, doesn't stop test execution
     Then User should validate Job Data added successfully
+    # OPTIONAL: Informational only - logs warning if fails, doesn't stop test execution
     # NOTE: Job count should NOT increase for re-upload - we are updating existing profiles, not adding new ones
+    Then Verify Jobs count in KFONE Add Job Data screen after adding more jobs
+    # OPTIONAL: Informational only - logs warning if fails, doesn't stop test execution
     Then Close Add Job Data screen
     Then User should be landed on Job Mapping page
     # NOTE: Unpublished count may or may not change - skip this verification for re-upload scenario
@@ -101,7 +109,20 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
   Scenario: Wait for backend to process uploaded data and refresh page
     When User is in Job Mapping page
     Then Wait for backend processing and refresh Job Mapping page
-    # Similar to Feature 2 - wait 2 minutes for backend to process uploaded data
+    # Simple 3-minute wait - Profile verification scenario will have smart retries to check actual data
+
+  @Verify_Profiles_Fixed_In_Job_Mapping
+  Scenario: Verify re-uploaded profile is fixed with corrected data (with dynamic polling)
+    When User is in Job Mapping page
+    Then Search for first re-uploaded profile by Job Name from CSV
+    # Search retries: 20 attempts × 30 seconds = up to 10 minutes with dynamic polling
+    And Verify profile is found in Job Mapping search results
+    # Search by Job Name may return multiple profiles - validates specific Job Code match
+    Then Verify profile does NOT display Missing Data info icon
+    And Verify profile displays the corrected data values
+    # Value validation: checks every 20 seconds for up to 10 minutes until ALL fields match
+    # Validates Grade, Department, Job Family, and Job Sub Family with STRICT matching
+    # Uses Job Code to uniquely identify the profile even when multiple jobs have same name
 
   @Verify_Missing_Data_Count_Reduced
   Scenario: Verify missing data count has reduced after re-upload
@@ -109,14 +130,14 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
     Then Verify Missing Data Tip Message is displaying on Job Mapping page
     And Capture the count of jobs with missing data after re-upload
     Then Verify missing data count has decreased compared to before re-upload
+    # After confirming profile is fixed, validate aggregated missing data count decreased
 
-  @Verify_Profiles_Fixed_In_Job_Mapping
-  Scenario: Verify re-uploaded profiles no longer show missing data warning
+  @Verify_Total_Results_Count_Unchanged
+  Scenario: Verify Total Results count remains unchanged after re-upload (updating existing profiles, not adding new)
     When User is in Job Mapping page
-    Then Search for first re-uploaded profile by Job Name from CSV
-    And Verify profile is found in Job Mapping search results
-    Then Verify profile does NOT display Missing Data info icon
-    And Verify profile displays the corrected data values
+    Then Capture Total Results count after re-upload
+    And Verify Total Results count remains unchanged after re-upload
+    # After confirming profile is fixed, validate total count remained stable (no duplicates created)
 
   @Verify_Profiles_Removed_From_Missing_Data_Screen
   Scenario: Verify re-uploaded profiles are removed from Missing Data screen

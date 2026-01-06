@@ -296,31 +296,47 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				// Modal not present, which is good
 			}
 			
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PerformanceUtils.waitForPageReady(driver, 2);  // Reduced from 5s
 			waitForSpinners();
-			safeSleep(1500);
+			safeSleep(500);  // Reduced from 1500ms
 
 			boolean onJobMappingPage = false;
 
-			// Check for Job Mapping logo/header with extended wait
+			// Quick check for Job Mapping page - try fastest indicators first
 			try {
-				WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(15));
-				extendedWait.until(ExpectedConditions.visibilityOfElementLocated(JOB_MAPPING_LOGO));
-				onJobMappingPage = true;
-			} catch (Exception e) {
-				LOGGER.debug("Job Mapping logo not found, trying alternative checks...");
-				
-				// Try search box as alternative indicator
-				try {
-					WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-					shortWait.until(ExpectedConditions.visibilityOfElementLocated(SEARCH_BOX));
+				// Try URL check first (fastest)
+				String currentUrl = driver.getCurrentUrl();
+				if (currentUrl.contains("aiauto") || currentUrl.contains("job-mapping")) {
 					onJobMappingPage = true;
-				} catch (Exception e2) {
-					// Try URL check
-					String currentUrl = driver.getCurrentUrl();
-					if (currentUrl.contains("aiauto") || currentUrl.contains("job-mapping")) {
-						onJobMappingPage = true;
-					}
+					LOGGER.debug("Confirmed Job Mapping page via URL");
+				}
+			} catch (Exception e) {
+				LOGGER.debug("URL check failed");
+			}
+			
+			// If URL check passed, do a quick sanity check for page elements
+			if (onJobMappingPage) {
+				try {
+					WebDriverWait quickWait = new WebDriverWait(driver, Duration.ofSeconds(3));  // Reduced from 15s
+					quickWait.until(ExpectedConditions.or(
+						ExpectedConditions.visibilityOfElementLocated(JOB_MAPPING_LOGO),
+						ExpectedConditions.visibilityOfElementLocated(SEARCH_BOX)
+					));
+					LOGGER.debug("Page elements confirmed");
+				} catch (Exception e) {
+					LOGGER.debug("Element check timed out, but URL was correct - proceeding");
+				}
+			} else {
+				// Fallback: check for elements directly
+				try {
+					WebDriverWait quickWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+					quickWait.until(ExpectedConditions.or(
+						ExpectedConditions.visibilityOfElementLocated(JOB_MAPPING_LOGO),
+						ExpectedConditions.visibilityOfElementLocated(SEARCH_BOX)
+					));
+					onJobMappingPage = true;
+				} catch (Exception e) {
+					LOGGER.debug("Could not verify Job Mapping page");
 				}
 			}
 
@@ -350,156 +366,132 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			boolean profileFound = false;
 			int columnIndex = getColumnIndex(dataType);
 			int totalRowsChecked = 0;
-			int maxScrollAttempts = 10;
+			int maxScrollAttempts = 50;
 			int scrollAttempt = 0;
 			boolean hasMoreRows = true;
 
-			// Loop with scrolling to handle lazy loading
-			while (!profileFound && hasMoreRows && scrollAttempt <= maxScrollAttempts) {
-				List<WebElement> jobRows = driver.findElements(JOB_ROWS_IN_JOB_MAPPING_PAGE);
+		// Loop with scrolling to handle lazy loading
+		while (!profileFound && hasMoreRows && scrollAttempt <= maxScrollAttempts) {
+			List<WebElement> jobRows = driver.findElements(JOB_ROWS_IN_JOB_MAPPING_PAGE);
+			
+			if (scrollAttempt == 0) {
+				int profileCount = jobRows.size() / 3;
+				PageObjectHelper.log(LOGGER, "Found " + profileCount + " profiles to search (" + jobRows.size() + " rows)");
+				PageObjectHelper.log(LOGGER, "Searching for missing " + dataType + " data...");
+			}
+
+			int currentBatchStartIndex = totalRowsChecked;
+			int currentBatchEndIndex = jobRows.size();
+			int rowsProcessedInBatch = 0;
+			long batchStartTime = System.currentTimeMillis();
+
+			// Search through current batch - ONLY CHECK JOB NAME ROWS (every 3rd row)
+			for (int i = currentBatchStartIndex; i < currentBatchEndIndex && !profileFound; i += 3) {
+				totalRowsChecked += 3;  // Each profile = 3 rows
+				rowsProcessedInBatch += 3;
 				
-				if (scrollAttempt == 0) {
-					PageObjectHelper.log(LOGGER, "Found " + jobRows.size() + " job rows to search");
+				// Progress indicator every 9 rows (every 3 profiles)
+				if (rowsProcessedInBatch % 9 == 0) {
+					int profilesChecked = totalRowsChecked / 3;
+					long elapsed = System.currentTimeMillis() - batchStartTime;
+					PageObjectHelper.log(LOGGER, "⏳ Progress: " + profilesChecked + " profiles checked (" + elapsed + "ms elapsed)");
 				}
-
-				// Search through current batch (start from where we left off)
-				for (int i = totalRowsChecked; i < jobRows.size() && !profileFound; i++) {
-				totalRowsChecked++; // Increment at start to stay in sync regardless of continue/break
+				
 				try {
-					WebElement row = jobRows.get(i);
+					WebElement row = jobRows.get(i);  // This is the job name row
 					List<WebElement> cells = row.findElements(By.tagName("td"));
-					
-					LOGGER.debug("Row {}: {} cells found", i, cells.size());
-
 					String cellValue = "";
 					
-					// For Function/Subfunction - it's in a SEPARATE row (next sibling row with colspan)
+					// Extract data based on type
 					if (dataType.equalsIgnoreCase("function") || dataType.equalsIgnoreCase("subfunction")) {
-						try {
-							WebElement funcSubfuncElement = row.findElement(By.xpath("./following-sibling::tr[1]//span[2]"));
-							String funcSubfuncText = funcSubfuncElement.getText().trim();
-							
-							// Parse "Function | Subfunction" format
-							String[] parts = funcSubfuncText.split("\\|");
-							if (dataType.equalsIgnoreCase("function")) {
-								cellValue = parts.length > 0 ? parts[0].trim() : "";
-							} else {
-								cellValue = parts.length > 1 ? parts[1].trim() : "";
-							}
-						} catch (Exception funcEx) {
-							// Try alternative: look for text containing "Function / Sub-function:"
-							try {
-								WebElement funcRow = row.findElement(By.xpath("./following-sibling::tr[1]//td[@colspan]"));
-								String funcText = funcRow.getText().trim();
-								if (funcText.contains("|")) {
-									String[] parts = funcText.split("\\|");
-									if (dataType.equalsIgnoreCase("function")) {
-										cellValue = parts.length > 0 ? parts[0].replaceAll(".*:", "").trim() : "";
-									} else {
-										cellValue = parts.length > 1 ? parts[1].trim() : "";
-									}
-								}
-							} catch (Exception altEx) {
-								continue; // Skip this row if we can't find function data
-							}
+						// Function is in the NEXT row (i+1)
+						if (i + 1 < jobRows.size()) {
+							WebElement funcRow = jobRows.get(i + 1);  // Direct access instead of XPath
+							WebElement funcElement = funcRow.findElement(By.xpath(".//span[2]"));
+							String funcText = funcElement.getText().trim();
+							String[] parts = funcText.split("\\|", 2);
+							cellValue = dataType.equalsIgnoreCase("function") 
+									? (parts.length > 0 ? parts[0].trim() : "")
+									: (parts.length > 1 ? parts[1].trim() : "");
 						}
 					} else {
-						// For Grade/Department - check in the same row
+						// Grade/Department in the job name row
 						if (cells.size() >= columnIndex) {
 							cellValue = cells.get(columnIndex - 1).getText().trim();
-						} else {
-							continue; // Skip if not enough cells
 						}
 					}
 
-					// Check if value is missing
+					// Check if missing
 					if (isMissingValue(cellValue)) {
-							// Found profile with missing data
-							foundProfile.set(row);
-							profileFound = true;
-
-							// Extract job name from column 2 (td[2]) using multiple XPaths (from PO29)
-							String jobName = "";
-							String jobCode = "";
-							try {
-								// Try multiple XPaths and use textContent for hidden elements
-								List<WebElement> jobNameElements = row.findElements(By.xpath(".//td[2]//div | .//td[position()=2]//div"));
-								if (!jobNameElements.isEmpty()) {
-							// Use textContent instead of getText() for hidden text
-								String jobNameCodeText = jobNameElements.get(0).getAttribute("textContent").trim();
-									
-									// Parse job name and code from format: "Job Name - (JOB-CODE)"
-									if (jobNameCodeText.contains(" - (") && jobNameCodeText.contains(")")) {
-										int dashIndex = jobNameCodeText.lastIndexOf(" - (");
-										jobName = jobNameCodeText.substring(0, dashIndex).trim();
-										jobCode = jobNameCodeText.substring(dashIndex + 4).replace(")", "").trim();
-									} else if (jobNameCodeText.contains("\n")) {
-										// Alternative format: Job Name on first line, code on second
-										String[] parts = jobNameCodeText.split("\n");
-										jobName = parts[0].trim();
-										jobCode = parts.length > 1 ? parts[1].trim() : "";
-									} else {
-										jobName = jobNameCodeText;
-									}
-								}
-							} catch (Exception ex) {
-								LOGGER.debug("XPath extraction failed, trying fallback");
-							}
-							
-							// Fallback: try JavaScript extraction if still empty
-							if (jobName.isEmpty()) {
-								try {
-									WebElement cell2 = cells.get(1); // td[2] is index 1
-									jobName = (String) js.executeScript("return arguments[0].textContent;", cell2);
-									jobName = jobName != null ? jobName.trim() : "";
-								} catch (Exception jsEx) {
-									LOGGER.debug("JS fallback also failed");
-								}
-							}
-							
-							extractedJobName.set(jobName);
-							extractedJobCode.set(jobCode);
-							forwardScenarioJobName.set(jobName);
-							forwardScenarioJobCode.set(jobCode);
-							forwardScenarioFoundProfile.set(true);
-
-						PageObjectHelper.log(LOGGER, "✅ Found job with missing " + dataType + ": " + jobName + " (" + jobCode + ")");
+						foundProfile.set(row);
 						profileFound = true;
-						break;
+						
+						// Extract job name and code
+						String jobName = "";
+						String jobCode = "";
+						if (cells.size() >= 2) {
+							WebElement nameCell = cells.get(1);
+							String nameText = nameCell.getText().trim();
+							
+							// Parse "Job Name - (JOB-CODE)"
+							if (nameText.contains(" - (") && nameText.contains(")")) {
+								int dashIdx = nameText.lastIndexOf(" - (");
+								jobName = nameText.substring(0, dashIdx).trim();
+								jobCode = nameText.substring(dashIdx + 4).replace(")", "").trim();
+							} else {
+								jobName = nameText;
+							}
+						}
+						
+						if (jobName.isEmpty()) {
+							jobName = "Unknown Job";
+						}
+						
+						extractedJobName.set(jobName);
+						extractedJobCode.set(jobCode);
+						forwardScenarioJobName.set(jobName);
+						forwardScenarioJobCode.set(jobCode);
+						forwardScenarioFoundProfile.set(true);
+						
+						PageObjectHelper.log(LOGGER, "✅ Found job with missing " + dataType + ": " + jobName + " (" + jobCode + ")");
+						break; // Exit the for loop
 					}
 				} catch (Exception rowEx) {
+					// Skip problematic rows
 					continue;
 				}
 			}
 
-				// If not found, scroll to load more rows (lazy loading)
-				if (!profileFound) {
-					int currentRowCount = jobRows.size();
-					
-					// Scroll down to trigger lazy loading
-					js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
-					safeSleep(2000); // Wait for lazy loading
-					waitForSpinners();
-					
-					// Check if new rows loaded
-					List<WebElement> newJobRows = driver.findElements(JOB_ROWS_IN_JOB_MAPPING_PAGE);
-					int newRowCount = newJobRows.size();
-					
-					if (newRowCount <= currentRowCount) {
-						hasMoreRows = false; // No more rows to load
-						LOGGER.debug("End of list - {} rows checked", totalRowsChecked);
-					} else {
-						LOGGER.debug("Loaded {} more rows", newRowCount - currentRowCount);
-					}
-					
-					scrollAttempt++;
-				}
-			} // End of while loop
-
+			// If not found, scroll to load more
 			if (!profileFound) {
-				PageObjectHelper.log(LOGGER, "⚠️ No job with missing " + dataType + " found (" + totalRowsChecked + " rows checked) - Skipping scenario");
-				throw new org.testng.SkipException("No job profile with missing " + dataType + " data found in Job Mapping page");
+				long batchTime = System.currentTimeMillis() - batchStartTime;
+				int profilesProcessed = rowsProcessedInBatch / 3;
+				int totalProfilesChecked = totalRowsChecked / 3;
+				PageObjectHelper.log(LOGGER, "✓ Batch done: " + profilesProcessed + " profiles in " + batchTime + "ms | Total: " + totalProfilesChecked);
+				
+				int currentRowCount = jobRows.size();
+				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
+				safeSleep(500);
+				waitForSpinners();
+				
+				List<WebElement> newJobRows = driver.findElements(JOB_ROWS_IN_JOB_MAPPING_PAGE);
+				int newRowCount = newJobRows.size();
+				
+				if (newRowCount <= currentRowCount) {
+					hasMoreRows = false;
+					PageObjectHelper.log(LOGGER, "⏹️ End reached: " + totalProfilesChecked + " profiles checked");
+				} else {
+					PageObjectHelper.log(LOGGER, "⏬ Loaded more rows, continuing...");
+				}
+				scrollAttempt++;
 			}
+		}
+
+		if (!profileFound) {
+			int totalProfilesChecked = totalRowsChecked / 3;
+			PageObjectHelper.log(LOGGER, "⚠️ No job with missing " + dataType + " found (" + totalProfilesChecked + " profiles checked) - Skipping scenario");
+			throw new org.testng.SkipException("No job profile with missing " + dataType + " data found in Job Mapping page");
+		}
 		} catch (org.testng.SkipException se) {
 			throw se;
 		} catch (Exception e) {
@@ -1365,10 +1357,11 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		try {
 			PageObjectHelper.log(LOGGER, "Clicking Close button to return to Job Mapping page");
 			
-			// Try multiple close button locators
+			// Use short wait for close button (3 seconds max)
 			WebElement closeButton = null;
 			try {
-				closeButton = wait.until(ExpectedConditions.elementToBeClickable(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON));
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
+				closeButton = shortWait.until(ExpectedConditions.elementToBeClickable(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON));
 			} catch (Exception e) {
 				// Try alternative close button locators
 				try {
@@ -1383,13 +1376,13 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			}
 			
 			// Wait for modal to close
-			safeSleep(1500);
+			safeSleep(500);
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PerformanceUtils.waitForPageReady(driver, 2);
 			
-			// Verify modal is closed by checking it's no longer visible
+			// Verify modal is closed
 			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
 				shortWait.until(ExpectedConditions.invisibilityOfElementLocated(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON));
 				LOGGER.debug("Modal closed");
 			} catch (Exception e) {

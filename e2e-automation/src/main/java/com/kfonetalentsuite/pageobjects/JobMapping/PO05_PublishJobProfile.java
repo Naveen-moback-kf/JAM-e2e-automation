@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -261,18 +260,22 @@ public class PO05_PublishJobProfile extends BasePageObject {
 				throw new Exception("Expected job name is not set");
 			}
 			
+			LOGGER.info("[Thread-{}] Verifying job '{}' in View Published screen", Thread.currentThread().getId(), expectedJobName);
+			
 			// Wait for search results to filter
 			PerformanceUtils.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(2000);
 			
-			WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 10);
-			String job1NameText = jobNameElement.getText();
+			// PARALLEL EXECUTION FIX: Use getElementText() to avoid stale element issues
+			String job1NameText = getElementText(JOB_NAME_ROW_1);
 			String actualJobName = job1NameText.split("-", 2)[0].trim();
 			
+			LOGGER.info("[Thread-{}] Expected: '{}', Found: '{}'", Thread.currentThread().getId(), expectedJobName, actualJobName);
+			
 			if (!expectedJobName.equals(actualJobName)) {
-				String errorMsg = String.format("Expected job '%s' but found '%s'. Search may not have filtered correctly.", 
-					expectedJobName, actualJobName);
+				String errorMsg = String.format("[Thread-%d] Expected job '%s' but found '%s'. Search may not have filtered correctly.", 
+					Thread.currentThread().getId(), expectedJobName, actualJobName);
 				ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_view_published_screen", 
 					new Exception(errorMsg));
 				Assert.fail(errorMsg);
@@ -280,7 +283,9 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			
 			PageObjectHelper.log(LOGGER, "Found expected job: " + actualJobName);
 			
-			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
+			// PARALLEL EXECUTION FIX: Re-fetch element to avoid stale reference
+			waitForSpinners();
+			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN, 10).isDisplayed());
 			PageObjectHelper.log(LOGGER, "Published Job (Org: " + job1OrgName.get() + ") is displayed in view published screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_view_published_screen", "Issue verifying Published Job", e);
@@ -411,9 +416,8 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			waitForSpinners();
 			safeSleep(500);
 			
-			// SIMPLE VALIDATION: Search already verified results, just confirm
-			WebElement jobElement = waitForElement(HCM_JOB_ROW_1, 10);
-			String job1NameText = jobElement.getText();
+			// PARALLEL EXECUTION FIX: Use getElementText() to avoid stale element issues
+			String job1NameText = getElementText(HCM_JOB_ROW_1);
 			String actualJobName = job1NameText.split("-", 2)[0].trim();
 			
 			LOGGER.info("[Thread-{}] Expected: '{}', Found: '{}'", Thread.currentThread().getId(), expectedJobName, actualJobName);
@@ -509,7 +513,8 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 3);
 
-			WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(30));
+			// PARALLEL EXECUTION FIX: Reduced from 30s to 12s for faster failure detection
+			WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(12));
 			WebElement pmBtn = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(KFONE_MENU_PM_BTN));
 			scrollToElement(pmBtn);
 			pmBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(pmBtn));
@@ -602,7 +607,8 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			waitForSpinners();
 			PerformanceUtils.waitForPageReady(driver, 3);
 
-			WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(30));
+			// PARALLEL EXECUTION FIX: Reduced from 30s to 12s for faster failure detection
+			WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(12));
 			WebElement architectBtn = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(KFONE_MENU_ARCHITECT_BTN));
 			scrollToElement(architectBtn);
 			architectBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(architectBtn));
@@ -640,13 +646,25 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void search_for_published_job_name_in_jobs_page_in_architect() {
 		try {
 			String jobName = getJobNameToSearch();
+			if (jobName == null || jobName.isEmpty()) {
+				throw new Exception("Job name to search is null or empty");
+			}
 
-			WebElement searchBox = waitForElement(PROFILES_SEARCH);
 			String searchTerm = jobName.split("-", 2)[0].trim();
-			searchBox.clear();
-			searchBox.sendKeys(searchTerm);
-			searchBox.sendKeys(Keys.ENTER);
-			PerformanceUtils.waitForPageReady(driver, 5);
+			LOGGER.info("[Thread-{}] Searching for job '{}' in Architect", Thread.currentThread().getId(), searchTerm);
+			
+			// PARALLEL EXECUTION FIX: Use clearAndSearch helper for reliable search in parallel execution
+			PerformanceUtils.waitForPageReady(driver, 2);
+			waitForSpinners();
+			safeSleep(300);
+			
+			WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
+			scrollToElement(searchBox);
+			
+			// Use clearAndSearch helper for reliable clearing and searching
+			clearAndSearch(PROFILES_SEARCH, searchTerm);
+			safeSleep(1500); // Extra wait for results stability
+			
 			PageObjectHelper.log(LOGGER, "Searched for job: " + searchTerm + " in Jobs page in Architect");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name_in_jobs_page_in_architect", "Failed to search for job in Architect", e);
@@ -660,17 +678,22 @@ public class PO05_PublishJobProfile extends BasePageObject {
 				throw new Exception("Expected job name is null or empty");
 			}
 			
+			LOGGER.info("[Thread-{}] Verifying job '{}' in Architect", Thread.currentThread().getId(), expectedJobName);
+			
 			// Wait for search results to filter
 			PerformanceUtils.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(2000);
 			
-			WebElement jobNameElement = waitForElement(ARCHITECT_JOB_ROW_1, 10);
-			String job1NameText = jobNameElement.getText();
+			// PARALLEL EXECUTION FIX: Use getElementText() to avoid stale element issues
+			String job1NameText = getElementText(ARCHITECT_JOB_ROW_1);
 			String actualJobName = job1NameText.split("-", 2)[0].trim();
 			
+			LOGGER.info("[Thread-{}] Expected: '{}', Found: '{}'", Thread.currentThread().getId(), expectedJobName, actualJobName);
+			
 			if (!expectedJobName.equals(actualJobName)) {
-				String errorMsg = String.format("Expected job '%s' but found '%s' in Architect.", expectedJobName, actualJobName);
+				String errorMsg = String.format("[Thread-%d] Expected job '%s' but found '%s' in Architect.", 
+					Thread.currentThread().getId(), expectedJobName, actualJobName);
 				ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_jobs_page_in_architect", 
 					new Exception(errorMsg));
 				Assert.fail(errorMsg);

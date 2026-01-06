@@ -172,12 +172,10 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		try {
 			wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_TITLE))).isDisplayed();
 			PageObjectHelper.log(LOGGER, "User navigated to HCM Sync Profiles screen in Profile Manager");
-			
-			// HCM screen lazy-loads data after page render - API not called immediately
-			// Wait for spinners and page readiness instead
 			waitForSpinners(15);
+			waitForBackgroundDataLoad();
 			PerformanceUtils.waitForPageReady(driver, 3);
-			safeSleep(20000);
+			safeSleep(60000);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_hcm_sync_profiles_screen",
 					"Issue navigating to HCM Sync Profiles screen", e);
@@ -907,7 +905,27 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 				// Get the first checkbox and its corresponding label
 				WebElement firstCheckbox = findElements(LEVELS_ALL_CHECKBOXES).get(0);
-				String levelsValue = findElements(LEVELS_ALL_LABELS).get(0).getText().trim();
+				WebElement firstLabel = findElements(LEVELS_ALL_LABELS).get(0);
+				
+				// Try getText() first, then fallback to textContent attribute
+				String levelsValue = firstLabel.getText().trim();
+				if (levelsValue.isEmpty()) {
+					levelsValue = firstLabel.getAttribute("textContent").trim();
+					LOGGER.debug("Label getText() was empty, used textContent: '{}'", levelsValue);
+				}
+				
+				// If still empty, try finding text in child elements
+				if (levelsValue.isEmpty()) {
+					try {
+						List<WebElement> textElements = firstLabel.findElements(By.xpath(".//*[text()]"));
+						if (!textElements.isEmpty()) {
+							levelsValue = textElements.get(0).getText().trim();
+							LOGGER.debug("Found text in child element: '{}'", levelsValue);
+						}
+					} catch (Exception childEx) {
+						LOGGER.warn("Could not find text in child elements: {}", childEx.getMessage());
+					}
+				}
 
 				// Store filter values for cross-PO validation (used by PO28)
 				appliedFilterType.set("Levels");
@@ -1078,7 +1096,27 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 				// Get the SECOND checkbox and its corresponding label (index 1)
 				WebElement secondCheckbox = findElements(LEVELS_ALL_CHECKBOXES).get(1);
-				String levelsValue = findElements(LEVELS_ALL_LABELS).get(1).getText().trim();
+				WebElement secondLabel = findElements(LEVELS_ALL_LABELS).get(1);
+				
+				// Try getText() first, then fallback to textContent attribute
+				String levelsValue = secondLabel.getText().trim();
+				if (levelsValue.isEmpty()) {
+					levelsValue = secondLabel.getAttribute("textContent").trim();
+					LOGGER.debug("Label getText() was empty, used textContent: '{}'", levelsValue);
+				}
+				
+				// If still empty, try finding text in child elements
+				if (levelsValue.isEmpty()) {
+					try {
+						List<WebElement> textElements = secondLabel.findElements(By.xpath(".//*[text()]"));
+						if (!textElements.isEmpty()) {
+							levelsValue = textElements.get(0).getText().trim();
+							LOGGER.debug("Found text in child element: '{}'", levelsValue);
+						}
+					} catch (Exception childEx) {
+						LOGGER.warn("Could not find text in child elements: {}", childEx.getMessage());
+					}
+				}
 
 				// Store filter values for cross-PO validation
 				appliedFilterType.set("Levels");
