@@ -19,46 +19,34 @@ public class ScreenshotHandler {
 
 	private static final Logger LOGGER = LogManager.getLogger(ScreenshotHandler.class);
 
-	// Configuration
 	private static final String SCREENSHOTS_BASE_DIR;
 	private static final String FAILURE_SCREENSHOTS_DIR = "FailureScreenshots";
 	private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-	// Initialize screenshots directory
 	static {
 		String userDir = System.getProperty("user.dir");
 		String projectRoot;
 
-		// If running from e2e-automation folder, use it directly
 		if (userDir.endsWith("e2e-automation")) {
 			projectRoot = userDir;
 		} else {
-			// If running from root, append e2e-automation
 			projectRoot = userDir + File.separator + "e2e-automation";
 		}
 
 		SCREENSHOTS_BASE_DIR = projectRoot + File.separator + "Screenshots";
 
-		// Log the screenshots directory for debugging
-		System.out.println("ScreenshotHandler initialized - Screenshots directory: " + SCREENSHOTS_BASE_DIR);
+		LOGGER.info("ScreenshotHandler initialized - Screenshots directory: {}", SCREENSHOTS_BASE_DIR);
 	}
 
-	// PERFORMANCE OPTIMIZATION: Screenshot throttling and smart capture
-	private static final long SCREENSHOT_THROTTLE_MS = 2000; // Minimum 2 seconds between screenshots
-	private static final int MAX_SCREENSHOTS_PER_TEST = 3; // Maximum screenshots per test method
+	private static final long SCREENSHOT_THROTTLE_MS = 2000;
+	private static final int MAX_SCREENSHOTS_PER_TEST = 3;
 	private static final java.util.Map<String, Long> lastScreenshotTime = new java.util.concurrent.ConcurrentHashMap<>();
 	private static final java.util.Map<String, Integer> screenshotCount = new java.util.concurrent.ConcurrentHashMap<>();
-	private static final java.util.concurrent.atomic.AtomicBoolean performanceModeEnabled = new java.util.concurrent.atomic.AtomicBoolean(
-			true); // Default: Performance mode ON
-
-	// ========================================
-	// CORE SCREENSHOT CAPTURE METHODS
-	// ========================================
+	private static final java.util.concurrent.atomic.AtomicBoolean performanceModeEnabled = new java.util.concurrent.atomic.AtomicBoolean(true);
 
 	public static String captureFailureScreenshot(String methodName, String errorMessage) {
 		try {
-			// PERFORMANCE OPTIMIZATION: Early exit conditions
 			if (!shouldCaptureScreenshot(methodName, errorMessage)) {
 				LOGGER.debug("Screenshot skipped for performance (method: {}, reason: {})", methodName,
 						getSkipReason(methodName, errorMessage));
@@ -77,10 +65,8 @@ public class ScreenshotHandler {
 				return null;
 			}
 
-			// Update throttling counters
 			updateScreenshotCounters(methodName);
 
-			// PERFORMANCE OPTIMIZATION: Async screenshot capture
 			if (isAsyncCaptureEnabled()) {
 				return captureScreenshotAsync(methodName, errorMessage, driver);
 			} else {
@@ -88,31 +74,24 @@ public class ScreenshotHandler {
 			}
 
 		} catch (Exception e) {
-			LOGGER.error(" Failed to capture screenshot for method: {}", methodName, e);
+			LOGGER.error("Failed to capture screenshot for method: {}", methodName, e);
 			return null;
 		}
 	}
 
 	private static String captureScreenshotSync(String methodName, String errorMessage, WebDriver driver) {
 		try {
-			// Create screenshot directory structure
 			String screenshotPath = createScreenshotPath(methodName);
 
-			// Capture screenshot
 			TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
 			File sourceFile = takesScreenshot.getScreenshotAs(OutputType.FILE);
 			File destFile = new File(screenshotPath);
 
-			// Ensure parent directories exist
 			destFile.getParentFile().mkdirs();
-
-			// Copy screenshot to destination
 			FileUtils.copyFile(sourceFile, destFile);
 
-			// Log screenshot capture
-			LOGGER.info(" SCREENSHOT CAPTURED - Method: {} | Path: {}", methodName, screenshotPath);
+			LOGGER.info("SCREENSHOT CAPTURED - Method: {} | Path: {}", methodName, screenshotPath);
 
-			// ENHANCEMENT: Attach screenshot to Allure report (if enabled)
 			if (isAllureReportingEnabled()) {
 				try {
 					AllureReportingManager.attachScreenshotToAllure(screenshotPath, 
@@ -127,7 +106,7 @@ public class ScreenshotHandler {
 			return screenshotPath;
 
 		} catch (Exception e) {
-			LOGGER.error(" Sync screenshot capture failed for method: {}", methodName, e);
+			LOGGER.error("Sync screenshot capture failed for method: {}", methodName, e);
 			return null;
 		}
 	}
@@ -136,31 +115,24 @@ public class ScreenshotHandler {
 		try {
 			String screenshotPath = createScreenshotPath(methodName);
 
-			// Quick screenshot capture
 			TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
 			File sourceFile = takesScreenshot.getScreenshotAs(OutputType.FILE);
 
-			// Process screenshot file operations in background thread
 			java.util.concurrent.CompletableFuture<Void> screenshotFuture = java.util.concurrent.CompletableFuture.runAsync(() -> {
 				try {
 					File destFile = new File(screenshotPath);
 					destFile.getParentFile().mkdirs();
 					FileUtils.copyFile(sourceFile, destFile);
-
-					LOGGER.debug(" ASYNC SCREENSHOT SAVED - Method: {} | Path: {}", methodName, screenshotPath);
-
+					LOGGER.debug("ASYNC SCREENSHOT SAVED - Method: {} | Path: {}", methodName, screenshotPath);
 				} catch (Exception e) {
 					LOGGER.warn("Async screenshot processing failed for method: {}", methodName, e);
 				}
 			});
 
-			LOGGER.info(" ASYNC SCREENSHOT QUEUED - Method: {}", methodName);
+			LOGGER.info("ASYNC SCREENSHOT QUEUED - Method: {}", methodName);
 			
-			// CRITICAL FIX: If Allure reporting is enabled, wait for screenshot to be written
-			// This ensures the file exists when AllureReportingManager tries to attach it
 			if (isAllureReportingEnabled()) {
 				try {
-					// Wait for screenshot to be written (with timeout to prevent hanging)
 					screenshotFuture.get(5, java.util.concurrent.TimeUnit.SECONDS);
 					LOGGER.debug("Screenshot file ready for Allure attachment: {}", screenshotPath);
 				} catch (java.util.concurrent.TimeoutException e) {
@@ -173,7 +145,7 @@ public class ScreenshotHandler {
 			return screenshotPath;
 
 		} catch (Exception e) {
-			LOGGER.error(" Async screenshot capture failed for method: {}", methodName, e);
+			LOGGER.error("Async screenshot capture failed for method: {}", methodName, e);
 			return null;
 		}
 	}
@@ -201,61 +173,28 @@ public class ScreenshotHandler {
 			destFile.getParentFile().mkdirs();
 			FileUtils.copyFile(sourceFile, destFile);
 
-			LOGGER.info(" Screenshot captured: {}", description);
+			LOGGER.info("Screenshot captured: {}", description);
 			LOGGER.info("Saved to: {}", screenshotPath);
 
-			// ENHANCEMENT: Attach screenshot to Allure report (if enabled)
 			if (isAllureReportingEnabled()) {
 				try {
 					AllureReportingManager.attachScreenshotToAllure(screenshotPath, description);
 					LOGGER.debug("Screenshot attached to Allure report");
 				} catch (Exception e) {
 					LOGGER.debug("Could not attach screenshot to Allure (non-critical): {}", e.getMessage());
-					// Don't fail if Allure attachment fails
 				}
 			}
 
 			return screenshotPath;
 
 		} catch (Exception e) {
-			LOGGER.error(" Failed to capture screenshot: {}", description, e);
+			LOGGER.error("Failed to capture screenshot: {}", description, e);
 			return null;
 		}
 	}
 
-	// ========================================
-	// HIGH-LEVEL FAILURE HANDLING METHODS
-	// ========================================
-
 	public static void handleTestFailure(String methodName, Exception exception, String customMessage) {
-		try {
-			// Capture screenshot on failure
-			String screenshotPath = captureFailureScreenshot(methodName, exception);
-
-			// Print stack trace
-			exception.printStackTrace();
-
-			// Prepare error message
-			String baseMessage = customMessage != null ? customMessage : "Test method failed: " + methodName;
-			String errorMsg = baseMessage;
-
-			if (screenshotPath != null) {
-				errorMsg += " | Screenshot captured: " + screenshotPath;
-				LOGGER.error(" TEST FAILED - {} | Screenshot saved: {}", methodName, screenshotPath);
-			} else {
-				LOGGER.error(" TEST FAILED - {} | Screenshot capture failed", methodName);
-			}
-
-			// Log error
-			LOGGER.info(errorMsg);
-
-			// Fail the test
-			Assert.fail(errorMsg);
-
-		} catch (Exception e) {
-			LOGGER.error("Error in failure handling for method: {}", methodName, e);
-			Assert.fail("Test failed and error handling also failed: " + methodName);
-		}
+		handleTestFailure(methodName, (Throwable) exception, customMessage);
 	}
 
 	public static void handleTestFailure(String methodName, Exception exception) {
@@ -265,27 +204,20 @@ public class ScreenshotHandler {
 
 	public static void handleTestFailure(String methodName, Throwable throwable, String customMessage) {
 		try {
-			// Capture screenshot on failure
 			String screenshotPath = captureFailureScreenshot(methodName, throwable);
 
-			// Print stack trace
-			throwable.printStackTrace();
+			LOGGER.error("TEST FAILED - Method: {} | Error: {}", methodName, throwable.getMessage(), throwable);
 
-			// Prepare error message
 			String baseMessage = customMessage != null ? customMessage : "Test method failed: " + methodName;
 			String errorMsg = baseMessage;
 
 			if (screenshotPath != null) {
 				errorMsg += " | Screenshot captured: " + screenshotPath;
-				LOGGER.error(" TEST FAILED - {} | Screenshot saved: {}", methodName, screenshotPath);
+				LOGGER.error("Screenshot saved: {}", screenshotPath);
 			} else {
-				LOGGER.error(" TEST FAILED - {} | Screenshot capture failed", methodName);
+				LOGGER.error("Screenshot capture failed");
 			}
 
-			// Log error
-			LOGGER.info(errorMsg);
-
-			// Fail the test
 			Assert.fail(errorMsg);
 
 		} catch (Exception e) {
@@ -323,9 +255,9 @@ public class ScreenshotHandler {
 			String screenshotPath = captureFailureScreenshot(methodName, logMessage);
 
 			if (screenshotPath != null) {
-				LOGGER.warn(" ISSUE DETECTED - {} | Screenshot saved: {} | {}", methodName, screenshotPath, logMessage);
+				LOGGER.warn("ISSUE DETECTED - {} | Screenshot saved: {} | {}", methodName, screenshotPath, logMessage);
 			} else {
-				LOGGER.warn(" ISSUE DETECTED - {} | Screenshot capture failed | {}", methodName, logMessage);
+				LOGGER.warn("ISSUE DETECTED - {} | Screenshot capture failed | {}", methodName, logMessage);
 			}
 
 			return screenshotPath;
@@ -336,34 +268,28 @@ public class ScreenshotHandler {
 		}
 	}
 
-	// ========================================
-	// UTILITY AND HELPER METHODS
-	// ========================================
-
 	private static String createScreenshotPath(String methodName) {
-		String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
-		String date = LocalDateTime.now().format(DATE_FORMATTER);
+		LocalDateTime now = LocalDateTime.now();
+		String timestamp = now.format(TIMESTAMP_FORMATTER);
+		String date = now.format(DATE_FORMATTER);
 
-		// Clean method name for file system
 		String cleanMethodName = cleanMethodNameForFile(methodName);
+		String fileName = "FAILURE_" + timestamp + "_" + cleanMethodName + ".png";
 
-		// Format: FAILURE_timestamp_methodName.png
-		// This ensures ascending order when sorted alphabetically (oldest first)
-		String fileName = String.format("FAILURE_%s_%s.png", timestamp, cleanMethodName);
-
-		return String.format("%s%s%s%s%s%s%s", SCREENSHOTS_BASE_DIR, File.separator, FAILURE_SCREENSHOTS_DIR,
-				File.separator, date, File.separator, fileName);
+		return SCREENSHOTS_BASE_DIR + File.separator + FAILURE_SCREENSHOTS_DIR + File.separator + 
+				date + File.separator + fileName;
 	}
 
 	private static String createScreenshotPathWithDescription(String description) {
-		String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
-		String date = LocalDateTime.now().format(DATE_FORMATTER);
+		LocalDateTime now = LocalDateTime.now();
+		String timestamp = now.format(TIMESTAMP_FORMATTER);
+		String date = now.format(DATE_FORMATTER);
 
 		String cleanDescription = cleanMethodNameForFile(description);
-		String fileName = String.format("%s_%s.png", cleanDescription, timestamp);
+		String fileName = cleanDescription + "_" + timestamp + ".png";
 
-		return String.format("%s%s%s%s%s%s%s", SCREENSHOTS_BASE_DIR, File.separator, "CustomScreenshots",
-				File.separator, date, File.separator, fileName);
+		return SCREENSHOTS_BASE_DIR + File.separator + "CustomScreenshots" + File.separator + 
+				date + File.separator + fileName;
 	}
 
 	private static String cleanMethodNameForFile(String methodName) {
@@ -371,9 +297,9 @@ public class ScreenshotHandler {
 			return "UnknownMethod";
 		}
 
-		return methodName.replaceAll("[^a-zA-Z0-9_]", "_") // Replace special chars with underscore
-				.replaceAll("_{2,}", "_") // Replace multiple underscores with single
-				.replaceAll("^_|_$", ""); // Remove leading/trailing underscores
+		return methodName.replaceAll("[^a-zA-Z0-9_]", "_")
+				.replaceAll("_{2,}", "_")
+				.replaceAll("^_|_$", "");
 	}
 
 	private static String formatMethodName(String methodName) {
@@ -381,10 +307,7 @@ public class ScreenshotHandler {
 			return "Unknown Method";
 		}
 
-		// Convert snake_case or camelCase to readable format
 		String formatted = methodName.replaceAll("_", " ").replaceAll("([a-z])([A-Z])", "$1 $2").toLowerCase();
-
-		// Capitalize first letter of each word
 		String[] words = formatted.split(" ");
 		StringBuilder result = new StringBuilder();
 		for (String word : words) {
@@ -395,45 +318,32 @@ public class ScreenshotHandler {
 		return result.toString().trim();
 	}
 
-	// ========================================
-	// CONFIGURATION AND MANAGEMENT METHODS
-	// ========================================
-
-	// ========================================
-	// PERFORMANCE OPTIMIZATION METHODS
-	// ========================================
-
 	private static boolean shouldCaptureScreenshot(String methodName, String errorMessage) {
-		// Always capture if performance mode is disabled
 		if (!performanceModeEnabled.get()) {
 			return true;
 		}
 
-		// Check if this is a critical failure that always needs screenshot
 		if (isCriticalFailure(errorMessage)) {
 			return true;
 		}
 
-		// Check throttling - minimum time between screenshots
 		Long lastTime = lastScreenshotTime.get(methodName);
 		long currentTime = System.currentTimeMillis();
 
 		if (lastTime != null && (currentTime - lastTime) < SCREENSHOT_THROTTLE_MS) {
-			return false; // Too soon, skip screenshot
+			return false;
 		}
 
-		// Check max screenshots per method limit
 		Integer count = screenshotCount.getOrDefault(methodName, 0);
 		if (count >= MAX_SCREENSHOTS_PER_TEST) {
-			return false; // Too many screenshots for this method
+			return false;
 		}
 
-		// Check if this is a minor/timeout issue that can be skipped
 		if (isMinorIssue(errorMessage)) {
-			return false; // Skip screenshots for minor issues
+			return false;
 		}
 
-		return true; // Capture screenshot
+		return true;
 	}
 
 	private static boolean isCriticalFailure(String errorMessage) {
@@ -484,10 +394,6 @@ public class ScreenshotHandler {
 	private static boolean isAsyncCaptureEnabled() {
 		return Boolean.parseBoolean(System.getProperty("screenshot.async", "true"));
 	}
-
-	// ========================================
-	// PERFORMANCE CONFIGURATION METHODS
-	// ========================================
 
 	public static void setPerformanceModeEnabled(boolean enabled) {
 		performanceModeEnabled.set(enabled);
@@ -557,7 +463,6 @@ public class ScreenshotHandler {
 		for (File file : files) {
 			if (file.isDirectory()) {
 				cleanupDirectory(file, cutoffTime);
-				// Remove empty directories
 				if (file.list() != null && file.list().length == 0) {
 					file.delete();
 				}
@@ -567,10 +472,6 @@ public class ScreenshotHandler {
 			}
 		}
 	}
-
-	// ========================================
-	// BACKWARD COMPATIBILITY METHODS
-	// ========================================
 
 	public static void standardCatchBlock(String methodName, Exception exception, String customMessage) {
 		handleTestFailure(methodName, exception, customMessage);
@@ -599,7 +500,6 @@ public class ScreenshotHandler {
 				return new java.util.ArrayList<>();
 			}
 
-			// Sort in ascending order (oldest first) - filename starts with timestamp
 			java.util.Arrays.sort(files, java.util.Comparator.comparing(File::getName));
 
 			return java.util.Arrays.asList(files);

@@ -74,6 +74,9 @@ public class ScenarioHooks {
 		PageObjectManager.reset();
 		LOGGER.debug("PageObjectManager reset completed for thread: {}", Thread.currentThread().getName());
 
+		// Reset screenshot counters to prevent memory leaks
+		com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler.resetCounters();
+
 		// Clear scenario from ThreadLocal to avoid memory leaks
 		currentScenario.remove();
 	}

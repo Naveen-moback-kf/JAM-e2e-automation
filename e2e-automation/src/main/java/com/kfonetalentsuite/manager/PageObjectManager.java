@@ -8,52 +8,14 @@ import org.apache.logging.log4j.Logger;
 import com.kfonetalentsuite.pageobjects.JobMapping.*;
 
 /**
- * PageObjectManager - Thread-safe singleton manager for all Page Objects
- * 
- * <p>This class uses ThreadLocal to ensure each thread (parallel test execution)
- * gets its own isolated PageObjectManager instance. This prevents race conditions
- * during parallel test execution.</p>
- * 
- * <h3>Usage in Step Definitions:</h3>
- * <pre>
- * // Get the singleton instance for current thread
- * PageObjectManager.getInstance().getKFoneLogin().launch();
- * 
- * // Reset after scenario (called automatically in hooks)
- * PageObjectManager.reset();
- * </pre>
- * 
- * <h3>Thread Safety:</h3>
- * <ul>
- * <li>Each thread gets its own PageObjectManager instance</li>
- * <li>Page Objects are lazily initialized per thread</li>
- * <li>reset() cleans up thread-local storage to prevent memory leaks</li>
- * </ul>
- * 
- * @since 2.1.0
- * @see #getInstance()
- * @see #reset()
+ * Thread-safe singleton manager for Page Objects.
+ * Uses ThreadLocal to ensure each test thread gets its own isolated instance.
  */
 public class PageObjectManager {
 	
 	private static final Logger LOGGER = LogManager.getLogger(PageObjectManager.class);
-	
-	// ===============================================
-	// THREAD-SAFE SINGLETON PATTERN
-	// ===============================================
-	
-	/**
-	 * ThreadLocal storage ensures each thread gets its own PageObjectManager instance.
-	 * This is critical for parallel test execution.
-	 */
 	private static ThreadLocal<PageObjectManager> instance = new ThreadLocal<>();
 	
-	/**
-	 * Get the PageObjectManager instance for the current thread.
-	 * Creates a new instance if one doesn't exist for this thread.
-	 * 
-	 * @return PageObjectManager instance for current thread
-	 */
 	public static PageObjectManager getInstance() {
 		if (instance.get() == null) {
 			instance.set(new PageObjectManager());
@@ -63,14 +25,6 @@ public class PageObjectManager {
 		return instance.get();
 	}
 	
-	/**
-	 * Reset the PageObjectManager for the current thread.
-	 * This should be called after each scenario to:
-	 * 1. Clean up Page Object instances
-	 * 2. Prevent memory leaks by removing ThreadLocal storage
-	 * 
-	 * Note: This is automatically called in ScenarioHooks @After method.
-	 */
 	public static void reset() {
 		if (instance.get() != null) {
 			instance.get().resetPageObjects();
@@ -79,10 +33,6 @@ public class PageObjectManager {
 					Thread.currentThread().getName());
 		}
 	}
-	
-	// ===============================================
-	// PAGE OBJECT INSTANCES (Thread-local via singleton)
-	// ===============================================
 
 	public PO01_KFoneLogin kfoneLogin;
 	public PO02_AddMoreJobsFunctionality addMoreJobsFunctionality;
