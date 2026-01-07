@@ -140,8 +140,8 @@ public class ScreenshotHandler {
 			TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
 			File sourceFile = takesScreenshot.getScreenshotAs(OutputType.FILE);
 
-			// Process screenshot file operations in background thread (non-blocking)
-			java.util.concurrent.CompletableFuture.runAsync(() -> {
+			// Process screenshot file operations in background thread
+			java.util.concurrent.CompletableFuture<Void> screenshotFuture = java.util.concurrent.CompletableFuture.runAsync(() -> {
 				try {
 					File destFile = new File(screenshotPath);
 					destFile.getParentFile().mkdirs();
@@ -155,6 +155,21 @@ public class ScreenshotHandler {
 			});
 
 			LOGGER.info(" ASYNC SCREENSHOT QUEUED - Method: {}", methodName);
+			
+			// CRITICAL FIX: If Allure reporting is enabled, wait for screenshot to be written
+			// This ensures the file exists when AllureReportingManager tries to attach it
+			if (isAllureReportingEnabled()) {
+				try {
+					// Wait for screenshot to be written (with timeout to prevent hanging)
+					screenshotFuture.get(5, java.util.concurrent.TimeUnit.SECONDS);
+					LOGGER.debug("Screenshot file ready for Allure attachment: {}", screenshotPath);
+				} catch (java.util.concurrent.TimeoutException e) {
+					LOGGER.warn("Screenshot write timeout for Allure - continuing anyway");
+				} catch (Exception e) {
+					LOGGER.warn("Error waiting for screenshot: {}", e.getMessage());
+				}
+			}
+			
 			return screenshotPath;
 
 		} catch (Exception e) {

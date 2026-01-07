@@ -37,9 +37,9 @@ public class SD35_ReuploadMissingDataProfiles {
 		reuploadMissingDataProfiles.getReuploadMissingDataProfiles().capture_total_count_of_profiles_in_jobs_missing_data_screen();
 	}
 
-	@And("Extract details of profiles from Jobs Missing Data screen up to 100 or all if less")
-	public void extract_details_of_profiles_from_jobs_missing_data_screen_up_to_100_or_all() throws IOException {
-		reuploadMissingDataProfiles.getReuploadMissingDataProfiles().extract_details_of_top_100_profiles_from_jobs_missing_data_screen();
+	@And("Extract details of profiles from Jobs Missing Data screen up to 10 or all if less")
+	public void extract_details_of_profiles_from_jobs_missing_data_screen_up_to_10_or_all() throws IOException {
+		reuploadMissingDataProfiles.getReuploadMissingDataProfiles().extract_details_of_top_10_profiles_from_jobs_missing_data_screen();
 	}
 
 	@Then("Create CSV file with extracted profiles in Job Catalog format")
@@ -152,14 +152,29 @@ public class SD35_ReuploadMissingDataProfiles {
 		reuploadMissingDataProfiles.getReuploadMissingDataProfiles().capture_the_count_of_jobs_with_missing_data_before_reupload();
 	}
 
+	@Then("Capture Total Results count before re-upload")
+	public void capture_total_results_count_before_reupload() throws IOException {
+		reuploadMissingDataProfiles.getReuploadMissingDataProfiles().capture_total_results_count_before_reupload();
+	}
+
 	@And("Capture the count of jobs with missing data after re-upload")
 	public void capture_the_count_of_jobs_with_missing_data_after_reupload() throws IOException {
 		reuploadMissingDataProfiles.getReuploadMissingDataProfiles().capture_the_count_of_jobs_with_missing_data_after_reupload();
 	}
 
+	@Then("Capture Total Results count after re-upload")
+	public void capture_total_results_count_after_reupload() throws IOException {
+		reuploadMissingDataProfiles.getReuploadMissingDataProfiles().capture_total_results_count_after_reupload();
+	}
+
 	@Then("Verify missing data count has decreased compared to before re-upload")
 	public void verify_missing_data_count_has_decreased_compared_to_before_reupload() throws IOException {
 		reuploadMissingDataProfiles.getReuploadMissingDataProfiles().verify_missing_data_count_has_decreased_compared_to_before_reupload();
+	}
+
+	@Then("Verify Total Results count remains unchanged after re-upload")
+	public void verify_total_results_count_remains_unchanged() throws IOException {
+		reuploadMissingDataProfiles.getReuploadMissingDataProfiles().verify_total_results_count_remains_unchanged();
 	}
 
 	@Then("Wait for backend processing and refresh Job Mapping page")

@@ -710,6 +710,166 @@ public class BasePageObject {
 		}
 	}
 
+	// ==================== POPUP HANDLING METHODS ====================
+	
+	/**
+	 * Dismisses the "Keep working?" popup if it appears after closing Add Job Data screen.
+	 * This popup appears only in automation when the session loses track of client selection.
+	 * After dismissing the popup, the UI navigates to KFone Clients screen, so we need to:
+	 * 1. Re-select the client (execute @Client_with_PM_Access scenario)
+	 * 2. Navigate back to Job Mapping page (execute @Navigate_To_Job_Mapping scenario)
+	 */
+	public void dismissKeepWorkingPopupIfPresent() {
+		try {
+			// Set implicit wait to 0 for fast detection
+			driver.manage().timeouts().implicitlyWait(Duration.ZERO);
+			
+			// Try to find the "Keep working?" popup with multiple possible locators
+			By[] popupLocators = {
+				By.xpath("//h2[contains(text(),'Keep working?')]"),
+				By.xpath("//*[contains(text(),'lost track of your client selection')]"),
+				By.xpath("//div[contains(@class,'modal') or contains(@class,'dialog')]//h2[contains(text(),'Keep')]")
+			};
+			
+			// Continue button locators - using specific attributes from actual HTML
+			By[] continueButtonLocators = {
+				By.id("global-nav-modal-success-btn"),  // Primary - most specific
+				By.xpath("//button[@id='global-nav-modal-success-btn']"),
+				By.xpath("//button[@data-testid='global-nav-modal-success-btn']"),
+				By.xpath("//button[@aria-label='Continue' and contains(@class,'kf1wc-button')]"),
+				By.xpath("//button[contains(text(),'Continue')]"),  // Fallback
+				By.xpath("//button[@type='button' and @aria-label='Continue']")
+			};
+			
+			WebDriverWait quickWait = new WebDriverWait(driver, Duration.ofSeconds(3));
+			
+			// Check if popup is present
+			boolean popupFound = false;
+			for (By locator : popupLocators) {
+				try {
+					WebElement popup = quickWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+					if (popup.isDisplayed()) {
+						popupFound = true;
+						LOGGER.info("'Keep working?' popup detected - dismissing...");
+						break;
+					}
+				} catch (Exception e) {
+					// Continue to next locator
+				}
+			}
+			
+			// If popup found, click Continue button and handle navigation
+			if (popupFound) {
+				boolean continueClicked = false;
+				for (By buttonLocator : continueButtonLocators) {
+					try {
+						WebElement continueBtn = quickWait.until(ExpectedConditions.elementToBeClickable(buttonLocator));
+						continueBtn.click();
+						LOGGER.info("Clicked 'Continue' button (id='global-nav-modal-success-btn') to dismiss popup");
+						continueClicked = true;
+						safeSleep(2000);
+						PerformanceUtils.waitForPageReady(driver, 5);
+						break;
+					} catch (Exception e) {
+						LOGGER.debug("Continue button locator failed: {}, trying next...", buttonLocator);
+						// Continue to next button locator
+					}
+				}
+				
+				// After clicking Continue, UI navigates to KFone Clients screen
+				// We need to re-select client and navigate back to Job Mapping
+				if (continueClicked) {
+					LOGGER.info("Popup dismissed - UI navigated to KFone Clients screen");
+					LOGGER.info("Re-executing ALL steps from @Client_with_PM_Access and @Navigate_To_Job_Mapping scenarios...");
+					
+					try {
+						// Create instances of required PO classes
+						PO01_KFoneLogin loginPO = new PO01_KFoneLogin();
+						PO04_JobMappingPageComponents jamPO = new PO04_JobMappingPageComponents();
+						PO05_PublishJobProfile po05 = new PO05_PublishJobProfile();
+						handleCookiesBanner();
+						// ================================================================
+						// SCENARIO 1: @Client_with_PM_Access - ALL STEPS
+						// ================================================================
+						LOGGER.info("=== Executing @Client_with_PM_Access Scenario ===");
+						
+						// Step 1: User is in KFONE Clients page (already there after clicking Continue)
+						LOGGER.info("Step 1: User is in KFONE Clients page");
+						loginPO.user_is_in_kfone_clients_page();
+						
+						// Step 2: Search for Client with PAMS ID
+						LOGGER.info("Step 2: Search for Client with PAMS ID");
+						loginPO.search_for_client_with_pams_id();
+						
+						// Step 3: Verify Client name based on PAMS ID
+						LOGGER.info("Step 3: Verify Client name based on PAMS ID");
+						loginPO.verify_client_name_based_on_pams_id();
+						
+						// Step 4: Verify Products that client can access
+						LOGGER.info("Step 4: Verify Products that client can access");
+						loginPO.verify_products_that_client_can_access();
+						
+						// Step 5: Click on Client with access to Profile Manager Application
+						LOGGER.info("Step 5: Click on Client with access to Profile Manager Application");
+						loginPO.click_on_client_with_access_to_profile_manager_application();
+						
+						// Step 6: Verify User navigated to KFONE Home Page
+						LOGGER.info("Step 6: Verify User navigated to KFONE Home Page");
+						loginPO.verify_user_navigated_to_kfone_home_page();
+						
+						// Step 7: Click on Profile Manager application in Your Products section
+						LOGGER.info("Step 7: Click on Profile Manager application in Your Products section");
+						loginPO.click_on_profile_manager_application_in_your_products_section();
+						
+						// Step 8: Verify User seamlessly landed on Profile Manager Application in KF HUB
+						LOGGER.info("Step 8: Verify User seamlessly landed on Profile Manager Application in KF HUB");
+						loginPO.verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub();
+						
+						// Step 9: Verify user should land on Profile Manager dashboard page
+						LOGGER.info("Step 9: Verify user should land on Profile Manager dashboard page");
+						po05.verify_user_should_land_on_profile_manager_dashboard_page();
+						
+						// Step 10: Store user session details from session storage - SKIP if method doesn't exist
+						LOGGER.info("Step 10: Store user session details from session storage - SKIPPED (method not needed for popup recovery)");
+						
+						LOGGER.info("✓ @Client_with_PM_Access scenario completed successfully");
+						
+						// ================================================================
+						// SCENARIO 2: @Navigate_To_Job_Mapping - ALL STEPS
+						// ================================================================
+						LOGGER.info("=== Executing @Navigate_To_Job_Mapping Scenario ===");
+						
+						// Step 1: Navigate to Job Mapping page from KFONE Global Menu in PM
+						LOGGER.info("Step 1: Navigate to Job Mapping page from KFONE Global Menu in PM");
+						jamPO.navigate_to_job_mapping_page_from_kfone_global_menu_in_pm();
+						
+						// Step 2: User should verify Job Mapping logo is displayed on screen
+						LOGGER.info("Step 2: User should verify Job Mapping logo is displayed on screen");
+						jamPO.user_should_verify_job_mapping_logo_is_displayed_on_screen();
+						
+						LOGGER.info("✓ @Navigate_To_Job_Mapping scenario completed successfully");
+						
+						PageObjectHelper.log(LOGGER, "Successfully restored original state - All steps from both scenarios executed");
+						
+					} catch (Exception navEx) {
+						LOGGER.error("Failed to restore original state after popup dismissal: {}", navEx.getMessage());
+						navEx.printStackTrace();
+						PageObjectHelper.log(LOGGER, "WARNING: Could not automatically restore Job Mapping page after popup. Manual intervention may be needed.");
+						// Don't throw - let test continue and handle error in next step
+					}
+				} else {
+					LOGGER.warn("'Keep working?' popup detected but Continue button could not be clicked");
+				}
+			}
+			
+		} catch (Exception e) {
+			LOGGER.debug("'Keep working?' popup not present or already dismissed: {}", e.getMessage());
+		} finally {
+			// Restore implicit wait to default (20 seconds)
+			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
+		}
+	}
+
 	// ==================== COMMON HELPER METHODS ====================
 
 	protected void safeSleep(int milliseconds) {

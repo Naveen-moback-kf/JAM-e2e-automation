@@ -31,36 +31,35 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 	// ==================== LOCATORS ====================
 	// Note: This file uses dynamic XPath construction, so locators are defined inline in methods
 
-	// Fields for dynamic row-based approach
-	private List<WebElement> manualProfilesWithInfoMessages = new ArrayList<>();
-	private List<Integer> manualRowIndicesWithInfoMessages = new ArrayList<>();
-	private int currentManualRowIndex = -1;
+	// THREAD-SAFE: Converted instance variables to ThreadLocal for parallel execution
+	private static ThreadLocal<List<WebElement>> manualProfilesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);
+	private static ThreadLocal<List<Integer>> manualRowIndicesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);
+	private static ThreadLocal<Integer> currentManualRowIndex = ThreadLocal.withInitial(() -> -1);
 
 	// FEATURE-LEVEL SKIP FLAG: Set to true when "Showing 0 of 0 results" is detected
 	private static ThreadLocal<Boolean> skipFeature24DueToNoResults = ThreadLocal.withInitial(() -> false);
 	private static ThreadLocal<Integer> totalManuallyMappedJobs = ThreadLocal.withInitial(() -> -1);
 
-	// GLOBAL TRACKING: First manual mapping profile information to prevent
-	// duplicate selection
-	private int globalFirstManualProfileRowIndex = -1;
-	private int globalFirstManualProfileNumber = -1;
-	private String globalFirstManualJobNameWithInfoMessage = "";
-	private String globalFirstManualJobCodeWithInfoMessage = "";
+	// GLOBAL TRACKING: First manual mapping profile information to prevent duplicate selection
+	private static ThreadLocal<Integer> globalFirstManualProfileRowIndex = ThreadLocal.withInitial(() -> -1);
+	private static ThreadLocal<Integer> globalFirstManualProfileNumber = ThreadLocal.withInitial(() -> -1);
+	private static ThreadLocal<String> globalFirstManualJobNameWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> globalFirstManualJobCodeWithInfoMessage = ThreadLocal.withInitial(() -> "");
 
 	// Job details for the first manually mapped profile with info message
-	private String manualJobNameWithInfoMessage = "";
-	private String manualJobCodeWithInfoMessage = "";
-	private String manualGradeWithInfoMessage = "";
-	private String manualDepartmentWithInfoMessage = "";
-	private String manualFunctionSubfunctionWithInfoMessage = "";
+	private static ThreadLocal<String> manualJobNameWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> manualJobCodeWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> manualGradeWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> manualDepartmentWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> manualFunctionSubfunctionWithInfoMessage = ThreadLocal.withInitial(() -> "");
 
 	// Job details for the second manually mapped profile with info message
-	private String secondManualJobNameWithInfoMessage = "";
-	private String secondManualJobCodeWithInfoMessage = "";
-	private String secondManualGradeWithInfoMessage = "";
-	private String secondManualDepartmentWithInfoMessage = "";
-	private String secondManualFunctionSubfunctionWithInfoMessage = "";
-	private int secondCurrentManualRowIndex = -1;
+	private static ThreadLocal<String> secondManualJobNameWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> secondManualJobCodeWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> secondManualGradeWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> secondManualDepartmentWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> secondManualFunctionSubfunctionWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<Integer> secondCurrentManualRowIndex = ThreadLocal.withInitial(() -> -1);
 
 	// Helper Methods moved to BasePageObject
 
@@ -117,32 +116,32 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 							continue; // Skip this profile and look for Manual Mapping ones
 						}
 
-						// FOUND: Manual Mapping profile with info message!
-						manualProfilesWithInfoMessages.add(infoMessage);
-						manualRowIndicesWithInfoMessages.add(rowIndex);
-						currentManualRowIndex = rowIndex;
+					// FOUND: Manual Mapping profile with info message!
+					manualProfilesWithInfoMessages.get().add(infoMessage);
+					manualRowIndicesWithInfoMessages.get().add(rowIndex);
+					currentManualRowIndex.set(rowIndex);
 
-						// Calculate profile number (each profile spans 3 rows)
-						int profileNumber = getProfileNumber(rowIndex);
+					// Calculate profile number (each profile spans 3 rows)
+					int profileNumber = getProfileNumber(rowIndex);
 
-						// Extract job details from the job details row (n-1)
-						extractJobDetailsFromRowForManualProfile(rowIndex - 1);
+					// Extract job details from the job details row (n-1)
+					extractJobDetailsFromRowForManualProfile(rowIndex - 1);
 
-						// Extract function/subfunction from current row (n)
-						extractFunctionSubfunctionFromRowForManualProfile(rowIndex);
+					// Extract function/subfunction from current row (n)
+					extractFunctionSubfunctionFromRowForManualProfile(rowIndex);
 
-						// GLOBAL TRACKING: Store first manual mapping profile information for duplicate
-						// prevention
-						globalFirstManualProfileRowIndex = rowIndex;
-						globalFirstManualProfileNumber = profileNumber;
-						globalFirstManualJobNameWithInfoMessage = manualJobNameWithInfoMessage;
-						globalFirstManualJobCodeWithInfoMessage = manualJobCodeWithInfoMessage;
+					// GLOBAL TRACKING: Store first manual mapping profile information for duplicate
+					// prevention
+					globalFirstManualProfileRowIndex.set(rowIndex);
+					globalFirstManualProfileNumber.set(profileNumber);
+					globalFirstManualJobNameWithInfoMessage.set(manualJobNameWithInfoMessage.get());
+					globalFirstManualJobCodeWithInfoMessage.set(manualJobCodeWithInfoMessage.get());
 
-						// Display the extracted job details with profile context
-						LOGGER.info("✓ Found Manual Mapping Profile {}: {}", profileNumber,
-								manualJobNameWithInfoMessage);
-						LOGGER.info("  Details - Grade: {}, Dept: {}, Func: {}", manualGradeWithInfoMessage,
-								manualDepartmentWithInfoMessage, manualFunctionSubfunctionWithInfoMessage);
+					// Display the extracted job details with profile context
+					LOGGER.info("✓ Found Manual Mapping Profile {}: {}", profileNumber,
+							manualJobNameWithInfoMessage.get());
+					LOGGER.info("  Details - Grade: {}, Dept: {}, Func: {}", manualGradeWithInfoMessage.get(),
+							manualDepartmentWithInfoMessage.get(), manualFunctionSubfunctionWithInfoMessage.get());
 						LOGGER.debug("Stored as first profile (Row: {}, Profile: {}) for duplicate prevention",
 								globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
 
@@ -172,9 +171,9 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 					if (candidateRowIndex > 0) {
 						int candidateProfileNumber = getProfileNumber(candidateRowIndex);
 
-						// CRITICAL: Skip if this is the same profile as the globally tracked first one
-						if (candidateRowIndex == globalFirstManualProfileRowIndex
-								|| candidateProfileNumber == globalFirstManualProfileNumber) {
+					// CRITICAL: Skip if this is the same profile as the globally tracked first one
+					if (candidateRowIndex == globalFirstManualProfileRowIndex.get()
+							|| candidateProfileNumber == globalFirstManualProfileNumber.get()) {
 							LOGGER.info(
 									" DUPLICATE DETECTED: Skipping info message at index {} - Same profile as GLOBAL first (row {}, profile {})",
 									i, candidateRowIndex, candidateProfileNumber);
@@ -492,15 +491,15 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			LOGGER.info("Finding manually mapped profile with missing data and Info Message using optimized search");
 			safeSleep(2000); // Allow page to fully load
 
-			// Clear previous data
-			manualProfilesWithInfoMessages.clear();
-			manualRowIndicesWithInfoMessages.clear();
-			currentManualRowIndex = -1;
-			manualJobNameWithInfoMessage = "";
-			manualJobCodeWithInfoMessage = "";
-			manualGradeWithInfoMessage = "";
-			manualDepartmentWithInfoMessage = "";
-			manualFunctionSubfunctionWithInfoMessage = "";
+		// Clear previous data
+		manualProfilesWithInfoMessages.get().clear();
+		manualRowIndicesWithInfoMessages.get().clear();
+		currentManualRowIndex.set(-1);
+		manualJobNameWithInfoMessage.set("");
+		manualJobCodeWithInfoMessage.set("");
+		manualGradeWithInfoMessage.set("");
+		manualDepartmentWithInfoMessage.set("");
+		manualFunctionSubfunctionWithInfoMessage.set("");
 
 			// Find info messages in the Organization Jobs table
 			List<WebElement> infoMessages = driver.findElements(By.xpath(
@@ -563,8 +562,8 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 				}
 			}
 
-			// ENHANCED: Handle no Manual Mapping profiles found as success case
-			if (manualRowIndicesWithInfoMessages.isEmpty()) {
+		// ENHANCED: Handle no Manual Mapping profiles found as success case
+		if (manualRowIndicesWithInfoMessages.get().isEmpty()) {
 				// Check if we found any info messages at all after complete search
 				List<WebElement> allInfoMessages = driver.findElements(By.xpath(
 						"//div[@id='org-job-container']//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']"));
@@ -586,8 +585,8 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 				}
 			}
 
-			PageObjectHelper.log(LOGGER, "Found Manual Mapping profile with Info Message: "
-					+ manualJobNameWithInfoMessage + " (" + manualJobCodeWithInfoMessage + ")");
+		PageObjectHelper.log(LOGGER, "Found Manual Mapping profile with Info Message: "
+				+ manualJobNameWithInfoMessage.get() + " (" + manualJobCodeWithInfoMessage.get() + ")");
 
 		} catch (Exception e) {
 			LOGGER.error("Error finding Manual Mapping profile with missing data and Info Message: " + e.getMessage());
@@ -609,33 +608,33 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 						.findElement(By.xpath(".//td[2]//div | .//td[position()=2]//div"));
 				String jobNameCodeText = jobNameElement.getText().trim();
 
-				// Parse job name and code from format: "Job Name - (JOB-CODE)"
-				if (jobNameCodeText.contains(" - (") && jobNameCodeText.contains(")")) {
-					int dashIndex = jobNameCodeText.lastIndexOf(" - (");
-					manualJobNameWithInfoMessage = jobNameCodeText.substring(0, dashIndex).trim();
-					manualJobCodeWithInfoMessage = jobNameCodeText.substring(dashIndex + 4).replace(")", "").trim();
-				} else {
-					manualJobNameWithInfoMessage = jobNameCodeText;
-				}
-			} catch (Exception e) {
-				LOGGER.debug("Could not extract job name/code from manual profile: " + e.getMessage());
+			// Parse job name and code from format: "Job Name - (JOB-CODE)"
+			if (jobNameCodeText.contains(" - (") && jobNameCodeText.contains(")")) {
+				int dashIndex = jobNameCodeText.lastIndexOf(" - (");
+				manualJobNameWithInfoMessage.set(jobNameCodeText.substring(0, dashIndex).trim());
+				manualJobCodeWithInfoMessage.set(jobNameCodeText.substring(dashIndex + 4).replace(")", "").trim());
+			} else {
+				manualJobNameWithInfoMessage.set(jobNameCodeText);
 			}
+		} catch (Exception e) {
+			LOGGER.debug("Could not extract job name/code from manual profile: " + e.getMessage());
+		}
 
-			// Extract Grade from column 3 (GRADE column) - same structure as Feature 27
-			try {
-				WebElement gradeElement = jobDetailsRow
-						.findElement(By.xpath(".//td[3]//div | .//td[position()=3]//div"));
-				manualGradeWithInfoMessage = gradeElement.getText().trim();
-			} catch (Exception e) {
-				LOGGER.debug("Could not extract grade from manual profile: " + e.getMessage());
-			}
+		// Extract Grade from column 3 (GRADE column) - same structure as Feature 27
+		try {
+			WebElement gradeElement = jobDetailsRow
+					.findElement(By.xpath(".//td[3]//div | .//td[position()=3]//div"));
+			manualGradeWithInfoMessage.set(gradeElement.getText().trim());
+		} catch (Exception e) {
+			LOGGER.debug("Could not extract grade from manual profile: " + e.getMessage());
+		}
 
-			// Extract Department from column 4 (DEPARTMENT column) - same structure as
-			// Feature 27
-			try {
-				WebElement departmentElement = jobDetailsRow
-						.findElement(By.xpath(".//td[4]//div | .//td[position()=4]//div"));
-				manualDepartmentWithInfoMessage = departmentElement.getText().trim();
+		// Extract Department from column 4 (DEPARTMENT column) - same structure as
+		// Feature 27
+		try {
+			WebElement departmentElement = jobDetailsRow
+					.findElement(By.xpath(".//td[4]//div | .//td[position()=4]//div"));
+			manualDepartmentWithInfoMessage.set(departmentElement.getText().trim());
 			} catch (Exception e) {
 				LOGGER.debug("Could not extract department from manual profile: " + e.getMessage());
 			}
@@ -670,18 +669,18 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 							if (functionPart.contains("Reduced match acc")) {
 								functionPart = functionPart.split("Reduced match acc")[0].trim();
 							}
-							functionPart = functionPart.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
+						functionPart = functionPart.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
 
-							if (!functionPart.isEmpty()) {
-								manualFunctionSubfunctionWithInfoMessage = functionPart;
-								break;
-							}
+						if (!functionPart.isEmpty()) {
+							manualFunctionSubfunctionWithInfoMessage.set(functionPart);
+							break;
 						}
 					}
 				}
+			}
 
-				// If still empty, try to find function data in the row
-				if (manualFunctionSubfunctionWithInfoMessage.isEmpty()) {
+			// If still empty, try to find function data in the row
+			if (manualFunctionSubfunctionWithInfoMessage.get().isEmpty()) {
 					if (rowText.contains("|")) {
 						String[] pipeParts = rowText.split("\\|");
 						if (pipeParts.length > 1) {
@@ -691,12 +690,12 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 									functionBuilder.append(" | ");
 								functionBuilder.append(pipeParts[i].trim());
 							}
-							String potentialFunction = functionBuilder.toString().trim();
-							if (potentialFunction.contains("Reduced match")) {
-								potentialFunction = potentialFunction.split("Reduced match")[0].trim();
-							}
-							if (!potentialFunction.isEmpty()) {
-								manualFunctionSubfunctionWithInfoMessage = potentialFunction;
+						String potentialFunction = functionBuilder.toString().trim();
+						if (potentialFunction.contains("Reduced match")) {
+							potentialFunction = potentialFunction.split("Reduced match")[0].trim();
+						}
+						if (!potentialFunction.isEmpty()) {
+							manualFunctionSubfunctionWithInfoMessage.set(potentialFunction);
 							}
 						}
 					}
@@ -720,17 +719,17 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 		
 		try {
-			LOGGER.info("Confirming job details extraction from manually mapped profile with Info Message");
+		LOGGER.info("Confirming job details extraction from manually mapped profile with Info Message");
 
-			if (manualJobNameWithInfoMessage.isEmpty() && manualJobCodeWithInfoMessage.isEmpty()) {
-				throw new IOException(
-						"Manually mapped profile job details not found. Please call find_manually_mapped_profile_with_missing_data_and_info_message() first.");
-			}
+		if (manualJobNameWithInfoMessage.get().isEmpty() && manualJobCodeWithInfoMessage.get().isEmpty()) {
+			throw new IOException(
+					"Manually mapped profile job details not found. Please call find_manually_mapped_profile_with_missing_data_and_info_message() first.");
+		}
 
-			int profileNumber = getProfileNumber(currentManualRowIndex);
-			PageObjectHelper.log(LOGGER, "Extracted job details for Profile " + profileNumber + 
-					" - Job: " + manualJobNameWithInfoMessage + " (" + manualJobCodeWithInfoMessage + 
-					"), Grade: " + manualGradeWithInfoMessage + ", Dept: " + manualDepartmentWithInfoMessage);
+		int profileNumber = getProfileNumber(currentManualRowIndex.get());
+		PageObjectHelper.log(LOGGER, "Extracted job details for Profile " + profileNumber + 
+				" - Job: " + manualJobNameWithInfoMessage.get() + " (" + manualJobCodeWithInfoMessage.get() + 
+				"), Grade: " + manualGradeWithInfoMessage.get() + ", Dept: " + manualDepartmentWithInfoMessage.get());
 
 		} catch (Exception e) {
 			LOGGER.error(
@@ -748,17 +747,17 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			return;
 		}
 		
-		try {
-			int profileNumber = getProfileNumber(currentManualRowIndex);
+	try {
+		int profileNumber = getProfileNumber(currentManualRowIndex.get());
 
-			// Recovery mechanism in case currentManualRowIndex was reset
-			if (currentManualRowIndex <= 0 && !manualRowIndicesWithInfoMessages.isEmpty()) {
-				currentManualRowIndex = manualRowIndicesWithInfoMessages.get(0);
-				profileNumber = getProfileNumber(currentManualRowIndex);
-				LOGGER.debug("Restored row index for Profile {}", profileNumber);
-			}
+		// Recovery mechanism in case currentManualRowIndex was reset
+		if (currentManualRowIndex.get() <= 0 && !manualRowIndicesWithInfoMessages.get().isEmpty()) {
+			currentManualRowIndex.set(manualRowIndicesWithInfoMessages.get().get(0));
+			profileNumber = getProfileNumber(currentManualRowIndex.get());
+			LOGGER.debug("Restored row index for Profile {}", profileNumber);
+		}
 
-			if (currentManualRowIndex <= 0) {
+		if (currentManualRowIndex.get() <= 0) {
 				throw new IOException(
 						"No valid row index found for manually mapped profile. Call find_manually_mapped_profile_with_missing_data_and_info_message() first.");
 			}
@@ -1266,17 +1265,17 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		
 		try {
 			LOGGER.info(
-					" AGGRESSIVE SEARCH: Finding second Manual Mapping profile different from GLOBAL first (row {}, profile {})",
-					globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
-			safeSleep(2000);
+		" AGGRESSIVE SEARCH: Finding second Manual Mapping profile different from GLOBAL first (row {}, profile {})",
+				globalFirstManualProfileRowIndex.get(), globalFirstManualProfileNumber.get());
+		safeSleep(2000);
 
-			// Clear previous second profile data
-			secondManualJobNameWithInfoMessage = "";
-			secondManualJobCodeWithInfoMessage = "";
-			secondManualGradeWithInfoMessage = "";
-			secondManualDepartmentWithInfoMessage = "";
-			secondManualFunctionSubfunctionWithInfoMessage = "";
-			secondCurrentManualRowIndex = -1;
+		// Clear previous second profile data
+		secondManualJobNameWithInfoMessage.set("");
+		secondManualJobCodeWithInfoMessage.set("");
+		secondManualGradeWithInfoMessage.set("");
+		secondManualDepartmentWithInfoMessage.set("");
+		secondManualFunctionSubfunctionWithInfoMessage.set("");
+		secondCurrentManualRowIndex.set(-1);
 
 			// Find info messages in the Organization Jobs table - same approach as first
 			// profile
@@ -1301,9 +1300,9 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			Assert.assertFalse(infoMessages.isEmpty(),
 					"No info messages found for Manual Mapping profiles with missing data in second profile testing");
 
-			// SMART INITIALIZATION: If global tracking not available, find and store first
-			// profile automatically
-			if (globalFirstManualProfileRowIndex <= 0) {
+		// SMART INITIALIZATION: If global tracking not available, find and store first
+		// profile automatically
+		if (globalFirstManualProfileRowIndex.get() <= 0) {
 				LOGGER.info(
 						" SMART INITIALIZATION: Global tracking not available, automatically finding first Manual Mapping profile...");
 
@@ -1334,14 +1333,14 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 					}
 				}
 
-				// Validate that we now have global tracking information
-				if (globalFirstManualProfileRowIndex <= 0) {
-					throw new IOException(
-							"SMART INITIALIZATION FAILED: Could not find first Manual Mapping profile to establish global tracking. Please ensure at least one Manual Mapping profile with info message exists.");
-				}
+			// Validate that we now have global tracking information
+			if (globalFirstManualProfileRowIndex.get() <= 0) {
+				throw new IOException(
+						"SMART INITIALIZATION FAILED: Could not find first Manual Mapping profile to establish global tracking. Please ensure at least one Manual Mapping profile with info message exists.");
+			}
 
-				LOGGER.info("... SMART INITIALIZATION SUCCESS: Global tracking established (Row: {}, Profile: {})",
-						globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
+			LOGGER.info("... SMART INITIALIZATION SUCCESS: Global tracking established (Row: {}, Profile: {})",
+					globalFirstManualProfileRowIndex.get(), globalFirstManualProfileNumber.get());
 			}
 
 			// AGGRESSIVE SEARCH: Continue scrolling until truly different second Manual
@@ -1441,25 +1440,25 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			if (targetInfoMessage != null && targetInfoMessage.isDisplayed()) {
 				try {
 					WebElement jobRow = targetInfoMessage.findElement(By.xpath("./ancestor::tr"));
-					int rowIndex = getRowIndex(jobRow);
+				int rowIndex = getRowIndex(jobRow);
 
-					if (rowIndex > 0) {
-						secondCurrentManualRowIndex = rowIndex;
-						int profileNumber = getProfileNumber(rowIndex);
+				if (rowIndex > 0) {
+					secondCurrentManualRowIndex.set(rowIndex);
+					int profileNumber = getProfileNumber(rowIndex);
 
-						// Extract job details
-						extractJobDetailsFromRowForSecondManualProfile(rowIndex - 1);
-						extractFunctionSubfunctionFromRowForSecondManualProfile(rowIndex);
+					// Extract job details
+					extractJobDetailsFromRowForSecondManualProfile(rowIndex - 1);
+					extractFunctionSubfunctionFromRowForSecondManualProfile(rowIndex);
 
-						// Display success
-						LOGGER.info(
-								"... AGGRESSIVE SEARCH SUCCESS: Second Manual Mapping Profile {} found (table row {}) after {} attempts",
-								profileNumber, rowIndex, searchAttempts);
-						LOGGER.info(
-								" CONFIRMED DIFFERENT from GLOBAL first: (row {}, profile {}) vs (row {}, profile {})",
-								globalFirstManualProfileRowIndex, globalFirstManualProfileNumber, rowIndex,
-								profileNumber);
-						LOGGER.info("  Job Name: {}", secondManualJobNameWithInfoMessage);
+					// Display success
+					LOGGER.info(
+							"... AGGRESSIVE SEARCH SUCCESS: Second Manual Mapping Profile {} found (table row {}) after {} attempts",
+							profileNumber, rowIndex, searchAttempts);
+					LOGGER.info(
+							" CONFIRMED DIFFERENT from GLOBAL first: (row {}, profile {}) vs (row {}, profile {})",
+							globalFirstManualProfileRowIndex.get(), globalFirstManualProfileNumber.get(), rowIndex,
+							profileNumber);
+					LOGGER.info("  Job Name: {}", secondManualJobNameWithInfoMessage.get());
 						LOGGER.info("  Job Code: {}", secondManualJobCodeWithInfoMessage);
 						LOGGER.info("  Grade: {}", secondManualGradeWithInfoMessage);
 						LOGGER.info("  Department: {}", secondManualDepartmentWithInfoMessage);
@@ -1472,12 +1471,12 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 				}
 			}
 
-			Assert.assertTrue(secondCurrentManualRowIndex > 0,
-					"Could not find valid second Manual Mapping profile after aggressive search");
+		Assert.assertTrue(secondCurrentManualRowIndex.get() > 0,
+				"Could not find valid second Manual Mapping profile after aggressive search");
 
-			PageObjectHelper.log(LOGGER, "AGGRESSIVE SEARCH SUCCESS: Found second Manual Mapping profile: "
-					+ secondManualJobNameWithInfoMessage + " (" + secondManualJobCodeWithInfoMessage
-					+ ") - Different from first profile");
+		PageObjectHelper.log(LOGGER, "AGGRESSIVE SEARCH SUCCESS: Found second Manual Mapping profile: "
+				+ secondManualJobNameWithInfoMessage.get() + " (" + secondManualJobCodeWithInfoMessage.get()
+				+ ") - Different from first profile");
 
 		} catch (Exception e) {
 			LOGGER.error("Error in aggressive search for second Manual Mapping profile: " + e.getMessage());
@@ -1494,23 +1493,23 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 		
 		try {
-			LOGGER.info("Confirming job details extraction from second manually mapped profile with Info Message");
+		LOGGER.info("Confirming job details extraction from second manually mapped profile with Info Message");
 
-			// Verify that job details have been extracted (should be done in find method)
-			Assert.assertTrue(secondCurrentManualRowIndex > 0,
-					"Second manually mapped profile row index should be set");
-			Assert.assertFalse(secondManualJobNameWithInfoMessage.isEmpty(),
-					"Second manually mapped profile job name should be extracted");
-			Assert.assertFalse(secondManualJobCodeWithInfoMessage.isEmpty(),
-					"Second manually mapped profile job code should be extracted");
+		// Verify that job details have been extracted (should be done in find method)
+		Assert.assertTrue(secondCurrentManualRowIndex.get() > 0,
+				"Second manually mapped profile row index should be set");
+		Assert.assertFalse(secondManualJobNameWithInfoMessage.get().isEmpty(),
+				"Second manually mapped profile job name should be extracted");
+		Assert.assertFalse(secondManualJobCodeWithInfoMessage.get().isEmpty(),
+				"Second manually mapped profile job code should be extracted");
 
-			// Calculate profile number for logging
-			int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
+		// Calculate profile number for logging
+		int profileNumber = getProfileNumber(secondCurrentManualRowIndex.get());
 
-			// Display extracted job details
-			PageObjectHelper.log(LOGGER, "Extracted job details from second profile " + profileNumber + 
-					" - Job: " + secondManualJobNameWithInfoMessage + " (" + secondManualJobCodeWithInfoMessage + 
-					"), Grade: " + secondManualGradeWithInfoMessage + ", Dept: " + secondManualDepartmentWithInfoMessage);
+		// Display extracted job details
+		PageObjectHelper.log(LOGGER, "Extracted job details from second profile " + profileNumber + 
+				" - Job: " + secondManualJobNameWithInfoMessage.get() + " (" + secondManualJobCodeWithInfoMessage.get() + 
+				"), Grade: " + secondManualGradeWithInfoMessage.get() + ", Dept: " + secondManualDepartmentWithInfoMessage.get());
 
 		} catch (Exception e) {
 			LOGGER.error("Error extracting job details from second manually mapped profile: " + e.getMessage());
@@ -1528,12 +1527,12 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			return;
 		}
 		
-		try {
-			Assert.assertTrue(secondCurrentManualRowIndex > 0,
-					"Second manually mapped profile row index should be set before clicking button");
+	try {
+		Assert.assertTrue(secondCurrentManualRowIndex.get() > 0,
+				"Second manually mapped profile row index should be set before clicking button");
 
-			// Calculate profile number for logging
-			int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
+		// Calculate profile number for logging
+		int profileNumber = getProfileNumber(secondCurrentManualRowIndex.get());
 
 			// Wait for any loader to disappear before clicking
 			try {
@@ -1587,16 +1586,16 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 				// Page presence check not required, continue with extraction
 			}
 
-			// Extract job details that should match those from listing page
-			// These are stored in secondManual* fields and should be verified
+		// Extract job details that should match those from listing page
+		// These are stored in secondManual* fields and should be verified
 
-			// Calculate profile number for logging
-			int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
+		// Calculate profile number for logging
+		int profileNumber = getProfileNumber(secondCurrentManualRowIndex.get());
 
-			LOGGER.debug("Expected for profile {}: {} ({}), Grade: {}, Dept: {}, Func: {}", profileNumber,
-					secondManualJobNameWithInfoMessage, secondManualJobCodeWithInfoMessage,
-					secondManualGradeWithInfoMessage, secondManualDepartmentWithInfoMessage,
-					secondManualFunctionSubfunctionWithInfoMessage);
+		LOGGER.debug("Expected for profile {}: {} ({}), Grade: {}, Dept: {}, Func: {}", profileNumber,
+				secondManualJobNameWithInfoMessage.get(), secondManualJobCodeWithInfoMessage.get(),
+				secondManualGradeWithInfoMessage.get(), secondManualDepartmentWithInfoMessage.get(),
+				secondManualFunctionSubfunctionWithInfoMessage.get());
 
 			PageObjectHelper.log(LOGGER, 
 					"Extracted job details from Manual Mapping page for second profile " + profileNumber);
@@ -1620,11 +1619,11 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 		
 		try {
-			LOGGER.info(
-					"Verifying second manually mapped profile job details match between Job Mapping and Manual Mapping pages");
+		LOGGER.info(
+				"Verifying second manually mapped profile job details match between Job Mapping and Manual Mapping pages");
 
-			// Calculate profile number for logging
-			int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
+		// Calculate profile number for logging
+		int profileNumber = getProfileNumber(secondCurrentManualRowIndex.get());
 
 			// Extract job details from Manual Mapping page for comparison
 			String comparisonJobTitle = "";
@@ -1788,76 +1787,76 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 					comparisonJobCode);
 			LOGGER.info("  Grade: Listing='{}' vs Manual Mapping='{}'", secondManualGradeWithInfoMessage,
 					comparisonGrade);
-			LOGGER.info("  Department: Listing='{}' vs Manual Mapping='{}'", secondManualDepartmentWithInfoMessage,
-					comparisonDepartment);
-			LOGGER.info("  Function/Sub-function: Listing='{}' vs Manual Mapping='{}'",
-					secondManualFunctionSubfunctionWithInfoMessage, comparisonFunction);
+		LOGGER.info("  Department: Listing='{}' vs Manual Mapping='{}'", secondManualDepartmentWithInfoMessage.get(),
+				comparisonDepartment);
+		LOGGER.info("  Function/Sub-function: Listing='{}' vs Manual Mapping='{}'",
+				secondManualFunctionSubfunctionWithInfoMessage.get(), comparisonFunction);
 
-			// Verify job name matches
-			if (!secondManualJobNameWithInfoMessage.isEmpty() && !comparisonJobName.isEmpty()) {
-				boolean jobNameMatches = secondManualJobNameWithInfoMessage.equals(comparisonJobName);
-				if (!jobNameMatches) {
-					String errorMsg = "Second Manually Mapped Profile Job Name mismatch: Listing='"
-							+ secondManualJobNameWithInfoMessage + "' vs Manual Mapping='" + comparisonJobName + "'";
-					LOGGER.error(errorMsg);
-					Assert.fail(errorMsg);
-				}
-			} else {
-				LOGGER.warn(
-						"Second Manually Mapped Profile Job Name comparison skipped - one or both values are empty");
+		// Verify job name matches
+		if (!secondManualJobNameWithInfoMessage.get().isEmpty() && !comparisonJobName.isEmpty()) {
+			boolean jobNameMatches = secondManualJobNameWithInfoMessage.get().equals(comparisonJobName);
+			if (!jobNameMatches) {
+				String errorMsg = "Second Manually Mapped Profile Job Name mismatch: Listing='"
+						+ secondManualJobNameWithInfoMessage.get() + "' vs Manual Mapping='" + comparisonJobName + "'";
+				LOGGER.error(errorMsg);
+				Assert.fail(errorMsg);
 			}
+		} else {
+			LOGGER.warn(
+					"Second Manually Mapped Profile Job Name comparison skipped - one or both values are empty");
+		}
 
-			// Verify job code matches
-			if (!secondManualJobCodeWithInfoMessage.isEmpty() && !comparisonJobCode.isEmpty()) {
-				boolean jobCodeMatches = secondManualJobCodeWithInfoMessage.equals(comparisonJobCode);
-				if (!jobCodeMatches) {
-					String errorMsg = "Second Manually Mapped Profile Job Code mismatch: Listing='"
-							+ secondManualJobCodeWithInfoMessage + "' vs Manual Mapping='" + comparisonJobCode + "'";
-					LOGGER.error(errorMsg);
-					Assert.fail(errorMsg);
-				}
-			} else {
-				LOGGER.warn(
-						"Second Manually Mapped Profile Job Code comparison skipped - one or both values are empty");
+		// Verify job code matches
+		if (!secondManualJobCodeWithInfoMessage.get().isEmpty() && !comparisonJobCode.isEmpty()) {
+			boolean jobCodeMatches = secondManualJobCodeWithInfoMessage.get().equals(comparisonJobCode);
+			if (!jobCodeMatches) {
+				String errorMsg = "Second Manually Mapped Profile Job Code mismatch: Listing='"
+						+ secondManualJobCodeWithInfoMessage.get() + "' vs Manual Mapping='" + comparisonJobCode + "'";
+				LOGGER.error(errorMsg);
+				Assert.fail(errorMsg);
 			}
+		} else {
+			LOGGER.warn(
+					"Second Manually Mapped Profile Job Code comparison skipped - one or both values are empty");
+		}
 
-			// Verify other details with proper handling for missing data
-			if (!secondManualGradeWithInfoMessage.isEmpty() && !comparisonGrade.isEmpty()) {
-				boolean gradeMatches = secondManualGradeWithInfoMessage.equals(comparisonGrade);
-				if (!gradeMatches) {
-					String errorMsg = "Second Manually Mapped Profile Grade mismatch: Listing='"
-							+ secondManualGradeWithInfoMessage + "' vs Manual Mapping='" + comparisonGrade + "'";
-					LOGGER.error(errorMsg);
-					Assert.fail(errorMsg);
-				}
-			} else {
-				LOGGER.warn("Second Manually Mapped Profile Grade comparison skipped - one or both values are empty");
+		// Verify other details with proper handling for missing data
+		if (!secondManualGradeWithInfoMessage.get().isEmpty() && !comparisonGrade.isEmpty()) {
+			boolean gradeMatches = secondManualGradeWithInfoMessage.get().equals(comparisonGrade);
+			if (!gradeMatches) {
+				String errorMsg = "Second Manually Mapped Profile Grade mismatch: Listing='"
+						+ secondManualGradeWithInfoMessage.get() + "' vs Manual Mapping='" + comparisonGrade + "'";
+				LOGGER.error(errorMsg);
+				Assert.fail(errorMsg);
 			}
+		} else {
+			LOGGER.warn("Second Manually Mapped Profile Grade comparison skipped - one or both values are empty");
+		}
 
-			if (!secondManualDepartmentWithInfoMessage.isEmpty() && !comparisonDepartment.isEmpty()) {
-				boolean deptMatches = secondManualDepartmentWithInfoMessage.equals(comparisonDepartment);
-				if (!deptMatches) {
-					String errorMsg = "Second Manually Mapped Profile Department mismatch: Listing='"
-							+ secondManualDepartmentWithInfoMessage + "' vs Manual Mapping='" + comparisonDepartment
-							+ "'";
-					LOGGER.error(errorMsg);
-					Assert.fail(errorMsg);
-				}
-			} else {
-				LOGGER.warn(
-						"Second Manually Mapped Profile Department comparison skipped - one or both values are empty");
+		if (!secondManualDepartmentWithInfoMessage.get().isEmpty() && !comparisonDepartment.isEmpty()) {
+			boolean deptMatches = secondManualDepartmentWithInfoMessage.get().equals(comparisonDepartment);
+			if (!deptMatches) {
+				String errorMsg = "Second Manually Mapped Profile Department mismatch: Listing='"
+						+ secondManualDepartmentWithInfoMessage.get() + "' vs Manual Mapping='" + comparisonDepartment
+						+ "'";
+				LOGGER.error(errorMsg);
+				Assert.fail(errorMsg);
 			}
+		} else {
+			LOGGER.warn(
+					"Second Manually Mapped Profile Department comparison skipped - one or both values are empty");
+		}
 
-			if (!secondManualFunctionSubfunctionWithInfoMessage.isEmpty() && !comparisonFunction.isEmpty()) {
-				boolean functionMatches = secondManualFunctionSubfunctionWithInfoMessage.equals(comparisonFunction);
-				if (!functionMatches) {
-					String errorMsg = "Second Manually Mapped Profile Function/Sub-function mismatch: Listing='"
-							+ secondManualFunctionSubfunctionWithInfoMessage + "' vs Manual Mapping='"
-							+ comparisonFunction + "'";
-					LOGGER.error(errorMsg);
-					Assert.fail(errorMsg);
-				}
-			} else {
+		if (!secondManualFunctionSubfunctionWithInfoMessage.get().isEmpty() && !comparisonFunction.isEmpty()) {
+			boolean functionMatches = secondManualFunctionSubfunctionWithInfoMessage.get().equals(comparisonFunction);
+			if (!functionMatches) {
+				String errorMsg = "Second Manually Mapped Profile Function/Sub-function mismatch: Listing='"
+						+ secondManualFunctionSubfunctionWithInfoMessage.get() + "' vs Manual Mapping='"
+						+ comparisonFunction + "'";
+				LOGGER.error(errorMsg);
+				Assert.fail(errorMsg);
+			}
+		} else {
 				LOGGER.warn(
 						"Second Manually Mapped Profile Function/Sub-function comparison skipped - one or both values are empty");
 			}
@@ -1900,10 +1899,10 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 				}
 			}
 
-			Assert.assertTrue(infoMessageFound,
-					"Info Message should be displayed in Manual Mapping page for second manually mapped profile");
+		Assert.assertTrue(infoMessageFound,
+				"Info Message should be displayed in Manual Mapping page for second manually mapped profile");
 
-			int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
+		int profileNumber = getProfileNumber(secondCurrentManualRowIndex.get());
 			PageObjectHelper.log(LOGGER, 
 					"Verified Info Message is displayed in Manual Mapping page for Manually Mapped Profile "
 							+ profileNumber + " (Second)");
@@ -1954,11 +1953,11 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			if (actualText.contains("Reduced match accuracy due to missing data")) {
 				correctTextFound = true;
 				LOGGER.info(
-						"Found correct Info Message text in Manual Mapping page for second manually mapped profile: "
-								+ actualText);
+					"Found correct Info Message text in Manual Mapping page for second manually mapped profile: "
+							+ actualText);
 
-				try {
-					int profileNumber = getProfileNumber(secondCurrentManualRowIndex);
+			try {
+				int profileNumber = getProfileNumber(secondCurrentManualRowIndex.get());
 					LOGGER.info(
 							"Manually Mapped Profile {} Info Message text verified for second profile in Manual Mapping page: {}",
 							profileNumber, actualText);
@@ -1999,33 +1998,33 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 						.findElement(By.xpath(".//td[2]//div | .//td[position()=2]//div"));
 				String jobNameCodeText = jobNameElement.getText().trim();
 
-				// Parse job name and code from format: "Job Name - (JOB-CODE)"
-				if (jobNameCodeText.contains(" - (") && jobNameCodeText.contains(")")) {
-					int dashIndex = jobNameCodeText.lastIndexOf(" - (");
-					secondManualJobNameWithInfoMessage = jobNameCodeText.substring(0, dashIndex).trim();
-					secondManualJobCodeWithInfoMessage = jobNameCodeText.substring(dashIndex + 4).replace(")", "")
-							.trim();
-				} else {
-					secondManualJobNameWithInfoMessage = jobNameCodeText;
-				}
-			} catch (Exception e) {
-				LOGGER.debug("Could not extract job name/code from second manual profile: " + e.getMessage());
+			// Parse job name and code from format: "Job Name - (JOB-CODE)"
+			if (jobNameCodeText.contains(" - (") && jobNameCodeText.contains(")")) {
+				int dashIndex = jobNameCodeText.lastIndexOf(" - (");
+				secondManualJobNameWithInfoMessage.set(jobNameCodeText.substring(0, dashIndex).trim());
+				secondManualJobCodeWithInfoMessage.set(jobNameCodeText.substring(dashIndex + 4).replace(")", "")
+						.trim());
+			} else {
+				secondManualJobNameWithInfoMessage.set(jobNameCodeText);
 			}
+		} catch (Exception e) {
+			LOGGER.debug("Could not extract job name/code from second manual profile: " + e.getMessage());
+		}
 
-			// Extract Grade from column 3 (GRADE column)
-			try {
-				WebElement gradeElement = jobDetailsRow
-						.findElement(By.xpath(".//td[3]//div | .//td[position()=3]//div"));
-				secondManualGradeWithInfoMessage = gradeElement.getText().trim();
-			} catch (Exception e) {
-				LOGGER.debug("Could not extract grade from second manual profile: " + e.getMessage());
-			}
+		// Extract Grade from column 3 (GRADE column)
+		try {
+			WebElement gradeElement = jobDetailsRow
+					.findElement(By.xpath(".//td[3]//div | .//td[position()=3]//div"));
+			secondManualGradeWithInfoMessage.set(gradeElement.getText().trim());
+		} catch (Exception e) {
+			LOGGER.debug("Could not extract grade from second manual profile: " + e.getMessage());
+		}
 
-			// Extract Department from column 4 (DEPARTMENT column)
-			try {
-				WebElement departmentElement = jobDetailsRow
-						.findElement(By.xpath(".//td[4]//div | .//td[position()=4]//div"));
-				secondManualDepartmentWithInfoMessage = departmentElement.getText().trim();
+		// Extract Department from column 4 (DEPARTMENT column)
+		try {
+			WebElement departmentElement = jobDetailsRow
+					.findElement(By.xpath(".//td[4]//div | .//td[position()=4]//div"));
+			secondManualDepartmentWithInfoMessage.set(departmentElement.getText().trim());
 			} catch (Exception e) {
 				LOGGER.debug("Could not extract department from second manual profile: " + e.getMessage());
 			}
@@ -2046,37 +2045,37 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			try {
 				// Strategy 1: Look for the specific pattern with "Function / Sub-function:"
 				// label
-				WebElement functionElement = functionRow.findElement(
-						By.xpath(".//span[contains(text(), 'Function / Sub-function:')]/following-sibling::span | "
-								+ ".//div[contains(text(), 'Function / Sub-function:')]/span[2] | "
-								+ ".//span[contains(@class, 'font-semibold') and preceding-sibling::span[contains(text(), 'Function')]]"));
-				secondManualFunctionSubfunctionWithInfoMessage = functionElement.getText().trim();
-			} catch (Exception e1) {
-				try {
-					// Strategy 2: Text-based parsing
-					String rowText = functionRow.getText().trim();
-					if (rowText.contains("Function / Sub-function:")) {
-						String[] parts = rowText.split("Function / Sub-function:");
-						if (parts.length > 1) {
-							String functionPart = parts[1].trim();
-							// Remove any extra text like info messages
-							if (functionPart.contains("Reduced match accuracy")) {
-								functionPart = functionPart.split("Reduced match accuracy")[0].trim();
-							}
-							secondManualFunctionSubfunctionWithInfoMessage = functionPart;
+			WebElement functionElement = functionRow.findElement(
+					By.xpath(".//span[contains(text(), 'Function / Sub-function:')]/following-sibling::span | "
+							+ ".//div[contains(text(), 'Function / Sub-function:')]/span[2] | "
+							+ ".//span[contains(@class, 'font-semibold') and preceding-sibling::span[contains(text(), 'Function')]]"));
+			secondManualFunctionSubfunctionWithInfoMessage.set(functionElement.getText().trim());
+		} catch (Exception e1) {
+			try {
+				// Strategy 2: Text-based parsing
+				String rowText = functionRow.getText().trim();
+				if (rowText.contains("Function / Sub-function:")) {
+					String[] parts = rowText.split("Function / Sub-function:");
+					if (parts.length > 1) {
+						String functionPart = parts[1].trim();
+						// Remove any extra text like info messages
+						if (functionPart.contains("Reduced match accuracy")) {
+							functionPart = functionPart.split("Reduced match accuracy")[0].trim();
 						}
-					} else {
-						// Strategy 3: Look for content that's not job name, code, grade, or department
-						String[] lines = rowText.split("\\n");
-						for (String line : lines) {
-							line = line.trim();
-							if (!line.isEmpty() && !line.equals(secondManualJobNameWithInfoMessage)
-									&& !line.contains(secondManualJobCodeWithInfoMessage)
-									&& !line.equals(secondManualGradeWithInfoMessage)
-									&& !line.equals(secondManualDepartmentWithInfoMessage)
-									&& !line.contains("Reduced match accuracy")) {
+						secondManualFunctionSubfunctionWithInfoMessage.set(functionPart);
+					}
+				} else {
+					// Strategy 3: Look for content that's not job name, code, grade, or department
+					String[] lines = rowText.split("\\n");
+					for (String line : lines) {
+						line = line.trim();
+						if (!line.isEmpty() && !line.equals(secondManualJobNameWithInfoMessage.get())
+								&& !line.contains(secondManualJobCodeWithInfoMessage.get())
+								&& !line.equals(secondManualGradeWithInfoMessage.get())
+								&& !line.equals(secondManualDepartmentWithInfoMessage.get())
+								&& !line.contains("Reduced match accuracy")) {
 
-								secondManualFunctionSubfunctionWithInfoMessage = line;
+							secondManualFunctionSubfunctionWithInfoMessage.set(line);
 								break;
 							}
 						}
