@@ -1,4 +1,4 @@
-package stepdefinitions.JobMapping;
+﻿package stepdefinitions.JobMapping;
 
 import java.io.IOException;
 
@@ -13,9 +13,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 
 public class SD01_KFoneLogin {
-	PageObjectManager kfoneLogin = new PageObjectManager();
-	// WebDriver driver = DriverManager.getDriver();
-	
 	private static final Logger LOGGER = LogManager.getLogger(SD01_KFoneLogin.class);
 
 	public SD01_KFoneLogin() {
@@ -24,77 +21,77 @@ public class SD01_KFoneLogin {
 
 	@Given("Launch the KFONE application")
 	public void launch_the_kfone_application() throws IOException {
-		kfoneLogin.getKFoneLogin().launch_the_kfone_application();
+		PageObjectManager.getInstance().getKFoneLogin().launch_the_kfone_application();
 	}
 
 	@Then("Provide SSO Login username and click Sign in button in KFONE login page")
 	public void provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page() throws IOException {
-		kfoneLogin.getKFoneLogin().provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page();
+		PageObjectManager.getInstance().getKFoneLogin().provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page();
 	}
 
 	@Then("User should navigate to Microsoft Login page")
 	public void user_should_navigate_to_microsoft_login_page() throws IOException {
-		kfoneLogin.getKFoneLogin().user_should_navigate_to_microsoft_login_page();
+		PageObjectManager.getInstance().getKFoneLogin().user_should_navigate_to_microsoft_login_page();
 	}
 
 	@Then("Provide SSO Login Password and click Sign In")
 	public void provide_sso_login_password_and_click_sign_in() throws IOException {
-		kfoneLogin.getKFoneLogin().provide_sso_login_password_and_click_sign_in();
+		PageObjectManager.getInstance().getKFoneLogin().provide_sso_login_password_and_click_sign_in();
 	}
 
 	@Then("Provide NON_SSO Login username and click Sign in button in KFONE login page")
 	public void provide_non_sso_login_username_and_click_sign_in_button_in_kfone_login_page() throws IOException {
-		kfoneLogin.getKFoneLogin().provide_non_sso_login_username_and_click_sign_in_button_in_kfone_login_page();
+		PageObjectManager.getInstance().getKFoneLogin().provide_non_sso_login_username_and_click_sign_in_button_in_kfone_login_page();
 	}
 
 	@Then("Provide NON_SSO Login password and click Sign in button in KFONE login page")
 	public void provide_non_sso_login_password_and_click_sign_in_button_in_kfone_login_page() throws IOException {
-		kfoneLogin.getKFoneLogin().provide_non_sso_login_password_and_click_sign_in_button_in_kfone_login_page();
+		PageObjectManager.getInstance().getKFoneLogin().provide_non_sso_login_password_and_click_sign_in_button_in_kfone_login_page();
 	}
 
 	@Then("Verify the KFONE landing page")
 	public void verify_the_kfone_landing_page() throws IOException {
-		kfoneLogin.getKFoneLogin().verify_the_kfone_landing_page();
+		PageObjectManager.getInstance().getKFoneLogin().verify_the_kfone_landing_page();
 	}
 
 	@Given("User is in KFONE Clients page")
 	public void user_is_in_kfone_clients_page() throws IOException {
-		kfoneLogin.getKFoneLogin().user_is_in_kfone_clients_page();
+		PageObjectManager.getInstance().getKFoneLogin().user_is_in_kfone_clients_page();
 	}
 
 	@Then("Verify Products that client can acceess")
 	public void verify_products_that_client_can_access() throws IOException {
-		kfoneLogin.getKFoneLogin().verify_products_that_client_can_access();
+		PageObjectManager.getInstance().getKFoneLogin().verify_products_that_client_can_access();
 	}
 
 	@Then("Verify Client name based on PAMS ID")
 	public void verify_client_name_based_on_pams_id() throws IOException {
-		kfoneLogin.getKFoneLogin().verify_client_name_based_on_pams_id();
+		PageObjectManager.getInstance().getKFoneLogin().verify_client_name_based_on_pams_id();
 	}
 
 	@Then("Search for Client with PAMS ID")
 	public void search_for_client_with_pams_id() throws IOException {
-		kfoneLogin.getKFoneLogin().search_for_client_with_pams_id();
+		PageObjectManager.getInstance().getKFoneLogin().search_for_client_with_pams_id();
 	}
 
 	@Then("Click on Client with access to Profile Manager Application")
 	public void click_on_client_with_access_to_profile_manager_application() throws IOException {
-		kfoneLogin.getKFoneLogin().click_on_client_with_access_to_profile_manager_application();
+		PageObjectManager.getInstance().getKFoneLogin().click_on_client_with_access_to_profile_manager_application();
 	}
 
 	@Then("Verify User navigated to KFONE Home Page")
 	public void verify_user_navigated_to_kfone_home_page() throws IOException {
-		kfoneLogin.getKFoneLogin().verify_user_navigated_to_kfone_home_page();
+		PageObjectManager.getInstance().getKFoneLogin().verify_user_navigated_to_kfone_home_page();
 	}
 
 	@Then("Click on Profile Manager application in Your Products section")
 	public void click_on_profile_manager_application_in_your_products_section() throws IOException {
-		kfoneLogin.getKFoneLogin().click_on_profile_manager_application_in_your_products_section();
+		PageObjectManager.getInstance().getKFoneLogin().click_on_profile_manager_application_in_your_products_section();
 	}
 
 	@Then("Verify User seemlessly landed on Profile Manager Application in KF HUB")
 	public void verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub() throws IOException {
-		kfoneLogin.getKFoneLogin().verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub();
+		PageObjectManager.getInstance().getKFoneLogin().verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub();
 	}
 
 	// ===== USER ROLE VERIFICATION STEP DEFINITIONS =====

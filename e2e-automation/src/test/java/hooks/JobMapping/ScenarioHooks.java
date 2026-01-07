@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kfonetalentsuite.listeners.ExcelReportListener;
+import com.kfonetalentsuite.manager.PageObjectManager;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -68,6 +69,10 @@ public class ScenarioHooks {
 		// capture
 		// The ExcelReportListener will clear it after capturing exception details
 		// This ensures proper exception-to-scenario mapping in Excel reports
+
+		// Reset PageObjectManager to clean up Page Object instances and prevent memory leaks
+		PageObjectManager.reset();
+		LOGGER.debug("PageObjectManager reset completed for thread: {}", Thread.currentThread().getName());
 
 		// Clear scenario from ThreadLocal to avoid memory leaks
 		currentScenario.remove();
