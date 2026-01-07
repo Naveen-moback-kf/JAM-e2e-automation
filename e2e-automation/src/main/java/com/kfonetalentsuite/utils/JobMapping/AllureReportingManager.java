@@ -110,11 +110,32 @@ public class AllureReportingManager implements ITestListener {
 			String errorMessage = throwable != null ? throwable.getMessage() : "Test failed";
 			String screenshotPath = ScreenshotHandler.captureFailureScreenshot(methodName, errorMessage);
 			
-			if (screenshotPath != null && new File(screenshotPath).exists()) {
-				attachScreenshotToAllure(screenshotPath, "Test Failure Screenshot");
-				LOGGER.info("✅ Screenshot attached to Allure report: {}", screenshotPath);
+			if (screenshotPath != null) {
+				File screenshotFile = new File(screenshotPath);
+				
+				// ADDITIONAL SAFEGUARD: If file doesn't exist immediately, wait briefly for async write
+				// This handles edge cases where async write might still be in progress
+				if (!screenshotFile.exists()) {
+					LOGGER.debug("Screenshot file not immediately available, waiting briefly...");
+					try {
+						// Wait up to 2 seconds for file to appear (checking every 500ms)
+						int maxRetries = 4;
+						for (int i = 0; i < maxRetries && !screenshotFile.exists(); i++) {
+							Thread.sleep(500);
+						}
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+				}
+				
+				if (screenshotFile.exists()) {
+					attachScreenshotToAllure(screenshotPath, "Test Failure Screenshot");
+					LOGGER.info("✅ Screenshot attached to Allure report: {}", screenshotPath);
+				} else {
+					LOGGER.warn("Screenshot not captured or file not found after wait - skipping Allure attachment");
+				}
 			} else {
-				LOGGER.warn("Screenshot not captured or file not found - skipping Allure attachment");
+				LOGGER.warn("Screenshot path is null - skipping Allure attachment");
 			}
 			
 		} catch (Exception e) {

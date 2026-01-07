@@ -16,7 +16,8 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 	private static final Logger LOGGER = LogManager.getLogger(PO26_SelectAndSyncProfiles_PM.class);
 
 	// Static variable for storing count of profiles selected to export
-	public static int CountOfProfilesSelectedToExport;
+	// THREAD-SAFE: Converted to ThreadLocal for parallel execution
+	public static ThreadLocal<Integer> CountOfProfilesSelectedToExport = ThreadLocal.withInitial(() -> 0);
 
 	// Locators - Uses centralized locators from BasePageObject.Locators where available
 	private static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
@@ -359,8 +360,8 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 			PageObjectHelper.log(LOGGER, "⬜ Unselected (enabled but not selected): " + unselectedProfiles);
 			PageObjectHelper.log(LOGGER, "🚫 Disabled (cannot be selected): " + disabledCount);
 
-			CountOfProfilesSelectedToExport = selectedCount;
-			PO18_HCMSyncProfilesTab_PM.profilesCount.set(CountOfProfilesSelectedToExport);
+			CountOfProfilesSelectedToExport.set(selectedCount);
+			PO18_HCMSyncProfilesTab_PM.profilesCount.set(CountOfProfilesSelectedToExport.get());
 			PO18_HCMSyncProfilesTab_PM.isProfilesCountComplete.set(!reachedMaxScrollLimit);
 
 			if (reachedMaxScrollLimit) {

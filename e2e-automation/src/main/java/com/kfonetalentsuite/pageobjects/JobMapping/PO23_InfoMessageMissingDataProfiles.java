@@ -35,35 +35,31 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 	private static final By COMPARE_SELECT_HEADER = Locators.ComparisonPage.COMPARE_HEADER;
 	private static final By LOADER_ELEMENTS = By.xpath("//div[@data-testid='loader'] | //div[contains(@class, 'loader')] | //div[contains(@class, 'loading')]");
 
-	@SuppressWarnings("unused")
-	private List<WebElement> profilesWithInfoMessages = new ArrayList<>();
-	@SuppressWarnings("unused")
-	private List<Integer> rowIndicesWithInfoMessages = new ArrayList<>();
-	private int currentRowIndex = -1;
-	private int secondCurrentRowIndex = -1;
+	// THREAD-SAFE: Converted instance variables to ThreadLocal for parallel execution
+	private static ThreadLocal<List<WebElement>> profilesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);
+	private static ThreadLocal<List<Integer>> rowIndicesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);
+	private static ThreadLocal<Integer> currentRowIndex = ThreadLocal.withInitial(() -> -1);
+	private static ThreadLocal<Integer> secondCurrentRowIndex = ThreadLocal.withInitial(() -> -1);
 
-	@SuppressWarnings("unused")
-	private int globalFirstProfileRowIndex = -1;
-	@SuppressWarnings("unused")
-	private int globalFirstProfileNumber = -1;
-	@SuppressWarnings("unused")
-	private String globalFirstJobNameWithInfoMessage = "";
-	@SuppressWarnings("unused")
-	private String globalFirstJobCodeWithInfoMessage = "";
+	private static ThreadLocal<Integer> globalFirstProfileRowIndex = ThreadLocal.withInitial(() -> -1);
+	private static ThreadLocal<Integer> globalFirstProfileNumber = ThreadLocal.withInitial(() -> -1);
+	private static ThreadLocal<String> globalFirstJobNameWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> globalFirstJobCodeWithInfoMessage = ThreadLocal.withInitial(() -> "");
 
-	private static String jobNameWithInfoMessage = "";
-	private static String jobCodeWithInfoMessage = "";
-	private static String gradeWithInfoMessage = "";
-	private static String departmentWithInfoMessage = "";
-	private static String functionSubfunctionWithInfoMessage = "";
-	private static int currentRowIndexStatic = -1;
+	// THREAD-SAFE: Converted static variables to ThreadLocal for parallel execution
+	private static ThreadLocal<String> jobNameWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> jobCodeWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> gradeWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> departmentWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> functionSubfunctionWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<Integer> currentRowIndexStatic = ThreadLocal.withInitial(() -> -1);
 
-	private static String secondJobNameWithInfoMessage = "";
-	private static String secondJobCodeWithInfoMessage = "";
-	private static String secondGradeWithInfoMessage = "";
-	private static String secondDepartmentWithInfoMessage = "";
-	private static String secondFunctionSubfunctionWithInfoMessage = "";
-	private static int secondCurrentRowIndexStatic = -1;
+	private static ThreadLocal<String> secondJobNameWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> secondJobCodeWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> secondGradeWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> secondDepartmentWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<String> secondFunctionSubfunctionWithInfoMessage = ThreadLocal.withInitial(() -> "");
+	private static ThreadLocal<Integer> secondCurrentRowIndexStatic = ThreadLocal.withInitial(() -> -1);
 
 	private void waitForUIStabilityInMs(int milliseconds) {
 		try {
@@ -147,22 +143,22 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 				WebElement jobNameCell = jobDetailsRow.findElement(By.xpath(".//td[2]//div"));
 				String fullJobText = jobNameCell.getText().trim();
 
-				if (fullJobText.contains(" - (") && fullJobText.contains(")")) {
-					String[] parts = fullJobText.split(" - \\(");
-					if (isSecondProfile) {
-						secondJobNameWithInfoMessage = parts[0].trim();
-						secondJobCodeWithInfoMessage = parts[1].replace(")", "").trim();
-					} else {
-						jobNameWithInfoMessage = parts[0].trim();
-						jobCodeWithInfoMessage = parts[1].replace(")", "").trim();
-					}
+			if (fullJobText.contains(" - (") && fullJobText.contains(")")) {
+				String[] parts = fullJobText.split(" - \\(");
+				if (isSecondProfile) {
+					secondJobNameWithInfoMessage.set(parts[0].trim());
+					secondJobCodeWithInfoMessage.set(parts[1].replace(")", "").trim());
 				} else {
-					if (isSecondProfile) {
-						secondJobNameWithInfoMessage = fullJobText;
-						secondJobCodeWithInfoMessage = "";
-					} else {
-						jobNameWithInfoMessage = fullJobText;
-						jobCodeWithInfoMessage = "";
+					jobNameWithInfoMessage.set(parts[0].trim());
+					jobCodeWithInfoMessage.set(parts[1].replace(")", "").trim());
+				}
+			} else {
+				if (isSecondProfile) {
+					secondJobNameWithInfoMessage.set(fullJobText);
+					secondJobCodeWithInfoMessage.set("");
+				} else {
+					jobNameWithInfoMessage.set(fullJobText);
+					jobCodeWithInfoMessage.set("");
 					}
 				}
 
@@ -174,13 +170,13 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 				try {
 					List<WebElement> allCells = jobDetailsRow.findElements(By.xpath(".//td"));
 					if (!allCells.isEmpty()) {
-						String cellText = allCells.get(0).getText().trim();
-						if (isSecondProfile) {
-							secondJobNameWithInfoMessage = cellText;
-							secondJobCodeWithInfoMessage = "";
-						} else {
-							jobNameWithInfoMessage = cellText;
-							jobCodeWithInfoMessage = "";
+					String cellText = allCells.get(0).getText().trim();
+					if (isSecondProfile) {
+						secondJobNameWithInfoMessage.set(cellText);
+						secondJobCodeWithInfoMessage.set("");
+					} else {
+						jobNameWithInfoMessage.set(cellText);
+						jobCodeWithInfoMessage.set("");
 						}
 						LOGGER.info("STATUS: Alternative extraction - Job: '{}'", cellText);
 					}
@@ -232,9 +228,9 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 							continue;
 						}
 
-						profilesWithInfoMessages.add(infoMessage);
-						rowIndicesWithInfoMessages.add(rowIndex);
-						currentRowIndex = rowIndex;
+					profilesWithInfoMessages.get().add(infoMessage);
+					rowIndicesWithInfoMessages.get().add(rowIndex);
+					currentRowIndex.set(rowIndex);
 
 						int profileNumber = getProfileNumber(rowIndex);
 
@@ -242,12 +238,12 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 							extractJobDetailsFromRow(rowIndex - 1);
 							extractFunctionSubfunctionFromRow(rowIndex);
 
-							if (jobNameWithInfoMessage.isEmpty() && jobCodeWithInfoMessage.isEmpty()) {
-								LOGGER.warn("WARNING: First extraction attempt failed for first profile at row {} - trying alternative approach", rowIndex);
-								extractJobDetailsDirectlyFromInfoMessage(infoMessage, false);
-							}
+						if (jobNameWithInfoMessage.get().isEmpty() && jobCodeWithInfoMessage.get().isEmpty()) {
+							LOGGER.warn("WARNING: First extraction attempt failed for first profile at row {} - trying alternative approach", rowIndex);
+							extractJobDetailsDirectlyFromInfoMessage(infoMessage, false);
+						}
 
-							if (jobNameWithInfoMessage.isEmpty() && jobCodeWithInfoMessage.isEmpty()) {
+						if (jobNameWithInfoMessage.get().isEmpty() && jobCodeWithInfoMessage.get().isEmpty()) {
 								throw new IOException("Failed to extract job details for first profile even with alternative methods - row " + rowIndex);
 							}
 						} catch (Exception extractionError) {
@@ -256,7 +252,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 								LOGGER.info("INFO: Attempting direct extraction from info message element for first profile...");
 								extractJobDetailsDirectlyFromInfoMessage(infoMessage, false);
 
-								if (!jobNameWithInfoMessage.isEmpty() || !jobCodeWithInfoMessage.isEmpty()) {
+								if (!jobNameWithInfoMessage.get().isEmpty() || !jobCodeWithInfoMessage.get().isEmpty()) {
 									LOGGER.info("SUCCESS: Direct extraction successful for first profile");
 								} else {
 									throw new IOException("All extraction methods failed for first profile");
@@ -267,14 +263,14 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 							}
 						}
 
-						globalFirstProfileRowIndex = rowIndex;
-						globalFirstProfileNumber = profileNumber;
-						globalFirstJobNameWithInfoMessage = jobNameWithInfoMessage;
-						globalFirstJobCodeWithInfoMessage = jobCodeWithInfoMessage;
+					globalFirstProfileRowIndex.set(rowIndex);
+					globalFirstProfileNumber.set(profileNumber);
+					globalFirstJobNameWithInfoMessage.set(jobNameWithInfoMessage.get());
+					globalFirstJobCodeWithInfoMessage.set(jobCodeWithInfoMessage.get());
 
 						LOGGER.info("SUCCESS: AutoMapped Profile {} found with Info Message (table row {})", profileNumber, rowIndex);
-						LOGGER.info("  Job Name: {}", jobNameWithInfoMessage);
-						LOGGER.info("  Job Code: {}", jobCodeWithInfoMessage);
+						LOGGER.info("  Job Name: {}", jobNameWithInfoMessage.get());
+						LOGGER.info("  Job Code: {}", jobCodeWithInfoMessage.get());
 
 						return true;
 					}
@@ -329,14 +325,14 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 			try {
 				WebElement jobNameCell = jobDetailsRow.findElement(By.xpath(".//td[2]//div"));
-				String fullJobText = jobNameCell.getText().trim();
-				if (fullJobText.contains(" - (") && fullJobText.contains(")")) {
-					String[] parts = fullJobText.split(" - \\(");
-					jobNameWithInfoMessage = parts[0].trim();
-					jobCodeWithInfoMessage = parts[1].replace(")", "").trim();
-				} else {
-					jobNameWithInfoMessage = fullJobText;
-					jobCodeWithInfoMessage = "";
+			String fullJobText = jobNameCell.getText().trim();
+			if (fullJobText.contains(" - (") && fullJobText.contains(")")) {
+				String[] parts = fullJobText.split(" - \\(");
+				jobNameWithInfoMessage.set(parts[0].trim());
+				jobCodeWithInfoMessage.set(parts[1].replace(")", "").trim());
+			} else {
+				jobNameWithInfoMessage.set(fullJobText);
+				jobCodeWithInfoMessage.set("");
 				}
 			} catch (Exception e) {
 				LOGGER.debug("Could not extract job name/code: " + e.getMessage());
@@ -364,7 +360,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 								functionPart = functionPart.split("Reduced match accuracy")[0].trim();
 							}
 							functionPart = functionPart.replaceAll("\\n", " ").replaceAll("\\s+", " ").trim();
-							functionSubfunctionWithInfoMessage = functionPart;
+							functionSubfunctionWithInfoMessage.set(functionPart);
 							break;
 						}
 					}
@@ -666,15 +662,15 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 						}
 
 						if (hasMissingData) {
-							jobNameWithInfoMessage = jobName;
-							gradeWithInfoMessage = grade;
-							departmentWithInfoMessage = department;
-							functionSubfunctionWithInfoMessage = functionSubfunction;
+							jobNameWithInfoMessage.set(jobName);
+							gradeWithInfoMessage.set(grade);
+							departmentWithInfoMessage.set(department);
+							functionSubfunctionWithInfoMessage.set(functionSubfunction);
 
-							currentRowIndex = foundAtRow;
-							currentRowIndexStatic = foundAtRow;
+						currentRowIndex.set(foundAtRow);
+						currentRowIndexStatic.set(foundAtRow);
 
-							PageObjectHelper.log(LOGGER, "Found AutoMapped profile at row " + currentRowIndexStatic + 
+						PageObjectHelper.log(LOGGER, "Found AutoMapped profile at row " + currentRowIndexStatic.get() +
 									": " + jobName + " (Grade: " + grade + ", Dept: " + department + ")");
 							return;
 						}
@@ -730,7 +726,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 	public void find_second_profile_with_missing_data_and_info_message() throws IOException {
 		PageObjectHelper.log(LOGGER, "Searching for SECOND AutoMapped profile with missing data");
 
-		String firstJobName = jobNameWithInfoMessage;
+		String firstJobName = jobNameWithInfoMessage.get();
 		LOGGER.debug("First job to skip: '{}'", firstJobName);
 
 		if (firstJobName == null || firstJobName.isEmpty()) {
@@ -944,16 +940,16 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 							hasMissingData = true;
 						}
 
-						if (hasMissingData) {
-							secondJobNameWithInfoMessage = jobName;
-							secondGradeWithInfoMessage = grade;
-							secondDepartmentWithInfoMessage = department;
-							secondFunctionSubfunctionWithInfoMessage = functionSubfunction;
+					if (hasMissingData) {
+						secondJobNameWithInfoMessage.set(jobName);
+						secondGradeWithInfoMessage.set(grade);
+						secondDepartmentWithInfoMessage.set(department);
+						secondFunctionSubfunctionWithInfoMessage.set(functionSubfunction);
 
-							secondCurrentRowIndex = foundAtRow;
-							secondCurrentRowIndexStatic = foundAtRow;
+						secondCurrentRowIndex.set(foundAtRow);
+						secondCurrentRowIndexStatic.set(foundAtRow);
 
-							PageObjectHelper.log(LOGGER, "Found SECOND AutoMapped profile at row " + secondCurrentRowIndexStatic + 
+						PageObjectHelper.log(LOGGER, "Found SECOND AutoMapped profile at row " + secondCurrentRowIndexStatic.get() +
 									": " + jobName + " (Grade: " + grade + ", Dept: " + department + ")");
 							return;
 						}
@@ -1008,7 +1004,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 	public void extract_job_details_from_second_profile_with_info_message() throws IOException {
 		try {
-			if (secondJobNameWithInfoMessage.isEmpty() && secondJobCodeWithInfoMessage.isEmpty()) {
+			if (secondJobNameWithInfoMessage.get().isEmpty() && secondJobCodeWithInfoMessage.get().isEmpty()) {
 				throw new IOException("Second profile job details not found. Please call find_second_profile_with_missing_data_and_info_message() first.");
 			}
 		} catch (Exception e) {
@@ -1086,7 +1082,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 	public void extract_job_details_from_profile_with_info_message() throws IOException {
 		try {
-			if (jobNameWithInfoMessage.isEmpty() && jobCodeWithInfoMessage.isEmpty()) {
+			if (jobNameWithInfoMessage.get().isEmpty() && jobCodeWithInfoMessage.get().isEmpty()) {
 				throw new IOException("First profile job details not found. Please call find_profile_with_missing_data_and_info_message() first.");
 			}
 		} catch (Exception e) {
@@ -1192,14 +1188,14 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 	public void click_on_button_for_profile_with_info_message(String buttonText) throws IOException {
 		try {
-			LOGGER.info("Clicking '{}' button for profile with Info Message", buttonText);
+		LOGGER.info("Clicking '{}' button for profile with Info Message", buttonText);
 
-			if (currentRowIndex <= 0) {
-				throw new IOException("No valid profile row index found. Call find_profile_with_missing_data_and_info_message() first.");
-			}
+		if (currentRowIndex.get() <= 0) {
+			throw new IOException("No valid profile row index found. Call find_profile_with_missing_data_and_info_message() first.");
+		}
 
-			if (!isAutoMappedProfile(currentRowIndex)) {
-				throw new IOException("Profile at row " + currentRowIndex + " is not an AutoMapped profile - cannot click '" + buttonText + "' button.");
+		if (!isAutoMappedProfile(currentRowIndex.get())) {
+			throw new IOException("Profile at row " + currentRowIndex.get() + " is not an AutoMapped profile - cannot click '" + buttonText + "' button.");
 			}
 
 			try {
@@ -1209,10 +1205,10 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 				LOGGER.debug("No loader found or already hidden");
 			}
 
-			String[] viewMatchesButtonXPaths = {
-					String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[@id='view-matches']", currentRowIndex),
-					String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(@aria-label, 'View other matches')]", currentRowIndex),
-					String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(text(), 'View') and contains(text(), 'Other Matches')]", currentRowIndex)
+		String[] viewMatchesButtonXPaths = {
+				String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[@id='view-matches']", currentRowIndex.get()),
+				String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(@aria-label, 'View other matches')]", currentRowIndex.get()),
+				String.format("//div[@id='kf-job-container']//tbody//tr[%d]//button[contains(text(), 'View') and contains(text(), 'Other Matches')]", currentRowIndex.get())
 			};
 
 			WebElement targetButton = null;
@@ -1221,9 +1217,9 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 				try {
 					List<WebElement> buttons = driver.findElements(By.xpath(xpath));
 					for (WebElement button : buttons) {
-						if (button.isDisplayed()) {
-							targetButton = button;
-							LOGGER.debug("Found '{}' button for profile at row {}", buttonText, currentRowIndex);
+					if (button.isDisplayed()) {
+						targetButton = button;
+						LOGGER.debug("Found '{}' button for profile at row {}", buttonText, currentRowIndex.get());
 							break;
 						}
 					}
@@ -1233,8 +1229,8 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 				}
 			}
 
-			if (targetButton == null) {
-				throw new IOException("Could not find '" + buttonText + "' button for AutoMapped profile at row " + currentRowIndex);
+		if (targetButton == null) {
+			throw new IOException("Could not find '" + buttonText + "' button for AutoMapped profile at row " + currentRowIndex.get());
 			}
 
 			scrollToElement(targetButton);
@@ -1251,14 +1247,14 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 	public void click_on_button_for_second_profile_with_info_message(String buttonText) throws IOException {
 		try {
-			LOGGER.info("Clicking '{}' button for second profile with Info Message", buttonText);
+		LOGGER.info("Clicking '{}' button for second profile with Info Message", buttonText);
 
-			if (secondCurrentRowIndex <= 0) {
-				throw new IOException("No valid second profile row index found. Call find_second_profile_with_missing_data_and_info_message() first.");
-			}
+		if (secondCurrentRowIndex.get() <= 0) {
+			throw new IOException("No valid second profile row index found. Call find_second_profile_with_missing_data_and_info_message() first.");
+		}
 
-			if (!isAutoMappedProfile(secondCurrentRowIndex)) {
-				throw new IOException("Second profile at row " + secondCurrentRowIndex + " is not an AutoMapped profile - cannot click '" + buttonText + "' button.");
+		if (!isAutoMappedProfile(secondCurrentRowIndex.get())) {
+			throw new IOException("Second profile at row " + secondCurrentRowIndex.get() + " is not an AutoMapped profile - cannot click '" + buttonText + "' button.");
 			}
 
 			try {
@@ -1418,38 +1414,38 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			boolean allMatch = true;
 			StringBuilder mismatchDetails = new StringBuilder();
 
-			String normalizedStoredGrade = gradeWithInfoMessage.equals("-") ? "" : gradeWithInfoMessage;
-			String normalizedComparisonGrade = comparisonGrade.equals("-") ? "" : comparisonGrade;
-			String normalizedStoredDept = departmentWithInfoMessage.equals("-") ? "" : departmentWithInfoMessage;
-			String normalizedComparisonDept = comparisonDepartment.equals("-") ? "" : comparisonDepartment;
+		String normalizedStoredGrade = gradeWithInfoMessage.get().equals("-") ? "" : gradeWithInfoMessage.get();
+		String normalizedComparisonGrade = comparisonGrade.equals("-") ? "" : comparisonGrade;
+		String normalizedStoredDept = departmentWithInfoMessage.get().equals("-") ? "" : departmentWithInfoMessage.get();
+		String normalizedComparisonDept = comparisonDepartment.equals("-") ? "" : comparisonDepartment;
 
-			if (!comparisonJobName.equals(jobNameWithInfoMessage)) {
-				allMatch = false;
-				mismatchDetails.append("\n  Job Name: Job Mapping='").append(jobNameWithInfoMessage)
+		if (!comparisonJobName.equals(jobNameWithInfoMessage.get())) {
+			allMatch = false;
+			mismatchDetails.append("\n  Job Name: Job Mapping='").append(jobNameWithInfoMessage.get())
 						.append("' vs Job Comparison='").append(comparisonJobName).append("'");
 			}
 
-			if (!normalizedComparisonGrade.equals(normalizedStoredGrade)) {
-				allMatch = false;
-				mismatchDetails.append("\n  Grade: Job Mapping='").append(gradeWithInfoMessage)
+		if (!normalizedComparisonGrade.equals(normalizedStoredGrade)) {
+			allMatch = false;
+			mismatchDetails.append("\n  Grade: Job Mapping='").append(gradeWithInfoMessage.get())
 						.append("' vs Job Comparison='").append(comparisonGrade).append("'");
 			}
 
-			if (!normalizedComparisonDept.equals(normalizedStoredDept)) {
-				allMatch = false;
-				mismatchDetails.append("\n  Department: Job Mapping='").append(departmentWithInfoMessage)
+		if (!normalizedComparisonDept.equals(normalizedStoredDept)) {
+			allMatch = false;
+			mismatchDetails.append("\n  Department: Job Mapping='").append(departmentWithInfoMessage.get())
 						.append("' vs Job Comparison='").append(comparisonDepartment).append("'");
 			}
 
-			if (!comparisonFunction.equals(functionSubfunctionWithInfoMessage)) {
-				allMatch = false;
-				mismatchDetails.append("\n  Function/Sub-function: Job Mapping='")
-						.append(functionSubfunctionWithInfoMessage).append("' vs Job Comparison='")
+		if (!comparisonFunction.equals(functionSubfunctionWithInfoMessage.get())) {
+			allMatch = false;
+			mismatchDetails.append("\n  Function/Sub-function: Job Mapping='")
+					.append(functionSubfunctionWithInfoMessage.get()).append("' vs Job Comparison='")
 						.append(comparisonFunction).append("'");
 			}
 
-			if (allMatch) {
-				PageObjectHelper.log(LOGGER, "Job details match verified between Job Mapping and Job Comparison pages for: " + jobNameWithInfoMessage);
+		if (allMatch) {
+			PageObjectHelper.log(LOGGER, "Job details match verified between Job Mapping and Job Comparison pages for: " + jobNameWithInfoMessage.get());
 			} else {
 				PageObjectHelper.log(LOGGER, "Job details mismatch: " + mismatchDetails.toString());
 				Assert.fail("Job details do NOT match between Job Mapping and Job Comparison pages:" + mismatchDetails.toString());
@@ -1552,38 +1548,38 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			boolean allMatch = true;
 			StringBuilder mismatchDetails = new StringBuilder();
 
-			String normalizedStoredGrade = secondGradeWithInfoMessage.equals("-") ? "" : secondGradeWithInfoMessage;
-			String normalizedComparisonGrade = comparisonGrade.equals("-") ? "" : comparisonGrade;
-			String normalizedStoredDept = secondDepartmentWithInfoMessage.equals("-") ? "" : secondDepartmentWithInfoMessage;
-			String normalizedComparisonDept = comparisonDepartment.equals("-") ? "" : comparisonDepartment;
+		String normalizedStoredGrade = secondGradeWithInfoMessage.get().equals("-") ? "" : secondGradeWithInfoMessage.get();
+		String normalizedComparisonGrade = comparisonGrade.equals("-") ? "" : comparisonGrade;
+		String normalizedStoredDept = secondDepartmentWithInfoMessage.get().equals("-") ? "" : secondDepartmentWithInfoMessage.get();
+		String normalizedComparisonDept = comparisonDepartment.equals("-") ? "" : comparisonDepartment;
 
-			if (!comparisonJobName.equals(secondJobNameWithInfoMessage)) {
-				allMatch = false;
-				mismatchDetails.append("\n  Job Name: Job Mapping='").append(secondJobNameWithInfoMessage)
+		if (!comparisonJobName.equals(secondJobNameWithInfoMessage.get())) {
+			allMatch = false;
+			mismatchDetails.append("\n  Job Name: Job Mapping='").append(secondJobNameWithInfoMessage.get())
 						.append("' vs Job Comparison='").append(comparisonJobName).append("'");
 			}
 
-			if (!normalizedComparisonGrade.equals(normalizedStoredGrade)) {
-				allMatch = false;
-				mismatchDetails.append("\n  Grade: Job Mapping='").append(secondGradeWithInfoMessage)
+		if (!normalizedComparisonGrade.equals(normalizedStoredGrade)) {
+			allMatch = false;
+			mismatchDetails.append("\n  Grade: Job Mapping='").append(secondGradeWithInfoMessage.get())
 						.append("' vs Job Comparison='").append(comparisonGrade).append("'");
 			}
 
-			if (!normalizedComparisonDept.equals(normalizedStoredDept)) {
-				allMatch = false;
-				mismatchDetails.append("\n  Department: Job Mapping='").append(secondDepartmentWithInfoMessage)
+		if (!normalizedComparisonDept.equals(normalizedStoredDept)) {
+			allMatch = false;
+			mismatchDetails.append("\n  Department: Job Mapping='").append(secondDepartmentWithInfoMessage.get())
 						.append("' vs Job Comparison='").append(comparisonDepartment).append("'");
 			}
 
-			if (!comparisonFunction.equals(secondFunctionSubfunctionWithInfoMessage)) {
-				allMatch = false;
-				mismatchDetails.append("\n  Function/Sub-function: Job Mapping='")
-						.append(secondFunctionSubfunctionWithInfoMessage).append("' vs Job Comparison='")
+		if (!comparisonFunction.equals(secondFunctionSubfunctionWithInfoMessage.get())) {
+			allMatch = false;
+			mismatchDetails.append("\n  Function/Sub-function: Job Mapping='")
+					.append(secondFunctionSubfunctionWithInfoMessage.get()).append("' vs Job Comparison='")
 						.append(comparisonFunction).append("'");
 			}
 
-			if (allMatch) {
-				PageObjectHelper.log(LOGGER, "Job details match verified between Job Mapping and Job Comparison pages for second profile: " + secondJobNameWithInfoMessage);
+		if (allMatch) {
+			PageObjectHelper.log(LOGGER, "Job details match verified between Job Mapping and Job Comparison pages for second profile: " + secondJobNameWithInfoMessage.get());
 			} else {
 				PageObjectHelper.log(LOGGER, "Job details mismatch for second profile: " + mismatchDetails.toString());
 				Assert.fail("Job details do NOT match between Job Mapping and Job Comparison pages for second profile:" + mismatchDetails.toString());

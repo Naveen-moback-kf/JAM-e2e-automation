@@ -18,8 +18,9 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	private static final Logger LOGGER = LogManager.getLogger(PO20_PublishCenter_PM.class);
 
 	// formatDateForDisplay() is inherited from BasePageObject
-	public static int ProfilesCountInRow1;
-	public static ArrayList<String> profilesCountInDefaultOrder = new ArrayList<String>();
+	// THREAD-SAFE: Converted to ThreadLocal for parallel execution
+	public static ThreadLocal<Integer> ProfilesCountInRow1 = ThreadLocal.withInitial(() -> 0);
+	public static ThreadLocal<ArrayList<String>> profilesCountInDefaultOrder = ThreadLocal.withInitial(ArrayList::new);
 
 	public PO20_PublishCenter_PM() {
 		super();
@@ -99,7 +100,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			PageObjectHelper.log(LOGGER,
 					"No.of Profiles count in Publish Center matches with No.of Profiles selected for Download in HCM Sync Profiles screen in PM");
 			PO18_HCMSyncProfilesTab_PM.profilesCount.set(0);
-			ProfilesCountInRow1 = Integer.parseInt(getElementText(JPH_PROFILES_COUNT_ROW1));
+			ProfilesCountInRow1.set(Integer.parseInt(getElementText(JPH_PROFILES_COUNT_ROW1)));
 			Assert.assertEquals(getElementText(JPH_ACCESSED_DATE_ROW1), todayDate);
 			PageObjectHelper.log(LOGGER,
 					"Accessed Date of the Recently downloaded Job Profile Matches with today's date as expected");
@@ -162,7 +163,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 							+ getElementText(PROFILES_DOWNLOADED_HEADER));
 			PageObjectHelper.log(LOGGER,
 					"Below are the Profiles Details of the Recently Downloaded Job Profiles in Profiles Downloaded screen :");
-			for (int i = 1; i <= ProfilesCountInRow1; i++) {
+			for (int i = 1; i <= ProfilesCountInRow1.get(); i++) {
 				WebElement profilename = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + i + "]/div[1]/span"));
 				WebElement jobCode = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + i + "]/div[2]/span"));
 				WebElement modifiedBy = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + i + "]/div[3]/span"));
@@ -322,7 +323,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			PO18_HCMSyncProfilesTab_PM.profilesCount.set(0);
 			PO18_HCMSyncProfilesTab_PM.isProfilesCountComplete.set(true);
 
-			ProfilesCountInRow1 = actualExported;
+			ProfilesCountInRow1.set(actualExported);
 			Assert.assertEquals(getElementText(JPH_ACCESSED_DATE_ROW1), todayDate);
 			PageObjectHelper.log(LOGGER,
 					"Accessed Date of the Recently Exported Job Profile Matches with today's date as expected");
@@ -385,7 +386,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			scrollToBottom();
 			PageObjectHelper.log(LOGGER,
 					"Below are the Profiles Details of the Recently Exported Job Profiles in Profiles Exported screen :");
-			for (int i = 1; i <= ProfilesCountInRow1; i++) {
+			for (int i = 1; i <= ProfilesCountInRow1.get(); i++) {
 				WebElement profilename = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + i + "]/div[1]/span"));
 				WebElement jobCode = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + i + "]/div[2]/span"));
 				WebElement modifiedBy = driver.findElement(By.xpath("//*/div/div[2]/div[2]/div[" + i + "]/div[3]/span"));
@@ -471,7 +472,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 						+ "   " + getElementText(JPH_HEADER4).replaceAll("\\s+[^\\w\\s]+$", "") + " : "
 						+ jphActionTaken.getText() + "   " + getElementText(JPH_HEADER5).replaceAll("\\s+[^\\w\\s]+$", "")
 						+ " : " + jphStatus.getText());
-				profilesCountInDefaultOrder.add(jphProfilesCount.getText());
+				profilesCountInDefaultOrder.get().add(jphProfilesCount.getText());
 			}
 			PageObjectHelper.log(LOGGER,
 					"Default Order of Job Profiles before applying sorting in Job Profile History screen is verified successfully");
@@ -564,11 +565,11 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			for (int i = 1; i <= 10; i++) {
 				WebElement jphProfilesCount = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + i + "]/div[1]/span"));
 				String text = jphProfilesCount.getText();
-				if (text.contentEquals(profilesCountInDefaultOrder.get(i - 1))) {
+				if (text.contentEquals(profilesCountInDefaultOrder.get().get(i - 1))) {
 					continue;
 				} else {
 					throw new Exception("No. Of Profiles Count : " + text + " in Row " + i
-							+ " DOEST NOT Match with No. Of Profiles count : " + profilesCountInDefaultOrder.get(i - 1)
+							+ " DOEST NOT Match with No. Of Profiles count : " + profilesCountInDefaultOrder.get().get(i - 1)
 							+ " after Refreshing Job Profile History screen");
 				}
 			}
