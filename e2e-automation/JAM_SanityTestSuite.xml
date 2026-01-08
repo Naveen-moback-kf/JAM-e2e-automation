@@ -8,7 +8,7 @@
     
     <listeners> 
         <listener class-name="com.kfonetalentsuite.listeners.ExcelReportListener" />
-        <listener class-name="hooks.JobMapping.SuiteHooks" />
+        <listener class-name="hooks.JobMapping.Hooks" />
         <!-- AllureReportingManager: Only activates if allure.reporting=true in config.properties -->
         <listener class-name="com.kfonetalentsuite.utils.JobMapping.AllureReportingManager" />
         <listener class-name="com.kfonetalentsuite.testNGAnalyzer.MyTransform" />
