@@ -3,7 +3,7 @@ package com.kfonetalentsuite.utils.JobMapping;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
-import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 
 import java.io.*;
 import java.util.Properties;
@@ -90,7 +90,7 @@ public class KeepAwakeUtil {
 	}
 
 	private static boolean isKeepAwakeEnabled() {
-		return CommonVariable.KEEP_SYSTEM_AWAKE != null && CommonVariable.KEEP_SYSTEM_AWAKE.equalsIgnoreCase("true");
+		return CommonVariableManager.KEEP_SYSTEM_AWAKE != null && CommonVariableManager.KEEP_SYSTEM_AWAKE.equalsIgnoreCase("true");
 	}
 
 	private static boolean backupCurrentPowerSettings() {

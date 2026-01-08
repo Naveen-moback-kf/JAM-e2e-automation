@@ -34,10 +34,10 @@ public class DynamicTagResolver {
 		}
 
 		// Ensure config is loaded
-		VariableManager.getInstance().loadProperties();
+		CommonVariableManager.loadProperties();
 
-		// Get from CommonVariable (already handles priority: system prop > env config > fallback)
-		String loginType = CommonVariable.LOGIN_TYPE;
+		// Get from CommonVariableManager (already handles priority: system prop > env config -> fallback)
+		String loginType = CommonVariableManager.LOGIN_TYPE;
 		cachedLoginType = (loginType != null && !loginType.isEmpty()) 
 				? loginType.toUpperCase().trim() 
 				: NON_SSO_LOGIN;

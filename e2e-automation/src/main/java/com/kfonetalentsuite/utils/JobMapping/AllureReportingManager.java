@@ -20,7 +20,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 
-import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import io.qameta.allure.Allure;
@@ -503,8 +503,8 @@ public class AllureReportingManager implements ITestListener {
 	private static void writeTestEnvironmentInfo(FileWriter writer) throws IOException {
 		writer.write("# Test Environment\n");
 		
-		String environment = CommonVariable.ENVIRONMENT != null ? 
-			CommonVariable.ENVIRONMENT.toUpperCase() : "QA";
+		String environment = CommonVariableManager.ENVIRONMENT != null ? 
+			CommonVariableManager.ENVIRONMENT.toUpperCase() : "QA";
 		writer.write("Environment=" + environment + "\n");
 		
 		String baseUrl = getBaseUrl();
@@ -547,8 +547,8 @@ public class AllureReportingManager implements ITestListener {
 
 	private static String getBrowserFromConfig() {
 		try {
-			if (CommonVariable.BROWSER != null && !CommonVariable.BROWSER.isEmpty()) {
-				return CommonVariable.BROWSER.toUpperCase();
+			if (CommonVariableManager.BROWSER != null && !CommonVariableManager.BROWSER.isEmpty()) {
+				return CommonVariableManager.BROWSER.toUpperCase();
 			}
 			
 			String browser = System.getProperty("browser.name");
@@ -573,19 +573,19 @@ public class AllureReportingManager implements ITestListener {
 
 	private static String getBaseUrl() {
 		try {
-			if (CommonVariable.ENVIRONMENT != null) {
-				String env = CommonVariable.ENVIRONMENT.toUpperCase();
-				if (env.contains("TEST") && CommonVariable.TESTURL != null) {
-					return CommonVariable.TESTURL;
-				} else if (env.contains("STAGE") && CommonVariable.STAGEURL != null) {
-					return CommonVariable.STAGEURL;
-				} else if (env.contains("PROD") && CommonVariable.PRODUSURL != null) {
-					return CommonVariable.PRODUSURL;
+			if (CommonVariableManager.ENVIRONMENT != null) {
+				String env = CommonVariableManager.ENVIRONMENT.toUpperCase();
+				if (env.contains("TEST") && CommonVariableManager.TESTURL != null) {
+					return CommonVariableManager.TESTURL;
+				} else if (env.contains("STAGE") && CommonVariableManager.STAGEURL != null) {
+					return CommonVariableManager.STAGEURL;
+				} else if (env.contains("PROD") && CommonVariableManager.PRODUSURL != null) {
+					return CommonVariableManager.PRODUSURL;
 				}
 			}
 			
-			if (CommonVariable.TESTURL != null) {
-				return CommonVariable.TESTURL;
+			if (CommonVariableManager.TESTURL != null) {
+				return CommonVariableManager.TESTURL;
 			}
 			
 			return null;
@@ -603,8 +603,8 @@ public class AllureReportingManager implements ITestListener {
 	}
 
 	private static boolean isAllureReportingEnabled() {
-		return CommonVariable.ALLURE_REPORTING_ENABLED == null
-				|| !CommonVariable.ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false");
+		return CommonVariableManager.ALLURE_REPORTING_ENABLED == null
+				|| !CommonVariableManager.ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false");
 	}
 }
 

@@ -13,7 +13,7 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 
 public class ScreenshotHandler {
 
@@ -516,7 +516,7 @@ public class ScreenshotHandler {
 	}
 
 	private static boolean isAllureReportingEnabled() {
-		return CommonVariable.ALLURE_REPORTING_ENABLED == null
-				|| !CommonVariable.ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false");
+		return CommonVariableManager.ALLURE_REPORTING_ENABLED == null
+				|| !CommonVariableManager.ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false");
 	}
 }

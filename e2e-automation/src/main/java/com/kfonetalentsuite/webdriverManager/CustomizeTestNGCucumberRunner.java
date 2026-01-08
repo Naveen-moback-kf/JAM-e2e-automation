@@ -9,8 +9,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.utils.common.DynamicTagResolver;
-import com.kfonetalentsuite.utils.common.VariableManager;
 
 import io.cucumber.testng.FeatureWrapper;
 import io.cucumber.testng.PickleWrapper;
@@ -32,7 +32,7 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager {
 		try {
 			String runnerName = this.getClass().getSimpleName();
 
-			VariableManager.getInstance().loadProperties();
+			CommonVariableManager.loadProperties();
 			String loginTag = resolveLoginTag();
 
 			LOGGER.info("▶️  Starting: {} with login: {}", runnerName, loginTag);

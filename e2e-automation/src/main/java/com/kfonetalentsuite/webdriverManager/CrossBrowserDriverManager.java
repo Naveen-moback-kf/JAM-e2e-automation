@@ -20,7 +20,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
-import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 
@@ -494,14 +494,14 @@ public class CrossBrowserDriverManager {
 	}
 
 	private static boolean isHeadlessMode() {
-		String headlessMode = CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "true";
+		String headlessMode = CommonVariableManager.HEADLESS_MODE != null ? CommonVariableManager.HEADLESS_MODE : "true";
 		return Boolean.parseBoolean(headlessMode);
 	}
 
 	@BeforeMethod
 	public void initializeDriver() {
 		if (getDriver() == null) {
-			String defaultBrowser = CommonVariable.BROWSER != null ? CommonVariable.BROWSER : "chrome";
+			String defaultBrowser = CommonVariableManager.BROWSER != null ? CommonVariableManager.BROWSER : "chrome";
 			initializeBrowser(defaultBrowser, "latest", "Windows");
 		}
 	}

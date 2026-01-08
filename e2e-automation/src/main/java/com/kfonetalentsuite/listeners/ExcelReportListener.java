@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import com.kfonetalentsuite.utils.JobMapping.DailyExcelTracker;
-import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.utils.JobMapping.KeepAwakeUtil;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import java.io.StringWriter;
@@ -29,8 +29,8 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 	// Configuration flag to enable/disable Excel generation (unified with
 	// DailyExcelTracker)
 	private static boolean isExcelReportingEnabled() {
-		return CommonVariable.EXCEL_REPORTING_ENABLED == null
-				|| !CommonVariable.EXCEL_REPORTING_ENABLED.equalsIgnoreCase("false");
+		return CommonVariableManager.EXCEL_REPORTING_ENABLED == null
+				|| !CommonVariableManager.EXCEL_REPORTING_ENABLED.equalsIgnoreCase("false");
 	}
 
 	// RETRY FIX: Flag to detect retry runs and avoid counter reset

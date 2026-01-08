@@ -7,7 +7,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 
 import com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin;
-import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import java.time.Duration;
@@ -126,9 +126,9 @@ public class SessionManager {
 				WebDriver driver = DriverManager.getDriver();
 
 				// Step 1: Navigate to login page
-				String loginUrl = CommonVariable.KFONE_QAURL;
+				String loginUrl = CommonVariableManager.KFONE_QAURL;
 				if (loginUrl == null || loginUrl.isEmpty()) {
-					LOGGER.error("Login URL not configured in CommonVariable.KFONE_QAURL");
+					LOGGER.error("Login URL not configured in CommonVariableManager.KFONE_QAURL");
 					continue;
 				}
 
@@ -140,15 +140,15 @@ public class SessionManager {
 				PO01_KFoneLogin loginPage = new PO01_KFoneLogin();
 
 				// Determine login type based on username
-				boolean isSSOLogin = CommonVariable.SSO_USERNAME != null && !CommonVariable.SSO_USERNAME.isEmpty();
+				boolean isSSOLogin = CommonVariableManager.SSO_USERNAME != null && !CommonVariableManager.SSO_USERNAME.isEmpty();
 
 				if (isSSOLogin) {
-					LOGGER.info("Performing SSO re-login for user: {}", CommonVariable.SSO_USERNAME);
+					LOGGER.info("Performing SSO re-login for user: {}", CommonVariableManager.SSO_USERNAME);
 					loginPage.provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page();
 					PageObjectHelper.waitForPageReady(driver, 3);
 					loginPage.provide_sso_login_password_and_click_sign_in();
 				} else {
-					LOGGER.info("Performing non-SSO re-login for user: {}", CommonVariable.NON_SSO_USERNAME);
+					LOGGER.info("Performing non-SSO re-login for user: {}", CommonVariableManager.NON_SSO_USERNAME);
 					loginPage.provide_non_sso_login_username_and_click_sign_in_button_in_kfone_login_page();
 					PageObjectHelper.waitForPageReady(driver, 3);
 					loginPage.provide_non_sso_login_password_and_click_sign_in_button_in_kfone_login_page();

@@ -26,7 +26,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 
 public class DailyExcelTracker {
 
@@ -47,8 +47,8 @@ public class DailyExcelTracker {
 	}
 
 	public static void generateDailyReport(boolean incrementalUpdate) {
-		if (CommonVariable.EXCEL_REPORTING_ENABLED != null
-				&& CommonVariable.EXCEL_REPORTING_ENABLED.equalsIgnoreCase("false")) {
+		if (CommonVariableManager.EXCEL_REPORTING_ENABLED != null
+				&& CommonVariableManager.EXCEL_REPORTING_ENABLED.equalsIgnoreCase("false")) {
 			LOGGER.debug("Excel reporting disabled");
 			return;
 		}
@@ -98,7 +98,7 @@ public class DailyExcelTracker {
 		TestResultsSummary summary = new TestResultsSummary();
 		summary.executionDate = LocalDateTime.now().format(DATE_FORMATTER);
 		summary.executionDateTime = LocalDateTime.now().format(DATETIME_FORMATTER);
-		summary.environment = CommonVariable.ENVIRONMENT != null ? CommonVariable.ENVIRONMENT : "Unknown";
+		summary.environment = CommonVariableManager.ENVIRONMENT != null ? CommonVariableManager.ENVIRONMENT : "Unknown";
 
 		try {
 			summary.suiteName = com.kfonetalentsuite.listeners.ExcelReportListener.getCurrentSuiteName();
@@ -2460,12 +2460,12 @@ public class DailyExcelTracker {
 			summary.avgScenarioTime = String.format("%.1fs", avgMs / 1000.0);
 		}
 
-		summary.executionMode = CommonVariable.HEADLESS_MODE != null
-				&& CommonVariable.HEADLESS_MODE.equalsIgnoreCase("true") ? "Headless" : "Headed";
-		summary.browserUsed = CommonVariable.BROWSER != null ? CommonVariable.BROWSER.toUpperCase()
+		summary.executionMode = CommonVariableManager.HEADLESS_MODE != null
+				&& CommonVariableManager.HEADLESS_MODE.equalsIgnoreCase("true") ? "Headless" : "Headed";
+		summary.browserUsed = CommonVariableManager.BROWSER != null ? CommonVariableManager.BROWSER.toUpperCase()
 				: "Chrome (default)";
-		summary.excelReportingStatus = CommonVariable.EXCEL_REPORTING_ENABLED != null
-				&& CommonVariable.EXCEL_REPORTING_ENABLED.equalsIgnoreCase("true") ? "Enabled" : "Disabled";
+		summary.excelReportingStatus = CommonVariableManager.EXCEL_REPORTING_ENABLED != null
+				&& CommonVariableManager.EXCEL_REPORTING_ENABLED.equalsIgnoreCase("true") ? "Enabled" : "Disabled";
 
 		categorizeScenariosByArea(summary);
 
@@ -3633,7 +3633,7 @@ public class DailyExcelTracker {
 				return browser.toUpperCase();
 			}
 		} catch (Exception e) {
-			LOGGER.debug("Could not access CommonVariable.BROWSER: {}", e.getMessage());
+			LOGGER.debug("Could not access CommonVariableManager.BROWSER: {}", e.getMessage());
 		}
 
 		String browser = System.getProperty("browser.name", "").toUpperCase();
@@ -3910,9 +3910,9 @@ public class DailyExcelTracker {
 			return lastKnownUsername;
 		}
 
-		String configUsername = "SSO".equalsIgnoreCase(CommonVariable.LOGIN_TYPE) 
-				? CommonVariable.SSO_USERNAME 
-				: CommonVariable.NON_SSO_USERNAME;
+		String configUsername = "SSO".equalsIgnoreCase(CommonVariableManager.LOGIN_TYPE) 
+				? CommonVariableManager.SSO_USERNAME 
+				: CommonVariableManager.NON_SSO_USERNAME;
 		if (configUsername != null && !configUsername.trim().isEmpty()) {
 			LOGGER.debug("Using username from environment config: {}", configUsername);
 			return configUsername.trim();

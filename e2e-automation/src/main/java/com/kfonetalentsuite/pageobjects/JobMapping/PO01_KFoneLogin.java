@@ -15,7 +15,7 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.SessionManager;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
-import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 public class PO01_KFoneLogin extends BasePageObject {
@@ -392,30 +392,30 @@ public class PO01_KFoneLogin extends BasePageObject {
 	// PRIVATE HELPER METHODS (PO01-specific config)
 
 	private String getEnvironment() {
-		return CommonVariable.ENVIRONMENT != null ? CommonVariable.ENVIRONMENT : "qa";
+		return CommonVariableManager.ENVIRONMENT != null ? CommonVariableManager.ENVIRONMENT : "qa";
 	}
 
 	private String getUrlForEnvironment(String env) {
-		if (env == null) return CommonVariable.KFONE_QAURL;
+		if (env == null) return CommonVariableManager.KFONE_QAURL;
 		
 		return switch (env.toLowerCase()) {
-			case "stage" -> CommonVariable.KFONE_STAGEURL;
-			case "prod-eu", "prodeu" -> CommonVariable.KFONE_PRODEUURL;
-			case "prod-us", "produs" -> CommonVariable.KFONE_PRODUSURL;
-			case "dev" -> CommonVariable.KFONE_DEVURL;
-			default -> CommonVariable.KFONE_QAURL; // qa is default
+			case "stage" -> CommonVariableManager.KFONE_STAGEURL;
+			case "prod-eu", "prodeu" -> CommonVariableManager.KFONE_PRODEUURL;
+			case "prod-us", "produs" -> CommonVariableManager.KFONE_PRODUSURL;
+			case "dev" -> CommonVariableManager.KFONE_DEVURL;
+			default -> CommonVariableManager.KFONE_QAURL; // qa is default
 		};
 	}
 
 	private String getCredential(String userType, String field) {
 		if ("SSO".equalsIgnoreCase(userType)) {
-			return "Username".equals(field) ? CommonVariable.SSO_USERNAME : CommonVariable.SSO_PASSWORD;
+			return "Username".equals(field) ? CommonVariableManager.SSO_USERNAME : CommonVariableManager.SSO_PASSWORD;
 		}
-		return "Username".equals(field) ? CommonVariable.NON_SSO_USERNAME : CommonVariable.NON_SSO_PASSWORD;
+		return "Username".equals(field) ? CommonVariableManager.NON_SSO_USERNAME : CommonVariableManager.NON_SSO_PASSWORD;
 	}
 
 	private String getPamsId() {
-		return CommonVariable.TARGET_PAMS_ID;
+		return CommonVariableManager.TARGET_PAMS_ID;
 	}
 
 	private void verifyOnClientsPage() {

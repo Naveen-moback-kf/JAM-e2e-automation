@@ -11,7 +11,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -216,7 +216,7 @@ public class Utilities {
 					&& !roleName.equals("ROLES_ARRAY_EMPTY") && !roleName.equals("ROLE_NAME_NOT_FOUND")) {
 
 				// Store the role globally for use across all feature files
-				CommonVariable.CURRENT_USER_ROLE.set(roleName);
+				CommonVariableManager.CURRENT_USER_ROLE.set(roleName);
 				LOGGER.info("Current User Role : '{}'", roleName);
 				
 				// Also fetch and store userLevelJobMappingEnabled and userLevelPermission
@@ -225,13 +225,13 @@ public class Utilities {
 				return roleName;
 			} else {
 				LOGGER.warn("Failed to extract user role. Result: {}", roleName);
-				CommonVariable.CURRENT_USER_ROLE.set(null);
+				CommonVariableManager.CURRENT_USER_ROLE.set(null);
 				return null;
 			}
 
 		} catch (Exception e) {
 			LOGGER.error("Exception while extracting user role from session storage: {}", e.getMessage());
-			CommonVariable.CURRENT_USER_ROLE.set(null);
+			CommonVariableManager.CURRENT_USER_ROLE.set(null);
 			return null;
 		}
 	}
@@ -253,10 +253,10 @@ public class Utilities {
 
 			if (jobMappingValue != null && !jobMappingValue.equals("NOT_FOUND") && !jobMappingValue.startsWith("ERROR")) {
 				Boolean isEnabled = "true".equalsIgnoreCase(jobMappingValue);
-				CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(isEnabled);
+				CommonVariableManager.USER_LEVEL_JOB_MAPPING_ENABLED.set(isEnabled);
 				LOGGER.info("User Level Job Mapping Enabled: '{}'", isEnabled);
 			} else {
-				CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
+				CommonVariableManager.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
 				LOGGER.debug("userLevelJobMappingEnabled not found in session storage");
 			}
 
@@ -274,50 +274,50 @@ public class Utilities {
 			String permissionValue = (permissionResult != null) ? permissionResult.toString() : null;
 
 			if (permissionValue != null && !permissionValue.equals("NOT_FOUND") && !permissionValue.startsWith("ERROR")) {
-				CommonVariable.USER_LEVEL_PERMISSION.set(permissionValue);
+				CommonVariableManager.USER_LEVEL_PERMISSION.set(permissionValue);
 				LOGGER.info("User Level Permission: '{}'", permissionValue);
 			} else {
-				CommonVariable.USER_LEVEL_PERMISSION.set(null);
+				CommonVariableManager.USER_LEVEL_PERMISSION.set(null);
 				LOGGER.debug("userLevelPermission not found in session storage");
 			}
 
 		} catch (Exception e) {
 			LOGGER.warn("Failed to fetch user level settings from session storage: {}", e.getMessage());
-			CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
-			CommonVariable.USER_LEVEL_PERMISSION.set(null);
+			CommonVariableManager.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
+			CommonVariableManager.USER_LEVEL_PERMISSION.set(null);
 		}
 	}
 
 	public static Boolean isUserLevelJobMappingEnabled() {
-		return CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.get();
+		return CommonVariableManager.USER_LEVEL_JOB_MAPPING_ENABLED.get();
 	}
 
 	public static boolean hasJobMappingAccess() {
-		Boolean enabled = CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.get();
+		Boolean enabled = CommonVariableManager.USER_LEVEL_JOB_MAPPING_ENABLED.get();
 		return Boolean.TRUE.equals(enabled);
 	}
 
 	public static String getUserLevelPermission() {
-		return CommonVariable.USER_LEVEL_PERMISSION.get();
+		return CommonVariableManager.USER_LEVEL_PERMISSION.get();
 	}
 
 	public static boolean hasHCMSyncAccess() {
-		String permission = CommonVariable.USER_LEVEL_PERMISSION.get();
+		String permission = CommonVariableManager.USER_LEVEL_PERMISSION.get();
 		return "true".equalsIgnoreCase(permission);
 	}
 
 	public static void clearUserLevelSettings() {
-		CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
-		CommonVariable.USER_LEVEL_PERMISSION.set(null);
+		CommonVariableManager.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
+		CommonVariableManager.USER_LEVEL_PERMISSION.set(null);
 		LOGGER.info("Cleared user level settings");
 	}
 
 	public static String getCurrentUserRole() {
-		return CommonVariable.CURRENT_USER_ROLE.get();
+		return CommonVariableManager.CURRENT_USER_ROLE.get();
 	}
 
 	public static boolean hasRole(String expectedRole) {
-		String currentRole = CommonVariable.CURRENT_USER_ROLE.get();
+		String currentRole = CommonVariableManager.CURRENT_USER_ROLE.get();
 		if (currentRole == null || expectedRole == null) {
 			return false;
 		}
@@ -335,16 +335,16 @@ public class Utilities {
 	}
 
 	public static void clearCurrentUserRole() {
-		CommonVariable.CURRENT_USER_ROLE.set(null);
-		CommonVariable.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
-		CommonVariable.USER_LEVEL_PERMISSION.set(null);
+		CommonVariableManager.CURRENT_USER_ROLE.set(null);
+		CommonVariableManager.USER_LEVEL_JOB_MAPPING_ENABLED.set(null);
+		CommonVariableManager.USER_LEVEL_PERMISSION.set(null);
 		LOGGER.info("Cleared stored user role and user level settings");
 	}
 
 	public static boolean verifyUserRole(String expectedRole) {
 		try {
 			// First try to get from global variable
-			String actualRole = CommonVariable.CURRENT_USER_ROLE.get();
+			String actualRole = CommonVariableManager.CURRENT_USER_ROLE.get();
 
 			// If not set globally, fetch from session storage and store it
 			if (actualRole == null) {

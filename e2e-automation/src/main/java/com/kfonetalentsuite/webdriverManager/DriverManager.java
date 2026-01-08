@@ -19,7 +19,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 
-import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -64,7 +64,7 @@ public class DriverManager {
 		try {
 			// Get browser config from config.properties
 			boolean isHeadless = Boolean
-					.parseBoolean(CommonVariable.HEADLESS_MODE != null ? CommonVariable.HEADLESS_MODE : "false");
+					.parseBoolean(CommonVariableManager.HEADLESS_MODE != null ? CommonVariableManager.HEADLESS_MODE : "false");
 
 			// Launch browser based on configuration with retry mechanism
 			int maxRetries = 3;
@@ -78,7 +78,7 @@ public class DriverManager {
 								Thread.currentThread().getId());
 					}
 
-					switch (CommonVariable.BROWSER) {
+					switch (CommonVariableManager.BROWSER) {
 					case "chrome":
 						setupChromeDriver();
 						driver.set(new ChromeDriver(configureChromeOptions(isHeadless)));
@@ -134,7 +134,7 @@ public class DriverManager {
 						lastException);
 			}
 
-			LOGGER.info("✓ Browser launched: {} ({})", CommonVariable.BROWSER, isHeadless ? "headless" : "windowed");
+			LOGGER.info("✓ Browser launched: {} ({})", CommonVariableManager.BROWSER, isHeadless ? "headless" : "windowed");
 
 			// Configure timeouts and browser
 			configureTimeoutsAndBrowser(isHeadless);

@@ -18,7 +18,7 @@ import com.kfonetalentsuite.pageobjects.JobMapping.PO32_ClearProfileSelectionFun
 import com.kfonetalentsuite.pageobjects.JobMapping.PO33_UnmappedJobs_JAM;
 import com.kfonetalentsuite.utils.JobMapping.AllureReportingManager;
 import com.kfonetalentsuite.utils.JobMapping.SessionManager;
-import com.kfonetalentsuite.utils.common.CommonVariable;
+import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 public class SuiteHooks implements ISuiteListener {
@@ -71,7 +71,7 @@ public class SuiteHooks implements ISuiteListener {
 			cleanedCount++;
 
 			// CommonVariable - User role tracking
-			CommonVariable.CURRENT_USER_ROLE.remove();
+			CommonVariableManager.CURRENT_USER_ROLE.remove();
 			cleanedCount++;
 
 			// === LOGIN & CLIENT ThreadLocals ===
