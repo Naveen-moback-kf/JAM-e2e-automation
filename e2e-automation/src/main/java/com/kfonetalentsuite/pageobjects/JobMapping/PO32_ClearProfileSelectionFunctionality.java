@@ -8,8 +8,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
@@ -70,8 +70,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	public void click_on_header_checkbox_to_select_loaded_job_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			// Store counts before selecting
 			List<WebElement> allCheckboxes = findElements(getAllCheckboxesLocator(screen));
@@ -89,20 +89,20 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 			// Click header checkbox
 			try {
-				PageObjectHelper.waitForClickable(wait, headerCheckbox).click();
+				Utilities.waitForClickable(wait, headerCheckbox).click();
 			} catch (Exception e) {
 				jsClick(headerCheckbox);
 			}
 
 			safeSleep(1000);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			LOGGER.info("Clicked header checkbox to select loaded profiles in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_header_checkbox_to_select_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "click_on_header_checkbox_to_select_loaded_job_profiles",
+			Utilities.handleError(LOGGER, "click_on_header_checkbox_to_select_loaded_job_profiles",
 					"Error clicking header checkbox to select profiles in " + getScreenName(screen), e);
 			Assert.fail("Error clicking header checkbox to select profiles: " + e.getMessage());
 		}
@@ -111,8 +111,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	public void click_on_header_checkbox_to_unselect_loaded_job_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			// Store counts before unchecking
 			List<WebElement> allCheckboxes = findElements(getAllCheckboxesLocator(screen));
@@ -140,20 +140,20 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 			// Click header checkbox
 			try {
-				PageObjectHelper.waitForClickable(wait, headerCheckbox).click();
+				Utilities.waitForClickable(wait, headerCheckbox).click();
 			} catch (Exception e) {
 				jsClick(headerCheckbox);
 			}
 
 			safeSleep(1000);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			LOGGER.info("Clicked header checkbox to clear selection in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_header_checkbox_to_unselect_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "click_on_header_checkbox_to_unselect_loaded_job_profiles",
+			Utilities.handleError(LOGGER, "click_on_header_checkbox_to_unselect_loaded_job_profiles",
 					"Error clicking header checkbox to unselect profiles in " + getScreenName(screen), e);
 			Assert.fail("Error clicking header checkbox to unselect profiles: " + e.getMessage());
 		}
@@ -169,7 +169,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			
 			// Wait for None button to be clickable (dropdown appears after chevron click)
 			try {
-				PageObjectHelper.waitForClickable(wait, getNoneButtonLocator(screen)).click();
+				Utilities.waitForClickable(wait, getNoneButtonLocator(screen)).click();
 			} catch (Exception e) {
 				try {
 					jsClick(findElement(getNoneButtonLocator(screen)));
@@ -179,14 +179,14 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			}
 
 			safeSleep(1000);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			LOGGER.info("Clicked None button in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_none_button_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "click_on_none_button",
+			Utilities.handleError(LOGGER, "click_on_none_button",
 					"Error clicking None button in " + getScreenName(screen), e);
 			Assert.fail("Error clicking None button: " + e.getMessage());
 		}
@@ -199,8 +199,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	public void verify_loaded_profiles_are_unselected(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			LOGGER.info("========================================");
 			LOGGER.info("VERIFYING UNSELECTED PROFILES - {}", getScreenName(screen));
@@ -226,7 +226,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_loaded_profiles_unselected_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "verify_loaded_profiles_are_unselected",
+			Utilities.handleError(LOGGER, "verify_loaded_profiles_are_unselected",
 					"Error verifying profiles are unselected in " + getScreenName(screen), e);
 			Assert.fail("Error verifying profiles are unselected: " + e.getMessage());
 		}
@@ -238,8 +238,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			List<WebElement> allCheckboxes = findElements(getAllCheckboxesLocator(screen));
 			int totalNow = allCheckboxes.size();
@@ -309,7 +309,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_newly_loaded_selected_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "verify_newly_loaded_profiles_are_still_selected",
+			Utilities.handleError(LOGGER, "verify_newly_loaded_profiles_are_still_selected",
 					"Error verifying newly loaded profiles in " + getScreenName(screen), e);
 			Assert.fail("Error verifying newly loaded profiles: " + e.getMessage());
 		}
@@ -318,8 +318,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	public void verify_all_loaded_profiles_are_unselected(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			LOGGER.info("========================================");
 			LOGGER.info("VERIFYING ALL PROFILES UNSELECTED - {}", getScreenName(screen));
@@ -340,7 +340,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_all_profiles_unselected_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "verify_all_loaded_profiles_are_unselected",
+			Utilities.handleError(LOGGER, "verify_all_loaded_profiles_are_unselected",
 					"Error verifying all profiles are unselected in " + getScreenName(screen), e);
 			Assert.fail("Error verifying all profiles are unselected: " + e.getMessage());
 		}
@@ -349,8 +349,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	public void verify_profiles_loaded_after_header_checkbox_are_not_selected(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			int totalNow = countAllProfilesJS(screen);
 			int newlyLoaded = totalNow - loadedProfilesBeforeUncheck.get();
@@ -378,7 +378,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_after_header_not_selected_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "verify_profiles_loaded_after_header_checkbox_are_not_selected",
+			Utilities.handleError(LOGGER, "verify_profiles_loaded_after_header_checkbox_are_not_selected",
 					"Error verifying profiles in " + getScreenName(screen), e);
 		}
 	}
@@ -392,8 +392,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			currentScreen.set(screen);
 			js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
 			safeSleep(2000);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 			
 			LOGGER.info("Scrolled to load more profiles in " + getScreenName(screen));
 		} catch (Exception e) {
@@ -406,8 +406,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			currentScreen.set(screen);
 			driver.navigate().refresh();
 			safeSleep(2000);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 15);
-			PageObjectHelper.waitForPageReady(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 15);
+			Utilities.waitForPageReady(driver, 5);
 			
 			// Reset counters after refresh
 			loadedProfilesBeforeUncheck.set(0);
@@ -434,7 +434,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			
 			By buttonLocator = getActionButtonLocator(screen);
 
-			WebElement button = PageObjectHelper.waitForVisible(wait, buttonLocator);
+			WebElement button = Utilities.waitForVisible(wait, buttonLocator);
 			boolean isEnabled = button.isEnabled();
 			
 			LOGGER.info("Button found: '{}', enabled: {}", button.getText().trim(), isEnabled);
@@ -463,7 +463,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			
 			By buttonLocator = getActionButtonLocator(screen);
 
-			WebElement button = PageObjectHelper.waitForVisible(wait, buttonLocator);
+			WebElement button = Utilities.waitForVisible(wait, buttonLocator);
 			boolean isDisabled = !button.isEnabled() || button.getAttribute("class").contains("disabled");
 			
 			LOGGER.info("Button found: '{}', disabled: {}", button.getText().trim(), isDisabled);
@@ -481,4 +481,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 		}
 	}
 }
+
+
 

@@ -7,7 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO13_PCRestrictedTipMessage extends BasePageObject {
 
@@ -80,20 +80,20 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 					LOGGER.info("Navigation attempt {}/{}", attempt, maxRetries);
 
 					waitForSpinners();
-					PageObjectHelper.waitForPageReady(driver, 2);
+					Utilities.waitForPageReady(driver, 2);
 
 					LOGGER.info("Clicking KFONE Global Menu...");
 					clickElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
 					LOGGER.info("Successfully clicked KFONE Global Menu");
 
-					PageObjectHelper.waitForUIStability(driver, 1);
+					Utilities.waitForUIStability(driver, 1);
 
 					LOGGER.info("Clicking User Access button in KFONE menu...");
 					clickElement(USER_ACCESS_BTN);
 					LOGGER.info("Successfully clicked User Access button in KFONE menu");
 
 					waitForSpinners();
-					PageObjectHelper.waitForPageReady(driver, 2);
+					Utilities.waitForPageReady(driver, 2);
 
 					WebElement uamBtn = waitForElement(UAM_BUTTON);
 					if (uamBtn.isDisplayed()) {
@@ -106,8 +106,8 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 						LOGGER.warn("Navigation failed on attempt {}/{} - refreshing page...", attempt, maxRetries);
 						refreshPage();
 						waitForSpinners();
-						PageObjectHelper.waitForPageReady(driver, 5);
-						PageObjectHelper.waitForUIStability(driver, 3);
+						Utilities.waitForPageReady(driver, 5);
+						Utilities.waitForUIStability(driver, 3);
 						Thread.sleep(5000);
 					} else {
 						LOGGER.error("Failed to navigate to System Configuration page after {} attempts", maxRetries);
@@ -119,7 +119,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			throw new RuntimeException("Failed to navigate to System Configuration page after " + maxRetries + " attempts");
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "navigate_to_system_configuration_page_from_kfone_global_menu", "Error navigating to System Configuration page from KFONE Global Menu", e);
+			Utilities.handleError(LOGGER, "navigate_to_system_configuration_page_from_kfone_global_menu", "Error navigating to System Configuration page from KFONE Global Menu", e);
 			throw new RuntimeException("Failed to navigate to System Configuration page from KFONE Global Menu", e);
 		}
 	}
@@ -127,11 +127,11 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_user_admin_module_button() {
 		try {
 			scrollToElement(driver.findElement(UAM_BUTTON));
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(UAM_BUTTON);
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_user_admin_module_button", "Issue in clicking on User Admin Module button", e);
+			Utilities.handleError(LOGGER, "click_on_user_admin_module_button", "Issue in clicking on User Admin Module button", e);
 			Assert.fail("Issue in clicking on User Admin Module button...Please Investigate!!!");
 		}
 	}
@@ -144,7 +144,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			String clientname = getElementText(CLIENT_NAME_TEXT);
 			LOGGER.info("User successfully landed on the Dashboard page of the client : " + clientname);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_be_landed_on_clients_dashboard_page", "Issue in landing on Clients Dashboard page", e);
+			Utilities.handleError(LOGGER, "user_should_be_landed_on_clients_dashboard_page", "Issue in landing on Clients Dashboard page", e);
 			Assert.fail("Issue in landing on Clients Dashboard page....Please Investigate!!!");
 		}
 	}
@@ -157,12 +157,12 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_teams_section() {
 		try {
 			scrollToElement(driver.findElement(TEAMS_SECTION));
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(TEAMS_SECTION);
 			LOGGER.info("Clicked on Teams section in User Admin Module....");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_teams_section", "Issue in clicking on Teams section in User Admin Module", e);
+			Utilities.handleError(LOGGER, "click_on_teams_section", "Issue in clicking on Teams section in User Admin Module", e);
 			Assert.fail("Issue in clicking on Teams section in User Admin Module...Please Investigate!!!");
 		}
 	}
@@ -176,7 +176,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			String text1 = getElementText(TEAMS_PAGE_DESC);
 			LOGGER.info(text1);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_teams_page", "Issue in landing on Teams page", e);
+			Utilities.handleError(LOGGER, "verify_user_landed_on_teams_page", "Issue in landing on Teams page", e);
 			Assert.fail("Issue in landing on Teams page....Please Investigate!!!");
 		}
 	}
@@ -184,12 +184,12 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_create_teams_button() {
 		try {
 			scrollToElement(driver.findElement(CREATE_TEAMS_BTN));
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(CREATE_TEAMS_BTN);
 			LOGGER.info("Clicked on CREATE TEAMS button in Teams section....");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_create_teams_button", "Issue in clicking on Create Teams button in Teams section", e);
+			Utilities.handleError(LOGGER, "click_on_create_teams_button", "Issue in clicking on Create Teams button in Teams section", e);
 			Assert.fail("Issue in clicking on Create Teams button in Teams section...Please Investigate!!!");
 		}
 	}
@@ -202,7 +202,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			LOGGER.info("User successfully navigated to first step of creating a team");
 			LOGGER.info(text);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_first_step_of_creating_a_team", "Issue in navigating to first step of creating a team", e);
+			Utilities.handleError(LOGGER, "user_should_be_navigated_to_first_step_of_creating_a_team", "Issue in navigating to first step of creating a team", e);
 			Assert.fail("Issue in navigating to first step of creating a team....Please Investigate!!!");
 		}
 	}
@@ -217,7 +217,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			waitForElement(TEAM_DESC_TEXTBOX).sendKeys("Creating a Team through Automation on " + todayDate);
 			LOGGER.info("Entered Team Description : Creating a Team through Automation on " + todayDate);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_enter_team_name_and_team_description", "Issue in entering Team name and Team Description in the first step of creating a team", e);
+			Utilities.handleError(LOGGER, "user_should_enter_team_name_and_team_description", "Issue in entering Team name and Team Description in the first step of creating a team", e);
 			Assert.fail("Issue in entering Team name and Team Description in the first step of creating a team....Please Investigate!!!");
 		}
 	}
@@ -225,12 +225,12 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_next_button_in_create_team_page() {
 		try {
 			scrollToElement(driver.findElement(NEXT_BTN));
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(NEXT_BTN);
 			LOGGER.info("Clicked on Next button in Create Teams page....");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_next_button_in_create_team_page", "Issue in clicking on Next button in Create Teams page", e);
+			Utilities.handleError(LOGGER, "click_on_next_button_in_create_team_page", "Issue in clicking on Next button in Create Teams page", e);
 			Assert.fail("Issue in clicking on Next button in Create Teams page...Please Investigate!!!");
 		}
 	}
@@ -243,7 +243,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			LOGGER.info("User successfully navigated to Second step of creating a team");
 			LOGGER.info(text);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_second_step_of_creating_a_team", "Issue in navigating to Second step of creating a team", e);
+			Utilities.handleError(LOGGER, "user_should_be_navigated_to_second_step_of_creating_a_team", "Issue in navigating to Second step of creating a team", e);
 			Assert.fail("Issue in navigating to Second step of creating a team....Please Investigate!!!");
 		}
 	}
@@ -254,7 +254,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			waitForSpinners();
 			LOGGER.info("Entered User name : " + PO01_KFoneLogin.username.get() + " in the search bar to add as Team Member");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_user_to_add_as_team_member", "Issue in Searching a user to add as Team Member", e);
+			Utilities.handleError(LOGGER, "search_user_to_add_as_team_member", "Issue in Searching a user to add as Team Member", e);
 			Assert.fail("Issue in Searching a user to add as Team Member....Please Investigate!!!");
 		}
 	}
@@ -264,18 +264,18 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			waitForSpinners();
 			scrollToBottom();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 
 			String xpath = "//td[contains(@class,'check-box')]//kf-checkbox";
 			js.executeScript(
 					"var element = document.evaluate(arguments[0], document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; if (element) element.click();",
 					xpath);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 
 			LOGGER.info("User " + PO01_KFoneLogin.username.get() + " is Selected to add as Team Member");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_searched_user_to_add_as_team_member", "Issue in selecting user to add as Team Member", e);
+			Utilities.handleError(LOGGER, "select_searched_user_to_add_as_team_member", "Issue in selecting user to add as Team Member", e);
 			Assert.fail("Issue in selecting user to add as Team Member...Please Investigate!!!");
 		}
 	}
@@ -283,12 +283,12 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_team_members_header_and_verify_user_is_added_successfully_as_team_member() {
 		try {
 			scrollToElement(driver.findElement(TEAM_MEMBERS_HEADER));
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(TEAM_MEMBERS_HEADER);
 			waitForSpinners();
 			LOGGER.info("Clicked on Team Members header in Create Teams page....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_team_members_header_and_verify_user_is_added_successfully_as_team_member", "Issue in clicking on Team Members header", e);
+			Utilities.handleError(LOGGER, "click_on_team_members_header_and_verify_user_is_added_successfully_as_team_member", "Issue in clicking on Team Members header", e);
 			Assert.fail("Issue in clicking on Team Members header...Please Investigate!!!");
 		}
 
@@ -299,7 +299,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			Assert.assertEquals(text, "Showing 1 of 1 Users");
 			LOGGER.info("User " + PO01_KFoneLogin.username.get() + " successfully added as Team Member");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_team_members_header_and_verify_user_is_added_successfully_as_team_member", "Issue in Verifying User added as Team Member", e);
+			Utilities.handleError(LOGGER, "click_on_team_members_header_and_verify_user_is_added_successfully_as_team_member", "Issue in Verifying User added as Team Member", e);
 			Assert.fail("Issue in Verifying User added as Team Member....Please Investigate!!!");
 		}
 	}
@@ -308,16 +308,16 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			WebElement element = waitForClickable(SAVE_BTN);
 			scrollToElement(element);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(element);
 			LOGGER.info("Clicked on Save button in Create Teams page....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_save_button_on_team_page_and_verify_success_popup_appears", "Issue in clicking on Save button in Create Teams page", e);
+			Utilities.handleError(LOGGER, "click_on_save_button_on_team_page_and_verify_success_popup_appears", "Issue in clicking on Save button in Create Teams page", e);
 			Assert.fail("Issue in clicking on Save button in Create Teams page...Please Investigate!!!");
 		}
 
 		try {
-			PageObjectHelper.waitForPageReady(driver, 5);
+			Utilities.waitForPageReady(driver, 5);
 
 			boolean popupFound = false;
 			String popupMessage = "";
@@ -358,7 +358,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_save_button_on_team_page_and_verify_success_popup_appears", "Issue in verifying appearing of popup after creating a team", e);
+			Utilities.handleError(LOGGER, "click_on_save_button_on_team_page_and_verify_success_popup_appears", "Issue in verifying appearing of popup after creating a team", e);
 			Assert.fail("Issue in verifying appearing of popup after creating a team....Please Investigate!!!");
 		}
 	}
@@ -368,12 +368,12 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			waitForElement(TEAMS_PAGE_SEARCHBAR).sendKeys(teamName.get());
 		waitForSpinners();
 		Thread.sleep(2000);
-		PageObjectHelper.waitForVisible(wait, driver.findElement(TEAM_NAME_IN_TOP_ROW));
+		Utilities.waitForVisible(wait, driver.findElement(TEAM_NAME_IN_TOP_ROW));
 		String text = getElementText(TEAM_NAME_IN_TOP_ROW);
 		Assert.assertEquals(text, teamName.get());
 			LOGGER.info("Team with name : " + teamName.get() + " is successfully created");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_for_team_name_in_teams_page_and_verify_team_is_created_successfully", "Issue in Searching and Verifying a Team is created", e);
+			Utilities.handleError(LOGGER, "search_for_team_name_in_teams_page_and_verify_team_is_created_successfully", "Issue in Searching and Verifying a Team is created", e);
 			Assert.fail("Issue in Searching and Verifying a Team is created successfully....Please Investigate!!!");
 		}
 	}
@@ -382,12 +382,12 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			WebElement element = waitForClickable(PC_SECTION);
 			scrollToElement(element);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(element);
 			LOGGER.info("Clicked on Profile Collections section in User Admin Module....");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_profile_collections_section", "Issue in clicking on Profile Collections section in User Admin Module", e);
+			Utilities.handleError(LOGGER, "click_on_profile_collections_section", "Issue in clicking on Profile Collections section in User Admin Module", e);
 			Assert.fail("Issue in clicking on Profile Collections section in User Admin Module...Please Investigate!!!");
 		}
 	}
@@ -401,7 +401,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			String text1 = getElementText(PC_PAGE_DESC);
 			LOGGER.info(text1);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_manage_success_profiles_page", "Issue in landing on Manage Success Profiles page", e);
+			Utilities.handleError(LOGGER, "verify_user_navigated_to_manage_success_profiles_page", "Issue in landing on Manage Success Profiles page", e);
 			Assert.fail("Issue in landing on Manage Success Profiles page....Please Investigate!!!");
 		}
 	}
@@ -410,12 +410,12 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			WebElement element = waitForClickable(CREATE_PC_BTN);
 			scrollToElement(element);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(element);
 			LOGGER.info("Clicked on CREATE PROFILE COLLECTION button in Teams section");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_create_profile_collection_button", "Issue in clicking on CREATE PROFILE COLLECTION button in Teams section", e);
+			Utilities.handleError(LOGGER, "click_on_create_profile_collection_button", "Issue in clicking on CREATE PROFILE COLLECTION button in Teams section", e);
 			Assert.fail("Issue in clicking on CREATE PROFILE COLLECTION button in Teams section...Please Investigate!!!");
 		}
 	}
@@ -428,7 +428,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			LOGGER.info("User successfully navigated to first step of creating a team");
 			LOGGER.info(text);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_navigated_to_first_step_of_creating_a_profile_collection", "Issue in navigating to first step of creating a Profile Collection", e);
+			Utilities.handleError(LOGGER, "user_should_navigated_to_first_step_of_creating_a_profile_collection", "Issue in navigating to first step of creating a Profile Collection", e);
 			Assert.fail("Issue in navigating to first step of creating a Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -439,18 +439,18 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			pcName.set("PC_" + todayDate);
 			WebElement nameElement = waitForClickable(PC_NAME_TEXTBOX);
 			scrollToElement(nameElement);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(nameElement);
 			waitForElement(PC_NAME_TEXTBOX).sendKeys(pcName.get());
 			LOGGER.info("Entered Profile Collection Name : " + pcName.get());
 			WebElement descElement = waitForClickable(PC_DESC_TEXTBOX);
 			scrollToElement(descElement);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(descElement);
 			waitForElement(PC_DESC_TEXTBOX).sendKeys("Creating a Profile Collection through Automation on " + todayDate);
 			LOGGER.info("Entered Profile Collection Description : Creating a Team through Automation on " + todayDate);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_enter_profile_collection_name_and_profile_collection_description", "Issue in entering Profile Collection name and Profile Collection Description in the first step of creating a Profile Collection", e);
+			Utilities.handleError(LOGGER, "user_should_enter_profile_collection_name_and_profile_collection_description", "Issue in entering Profile Collection name and Profile Collection Description in the first step of creating a Profile Collection", e);
 			Assert.fail("Issue in entering Profile Collection name and Profile Collection Description in the first step of creating a Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -459,12 +459,12 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			WebElement element = waitForClickable(NEXT_BTN);
 			scrollToElement(element);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(element);
 			LOGGER.info("Clicked on Next button in Create Profile Collection page....");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_next_button_in_create_profile_collection_page", "Issue in clicking on Next button in Create Profile Collection page", e);
+			Utilities.handleError(LOGGER, "click_on_next_button_in_create_profile_collection_page", "Issue in clicking on Next button in Create Profile Collection page", e);
 			Assert.fail("Issue in clicking on Next button in Create Profile Collection page...Please Investigate!!!");
 		}
 	}
@@ -478,7 +478,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			LOGGER.info(text);
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_second_step_of_creating_a_profile_collection", "Issue in navigating to Second step of creating a Profile Collection", e);
+			Utilities.handleError(LOGGER, "user_should_be_navigated_to_second_step_of_creating_a_profile_collection", "Issue in navigating to Second step of creating a Profile Collection", e);
 			Assert.fail("Issue in navigating to Second step of creating a Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -486,15 +486,15 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_all_teams_header() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForPageReady(driver);
 			WebElement element = waitForClickable(ALL_TEAMS_HEADER);
 			scrollToElement(element);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(element);
 			LOGGER.info("Clicked on All Teams button in Create Profile Collection page....");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_all_teams_header", "Issue in clicking on All Teams header button in Create Profile Collection page", e);
+			Utilities.handleError(LOGGER, "click_on_all_teams_header", "Issue in clicking on All Teams header button in Create Profile Collection page", e);
 			Assert.fail("Issue in clicking on All Teams header button in Create Profile Collection page...Please Investigate!!!");
 		}
 	}
@@ -504,33 +504,33 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			waitForSpinners();
 			scrollToBottom();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 
 			String xpath = "//td[contains(@class,'check-box')]//kf-checkbox";
 			js.executeScript(
 					"var element = document.evaluate(arguments[0], document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; if (element) element.click();",
 					xpath);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 
 			LOGGER.info("Recently Created Team with name " + teamName.get() + " is Selected for Profile Collection");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_recently_created_team_name", "Issue in selecting Recently Created Team for Profile Collection", e);
+			Utilities.handleError(LOGGER, "select_recently_created_team_name", "Issue in selecting Recently Created Team for Profile Collection", e);
 			Assert.fail("Issue in selecting Recently Created Team for Profile Collection...Please Investigate!!!");
 		}
 	}
 
 	public void click_on_selected_teams_header() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			WebElement element = waitForClickable(SELECTED_TEAMS_HEADER);
 			scrollToElement(element);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(element);
 			LOGGER.info("Clicked on Selected Teams button in Create Profile Collection page");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_selected_teams_header", "Issue in clicking on Selected Teams header button in Create Profile Collection page", e);
+			Utilities.handleError(LOGGER, "click_on_selected_teams_header", "Issue in clicking on Selected Teams header button in Create Profile Collection page", e);
 			Assert.fail("Issue in clicking on Selected Teams header button in Create Profile Collection page...Please Investigate!!!");
 		}
 	}
@@ -538,13 +538,13 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void user_should_verify_recently_created_team_name_is_available_in_selected_teams() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForElement(TEAM_COUNT);
 			String text = getElementText(TEAM_COUNT);
 			Assert.assertEquals(text, "Page 1 of 1");
 			LOGGER.info("Recently created team " + teamName.get() + " is available in Selected Teams");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_recently_created_team_name_is_available_in_selected_teams", "Issue in Verifing Recently created team name is available in selected teams", e);
+			Utilities.handleError(LOGGER, "user_should_verify_recently_created_team_name_is_available_in_selected_teams", "Issue in Verifing Recently created team name is available in selected teams", e);
 			Assert.fail("Issue in Verifing Recently created team name is available in selected teams....Please Investigate!!!");
 		}
 	}
@@ -558,7 +558,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			LOGGER.info(text);
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_third_step_of_creating_a_profile_collection", "Issue in navigating to Third step of creating a Profile Collection", e);
+			Utilities.handleError(LOGGER, "user_should_be_navigated_to_third_step_of_creating_a_profile_collection", "Issue in navigating to Third step of creating a Profile Collection", e);
 			Assert.fail("Issue in navigating to Third step of creating a Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -566,17 +566,17 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_add_additional_success_profiles_header() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 
 			WebElement element = waitForClickable(ADD_ADDITIONAL_SP_HEADER);
 			scrollToElement(element);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(element);
 			LOGGER.info("Clicked on ADD ADDITIONAL SUCCESS PROFILES button in Create Profile Collection page....");
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_add_additional_success_profiles_header", "Issue in clicking on ADD ADDITIONAL SUCCESS PROFILES header button in Create Profile Collection page", e);
+			Utilities.handleError(LOGGER, "click_on_add_additional_success_profiles_header", "Issue in clicking on ADD ADDITIONAL SUCCESS PROFILES header button in Create Profile Collection page", e);
 			Assert.fail("Issue in clicking on ADD ADDITIONAL SUCCESS PROFILES header button in Create Profile Collection page...Please Investigate!!!");
 		}
 	}
@@ -584,13 +584,13 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void search_and_add_success_profiles_to_profile_collection() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 5);
+			Utilities.waitForPageReady(driver, 5);
 
 			waitForElement(PC_STEP3_SEARCHBAR).sendKeys(spNameString.get());
 			LOGGER.info("Entered search term: " + spNameString.get() + " in Success Profiles search bar");
 
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 5);
+			Utilities.waitForPageReady(driver, 5);
 			waitForSpinners();
 
 			int maxAttempts = 3;
@@ -600,12 +600,12 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 				try {
 					WebElement selectAllElement = waitForClickable(SELECT_ALL_CHECKBOX);
 					scrollToElement(selectAllElement);
-					PageObjectHelper.waitForUIStability(driver, 1);
+					Utilities.waitForUIStability(driver, 1);
 					Thread.sleep(2000);
 					clickElement(selectAllElement);
 					LOGGER.info("Clicked Select All checkbox (attempt {}/{})", attempt, maxAttempts);
 
-					PageObjectHelper.waitForUIStability(driver, 3);
+					Utilities.waitForUIStability(driver, 3);
 					waitForSpinners();
 
 					try {
@@ -627,7 +627,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 					}
 
 					if (!profilesSelected && attempt < maxAttempts) {
-						PageObjectHelper.waitForUIStability(driver, 2);
+						Utilities.waitForUIStability(driver, 2);
 					}
 
 				} catch (Exception e) {
@@ -644,7 +644,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 
 			LOGGER.info("Success Profiles which contains " + spNameString.get() + " as Sub-string are selected to add to Profile Collection");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_and_add_success_profiles_to_profile_collection", "Issue in Searching and adding Success Profiles to Profile Collection", e);
+			Utilities.handleError(LOGGER, "search_and_add_success_profiles_to_profile_collection", "Issue in Searching and adding Success Profiles to Profile Collection", e);
 			Assert.fail("Issue in Searching and adding Success Profiles to Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -652,17 +652,17 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_success_profiles_header() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 
 			WebElement element = waitForClickable(SP_HEADER_IN_PC);
 			scrollToElement(element);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(element);
 			LOGGER.info("Clicked on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection....");
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_success_profiles_header", "Issue in clicking on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection", e);
+			Utilities.handleError(LOGGER, "click_on_success_profiles_header", "Issue in clicking on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection", e);
 			Assert.fail("Issue in clicking on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection...Please Investigate!!!");
 		}
 	}
@@ -670,13 +670,13 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void user_should_verify_added_profiles_are_available_in_success_profiles_header() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			waitForElement(PC_COUNT);
 			String resultsCountText = getElementText(PC_COUNT);
 			String[] resultsCountText_split = resultsCountText.split(" ");
 			LOGGER.info(resultsCountText_split[3] + "Success Profiles which contains " + spNameString.get() + " as Sub-string are added to Profile Collection");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_added_profiles_are_available_in_success_profiles_header", "Issue in Verifing added profiles availablity in success profiles for Profile Collection", e);
+			Utilities.handleError(LOGGER, "user_should_verify_added_profiles_are_available_in_success_profiles_header", "Issue in Verifing added profiles availablity in success profiles for Profile Collection", e);
 			Assert.fail("Issue in Verifing added profiles availablity in success profiles for Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -685,21 +685,21 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			WebElement element = waitForClickable(DONE_BTN);
 			scrollToElement(element);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			clickElement(element);
 			LOGGER.info("Clicked on Done button in Create Profile Collections page....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_done_button_on_create_profile_collection_page_and_verify_success_popup_appears", "Issue in clicking on Done button in Create Profile Collections page", e);
+			Utilities.handleError(LOGGER, "click_on_done_button_on_create_profile_collection_page_and_verify_success_popup_appears", "Issue in clicking on Done button in Create Profile Collections page", e);
 			Assert.fail("Issue in clicking on Done button in Create Profile Collections page.......Please Investigate!!!");
 		}
 
 		try {
-			PageObjectHelper.waitForPageReady(driver, 5);
+			Utilities.waitForPageReady(driver, 5);
 			waitForElement(PC_SUCCESS_POPUP);
 			String SuccesstText = getElementText(PC_SUCCESS_POPUP);
 			LOGGER.info(SuccesstText);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_done_button_on_create_profile_collection_page_and_verify_success_popup_appears", "Issue in verifying appearing of success popup after creating a Profile Collection", e);
+			Utilities.handleError(LOGGER, "click_on_done_button_on_create_profile_collection_page_and_verify_success_popup_appears", "Issue in verifying appearing of success popup after creating a Profile Collection", e);
 			Assert.fail("Issue in verifying appearing of success popup after creating a Profile Collection....Please Investigate!!!");
 		}
 		LOGGER.info("Profile Collection with name " + pcName.get() + " is created");
@@ -708,27 +708,27 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void search_and_delete_profile_collection() {
 		try {
 			waitForElement(PC_SEARCHBAR).sendKeys(pcName.get());
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			waitForSpinners();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 
 			waitForClickable(TOP_ROW_THREE_DOTS).click();
-			PageObjectHelper.waitForUIStability(driver, 2);
+			Utilities.waitForUIStability(driver, 2);
 
 			WebElement deleteButton = waitForClickable(By.xpath("//div[@class='item-top-row']//*[contains(text(),'Delete')]"));
 			deleteButton.click();
-			PageObjectHelper.waitForUIStability(driver, 2);
+			Utilities.waitForUIStability(driver, 2);
 
 			WebElement confirmButton = waitForClickable(DELETE_CONFIRM_BTN);
 			confirmButton.click();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 
 			String text = getElementText(DELETION_SUCCESS_POPUP);
 			LOGGER.info(text);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_and_delete_profile_collection", "Issue in Searching and Deleting Profile Collection", e);
+			Utilities.handleError(LOGGER, "search_and_delete_profile_collection", "Issue in Searching and Deleting Profile Collection", e);
 			Assert.fail("Issue in Searching and Deleting Profile Collection....Please Investigate!!!");
 		}
 	}
@@ -737,23 +737,23 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			waitForElement(TEAMS_PAGE_SEARCHBAR).sendKeys(teamName.get());
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 
 			waitForClickable(TOP_ROW_THREE_DOTS).click();
-			PageObjectHelper.waitForUIStability(driver, 2);
+			Utilities.waitForUIStability(driver, 2);
 
 			WebElement deleteButton = waitForClickable(By.xpath("//div[@class='item-top-row']//*[contains(text(),'Delete')]"));
 			deleteButton.click();
-			PageObjectHelper.waitForUIStability(driver, 2);
+			Utilities.waitForUIStability(driver, 2);
 
 			WebElement confirmButton = waitForClickable(DELETE_CONFIRM_BTN);
 			confirmButton.click();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			String text = getElementText(DELETION_SUCCESS_POPUP);
 			LOGGER.info(text);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_for_team_name_in_teams_page_and_delete_team", "Issue in Searching and Deleting Team", e);
+			Utilities.handleError(LOGGER, "search_for_team_name_in_teams_page_and_delete_team", "Issue in Searching and Deleting Team", e);
 			Assert.fail("Issue in Searching and Deleting Team....Please Investigate!!!");
 		}
 	}
@@ -767,45 +767,47 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			clickElement(TIP_MSG2_CLOSE_BTN);
 			LOGGER.info("PC Restricted Tip Message verified and closed successfully...");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_pc_restricted_tip_message_is_displaying_on_job_mapping_page", "Issue in verifying PC Restricted Tip Message on Job Mapping page", e);
+			Utilities.handleError(LOGGER, "verify_pc_restricted_tip_message_is_displaying_on_job_mapping_page", "Issue in verifying PC Restricted Tip Message on Job Mapping page", e);
 			Assert.fail("Issue in verifying PC Restricted Tip Message on Job Mapping page...Please Investigate!!!");
 		}
 	}
 
 	public void user_is_on_teams_page() {
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		LOGGER.info("User is on TEAMS page");
 	}
 
 	public void user_is_on_second_step_of_creating_a_team() {
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		LOGGER.info("User is on second step of creating a team");
 	}
 
 	public void user_is_on_team_creation_page_with_team_members_added() {
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		LOGGER.info("User is on Team creation page with team members added");
 	}
 
 	public void user_is_on_manage_success_profiles_page() {
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		LOGGER.info("User is on Manage Success Profiles page");
 	}
 
 	public void user_is_on_second_step_of_creating_a_profile_collection() {
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		LOGGER.info("User is on second step of creating a Profile Collection");
 	}
 
 	public void user_is_on_third_step_of_creating_a_profile_collection() {
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		LOGGER.info("User is on third step of creating a Profile Collection");
 	}
 
 	public void user_is_on_profile_collection_page_with_profiles_added() {
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		LOGGER.info("User is on Profile Collection creation page with profiles added");
 	}
 
 	// formatDateForDisplay() removed - now using inherited method from BasePageObject
 }
+
+

@@ -52,7 +52,7 @@ public class ConditionalScenarioSkip {
 		}
 
 		// First scenario in the feature - will run normally to check the condition
-		LOGGER.info(" CONDITIONAL CHECK: Scenario '{}' will check for unmapped profiles", scenarioName);
+		LOGGER.info(" CONDITIONAL CHECK: Scenario '{}' will check for manually mapped profiles", scenarioName);
 	}
 
 	@After(order = 10) // Run after other hooks

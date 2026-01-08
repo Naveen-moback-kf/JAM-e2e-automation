@@ -19,8 +19,8 @@ import com.kfonetalentsuite.pageobjects.JobMapping.PO30_SelectAndPublishAllJobPr
 import com.kfonetalentsuite.pageobjects.JobMapping.PO32_ClearProfileSelectionFunctionality;
 import com.kfonetalentsuite.pageobjects.JobMapping.PO33_UnmappedJobs_JAM;
 import com.kfonetalentsuite.utils.JobMapping.AllureReportingManager;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.SessionManager;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
+import com.kfonetalentsuite.utils.common.SessionManager;
 import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 

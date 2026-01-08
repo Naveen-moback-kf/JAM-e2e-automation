@@ -6,8 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO07_Screen1SearchResults extends BasePageObject {
 
@@ -41,11 +41,11 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 			int stableCount = 0;
 			
 			// Get initial count
-			String initialCountText = PageObjectHelper.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
+			String initialCountText = Utilities.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
 			LOGGER.info("Initial results count: {}", initialCountText);
 
 			while (scrollCount < maxScrollAttempts) {
-				String resultsCountText = PageObjectHelper.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
+				String resultsCountText = Utilities.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
 				String[] parts = resultsCountText.split(" ");
 				int currentShowing = Integer.parseInt(parts[1]);
 				int totalResults = Integer.parseInt(parts[3]);
@@ -84,8 +84,8 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 				safeSleep(3000);
 				
 				LOGGER.debug("Waiting for spinners and page ready...");
-				PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
-				PageObjectHelper.waitForPageReady(driver, 2);
+				Utilities.waitForSpinnersToDisappear(driver, 5);
+				Utilities.waitForPageReady(driver, 2);
 				safeSleep(1000);
 
 				previousShowing = currentShowing;
@@ -94,7 +94,7 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 
 			if (scrollCount >= maxScrollAttempts) {
 				LOGGER.warn("⚠ Reached maximum scroll attempts ({}) - stopping scroll operation", maxScrollAttempts);
-				String finalCount = PageObjectHelper.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
+				String finalCount = Utilities.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
 				LOGGER.warn("Final loaded count: {}", finalCount);
 			}
 
@@ -132,8 +132,10 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 
 			LOGGER.info("Search validation complete: " + matchCount + " matches, " + nonMatchCount + " non-matches for substring '" + searchSubstring + "'");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_validate_all_search_results_contains_substring_used_for_searching",
+			Utilities.handleError(LOGGER, "user_should_validate_all_search_results_contains_substring_used_for_searching",
 					"Issue validating search results containing substring: " + PO04_JobMappingPageComponents.jobnamesubstring.get(), e);
 		}
 	}
 }
+
+

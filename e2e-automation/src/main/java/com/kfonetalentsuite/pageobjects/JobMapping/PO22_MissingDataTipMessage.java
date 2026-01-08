@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO22_MissingDataTipMessage extends BasePageObject {
 
@@ -34,7 +34,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 	private void waitForUIStabilityInMs(int milliseconds) {
 		try {
-			PageObjectHelper.waitForUIStability(driver, Math.max(1, milliseconds / 1000));
+			Utilities.waitForUIStability(driver, Math.max(1, milliseconds / 1000));
 		} catch (Exception e) {
 			Thread.currentThread().interrupt();
 		}
@@ -68,7 +68,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 					"Missing Data Tip Message should be displayed on Job Mapping page");
 			LOGGER.info("Missing Data Tip Message is successfully displayed on Job Mapping page");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_is_displaying_on_job_mapping_page",
+			Utilities.handleError(LOGGER, "verify_missing_data_tip_message_is_displaying_on_job_mapping_page",
 					"Failed to verify Missing Data Tip Message display", e);
 		}
 	}
@@ -90,7 +90,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 				Assert.fail("Could not extract job count from tip message: " + tipMessageText);
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"verify_missing_data_tip_message_contains_correct_count_of_jobs_with_missing_data",
 					"Failed to verify job count in tip message", e);
 		}
@@ -105,21 +105,21 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 					"Link should contain expected text: " + linkText);
 			LOGGER.info("'" + linkText + "' link is present in Missing Data Tip Message");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_link_is_present_in_missing_data_tip_message",
+			Utilities.handleError(LOGGER, "verify_link_is_present_in_missing_data_tip_message",
 					"Failed to verify link presence", e);
 		}
 	}
 
 	public void click_on_link_in_missing_data_tip_message(String linkText) {
 		try {
-			PageObjectHelper.waitForVisible(wait, VIEW_REUPLOAD_JOBS_LINK);
-			PageObjectHelper.waitForClickable(wait, VIEW_REUPLOAD_JOBS_LINK);
+			Utilities.waitForVisible(wait, VIEW_REUPLOAD_JOBS_LINK);
+			Utilities.waitForClickable(wait, VIEW_REUPLOAD_JOBS_LINK);
 
 			clickElement(VIEW_REUPLOAD_JOBS_LINK);
 			LOGGER.info("Clicked '" + linkText + "' link");
 			waitForUIStabilityInMs(500);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_link_in_missing_data_tip_message",
+			Utilities.handleError(LOGGER, "click_on_link_in_missing_data_tip_message",
 					"Failed to click on '" + linkText + "' link", e);
 		}
 	}
@@ -132,7 +132,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			String verificationResults = "";
 
 			try {
-				PageObjectHelper.waitForVisible(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
+				Utilities.waitForVisible(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
 				if (isElementDisplayed(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON)) {
 					verificationResults += " Close button found; ";
 					pageVerified = true;
@@ -142,7 +142,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			}
 
 			try {
-				PageObjectHelper.waitForVisible(wait, REUPLOAD_BUTTON);
+				Utilities.waitForVisible(wait, REUPLOAD_BUTTON);
 				if (isElementDisplayed(REUPLOAD_BUTTON)) {
 					verificationResults += " Re-upload button found; ";
 					pageVerified = true;
@@ -192,8 +192,8 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			boolean navigatedSuccessfully = false;
 
 			try {
-				PageObjectHelper.waitForVisible(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
-				PageObjectHelper.waitForClickable(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
+				Utilities.waitForVisible(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
+				Utilities.waitForClickable(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
 
 				clickElement(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
 				LOGGER.info("Clicked Close button on re-upload page");
@@ -240,7 +240,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 				LOGGER.debug("Failed to get debug URL: " + debugEx.getMessage());
 			}
 
-			PageObjectHelper.handleError(LOGGER, "navigate_back_to_job_mapping_page",
+			Utilities.handleError(LOGGER, "navigate_back_to_job_mapping_page",
 					"Failed to navigate back to Job Mapping page", e);
 		}
 	}
@@ -252,7 +252,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 					"Missing Data Tip Message should still be displayed on Job Mapping page after navigation");
 			LOGGER.info("Missing Data Tip Message is still displaying on Job Mapping page after navigation");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"verify_missing_data_tip_message_is_still_displaying_on_job_mapping_page",
 					"Failed to verify Missing Data Tip Message is still displayed", e);
 		}
@@ -267,7 +267,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 			clickElement(CLOSE_TIP_MESSAGE_BUTTON);
 			} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_close_button_in_missing_data_tip_message",
+			Utilities.handleError(LOGGER, "click_on_close_button_in_missing_data_tip_message",
 					"Failed to click on missing data tip message close button", e);
 		}
 	}
@@ -313,7 +313,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 				Assert.fail(errorMessage);
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"verify_missing_data_tip_message_is_no_longer_displayed_on_job_mapping_page",
 					"Failed to verify tip message is hidden", e);
 		}
@@ -328,7 +328,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 					"Tip message should contain text about jobs having missing data");
 			LOGGER.info("Tip message contains text about jobs having missing data");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"verify_missing_data_tip_message_contains_text_about_jobs_having_missing_data",
 					"Failed to verify missing data text", e);
 		}
@@ -343,9 +343,11 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 					"Tip message should contain text about reduced match accuracy");
 			LOGGER.info("Tip message contains text about reduced match accuracy");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"verify_missing_data_tip_message_contains_text_about_reduced_match_accuracy",
 					"Failed to verify reduced accuracy text", e);
 		}
 	}
 }
+
+

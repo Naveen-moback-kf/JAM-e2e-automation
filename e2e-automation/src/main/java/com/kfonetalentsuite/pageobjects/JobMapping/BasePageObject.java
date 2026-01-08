@@ -1,9 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import java.text.DecimalFormat;
+
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -13,11 +11,10 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 /**
@@ -67,7 +64,7 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
  * - Use clearAndSearch() instead of manually clearing search bars (handles stubborn inputs)
  * - Use clickElementSafely() for elements that sometimes go stale
  * - Always call waitForSpinners() after actions that trigger data loading
- * - Use PageObjectHelper.waitForPageReady() after critical page interactions
+ * - Use waitForPageReady() after critical page interactions
  * 
  * ================================
  */
@@ -259,22 +256,23 @@ public class BasePageObject {
 	}
 
 	// ==================== WAIT UTILITIES ====================
+	// Instance helper methods - delegate to Utilities for actual wait logic
 	
 	protected WebElement waitForElement(By locator) {
 		return waitForElement(locator, 10);
 	}
 
 	protected WebElement waitForElement(By locator, int timeoutSeconds) {
-		return PageObjectHelper.waitForVisible(wait, locator);
+		return Utilities.waitForVisible(wait, locator);
 	}
 
 	protected WebElement waitForClickable(By locator) {
-		return PageObjectHelper.waitForClickable(wait, locator);
+		return Utilities.waitForClickable(wait, locator);
 	}
 
 	protected void waitForPageLoad() {
-		PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-		PageObjectHelper.waitForPageReady(driver, 3);
+		Utilities.waitForSpinnersToDisappear(driver, 10);
+		Utilities.waitForPageReady(driver, 3);
 	}
 
 	protected void waitForSpinners() {
@@ -283,11 +281,11 @@ public class BasePageObject {
 	
 	protected void waitForSpinners(int timeoutSeconds) {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, timeoutSeconds);
+			Utilities.waitForSpinnersToDisappear(driver, timeoutSeconds);
 		} catch (Exception e) {
 			LOGGER.warn("Spinner wait encountered issue, checking page readiness as fallback: {}", e.getMessage());
 			try {
-				PageObjectHelper.waitForPageReady(driver, 3);
+				Utilities.waitForPageReady(driver, 3);
 				LOGGER.info("Page appears ready despite spinner visibility - continuing");
 			} catch (Exception fallbackEx) {
 				LOGGER.warn("Page readiness check also failed, but continuing execution: {}", fallbackEx.getMessage());
@@ -304,149 +302,59 @@ public class BasePageObject {
 	}
 
 	// ==================== ELEMENT FINDING UTILITIES ====================
+	// Delegate to Utilities for implementation
 	
 	protected WebElement findElement(By locator) {
-		return driver.findElement(locator);
+		return Utilities.findElement(driver, locator);
 	}
 
 	protected List<WebElement> findElements(By locator) {
-		return driver.findElements(locator);
+		return Utilities.findElements(driver, locator);
 	}
 
 	protected WebElement getFirstElementOrNull(By locator) {
-		List<WebElement> elements = driver.findElements(locator);
-		return elements.isEmpty() ? null : elements.get(0);
+		return Utilities.getFirstElementOrNull(driver, locator);
 	}
 
 	protected boolean hasElements(By locator) {
-		return !driver.findElements(locator).isEmpty();
+		return Utilities.hasElements(driver, locator);
 	}
 
 	protected boolean isElementDisplayed(By locator) {
-		try {
-			return driver.findElement(locator).isDisplayed();
-		} catch (Exception e) {
-			return false;
-		}
+		return Utilities.isElementDisplayed(driver, locator);
 	}
 
 	protected String getElementText(By locator) {
-		try {
-			return PageObjectHelper.waitForVisible(wait, locator).getText();
-		} catch (Exception e) {
-			LOGGER.debug("Could not get text from element: {}", e.getMessage());
-			return "";
-		}
+		return Utilities.getElementText(wait, locator, LOGGER);
 	}
 
 	// ==================== CLICK UTILITIES ====================
+	// Delegate to Utilities for implementation
 	
 	protected void clickElement(WebElement element) {
-		try {
-			PageObjectHelper.waitForClickable(wait, element).click();
-		} catch (Exception e) {
-			try {
-				js.executeScript("arguments[0].click();", element);
-			} catch (Exception ex) {
-				LOGGER.warn("Click failed for element: {}", ex.getMessage());
-			}
-		}
+		Utilities.clickElement(driver, wait, js, element);
 	}
 
 	protected void clickElement(By locator) {
-		clickElementSafely(locator, 10);
+		Utilities.clickElement(driver, wait, js, locator);
 	}
 
 	protected void clickElementSafely(By locator, int timeoutSeconds) {
-		PageObjectHelper.waitForPageReady(driver, 2);
-		
-		int maxRetries = 3;
-		
-		for (int attempt = 1; attempt <= maxRetries; attempt++) {
-			try {
-				WebElement element = PageObjectHelper.waitForClickable(wait, locator);
-				element.click();
-				PageObjectHelper.waitForUIStability(driver, 1);
-				return;
-			} catch (org.openqa.selenium.StaleElementReferenceException e) {
-				if (attempt == maxRetries) {
-					LOGGER.error("Element remained stale after {} attempts for locator: {}", maxRetries, locator);
-					try {
-						WebElement element = driver.findElement(locator);
-						js.executeScript("arguments[0].click();", element);
-						PageObjectHelper.waitForUIStability(driver, 1);
-						return;
-					} catch (Exception ex) {
-						LOGGER.error("JavaScript click also failed: {}", ex.getMessage());
-						throw new RuntimeException("Failed to click element after all retries", ex);
-					}
-				}
-				LOGGER.debug("Stale element on attempt {}/{}, retrying...", attempt, maxRetries);
-				try {
-					Thread.sleep(300);
-				} catch (InterruptedException ie) {
-					Thread.currentThread().interrupt();
-					throw new RuntimeException("Interrupted during retry", ie);
-				}
-			} catch (Exception e) {
-				if (attempt == maxRetries) {
-					try {
-						WebElement element = driver.findElement(locator);
-						js.executeScript("arguments[0].click();", element);
-						PageObjectHelper.waitForUIStability(driver, 1);
-						LOGGER.debug("Used JavaScript click fallback for locator: {}", locator);
-						return;
-					} catch (Exception ex) {
-						LOGGER.warn("Click failed for locator after {} attempts: {}", maxRetries, ex.getMessage());
-						throw new RuntimeException("Failed to click element", ex);
-					}
-				}
-				LOGGER.debug("Click attempt {} failed, retrying: {}", attempt, e.getMessage());
-				try {
-					Thread.sleep(300);
-				} catch (InterruptedException ie) {
-					Thread.currentThread().interrupt();
-					throw new RuntimeException("Interrupted during retry", ie);
-				}
-			}
-		}
+		Utilities.clickElementSafely(driver, wait, js, locator, timeoutSeconds);
 	}
 
 	protected void jsClick(WebElement element) {
-		js.executeScript("arguments[0].click();", element);
+		Utilities.jsClick(js, element);
 	}
 
 	protected boolean tryClickWithStrategies(WebElement element) {
-		try {
-			if (element.isDisplayed() && element.isEnabled()) {
-				element.click();
-				PageObjectHelper.waitForUIStability(driver, 1);
-				return true;
-			}
-		} catch (Exception e) {
-		}
-
-		try {
-			js.executeScript("arguments[0].click();", element);
-			PageObjectHelper.waitForUIStability(driver, 1);
-			return true;
-		} catch (Exception e) {
-		}
-
-		try {
-			new Actions(driver).moveToElement(element).click().perform();
-			PageObjectHelper.waitForUIStability(driver, 1);
-			return true;
-		} catch (Exception e) {
-		}
-
-		return false;
+		return Utilities.tryClickWithStrategies(driver, js, element);
 	}
 
 	protected boolean tryClickWithStrategies(By locator, String elementName) {
 		try {
 			WebElement element = waitForClickable(locator);
-			boolean result = tryClickWithStrategies(element);
+			boolean result = Utilities.tryClickWithStrategies(driver, js, element);
 			if (result) {
 				LOGGER.debug("Clicked on {}", elementName);
 			}
@@ -458,29 +366,24 @@ public class BasePageObject {
 	}
 
 	// ==================== SCROLL UTILITIES ====================
+	// Delegate to Utilities for implementation
 	
 	protected void scrollToElement(WebElement element) {
-		js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
-		try {
-			Thread.sleep(300);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+		Utilities.scrollToElement(js, element);
 	}
 
 	protected void scrollToTop() {
-		js.executeScript("window.scrollTo(0, 0);");
+		Utilities.scrollToTop(js);
 	}
 
 	protected void scrollToBottom() {
-		js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+		Utilities.scrollToBottom(js);
 	}
 
 	// ==================== PAGE OPERATIONS ====================
 	
 	protected void refreshPage() {
-		driver.navigate().refresh();
-		waitForPageLoad();
+		Utilities.refreshPage(driver);
 	}
 
 	// ==================== POPUP & BANNER HANDLERS ====================
@@ -488,7 +391,7 @@ public class BasePageObject {
 	protected void handleCookiesBanner() {
 		try {
 			WebDriverWait quickWait = new WebDriverWait(driver, Duration.ofSeconds(2));
-			WebElement cookiesBtn = PageObjectHelper.waitForClickable(quickWait, Locators.Actions.ACCEPT_COOKIES_BTN);
+			WebElement cookiesBtn = Utilities.waitForClickable(quickWait, Locators.Actions.ACCEPT_COOKIES_BTN);
 			tryClickWithStrategies(cookiesBtn);
 			LOGGER.debug("Accepted cookies banner");
 		} catch (Exception e) {
@@ -520,7 +423,7 @@ public class BasePageObject {
 			boolean popupFound = false;
 			for (By locator : popupLocators) {
 				try {
-					WebElement popup = PageObjectHelper.waitForVisible(quickWait, locator);
+					WebElement popup = Utilities.waitForVisible(quickWait, locator);
 					if (popup.isDisplayed()) {
 						popupFound = true;
 						LOGGER.info("'Keep working?' popup detected - dismissing...");
@@ -535,11 +438,11 @@ public class BasePageObject {
 				boolean continueClicked = false;
 				for (By buttonLocator : continueButtonLocators) {
 					try {
-						WebElement continueBtn = PageObjectHelper.waitForClickable(quickWait, buttonLocator);
+						WebElement continueBtn = Utilities.waitForClickable(quickWait, buttonLocator);
 						continueBtn.click();
 						continueClicked = true;
 						safeSleep(2000);
-						PageObjectHelper.waitForPageReady(driver, 5);
+						Utilities.waitForPageReady(driver, 5);
 						break;
 					} catch (Exception e) {
 						LOGGER.debug("Continue button locator failed: {}, trying next...", buttonLocator);
@@ -594,7 +497,7 @@ public class BasePageObject {
 
 	protected void openGlobalNavMenu() {
 		clickElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
-		PageObjectHelper.waitForUIStability(driver, 1);
+		Utilities.waitForUIStability(driver, 1);
 	}
 
 	protected void navigateToJobMapping() {
@@ -606,7 +509,7 @@ public class BasePageObject {
 
 	protected void openUserProfile() {
 		clickElement(Locators.UserProfile.PROFILE_BTN);
-		PageObjectHelper.waitForUIStability(driver, 1);
+		Utilities.waitForUIStability(driver, 1);
 	}
 
 	protected void signOut() {
@@ -629,10 +532,10 @@ public class BasePageObject {
 	protected void clearAndSearch(By searchLocator, String searchTerm) {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 			
 			WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-			WebElement searchBar = PageObjectHelper.waitForClickable(extendedWait, searchLocator);
+			WebElement searchBar = Utilities.waitForClickable(extendedWait, searchLocator);
 			searchBar.click();
 			safeSleep(200);
 			
@@ -646,7 +549,7 @@ public class BasePageObject {
 			searchBar.sendKeys(Keys.ENTER);
 			
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			
 			LOGGER.info("Searched for: " + searchTerm);
 		} catch (Exception e) {
@@ -695,7 +598,7 @@ public class BasePageObject {
 	
 	protected void openFilters() {
 		clickElement(Locators.SearchAndFilters.FILTERS_BTN);
-		PageObjectHelper.waitForUIStability(driver, 1);
+		Utilities.waitForUIStability(driver, 1);
 	}
 
 	protected void clearFilters() {
@@ -708,7 +611,7 @@ public class BasePageObject {
 	protected void closeFilters() {
 		try {
 			clickElement(Locators.SearchAndFilters.FILTERS_BTN);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			LOGGER.info("Closed filters panel");
 		} catch (Exception e) {
 			LOGGER.debug("Filters panel already closed or not present");
@@ -719,7 +622,7 @@ public class BasePageObject {
 		try {
 			By filterLocator = By.xpath("//div[contains(text(),'" + filterName + "')]");
 			clickElement(filterLocator);
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 			LOGGER.info("Opened " + filterName + " filter dropdown");
 		} catch (Exception e) {
 			LOGGER.error("Failed to open " + filterName + " filter dropdown", e);
@@ -736,7 +639,7 @@ public class BasePageObject {
 
 	protected void selectAllProfiles() {
 		clickElement(Locators.Table.HEADER_CHEVRON_BTN);
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		clickElement(Locators.Table.SELECT_ALL_BTN);
 		waitForSpinners();
 		LOGGER.info("Selected all profiles");
@@ -744,7 +647,7 @@ public class BasePageObject {
 
 	protected void deselectAllProfiles() {
 		clickElement(Locators.Table.HEADER_CHEVRON_BTN);
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		clickElement(Locators.Table.SELECT_NONE_BTN);
 		waitForSpinners();
 		LOGGER.info("Deselected all profiles");
@@ -924,19 +827,30 @@ public class BasePageObject {
 
 	// ==================== STRING UTILITIES ====================
 	
+	// ==================== TEXT PROCESSING UTILITIES ====================
+	// Generic methods delegated to Utilities
+	
 	protected String extractCellText(WebElement cell) {
-		if (cell == null) return "";
-		try {
-			String text = cell.getText();
-			if (text == null || text.trim().isEmpty()) {
-				text = cell.getAttribute("innerText");
-			}
-			return text != null ? text.trim() : "";
-		} catch (Exception e) {
-			return "";
-		}
+		return Utilities.extractCellText(cell);
 	}
 
+	protected String normalizeFieldValue(String fieldValue) {
+		return Utilities.normalizeFieldValue(fieldValue);
+	}
+
+	protected String getValueOrEmpty(String value) {
+		return Utilities.getValueOrEmpty(value);
+	}
+
+	protected String normalizeForSorting(String value) {
+		return Utilities.normalizeForSorting(value);
+	}
+
+	protected boolean isMissingData(String value) {
+		return Utilities.isMissingData(value);
+	}
+
+	// Job Mapping specific (kept in BasePageObject)
 	protected String cleanJobName(String rawJobName) {
 		if (rawJobName == null || rawJobName.isEmpty()) return "";
 		String cleaned = rawJobName.trim();
@@ -956,91 +870,38 @@ public class BasePageObject {
 		return cleaned;
 	}
 
-	protected boolean isMissingData(String value) {
-		if (value == null || value.trim().isEmpty()) return true;
-		String normalized = value.trim().toLowerCase();
-		return normalized.equals("n/a") || normalized.equals("-") || normalized.equals("na") 
-				|| normalized.equals("null") || normalized.equals("none");
-	}
-
-	protected String normalizeFieldValue(String fieldValue) {
-		if (fieldValue == null) return "";
-		String normalized = fieldValue.trim();
-		if (normalized.startsWith("-")) normalized = normalized.substring(1).trim();
-		if (normalized.endsWith("-")) normalized = normalized.substring(0, normalized.length() - 1).trim();
-		return normalized;
-	}
-
-	protected String getValueOrEmpty(String value) {
-		return isMissingData(value) ? "[EMPTY]" : value;
-	}
-
-	protected String normalizeForSorting(String value) {
-		if (value == null) return "";
-		return value.replaceAll("[-'\"()\\[\\].,:;!?]", "").trim();
-	}
-
 	// ==================== DATE UTILITIES ====================
+	// Delegate to Utilities for implementation
 	
 	protected String formatCurrentDate() {
-		LocalDate today = LocalDate.now();
-		java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy");
-		return today.format(formatter);
+		return Utilities.formatCurrentDate();
 	}
 
 	protected String formatDateForDisplay() {
-		LocalDate currentDate = LocalDate.now();
-		int currentYear = currentDate.getYear();
-		int currentDay = currentDate.getDayOfMonth();
-		Month currentMonth = currentDate.getMonth();
-		String dayStr = (currentDay < 10) ? new DecimalFormat("00").format(currentDay) : String.valueOf(currentDay);
-		return currentMonth.toString().substring(0, 1) + currentMonth.toString().substring(1, 3).toLowerCase() + " " + dayStr + ", " + currentYear;
+		return Utilities.formatDateForDisplay();
 	}
 
 	// ==================== PARSING UTILITIES ====================
+	// Delegate to Utilities for implementation
 	
 	protected int parseProfileCountFromText(String countText) {
-		try {
-			if (countText != null && countText.contains("of")) {
-				String afterOf = countText.substring(countText.indexOf("of") + 2).trim();
-				String totalCountStr = afterOf.split("\\s+")[0].replaceAll("[^0-9]", "");
-				if (!totalCountStr.isEmpty()) {
-					return Integer.parseInt(totalCountStr);
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.debug("Could not parse profile count from: {}", countText);
-		}
-		return 0;
+		return Utilities.parseProfileCountFromText(countText);
 	}
 
 	protected int getRowIndex(WebElement rowElement) {
-		try {
-			String dataIndex = rowElement.getAttribute("data-row-index");
-			if (dataIndex != null && !dataIndex.isEmpty()) {
-				return Integer.parseInt(dataIndex);
-			}
-			List<WebElement> allRows = driver.findElements(By.xpath("//tbody//tr"));
-			for (int i = 0; i < allRows.size(); i++) {
-				if (allRows.get(i).equals(rowElement)) {
-					return i + 1;
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.debug("Could not get row index: " + e.getMessage());
-		}
-		return -1;
+		return Utilities.getRowIndex(driver, rowElement);
 	}
 
 	// ==================== SORTING VALIDATION UTILITIES ====================
+	// Validation with logging - uses Utilities for text processing
 	
 	protected int validateAscendingOrder(List<String> values) {
 		int violations = 0;
 		for (int i = 0; i < values.size() - 1; i++) {
-			String currentNormalized = normalizeForSorting(values.get(i));
-			String nextNormalized = normalizeForSorting(values.get(i + 1));
+			String currentNormalized = Utilities.normalizeForSorting(values.get(i));
+			String nextNormalized = Utilities.normalizeForSorting(values.get(i + 1));
 
-			if (isNonAscii(currentNormalized) && isNonAscii(nextNormalized)) {
+			if (Utilities.isNonAscii(currentNormalized) && Utilities.isNonAscii(nextNormalized)) {
 				continue;
 			}
 
@@ -1056,10 +917,10 @@ public class BasePageObject {
 	protected int validateDescendingOrder(List<String> values) {
 		int violations = 0;
 		for (int i = 0; i < values.size() - 1; i++) {
-			String currentNormalized = normalizeForSorting(values.get(i));
-			String nextNormalized = normalizeForSorting(values.get(i + 1));
+			String currentNormalized = Utilities.normalizeForSorting(values.get(i));
+			String nextNormalized = Utilities.normalizeForSorting(values.get(i + 1));
 
-			if (isNonAscii(currentNormalized) && isNonAscii(nextNormalized)) {
+			if (Utilities.isNonAscii(currentNormalized) && Utilities.isNonAscii(nextNormalized)) {
 				continue;
 			}
 
@@ -1073,11 +934,11 @@ public class BasePageObject {
 	}
 
 	protected boolean isNonAscii(String value) {
-		return value != null && !value.isEmpty() && value.charAt(0) > 127;
+		return Utilities.isNonAscii(value);
 	}
 
 	protected boolean shouldSkipInSortValidation(String value) {
-		return isMissingData(value);
+		return Utilities.shouldSkipInSortValidation(value);
 	}
 
 	// ==================== UI ELEMENT EXPANSION UTILITIES ====================

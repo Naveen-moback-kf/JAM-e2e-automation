@@ -5,8 +5,8 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
@@ -51,7 +51,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_unpublished_profiles_before", e);
-			PageObjectHelper.handleError(LOGGER, "verify_unpublished_profiles_before", 
+			Utilities.handleError(LOGGER, "verify_unpublished_profiles_before", 
 					"Error getting unpublished profiles count", e);
 		}
 	}
@@ -68,37 +68,37 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_published_profiles_before", e);
-			PageObjectHelper.handleError(LOGGER, "verify_published_profiles_before", 
+			Utilities.handleError(LOGGER, "verify_published_profiles_before", 
 					"Error getting published profiles count", e);
 		}
 	}
 
 	public void click_on_view_published_toggle_button_to_turn_off() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
 
 			WebElement toggle = findElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
 			if (toggle.isSelected() || "true".equals(toggle.getAttribute("aria-checked"))) {
 				clickElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
 				LOGGER.info("Clicked View Published toggle to turn OFF");
-				PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-				PageObjectHelper.waitForPageReady(driver, 2);
+				Utilities.waitForSpinnersToDisappear(driver, 10);
+				Utilities.waitForPageReady(driver, 2);
 			}
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_view_published_toggle_off", e);
-			PageObjectHelper.handleError(LOGGER, "click_view_published_toggle_off", 
+			Utilities.handleError(LOGGER, "click_view_published_toggle_off", 
 					"Issue clicking View Published toggle", e);
 		}
 	}
 
 	public void click_on_chevron_button_beside_header_checkbox_in_job_mapping_screen() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 1);
+			Utilities.waitForPageReady(driver, 1);
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 
 			js.executeScript("window.scrollTo(0, 0);");
 			safeSleep(300);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
 
 			WebElement chevronBtn = findElement(CHEVRON_BTN);
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", chevronBtn);
@@ -106,23 +106,23 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 			clickElement(CHEVRON_BTN);
 			LOGGER.info("Clicked Chevron Button beside Header Checkbox");
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_chevron_button", e);
-			PageObjectHelper.handleError(LOGGER, "click_chevron_button", "Issue clicking Chevron Button", e);
+			Utilities.handleError(LOGGER, "click_chevron_button", "Issue clicking Chevron Button", e);
 		}
 	}
 
 	public void click_on_select_all_button_in_job_mapping_screen() {
 		try {
 			clickElement(Locators.Table.SELECT_ALL_BTN);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_select_all_button", e);
-			PageObjectHelper.handleError(LOGGER, "click_select_all_button", "Issue clicking Select All button", e);
+			Utilities.handleError(LOGGER, "click_select_all_button", "Issue clicking Select All button", e);
 		}
 	}
 
@@ -130,8 +130,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		int selectedCount = 0;
 
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			// Get total profile count from "Showing X of Y results" text
 			try {
@@ -156,15 +156,15 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_selected_profiles_count", e);
-			PageObjectHelper.handleError(LOGGER, "verify_selected_profiles_count", 
+			Utilities.handleError(LOGGER, "verify_selected_profiles_count", 
 					"Error getting selected job profiles count from results text", e);
 		}
 	}
 
 	public void verify_async_functionality_message_is_displayed_on_jam_screen() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 3);
 
 			WebElement asyncMsg = findElement(ASYNC_MESSAGE);
 			if (asyncMsg.isDisplayed()) {
@@ -174,7 +174,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_async_message", e);
-			PageObjectHelper.handleError(LOGGER, "verify_async_message", "Error verifying async message", e);
+			Utilities.handleError(LOGGER, "verify_async_message", "Error verifying async message", e);
 		}
 	}
 
@@ -184,7 +184,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			boolean popupAppeared = false;
 
 			try {
-				PageObjectHelper.waitForVisible(wait, SUCCESS_HEADER);
+				Utilities.waitForVisible(wait, SUCCESS_HEADER);
 				popupAppeared = true;
 
 			String successHeaderText = getElementText(SUCCESS_HEADER);
@@ -195,8 +195,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			// Close the popup with multiple fallback strategies
 			closeSuccessPopupWithFallback();
 
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			} catch (Exception popupException) {
 				LOGGER.info("Async publishing detected - no immediate success popup");
@@ -208,21 +208,21 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			}
 
 			driver.navigate().refresh();
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 3);
 
 			LOGGER.info("Ready for progressive monitoring");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("refresh_after_publish", e);
-			PageObjectHelper.handleError(LOGGER, "refresh_after_publish", "Error in initial refresh", e);
+			Utilities.handleError(LOGGER, "refresh_after_publish", "Error in initial refresh", e);
 		}
 	}
 
 	public void verify_count_of_total_un_published_profiles_after_publishing_selected_profiles() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
 			int count = parseProfileCountFromText(countText);
@@ -239,15 +239,15 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_unpublished_profiles_after", e);
-			PageObjectHelper.handleError(LOGGER, "verify_unpublished_profiles_after", 
+			Utilities.handleError(LOGGER, "verify_unpublished_profiles_after", 
 					"Error getting unpublished profiles count", e);
 		}
 	}
 
 	public void get_count_of_published_profiles_in_job_mapping_screen() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			totalPublishedCount.set(unpublishedProfilesCountBefore.get() - unpublishedProfilesCountAfter.get()
 					+ publishedProfilesCountBefore.get());
@@ -274,14 +274,14 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("get_published_profiles_count", e);
-			PageObjectHelper.handleError(LOGGER, "get_published_profiles_count", "Error calculating published count", e);
+			Utilities.handleError(LOGGER, "get_published_profiles_count", "Error calculating published count", e);
 		}
 	}
 
 	public void verify_count_of_total_published_profiles_after_publishing_selected_profiles() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
 			int count = parseProfileCountFromText(countText);
@@ -293,15 +293,15 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_published_profiles_after", e);
-			PageObjectHelper.handleError(LOGGER, "verify_published_profiles_after", 
+			Utilities.handleError(LOGGER, "verify_published_profiles_after", 
 					"Error getting published profiles count", e);
 		}
 	}
 
 	public void verify_published_profiles_count_matches_in_view_published_screen() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			if (publishedProfilesCountAfter.get().equals(totalPublishedCount.get())) {
 				LOGGER.info("Published profiles count matches: " + totalPublishedCount.get());
@@ -312,19 +312,19 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_published_count_match", e);
-			PageObjectHelper.handleError(LOGGER, "verify_published_count_match", "Error verifying count match", e);
+			Utilities.handleError(LOGGER, "verify_published_count_match", "Error verifying count match", e);
 		}
 	}
 
 	public void user_is_in_job_mapping_page_after_initial_refresh() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 			LOGGER.debug("Job Mapping page ready");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_job_mapping_page", e);
-			PageObjectHelper.handleError(LOGGER, "verify_job_mapping_page", "Error verifying Job Mapping page", e);
+			Utilities.handleError(LOGGER, "verify_job_mapping_page", "Error verifying Job Mapping page", e);
 		}
 	}
 
@@ -338,7 +338,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("calculate_expected_time", e);
-			PageObjectHelper.handleError(LOGGER, "calculate_expected_time", "Error calculating expected time", e);
+			Utilities.handleError(LOGGER, "calculate_expected_time", "Error calculating expected time", e);
 		}
 	}
 
@@ -376,8 +376,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 				driver.navigate().refresh();
 				// Refresh and wait for page ready
 				driver.navigate().refresh();
-				PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-				PageObjectHelper.waitForPageReady(driver, 2);
+				Utilities.waitForSpinnersToDisappear(driver, 10);
+				Utilities.waitForPageReady(driver, 2);
 
 				// Get current unpublished count from results text
 				try {
@@ -509,15 +509,15 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("monitor_batch_publishing", e);
-			PageObjectHelper.handleError(LOGGER, "monitor_batch_publishing", 
+			Utilities.handleError(LOGGER, "monitor_batch_publishing", 
 					"Error monitoring batch publishing", e);
 		}
 	}
 
 	public void verify_all_profiles_are_published_successfully() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			int finalUnpublishedCount = 0;
 
@@ -543,7 +543,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_all_published", e);
-			PageObjectHelper.handleError(LOGGER, "verify_all_published", "Error verifying final status", e);
+			Utilities.handleError(LOGGER, "verify_all_published", "Error verifying final status", e);
 		}
 	}
 	
@@ -591,3 +591,5 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 }
+
+

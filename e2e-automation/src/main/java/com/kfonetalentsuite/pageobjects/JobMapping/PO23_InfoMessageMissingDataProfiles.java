@@ -16,7 +16,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
@@ -58,7 +58,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 	private void waitForUIStabilityInMs(int milliseconds) {
 		try {
-			PageObjectHelper.waitForUIStability(driver, Math.max(1, milliseconds / 1000));
+			Utilities.waitForUIStability(driver, Math.max(1, milliseconds / 1000));
 		} catch (Exception e) {
 			Thread.currentThread().interrupt();
 			LOGGER.warn("Sleep interrupted: " + e.getMessage());
@@ -420,7 +420,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 			LOGGER.info("Successfully found and verified profile with missing data has Info Message displayed (searched across multiple pages)");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "find_and_verify_profile_with_missing_data_has_info_message_displayed",
+			Utilities.handleError(LOGGER, "find_and_verify_profile_with_missing_data_has_info_message_displayed",
 					"Failed to find and verify profile with missing data has Info Message", e);
 		}
 	}
@@ -682,12 +682,12 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 					js.executeScript("var container = document.getElementById('org-job-container');"
 							+ "if (container) { container.scrollTop = container.scrollHeight; }");
 					waitForUIStabilityInMs(2000);
-					PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+					Utilities.waitForSpinnersToDisappear(driver, 5);
 					waitForUIStabilityInMs(1000);
 				} else {
 					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 					waitForUIStabilityInMs(2000);
-					PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+					Utilities.waitForSpinnersToDisappear(driver, 5);
 				}
 
 				List<WebElement> rowsAfterScroll = driver.findElements(ORG_JOB_TABLE_ROWS);
@@ -712,7 +712,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			throw new SkipException("SKIPPED: No AutoMapped profiles with missing data and info message found after checking all " + profilesChecked
 					+ " profiles. This scenario requires at least one profile with missing data to execute.");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "find_profile_with_missing_data_and_info_message",
+			Utilities.handleError(LOGGER, "find_profile_with_missing_data_and_info_message",
 					"Error searching for AutoMapped profile with missing data", e);
 		}
 	}
@@ -961,12 +961,12 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 					js.executeScript("var container = document.getElementById('org-job-container');"
 							+ "if (container) { container.scrollTop = container.scrollHeight; }");
 					waitForUIStabilityInMs(2000);
-					PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+					Utilities.waitForSpinnersToDisappear(driver, 5);
 					waitForUIStabilityInMs(1000);
 				} else {
 					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 					waitForUIStabilityInMs(2000);
-					PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+					Utilities.waitForSpinnersToDisappear(driver, 5);
 				}
 
 				List<WebElement> rowsAfterScroll = driver.findElements(ORG_JOB_TABLE_ROWS);
@@ -993,7 +993,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 	} catch (SkipException se) {
 		throw se;
 	} catch (Exception e) {
-		PageObjectHelper.handleError(LOGGER, "find_second_profile_with_missing_data_and_info_message",
+		Utilities.handleError(LOGGER, "find_second_profile_with_missing_data_and_info_message",
 				"Error searching for SECOND AutoMapped profile with missing data", e);
 	}
 }
@@ -1032,7 +1032,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			LOGGER.info("Successfully verified Info Message contains correct text about reduced match accuracy due to missing data");
 			LOGGER.info("Successfully verified Info Message text");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_data",
+			Utilities.handleError(LOGGER, "verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_data",
 					"Failed to verify Info Message text", e);
 		}
 	}
@@ -1091,7 +1091,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 				throw new IOException("First profile job details not found. Please call find_profile_with_missing_data_and_info_message() first.");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "extract_job_details_from_profile_with_info_message",
+			Utilities.handleError(LOGGER, "extract_job_details_from_profile_with_info_message",
 					"Failed to validate first profile job details", e);
 		}
 	}
@@ -1120,7 +1120,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			LOGGER.info("Successfully verified Info Message persists in Job Comparison page for first profile");
 			LOGGER.info("SUCCESS: Info Message persistence verified for first profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_info_message_is_still_displayed_in_job_comparison_page",
+			Utilities.handleError(LOGGER, "verify_info_message_is_still_displayed_in_job_comparison_page",
 					"Failed to verify Info Message persistence in Job Comparison page for first profile", e);
 		}
 	}
@@ -1330,7 +1330,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 						LOGGER.info("Successfully verified navigation to Job Comparison page");
 			LOGGER.info("SUCCESS: User is successfully navigated to Job Comparison page");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_user_is_navigated_to_job_comparison_page",
+			Utilities.handleError(LOGGER, "verify_user_is_navigated_to_job_comparison_page",
 					"Failed to verify navigation to Job Comparison page", e);
 		}
 	}
@@ -1598,7 +1598,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 				Assert.fail("Job details do NOT match between Job Mapping and Job Comparison pages for second profile:" + mismatchDetails.toString());
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "extract_job_details_from_job_comparison_page_for_second_profile",
+			Utilities.handleError(LOGGER, "extract_job_details_from_job_comparison_page_for_second_profile",
 					"Failed to extract job details from Job Comparison page for second profile", e);
 		}
 	}
@@ -1638,7 +1638,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			LOGGER.info("Successfully verified Info Message contains same text in Job Comparison page");
 			LOGGER.info("SUCCESS: Info Message text consistency verified in Job Comparison page");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_info_message_contains_same_text_about_reduced_match_accuracy",
+			Utilities.handleError(LOGGER, "verify_info_message_contains_same_text_about_reduced_match_accuracy",
 					"Failed to verify Info Message text consistency in Job Comparison page", e);
 		}
 	}
@@ -1701,8 +1701,10 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			LOGGER.info("Navigated back to Job Mapping page");
 			LOGGER.info("Navigated back to Job Mapping page");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "navigate_back_to_job_mapping_page_from_job_comparison",
+			Utilities.handleError(LOGGER, "navigate_back_to_job_mapping_page_from_job_comparison",
 					"Failed to navigate back to Job Mapping page from Job Comparison", e);
 		}
 	}
 }
+
+

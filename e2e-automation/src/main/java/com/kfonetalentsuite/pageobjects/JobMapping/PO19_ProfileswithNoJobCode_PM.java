@@ -6,8 +6,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
 
 public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 
@@ -26,7 +26,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 	public void user_should_search_for_success_profile_with_no_job_code_assigned() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			String resultsCountText = getElementText(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 			String[] resultsCountText_split = resultsCountText.split(" ");
 			int totalProfiles = Integer.parseInt(resultsCountText_split[3]);
@@ -46,7 +46,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 					}
 				} catch (Exception e) {
 					waitForSpinners();
-					PageObjectHelper.waitForPageReady(driver, 3);
+					Utilities.waitForPageReady(driver, 3);
 					rowNumber.set(i);
 					WebElement SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[1]//*//..//div//kf-checkbox//div"));
 					scrollToElement(SP_Checkbox);
@@ -64,7 +64,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 			}
 
 		} catch (Exception s) {
-			PageObjectHelper.handleError(LOGGER, "user_should_search_for_success_profile_with_no_job_code_assigned", "Issue in searching for a Success profile with No Job Code assigned in HCM Sync Profiles screen in PM", s);
+			Utilities.handleError(LOGGER, "user_should_search_for_success_profile_with_no_job_code_assigned", "Issue in searching for a Success profile with No Job Code assigned in HCM Sync Profiles screen in PM", s);
 		}
 	}
 
@@ -90,7 +90,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 				}
 
 				safeSleep(500); // Allow scroll to complete
-				PageObjectHelper.waitForPageReady(driver, 2);
+				Utilities.waitForPageReady(driver, 2);
 
 				// Find the checkbox for the profile with no job code
 				WebElement SP_Checkbox = waitForElement(
@@ -119,7 +119,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 
 			} catch (Exception e) {
 				ScreenshotHandler.captureFailureScreenshot("tooltip_verification_failed", e);
-				PageObjectHelper.handleError(LOGGER, "user_should_verify_tooltip_is_displaying_on_checkbox_of_success_profile_with_no_job_code", 
+				Utilities.handleError(LOGGER, "user_should_verify_tooltip_is_displaying_on_checkbox_of_success_profile_with_no_job_code", 
 					"Issue in verifying Tooltip on checkbox of Success profile with No Job Code assigned in HCM Sync Profiles screen in PM", e);
 			}
 		} else {
@@ -137,7 +137,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 					scrollToElement(driver.findElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN));
 				}
 
-				PageObjectHelper.waitForPageReady(driver, 1);
+				Utilities.waitForPageReady(driver, 1);
 
 				WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[1]//*"));
 				scrollToElement(SP_JobName);
@@ -164,10 +164,12 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_EXPORT_STATUS).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_ExportStatus.getText());
 
 			} catch (Exception e) {
-				PageObjectHelper.handleError(LOGGER, "verify_details_of_the_success_profile_with_no_job_code_assigned_in_hcm_sync_profiles_tab", "Issue in Verifying details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM", e);
+				Utilities.handleError(LOGGER, "verify_details_of_the_success_profile_with_no_job_code_assigned_in_hcm_sync_profiles_tab", "Issue in Verifying details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM", e);
 			}
 		} else {
 			LOGGER.info("Currently, Job Code has been assigned to all Success Profiles in HCM Sync Profiles screen in PM");
 		}
 	}
 }
+
+

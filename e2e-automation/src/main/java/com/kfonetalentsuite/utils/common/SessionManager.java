@@ -1,4 +1,4 @@
-package com.kfonetalentsuite.utils.JobMapping;
+package com.kfonetalentsuite.utils.common;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -7,7 +7,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 
 import com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin;
-import com.kfonetalentsuite.utils.common.CommonVariableManager;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import java.time.Duration;
@@ -134,7 +134,7 @@ public class SessionManager {
 
 				LOGGER.info("Navigating to login page: {}", loginUrl);
 				driver.get(loginUrl);
-				PageObjectHelper.waitForPageReady(driver, 5);
+				Utilities.waitForPageReady(driver, 5);
 
 				// Step 2: Perform login using PO01_KFoneLogin
 				PO01_KFoneLogin loginPage = new PO01_KFoneLogin();
@@ -145,17 +145,17 @@ public class SessionManager {
 				if (isSSOLogin) {
 					LOGGER.info("Performing SSO re-login for user: {}", CommonVariableManager.SSO_USERNAME);
 					loginPage.provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page();
-					PageObjectHelper.waitForPageReady(driver, 3);
+					Utilities.waitForPageReady(driver, 3);
 					loginPage.provide_sso_login_password_and_click_sign_in();
 				} else {
 					LOGGER.info("Performing non-SSO re-login for user: {}", CommonVariableManager.NON_SSO_USERNAME);
 					loginPage.provide_non_sso_login_username_and_click_sign_in_button_in_kfone_login_page();
-					PageObjectHelper.waitForPageReady(driver, 3);
+					Utilities.waitForPageReady(driver, 3);
 					loginPage.provide_non_sso_login_password_and_click_sign_in_button_in_kfone_login_page();
 				}
 
 				// Step 3: Wait for login to complete
-				PageObjectHelper.waitForPageReady(driver, 10);
+				Utilities.waitForPageReady(driver, 10);
 				Thread.sleep(2000); // Allow session to establish
 
 				// Step 4: Validate session after re-login
@@ -261,3 +261,4 @@ public class SessionManager {
 		return isAuthenticated.get();
 	}
 }
+

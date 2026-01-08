@@ -9,8 +9,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
@@ -30,12 +30,12 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 	public void sort_profiles_by_name_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
 			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_NAME);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
 			LOGGER.info("Clicked on Name header to Sort Profiles in ascending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_by_name_ascending", "Issue sorting by name ascending", e);
+			Utilities.handleError(LOGGER, "sort_by_name_ascending", "Issue sorting by name ascending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_name_ascending", e);
 			Assert.fail("Issue in sorting by Name in ascending order...Please Investigate!!!");
 		}
@@ -43,8 +43,8 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_name_in_ascending_order() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver);
 
 			List<WebElement> allElements = findElements(PROFILE_NAME_ELEMENTS);
 			LOGGER.info("Profiles After sorting by Name in Ascending Order:");
@@ -93,7 +93,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 					String.format("%.1f", correctPercentage) + "% in correct ascending order");
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_sorted_by_name_ascending", 
+			Utilities.handleError(LOGGER, "verify_sorted_by_name_ascending", 
 					"Issue verifying sorted profiles", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_sorted_by_name_ascending", e);
 			Assert.fail("Issue in Verifying Profiles sorted by Name in Ascending Order...Please Investigate!!!");
@@ -108,23 +108,23 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 			// First click - ascending
 			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_LEVEL);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
 			safeSleep(3000);
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForPageReady(driver);
 			safeSleep(1500);
 
 			// Second click - descending
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", levelHeader);
 			safeSleep(500);
 			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_LEVEL);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
 			safeSleep(3000);
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForPageReady(driver);
 
 			LOGGER.info("Clicked twice on Level header to Sort in Descending order");
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_by_level_descending", "Issue sorting by level descending", e);
+			Utilities.handleError(LOGGER, "sort_by_level_descending", "Issue sorting by level descending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_level_descending", e);
 			Assert.fail("Issue in sorting by Level in Descending order...Please Investigate!!!");
 		}
@@ -134,7 +134,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		try {
 			// Loader may not always appear - wait gracefully
 			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForPageReady(driver);
 
 			List<WebElement> profileNameElements = findElements(PROFILE_NAME_ELEMENTS);
 			List<WebElement> levelElements = findElements(LEVEL_ELEMENTS);
@@ -184,7 +184,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			}
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_sorted_by_level_descending", 
+			Utilities.handleError(LOGGER, "verify_sorted_by_level_descending", 
 					"Issue verifying sorted profiles", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_sorted_by_level_descending", e);
 			Assert.fail("Issue in Verifying Profiles sorted by Level in Descending Order...Please Investigate!!!");
@@ -194,12 +194,12 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 	public void sort_profiles_by_job_status_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
 			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_STATUS);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
 			LOGGER.info("Clicked on Job Status header to Sort in ascending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_by_job_status_ascending", 
+			Utilities.handleError(LOGGER, "sort_by_job_status_ascending", 
 					"Issue sorting by job status ascending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_job_status_ascending", e);
 			Assert.fail("Issue in sorting by Job Status in ascending order...Please Investigate!!!");
@@ -209,12 +209,12 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 	public void sort_profiles_by_job_code_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
 			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_JOB_CODE);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
 			LOGGER.info("Clicked on Job Code header to Sort in ascending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_by_job_code_ascending", 
+			Utilities.handleError(LOGGER, "sort_by_job_code_ascending", 
 					"Issue sorting by job code ascending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_job_code_ascending", e);
 			Assert.fail("Issue in sorting by Job Code in ascending order...Please Investigate!!!");
@@ -223,8 +223,8 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_code_in_ascending_order() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver);
 
 			List<WebElement> profileNameElements = findElements(PROFILE_NAME_ELEMENTS);
 			List<WebElement> jobCodeElements = findElements(JOB_CODE_ELEMENTS);
@@ -274,7 +274,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			}
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_sorted_by_job_code_ascending", 
+			Utilities.handleError(LOGGER, "verify_sorted_by_job_code_ascending", 
 					"Issue verifying sorted profiles by job code", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_sorted_by_job_code_ascending", e);
 			Assert.fail("Issue in Verifying Profiles sorted by Job Code in Ascending Order...Please Investigate!!!");
@@ -292,7 +292,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			// Loader may not always appear - wait gracefully
 			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
 			safeSleep(3000);
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForPageReady(driver);
 			safeSleep(1500);
 
 			// Second click - descending
@@ -301,12 +301,12 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_EXPORT_STATUS);
 			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
 			safeSleep(3000);
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForPageReady(driver);
 
 			LOGGER.info("Clicked twice on Export Status header to Sort in Descending order");
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_by_export_status_descending", 
+			Utilities.handleError(LOGGER, "sort_by_export_status_descending", 
 					"Issue sorting by export status descending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_export_status_descending", e);
 			Assert.fail("Issue in sorting by Export Status in Descending order...Please Investigate!!!");
@@ -322,11 +322,11 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_FUNCTION);
 			// Loader may not always appear - wait gracefully
 			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForPageReady(driver);
 			LOGGER.info("Clicked on Function header to Sort in ascending order");
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_by_function_ascending", 
+			Utilities.handleError(LOGGER, "sort_by_function_ascending", 
 					"Issue sorting by function ascending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_function_ascending", e);
 			Assert.fail("Issue in sorting by Function in ascending order...Please Investigate!!!");
@@ -340,19 +340,19 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			// Loader may not always appear - wait gracefully
 			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
 			safeSleep(2000);
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForPageReady(driver);
 			safeSleep(1000);
 
 			// Second click - descending
 			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_FUNCTION);
 			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
 			safeSleep(2000);
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForPageReady(driver);
 
 			LOGGER.info("Clicked twice on Function header to Sort in Descending order");
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_by_function_descending", 
+			Utilities.handleError(LOGGER, "sort_by_function_descending", 
 					"Issue sorting by function descending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_function_descending", e);
 			Assert.fail("Issue in sorting by Function in Descending order...Please Investigate!!!");
@@ -361,8 +361,8 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_in_ascending_and_function_in_descending_order() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver);
 
 			List<WebElement> profileNameElements = findElements(PROFILE_NAME_ELEMENTS);
 			List<WebElement> jobStatusElements = findElements(JOB_STATUS_ELEMENTS);
@@ -402,7 +402,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 					String.format("%.1f", correctPercentage) + "% in correct order");
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_sorted_by_job_status_and_function", 
+			Utilities.handleError(LOGGER, "verify_sorted_by_job_status_and_function", 
 					"Issue verifying sorted profiles", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_sorted_by_job_status_and_function", e);
 			Assert.fail("Issue in Verifying Profiles sorted by Job Status and Function...Please Investigate!!!");
@@ -411,8 +411,8 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_status_ascending_export_status_descending_and_function_ascending() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver);
 
 			List<WebElement> profileNameElements = findElements(PROFILE_NAME_ELEMENTS);
 			List<WebElement> jobStatusElements = findElements(JOB_STATUS_ELEMENTS);
@@ -454,7 +454,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 					String.format("%.1f", correctPercentage) + "% in correct order");
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_3level_sorting", 
+			Utilities.handleError(LOGGER, "verify_3level_sorting", 
 					"Issue verifying 3-level sorted profiles", e);
 			ScreenshotHandler.captureFailureScreenshot("verify_profiles_3level_sorting", e);
 			Assert.fail("Issue in Verifying Profiles After 3-level sorting...Please Investigate!!!");
@@ -510,7 +510,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 				throw new IllegalArgumentException("Unknown column for sorting: " + column);
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_profiles_by_column_in_order_in_hcm_sync_profiles_screen", 
+			Utilities.handleError(LOGGER, "sort_profiles_by_column_in_order_in_hcm_sync_profiles_screen", 
 					"Issue sorting HCM profiles by column '" + column + "' in '" + order + "' order", e);
 		}
 	}
@@ -532,8 +532,10 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 				LOGGER.info("✅ Sorting verification completed for column: " + column + " in " + order + " order");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_column_in_order", 
+			Utilities.handleError(LOGGER, "user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_column_in_order", 
 					"Issue verifying HCM sort by column '" + column + "' in '" + order + "' order", e);
 		}
 	}
 }
+
+

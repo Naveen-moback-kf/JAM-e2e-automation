@@ -13,8 +13,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.SessionManager;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.SessionManager;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
@@ -77,7 +77,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 			
 			LOGGER.info("Successfully Launched KFONE " + environment + " Environment URL: " + url);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "launch_the_kfone_application", "Issue in launching KFONE application", e);
+			Utilities.handleError(LOGGER, "launch_the_kfone_application", "Issue in launching KFONE application", e);
 		}
 	}
 	
@@ -102,54 +102,54 @@ public class PO01_KFoneLogin extends BasePageObject {
 		try {
 			handleCookiesBanner();
 			String ssoUsername = getCredential("SSO", "Username");
-			PageObjectHelper.waitAndSendKeys(wait, USERNAME_INPUT, ssoUsername);
+			Utilities.waitAndSendKeys(wait, USERNAME_INPUT, ssoUsername);
 			username.set(ssoUsername);
 			jsClick(driver.findElement(KFONE_SIGNIN_BTN));
 			safeSleep(2000);
 			LOGGER.info("Entered SSO username and proceeded to Microsoft login");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page",
+			Utilities.handleError(LOGGER, "provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page",
 					"Issue in providing SSO login username and clicking sign in button", e);
 		}
 	}
 
 	public void user_should_navigate_to_microsoft_login_page() {
 		try {
-			PageObjectHelper.waitForVisible(wait, MICROSOFT_PASSWORD_HEADER);
+			Utilities.waitForVisible(wait, MICROSOFT_PASSWORD_HEADER);
 			LOGGER.info("Navigated to Microsoft Login page");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_navigate_to_microsoft_login_page", "Issue in navigating to Microsoft Login page", e);
+			Utilities.handleError(LOGGER, "user_should_navigate_to_microsoft_login_page", "Issue in navigating to Microsoft Login page", e);
 		}
 	}
 
 	public void provide_sso_login_password_and_click_sign_in() {
 		try {
 			String ssoPassword = getCredential("SSO", "Password");
-			Assert.assertTrue(PageObjectHelper.waitForVisible(wait, MICROSOFT_PASSWORD_HEADER).isDisplayed());
-			PageObjectHelper.waitAndSendKeys(wait, PASSWORD_INPUT, ssoPassword);
+			Assert.assertTrue(Utilities.waitForVisible(wait, MICROSOFT_PASSWORD_HEADER).isDisplayed());
+			Utilities.waitAndSendKeys(wait, PASSWORD_INPUT, ssoPassword);
 			jsClick(driver.findElement(MICROSOFT_SUBMIT_BTN));
-			PageObjectHelper.waitAndClick(wait, MICROSOFT_SUBMIT_BTN);
+			Utilities.waitAndClick(wait, MICROSOFT_SUBMIT_BTN);
 			LOGGER.info("Entered SSO password and completed Microsoft login");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "provide_sso_login_password_and_click_sign_in", "Issue in providing SSO login password", e);
+			Utilities.handleError(LOGGER, "provide_sso_login_password_and_click_sign_in", "Issue in providing SSO login password", e);
 		}
 	}
 
 	public void provide_non_sso_login_username_and_click_sign_in_button_in_kfone_login_page() {
 		handleCookiesBanner();
 		String nonSsoUsername = getCredential("NON_SSO", "Username");
-		PageObjectHelper.waitAndSendKeys(wait, USERNAME_INPUT, nonSsoUsername);
+		Utilities.waitAndSendKeys(wait, USERNAME_INPUT, nonSsoUsername);
 		username.set(nonSsoUsername);
-		jsClick(PageObjectHelper.waitForClickable(wait, KFONE_SIGNIN_BTN));
-		PageObjectHelper.waitForClickable(wait, PASSWORD_INPUT);
+		jsClick(Utilities.waitForClickable(wait, KFONE_SIGNIN_BTN));
+		Utilities.waitForClickable(wait, PASSWORD_INPUT);
 		LOGGER.info("Entered username and proceeded to password screen");
 	}
 
 	public void provide_non_sso_login_password_and_click_sign_in_button_in_kfone_login_page() {
 		String nonSsoPassword = getCredential("NON_SSO", "Password");
-		PageObjectHelper.waitAndSendKeys(wait, PASSWORD_INPUT, nonSsoPassword);
-		jsClick(PageObjectHelper.waitForClickable(wait, KFONE_SIGNIN_BTN));
-		PageObjectHelper.waitForPageReady(driver, 10);
+		Utilities.waitAndSendKeys(wait, PASSWORD_INPUT, nonSsoPassword);
+		jsClick(Utilities.waitForClickable(wait, KFONE_SIGNIN_BTN));
+		Utilities.waitForPageReady(driver, 10);
 		LOGGER.info("Entered password and submitted login");
 	}
 
@@ -172,13 +172,13 @@ public class PO01_KFoneLogin extends BasePageObject {
 				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
 			}
 
-			PageObjectHelper.waitForPageReady(driver, 10);
+			Utilities.waitForPageReady(driver, 10);
 			WebElement clientsHeader = waitForElement(Locators.KFONE.CLIENTS_PAGE_HEADER);
 			Assert.assertEquals("Clients", clientsHeader.getText(), "Expected 'Clients' header on KFONE landing page");
 			LOGGER.info("Landed on KFONE Clients Page");
 			SessionManager.markAuthenticated();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_the_kfone_landing_page", "Issue in verifying KFONE landing page after login", e);
+			Utilities.handleError(LOGGER, "verify_the_kfone_landing_page", "Issue in verifying KFONE landing page after login", e);
 		}
 	}
 
@@ -190,9 +190,9 @@ public class PO01_KFoneLogin extends BasePageObject {
 			for (int retry = 1; retry <= maxRetries && !pmHeaderFound; retry++) {
 				try {
 				WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(30));
-				PageObjectHelper.waitForPageReady(driver, 10);
-				PageObjectHelper.waitForSpinnersToDisappear(driver, 15);
-				PageObjectHelper.waitForUIStability(driver, 2);
+				Utilities.waitForPageReady(driver, 10);
+				Utilities.waitForSpinnersToDisappear(driver, 15);
+				Utilities.waitForUIStability(driver, 2);
 
 					WebElement pmHeader = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(PM_HEADER));
 					if (pmHeader.isDisplayed()) {
@@ -204,7 +204,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 					if (retry < maxRetries) {
 						LOGGER.warn("Blank page detected (attempt {}/{}) - refreshing page...", retry, maxRetries);
 						driver.navigate().refresh();
-						PageObjectHelper.waitForPageReady(driver, 10);
+						Utilities.waitForPageReady(driver, 10);
 					}
 				}
 			}
@@ -212,7 +212,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 				throw new RuntimeException("Profile Manager header not found after " + maxRetries + " attempts");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub",
+			Utilities.handleError(LOGGER, "verify_user_seemlessly_landed_on_profile_manager_application_in_kf_hub",
 					"Issue with seamless navigation from KFONE to Profile Manager Application", e);
 		}
 	}
@@ -220,10 +220,10 @@ public class PO01_KFoneLogin extends BasePageObject {
 	public void user_is_in_kfone_clients_page() {
 		try {
 			waitForPageLoad();
-			PageObjectHelper.waitForVisible(wait, CLIENTS_TABLE).isDisplayed();
+			Utilities.waitForVisible(wait, CLIENTS_TABLE).isDisplayed();
 			LOGGER.info("User is successfully on KFONE Clients page");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_is_in_kfone_clients_page", "Issue in verifying user is on KFONE Clients page", e);
+			Utilities.handleError(LOGGER, "user_is_in_kfone_clients_page", "Issue in verifying user is on KFONE Clients page", e);
 		}
 	}
 
@@ -237,7 +237,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 				extendedWait.until(ExpectedConditions.visibilityOfElementLocated(CLIENTS_TABLE_BODY));
 			} catch (Exception e) {
 				safeSleep(2000);
-				PageObjectHelper.waitForVisible(wait, CLIENTS_TABLE_BODY);
+				Utilities.waitForVisible(wait, CLIENTS_TABLE_BODY);
 			}
 
 			List<WebElement> clientRows = driver.findElements(CLIENT_ROWS);
@@ -271,7 +271,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 			}
 			LOGGER.info("Successfully verified products for " + verifiedClientCount + " client(s)");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_products_that_client_can_access", "Issue in verifying products", e);
+			Utilities.handleError(LOGGER, "verify_products_that_client_can_access", "Issue in verifying products", e);
 		}
 	}
 
@@ -283,7 +283,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 				return;
 			}
 
-			PageObjectHelper.waitForVisible(wait, CLIENTS_TABLE_BODY);
+			Utilities.waitForVisible(wait, CLIENTS_TABLE_BODY);
 			List<WebElement> clientRows = driver.findElements(CLIENT_ROWS);
 
 			for (WebElement row : clientRows) {
@@ -296,7 +296,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 			}
 			Assert.fail("Client with PAMS ID " + targetPamsId + " was not found");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_client_name_based_on_pams_id", "Issue in verifying client name", e);
+			Utilities.handleError(LOGGER, "verify_client_name_based_on_pams_id", "Issue in verifying client name", e);
 		}
 	}
 
@@ -308,13 +308,13 @@ public class PO01_KFoneLogin extends BasePageObject {
 				return;
 			}
 
-			PageObjectHelper.waitForVisible(wait, CLIENTS_TABLE);
-			WebElement searchBar = PageObjectHelper.waitForClickable(wait, CLIENT_SEARCH_BAR);
+			Utilities.waitForVisible(wait, CLIENTS_TABLE);
+			WebElement searchBar = Utilities.waitForClickable(wait, CLIENT_SEARCH_BAR);
 			searchBar.clear();
 			searchBar.sendKeys(targetPamsId);
 			LOGGER.info("Searching for client with PAMS ID: " + targetPamsId);
 
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(2000);
 
 			List<WebElement> filteredRows = driver.findElements(CLIENT_ROWS);
@@ -323,14 +323,14 @@ public class PO01_KFoneLogin extends BasePageObject {
 			}
 			LOGGER.info("Found " + filteredRows.size() + " matching client(s)");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_for_client_with_pams_id", "Issue in searching for client", e);
+			Utilities.handleError(LOGGER, "search_for_client_with_pams_id", "Issue in searching for client", e);
 		}
 	}
 
 	public void click_on_client_with_access_to_profile_manager_application() {
 		try {
 			String targetPamsId = getPamsId();
-			PageObjectHelper.waitForVisible(wait, CLIENTS_TABLE_BODY);
+			Utilities.waitForVisible(wait, CLIENTS_TABLE_BODY);
 			List<WebElement> clientRows = driver.findElements(CLIENT_ROWS);
 			Assert.assertTrue(clientRows.size() > 0, "No client rows found");
 
@@ -346,11 +346,11 @@ public class PO01_KFoneLogin extends BasePageObject {
 
 				if (isTarget && hasPM) {
 					scrollToElement(nameElement);
-					PageObjectHelper.waitForClickable(wait, nameElement);
+					Utilities.waitForClickable(wait, nameElement);
 					clickElement(nameElement);
 					clientName.set(clientNameStr);
 						LOGGER.info("Clicked on client: " + clientNameStr + " (PAMS ID: " + pamsId + ")");
-						PageObjectHelper.waitForPageReady(driver, 5);
+						Utilities.waitForPageReady(driver, 5);
 						return;
 					}
 				} catch (Exception e) {
@@ -359,7 +359,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 			}
 			Assert.fail("No suitable client found to click");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_client_with_access_to_profile_manager_application", "Issue clicking client", e);
+			Utilities.handleError(LOGGER, "click_on_client_with_access_to_profile_manager_application", "Issue clicking client", e);
 		}
 	}
 
@@ -367,26 +367,26 @@ public class PO01_KFoneLogin extends BasePageObject {
 		try {
 			waitForPageLoad();
 			waitForElement(Locators.KFONE.LANDING_PAGE_TITLE);
-			WebElement homeHeader = PageObjectHelper.waitForVisible(wait, KFONE_HOME_HEADER);
+			WebElement homeHeader = Utilities.waitForVisible(wait, KFONE_HOME_HEADER);
 			LOGGER.info(homeHeader.getText() + " is displaying on KFONE Home Page");
-			WebElement productsSection = PageObjectHelper.waitForVisible(wait, YOUR_PRODUCTS_SECTION);
+			WebElement productsSection = Utilities.waitForVisible(wait, YOUR_PRODUCTS_SECTION);
 			Assert.assertEquals("Your products", productsSection.getText(), "User is not on KFONE Home page");
 			LOGGER.info("User successfully navigated to KFONE Home Page");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_kfone_home_page", "Issue verifying KFONE Home Page", e);
+			Utilities.handleError(LOGGER, "verify_user_navigated_to_kfone_home_page", "Issue verifying KFONE Home Page", e);
 		}
 	}
 
 	public void click_on_profile_manager_application_in_your_products_section() {
 		try {
 			scrollToElement(driver.findElement(YOUR_PRODUCTS_SECTION));
-			WebElement pmTile = PageObjectHelper.waitForClickable(wait, PM_IN_PRODUCTS_SECTION);
+			WebElement pmTile = Utilities.waitForClickable(wait, PM_IN_PRODUCTS_SECTION);
 			waitForPageLoad();
 			clickElement(pmTile);
 			LOGGER.info("Clicked on Profile Manager application");
 			waitForPageLoad();
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_profile_manager_application_in_your_products_section", "Issue clicking PM tile", e);
+			Utilities.handleError(LOGGER, "click_on_profile_manager_application_in_your_products_section", "Issue clicking PM tile", e);
 		}
 	}
 	// PRIVATE HELPER METHODS (PO01-specific config)
@@ -433,3 +433,5 @@ public class PO01_KFoneLogin extends BasePageObject {
 		}
 	}
 }
+
+

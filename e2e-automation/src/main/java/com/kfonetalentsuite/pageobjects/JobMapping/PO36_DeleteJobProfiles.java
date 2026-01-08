@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO36_DeleteJobProfiles extends BasePageObject {
 
@@ -31,7 +31,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 
 	public void user_should_verify_delete_button_is_disabled() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForSpinners();
 			
 			WebElement deleteBtn = waitForElement(DELETE_BUTTON, 10);
@@ -45,14 +45,14 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			LOGGER.info("✅ Verified Delete button is DISABLED");
 			
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_delete_button_is_disabled", 
+			Utilities.handleError(LOGGER, "user_should_verify_delete_button_is_disabled", 
 					"Issue verifying Delete button is disabled", e);
 		}
 	}
 
 	public void user_should_verify_delete_button_is_enabled() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForSpinners();
 			
 			WebElement deleteBtn = waitForElement(DELETE_BUTTON, 10);
@@ -66,31 +66,31 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			LOGGER.info("✅ Verified Delete button is ENABLED");
 			
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_delete_button_is_enabled", 
+			Utilities.handleError(LOGGER, "user_should_verify_delete_button_is_enabled", 
 					"Issue verifying Delete button is enabled", e);
 		}
 	}
 
 	public void click_on_delete_button_in_job_mapping() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForSpinners();
 			
-			WebElement deleteBtn = PageObjectHelper.waitForClickable(wait, DELETE_BUTTON);
+			WebElement deleteBtn = Utilities.waitForClickable(wait, DELETE_BUTTON);
 			clickElement(deleteBtn);
 			
 			LOGGER.info("Clicked on Delete button in Job Mapping screen");
 			safeSleep(500); // Wait for popup to appear
 			
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_delete_button_in_job_mapping", 
+			Utilities.handleError(LOGGER, "click_on_delete_button_in_job_mapping", 
 					"Issue clicking Delete button in Job Mapping", e);
 		}
 	}
 
 	public void verify_delete_confirmation_popup_is_displayed() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			
 			// Verify popup title
 			WebElement popupTitle = waitForElement(DELETE_POPUP_TITLE, 10);
@@ -108,46 +108,46 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			LOGGER.info("✅ Delete Confirmation popup is displayed with title: 'Delete Selected Jobs'");
 			
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_delete_confirmation_popup_is_displayed", 
+			Utilities.handleError(LOGGER, "verify_delete_confirmation_popup_is_displayed", 
 					"Issue verifying Delete Confirmation popup", e);
 		}
 	}
 
 	public void click_on_cancel_button_on_delete_confirmation_popup() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			
-			WebElement cancelBtn = PageObjectHelper.waitForClickable(wait, DELETE_POPUP_CANCEL_BTN);
+			WebElement cancelBtn = Utilities.waitForClickable(wait, DELETE_POPUP_CANCEL_BTN);
 			clickElement(cancelBtn);
 			
 			LOGGER.info("Clicked on Cancel button on Delete Confirmation popup");
 			safeSleep(500); // Wait for popup to close
 			
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_cancel_button_on_delete_confirmation_popup", 
+			Utilities.handleError(LOGGER, "click_on_cancel_button_on_delete_confirmation_popup", 
 					"Issue clicking Cancel button on Delete Confirmation popup", e);
 		}
 	}
 
 	public void click_on_delete_button_on_delete_confirmation_popup() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			
-			WebElement deleteBtn = PageObjectHelper.waitForClickable(wait, DELETE_POPUP_CONFIRM_BTN);
+			WebElement deleteBtn = Utilities.waitForClickable(wait, DELETE_POPUP_CONFIRM_BTN);
 			clickElement(deleteBtn);
 			
 			LOGGER.info("Clicked on Delete button on Delete Confirmation popup");
 			waitForSpinners();
 			
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_delete_button_on_delete_confirmation_popup", 
+			Utilities.handleError(LOGGER, "click_on_delete_button_on_delete_confirmation_popup", 
 					"Issue clicking Delete button on Delete Confirmation popup", e);
 		}
 	}
 
 	public void user_should_verify_delete_success_popup_appears_on_screen() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			
 			// Verify success title
 			WebElement successTitle = waitForElement(DELETE_SUCCESS_TITLE, 15);
@@ -162,9 +162,11 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			LOGGER.info("✅ Delete success popup appeared: 'Job Profiles Deleted Successfully' - " + msgText);
 			
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_delete_success_popup_appears_on_screen", 
+			Utilities.handleError(LOGGER, "user_should_verify_delete_success_popup_appears_on_screen", 
 					"Issue verifying Delete success popup", e);
 		}
 	}
 
 }
+
+

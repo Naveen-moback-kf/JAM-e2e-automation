@@ -18,7 +18,7 @@ import java.util.HashMap;
 import com.kfonetalentsuite.utils.JobMapping.DailyExcelTracker;
 import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.utils.JobMapping.KeepAwakeUtil;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 

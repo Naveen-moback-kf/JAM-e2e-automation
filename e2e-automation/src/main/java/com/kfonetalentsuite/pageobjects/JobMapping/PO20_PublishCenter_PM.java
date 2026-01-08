@@ -10,7 +10,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO20_PublishCenter_PM extends BasePageObject {
 
@@ -57,7 +57,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			tryClickWithStrategies(publishCenterBtn);
 			LOGGER.info("Clicked on Publish Center button in My Organization's Job Profiles screen in PM");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_publish_center_button",
+			Utilities.handleError(LOGGER, "click_on_publish_center_button",
 					"Issue in clicking on Publish Center button in My Organization's Job Profiles screen in PM", e);
 		}
 	}
@@ -65,12 +65,12 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void verify_user_navigated_to_job_profile_history_screen_succcessfully() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			WebElement screenTitle = waitForElement(JPH_SCREEN_TITLE);
 			Assert.assertTrue(screenTitle.isDisplayed());
 			LOGGER.info("User navigated to " + screenTitle.getText() + " screen successfully....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_job_profile_history_screen_succcessfully",
+			Utilities.handleError(LOGGER, "verify_user_navigated_to_job_profile_history_screen_succcessfully",
 					"Issue in navigating to Job Profile History screen on click of Publish Center button", e);
 		}
 	}
@@ -82,7 +82,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 					profilesCountTextinRow1);
 			LOGGER.info("Recently downloaded Job Profiles History is displaying in Top Row in Publish Center as expected....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_recently_downloaded_job_profiles_history_is_in_top_row",
+			Utilities.handleError(LOGGER, "verify_recently_downloaded_job_profiles_history_is_in_top_row",
 					"Issue in Verifying Recently downloaded Job Profiles History is displaying in Top Row in Publish Center",
 					e);
 		}
@@ -112,7 +112,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 							+ getElementText(JPH_HEADER5).replaceAll("\\s+[^\\w\\s]+$", "") + " : "
 							+ getElementText(JPH_STATUS_ROW1));
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"verify_details_of_the_recently_downloaded_job_profiles_in_job_profile_history_screen",
 					"Issue in Verifying details of the Recently downloaded Job Profiles in Job Profile History screen in Publish Center",
 					e);
@@ -124,7 +124,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			clickElement(JPH_PROFILES_COUNT_ROW1);
 			LOGGER.info("Clicked on Profiles Count of Recently downloaded job profiles in Job Profile History screen");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"click_on_profiles_count_of_recently_downloaded_job_profiles_in_job_profile_history_screen",
 					"Issue in clicking on Profiles Count of Recently downloaded job profiles in Job Profile History screen",
 					e);
@@ -134,12 +134,12 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_be_navigated_to_profiles_downloaded_screen() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			WebElement title = waitForElement(PROFILES_DOWNLOADED_TITLE);
 			Assert.assertTrue(title.isDisplayed());
 			LOGGER.info("User navigated to " + title.getText() + " screen successfully....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_profiles_downloaded_screen",
+			Utilities.handleError(LOGGER, "user_should_be_navigated_to_profiles_downloaded_screen",
 					"Issue in navigating to Profiles Downloaded screen on click of Profiles count of Recently Downloaded Profile",
 					e);
 		}
@@ -148,7 +148,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void verify_details_in_profiles_downloaded_screen() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			LOGGER.info("Below are the Header Details of the Recently Downloaded Job Profiles in Profiles Downloaded screen : \n "
 							+ getElementText(PROFILES_DOWNLOADED_HEADER));
 			LOGGER.info("Below are the Profiles Details of the Recently Downloaded Job Profiles in Profiles Downloaded screen :");
@@ -162,7 +162,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 								+ getElementText(PD_HEADER4) + " : " + lastModified.getText());
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_details_in_profiles_downloaded_screen",
+			Utilities.handleError(LOGGER, "verify_details_in_profiles_downloaded_screen",
 					"Issue in Verifying details of the Recently downloaded Job Profiles in Profiles Downloaded screen in Publish Center",
 					e);
 		}
@@ -175,7 +175,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			tryClickWithStrategies(closeBtn);
 			LOGGER.info("Profiles Downloaded screen closed succesfully....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "close_profiles_downloaded_screen",
+			Utilities.handleError(LOGGER, "close_profiles_downloaded_screen",
 					"Issue in clicking on Close button in Profiles Downloaded screen", e);
 		}
 	}
@@ -233,7 +233,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		} catch (Exception e) {
 			// Restore implicit wait in case of error
 			try { driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(20)); } catch (Exception ignored) {}
-			PageObjectHelper.handleError(LOGGER, "select_job_profiles_in_hcm_sync_profiles_tab",
+			Utilities.handleError(LOGGER, "select_job_profiles_in_hcm_sync_profiles_tab",
 					"Issue in selecting Job Profiles in HCM Sync Profiles screen in PM", e);
 		}
 	}
@@ -264,7 +264,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 					"Export count should be a valid number, found: " + profilesCountTextinRow1);
 			LOGGER.info("Recently Exported Job Profiles History is displaying in Top Row in Publish Center as expected....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_recently_exported_job_profiles_history_is_in_top_row",
+			Utilities.handleError(LOGGER, "verify_recently_exported_job_profiles_history_is_in_top_row",
 					"Issue in Verifying Recently Exported Job Profiles History is displaying in Top Row in Publish Center",
 					e);
 		}
@@ -325,7 +325,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 							+ getElementText(JPH_HEADER5).replaceAll("\\s+[^\\w\\s]+$", "") + " : "
 							+ getElementText(JPH_STATUS_ROW1));
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"verify_details_of_the_recently_exported_job_profiles_in_job_profile_history_screen",
 					"Issue in Verifying details of the Recently Exported Job Profiles in Job Profile History screen in Publish Center",
 					e);
@@ -337,7 +337,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			clickElement(JPH_PROFILES_COUNT_ROW1);
 			LOGGER.info("Clicked on Profiles Count of Recently Exported job profiles in Job Profile History screen");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"click_on_profiles_count_of_recently_exported_job_profiles_in_job_profile_history_screen",
 					"Issue in clicking on Profiles Count of Recently Exported job profiles in Job Profile History screen",
 					e);
@@ -347,12 +347,12 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_be_navigated_to_profiles_exported_screen() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			WebElement title = waitForElement(PROFILES_EXPORTED_TITLE);
 			Assert.assertTrue(title.isDisplayed());
 			LOGGER.info("User navigated to " + title.getText() + " screen successfully....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_profiles_exported_screen",
+			Utilities.handleError(LOGGER, "user_should_be_navigated_to_profiles_exported_screen",
 					"Issue in navigating to Profiles Exported screen on click of Profiles count of Recently Downloaded Profile",
 					e);
 		}
@@ -374,7 +374,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 								+ getElementText(PD_HEADER4) + " : " + lastModified.getText());
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_details_in_profiles_exported_screen",
+			Utilities.handleError(LOGGER, "verify_details_in_profiles_exported_screen",
 					"Issue in Verifying details of the Recently Exported Job Profiles in Profiles Exported screen in Publish Center",
 					e);
 		}
@@ -387,7 +387,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			tryClickWithStrategies(closeBtn);
 			LOGGER.info("Profiles Exported screen closed succesfully....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "close_profiles_exported_screen",
+			Utilities.handleError(LOGGER, "close_profiles_exported_screen",
 					"Issue in clicking on Close button in Profiles Exported screen", e);
 		}
 	}
@@ -403,11 +403,11 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 			scrollToBottom();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 
 			scrollToBottom();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 
 			String resultsCountText_updated = getElementText(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 			LOGGER.info("Scrolled down till third page and now " + resultsCountText_updated
@@ -415,9 +415,9 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 			scrollToTop();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 1);
+			Utilities.waitForPageReady(driver, 1);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"scroll_page_down_two_times_to_view_first_thirty_job_profiles_in_job_profile_history_screen",
 					"Issue in scrolling page down two times to view first thirty job profiles in Job Profile History screen",
 					e);
@@ -427,7 +427,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting_in_job_profile_history_screen() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
 			LOGGER.info("Below are the details of the First " + rowsToValidate + " Job Profiles in Default Order before applying sorting in Job Profile History screen : ");
@@ -452,7 +452,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			}
 			LOGGER.info("Default Order of Job Profiles before applying sorting in Job Profile History screen is verified");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting_in_job_profile_history_screen",
 					"Issue in Verifying default Order of first thirty Job Profiles before applying sorting in Job Profile History screen",
 					e);
@@ -463,10 +463,10 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			clickElement(JPH_HEADER1);
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			LOGGER.info("Clicked on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in ascending order in Job Profile History screen");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"sort_job_profiles_by_no_of_profiles_in_ascending_order_in_job_profile_history_screen",
 					"Issue in clicking on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in ascending order in Job Profile History screen",
 					e);
@@ -476,7 +476,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_ascending_order_in_job_profile_history_screen() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
 			LOGGER.info("Below are the details of the First " + rowsToValidate + " Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Ascending Order: ");
@@ -521,7 +521,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			LOGGER.info("✅ NO. OF PROFILES sorting validation completed - " + 
 					String.format("%.1f", correctPercentage) + "% in correct ascending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_ascending_order_in_job_profile_history_screen",
 					"Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Ascending Order",
 					e);
@@ -532,7 +532,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			refreshPage();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			LOGGER.info("Refreshed Job Profile History screen....");
 			waitForElement(JPH_PROFILES_COUNT_ROW1);
 			for (int i = 1; i <= 10; i++) {
@@ -548,7 +548,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			}
 			LOGGER.info("Job Profiles are in Default Order as expected After Refreshing the Job Profile History screen....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_refresh_job_profile_history_screen_and_verify_job_profiles_are_in_default_order",
 					"Issue in Verifying Default order of Job Profiles after Refreshing Job Profile History screen", e);
 		}
@@ -560,18 +560,18 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			clickElement(JPH_HEADER1);
 			waitForSpinners();
 			safeSleep(2000);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			safeSleep(1000);
 
 			LOGGER.info("First sort completed. Now clicking second time for descending order...");
 			clickElement(JPH_HEADER1);
 			waitForSpinners();
 			safeSleep(2000);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 
 			LOGGER.info("Clicked two times on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in descending order in Job Profile History screen");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"sort_job_profiles_by_no_of_profiles_in_descending_order_in_job_profile_history_screen",
 					"Issue in clicking on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in descending order in Job Profile History screen",
 					e);
@@ -583,7 +583,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_descending_order_in_job_profile_history_screen() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForElement(JPH_PROFILES_COUNT_ROW1);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
@@ -630,7 +630,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			LOGGER.info("✅ NO. OF PROFILES sorting validation completed - " + 
 					String.format("%.1f", correctPercentage) + "% in correct descending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_descending_order_in_job_profile_history_screen",
 					"Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by NO. OF PROIFLES in Descending Order",
 					e);
@@ -641,10 +641,10 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			clickElement(JPH_HEADER3);
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			LOGGER.info("Clicked on ACCESSED DATE header to Sort Job Profiles by Accessed Date in ascending order in Job Profile History screen");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"sort_job_profiles_by_accessed_date_in_ascending_order_in_job_profile_history_screen",
 					"Issue in clicking on ACCESSED DATE header to Sort Job Profiles by Accessed Date in ascending order in Job Profile History screen",
 					e);
@@ -654,7 +654,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_ascending_order_in_job_profile_history_screen() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
 			LOGGER.info(
@@ -713,7 +713,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			LOGGER.info("✅ ACCESSED DATE sorting validation completed - " + 
 					String.format("%.1f", correctPercentage) + "% in correct ascending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_ascending_order_in_job_profile_history_screen",
 					"Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Ascending Order",
 					e);
@@ -726,18 +726,18 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			clickElement(JPH_HEADER3);
 			waitForSpinners();
 			safeSleep(2000);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			safeSleep(1000);
 
 			LOGGER.info("First sort completed. Now clicking second time for descending order...");
 			clickElement(JPH_HEADER3);
 			waitForSpinners();
 			safeSleep(2000);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 
 			LOGGER.info("Clicked two times on ACCESSED DATE header to Sort Job Profiles by Accessed Date in descending order in Job Profile History screen");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"sort_job_profiles_by_accessed_date_in_descending_order_in_job_profile_history_screen",
 					"Issue in clicking on ACCESSED DATE header to Sort Job Profiles by Accessed Date in descending order in Job Profile History screen",
 					e);
@@ -747,7 +747,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_descending_order_in_job_profile_history_screen() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForElement(JPH_PROFILES_COUNT_ROW1);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
@@ -803,7 +803,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			LOGGER.info("✅ ACCESSED DATE sorting validation completed - " + 
 					String.format("%.1f", correctPercentage) + "% in correct descending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_descending_order_in_job_profile_history_screen",
 					"Issue in Verifying first thirty Job Profiles in Job Profile History screen after sorting by ACCESSED DATE in Descending Order",
 					e);
@@ -818,3 +818,5 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	}
 
 }
+
+

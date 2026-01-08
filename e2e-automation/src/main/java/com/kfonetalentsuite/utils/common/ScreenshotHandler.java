@@ -1,4 +1,4 @@
-package com.kfonetalentsuite.utils.JobMapping;
+package com.kfonetalentsuite.utils.common;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -13,7 +13,7 @@ import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.webdriverManager.DriverManager;
-import com.kfonetalentsuite.utils.common.CommonVariableManager;
+import com.kfonetalentsuite.utils.JobMapping.AllureReportingManager;
 
 public class ScreenshotHandler {
 
@@ -520,3 +520,4 @@ public class ScreenshotHandler {
 				|| !CommonVariableManager.ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false");
 	}
 }
+

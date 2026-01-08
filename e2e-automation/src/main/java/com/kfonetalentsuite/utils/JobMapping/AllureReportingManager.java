@@ -18,6 +18,8 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.ITestListener;
+
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
 import org.testng.ITestResult;
 
 import com.kfonetalentsuite.utils.common.CommonVariableManager;

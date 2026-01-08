@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
@@ -34,7 +34,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	private WebElement findTableElement(int rowNum, int colNum) {
 		String xpath = String.format("//tbody//tr[%d]//td[%d]//*", rowNum, colNum);
 		try {
-			return PageObjectHelper.waitForPresent(wait, By.xpath(xpath));
+			return Utilities.waitForPresent(wait, By.xpath(xpath));
 		} catch (Exception e) {
 			waitForSpinners();
 			safeSleep(1000);
@@ -75,7 +75,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 				}
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_search_for_a_profile_with_export_status_as_not_exported",
+			Utilities.handleError(LOGGER, "user_should_search_for_a_profile_with_export_status_as_not_exported",
 					"Profile search operation", e);
 		}
 	}
@@ -115,7 +115,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 					+ profileDetails.toString();
 			LOGGER.info(message);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"verify_details_of_the_not_exported_success_profile_in_hcm_sync_profiles_tab",
 					"Profile details operation", e);
 		}
@@ -168,7 +168,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			LOGGER.error(errorMsg, e);
 			throw new RuntimeException(errorMsg, e);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"verify_success_profile_checkbox_is_enabled_and_able_to_perform_export_operation",
 					"Checkbox operation for profile: " + SPJobName.get(), e);
 		}
@@ -207,7 +207,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 				// Checkbox not selected after click - don't set count
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext(
+			Utilities.handleWithContext(
 					"click_on_checkbox_of_success_profile_with_export_status_as_not_exported", e,
 					"Checkbox operation for profile: " + SPJobName.get());
 		}
@@ -219,7 +219,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			waitForSpinners();
 			LOGGER.info("HCM Sync Profiles screen page is Refreshed....");
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext("refresh_hcm_sync_profiles_tab", e, "Page refresh operation");
+			Utilities.handleWithContext("refresh_hcm_sync_profiles_tab", e, "Page refresh operation");
 		}
 	}
 
@@ -251,10 +251,10 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			LOGGER.info("Export Status of SP with name " + SPJobName.get() + " updated as " + actualStatus
 					+ "");
 		} catch (AssertionError e) {
-			PageObjectHelper.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
+			Utilities.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
 					"Export status assertion for profile: " + SPJobName.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
+			Utilities.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
 					"Export status verification for profile: " + SPJobName.get());
 		}
 	}
@@ -278,9 +278,9 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 						WebElement lastRow = driver.findElement(By.xpath(lastRowXpath));
 
 						scrollToElement(lastRow);
-						PageObjectHelper.waitForUIStability(driver, 1);
+						Utilities.waitForUIStability(driver, 1);
 						scrollToBottom();
-						PageObjectHelper.waitForUIStability(driver, 1);
+						Utilities.waitForUIStability(driver, 1);
 
 						try {
 							String retryXpath = String.format("//tbody//tr[%d]//td[1]//*", j);
@@ -314,7 +314,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	public void user_should_click_on_recently_exported_success_profile_job_name() {
 		try {
 			waitForSpinners(15);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 
 			// Scroll to appropriate position
 			if (rowNumber.get() == 1) {
@@ -329,7 +329,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			}
 
 			safeSleep(1000);
-			PageObjectHelper.waitForUIStability(driver, 2);
+			Utilities.waitForUIStability(driver, 2);
 
 			// Find the job name link element (must be <a> tag for navigation)
 			String linkXpath = "//tbody//tr[" + rowNumber.get() + "]//td[1]//a";
@@ -353,7 +353,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			// Strategy 1: Regular click on link element
 			if (!navigationSuccessful) {
 				try {
-					WebElement clickableLink = PageObjectHelper.waitForClickable(wait, jobNameLink);
+					WebElement clickableLink = Utilities.waitForClickable(wait, jobNameLink);
 					clickableLink.click();
 					safeSleep(1500);
 					
@@ -435,7 +435,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			LOGGER.info("Clicked on Recently Exported Success Profile with name: " + SPJobName.get());
 			
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e,
+			Utilities.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e,
 					"Click operation failed");
 		}
 	}
@@ -467,7 +467,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 			LOGGER.info("SP details page opens as expected on click of Recently Exported Success Profile Job name in HCM Sync Profiles screen in PM....");
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext("user_should_be_navigated_to_sp_details_page", e,
+			Utilities.handleWithContext("user_should_be_navigated_to_sp_details_page", e,
 					"SP details page verification");
 		}
 	}
@@ -479,7 +479,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			LOGGER.info("Clicked Three Dots in SP Details Page");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext("click_on_three_dots_in_sp_details_page", e, "Three dots menu");
+			Utilities.handleWithContext("click_on_three_dots_in_sp_details_page", e, "Three dots menu");
 		}
 	}
 
@@ -490,7 +490,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			LOGGER.info("Clicked Edit Success Profile option in SP Details Page");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext("click_on_edit_success_profile_option", e,
+			Utilities.handleWithContext("click_on_edit_success_profile_option", e,
 					"Edit Success Profile option");
 		}
 	}
@@ -502,7 +502,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			LOGGER.info("Clicked Edit button of Success Profile Details section");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext("click_on_edit_button_of_details_section", e,
+			Utilities.handleWithContext("click_on_edit_button_of_details_section", e,
 					"Edit button of Details section");
 		}
 	}
@@ -513,7 +513,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 			clickElement(FUNCTION_DROPDOWN);
 			LOGGER.info("Clicked Function dropdown in Success Profile Details section");
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 
 			List<WebElement> functionOptions = driver.findElements(DROPDOWN_OPTIONS);
 			if (functionOptions.isEmpty()) {
@@ -537,11 +537,11 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			jsClick(selectedFunctionOption);
 			LOGGER.info("Function value Modified to '" + functionValue + "' in Success Profile Details section");
 
-			PageObjectHelper.waitForUIStability(driver, 2);
+			Utilities.waitForUIStability(driver, 2);
 
 			clickElement(SUBFUNCTION_DROPDOWN);
 			LOGGER.info("Clicked Subfunction dropdown in Success Profile Details section");
-			PageObjectHelper.waitForUIStability(driver, 1);
+			Utilities.waitForUIStability(driver, 1);
 
 			List<WebElement> subFunctionOptions = driver.findElements(DROPDOWN_OPTIONS);
 			if (subFunctionOptions.isEmpty()) {
@@ -565,7 +565,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			jsClick(selectedSubFunctionOption);
 			LOGGER.info("Sub-Function value Modified to '" + subFunctionValue + "' in Success Profile Details section");
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext("modify_function_and_sub_function_values_of_the_success_profile", e,
+			Utilities.handleWithContext("modify_function_and_sub_function_values_of_the_success_profile", e,
 					"Function/SubFunction modification");
 		}
 	}
@@ -578,7 +578,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			LOGGER.info("Clicked Done button of Success Profile Details section");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext("click_on_done_button", e, "Done button operation");
+			Utilities.handleWithContext("click_on_done_button", e, "Done button operation");
 		}
 	}
 
@@ -589,7 +589,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			LOGGER.info("Clicked Save button of Success Profile");
 			waitForSpinners();
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext("click_on_save_button", e, "Save button operation");
+			Utilities.handleWithContext("click_on_save_button", e, "Save button operation");
 		}
 	}
 
@@ -600,10 +600,10 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			Assert.assertTrue(pageText.isDisplayed());
 			LOGGER.info("Navigated to SP details page as expected after Saving SP details....");
 		} catch (AssertionError e) {
-			PageObjectHelper.handleWithContext("user_should_be_navigated_to_sp_details_page_after_saving_sp_details",
+			Utilities.handleWithContext("user_should_be_navigated_to_sp_details_page_after_saving_sp_details",
 					e, "SP details page assertion after save");
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext("user_should_be_navigated_to_sp_details_page_after_saving_sp_details",
+			Utilities.handleWithContext("user_should_be_navigated_to_sp_details_page_after_saving_sp_details",
 					e, "SP details page verification after save");
 		}
 	}
@@ -616,11 +616,11 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			LOGGER.info("Recently Modified SP with name " + topJobName.getText()
 					+ " is displaying on the Top of the Profiles List as Expected in HCM Sync Profiles screen");
 		} catch (AssertionError e) {
-			PageObjectHelper.handleWithContext(
+			Utilities.handleWithContext(
 					"user_should_verify_recently_modified_success_profile_is_displaying_on_top_of_the_job_proifles_list",
 					e, "Profile position assertion");
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext(
+			Utilities.handleWithContext(
 					"user_should_verify_recently_modified_success_profile_is_displaying_on_top_of_the_job_proifles_list",
 					e, "Profile list verification");
 		}
@@ -638,14 +638,16 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			LOGGER.info("Export Status of recently Exported and Modfied SP with name " + SPJobName.get()
 					+ " updated as " + exportStatus.getText() + " as expected...");
 		} catch (AssertionError e) {
-			PageObjectHelper.handleWithContext(
+			Utilities.handleWithContext(
 					"user_should_verify_recently_exported_and_modified_success_profile_export_status_updated_as_exported_modfied",
 					e, "Export status assertion for modified profile");
 		} catch (Exception e) {
-			PageObjectHelper.handleWithContext(
+			Utilities.handleWithContext(
 					"user_should_verify_recently_exported_and_modified_success_profile_export_status_updated_as_exported_modfied",
 					e, "Modified profile export status verification");
 		}
 	}
 
 }
+
+

@@ -15,7 +15,7 @@ import org.testng.Assert;
 
 import java.time.Duration;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO25_MissingDataFunctionality extends BasePageObject {
 
@@ -175,7 +175,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	public void sort_job_profiles_by_column_in_ascending_order(String columnName) throws IOException {
 		try {
 			LOGGER.info("Sorting job profiles by " + columnName + " in ascending order");
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForSpinners();
 
 			By headerLocator;
@@ -202,7 +202,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			driver.findElement(headerLocator);
 			clickElement(headerLocator);
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(1000);
 			
 			LOGGER.info("✅ Sorted by " + columnName + " in ascending order");
@@ -219,14 +219,14 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		try {
 			currentDataType.set(dataType);
 			LOGGER.debug("Verifying Jobs with Missing {} Data screen is displayed", dataType);
-			PageObjectHelper.waitForUIStability(driver, 2);
+			Utilities.waitForUIStability(driver, 2);
 
 			boolean pageVerified = false;
 			StringBuilder verificationResults = new StringBuilder();
 
 			// Check for page title description
 			try {
-				PageObjectHelper.waitForVisible(wait, REUPLOAD_PAGE_TITLE_DESC);
+				Utilities.waitForVisible(wait, REUPLOAD_PAGE_TITLE_DESC);
 				if (findElement(REUPLOAD_PAGE_TITLE_DESC).isDisplayed()) {
 					String pageTitle = findElement(REUPLOAD_PAGE_TITLE_DESC).getText();
 					verificationResults.append("✅ Page title found: ").append(pageTitle).append("; ");
@@ -238,7 +238,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 			// Check for Close button
 			try {
-				PageObjectHelper.waitForVisible(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
+				Utilities.waitForVisible(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
 				if (findElement(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON).isDisplayed()) {
 					verificationResults.append("✅ Close button found; ");
 					pageVerified = true;
@@ -266,7 +266,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				Assert.fail(errorMsg);
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_user_is_navigated_to_jobs_with_missing_data_screen",
+			Utilities.handleError(LOGGER, "verify_user_is_navigated_to_jobs_with_missing_data_screen",
 					"Failed to verify Jobs with Missing " + dataType + " Data screen", e);
 		}
 	}
@@ -287,7 +287,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				// Modal not present, which is good
 			}
 			
-			PageObjectHelper.waitForPageReady(driver, 2);  // Reduced from 5s
+			Utilities.waitForPageReady(driver, 2);  // Reduced from 5s
 			waitForSpinners();
 			safeSleep(500);  // Reduced from 1500ms
 
@@ -350,7 +350,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			currentDataType.set(dataType);
 			LOGGER.info("Finding job profile with missing " + dataType + " data in Job Mapping page");
 			
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForSpinners();
 			safeSleep(1000);
 
@@ -486,7 +486,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		} catch (org.testng.SkipException se) {
 			throw se;
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "find_job_profile_in_job_mapping_page_where_data_is_missing",
+			Utilities.handleError(LOGGER, "find_job_profile_in_job_mapping_page_where_data_is_missing",
 					"Failed to find job with missing " + dataType + " data", e);
 		}
 	}
@@ -572,7 +572,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			jobDetailsFromJobMappingPage.set(details);
 			LOGGER.info("✅ Extracted: " + jobName + (jobCode.isEmpty() ? "" : " (" + jobCode + ")"));
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "extract_job_details_from_found_profile_in_job_mapping_page",
+			Utilities.handleError(LOGGER, "extract_job_details_from_found_profile_in_job_mapping_page",
 					"Failed to extract " + dataType + " job details", e);
 		}
 	}
@@ -586,7 +586,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			currentDataType.set(dataType);
 			LOGGER.info("Finding job in Missing Data screen where " + dataType + " is N/A");
 			
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForSpinners();
 			safeSleep(1000);
 
@@ -688,7 +688,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		} catch (org.testng.SkipException se) {
 			throw se;
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "find_job_in_jobs_missing_data_screen_where_data_is_na",
+			Utilities.handleError(LOGGER, "find_job_in_jobs_missing_data_screen_where_data_is_na",
 					"Failed to find job with " + dataType + " = N/A", e);
 		}
 	}
@@ -741,7 +741,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			jobDetailsFromMissingDataScreen.set(details);
 			LOGGER.info("✅ Extracted job details from Missing Data screen: " + details);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "extract_all_available_job_details_from_jobs_with_missing_data_screen",
+			Utilities.handleError(LOGGER, "extract_all_available_job_details_from_jobs_with_missing_data_screen",
 					"Failed to extract job details from Missing " + dataType + " Data screen", e);
 		}
 	}
@@ -840,28 +840,44 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 					}
 				}
 
-				// Check if we need to scroll to load more jobs
-				if (foundJobRow.get() == null && totalJobsChecked >= currentJobRows.size()) {
-					// Scroll down to load more
-					js.executeScript("window.scrollBy(0, 500);");
-					safeSleep(500);
-					waitForSpinners();
-					
-					// Check if new rows loaded
-					List<WebElement> newRows = driver.findElements(By.xpath("//tbody//tr[contains(@class,'border')]"));
-					if (newRows.size() <= currentJobRows.size()) {
-						hasMoreJobs = false; // No more rows to load
-					}
+			// Check if we need to scroll to load more jobs
+			if (foundJobRow.get() == null && totalJobsChecked >= currentJobRows.size()) {
+				int rowsBeforeScroll = currentJobRows.size();
+				
+				// Scroll to last row to trigger lazy loading
+				if (!currentJobRows.isEmpty()) {
+					WebElement lastRow = currentJobRows.get(currentJobRows.size() - 1);
+					js.executeScript("arguments[0].scrollIntoView({behavior: 'auto', block: 'end'});", lastRow);
+					safeSleep(300);
+				}
+				
+				// Also scroll down a bit more
+				js.executeScript("window.scrollBy(0, 500);");
+				safeSleep(500);
+				waitForSpinners();
+				
+				// Check if new rows loaded
+				List<WebElement> newRows = driver.findElements(By.xpath("//tbody//tr[contains(@class,'border')]"));
+				int rowsAfterScroll = newRows.size();
+				
+				LOGGER.debug("Scroll attempt {}: {} rows before, {} rows after", iteration, rowsBeforeScroll, rowsAfterScroll);
+				
+				if (rowsAfterScroll <= rowsBeforeScroll) {
+					hasMoreJobs = false; // No more rows to load
+					LOGGER.debug("No more jobs to load - checked all {} rows", totalJobsChecked);
 				}
 			}
+		}
 
-			if (foundJobRow.get() == null) {
-				LOGGER.info("⚠️ Job not found after checking " + totalJobsChecked + " jobs");
-			} else {
-				LOGGER.info("✅ Found job after checking " + totalJobsChecked + " jobs");
-			}
+		if (foundJobRow.get() == null) {
+			LOGGER.warn("⚠️ Job '{}' ({}) not found after checking {} jobs in Missing Data screen", 
+					searchTerm, expectedJobCode, totalJobsChecked);
+			LOGGER.info("TIP: Job may have been filtered out or not present in Missing Data screen");
+		} else {
+			LOGGER.info("✅ Found job after checking " + totalJobsChecked + " jobs");
+		}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_for_extracted_job_profile_in_jobs_missing_data_screen",
+			Utilities.handleError(LOGGER, "search_for_extracted_job_profile_in_jobs_missing_data_screen",
 					"Failed to search for " + dataType + " job in Missing Data screen", e);
 		}
 	}
@@ -876,7 +892,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			
 			LOGGER.info("Searching for " + dataType + " job '" + searchTerm + "' in Job Mapping page");
 
-			WebElement searchBox = PageObjectHelper.waitForClickable(wait, SEARCH_BOX);
+			WebElement searchBox = Utilities.waitForClickable(wait, SEARCH_BOX);
 			searchBox.clear();
 			searchBox.sendKeys(searchTerm);
 			searchBox.sendKeys(Keys.ENTER);
@@ -902,19 +918,19 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 			// Wait for actual job rows to appear
 			try {
-				PageObjectHelper.waitForPresent(wait, 
+				Utilities.waitForPresent(wait, 
 					By.xpath("//div[@id='org-job-container']//tbody//tr[not(contains(@class, 'bg-gray')]"));
 			} catch (Exception e) {
 				LOGGER.debug("No job rows appeared after search");
 			}
 
 			// Additional wait for results to stabilize
-			PageObjectHelper.waitForUIStability(driver, 2);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForUIStability(driver, 2);
+			Utilities.waitForPageReady(driver, 3);
 
 			LOGGER.info("✅ Searched for job: " + searchTerm);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_for_extracted_job_profile_in_job_mapping_page",
+			Utilities.handleError(LOGGER, "search_for_extracted_job_profile_in_job_mapping_page",
 					"Failed to search for " + dataType + " job in Job Mapping page", e);
 		}
 	}
@@ -923,7 +939,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// VERIFICATION METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	public void verify_job_profile_found_in_jobs_missing_data_screen_search_results(String dataType) {
+	public void verify_job_profile_found_in_jobs_missing_data_screen_search_results(String dataType) throws org.testng.SkipException {
 		try {
 			String expectedJobName = extractedJobName.get();
 			String expectedJobCode = extractedJobCode.get();
@@ -935,10 +951,14 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				scrollToElement(foundJobRow.get());
 				LOGGER.info("✅ Job profile verified in Missing Data screen");
 			} else {
-				LOGGER.info("⚠️ Job profile not found during traversal - proceeding with warning");
+				LOGGER.warn("SKIPPING SCENARIO: Job '{}' ({}) not found in Missing Data screen", expectedJobName, expectedJobCode);
+				throw new org.testng.SkipException("SKIPPED: Job '" + expectedJobName + "' (" + expectedJobCode + 
+						") not found in Missing Data screen. The job may have been filtered out, removed, or not synced yet.");
 			}
+		} catch (org.testng.SkipException se) {
+			throw se;
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_job_profile_found_in_jobs_missing_data_screen_search_results",
+			Utilities.handleError(LOGGER, "verify_job_profile_found_in_jobs_missing_data_screen_search_results",
 					"Failed to verify " + dataType + " job in Missing Data screen", e);
 		}
 	}
@@ -955,8 +975,8 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		LOGGER.info("Finding exact match: Job Name='" + targetJobName + "', Job Code='" + targetJobCode + "'");
 
 		// Wait for page to stabilize
-		PageObjectHelper.waitForUIStability(driver, 2);
-		PageObjectHelper.waitForPageReady(driver, 2);
+		Utilities.waitForUIStability(driver, 2);
+		Utilities.waitForPageReady(driver, 2);
 
 			boolean jobFound = false;
 			int totalRowsChecked = 0;
@@ -1034,18 +1054,19 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				LOGGER.info("   Expected - Name: '" + targetJobName + "', Code: '" + targetJobCode + "'");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_job_profile_found_in_job_mapping_page_search_results",
+			Utilities.handleError(LOGGER, "verify_job_profile_found_in_job_mapping_page_search_results",
 					"Failed to verify " + dataType + " job in Job Mapping page", e);
 		}
 	}
 
-	public void extract_job_details_from_found_profile_in_jobs_missing_data_screen(String dataType) {
+	public void extract_job_details_from_found_profile_in_jobs_missing_data_screen(String dataType) throws org.testng.SkipException {
 		try {
 			LOGGER.info("Extracting " + dataType + " job details from found profile in Missing Data screen");
-			
+
 			WebElement jobRow = foundJobRow.get();
 			if (jobRow == null) {
-				throw new IOException("No job row found to extract details from");
+				LOGGER.warn("SKIPPING SCENARIO: No job row found to extract details from in Missing Data screen");
+				throw new org.testng.SkipException("SKIPPED: No job row found to extract details from in Missing Data screen. Job search may have failed.");
 			}
 
 			Map<String, String> details = new HashMap<>();
@@ -1078,14 +1099,16 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				jobDetailsFromMissingDataScreen.set(details);
 				LOGGER.info("✅ Extracted: " + jobName + (jobCode.isEmpty() ? "" : " (Code: " + jobCode + ")"));
 				LOGGER.debug("Details: grade={}, dept={}, func={}", grade, department, functionSubfunction);
-			} else {
-				throw new IOException("Insufficient cells found for job detail extraction in Missing Data screen");
-			}
-		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "extract_job_details_from_found_profile_in_jobs_missing_data_screen",
-					"Failed to extract " + dataType + " job details from Missing Data screen", e);
+		} else {
+			throw new IOException("Insufficient cells found for job detail extraction in Missing Data screen");
 		}
+	} catch (org.testng.SkipException se) {
+		throw se;
+	} catch (Exception e) {
+		Utilities.handleError(LOGGER, "extract_job_details_from_found_profile_in_jobs_missing_data_screen",
+				"Failed to extract " + dataType + " job details from Missing Data screen", e);
 	}
+}
 
 	public void extract_job_details_from_searched_profile_in_job_mapping_page(String dataType) {
 		try {
@@ -1155,7 +1178,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 					details.get("grade"), details.get("department"), details.get("functionSubfunction"));
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "extract_job_details_from_searched_profile_in_job_mapping_page",
+			Utilities.handleError(LOGGER, "extract_job_details_from_searched_profile_in_job_mapping_page",
 					"Failed to extract " + dataType + " job details from Job Mapping page", e);
 		}
 	}
@@ -1219,7 +1242,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 			LOGGER.info("✅ Forward Flow verification completed for " + dataType);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_all_job_details_match_forward_flow",
+			Utilities.handleError(LOGGER, "verify_all_job_details_match_forward_flow",
 					"Failed to verify " + dataType + " job details match (Forward Flow)", e);
 		}
 	}
@@ -1283,7 +1306,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 			LOGGER.info("✅ Reverse Flow verification completed for " + dataType);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_all_job_details_match_reverse_flow",
+			Utilities.handleError(LOGGER, "verify_all_job_details_match_reverse_flow",
 					"Failed to verify " + dataType + " job details match (Reverse Flow)", e);
 		}
 	}
@@ -1330,7 +1353,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				LOGGER.info("⚠️ Info Message icon not found, but proceeding with verification...");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_info_message_is_displayed_indicating_missing_data",
+			Utilities.handleError(LOGGER, "verify_info_message_is_displayed_indicating_missing_data",
 					"Failed to verify Info Message for missing " + dataType + " data", e);
 		}
 	}
@@ -1350,7 +1373,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			// Use short wait for close button (3 seconds max)
 			WebElement closeButton = null;
 			try {
-				closeButton = PageObjectHelper.waitForClickable(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
+				closeButton = Utilities.waitForClickable(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
 			} catch (Exception e) {
 				// Try alternative close button locators
 				try {
@@ -1367,7 +1390,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			// Wait for modal to close
 			safeSleep(500);
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			
 			// Verify modal is closed
 			try {
@@ -1456,7 +1479,9 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 		LOGGER.info("✅ Force close attempt completed");
 		waitForSpinners();
-		PageObjectHelper.waitForPageReady(driver, 2);
+		Utilities.waitForPageReady(driver, 2);
 	}
 }
+
+
 

@@ -11,8 +11,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
@@ -56,7 +56,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void user_should_scroll_down_to_view_last_search_result(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			// Get initial count
 			int initialCount = findElements(getAllProfileRowsLocator(screen)).size();
@@ -73,7 +73,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				scrollCount++;
 				safeSleep(500);
 
-				PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
+				Utilities.waitForSpinnersToDisappear(driver, 3);
 
 				currentCount = findElements(getAllProfileRowsLocator(screen)).size();
 
@@ -92,7 +92,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			LOGGER.info("Loaded " + currentCount + " search results for validation in " + getScreenName(screen));
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_scroll_down_to_view_last_search_result",
+			Utilities.handleError(LOGGER, "user_should_scroll_down_to_view_last_search_result",
 					"Issue scrolling to view search results in " + getScreenName(screen), e);
 			ScreenshotHandler.captureFailureScreenshot("scroll_search_results_" + screen, e);
 			Assert.fail("Issue scrolling to view search results");
@@ -102,7 +102,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void user_should_validate_all_search_results_contains_substring(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			String searchSubstring = getSearchSubstring(screen).toLowerCase();
 
@@ -126,7 +126,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			}
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "validate_search_results_contain_substring",
+			Utilities.handleError(LOGGER, "validate_search_results_contain_substring",
 					"Issue validating search results in " + getScreenName(screen), e);
 			ScreenshotHandler.captureFailureScreenshot("validate_search_results_" + screen, e);
 			Assert.fail("Issue validating search results contain substring");
@@ -136,7 +136,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void click_on_chevron_button_beside_header_checkbox(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			// Scroll to top to ensure chevron button is visible
 			scrollToTop();
@@ -146,7 +146,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			LOGGER.info("Clicked chevron button in " + getScreenName(screen));
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_chevron_button",
+			Utilities.handleError(LOGGER, "click_on_chevron_button",
 					"Error clicking chevron button in " + getScreenName(screen), e);
 			ScreenshotHandler.captureFailureScreenshot("click_chevron_" + screen, e);
 			Assert.fail("Error clicking chevron button");
@@ -160,12 +160,12 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 			clickElement(getSelectAllButtonLocator(screen));
 
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			LOGGER.info("Clicked Select All button in " + getScreenName(screen));
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_select_all_button",
+			Utilities.handleError(LOGGER, "click_on_select_all_button",
 					"Error clicking Select All button in " + getScreenName(screen), e);
 			ScreenshotHandler.captureFailureScreenshot("click_select_all_" + screen, e);
 			Assert.fail("Error clicking Select All button");
@@ -175,20 +175,20 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void click_on_header_checkbox_to_select_loaded_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			// Capture count before clicking
 			loadedProfilesBeforeScroll.set(findElements(getAllProfileRowsLocator(screen)).size());
 
 			clickElement(getHeaderCheckboxLocator(screen));
 
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			LOGGER.info("Clicked header checkbox to select " + loadedProfilesBeforeScroll.get() +
 					" loaded profiles in " + getScreenName(screen));
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_header_checkbox",
+			Utilities.handleError(LOGGER, "click_on_header_checkbox",
 					"Error clicking header checkbox in " + getScreenName(screen), e);
 			ScreenshotHandler.captureFailureScreenshot("click_header_checkbox_" + screen, e);
 			Assert.fail("Error clicking header checkbox");
@@ -201,12 +201,12 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 			
 			scrollToTop();
 			safeSleep(300);
 
-			WebElement button = PageObjectHelper.waitForVisible(wait, getActionButtonLocator(screen));
+			WebElement button = Utilities.waitForVisible(wait, getActionButtonLocator(screen));
 			boolean isEnabled = button.isEnabled();
 			String buttonText = button.getText();
 			
@@ -221,7 +221,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to verify {} button: {}", buttonName, e.getMessage());
-			PageObjectHelper.handleError(LOGGER, "verify_action_button_is_enabled",
+			Utilities.handleError(LOGGER, "verify_action_button_is_enabled",
 					"Error verifying action button in " + getScreenName(screen), e);
 			Assert.fail("Error verifying action button is enabled: " + e.getMessage());
 		}
@@ -230,18 +230,18 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void scroll_page_to_view_more_job_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver, 3);
 
 			scrollToBottom();
 			safeSleep(500);
 
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver, 3);
 
 			int newCount = findElements(getAllProfileRowsLocator(screen)).size();
 			LOGGER.info("Scrolled to load more profiles. Now " + newCount + " visible in " + getScreenName(screen));
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "scroll_page_to_view_more_job_profiles",
+			Utilities.handleError(LOGGER, "scroll_page_to_view_more_job_profiles",
 					"Error scrolling in " + getScreenName(screen), e);
 		}
 	}
@@ -249,7 +249,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void verify_profiles_loaded_after_header_checkbox_are_not_selected(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver, 3);
 
 			int initialLoaded = loadedProfilesBeforeScroll.get();
 			
@@ -276,7 +276,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			}
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_profiles_loaded_after_header_checkbox",
+			Utilities.handleError(LOGGER, "verify_profiles_loaded_after_header_checkbox",
 					"Error verifying newly loaded profiles in " + getScreenName(screen), e);
 		}
 	}
@@ -284,7 +284,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void capture_baseline_of_selected_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 			safeSleep(300);
 			
 			scrollToTop();
@@ -335,7 +335,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				// Wait for lazy loading - JAM needs less time, PM needs more
 				int scrollWait = isJAM ? 500 : 1500;
 				safeSleep(scrollWait);
-				PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
+				Utilities.waitForSpinnersToDisappear(driver, 3);
 				
 				// Count current selected using BasePageObject helper method
 				selectedCount = countSelectedProfilesJS(screen);
@@ -385,7 +385,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void clear_search_bar(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 			
 			// Scroll to top first to ensure search bar is accessible
 			scrollToTop();
@@ -426,13 +426,13 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			clearAndSearch(searchBarLocator, "");
 		}
 
-		PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+		Utilities.waitForSpinnersToDisappear(driver, 10);
 		safeSleep(1500); // Wait for results to reload
 
 		LOGGER.info("Cleared search bar in " + getScreenName(screen));
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "clear_search_bar",
+			Utilities.handleError(LOGGER, "clear_search_bar",
 					"Error clearing search bar in " + getScreenName(screen), e);
 		}
 	}
@@ -470,7 +470,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			}
 			
 			// Wait for page to stabilize after clearing search
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
 			safeSleep(500);
 			
 			// Scroll to top first
@@ -516,7 +516,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				// Wait for lazy loading - JAM needs less time, PM needs more
 				int scrollWait = isJAM ? 500 : 1500;
 				safeSleep(scrollWait);
-				PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
+				Utilities.waitForSpinnersToDisappear(driver, 3);
 
 				// Count visible profiles
 				totalProfilesVisible = findElements(getAllProfileRowsLocator(screen)).size();
@@ -603,7 +603,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_only_searched_profiles_selected_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "verify_only_searched_profiles_selected",
+			Utilities.handleError(LOGGER, "verify_only_searched_profiles_selected",
 					"Error verifying searched profiles in " + getScreenName(screen), e);
 			Assert.fail("Error verifying only searched profiles are selected: " + e.getMessage());
 		}
@@ -616,7 +616,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			LOGGER.info("Alternative validation: Searching different substring in " + getScreenName(screen) + "...");
 
@@ -681,7 +681,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 					}
 
 					// Wait for spinners and page to stabilize
-					PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+					Utilities.waitForSpinnersToDisappear(driver, 10);
 					safeSleep(2000); // Critical: Wait for results to load
 					
 					// For JAM, also wait for background data
@@ -717,7 +717,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("enter_different_substring_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "enter_different_substring",
+			Utilities.handleError(LOGGER, "enter_different_substring",
 					"Failed to enter different substring in " + getScreenName(screen), e);
 			Assert.fail("Failed to enter different job name substring in search bar");
 		}
@@ -729,7 +729,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			String resultsCountText = getElementText(getShowingResultsCountLocator(screen));
 
@@ -790,7 +790,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("scroll_second_search_results_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "scroll_second_search_results",
+			Utilities.handleError(LOGGER, "scroll_second_search_results",
 					"Error validating second search results in " + getScreenName(screen), e);
 			Assert.fail("Error validating second search results: " + e.getMessage());
 		}
@@ -925,4 +925,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	}
 
 }
+
+
 

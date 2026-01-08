@@ -6,8 +6,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
 
 public class PO06_PublishSelectedProfiles extends BasePageObject {
 
@@ -35,7 +35,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			}
 			
 			LOGGER.info("Searching for job: {}", jobName);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(500);
 			
@@ -50,7 +50,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("search_for_published_job_name1", e);
-			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name1", "Failed to search for first job in View Published screen", e);
+			Utilities.handleError(LOGGER, "search_for_published_job_name1", "Failed to search for first job in View Published screen", e);
 		}
 	}
 
@@ -68,7 +68,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			boolean found = false;
 			
 			while (retryCount < maxRetries && !found) {
-				PageObjectHelper.waitForPageReady(driver, 2);
+				Utilities.waitForPageReady(driver, 2);
 				waitForSpinners();
 				safeSleep(500);
 				
@@ -124,11 +124,11 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			try {
 				Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
 			} catch (Exception e) {
-				PageObjectHelper.handleError(LOGGER, "user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen", "Published button not displayed", e);
+				Utilities.handleError(LOGGER, "user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen", "Published button not displayed", e);
 			}
 			LOGGER.info("Published Job (Org: " + expectedJobName + ") is displayed in Row1");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen", "Issue verifying published first job profile in Row1", e);
+			Utilities.handleError(LOGGER, "user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen", "Issue verifying published first job profile in Row1", e);
 		}
 	}
 
@@ -140,7 +140,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			}
 			
 			LOGGER.info("Searching for job: {}", jobName);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(500);
 			
@@ -155,7 +155,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("search_for_published_job_name2", e);
-			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name2", "Failed to search for second job in View Published screen", e);
+			Utilities.handleError(LOGGER, "search_for_published_job_name2", "Failed to search for second job in View Published screen", e);
 		}
 	}
 
@@ -173,7 +173,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			boolean found = false;
 			
 			while (retryCount < maxRetries && !found) {
-				PageObjectHelper.waitForPageReady(driver, 2);
+				Utilities.waitForPageReady(driver, 2);
 				waitForSpinners();
 				safeSleep(500);
 				
@@ -229,23 +229,23 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			try {
 				Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
 			} catch (Exception e) {
-				PageObjectHelper.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen", "Published button not displayed", e);
+				Utilities.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen", "Published button not displayed", e);
 			}
 			LOGGER.info("Published Job (Org: " + expectedJobName + ") is displayed in Row1");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen", "Issue verifying published second job profile in Row1", e);
+			Utilities.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen", "Issue verifying published second job profile in Row1", e);
 		}
 	}
 
 	public void user_should_verify_date_on_published_first_job_matches_with_current_date() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			String todayDate = formatDateForDisplay();
 			String jobPublishedDate = getElementText(HCM_DATE_ROW_1);
 			Assert.assertEquals(jobPublishedDate, todayDate);
 			LOGGER.info("Current date verified on Published First Job: " + PO04_JobMappingPageComponents.orgJobNameInRow1.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_date_on_published_first_job_matches_with_current_date", "Issue verifying date on published first job", e);
+			Utilities.handleError(LOGGER, "user_should_verify_date_on_published_first_job_matches_with_current_date", "Issue verifying date on published first job", e);
 		}
 	}
 
@@ -256,7 +256,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			Assert.assertEquals(jobPublishedDate, todayDate);
 			LOGGER.info("Current date verified on Published Second Job: " + PO04_JobMappingPageComponents.orgJobNameInRow2.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_date_on_published_second_job_matches_with_current_date", "Issue verifying date on published second job", e);
+			Utilities.handleError(LOGGER, "user_should_verify_date_on_published_second_job_matches_with_current_date", "Issue verifying date on published second job", e);
 		}
 	}
 
@@ -270,7 +270,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				throw new Exception("Job name to search is null or empty");
 			}
 			
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(500);
 			
@@ -283,12 +283,12 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			// Additional wait for HCM sync profile filtering
 			safeSleep(1000);
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			
 			LOGGER.info("HCM Search completed for job: {}", jobName);
 			LOGGER.info("Searched for job: " + jobName + " in HCM Sync Profiles");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name2_in_hcm_sync_profiles_tab_in_pm", "Failed to search for job in HCM Sync Profiles", e);
+			Utilities.handleError(LOGGER, "search_for_published_job_name2_in_hcm_sync_profiles_tab_in_pm", "Failed to search for job in HCM Sync Profiles", e);
 		}
 	}
 	
@@ -302,7 +302,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				throw new Exception("Job code to search is null or empty");
 			}
 			
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(500);
 			
@@ -315,12 +315,12 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			// Additional wait for HCM sync profile filtering
 			safeSleep(1000);
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			
 			LOGGER.info("HCM Search completed for job code: {}", jobCode);
 			LOGGER.info("Searched for job code: " + jobCode + " in HCM Sync Profiles");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_for_published_job_code2_in_hcm_sync_profiles_tab_in_pm", "Failed to search for job code in HCM Sync Profiles", e);
+			Utilities.handleError(LOGGER, "search_for_published_job_code2_in_hcm_sync_profiles_tab_in_pm", "Failed to search for job code in HCM Sync Profiles", e);
 		}
 	}
 
@@ -371,7 +371,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			boolean found = false;
 			
 			while (retryCount < maxRetries && !found) {
-				PageObjectHelper.waitForPageReady(driver, 2);
+				Utilities.waitForPageReady(driver, 2);
 				waitForSpinners();
 				safeSleep(500);
 				
@@ -426,9 +426,11 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			
 			LOGGER.info("Published Second Job (Org: " + expectedJobName + ") is displayed in HCM Sync Profiles Row1");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm", "Issue verifying published second job profile in HCM Sync Profiles", e);
+			Utilities.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_hcm_sync_profiles_tab_in_pm", "Issue verifying published second job profile in HCM Sync Profiles", e);
 		}
 	}
 
 	// formatDateForDisplay() removed - now using inherited method from BasePageObject
 }
+
+

@@ -14,7 +14,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 
 public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
@@ -68,7 +68,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			safeSleep(200);
 
 			// Try standard click first
-			PageObjectHelper.waitForClickable(wait, element);
+			Utilities.waitForClickable(wait, element);
 			element.click();
 
 		} catch (Exception e) {
@@ -341,8 +341,8 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		
 		// Check if we have any manually mapped jobs
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 			
 			// Get results count from "Showing X of Y results" text (use short timeout - optional element)
 			String resultsCountText = "";
@@ -410,7 +410,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 					missingDataJobs.size(), approximateProfilesWithMissingData);
 
 			// Find Info Messages
-			PageObjectHelper.waitForPresent(wait, 
+			Utilities.waitForPresent(wait, 
 					By.xpath("//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']"));
 
 			List<WebElement> infoMessages = driver.findElements(
@@ -435,7 +435,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			LOGGER.info("Successfully found and verified manually mapped profile with missing data has Info Message displayed");
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"find_and_verify_manually_mapped_profile_with_missing_data_has_info_message_displayed",
 					"Failed to find and verify manually mapped profile with missing data has Info Message", e);
 		}
@@ -789,7 +789,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 
 			// Wait for button to be clickable
 			try {
-				PageObjectHelper.waitForClickable(wait, searchButton);
+				Utilities.waitForClickable(wait, searchButton);
 			} catch (Exception e) {
 				LOGGER.debug("Button clickability wait timed out, proceeding with click");
 			}
@@ -1125,7 +1125,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 					missingDataJobs.size(), approximateProfilesWithMissingData);
 
 			// Find Info Messages - same approach as first profile
-			PageObjectHelper.waitForPresent(wait, 
+			Utilities.waitForPresent(wait, 
 					By.xpath("//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']"));
 
 			List<WebElement> infoMessages = driver.findElements(
@@ -2060,3 +2060,5 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 }
+
+

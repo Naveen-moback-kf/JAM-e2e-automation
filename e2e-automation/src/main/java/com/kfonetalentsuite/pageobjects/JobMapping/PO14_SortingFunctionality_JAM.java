@@ -13,7 +13,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO14_SortingFunctionality_JAM extends BasePageObject {
 
@@ -33,7 +33,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	private void waitForLoaderToDisappear() {
 		try {
 			try {
-				PageObjectHelper.waitForVisible(wait, Locators.Spinners.DATA_LOADER);
+				Utilities.waitForVisible(wait, Locators.Spinners.DATA_LOADER);
 				LOGGER.debug("Loader appeared - sort operation started");
 			} catch (Exception e) {
 				LOGGER.debug("Loader not caught appearing (too fast) - continuing");
@@ -56,43 +56,43 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	public void user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles() {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(2000);
 			Assert.assertTrue(waitForElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).isDisplayed());
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(2000);
 
 			scrollToBottom();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(2000);
 
 			scrollToBottom();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(2000);
 
 			scrollToBottom();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(3000);
 			String resultsCountText_updated = getElementText(Locators.JobMappingResults.SHOWING_JOB_RESULTS);
 			LOGGER.info("Scrolled down till third page and now " + resultsCountText_updated + " of Job Profiles");
 
 			scrollToTop();
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			safeSleep(5000);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles", "Issue in scrolling page down two times to view first thirty job profiles", e);
+			Utilities.handleError(LOGGER, "user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles", "Issue in scrolling page down two times to view first thirty job profiles", e);
 		}
 	}
 
 	public void user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(500); // Additional wait for DOM stability
 
 			// FIXED: Extract text immediately to avoid stale element references
@@ -108,7 +108,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 				LOGGER.info("Organization Job Profile with Job Name / Code : " + text);
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting",
 					"Issue in Verifying default Order of first thirty Job Profiles before applying sorting", e);
 		}
@@ -118,18 +118,18 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		try {
 			safeSleep(2000);
 			clickElement(ORG_JOB_NAME_HEADER);
-			PageObjectHelper.waitForPageReady(driver, 5);
+			Utilities.waitForPageReady(driver, 5);
 			LOGGER.info("Clicked on Organization job name / code header to Sort Job Profiles by Name in ascending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_organiztion_job_name_in_ascending_order", "Issue in clicking on Organization job name / code header to Sort Job Profiles by Name in ascending order", e);
+			Utilities.handleError(LOGGER, "sort_job_profiles_by_organiztion_job_name_in_ascending_order", "Issue in clicking on Organization job name / code header to Sort Job Profiles by Name in ascending order", e);
 		}
 	}
 
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_organiztion_job_name_in_ascending_order() {
 		try {
 			// ENHANCED: Ensure DOM is fully stable after sorting
-			PageObjectHelper.waitForSpinnersToDisappear(driver);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(3000); // Additional wait for DOM stability
 
 			List<WebElement> allElements = driver
@@ -258,7 +258,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			}
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_sorted_by_organiztion_job_name_in_ascending_order",
 					"Issue in Verifying first thirty Job Profiles After sorting Job Profiles by Name in Ascending Order",
 					e);
@@ -268,8 +268,8 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	public void user_should_refresh_job_mapping_and_verify_job_profiles_are_in_default_order() {
 		try {
 			driver.navigate().refresh();
-			PageObjectHelper.waitForSpinnersToDisappear(driver);
-			PageObjectHelper.waitForPageReady(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver);
+			Utilities.waitForPageReady(driver, 5);
 			LOGGER.info("Refreshed Job Mapping page....");
 			List<WebElement> allElements = driver
 					.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
@@ -286,7 +286,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			}
 			LOGGER.info("Organization Job Profiles are in Default Order as expected After Refreshing the Job Mapping page....");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_refresh_job_mapping_and_verify_job_profiles_are_in_default_order",
 					"Issue in Verifying Default order of Job Profiles after Refreshing Job Mapping page", e);
 		}
@@ -302,15 +302,15 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			waitForLoaderToDisappear();
 			LOGGER.info("Clicked two times on Organization job name / code header to Sort Job Profiles by Name in Descending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_organiztion_job_name_in_descending_order", "Issue in clicking on Organization job name / code header to Sort Job Profiles by Name in Descending order", e);
+			Utilities.handleError(LOGGER, "sort_job_profiles_by_organiztion_job_name_in_descending_order", "Issue in clicking on Organization job name / code header to Sort Job Profiles by Name in Descending order", e);
 		}
 	}
 
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_organiztion_job_name_in_descending_order() {
 		try {
 			// ENHANCED: Ensure DOM is fully stable after sorting
-			PageObjectHelper.waitForSpinnersToDisappear(driver);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(3000); // Additional wait for DOM stability
 
 			List<WebElement> allElements = driver
@@ -439,7 +439,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			}
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_sorted_by_organiztion_job_name_in_descending_order",
 					"Issue in Verifying first thirty Job Profiles After sorting Job Profiles by Name in Descending Order",
 					e);
@@ -452,15 +452,15 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			waitForLoaderToDisappear();
 			LOGGER.info("Clicked on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in ascending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_matched_success_profile_grade_in_ascending_order", "Issue in clicking on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in ascending order", e);
+			Utilities.handleError(LOGGER, "sort_job_profiles_by_matched_success_profile_grade_in_ascending_order", "Issue in clicking on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in ascending order", e);
 		}
 	}
 
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_grade_in_ascending_order() {
 		try {
 			// ENHANCED: Ensure DOM is fully stable after sorting
-			PageObjectHelper.waitForSpinnersToDisappear(driver);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(3000); // Additional wait for DOM stability
 
 			List<WebElement> allElements = driver
@@ -600,7 +600,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			}
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_grade_in_ascending_order",
 					"Issue in Verifying Job Profiles After sorting by Matched Success Profile Grade in Ascending Order",
 					e);
@@ -619,15 +619,15 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			safeSleep(2000);
 			LOGGER.info("Clicked two times on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in descending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_matched_success_profile_grade_in_descending_order", "Issue in clicking two times on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in descending order", e);
+			Utilities.handleError(LOGGER, "sort_job_profiles_by_matched_success_profile_grade_in_descending_order", "Issue in clicking two times on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in descending order", e);
 		}
 	}
 
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_grade_in_descending_order() {
 		try {
 			// ENHANCED: Ensure DOM is fully stable after sorting
-			PageObjectHelper.waitForSpinnersToDisappear(driver);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(3000); // Additional wait for DOM stability
 
 			List<WebElement> allElements = driver
@@ -768,7 +768,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			}
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_grade_in_descending_order",
 					"Issue in Verifying Job Profiles After sorting by Matched Success Profile Grade in Descending Order",
 					e);
@@ -779,17 +779,17 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		try {
 			clickElement(MATCHED_SP_NAME_HEADER);
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			LOGGER.info("Clicked on Matched Success Profile Name header to Sort Job Profiles by Matched SP Name in ascending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_matched_success_profile_name_in_ascending_order", "Issue in clicking on Matched Success Profile Name header to Sort Job Profiles by Matched SP Name in ascending order", e);
+			Utilities.handleError(LOGGER, "sort_job_profiles_by_matched_success_profile_name_in_ascending_order", "Issue in clicking on Matched Success Profile Name header to Sort Job Profiles by Matched SP Name in ascending order", e);
 		}
 	}
 
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_name_in_ascending_order() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver);
-			PageObjectHelper.waitForPageReady(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver);
+			Utilities.waitForPageReady(driver, 5);
 			safeSleep(3000);
 			List<WebElement> allElements = driver
 					.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
@@ -886,7 +886,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			}
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_name_in_ascending_order",
 					"Issue in Verifying Job Profiles After sorting by Matched Success Profile Name in Ascending Order",
 					e);
@@ -897,17 +897,17 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		try {
 			clickElement(ORG_JOB_GRADE_HEADER);
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 			LOGGER.info("Clicked on Organization Grade header to Sort Job Profiles by Grade in ascending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_organization_grade_in_ascending_order", "Issue in clicking on Organization Grade header to Sort Job Profiles by Grade in ascending order", e);
+			Utilities.handleError(LOGGER, "sort_job_profiles_by_organization_grade_in_ascending_order", "Issue in clicking on Organization Grade header to Sort Job Profiles by Grade in ascending order", e);
 		}
 	}
 
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_and_organization_job_name_in_ascending_order() {
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(3000);
 
 			List<WebElement> allElements = driver
@@ -1004,7 +1004,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			}
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_and_organization_job_name_in_ascending_order",
 					"Issue in Verifying Job Profiles After sorting by Organization Grade and Organization Job Name in Ascending Order",
 					e);
@@ -1023,15 +1023,15 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			safeSleep(2000);
 			LOGGER.info("Clicked two times on Organization Grade header to Sort Job Profiles by Grade in Descending order");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_organization_grade_in_descending_order", "Issue in clicking on Organization Grade to Sort Job Profiles by Grade in Descending order", e);
+			Utilities.handleError(LOGGER, "sort_job_profiles_by_organization_grade_in_descending_order", "Issue in clicking on Organization Grade to Sort Job Profiles by Grade in Descending order", e);
 		}
 	}
 
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_in_descending_order_and_organization_job_name_in_ascending_order() {
 		try {
 			// ENHANCED: Ensure DOM is fully stable after sorting
-			PageObjectHelper.waitForSpinnersToDisappear(driver);
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForSpinnersToDisappear(driver);
+			Utilities.waitForPageReady(driver, 3);
 			safeSleep(3000); // Additional wait for DOM stability
 
 			// FIXED: Get element counts first to avoid stale elements
@@ -1133,7 +1133,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			}
 
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_in_descending_order_and_organization_job_name_in_ascending_order",
 					"Issue in Verifying Job Profiles After sorting by Organization Grade in Descending Order and Organization Job Name in Ascending Order",
 					e);
@@ -1172,7 +1172,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 				throw new IllegalArgumentException("Unknown column for sorting: " + column);
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_column_in_order", 
+			Utilities.handleError(LOGGER, "sort_job_profiles_by_column_in_order", 
 					"Issue sorting by column '" + column + "' in '" + order + "' order", e);
 		}
 	}
@@ -1208,9 +1208,11 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 				throw new IllegalArgumentException("Unknown column for verification: " + column);
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_first_thirty_job_profiles_sorted_by_column_in_order", 
+			Utilities.handleError(LOGGER, "user_should_verify_first_thirty_job_profiles_sorted_by_column_in_order", 
 					"Issue verifying sort by column '" + column + "' in '" + order + "' order", e);
 		}
 	}
 
 }
+
+

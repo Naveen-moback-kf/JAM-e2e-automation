@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO09_FilterPersistence extends BasePageObject {
 
@@ -22,14 +22,14 @@ public class PO09_FilterPersistence extends BasePageObject {
 	public void refresh_job_mapping_page() {
 		try {
 			refreshPage();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			// Wait for background API (~100K records) to complete after refresh
 			waitForBackgroundDataLoad();
 			scrollToTop();
 			safeSleep(800);
 			LOGGER.info("Refreshed Job Mapping page");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "refresh_job_mapping_page", "Issue refreshing Job Mapping page", e);
+			Utilities.handleError(LOGGER, "refresh_job_mapping_page", "Issue refreshing Job Mapping page", e);
 		}
 	}
 
@@ -57,45 +57,45 @@ public class PO09_FilterPersistence extends BasePageObject {
 
 			String errorMsg = String.format("Filter Persistence Check Failed:%n  Actual displayed count: %s%n  Initial unfiltered count: %s%n",
 					actualCount, PO04_JobMappingPageComponents.intialResultsCount.get());
-			PageObjectHelper.handleError(LOGGER, "verify_applied_filters_persist_on_job_mapping_ui", "Applied Filters Not Persisted", new RuntimeException(errorMsg, e));
+			Utilities.handleError(LOGGER, "verify_applied_filters_persist_on_job_mapping_ui", "Applied Filters Not Persisted", new RuntimeException(errorMsg, e));
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_applied_filters_persist_on_job_mapping_ui", "Applied Filters Not Persisted on Job Mapping page", e);
+			Utilities.handleError(LOGGER, "verify_applied_filters_persist_on_job_mapping_ui", "Applied Filters Not Persisted on Job Mapping page", e);
 		}
 	}
 
 	public void click_on_browser_back_button() {
 		try {
 			driver.navigate().back();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			LOGGER.info("Browser back button clicked");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_browser_back_button", "Issue clicking Browser back button", e);
+			Utilities.handleError(LOGGER, "click_on_browser_back_button", "Issue clicking Browser back button", e);
 		}
 	}
 
 	public void verify_view_published_toggle_button_is_persisted() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForElement(VIEW_PUBLISHED_TOGGLE).isEnabled();
 			LOGGER.info("View Published toggle button persisted on Job Mapping page");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_view_published_toggle_button_is_persisted", "View Published toggle button not persisted", e);
+			Utilities.handleError(LOGGER, "verify_view_published_toggle_button_is_persisted", "View Published toggle button not persisted", e);
 		}
 	}
 
 	public void verify_applied_sorting_persist_on_job_mapping_ui() {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForElement(ORG_JOB_GRADE_SORT_ICON).isDisplayed();
 			LOGGER.info("Sorting persisted on Job Mapping page");
 		} catch (Exception e) {
 			try {
 				waitForSpinners();
-				PageObjectHelper.waitForPageReady(driver, 2);
+				Utilities.waitForPageReady(driver, 2);
 				waitForElement(MATCHED_SP_GRADE_SORT_ICON).isDisplayed();
 				LOGGER.info("Sorting persisted on Job Mapping page");
 			} catch (Exception s) {
-				PageObjectHelper.handleError(LOGGER, "verify_applied_sorting_persist_on_job_mapping_ui", "Issue validating Sorting Persistence", s);
+				Utilities.handleError(LOGGER, "verify_applied_sorting_persist_on_job_mapping_ui", "Issue validating Sorting Persistence", s);
 			}
 		}
 	}
@@ -106,7 +106,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		} catch (Exception e) {
 			// Spinner might not be present
 		}
-		PageObjectHelper.waitForPageReady(driver, 2);
+		Utilities.waitForPageReady(driver, 2);
 
 		try {
 			Thread.sleep(500);
@@ -115,7 +115,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		}
 
 		try {
-			WebElement resultsElement = PageObjectHelper.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT);
+			WebElement resultsElement = Utilities.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT);
 			String currentCount = resultsElement.getText();
 
 			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
@@ -133,7 +133,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		} catch (Exception e) {
 			// Continue
 		}
-		PageObjectHelper.waitForPageReady(driver, 2);
+		Utilities.waitForPageReady(driver, 2);
 
 		try {
 			Thread.sleep(500);
@@ -159,7 +159,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		} catch (Exception e) {
 			// Continue
 		}
-		PageObjectHelper.waitForPageReady(driver, 2);
+		Utilities.waitForPageReady(driver, 2);
 
 		try {
 			Thread.sleep(500);
@@ -189,7 +189,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		} catch (Exception e) {
 			// Continue
 		}
-		PageObjectHelper.waitForPageReady(driver, 2);
+		Utilities.waitForPageReady(driver, 2);
 
 		try {
 			Thread.sleep(500);
@@ -214,17 +214,19 @@ public class PO09_FilterPersistence extends BasePageObject {
 	}
 
 	public void user_is_in_job_mapping_page_with_multi_level_sorting_applied() {
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		LOGGER.info("User is in Job Mapping page with multi-level sorting applied");
 	}
 
 	public void user_is_in_job_mapping_page_with_sorting_and_filters_applied() {
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		LOGGER.info("User is in Job Mapping page with sorting and filters applied");
 	}
 
 	public void user_is_in_view_published_screen_with_sorting_applied() {
-		PageObjectHelper.waitForPageReady(driver, 1);
+		Utilities.waitForPageReady(driver, 1);
 		LOGGER.info("User is in View Published screen with sorting applied");
 	}
 }
+
+

@@ -8,7 +8,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO16_ManualMappingofSP extends BasePageObject {
 
@@ -28,9 +28,9 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 	public void verify_profile_with_no_bic_mapping_is_displaying_on_top_after_sorting() throws InterruptedException {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 3);
+			Utilities.waitForPageReady(driver, 3);
 
-		WebElement button = PageObjectHelper.waitForVisible(wait, By.xpath(
+		WebElement button = Utilities.waitForVisible(wait, By.xpath(
 				"//tbody//tr[2]//button[not(contains(@id,'view'))] | //tbody//tr[1]//button[contains(text(),'Find')]"));
 			scrollToElement(button);
 			String text = button.getText();
@@ -40,11 +40,11 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 				LOGGER.info("Currently, All Profiles in Job Mapping are Mapped with BIC Profiles");
 				refreshPage();
 				waitForSpinners();
-				PageObjectHelper.waitForPageReady(driver, 3);
+				Utilities.waitForPageReady(driver, 3);
 			} else {
 				PO17_MapDifferentSPtoProfile.mapSP.set(true);
 				LOGGER.info("Job profile with No BIC Profile Mapping is found");
-				PageObjectHelper.waitForPageReady(driver, 3);
+				Utilities.waitForPageReady(driver, 3);
 
 				WebElement jobName = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]")));
 				String jobname1 = jobName.getText();
@@ -70,7 +70,7 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 		} catch (NoSuchElementException e) {
 			PO17_MapDifferentSPtoProfile.mapSP.set(false);
 			LOGGER.info("Currently, All Profiles in Job Mapping are Mapped with BIC Profiles");
-			PageObjectHelper.handleError(LOGGER, "verify_profile_with_no_bic_mapping_is_displaying_on_top_after_sorting", "No profile with No BIC mapping found", e);
+			Utilities.handleError(LOGGER, "verify_profile_with_no_bic_mapping_is_displaying_on_top_after_sorting", "No profile with No BIC mapping found", e);
 		}
 	}
 
@@ -81,7 +81,7 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 				LOGGER.info("Clicked on Find Match button of Organization Job : " + PO17_MapDifferentSPtoProfile.orgJobName.get());
 				waitForSpinners();
 			} catch (Exception e) {
-				PageObjectHelper.handleError(LOGGER, "click_on_find_match_button", "Issue in clicking on Find Match button of Organization job name " + PO17_MapDifferentSPtoProfile.orgJobName.get(), e);
+				Utilities.handleError(LOGGER, "click_on_find_match_button", "Issue in clicking on Find Match button of Organization job name " + PO17_MapDifferentSPtoProfile.orgJobName.get(), e);
 			}
 		}
 	}
@@ -89,11 +89,11 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 	public void user_should_verify_search_a_different_profile_button_is_displaying_on_manually_mapped_success_profile() {
 		if (PO17_MapDifferentSPtoProfile.manualMapping.get()) {
 			try {
-				PageObjectHelper.waitForPageReady(driver, 2);
+				Utilities.waitForPageReady(driver, 2);
 				Assert.assertTrue(waitForClickable(SEARCH_DIFFERENT_SP_BTN).isDisplayed(), "Search a Different Profile button should be visible");
 				LOGGER.info("Search a Different Profile is Displaying on matched success profile which is on the Top of the Profiles List");
 			} catch (Exception e) {
-				PageObjectHelper.handleError(LOGGER, "user_should_verify_search_a_different_profile_button_is_displaying_on_manually_mapped_success_profile", "Search a different profile is NOT displaying on Manually Mapped success profile which is on the Top of the Profiles List", e);
+				Utilities.handleError(LOGGER, "user_should_verify_search_a_different_profile_button_is_displaying_on_manually_mapped_success_profile", "Search a different profile is NOT displaying on Manually Mapped success profile which is on the Top of the Profiles List", e);
 			}
 		}
 	}
@@ -109,8 +109,10 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 				LOGGER.info("Clicked on Manually Mapped Profile with name " + MappedProfileNameText + " of Organization Job " + PO17_MapDifferentSPtoProfile.orgJobName.get() + " which is on the Top of the Profiles List");
 				waitForSpinners();
 			} catch (Exception e) {
-				PageObjectHelper.handleError(LOGGER, "click_on_manually_mapped_profile_name_of_job_profile_on_top_of_profiles_list", "Issue in clicking Manually Mapped Profile linked with job name " + PO17_MapDifferentSPtoProfile.orgJobName.get(), e);
+				Utilities.handleError(LOGGER, "click_on_manually_mapped_profile_name_of_job_profile_on_top_of_profiles_list", "Issue in clicking Manually Mapped Profile linked with job name " + PO17_MapDifferentSPtoProfile.orgJobName.get(), e);
 			}
 		}
 	}
 }
+
+

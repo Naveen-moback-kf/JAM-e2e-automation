@@ -8,8 +8,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.SkipException;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO33_UnmappedJobs_JAM extends BasePageObject {
 
@@ -34,8 +34,8 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		skipScenario.set(false);
 
 		try {
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			List<WebElement> mappingStatusCheckboxes = findElements(MAPPING_STATUS_CHECKBOXES);
 			List<WebElement> mappingStatusValues = findElements(MAPPING_STATUS_VALUES);
@@ -51,7 +51,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 					js.executeScript("arguments[0].scrollIntoView();", mappingStatusValues.get(i));
 
 					try {
-						PageObjectHelper.waitForClickable(wait, mappingStatusValues.get(i)).click();
+						Utilities.waitForClickable(wait, mappingStatusValues.get(i)).click();
 					} catch (Exception e) {
 						try {
 							js.executeScript("arguments[0].click();", mappingStatusValues.get(i));
@@ -60,8 +60,8 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 						}
 					}
 
-					PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-					PageObjectHelper.waitForPageReady(driver, 3);
+					Utilities.waitForSpinnersToDisappear(driver, 10);
+					Utilities.waitForPageReady(driver, 3);
 
 					Assert.assertTrue(mappingStatusCheckboxes.get(i).isSelected(), "Unmapped option should be selected");
 					LOGGER.info("Selected Unmapped jobs option from Mapping Status Filters");
@@ -82,7 +82,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 			throw e;
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("select_unmapped_jobs_option_in_mapping_status_filters_dropdown", e);
-			PageObjectHelper.handleError(LOGGER, "select_unmapped_jobs_option_in_mapping_status_filters_dropdown",
+			Utilities.handleError(LOGGER, "select_unmapped_jobs_option_in_mapping_status_filters_dropdown",
 					"Error selecting Unmapped jobs option", e);
 			Assert.fail("Error selecting Unmapped jobs option: " + e.getMessage());
 		}
@@ -94,7 +94,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		}
 
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 
 			WebElement headerCheckbox = findElement(HEADER_CHECKBOX);
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", headerCheckbox);
@@ -107,7 +107,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_header_checkbox_is_disabled_in_job_mapping_screen", e);
-			PageObjectHelper.handleError(LOGGER, "verify_header_checkbox_is_disabled_in_job_mapping_screen",
+			Utilities.handleError(LOGGER, "verify_header_checkbox_is_disabled_in_job_mapping_screen",
 					"Error verifying header checkbox is disabled", e);
 			Assert.fail("Error verifying header checkbox is disabled: " + e.getMessage());
 		}
@@ -119,7 +119,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		}
 
 		try {
-			PageObjectHelper.waitForPageReady(driver, 1);
+			Utilities.waitForPageReady(driver, 1);
 			js.executeScript("window.scrollTo(0, 0);");
 			safeSleep(300);
 
@@ -150,7 +150,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_chevron_button_is_disabled_in_job_mapping_screen", e);
-			PageObjectHelper.handleError(LOGGER, "verify_chevron_button_is_disabled_in_job_mapping_screen",
+			Utilities.handleError(LOGGER, "verify_chevron_button_is_disabled_in_job_mapping_screen",
 					"Error verifying chevron button is disabled", e);
 			Assert.fail("Error verifying chevron button is disabled: " + e.getMessage());
 		}
@@ -167,7 +167,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		String expectedTooltipText = "No Success Profile have been mapped to this Job.";
 
 		try {
-			PageObjectHelper.waitForPageReady(driver, 1);
+			Utilities.waitForPageReady(driver, 1);
 
 			LOGGER.info("========================================");
 			LOGGER.info("VERIFYING UNMAPPED JOB CHECKBOXES");
@@ -255,9 +255,11 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_checkbox_of_all_unmapped_jobs_is_disabled_with_tooltip", e);
-			PageObjectHelper.handleError(LOGGER, "verify_checkbox_of_all_unmapped_jobs_is_disabled_with_tooltip",
+			Utilities.handleError(LOGGER, "verify_checkbox_of_all_unmapped_jobs_is_disabled_with_tooltip",
 					"Error verifying unmapped job checkboxes", e);
 			Assert.fail("Error verifying unmapped job checkboxes: " + e.getMessage());
 		}
 	}
 }
+
+

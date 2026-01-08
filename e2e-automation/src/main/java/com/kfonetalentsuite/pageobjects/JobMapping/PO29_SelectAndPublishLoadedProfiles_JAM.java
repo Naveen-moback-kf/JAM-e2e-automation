@@ -8,8 +8,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO29_SelectAndPublishLoadedProfiles_JAM extends BasePageObject {
 
@@ -33,7 +33,7 @@ public class PO29_SelectAndPublishLoadedProfiles_JAM extends BasePageObject {
 
 		try {
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.DATA_LOADER));
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 
 			// Step 1: Count TOTAL profiles currently in DOM (includes newly loaded after scrolling)
 			totalProfilesCurrentlyLoaded = findElements(ALL_CHECKBOXES).size();
@@ -128,10 +128,12 @@ public class PO29_SelectAndPublishLoadedProfiles_JAM extends BasePageObject {
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot(
 					"verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen", e);
-			PageObjectHelper.handleError(LOGGER,
+			Utilities.handleError(LOGGER,
 					"verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_job_mapping_screen",
 					"Error verifying newly loaded profiles are not selected", e);
 			Assert.fail("Error verifying newly loaded profiles are not selected: " + e.getMessage());
 		}
 	}
 }
+
+

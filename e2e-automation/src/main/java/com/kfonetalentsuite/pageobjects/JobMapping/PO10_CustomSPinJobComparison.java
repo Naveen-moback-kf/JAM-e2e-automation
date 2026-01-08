@@ -9,7 +9,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO10_CustomSPinJobComparison extends BasePageObject {
 
@@ -52,7 +52,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			clickElement(SEARCH_BAR_JC);
 			LOGGER.info("Clicked on Search bar in Job Comparison page");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_search_bar_in_job_comparison_page", "Issue clicking Search bar in Job Comparison page", e);
+			Utilities.handleError(LOGGER, "click_on_search_bar_in_job_comparison_page", "Issue clicking Search bar in Job Comparison page", e);
 		}
 	}
 
@@ -62,7 +62,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			Assert.assertEquals(placeholderText, "Search Korn Ferry Success Profiles...");
 			LOGGER.info("Search bar Placeholder text verified successfully in Job Comparison page");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_search_bar_placeholder_text_in_job_comparison_page", "Issue verifying Search bar Placeholder text", e);
+			Utilities.handleError(LOGGER, "verify_search_bar_placeholder_text_in_job_comparison_page", "Issue verifying Search bar Placeholder text", e);
 		}
 	}
 
@@ -72,7 +72,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			waitForElement(SEARCH_BAR_JC).sendKeys(customSPSearchString.get());
 			LOGGER.info("Entered " + customSPSearchString.get() + " as Custom SP Search String in search bar");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_enter_custom_sp_search_string_in_the_search_bar", "Failed to enter Custom SP Search String", e);
+			Utilities.handleError(LOGGER, "user_should_enter_custom_sp_search_string_in_the_search_bar", "Failed to enter Custom SP Search String", e);
 		}
 	}
 
@@ -85,7 +85,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			LOGGER.info("First Custom SP with Name: " + customSPNameinSearchResults.get() + " selected from search results");
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(FIRST_SEARCH_RESULT_BTN));
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_first_custom_sp_from_search_results", "Issue selecting First Custom SP from Search Results", e);
+			Utilities.handleError(LOGGER, "select_first_custom_sp_from_search_results", "Issue selecting First Custom SP from Search Results", e);
 		}
 	}
 
@@ -96,7 +96,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String profileTitle = getElementText(PROFILE_1_TITLE);
 			LOGGER.info("Custom SP with Name: " + profileTitle + " added to Profiles List");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_added_to_profiles_list_in_job_comparison_page", "Issue adding Custom SP to Profiles List", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_added_to_profiles_list_in_job_comparison_page", "Issue adding Custom SP to Profiles List", e);
 		}
 	}
 
@@ -108,7 +108,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			Assert.assertTrue(waitForClickable(SEARCH_BAR_CANCEL_BTN).isDisplayed());
 			LOGGER.info("Close or Cancel Button is displaying in search bar");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_custom_sp_name_and_close_button_are_displaying_in_search_bar_after_adding_custom_sp", "Issue verifying Custom SP Name and Close button in Search Bar", e);
+			Utilities.handleError(LOGGER, "user_should_verify_custom_sp_name_and_close_button_are_displaying_in_search_bar_after_adding_custom_sp", "Issue verifying Custom SP Name and Close button in Search Bar", e);
 		}
 	}
 
@@ -122,7 +122,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			Assert.assertEquals(profileTitle, customSPNameinSearchResults.get());
 			LOGGER.info("Custom SP Profile Name: " + profileTitle + " matches Selected Custom SP Name: " + customSPNameinSearchResults.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "validate_custom_sp_profile_name_matches_with_selected_custom_sp_name_from_search_results", "Issue validating Custom SP Profile Name with Selected Custom SP Name", e);
+			Utilities.handleError(LOGGER, "validate_custom_sp_profile_name_matches_with_selected_custom_sp_name_from_search_results", "Issue validating Custom SP Profile Name with Selected Custom SP Name", e);
 		}
 	}
 
@@ -138,7 +138,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			Assert.assertTrue(selectBtn.isEnabled());
 			LOGGER.info("Custom SP Profile selected");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_close_button_and_select_button_are_displaying_on_the_profile", "Issue verifying Close and Select buttons", e);
+			Utilities.handleError(LOGGER, "user_should_verify_close_button_and_select_button_are_displaying_on_the_profile", "Issue verifying Close and Select buttons", e);
 		}
 	}
 
@@ -147,7 +147,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String gradeText = getElementText(PROFILE_1_GRADE);
 			LOGGER.info("Custom SP Profile Grade: " + gradeText);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_profile_grade", "Issue verifying Custom SP Profile Grade", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_profile_grade", "Issue verifying Custom SP Profile Grade", e);
 		}
 	}
 
@@ -156,7 +156,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String levelText = getElementText(PROFILE_1_LEVEL);
 			LOGGER.info("Custom SP Profile Level / Sub-levels: " + levelText);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_profile_level_sublevels", "Issue verifying Custom SP Profile Level / Sub-levels", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_profile_level_sublevels", "Issue verifying Custom SP Profile Level / Sub-levels", e);
 		}
 	}
 
@@ -166,7 +166,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String functionText = getElementText(PROFILE_1_FUNCTION);
 			LOGGER.info("Custom SP Profile Function / Sub-function: " + functionText);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_profile_function_subfunction", "Issue verifying Custom SP Profile Function / Sub-function", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_profile_function_subfunction", "Issue verifying Custom SP Profile Function / Sub-function", e);
 		}
 	}
 
@@ -176,7 +176,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String seniorityText = getElementText(PROFILE_1_SENIORITY);
 			LOGGER.info("Custom SP Profile Seniority level: " + seniorityText);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_profile_seniority_level", "Issue verifying Custom SP Profile Seniority level", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_profile_seniority_level", "Issue verifying Custom SP Profile Seniority level", e);
 		}
 	}
 
@@ -186,7 +186,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String managerialText = getElementText(PROFILE_1_MANAGERIAL);
 			LOGGER.info("Custom SP Profile Managerial experience: " + managerialText);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_profile_managerial_experience", "Issue verifying Custom SP Profile Managerial experience", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_profile_managerial_experience", "Issue verifying Custom SP Profile Managerial experience", e);
 		}
 	}
 
@@ -196,7 +196,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String educationText = getElementText(PROFILE_1_EDUCATION);
 			LOGGER.info("Custom SP Profile Education: " + educationText);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_profile_education", "Issue verifying Custom SP Profile Education", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_profile_education", "Issue verifying Custom SP Profile Education", e);
 		}
 	}
 
@@ -206,7 +206,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String generalExpText = getElementText(PROFILE_1_GENERAL_EXP);
 			LOGGER.info("Custom SP Profile General experience: " + generalExpText);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_profile_general_experience", "Issue verifying Custom SP Profile General experience", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_profile_general_experience", "Issue verifying Custom SP Profile General experience", e);
 		}
 	}
 
@@ -216,7 +216,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String roleSummaryText = getElementText(PROFILE_1_ROLE_SUMMARY);
 			LOGGER.info("Custom SP Profile Role Summary: " + roleSummaryText);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_profile_role_summary", "Issue verifying Custom SP Profile Role Summary", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_profile_role_summary", "Issue verifying Custom SP Profile Role Summary", e);
 		}
 	}
 
@@ -229,7 +229,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String responsibilitiesText = getElementText(PROFILE_1_RESPONSIBILITIES);
 			LOGGER.info("Custom SP Profile Responsibilities verified (" + responsibilitiesText.length() + " chars)");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_profile_responsibilities", "Issue verifying Custom SP Profile Responsibilities", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_profile_responsibilities", "Issue verifying Custom SP Profile Responsibilities", e);
 		}
 	}
 
@@ -242,7 +242,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String competenciesText = getElementText(PROFILE_1_COMPETENCIES);
 			LOGGER.info("Custom SP Profile Behavioural Competencies verified (" + competenciesText.length() + " chars)");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_profile_behavioural_competencies", "Issue verifying Custom SP Profile Behavioural Competencies", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_profile_behavioural_competencies", "Issue verifying Custom SP Profile Behavioural Competencies", e);
 		}
 	}
 
@@ -260,7 +260,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String skillsText = getElementText(PROFILE_1_SKILLS);
 			LOGGER.info("Custom SP Profile Skills verified (" + skillsText.length() + " chars)");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_custom_sp_profile_skills", "Issue verifying Custom SP Profile Skills", e);
+			Utilities.handleError(LOGGER, "verify_custom_sp_profile_skills", "Issue verifying Custom SP Profile Skills", e);
 		}
 	}
 
@@ -271,7 +271,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			jsClick(driver.findElement(SEARCH_BAR_CANCEL_BTN));
 			LOGGER.info("Clicked on clear button and cleared text in Search bar");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "clear_text_in_search_bar_with_clear_button_in_the_search_bar", "Issue clearing text with clear button in Search bar", e);
+			Utilities.handleError(LOGGER, "clear_text_in_search_bar_with_clear_button_in_the_search_bar", "Issue clearing text with clear button in Search bar", e);
 		}
 	}
 
@@ -282,7 +282,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			String profileTitle = getElementText(PROFILE_1_TITLE);
 			LOGGER.info("After clearing text, Custom SP: " + profileTitle + " is retained in Profiles List");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_added_custom_sp_is_not_cleared_from_profiles_list_in_job_comparison_page", "Issue verifying Custom SP retained in Profiles List after clearing text", e);
+			Utilities.handleError(LOGGER, "user_should_verify_added_custom_sp_is_not_cleared_from_profiles_list_in_job_comparison_page", "Issue verifying Custom SP retained in Profiles List after clearing text", e);
 		}
 	}
 
@@ -295,7 +295,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			LOGGER.info("Third Custom SP with Name: " + customSPNameinSearchResults.get() + " selected");
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(THIRD_SEARCH_RESULT_BTN));
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_third_custom_sp_from_search_results", "Issue selecting Third Custom SP from Search Results", e);
+			Utilities.handleError(LOGGER, "select_third_custom_sp_from_search_results", "Issue selecting Third Custom SP from Search Results", e);
 		}
 	}
 
@@ -308,7 +308,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			Assert.assertEquals(profileTitle, customSPNameinSearchResults.get());
 			LOGGER.info("New Custom SP: " + profileTitle + " successfully replaced existing Custom SP");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "verify_new_custom_sp_replaces_existing_custom_sp_in_profiles_list_in_job_comparison_page", "Issue verifying Custom SP replacement", e);
+			Utilities.handleError(LOGGER, "verify_new_custom_sp_replaces_existing_custom_sp_in_profiles_list_in_job_comparison_page", "Issue verifying Custom SP replacement", e);
 		}
 	}
 
@@ -322,7 +322,9 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			Assert.assertEquals(driver.findElement(SEARCH_BAR_JC).getAttribute("value"), "");
 			LOGGER.info("Custom SP and text in Search bar cleared");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "clear_custom_sp_and_text_in_search_bar_with_close_button_on_the_profile", "Issue clearing Custom SP and text in Search bar", e);
+			Utilities.handleError(LOGGER, "clear_custom_sp_and_text_in_search_bar_with_close_button_on_the_profile", "Issue clearing Custom SP and text in Search bar", e);
 		}
 	}
 }
+
+

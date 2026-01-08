@@ -10,8 +10,8 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.common.ScreenshotHandler;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
@@ -47,8 +47,8 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 	public void apply_filter_and_verify_profiles_count(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 
 			scrollToTop();
 			safeSleep(500);
@@ -68,7 +68,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("apply_filter_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "apply_filter_and_verify_profiles_count",
+			Utilities.handleError(LOGGER, "apply_filter_and_verify_profiles_count",
 					"Error applying filter in " + getScreenName(screen), e);
 			Assert.fail("Error applying filter: " + e.getMessage());
 		}
@@ -83,7 +83,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			var kfGradeHeader = driver.findElements(PM_KF_GRADE_HEADER);
 			if (!kfGradeHeader.isEmpty()) {
 				jsClick(kfGradeHeader.get(0));
-				PageObjectHelper.waitForPageReady(driver, 1);
+				Utilities.waitForPageReady(driver, 1);
 				safeSleep(500);
 
 				// Find KF Grade options
@@ -103,7 +103,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			var levelsHeader = driver.findElements(PM_LEVELS_HEADER);
 			if (!levelsHeader.isEmpty()) {
 				jsClick(levelsHeader.get(0));
-				PageObjectHelper.waitForPageReady(driver, 1);
+				Utilities.waitForPageReady(driver, 1);
 				safeSleep(500);
 
 				var levelsOptions = findFilterOptions("expansion-panel-header-1");
@@ -149,19 +149,19 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		safeSleep(300);
 
 		try {
-			PageObjectHelper.waitForClickable(wait, elementToClick).click();
+			Utilities.waitForClickable(wait, elementToClick).click();
 		} catch (Exception e) {
 			js.executeScript("arguments[0].click();", elementToClick);
 		}
 
-		PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-		PageObjectHelper.waitForPageReady(driver, 2);
+		Utilities.waitForSpinnersToDisappear(driver, 10);
+		Utilities.waitForPageReady(driver, 2);
 	}
 
 	public void user_should_scroll_down_to_view_last_filtered_result(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			int expectedTotal = 0;
 			try {
@@ -191,7 +191,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 				scrollCount++;
 				int scrollWait = isPM ? 1500 : 500;
 				safeSleep(scrollWait);
-				PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+				Utilities.waitForSpinnersToDisappear(driver, 5);
 
 				currentCount = findElements(getAllProfileRowsLocator(screen)).size();
 
@@ -215,7 +215,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("scroll_filtered_results_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "scroll_filtered_results",
+			Utilities.handleError(LOGGER, "scroll_filtered_results",
 					"Error scrolling to load filtered results", e);
 			Assert.fail("Error scrolling to load filtered results");
 		}
@@ -224,7 +224,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 	public void user_should_validate_all_filtered_results_match_the_applied_filter(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			var profileRows = findElements(getAllProfileRowsLocator(screen));
 			int totalResults = profileRows.size();
@@ -247,7 +247,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_filtered_results_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "validate_filtered_results",
+			Utilities.handleError(LOGGER, "validate_filtered_results",
 					"Error validating filtered results", e);
 			Assert.fail("Error validating filtered results");
 		}
@@ -260,14 +260,14 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			safeSleep(300);
 
 			clickElement(getClearFiltersButtonLocator(screen));
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
 			safeSleep(500);
 
 			LOGGER.info("Cleared all filters in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("clear_filters_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "clear_all_filters",
+			Utilities.handleError(LOGGER, "clear_all_filters",
 					"Error clearing filters in " + getScreenName(screen), e);
 			Assert.fail("Error clearing filters");
 		}
@@ -321,7 +321,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 				return;
 			}
 
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
 			safeSleep(500);
 			
 			scrollToTop();
@@ -360,7 +360,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 				int scrollWait = isPM ? 1500 : 500;
 				safeSleep(scrollWait);
-				PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
+				Utilities.waitForSpinnersToDisappear(driver, 3);
 
 				totalProfilesVisible = findElements(getAllProfileRowsLocator(screen)).size();
 
@@ -458,7 +458,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_filtered_profiles_selected_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "verify_filtered_profiles_selected",
+			Utilities.handleError(LOGGER, "verify_filtered_profiles_selected",
 					"Error verifying filtered profiles are selected", e);
 			Assert.fail("Error verifying filtered profiles: " + e.getMessage());
 		}
@@ -467,7 +467,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 	public void apply_different_filter_for_alternative_validation(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			boolean isPM = "PM".equalsIgnoreCase(screen);
 
@@ -485,7 +485,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("apply_different_filter_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "apply_different_filter",
+			Utilities.handleError(LOGGER, "apply_different_filter",
 					"Error applying different filter in " + getScreenName(screen), e);
 			Assert.fail("Error applying different filter: " + e.getMessage());
 		}
@@ -521,12 +521,12 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 				safeSleep(300);
 
 				try {
-					PageObjectHelper.waitForClickable(wait, elementToClick).click();
+					Utilities.waitForClickable(wait, elementToClick).click();
 				} catch (Exception e) {
 					js.executeScript("arguments[0].click();", elementToClick);
 				}
 
-				PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+				Utilities.waitForSpinnersToDisappear(driver, 10);
 			}
 		}
 	}
@@ -534,7 +534,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 	public void scroll_down_to_load_all_second_filter_results(String screen) {
 		try {
 			currentScreen.set(screen);
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			String resultsCountText = getElementText(getShowingResultsCountLocator(screen));
 			int expectedTotal = parseProfileCountFromText(resultsCountText);
@@ -556,7 +556,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("scroll_second_filter_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "scroll_second_filter_results",
+			Utilities.handleError(LOGGER, "scroll_second_filter_results",
 					"Error loading second filter results", e);
 		}
 	}
@@ -585,8 +585,10 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_second_filter_not_selected_" + screen, e);
-			PageObjectHelper.handleError(LOGGER, "verify_second_filter_not_selected",
+			Utilities.handleError(LOGGER, "verify_second_filter_not_selected",
 					"Error verifying second filter profiles", e);
 		}
 	}
 }
+
+

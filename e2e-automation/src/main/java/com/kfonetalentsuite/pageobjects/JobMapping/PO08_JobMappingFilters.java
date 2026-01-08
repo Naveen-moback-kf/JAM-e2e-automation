@@ -10,7 +10,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
+import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO08_JobMappingFilters extends BasePageObject {
 
@@ -71,7 +71,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			jsClick(targetCheckbox);
 
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 1);
+			Utilities.waitForPageReady(driver, 1);
 
 			if (!targetCheckbox.isSelected()) {
 				jsClick(targetCheckbox);
@@ -83,7 +83,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			GradesOption.set(gradeValue);
 			LOGGER.info("Selected Grades Value: '" + gradeValue + "' from Grades Filters dropdown");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_one_option_in_grades_filters_dropdown", "Issue selecting option from Grades dropdown", e);
+			Utilities.handleError(LOGGER, "select_one_option_in_grades_filters_dropdown", "Issue selecting option from Grades dropdown", e);
 			throw e;
 		}
 	}
@@ -105,7 +105,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			jsClick(targetCheckbox);
 
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 1);
+			Utilities.waitForPageReady(driver, 1);
 
 			if (!targetCheckbox.isSelected()) {
 				jsClick(targetCheckbox);
@@ -117,7 +117,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			GradesOption2.set(gradeValue);  // Store in GradesOption2 for alternative validation
 			LOGGER.info("Selected DIFFERENT Grades Value: '" + gradeValue + "' (2nd option) from Grades Filters dropdown");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_different_option_in_grades_filters_dropdown", "Issue selecting different option from Grades dropdown", e);
+			Utilities.handleError(LOGGER, "select_different_option_in_grades_filters_dropdown", "Issue selecting different option from Grades dropdown", e);
 			throw e;
 		}
 	}
@@ -132,11 +132,11 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 			while (scrollAttempts < maxScrollAttempts) {
 				scrollAttempts++;
-				PageObjectHelper.waitForUIStability(driver, 1);
+				Utilities.waitForUIStability(driver, 1);
 
 				String resultsCountText = "";
 				try {
-					WebElement resultsElement = PageObjectHelper.waitForPresent(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT);
+					WebElement resultsElement = Utilities.waitForPresent(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT);
 					resultsCountText = resultsElement.getText();
 					consecutiveFailures = 0;
 				} catch (Exception e) {
@@ -195,7 +195,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				}
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_scroll_down_to_view_last_result_with_applied_filters", "Issue scrolling to last result", e);
+			Utilities.handleError(LOGGER, "user_should_scroll_down_to_view_last_result_with_applied_filters", "Issue scrolling to last result", e);
 			throw e;
 		}
 	}
@@ -209,7 +209,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			if (GradesOption2.get() != null && !GradesOption2.get().isEmpty()) expectedGrades.add(GradesOption2.get());
 			
 			// Wait for filter to apply
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForSpinners();
 			safeSleep(1000);
 			
@@ -249,7 +249,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				}
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "validate_job_mapping_profiles_are_correctly_filtered_with_applied_grades_options", "Issue validating grades filter", e);
+			Utilities.handleError(LOGGER, "validate_job_mapping_profiles_are_correctly_filtered_with_applied_grades_options", "Issue validating grades filter", e);
 			throw e;
 		}
 		scrollToTop();
@@ -258,18 +258,18 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	public void click_on_clear_x_applied_filter() throws Exception {
 		try {
 			clickElement(CLEAR_FILTERS_X_BTN);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			Thread.sleep(300);
 			LOGGER.info("Clicked on clear Filters button (X) and cleared all applied filters");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_clear_x_applied_filter", "Issue clicking Clear Filters Button (X)", e);
+			Utilities.handleError(LOGGER, "click_on_clear_x_applied_filter", "Issue clicking Clear Filters Button (X)", e);
 			throw e;
 		}
 	}
 
 	public void select_two_options_in_grades_filters_dropdown() throws Exception {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			List<WebElement> checkboxes = driver.findElements(GRADES_CHECKBOXES);
 			List<WebElement> values = driver.findElements(GRADES_VALUES);
 
@@ -295,7 +295,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				LOGGER.info("Selected Grades Value: " + gradeValue);
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_two_options_in_grades_filters_dropdown", "Issue selecting two grades", e);
+			Utilities.handleError(LOGGER, "select_two_options_in_grades_filters_dropdown", "Issue selecting two grades", e);
 			throw e;
 		}
 	}
@@ -332,8 +332,8 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				js.executeScript("arguments[0].click();", clearBtn);
 			}
 			
-			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 2);
 			safeSleep(500);
 			
 			PO04_JobMappingPageComponents.initialFilteredResultsCount.set(null);
@@ -346,7 +346,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void select_one_option_in_departments_filters_dropdown() throws Exception {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			List<WebElement> checkboxes = driver.findElements(DEPARTMENTS_CHECKBOXES);
 			List<WebElement> values = driver.findElements(DEPARTMENTS_VALUES);
 
@@ -370,7 +370,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			DepartmentsOption.set(departmentValue);
 			LOGGER.info("Selected Departments Value: " + departmentValue);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_one_option_in_departments_filters_dropdown", "Issue selecting department", e);
+			Utilities.handleError(LOGGER, "select_one_option_in_departments_filters_dropdown", "Issue selecting department", e);
 			throw e;
 		}
 	}
@@ -384,7 +384,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			if (DepartmentsOption2.get() != null && !DepartmentsOption2.get().isEmpty()) expectedDepts.add(DepartmentsOption2.get());
 			
 		// Wait for filter to apply
-		PageObjectHelper.waitForPageReady(driver, 2);
+		Utilities.waitForPageReady(driver, 2);
 		waitForSpinners();
 		safeSleep(1000);
 		
@@ -447,7 +447,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				}
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "validate_job_mapping_profiles_are_correctly_filtered_with_applied_departments_options", "Issue validating departments filter", e);
+			Utilities.handleError(LOGGER, "validate_job_mapping_profiles_are_correctly_filtered_with_applied_departments_options", "Issue validating departments filter", e);
 			throw e;
 		}
 		scrollToTop();
@@ -455,7 +455,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void select_two_options_in_departments_filters_dropdown() throws Exception {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			List<WebElement> checkboxes = driver.findElements(DEPARTMENTS_CHECKBOXES);
 			List<WebElement> values = driver.findElements(DEPARTMENTS_VALUES);
 
@@ -481,14 +481,14 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				LOGGER.info("Selected Departments Value: " + deptValue);
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_two_options_in_departments_filters_dropdown", "Issue selecting two departments", e);
+			Utilities.handleError(LOGGER, "select_two_options_in_departments_filters_dropdown", "Issue selecting two departments", e);
 			throw e;
 		}
 	}
 
 
 	public void select_a_function_and_verify_all_subfunctions_inside_function_are_selected_automatically() throws Exception {
-		PageObjectHelper.waitForPageReady(driver, 3);
+		Utilities.waitForPageReady(driver, 3);
 		waitForSpinners();
 		safeSleep(1000);
 		
@@ -558,7 +558,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				WebElement targetCheckbox = checkboxes.get(functionIndex);
 				jsClick(targetCheckbox);
 				waitForSpinners();
-				PageObjectHelper.waitForPageReady(driver, 3);
+				Utilities.waitForPageReady(driver, 3);
 				safeSleep(500);
 
 				// Verify checkbox is selected
@@ -580,7 +580,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		}
 
 		// Verify subfunctions are auto-selected
-		PageObjectHelper.waitForPageReady(driver, 3);
+		Utilities.waitForPageReady(driver, 3);
 		waitForSpinners();
 		safeSleep(500);
 		
@@ -634,7 +634,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		LOGGER.info("Validating against expected functions: {}", expectedFunctions);
 		
 		// Wait for filter to apply
-		PageObjectHelper.waitForPageReady(driver, 2);
+		Utilities.waitForPageReady(driver, 2);
 		waitForSpinners();
 		safeSleep(1000);
 		
@@ -711,18 +711,18 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void user_should_verify_search_bar_is_available_in_functions_subfunctions_filters_dropdown() throws Exception {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			Assert.assertTrue(waitForElement(FUNCTIONS_SEARCH).isDisplayed());
 			LOGGER.info("Search bar is available in Functions Subfunctions dropdown");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_search_bar_is_available_in_functions_subfunctions_filters_dropdown", "Issue verifying search bar", e);
+			Utilities.handleError(LOGGER, "user_should_verify_search_bar_is_available_in_functions_subfunctions_filters_dropdown", "Issue verifying search bar", e);
 			throw e;
 		}
 	}
 
 	public void click_inside_search_bar_and_enter_function_name() throws Exception {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 
 			if (FunctionsOption.get() == null || FunctionsOption.get().isEmpty()) {
 				List<WebElement> toggleBtns = driver.findElements(TOGGLE_SUBOPTIONS);
@@ -737,32 +737,32 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			clickElement(searchBox);
 			searchBox.clear();
 			searchBox.sendKeys(FunctionsOption.get());
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			LOGGER.info("Entered function name: " + FunctionsOption.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_inside_search_bar_and_enter_function_name", "Issue entering function name", e);
+			Utilities.handleError(LOGGER, "click_inside_search_bar_and_enter_function_name", "Issue entering function name", e);
 			throw e;
 		}
 	}
 
 	public void user_should_click_on_dropdown_button_of_searched_function_name() throws Exception {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			Thread.sleep(1000);
 
-			WebElement toggleBtn = PageObjectHelper.waitForPresent(wait, TOGGLE_SUBOPTIONS);
+			WebElement toggleBtn = Utilities.waitForPresent(wait, TOGGLE_SUBOPTIONS);
 			scrollToElement(toggleBtn);
 			Thread.sleep(500);
 			clickElement(toggleBtn);
 			LOGGER.info("Clicked on dropdown button of Searched Function: " + FunctionsOption.get());
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_click_on_dropdown_button_of_searched_function_name", "Issue clicking dropdown button", e);
+			Utilities.handleError(LOGGER, "user_should_click_on_dropdown_button_of_searched_function_name", "Issue clicking dropdown button", e);
 			throw e;
 		}
 	}
 
 	public void select_one_subfunction_option_inside_function_name_dropdown() throws Exception {
-		PageObjectHelper.waitForPageReady(driver, 2);
+		Utilities.waitForPageReady(driver, 2);
 		waitForSpinners();
 		
 		List<WebElement> checkboxes = driver.findElements(SUBFUNCTIONS_CHECKBOXES);
@@ -787,7 +787,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				
 				// Wait for filter to apply after selection
 				waitForSpinners();
-				PageObjectHelper.waitForPageReady(driver, 2);
+				Utilities.waitForPageReady(driver, 2);
 				safeSleep(500);
 				
 				// Re-fetch checkbox to verify selection
@@ -796,7 +796,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				LOGGER.info("Selected SubFunction '" + subfunctionText + "' from Function '" + FunctionsOption.get() + "'");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_one_subfunction_option_inside_function_name_dropdown", "Issue selecting subfunction", e);
+			Utilities.handleError(LOGGER, "select_one_subfunction_option_inside_function_name_dropdown", "Issue selecting subfunction", e);
 			throw e;
 		}
 	}
@@ -806,7 +806,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			WebElement searchBox = waitForElement(FUNCTIONS_SEARCH);
 			searchBox.clear();
 			Thread.sleep(300);
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 
 			List<WebElement> funcLabels = driver.findElements(FUNCTIONS_VALUES);
 			List<WebElement> toggleBtns = driver.findElements(TOGGLE_SUBOPTIONS);
@@ -844,8 +844,8 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		String xpath = "//div[@data-testid='dropdown-Functions_SubFunctions']//input[@type='checkbox'][contains(@id,'" + FunctionsOption.get() + "')][not(ancestor::button[contains(@data-testid,'suboption')])]";
 
 		try {
-			WebElement functionCheckbox = PageObjectHelper.waitForPresent(wait, By.xpath(xpath));
-			PageObjectHelper.waitForVisible(wait, functionCheckbox);
+			WebElement functionCheckbox = Utilities.waitForPresent(wait, By.xpath(xpath));
+			Utilities.waitForVisible(wait, functionCheckbox);
 
 			boolean isSelected = wait.until(driver -> functionCheckbox.isSelected());
 
@@ -855,13 +855,13 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				Assert.fail("Function checkbox '" + FunctionsOption.get() + "' was NOT automatically selected");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "user_should_verify_function_name_is_automatically_selected_after_selecting_subfunction_option", "Issue verifying auto-selection", e);
+			Utilities.handleError(LOGGER, "user_should_verify_function_name_is_automatically_selected_after_selecting_subfunction_option", "Issue verifying auto-selection", e);
 			throw e;
 		}
 	}
 
 	public void select_two_subfunction_options_inside_function_name_filters_dropdown() throws Exception {
-		PageObjectHelper.waitForPageReady(driver, 2);
+		Utilities.waitForPageReady(driver, 2);
 		waitForSpinners();
 		
 		List<WebElement> checkboxes = driver.findElements(SUBFUNCTIONS_CHECKBOXES);
@@ -882,7 +882,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				
 				// Wait for filter to apply after each selection
 				waitForSpinners();
-				PageObjectHelper.waitForPageReady(driver, 2);
+				Utilities.waitForPageReady(driver, 2);
 				safeSleep(500);
 				
 				// Re-fetch checkbox to verify selection
@@ -891,7 +891,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				LOGGER.info("Selected SubFunction #" + j + ": '" + subfunctionText + "'");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_two_subfunction_options_inside_function_name_filters_dropdown", "Issue selecting two subfunctions", e);
+			Utilities.handleError(LOGGER, "select_two_subfunction_options_inside_function_name_filters_dropdown", "Issue selecting two subfunctions", e);
 			throw e;
 		}
 	}
@@ -899,7 +899,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_grades_departments_and_functions_subfunctions_options() throws Exception {
 		try {
 			// Wait for filter to apply
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			waitForSpinners();
 			safeSleep(1000);
 			
@@ -1000,7 +1000,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 			LOGGER.info("✅ All " + gradeCount + " profiles correctly filtered with combined filters (Grades: " + expectedGrade + ", Dept: " + expectedDept + ", Func: " + expectedFunc + ")");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "validate_combined_filters", "Issue validating combined filters", e);
+			Utilities.handleError(LOGGER, "validate_combined_filters", "Issue validating combined filters", e);
 			throw e;
 		}
 		scrollToTop();
@@ -1008,7 +1008,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void select_one_option_in_mapping_status_filters_dropdown() throws Exception {
 		try {
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			List<WebElement> checkboxes = driver.findElements(MAPPING_STATUS_CHECKBOXES);
 			List<WebElement> values = driver.findElements(MAPPING_STATUS_VALUES);
 
@@ -1022,7 +1022,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 						scrollToElement(values.get(i));
 						clickElement(values.get(i));
 						waitForSpinners();
-						PageObjectHelper.waitForPageReady(driver, 1);
+						Utilities.waitForPageReady(driver, 1);
 
 						Assert.assertTrue(checkboxes.get(i).isSelected());
 						DepartmentsOption.set(actualStatusText);
@@ -1038,7 +1038,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				Assert.fail("No Mapping Status option found matching priority list");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_one_option_in_mapping_status_filters_dropdown", "Issue selecting Mapping Status", e);
+			Utilities.handleError(LOGGER, "select_one_option_in_mapping_status_filters_dropdown", "Issue selecting Mapping Status", e);
 			throw e;
 		}
 	}
@@ -1056,7 +1056,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	public void click_on_filter_dropdown_button(String filterType) throws Exception {
 		try {
 			waitForSpinners();
-			PageObjectHelper.waitForPageReady(driver, 2);
+			Utilities.waitForPageReady(driver, 2);
 			
 			By dropdownLocator;
 			String normalizedFilterType = filterType.toLowerCase().replace(" ", "").replace("_", "");
@@ -1090,7 +1090,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			
 			LOGGER.info("Clicked on " + filterType + " filter dropdown");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "click_on_filter_dropdown_button", "Issue clicking " + filterType + " dropdown", e);
+			Utilities.handleError(LOGGER, "click_on_filter_dropdown_button", "Issue clicking " + filterType + " dropdown", e);
 			throw e;
 		}
 	}
@@ -1115,7 +1115,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			}
 			LOGGER.info("Selected one option in " + filterType + " filter");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_one_option_in_filter_dropdown", "Issue selecting option in " + filterType + " dropdown", e);
+			Utilities.handleError(LOGGER, "select_one_option_in_filter_dropdown", "Issue selecting option in " + filterType + " dropdown", e);
 			throw e;
 		}
 	}
@@ -1140,7 +1140,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			}
 			LOGGER.info("Selected two options in " + filterType + " filter");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "select_two_options_in_filter_dropdown", "Issue selecting two options in " + filterType + " dropdown", e);
+			Utilities.handleError(LOGGER, "select_two_options_in_filter_dropdown", "Issue selecting two options in " + filterType + " dropdown", e);
 			throw e;
 		}
 	}
@@ -1166,8 +1166,10 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			}
 			LOGGER.info("Validated filter results for " + filterType);
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "validate_filter_results", "Issue validating " + filterType + " filter results", e);
+			Utilities.handleError(LOGGER, "validate_filter_results", "Issue validating " + filterType + " filter results", e);
 			throw e;
 		}
 	}
 }
+
+
