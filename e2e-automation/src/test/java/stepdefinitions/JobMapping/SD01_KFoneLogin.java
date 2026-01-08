@@ -1,4 +1,4 @@
-﻿package stepdefinitions.JobMapping;
+package stepdefinitions.JobMapping;
 
 import java.io.IOException;
 
@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.kfonetalentsuite.manager.PageObjectManager;
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 import io.cucumber.java.en.Given;
@@ -128,9 +127,9 @@ public class SD01_KFoneLogin {
 	public void log_current_user_role() {
 		String currentRole = Utilities.getCurrentUserRole();
 		if (currentRole != null) {
-			PageObjectHelper.log(LOGGER," Current User Role: " + currentRole);
+			LOGGER.info(" Current User Role: " + currentRole);
 		} else {
-			PageObjectHelper.log(LOGGER," No user role currently stored");
+			LOGGER.info(" No user role currently stored");
 		}
 	}
 
@@ -157,7 +156,7 @@ public class SD01_KFoneLogin {
 		}
 
 		// If we reach here, user has the required role
-		PageObjectHelper.log(LOGGER,"User role validation passed. Current role: '" + currentRole + "' matches required role: '"
+		LOGGER.info("User role validation passed. Current role: '" + currentRole + "' matches required role: '"
 				+ requiredRole + "'");
 	}
 
@@ -186,7 +185,7 @@ public class SD01_KFoneLogin {
 		}
 
 		// If we reach here, user has Job Mapping access
-		PageObjectHelper.log(LOGGER,"Job Mapping access validation passed. userLevelJobMappingEnabled = true");
+		LOGGER.info("Job Mapping access validation passed. userLevelJobMappingEnabled = true");
 	}
 
 	@Then("Skip scenario if user does not have HCM Sync access")
@@ -207,6 +206,6 @@ public class SD01_KFoneLogin {
 		}
 
 		// If we reach here, user has HCM Sync access
-		PageObjectHelper.log(LOGGER,"HCM Sync access validation passed. userLevelPermission = 'true'");
+		LOGGER.info("HCM Sync access validation passed. userLevelPermission = 'true'");
 	}
 }

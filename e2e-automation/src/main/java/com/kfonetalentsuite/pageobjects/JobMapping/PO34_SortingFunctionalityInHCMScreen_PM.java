@@ -33,7 +33,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver);
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.log(LOGGER, "Clicked on Name header to Sort Profiles in ascending order");
+			LOGGER.info("Clicked on Name header to Sort Profiles in ascending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_by_name_ascending", "Issue sorting by name ascending", e);
 			ScreenshotHandler.captureFailureScreenshot("sort_profiles_by_name_ascending", e);
@@ -47,7 +47,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver);
 
 			List<WebElement> allElements = findElements(PROFILE_NAME_ELEMENTS);
-			PageObjectHelper.log(LOGGER, "Profiles After sorting by Name in Ascending Order:");
+			LOGGER.info("Profiles After sorting by Name in Ascending Order:");
 
 			ArrayList<String> profileNames = new ArrayList<>();
 			int specialCharCount = 0;
@@ -63,14 +63,14 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 				} else if (!text.isEmpty() && text.charAt(0) > 127) {
 					nonAsciiCount++;
 				}
-				PageObjectHelper.log(LOGGER, "Profile Name : " + text);
+				LOGGER.info("Profile Name : " + text);
 			}
 
 			if (specialCharCount > 0) {
-				PageObjectHelper.log(LOGGER, specialCharCount + " profile(s) start with special characters");
+				LOGGER.info(specialCharCount + " profile(s) start with special characters");
 			}
 			if (nonAsciiCount > 0) {
-				PageObjectHelper.log(LOGGER, nonAsciiCount + " profile(s) contain non-ASCII characters");
+				LOGGER.info(nonAsciiCount + " profile(s) contain non-ASCII characters");
 			}
 
 			// High-level validation: Just confirm sorting is generally working
@@ -89,7 +89,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			}
 			
 			double correctPercentage = totalPairs > 0 ? (correctPairs * 100.0 / totalPairs) : 100;
-			PageObjectHelper.log(LOGGER, "✅ Sorting validation completed - " + 
+			LOGGER.info("✅ Sorting validation completed - " + 
 					String.format("%.1f", correctPercentage) + "% in correct ascending order");
 
 		} catch (Exception e) {
@@ -121,7 +121,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			safeSleep(3000);
 			PageObjectHelper.waitForPageReady(driver);
 
-			PageObjectHelper.log(LOGGER, "Clicked twice on Level header to Sort in Descending order");
+			LOGGER.info("Clicked twice on Level header to Sort in Descending order");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_by_level_descending", "Issue sorting by level descending", e);
@@ -139,7 +139,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			List<WebElement> profileNameElements = findElements(PROFILE_NAME_ELEMENTS);
 			List<WebElement> levelElements = findElements(LEVEL_ELEMENTS);
 
-			PageObjectHelper.log(LOGGER, "Profiles After sorting by Level in Descending Order:");
+			LOGGER.info("Profiles After sorting by Level in Descending Order:");
 
 			ArrayList<String> levels = new ArrayList<>();
 			int emptyCount = 0;
@@ -151,15 +151,15 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 				if (levelText == null || levelText.trim().isEmpty() || levelText.equals("-")) {
 					emptyCount++;
-					PageObjectHelper.log(LOGGER, "Profile: " + profileName + " - Level: [EMPTY]");
+					LOGGER.info("Profile: " + profileName + " - Level: [EMPTY]");
 				} else {
 					levels.add(levelText);
-					PageObjectHelper.log(LOGGER, "Profile: " + profileName + " - Level: " + levelText);
+					LOGGER.info("Profile: " + profileName + " - Level: " + levelText);
 				}
 			}
 
 			if (emptyCount > 0) {
-				PageObjectHelper.log(LOGGER, emptyCount + " profile(s) have empty Level values");
+				LOGGER.info(emptyCount + " profile(s) have empty Level values");
 			}
 
 			// High-level validation: Just confirm sorting is generally working
@@ -177,10 +177,10 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			
 			double correctPercentage = totalPairs > 0 ? (correctPairs * 100.0 / totalPairs) : 100;
 			if (levels.size() > 1) {
-				PageObjectHelper.log(LOGGER, "✅ Level sorting validation completed - " + 
+				LOGGER.info("✅ Level sorting validation completed - " + 
 						String.format("%.1f", correctPercentage) + "% in correct descending order");
 			} else {
-				PageObjectHelper.log(LOGGER, "ℹ Validation skipped - insufficient data");
+				LOGGER.info("ℹ Validation skipped - insufficient data");
 			}
 
 		} catch (Exception e) {
@@ -197,7 +197,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver);
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.log(LOGGER, "Clicked on Job Status header to Sort in ascending order");
+			LOGGER.info("Clicked on Job Status header to Sort in ascending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_by_job_status_ascending", 
 					"Issue sorting by job status ascending", e);
@@ -212,7 +212,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver);
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
-			PageObjectHelper.log(LOGGER, "Clicked on Job Code header to Sort in ascending order");
+			LOGGER.info("Clicked on Job Code header to Sort in ascending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_by_job_code_ascending", 
 					"Issue sorting by job code ascending", e);
@@ -229,7 +229,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			List<WebElement> profileNameElements = findElements(PROFILE_NAME_ELEMENTS);
 			List<WebElement> jobCodeElements = findElements(JOB_CODE_ELEMENTS);
 
-			PageObjectHelper.log(LOGGER, "Profiles After sorting by Job Code in Ascending Order:");
+			LOGGER.info("Profiles After sorting by Job Code in Ascending Order:");
 
 			ArrayList<String> jobCodes = new ArrayList<>();
 			int emptyCount = 0;
@@ -241,15 +241,15 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 				if (jobCodeText == null || jobCodeText.trim().isEmpty() || jobCodeText.equals("-")) {
 					emptyCount++;
-					PageObjectHelper.log(LOGGER, "Profile: " + profileName + " - Job Code: [EMPTY]");
+					LOGGER.info("Profile: " + profileName + " - Job Code: [EMPTY]");
 				} else {
 					jobCodes.add(jobCodeText);
-					PageObjectHelper.log(LOGGER, "Profile: " + profileName + " - Job Code: " + jobCodeText);
+					LOGGER.info("Profile: " + profileName + " - Job Code: " + jobCodeText);
 				}
 			}
 
 			if (emptyCount > 0) {
-				PageObjectHelper.log(LOGGER, emptyCount + " profile(s) have empty Job Code values");
+				LOGGER.info(emptyCount + " profile(s) have empty Job Code values");
 			}
 
 			// High-level validation: Just confirm sorting is generally working
@@ -267,10 +267,10 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			
 			double correctPercentage = totalPairs > 0 ? (correctPairs * 100.0 / totalPairs) : 100;
 			if (jobCodes.size() > 1) {
-				PageObjectHelper.log(LOGGER, "✅ Job Code sorting validation completed - " + 
+				LOGGER.info("✅ Job Code sorting validation completed - " + 
 						String.format("%.1f", correctPercentage) + "% in correct ascending order");
 			} else {
-				PageObjectHelper.log(LOGGER, "ℹ Validation skipped - insufficient data");
+				LOGGER.info("ℹ Validation skipped - insufficient data");
 			}
 
 		} catch (Exception e) {
@@ -303,7 +303,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			safeSleep(3000);
 			PageObjectHelper.waitForPageReady(driver);
 
-			PageObjectHelper.log(LOGGER, "Clicked twice on Export Status header to Sort in Descending order");
+			LOGGER.info("Clicked twice on Export Status header to Sort in Descending order");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_by_export_status_descending", 
@@ -323,7 +323,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			// Loader may not always appear - wait gracefully
 			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
 			PageObjectHelper.waitForPageReady(driver);
-			PageObjectHelper.log(LOGGER, "Clicked on Function header to Sort in ascending order");
+			LOGGER.info("Clicked on Function header to Sort in ascending order");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_by_function_ascending", 
@@ -349,7 +349,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			safeSleep(2000);
 			PageObjectHelper.waitForPageReady(driver);
 
-			PageObjectHelper.log(LOGGER, "Clicked twice on Function header to Sort in Descending order");
+			LOGGER.info("Clicked twice on Function header to Sort in Descending order");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_by_function_descending", 
@@ -368,7 +368,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			List<WebElement> jobStatusElements = findElements(JOB_STATUS_ELEMENTS);
 			List<WebElement> functionElements = findElements(FUNCTION_ELEMENTS);
 
-			PageObjectHelper.log(LOGGER, "Profiles sorted by Job Status (Asc) and Function (Desc):");
+			LOGGER.info("Profiles sorted by Job Status (Asc) and Function (Desc):");
 
 			int limit = Math.min(Math.min(profileNameElements.size(), jobStatusElements.size()), 100);
 			limit = Math.min(limit, functionElements.size());
@@ -378,7 +378,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 				String jobStatusText = getValueOrEmpty(jobStatusElements.get(i).getText());
 				String functionText = getValueOrEmpty(functionElements.get(i).getText());
 
-				PageObjectHelper.log(LOGGER, "Profile: " + profileName + " - Job Status: " + 
+				LOGGER.info("Profile: " + profileName + " - Job Status: " + 
 						jobStatusText + " - Function: " + functionText);
 			}
 
@@ -398,7 +398,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			}
 			
 			double correctPercentage = totalPairs > 0 ? (correctPairs * 100.0 / totalPairs) : 100;
-			PageObjectHelper.log(LOGGER, "✅ Multi-level sorting validation completed - " + 
+			LOGGER.info("✅ Multi-level sorting validation completed - " + 
 					String.format("%.1f", correctPercentage) + "% in correct order");
 
 		} catch (Exception e) {
@@ -419,7 +419,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			List<WebElement> exportStatusElements = findElements(EXPORT_STATUS_ELEMENTS);
 			List<WebElement> functionElements = findElements(FUNCTION_ELEMENTS);
 
-			PageObjectHelper.log(LOGGER, "Profiles sorted by Job Status (Asc), Export Status (Desc), Function (Asc):");
+			LOGGER.info("Profiles sorted by Job Status (Asc), Export Status (Desc), Function (Asc):");
 
 			int limit = Math.min(Math.min(profileNameElements.size(), jobStatusElements.size()), 100);
 			limit = Math.min(limit, Math.min(exportStatusElements.size(), functionElements.size()));
@@ -430,7 +430,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 				String exportStatus = getValueOrEmpty(exportStatusElements.get(i).getText());
 				String function = getValueOrEmpty(functionElements.get(i).getText());
 
-				PageObjectHelper.log(LOGGER, "Profile: " + profileName + " | Job Status: " + jobStatus +
+				LOGGER.info("Profile: " + profileName + " | Job Status: " + jobStatus +
 						" | Export Status: " + exportStatus + " | Function: " + function);
 			}
 
@@ -450,7 +450,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			}
 			
 			double correctPercentage = totalPairs > 0 ? (correctPairs * 100.0 / totalPairs) : 100;
-			PageObjectHelper.log(LOGGER, "✅ Three-level sorting validation completed - " + 
+			LOGGER.info("✅ Three-level sorting validation completed - " + 
 					String.format("%.1f", correctPercentage) + "% in correct order");
 
 		} catch (Exception e) {
@@ -467,7 +467,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			String columnLower = column.toLowerCase().trim();
 			String orderLower = order.toLowerCase().trim();
 			
-			PageObjectHelper.log(LOGGER, "Sorting HCM profiles by column: '" + column + "' in '" + order + "' order");
+			LOGGER.info("Sorting HCM profiles by column: '" + column + "' in '" + order + "' order");
 			
 			if (columnLower.contains("name")) {
 				if (orderLower.contains("ascending") || orderLower.contains("asc")) {
@@ -519,7 +519,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		try {
 			String columnLower = column.toLowerCase().trim();
 			
-			PageObjectHelper.log(LOGGER, "Verifying HCM sort by column: '" + column + "' in '" + order + "' order");
+			LOGGER.info("Verifying HCM sort by column: '" + column + "' in '" + order + "' order");
 			
 			if (columnLower.contains("name")) {
 				user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_name_in_ascending_order();
@@ -529,7 +529,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 				user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_job_code_in_ascending_order();
 			} else {
 				// For other columns, just log success as specific verification methods may not exist
-				PageObjectHelper.log(LOGGER, "✅ Sorting verification completed for column: " + column + " in " + order + " order");
+				LOGGER.info("✅ Sorting verification completed for column: " + column + " in " + order + " order");
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_column_in_order", 

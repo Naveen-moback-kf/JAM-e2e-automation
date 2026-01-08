@@ -98,7 +98,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver, 2);
 
-			PageObjectHelper.log(LOGGER, "Clicked header checkbox to select loaded profiles in " + getScreenName(screen));
+			LOGGER.info("Clicked header checkbox to select loaded profiles in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_header_checkbox_to_select_" + screen, e);
@@ -149,7 +149,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver, 2);
 
-			PageObjectHelper.log(LOGGER, "Clicked header checkbox to clear selection in " + getScreenName(screen));
+			LOGGER.info("Clicked header checkbox to clear selection in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_header_checkbox_to_unselect_" + screen, e);
@@ -182,7 +182,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver, 2);
 
-			PageObjectHelper.log(LOGGER, "Clicked None button in " + getScreenName(screen));
+			LOGGER.info("Clicked None button in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_none_button_" + screen, e);
@@ -215,12 +215,12 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			LOGGER.info("Selected: {}, Unselected: {}", selectedCount, unselectedCount);
 
 			if (selectedCount == 0) {
-				PageObjectHelper.log(LOGGER, "✅ All " + totalOnScreen + " loaded profiles are unselected in " + getScreenName(screen));
+				LOGGER.info("✅ All " + totalOnScreen + " loaded profiles are unselected in " + getScreenName(screen));
 			} else if (unselectedCount > 0) {
-				PageObjectHelper.log(LOGGER, "✅ " + unselectedCount + " loaded profiles are unselected in " + getScreenName(screen) + 
+				LOGGER.info("✅ " + unselectedCount + " loaded profiles are unselected in " + getScreenName(screen) + 
 						" (" + selectedCount + " still selected)");
 			} else {
-				PageObjectHelper.log(LOGGER, "❌ No profiles were unselected in " + getScreenName(screen));
+				LOGGER.info("❌ No profiles were unselected in " + getScreenName(screen));
 				Assert.fail("No profiles were unselected");
 			}
 
@@ -246,7 +246,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			int newlyLoaded = totalNow - loadedProfilesBeforeUncheck.get();
 
 			if (newlyLoaded <= 0) {
-				PageObjectHelper.log(LOGGER, "No newly loaded profiles to verify in " + getScreenName(screen));
+				LOGGER.info("No newly loaded profiles to verify in " + getScreenName(screen));
 				return;
 			}
 
@@ -289,20 +289,20 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 				newlyLoaded, disabledInNewlyLoaded, selectedInNewlyLoaded, expectedSelected);
 
 			if (selectedInNewlyLoaded >= expectedSelected) {
-				PageObjectHelper.log(LOGGER, "✅ " + selectedInNewlyLoaded + " newly loaded profiles (after scroll) are still selected from original Select All in " + getScreenName(screen));
+				LOGGER.info("✅ " + selectedInNewlyLoaded + " newly loaded profiles (after scroll) are still selected from original Select All in " + getScreenName(screen));
 			} else if (selectedInNewlyLoaded == 0 && totalSelectedJS == 0) {
 				// This is actually expected application behavior: 
 				// When header checkbox is unchecked after "Select All", it may clear ALL selections
 				// (not just loaded profiles) depending on application implementation
-				PageObjectHelper.log(LOGGER, "ℹ️ Application behavior: Unchecking header checkbox after 'Select All' cleared ALL selections");
-				PageObjectHelper.log(LOGGER, "   This is expected if the app treats header checkbox uncheck as 'deselect all'");
+				LOGGER.info("ℹ️ Application behavior: Unchecking header checkbox after 'Select All' cleared ALL selections");
+				LOGGER.info("   This is expected if the app treats header checkbox uncheck as 'deselect all'");
 				// Don't fail - this may be expected application behavior
 			} else {
 				// These profiles should still be selected from the original "Select All" action
 				// Header checkbox uncheck only affects profiles that were loaded at that time
-				PageObjectHelper.log(LOGGER, "⚠️ Only " + selectedInNewlyLoaded + "/" + expectedSelected + " newly loaded profiles retained selection in " + getScreenName(screen));
-				PageObjectHelper.log(LOGGER, "   Context: 'Select All' was clicked earlier, then header checkbox was unchecked to deselect LOADED profiles only.");
-				PageObjectHelper.log(LOGGER, "   Expected: Profiles loaded AFTER the uncheck (via scroll) should still be selected from original Select All.");
+				LOGGER.info("⚠️ Only " + selectedInNewlyLoaded + "/" + expectedSelected + " newly loaded profiles retained selection in " + getScreenName(screen));
+				LOGGER.info("   Context: 'Select All' was clicked earlier, then header checkbox was unchecked to deselect LOADED profiles only.");
+				LOGGER.info("   Expected: Profiles loaded AFTER the uncheck (via scroll) should still be selected from original Select All.");
 				Assert.fail("Newly loaded profiles (after scroll) should retain selection from Select All, but only " 
 						+ selectedInNewlyLoaded + "/" + expectedSelected + " are selected");
 			}
@@ -332,9 +332,9 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			LOGGER.info("Total profiles: {}, Selected: {}", totalOnScreen, selectedCount);
 
 			if (selectedCount == 0) {
-				PageObjectHelper.log(LOGGER, "✅ All " + totalOnScreen + " profiles are unselected in " + getScreenName(screen));
+				LOGGER.info("✅ All " + totalOnScreen + " profiles are unselected in " + getScreenName(screen));
 			} else {
-				PageObjectHelper.log(LOGGER, "❌ " + selectedCount + " profiles are still selected in " + getScreenName(screen));
+				LOGGER.info("❌ " + selectedCount + " profiles are still selected in " + getScreenName(screen));
 				Assert.fail(selectedCount + " profiles are still selected");
 			}
 
@@ -356,7 +356,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			int newlyLoaded = totalNow - loadedProfilesBeforeUncheck.get();
 
 			if (newlyLoaded <= 0) {
-				PageObjectHelper.log(LOGGER, "No newly loaded profiles to verify in " + getScreenName(screen));
+				LOGGER.info("No newly loaded profiles to verify in " + getScreenName(screen));
 				return;
 			}
 
@@ -370,10 +370,10 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 			// Selected count should not exceed what was loaded before scroll
 			if (currentSelectedCount <= loadedProfilesBeforeUncheck.get()) {
-				PageObjectHelper.log(LOGGER, "✅ " + newlyLoaded + " profiles loaded after header click are NOT selected in " + getScreenName(screen));
+				LOGGER.info("✅ " + newlyLoaded + " profiles loaded after header click are NOT selected in " + getScreenName(screen));
 			} else {
 				int extraSelected = currentSelectedCount - loadedProfilesBeforeUncheck.get();
-				PageObjectHelper.log(LOGGER, "⚠️ " + extraSelected + " newly loaded profiles appear selected (unexpected) in " + getScreenName(screen));
+				LOGGER.info("⚠️ " + extraSelected + " newly loaded profiles appear selected (unexpected) in " + getScreenName(screen));
 			}
 
 		} catch (Exception e) {
@@ -395,7 +395,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver, 2);
 			
-			PageObjectHelper.log(LOGGER, "Scrolled to load more profiles in " + getScreenName(screen));
+			LOGGER.info("Scrolled to load more profiles in " + getScreenName(screen));
 		} catch (Exception e) {
 			LOGGER.debug("Error scrolling: {}", e.getMessage());
 		}
@@ -413,7 +413,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			loadedProfilesBeforeUncheck.set(0);
 			selectedProfilesBeforeUncheck.set(0);
 			
-			PageObjectHelper.log(LOGGER, "Refreshed " + getScreenName(screen));
+			LOGGER.info("Refreshed " + getScreenName(screen));
 		} catch (Exception e) {
 			LOGGER.debug("Error refreshing: {}", e.getMessage());
 		}
@@ -430,7 +430,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			safeSleep(300);
 			
 			String buttonName = screen.equalsIgnoreCase("PM") ? "Sync with HCM" : "Publish Selected Profiles";
-			PageObjectHelper.log(LOGGER, "Verifying " + buttonName + " button is enabled in " + getScreenName(screen) + "...");
+			LOGGER.info("Verifying " + buttonName + " button is enabled in " + getScreenName(screen) + "...");
 			
 			By buttonLocator = getActionButtonLocator(screen);
 
@@ -440,9 +440,9 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			LOGGER.info("Button found: '{}', enabled: {}", button.getText().trim(), isEnabled);
 
 			if (isEnabled) {
-				PageObjectHelper.log(LOGGER, "✅ " + buttonName + " button is enabled in " + getScreenName(screen));
+				LOGGER.info("✅ " + buttonName + " button is enabled in " + getScreenName(screen));
 			} else {
-				PageObjectHelper.log(LOGGER, "❌ " + buttonName + " button is NOT enabled in " + getScreenName(screen));
+				LOGGER.info("❌ " + buttonName + " button is NOT enabled in " + getScreenName(screen));
 				Assert.fail(buttonName + " button should be enabled but is disabled");
 			}
 		} catch (Exception e) {
@@ -459,7 +459,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			safeSleep(300);
 			
 			String buttonName = screen.equalsIgnoreCase("PM") ? "Sync with HCM" : "Publish Selected Profiles";
-			PageObjectHelper.log(LOGGER, "Verifying " + buttonName + " button is disabled in " + getScreenName(screen) + "...");
+			LOGGER.info("Verifying " + buttonName + " button is disabled in " + getScreenName(screen) + "...");
 			
 			By buttonLocator = getActionButtonLocator(screen);
 
@@ -469,9 +469,9 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			LOGGER.info("Button found: '{}', disabled: {}", button.getText().trim(), isDisabled);
 
 			if (isDisabled) {
-				PageObjectHelper.log(LOGGER, "✅ " + buttonName + " button is disabled in " + getScreenName(screen));
+				LOGGER.info("✅ " + buttonName + " button is disabled in " + getScreenName(screen));
 			} else {
-				PageObjectHelper.log(LOGGER, "❌ " + buttonName + " button is NOT disabled in " + getScreenName(screen));
+				LOGGER.info("❌ " + buttonName + " button is NOT disabled in " + getScreenName(screen));
 				Assert.fail(buttonName + " button should be disabled but is enabled");
 			}
 		} catch (Exception e) {

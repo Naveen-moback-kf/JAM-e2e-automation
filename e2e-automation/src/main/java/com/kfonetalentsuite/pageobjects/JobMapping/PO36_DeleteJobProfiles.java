@@ -42,7 +42,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			boolean isDisabled = disabledAttr != null || deleteBtn.getAttribute("class").contains("cursor-not-allowed");
 			
 			Assert.assertTrue(isDisabled, "Delete button should be disabled when no profiles are selected");
-			PageObjectHelper.log(LOGGER, "✅ Verified Delete button is DISABLED as expected");
+			LOGGER.info("✅ Verified Delete button is DISABLED as expected");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_delete_button_is_disabled", 
@@ -63,7 +63,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			boolean isEnabled = disabledAttr == null && !deleteBtn.getAttribute("class").contains("cursor-not-allowed");
 			
 			Assert.assertTrue(isEnabled, "Delete button should be enabled when profiles are selected");
-			PageObjectHelper.log(LOGGER, "✅ Verified Delete button is ENABLED as expected");
+			LOGGER.info("✅ Verified Delete button is ENABLED as expected");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_delete_button_is_enabled", 
@@ -79,7 +79,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			WebElement deleteBtn = PageObjectHelper.waitForClickable(wait, DELETE_BUTTON);
 			clickElement(deleteBtn);
 			
-			PageObjectHelper.log(LOGGER, "Clicked on Delete button in Job Mapping screen");
+			LOGGER.info("Clicked on Delete button in Job Mapping screen");
 			safeSleep(500); // Wait for popup to appear
 			
 		} catch (Exception e) {
@@ -105,7 +105,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			Assert.assertTrue(waitForElement(DELETE_POPUP_CANCEL_BTN, 5).isDisplayed(), "Cancel button should be displayed");
 			Assert.assertTrue(waitForElement(DELETE_POPUP_CONFIRM_BTN, 5).isDisplayed(), "Delete button should be displayed");
 			
-			PageObjectHelper.log(LOGGER, "✅ Delete Confirmation popup is displayed with title: 'Delete Selected Jobs'");
+			LOGGER.info("✅ Delete Confirmation popup is displayed with title: 'Delete Selected Jobs'");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_delete_confirmation_popup_is_displayed", 
@@ -120,7 +120,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			WebElement cancelBtn = PageObjectHelper.waitForClickable(wait, DELETE_POPUP_CANCEL_BTN);
 			clickElement(cancelBtn);
 			
-			PageObjectHelper.log(LOGGER, "Clicked on Cancel button on Delete Confirmation popup");
+			LOGGER.info("Clicked on Cancel button on Delete Confirmation popup");
 			safeSleep(500); // Wait for popup to close
 			
 		} catch (Exception e) {
@@ -136,7 +136,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			WebElement deleteBtn = PageObjectHelper.waitForClickable(wait, DELETE_POPUP_CONFIRM_BTN);
 			clickElement(deleteBtn);
 			
-			PageObjectHelper.log(LOGGER, "Clicked on Delete button on Delete Confirmation popup");
+			LOGGER.info("Clicked on Delete button on Delete Confirmation popup");
 			waitForSpinners();
 			
 		} catch (Exception e) {
@@ -159,7 +159,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			Assert.assertTrue(successMsg.isDisplayed(), "Delete success message should be displayed");
 			
 			String msgText = successMsg.getText();
-			PageObjectHelper.log(LOGGER, "✅ Delete success popup appeared: 'Job Profiles Deleted Successfully' - " + msgText);
+			LOGGER.info("✅ Delete success popup appeared: 'Job Profiles Deleted Successfully' - " + msgText);
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_delete_success_popup_appears_on_screen", 

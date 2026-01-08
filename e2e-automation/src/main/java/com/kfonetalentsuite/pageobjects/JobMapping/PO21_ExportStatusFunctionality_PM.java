@@ -55,13 +55,12 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 					String statusText = exportStatus.getText();
 					if (statusText.contains("Not Exported")) {
-						PageObjectHelper.log(LOGGER, "Job profile with export Status as Not Exported is found");
+						LOGGER.info("Job profile with export Status as Not Exported is found");
 
 						if (isProfileExportable(i)) {
 							break;
 						} else {
-							PageObjectHelper.log(LOGGER,
-									"But Success profile with No Job Code assigned cannot be Exported...So Searching for another Profile....");
+							LOGGER.info("But Success profile with No Job Code assigned cannot be Exported...So Searching for another Profile....");
 						}
 					}
 				} catch (NoSuchElementException e) {
@@ -114,7 +113,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 			String message = "Below are the details of the Not Exported Success Profile in HCM Sync Profiles screen in PM : \n"
 					+ profileDetails.toString();
-			PageObjectHelper.log(LOGGER, message);
+			LOGGER.info(message);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"verify_details_of_the_not_exported_success_profile_in_hcm_sync_profiles_tab",
@@ -162,7 +161,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			WebElement clickable = waitForClickable(By.xpath(checkboxXpath));
 			Assert.assertTrue(clickable.isEnabled());
 
-			PageObjectHelper.log(LOGGER, "Checkbox of the SP with Name " + SPJobName.get()
+			LOGGER.info("Checkbox of the SP with Name " + SPJobName.get()
 					+ " is Enabled and able to Perform Export Operation");
 		} catch (AssertionError e) {
 			String errorMsg = "Checkbox verification for profile: " + SPJobName.get();
@@ -190,7 +189,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			try {
 				driver.findElement(By.xpath(String.format("//tbody//tr[%d]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']", rowNumber.get())));
 				PO18_HCMSyncProfilesTab_PM.profilesCount.set(1);
-				PageObjectHelper.log(LOGGER, "Checkbox already selected for Success profile with name: " + SPJobName.get());
+				LOGGER.info("Checkbox already selected for Success profile with name: " + SPJobName.get());
 				return;
 			} catch (NoSuchElementException e) {
 				// Not selected, proceed to click
@@ -203,7 +202,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			try {
 				driver.findElement(By.xpath(String.format("//tbody//tr[%d]//td[1]//kf-checkbox//kf-icon[@icon='checkbox-check']", rowNumber.get())));
 				PO18_HCMSyncProfilesTab_PM.profilesCount.set(1);
-				PageObjectHelper.log(LOGGER, "Clicked checkbox of Success profile with name: " + SPJobName.get());
+				LOGGER.info("Clicked checkbox of Success profile with name: " + SPJobName.get());
 			} catch (NoSuchElementException e) {
 				// Checkbox not selected after click - don't set count
 			}
@@ -218,7 +217,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 		try {
 			refreshPage();
 			waitForSpinners();
-			PageObjectHelper.log(LOGGER, "HCM Sync Profiles screen page is Refreshed....");
+			LOGGER.info("HCM Sync Profiles screen page is Refreshed....");
 		} catch (Exception e) {
 			PageObjectHelper.handleWithContext("refresh_hcm_sync_profiles_tab", e, "Page refresh operation");
 		}
@@ -249,7 +248,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 						SPJobName.get(), rowNumber.get(), actualStatus));
 			}
 
-			PageObjectHelper.log(LOGGER, "Export Status of SP with name " + SPJobName.get() + " updated as " + actualStatus
+			LOGGER.info("Export Status of SP with name " + SPJobName.get() + " updated as " + actualStatus
 					+ " as expected");
 		} catch (AssertionError e) {
 			PageObjectHelper.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
@@ -433,7 +432,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 				throw new Exception("Failed to navigate to Success Profile details page for: " + SPJobName.get());
 			}
 
-			PageObjectHelper.log(LOGGER, "Clicked on Recently Exported Success Profile with name: " + SPJobName.get());
+			LOGGER.info("Clicked on Recently Exported Success Profile with name: " + SPJobName.get());
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleWithContext("user_should_click_on_recently_exported_success_profile_job_name", e,
@@ -466,8 +465,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 				}
 			}
 
-			PageObjectHelper.log(LOGGER,
-					"SP details page opens as expected on click of Recently Exported Success Profile Job name in HCM Sync Profiles screen in PM....");
+			LOGGER.info("SP details page opens as expected on click of Recently Exported Success Profile Job name in HCM Sync Profiles screen in PM....");
 		} catch (Exception e) {
 			PageObjectHelper.handleWithContext("user_should_be_navigated_to_sp_details_page", e,
 					"SP details page verification");
@@ -478,7 +476,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			clickElement(THREE_DOTS_SP_DETAILS);
-			PageObjectHelper.log(LOGGER, "Clicked Three Dots in SP Details Page");
+			LOGGER.info("Clicked Three Dots in SP Details Page");
 			waitForSpinners();
 		} catch (Exception e) {
 			PageObjectHelper.handleWithContext("click_on_three_dots_in_sp_details_page", e, "Three dots menu");
@@ -489,7 +487,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			clickElement(EDIT_SP_BUTTON);
-			PageObjectHelper.log(LOGGER, "Clicked Edit Success Profile option in SP Details Page");
+			LOGGER.info("Clicked Edit Success Profile option in SP Details Page");
 			waitForSpinners();
 		} catch (Exception e) {
 			PageObjectHelper.handleWithContext("click_on_edit_success_profile_option", e,
@@ -501,7 +499,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			clickElement(EDIT_DETAILS_BTN);
-			PageObjectHelper.log(LOGGER, "Clicked Edit button of Success Profile Details section");
+			LOGGER.info("Clicked Edit button of Success Profile Details section");
 			waitForSpinners();
 		} catch (Exception e) {
 			PageObjectHelper.handleWithContext("click_on_edit_button_of_details_section", e,
@@ -514,7 +512,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			waitForSpinners();
 
 			clickElement(FUNCTION_DROPDOWN);
-			PageObjectHelper.log(LOGGER, "Clicked Function dropdown in Success Profile Details section");
+			LOGGER.info("Clicked Function dropdown in Success Profile Details section");
 			PageObjectHelper.waitForUIStability(driver, 1);
 
 			List<WebElement> functionOptions = driver.findElements(DROPDOWN_OPTIONS);
@@ -537,12 +535,12 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			}
 
 			jsClick(selectedFunctionOption);
-			PageObjectHelper.log(LOGGER, "Function value Modified to '" + functionValue + "' in Success Profile Details section");
+			LOGGER.info("Function value Modified to '" + functionValue + "' in Success Profile Details section");
 
 			PageObjectHelper.waitForUIStability(driver, 2);
 
 			clickElement(SUBFUNCTION_DROPDOWN);
-			PageObjectHelper.log(LOGGER, "Clicked Subfunction dropdown in Success Profile Details section");
+			LOGGER.info("Clicked Subfunction dropdown in Success Profile Details section");
 			PageObjectHelper.waitForUIStability(driver, 1);
 
 			List<WebElement> subFunctionOptions = driver.findElements(DROPDOWN_OPTIONS);
@@ -565,8 +563,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			}
 
 			jsClick(selectedSubFunctionOption);
-			PageObjectHelper.log(LOGGER,
-					"Sub-Function value Modified to '" + subFunctionValue + "' in Success Profile Details section");
+			LOGGER.info("Sub-Function value Modified to '" + subFunctionValue + "' in Success Profile Details section");
 		} catch (Exception e) {
 			PageObjectHelper.handleWithContext("modify_function_and_sub_function_values_of_the_success_profile", e,
 					"Function/SubFunction modification");
@@ -578,7 +575,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			waitForSpinners();
 			waitForPageLoad();
 			clickElement(DONE_BTN);
-			PageObjectHelper.log(LOGGER, "Clicked Done button of Success Profile Details section");
+			LOGGER.info("Clicked Done button of Success Profile Details section");
 			waitForSpinners();
 		} catch (Exception e) {
 			PageObjectHelper.handleWithContext("click_on_done_button", e, "Done button operation");
@@ -589,7 +586,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			clickElement(SAVE_BTN);
-			PageObjectHelper.log(LOGGER, "Clicked Save button of Success Profile");
+			LOGGER.info("Clicked Save button of Success Profile");
 			waitForSpinners();
 		} catch (Exception e) {
 			PageObjectHelper.handleWithContext("click_on_save_button", e, "Save button operation");
@@ -601,7 +598,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			waitForSpinners();
 			WebElement pageText = waitForElement(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT);
 			Assert.assertTrue(pageText.isDisplayed());
-			PageObjectHelper.log(LOGGER, "Navigated to SP details page as expected after Saving SP details....");
+			LOGGER.info("Navigated to SP details page as expected after Saving SP details....");
 		} catch (AssertionError e) {
 			PageObjectHelper.handleWithContext("user_should_be_navigated_to_sp_details_page_after_saving_sp_details",
 					e, "SP details page assertion after save");
@@ -616,7 +613,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			waitForSpinners();
 			WebElement topJobName = findTableElement(1, 1);
 			Assert.assertEquals(topJobName.getText(), SPJobName.get());
-			PageObjectHelper.log(LOGGER, "Recently Modified SP with name " + topJobName.getText()
+			LOGGER.info("Recently Modified SP with name " + topJobName.getText()
 					+ " is displaying on the Top of the Profiles List as Expected in HCM Sync Profiles screen");
 		} catch (AssertionError e) {
 			PageObjectHelper.handleWithContext(
@@ -638,7 +635,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 			WebElement exportStatus = findTableElement(1, 9);
 			Assert.assertEquals(exportStatus.getText(), "Exported - Modified");
-			PageObjectHelper.log(LOGGER, "Export Status of recently Exported and Modfied SP with name " + SPJobName.get()
+			LOGGER.info("Export Status of recently Exported and Modfied SP with name " + SPJobName.get()
 					+ " updated as " + exportStatus.getText() + " as expected...");
 		} catch (AssertionError e) {
 			PageObjectHelper.handleWithContext(

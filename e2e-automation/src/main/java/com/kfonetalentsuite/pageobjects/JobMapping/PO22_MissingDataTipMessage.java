@@ -43,7 +43,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 	public void ensureTipMessageIsPresent() throws IOException {
 		try {
 			if (isElementDisplayed(MISSING_DATA_TIP_MESSAGE_CONTAINER)) {
-				PageObjectHelper.log(LOGGER, "Missing Data Tip Message is already present");
+				LOGGER.info("Missing Data Tip Message is already present");
 				return;
 			}
 		} catch (Exception e) {
@@ -53,9 +53,9 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			try {
 				waitForSpinners();
 				waitForElement(MISSING_DATA_TIP_MESSAGE_CONTAINER);
-				PageObjectHelper.log(LOGGER, "Missing Data Tip Message restored after page refresh");
+				LOGGER.info("Missing Data Tip Message restored after page refresh");
 			} catch (Exception refreshException) {
-				PageObjectHelper.log(LOGGER, "Unable to restore Missing Data Tip Message after refresh");
+				LOGGER.info("Unable to restore Missing Data Tip Message after refresh");
 				throw new IOException("Cannot restore tip message for verification");
 			}
 		}
@@ -66,7 +66,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			WebElement container = waitForElement(MISSING_DATA_TIP_MESSAGE_CONTAINER);
 			Assert.assertTrue(container.isDisplayed(),
 					"Missing Data Tip Message should be displayed on Job Mapping page");
-			PageObjectHelper.log(LOGGER, "Missing Data Tip Message is successfully displayed on Job Mapping page");
+			LOGGER.info("Missing Data Tip Message is successfully displayed on Job Mapping page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_missing_data_tip_message_is_displaying_on_job_mapping_page",
 					"Failed to verify Missing Data Tip Message display", e);
@@ -85,7 +85,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 				String extractedCount = matcher.group(1);
 				Assert.assertTrue(extractedCount != null && !extractedCount.isEmpty(),
 						"Job count should be extracted from tip message");
-				PageObjectHelper.log(LOGGER, "Successfully extracted job count from tip message: " + extractedCount);
+				LOGGER.info("Successfully extracted job count from tip message: " + extractedCount);
 			} else {
 				Assert.fail("Could not extract job count from tip message: " + tipMessageText);
 			}
@@ -103,7 +103,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 					"'" + linkText + "' link should be present in Missing Data Tip Message");
 			Assert.assertTrue(link.getText().contains(linkText),
 					"Link should contain expected text: " + linkText);
-			PageObjectHelper.log(LOGGER, "'" + linkText + "' link is present in Missing Data Tip Message");
+			LOGGER.info("'" + linkText + "' link is present in Missing Data Tip Message");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_link_is_present_in_missing_data_tip_message",
 					"Failed to verify link presence", e);
@@ -116,7 +116,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			PageObjectHelper.waitForClickable(wait, VIEW_REUPLOAD_JOBS_LINK);
 
 			clickElement(VIEW_REUPLOAD_JOBS_LINK);
-			PageObjectHelper.log(LOGGER, "Clicked '" + linkText + "' link");
+			LOGGER.info("Clicked '" + linkText + "' link");
 			waitForUIStabilityInMs(500);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_link_in_missing_data_tip_message",
@@ -187,7 +187,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 	public void navigate_back_to_job_mapping_page() throws IOException {
 		try {
-			PageObjectHelper.log(LOGGER, "Attempting to navigate back to Job Mapping page using Close button");
+			LOGGER.info("Attempting to navigate back to Job Mapping page using Close button");
 
 			boolean navigatedSuccessfully = false;
 
@@ -196,25 +196,25 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 				PageObjectHelper.waitForClickable(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
 
 				clickElement(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
-				PageObjectHelper.log(LOGGER, "Clicked Close button on re-upload page");
+				LOGGER.info("Clicked Close button on re-upload page");
 				navigatedSuccessfully = true;
 			} catch (Exception e1) {
-				PageObjectHelper.log(LOGGER, "Strategy 1 failed - Could not find/click specific Close button: " + e1.getMessage());
+				LOGGER.info("Strategy 1 failed - Could not find/click specific Close button: " + e1.getMessage());
 
 				try {
 					clickElement(ALTERNATIVE_CLOSE_BUTTON);
-					PageObjectHelper.log(LOGGER, "Clicked Alternative Close button");
-					PageObjectHelper.log(LOGGER, "Successfully clicked Close button using alternative locator");
+					LOGGER.info("Clicked Alternative Close button");
+					LOGGER.info("Successfully clicked Close button using alternative locator");
 					navigatedSuccessfully = true;
 				} catch (Exception e2) {
-					PageObjectHelper.log(LOGGER, "Strategy 2 failed - Alternative Close button not found: " + e2.getMessage());
+					LOGGER.info("Strategy 2 failed - Alternative Close button not found: " + e2.getMessage());
 
 					try {
 						driver.navigate().back();
-						PageObjectHelper.log(LOGGER, "Used browser back navigation as fallback");
+						LOGGER.info("Used browser back navigation as fallback");
 						navigatedSuccessfully = true;
 					} catch (Exception e3) {
-						PageObjectHelper.log(LOGGER, "All navigation strategies failed");
+						LOGGER.info("All navigation strategies failed");
 						throw new IOException("Failed to navigate back using any strategy", e3);
 					}
 				}
@@ -226,17 +226,17 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 				try {
 					waitForElement(PAGE_CONTAINER);
 					String currentUrl = driver.getCurrentUrl();
-					PageObjectHelper.log(LOGGER, "Successfully navigated back to Job Mapping page");
-					PageObjectHelper.log(LOGGER, "Current URL after navigation: " + currentUrl);
+					LOGGER.info("Successfully navigated back to Job Mapping page");
+					LOGGER.info("Current URL after navigation: " + currentUrl);
 				} catch (Exception verifyException) {
-					PageObjectHelper.log(LOGGER, "Navigation completed but could not verify page elements");
+					LOGGER.info("Navigation completed but could not verify page elements");
 				}
 			}
 		} catch (Exception e) {
 			try {
 				String currentUrl = driver.getCurrentUrl();
-				PageObjectHelper.log(LOGGER, "Failed to navigate back to Job Mapping page");
-				PageObjectHelper.log(LOGGER, "Current URL: " + currentUrl);
+				LOGGER.info("Failed to navigate back to Job Mapping page");
+				LOGGER.info("Current URL: " + currentUrl);
 			} catch (Exception debugEx) {
 				LOGGER.debug("Failed to get debug URL: " + debugEx.getMessage());
 			}
@@ -251,8 +251,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			WebElement container = waitForElement(MISSING_DATA_TIP_MESSAGE_CONTAINER);
 			Assert.assertTrue(container.isDisplayed(),
 					"Missing Data Tip Message should still be displayed on Job Mapping page after navigation");
-			PageObjectHelper.log(LOGGER,
-					"Missing Data Tip Message is still displaying on Job Mapping page after navigation");
+			LOGGER.info("Missing Data Tip Message is still displaying on Job Mapping page after navigation");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"verify_missing_data_tip_message_is_still_displaying_on_job_mapping_page",
@@ -262,14 +261,13 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 	public void click_on_close_button_in_missing_data_tip_message() {
 		try {
-			PageObjectHelper.log(LOGGER,
-					"Clicking close button on Missing Data Tip Message (targeting correct tip message)...");
+			LOGGER.info("Clicking close button on Missing Data Tip Message (targeting correct tip message)...");
 
 			waitForElement(CLOSE_TIP_MESSAGE_BUTTON);
 			waitForClickable(CLOSE_TIP_MESSAGE_BUTTON);
 
 			clickElement(CLOSE_TIP_MESSAGE_BUTTON);
-			PageObjectHelper.log(LOGGER, "Clicked Missing Data Tip Message close button");
+			LOGGER.info("Clicked Missing Data Tip Message close button");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_close_button_in_missing_data_tip_message",
 					"Failed to click on missing data tip message close button", e);
@@ -289,15 +287,13 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 				if (tipElements.isEmpty()) {
 					tipMessageHidden = true;
 					hiddenReason = "Element removed from DOM";
-					PageObjectHelper.log(LOGGER,
-							"Missing Data Tip Message is no longer displayed - element removed from DOM");
+					LOGGER.info("Missing Data Tip Message is no longer displayed - element removed from DOM");
 				} else {
 					WebElement tipElement = tipElements.get(0);
 					if (!tipElement.isDisplayed()) {
 						tipMessageHidden = true;
 						hiddenReason = "Element hidden (display:none or visibility:hidden)";
-						PageObjectHelper.log(LOGGER,
-								"Missing Data Tip Message is no longer displayed - element hidden via CSS");
+						LOGGER.info("Missing Data Tip Message is no longer displayed - element hidden via CSS");
 					} else {
 						tipMessageHidden = false;
 						hiddenReason = "Element is still visible";
@@ -306,13 +302,11 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			} catch (Exception e) {
 				tipMessageHidden = true;
 				hiddenReason = "Exception occurred while checking element - likely removed: " + e.getMessage();
-				PageObjectHelper.log(LOGGER,
-						"Missing Data Tip Message is no longer displayed - exception indicates element not present");
+				LOGGER.info("Missing Data Tip Message is no longer displayed - exception indicates element not present");
 			}
 
 			if (tipMessageHidden) {
-				PageObjectHelper.log(LOGGER,
-						"SUCCESS: Missing Data Tip Message is no longer displayed on Job Mapping page - Reason: "
+				LOGGER.info("SUCCESS: Missing Data Tip Message is no longer displayed on Job Mapping page - Reason: "
 								+ hiddenReason);
 			} else {
 				String errorMessage = "Missing Data Tip Message is still displayed when it should be hidden. Reason: "
@@ -334,7 +328,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 			Assert.assertTrue(tipMessageText.contains("jobs have missing data"),
 					"Tip message should contain text about jobs having missing data");
-			PageObjectHelper.log(LOGGER, "Tip message contains text about jobs having missing data");
+			LOGGER.info("Tip message contains text about jobs having missing data");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"verify_missing_data_tip_message_contains_text_about_jobs_having_missing_data",
@@ -349,7 +343,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 			Assert.assertTrue(tipMessageText.contains("reduce match accuracy"),
 					"Tip message should contain text about reduced match accuracy");
-			PageObjectHelper.log(LOGGER, "Tip message contains text about reduced match accuracy");
+			LOGGER.info("Tip message contains text about reduced match accuracy");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"verify_missing_data_tip_message_contains_text_about_reduced_match_accuracy",

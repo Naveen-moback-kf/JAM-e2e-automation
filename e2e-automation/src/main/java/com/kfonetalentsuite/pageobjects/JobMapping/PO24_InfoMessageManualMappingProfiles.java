@@ -358,16 +358,16 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 				LOGGER.info("Remaining scenarios in Feature 24 will be gracefully skipped.");
 				LOGGER.info("═════════════════════════════════════════════════════════════════");
 				
-				PageObjectHelper.log(LOGGER, "SKIP FEATURE 24: No manually mapped jobs found (" + resultsCountText + "). All remaining scenarios will be skipped.");
+				LOGGER.info("SKIP FEATURE 24: No manually mapped jobs found (" + resultsCountText + "). All remaining scenarios will be skipped.");
 				return;
 			}
 			
 			LOGGER.info("Total Manually Mapped Jobs found: {}", totalJobs);
-			PageObjectHelper.log(LOGGER, "User is in Job Mapping page with Manual Mapping filters applied (" + totalJobs + " jobs)");
+			LOGGER.info("User is in Job Mapping page with Manual Mapping filters applied (" + totalJobs + " jobs)");
 			
 		} catch (Exception e) {
 			LOGGER.warn("Could not determine manually mapped jobs count: {}", e.getMessage());
-			PageObjectHelper.log(LOGGER, "User is in Job Mapping page with Manual Mapping filters applied");
+			LOGGER.info("User is in Job Mapping page with Manual Mapping filters applied");
 		}
 	}
 
@@ -377,7 +377,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK: If no manually mapped jobs found in filter results, skip this scenario
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found ({} total) - Scenario skipped", totalManuallyMappedJobs.get());
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -422,8 +422,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			Assert.assertTrue(infoMessageDisplayed,
 					"Info Message should be displayed for manually mapped profiles with missing data");
 
-			PageObjectHelper.log(LOGGER,
-					"Successfully found and verified manually mapped profile with missing data has Info Message displayed");
+			LOGGER.info("Successfully found and verified manually mapped profile with missing data has Info Message displayed");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
@@ -436,7 +435,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -461,8 +460,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			Assert.assertTrue(correctTextFound,
 					"Info Message should contain text about 'Reduced match accuracy due to missing data' for manual mapping");
 
-			PageObjectHelper.log(LOGGER, 
-					"Successfully verified Info Message contains correct text about reduced match accuracy for manual mapping");
+			LOGGER.info("Successfully verified Info Message contains correct text about reduced match accuracy for manual mapping");
 			LOGGER.info("Successfully verified Info Message text for manual mapping");
 
 		} catch (Exception e) {
@@ -475,7 +473,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -561,8 +559,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 						"//div[@id='org-job-container']//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']"));
 
 				if (allInfoMessages.isEmpty()) {
-										PageObjectHelper.log(LOGGER, 
-							"SUCCESS: No profiles with missing data found - all profiles have complete data");
+										LOGGER.info("SUCCESS: No profiles with missing data found - all profiles have complete data");
 					return; // Exit successfully - no missing data is a positive outcome!
 				} else {
 					LOGGER.warn(" ENHANCED DEBUGGING - Found {} info messages but all are AutoMapped profiles:",
@@ -577,7 +574,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 				}
 			}
 
-		PageObjectHelper.log(LOGGER, "Found Manual Mapping profile with Info Message: "
+		LOGGER.info("Found Manual Mapping profile with Info Message: "
 				+ manualJobNameWithInfoMessage.get() + " (" + manualJobCodeWithInfoMessage.get() + ")");
 
 		} catch (Exception e) {
@@ -706,7 +703,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -719,7 +716,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 
 		int profileNumber = getProfileNumber(currentManualRowIndex.get());
-		PageObjectHelper.log(LOGGER, "Extracted job details for Profile " + profileNumber + 
+		LOGGER.info("Extracted job details for Profile " + profileNumber + 
 				" - Job: " + manualJobNameWithInfoMessage.get() + " (" + manualJobCodeWithInfoMessage.get() + 
 				"), Grade: " + manualGradeWithInfoMessage.get() + ", Dept: " + manualDepartmentWithInfoMessage.get());
 
@@ -735,7 +732,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -790,7 +787,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			performRobustClick(searchButton, buttonText + " button");
 			safeSleep(1500);
 
-			PageObjectHelper.log(LOGGER, "Clicked '" + buttonText + "' button for Profile " + profileNumber);
+			LOGGER.info("Clicked '" + buttonText + "' button for Profile " + profileNumber);
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to click '{}' button for manually mapped profile: {}", buttonText, e.getMessage());
@@ -803,7 +800,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -818,7 +815,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 
 			Assert.assertTrue(urlIndicatesManualMapping, "URL should indicate Manual Mapping page");
 
-			PageObjectHelper.log(LOGGER, "Successfully verified user is navigated to Manual Mapping page");
+			LOGGER.info("Successfully verified user is navigated to Manual Mapping page");
 			LOGGER.info("Successfully verified navigation to Manual Mapping page");
 
 		} catch (Exception e) {
@@ -831,7 +828,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -937,7 +934,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			LOGGER.debug("  Job: {} ({}), Grade: {}, Dept: {}, Func: {}", comparisonJobName, comparisonJobCode,
 					comparisonGrade, comparisonDepartment, comparisonFunction);
 
-			PageObjectHelper.log(LOGGER, "Extracted job details from Manual Mapping page");
+			LOGGER.info("Extracted job details from Manual Mapping page");
 
 		} catch (Exception e) {
 			LOGGER.error("Error extracting job details from Manual Mapping page: " + e.getMessage());
@@ -949,7 +946,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -960,8 +957,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			// validation
 			// For now, implementing basic verification structure
 
-			PageObjectHelper.log(LOGGER, 
-					"Successfully verified job details match between Job Mapping and Manual Mapping pages");
+			LOGGER.info("Successfully verified job details match between Job Mapping and Manual Mapping pages");
 
 		} catch (Exception e) {
 			LOGGER.error("Error verifying job details match for manual mapping: " + e.getMessage());
@@ -974,7 +970,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -997,7 +993,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 
 			Assert.assertTrue(infoMessageFound, "Info Message should be displayed in Manual Mapping page");
 
-			PageObjectHelper.log(LOGGER, "Verified Info Message is displayed in Manual Mapping page");
+			LOGGER.info("Verified Info Message is displayed in Manual Mapping page");
 
 		} catch (Exception e) {
 			LOGGER.error("Error verifying Info Message in Manual Mapping page: " + e.getMessage());
@@ -1009,7 +1005,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -1034,7 +1030,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			Assert.assertTrue(expectedTextFound,
 					"Info Message should contain expected text about reduced match accuracy in Manual Mapping");
 
-			PageObjectHelper.log(LOGGER, "Verified Info Message contains expected text in Manual Mapping page");
+			LOGGER.info("Verified Info Message contains expected text in Manual Mapping page");
 
 		} catch (Exception e) {
 			LOGGER.error("Error verifying Info Message text for Manual Mapping: " + e.getMessage());
@@ -1046,7 +1042,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -1077,7 +1073,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 
 			Assert.assertTrue(backOnJobMapping, "Should be back on Job Mapping page");
 
-			PageObjectHelper.log(LOGGER, "Successfully navigated back to Job Mapping page from Manual Mapping");
+			LOGGER.info("Successfully navigated back to Job Mapping page from Manual Mapping");
 			LOGGER.info("Successfully navigated back to Job Mapping page from Manual Mapping");
 
 		} catch (Exception e) {
@@ -1093,7 +1089,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -1161,8 +1157,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			Assert.assertTrue(infoMessageDisplayed,
 					"Info Message should be displayed for manually mapped profiles with missing data in second profile validation");
 
-			PageObjectHelper.log(LOGGER, 
-					"Successfully verified second manually mapped profile with missing data has Info Message displayed");
+			LOGGER.info("Successfully verified second manually mapped profile with missing data has Info Message displayed");
 			LOGGER.info(
 					"Successfully verified manually mapped profile with missing data has Info Message displayed for second profile validation");
 
@@ -1180,7 +1175,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -1231,8 +1226,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			Assert.assertTrue(correctTextFound,
 					"Info Message should contain text about 'Reduced match accuracy due to missing data' for second manually mapped profile validation");
 
-			PageObjectHelper.log(LOGGER, 
-					"Successfully verified second manually mapped profile Info Message contains correct text");
+			LOGGER.info("Successfully verified second manually mapped profile Info Message contains correct text");
 			LOGGER.info("Successfully verified Info Message text for second manually mapped profile validation");
 
 		} catch (Exception e) {
@@ -1247,7 +1241,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -1418,7 +1412,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 						" SINGLE PROFILE MODE: Using GLOBAL first profile for validation (GLOBAL row: {}, profile: {})",
 						globalFirstManualProfileRowIndex, globalFirstManualProfileNumber);
 
-				PageObjectHelper.log(LOGGER, "Single Manual Mapping profile validation: "
+				LOGGER.info("Single Manual Mapping profile validation: "
 						+ globalFirstManualJobNameWithInfoMessage + " (" + globalFirstManualJobCodeWithInfoMessage
 						+ ") - No second unique Manual Mapping profile available after extensive search");
 				return; // Exit gracefully - single profile mode
@@ -1462,7 +1456,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		Assert.assertTrue(secondCurrentManualRowIndex.get() > 0,
 				"Could not find valid second Manual Mapping profile after aggressive search");
 
-		PageObjectHelper.log(LOGGER, "AGGRESSIVE SEARCH SUCCESS: Found second Manual Mapping profile: "
+		LOGGER.info("AGGRESSIVE SEARCH SUCCESS: Found second Manual Mapping profile: "
 				+ secondManualJobNameWithInfoMessage.get() + " (" + secondManualJobCodeWithInfoMessage.get()
 				+ ") - Different from first profile");
 
@@ -1476,7 +1470,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -1495,7 +1489,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		int profileNumber = getProfileNumber(secondCurrentManualRowIndex.get());
 
 		// Display extracted job details
-		PageObjectHelper.log(LOGGER, "Extracted job details from second profile " + profileNumber + 
+		LOGGER.info("Extracted job details from second profile " + profileNumber + 
 				" - Job: " + secondManualJobNameWithInfoMessage.get() + " (" + secondManualJobCodeWithInfoMessage.get() + 
 				"), Grade: " + secondManualGradeWithInfoMessage.get() + ", Dept: " + secondManualDepartmentWithInfoMessage.get());
 
@@ -1510,7 +1504,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -1543,7 +1537,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			// Perform robust click
 			performRobustClick(targetButton, buttonText + " button for second profile");
 
-			PageObjectHelper.log(LOGGER, "Clicked '" + buttonText + "' button for second profile " + profileNumber);
+			LOGGER.info("Clicked '" + buttonText + "' button for second profile " + profileNumber);
 
 		} catch (Exception e) {
 			LOGGER.error("Failed to click '{}' button for second manually mapped profile: {}", buttonText,
@@ -1557,7 +1551,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -1584,8 +1578,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 				secondManualGradeWithInfoMessage.get(), secondManualDepartmentWithInfoMessage.get(),
 				secondManualFunctionSubfunctionWithInfoMessage.get());
 
-			PageObjectHelper.log(LOGGER, 
-					"Extracted job details from Manual Mapping page for second profile " + profileNumber);
+			LOGGER.info("Extracted job details from Manual Mapping page for second profile " + profileNumber);
 
 		} catch (Exception e) {
 			LOGGER.error("Error extracting job details from Manual Mapping page for second manually mapped profile: "
@@ -1600,7 +1593,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -1832,8 +1825,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 						"Second Manually Mapped Profile Function/Sub-function comparison skipped - one or both values are empty");
 			}
 
-			PageObjectHelper.log(LOGGER, 
-					"Successfully verified job details match between Job Mapping and Manual Mapping pages for Manually Mapped Profile "
+			LOGGER.info("Successfully verified job details match between Job Mapping and Manual Mapping pages for Manually Mapped Profile "
 							+ profileNumber + " (Second)");
 
 		} catch (Exception e) {
@@ -1847,7 +1839,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -1873,8 +1865,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 				"Info Message should be displayed in Manual Mapping page for second manually mapped profile");
 
 		int profileNumber = getProfileNumber(secondCurrentManualRowIndex.get());
-			PageObjectHelper.log(LOGGER, 
-					"Verified Info Message is displayed in Manual Mapping page for Manually Mapped Profile "
+			LOGGER.info("Verified Info Message is displayed in Manual Mapping page for Manually Mapped Profile "
 							+ profileNumber + " (Second)");
 
 		} catch (Exception e) {
@@ -1890,7 +1881,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
-			PageObjectHelper.log(LOGGER, "SKIPPED: No manually mapped jobs available for testing");
+			LOGGER.info("SKIPPED: No manually mapped jobs available for testing");
 			return;
 		}
 		
@@ -1939,8 +1930,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			Assert.assertTrue(correctTextFound,
 					"Info Message should contain text about 'Reduced match accuracy due to missing data' in Manual Mapping page for second manually mapped profile");
 
-			PageObjectHelper.log(LOGGER, 
-					"Successfully verified second manually mapped profile Info Message contains correct text in Manual Mapping page");
+			LOGGER.info("Successfully verified second manually mapped profile Info Message contains correct text in Manual Mapping page");
 			LOGGER.info(
 					"Successfully verified Info Message text in Manual Mapping page for second manually mapped profile");
 

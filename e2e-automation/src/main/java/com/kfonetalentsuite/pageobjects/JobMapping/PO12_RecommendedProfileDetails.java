@@ -96,7 +96,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 						Assert.assertTrue(PageObjectHelper.waitForVisible(wait, jobName).isDisplayed());
 						String jobname1 = PageObjectHelper.waitForVisible(wait, jobName).getText();
 						orgJobName.set(jobname1.split("-", 2)[0].trim());
-						PageObjectHelper.log(LOGGER, "View Other Matches button found for Job Profile: " + orgJobName.get());
+						LOGGER.info("View Other Matches button found for Job Profile: " + orgJobName.get());
 						break;
 					} else {
 						rowNumber.set(i);
@@ -129,8 +129,8 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			PO05_PublishJobProfile.job1OrgName.set(extractedJobName);
 			PO05_PublishJobProfile.job1OrgCode.set(extractedJobCode);
 			
-			PageObjectHelper.log(LOGGER, "Job name: " + orgJobName.get());
-			PageObjectHelper.log(LOGGER, "Job code: " + orgJobCode.get());
+			LOGGER.info("Job name: " + orgJobName.get());
+			LOGGER.info("Job code: " + orgJobCode.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_name_and_job_code_values_of_job_profile_with_view_other_matches_button", "Issue verifying job name of Profile with View Other Matches button", e);
 		}
@@ -145,7 +145,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				jobGradeText = "NULL";
 			}
 			orgJobGrade.set(jobGradeText);
-			PageObjectHelper.log(LOGGER, "Grade value: " + orgJobGrade.get());
+			LOGGER.info("Grade value: " + orgJobGrade.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_grade_value", "Issue verifying Organization Job Grade value", e);
 		}
@@ -158,7 +158,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				jobDepartmentText = "NULL";
 			}
 			orgJobDepartment.set(jobDepartmentText);
-			PageObjectHelper.log(LOGGER, "Department value: " + orgJobDepartment.get());
+			LOGGER.info("Department value: " + orgJobDepartment.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_department_value", "Issue verifying Organization Job Department value", e);
 		}
@@ -176,7 +176,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				jobFunctionText = jobFunctionText + " | NULL";
 			}
 			orgJobFunction.set(jobFunctionText);
-			PageObjectHelper.log(LOGGER, "Function / Sub-function values: " + orgJobFunction.get());
+			LOGGER.info("Function / Sub-function values: " + orgJobFunction.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_job_function_or_sub_function_of_job_profile_with_view_other_matches_button", "Issue verifying Organization Job Function / Sub-function values", e);
 		}
@@ -249,7 +249,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			boolean clickSuccessful = tryClickWithStrategies(clickableElement);
 
 			if (clickSuccessful) {
-				PageObjectHelper.log(LOGGER, "Clicked on Matched Profile: " + matchedProfileNameText + " of Organization Job: " + orgJobName.get());
+				LOGGER.info("Clicked on Matched Profile: " + matchedProfileNameText + " of Organization Job: " + orgJobName.get());
 				PageObjectHelper.waitForPageReady(driver, 10);
 			} else {
 				throw new Exception("All click strategies failed for Matched Profile: " + matchedProfileNameText);
@@ -267,14 +267,14 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			waitForSpinners();
 			String compareAndSelectHeaderText = getElementText(COMPARE_AND_SELECT_HEADER);
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?");
-			PageObjectHelper.log(LOGGER, "User navigated to Job Compare page successfully");
+			LOGGER.info("User navigated to Job Compare page successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_job_comparison_page", "Issue navigating to Job Compare page", e);
 		}
 	}
 
 	public void user_is_in_job_comparison_page() {
-		PageObjectHelper.log(LOGGER, "User is in Job Comparison Page");
+		LOGGER.info("User is in Job Comparison Page");
 	}
 
 	public void validate_organization_job_name_and_code_in_job_comparison_page() {
@@ -283,7 +283,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			String orgJobTitleHeaderText = getElementText(ORG_JOB_TITLE_HEADER);
 			Assert.assertTrue(orgJobTitleHeaderText.contains(PO12_RecommendedProfileDetails.orgJobName.get()));
 			Assert.assertTrue(orgJobTitleHeaderText.contains(PO12_RecommendedProfileDetails.orgJobCode.get()));
-			PageObjectHelper.log(LOGGER, "Organization Job Name and Job code validated successfully");
+			LOGGER.info("Organization Job Name and Job code validated successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_organization_job_name_and_code_in_job_comparison_page", "Issue validating Organization Job Name and Job Code", e);
 		}
@@ -296,7 +296,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				gradeValueText = "NULL";
 			}
 			Assert.assertTrue(gradeValueText.contains(PO12_RecommendedProfileDetails.orgJobGrade.get()));
-			PageObjectHelper.log(LOGGER, "Organization Job Grade value validated successfully");
+			LOGGER.info("Organization Job Grade value validated successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_grade", "Issue validating Organization Job Grade value", e);
 		}
@@ -307,7 +307,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				departmentValueText = "NULL";
 			}
 			Assert.assertTrue(departmentValueText.contains(PO12_RecommendedProfileDetails.orgJobDepartment.get()));
-			PageObjectHelper.log(LOGGER, "Organization Job Department value validated successfully");
+			LOGGER.info("Organization Job Department value validated successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_department", "Issue validating Organization Job Department value", e);
 		}
@@ -321,7 +321,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				functionValueText = functionValueText + " | NULL";
 			}
 			Assert.assertTrue(functionValueText.contains(PO12_RecommendedProfileDetails.orgJobFunction.get()));
-			PageObjectHelper.log(LOGGER, "Organization Job Function / Sub-function values validated successfully");
+			LOGGER.info("Organization Job Function / Sub-function values validated successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_function_or_subfunction", "Issue validating Organization Job Function / Sub-function values", e);
 		}
@@ -331,7 +331,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 		try {
 			String profileTitleText = getElementText(PROFILE_1_TITLE);
 			Assert.assertTrue(profileTitleText.contains(PO12_RecommendedProfileDetails.matchedSuccessPrflName.get()));
-			PageObjectHelper.log(LOGGER, "Recommended Profile Name matches with Matched Success Profile Name");
+			LOGGER.info("Recommended Profile Name matches with Matched Success Profile Name");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_recommended_profile_name_matches_with_matched_success_profile_name", "Issue verifying Recommended Profile Name", e);
 		}
@@ -340,11 +340,11 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 	public void user_should_verify_recommended_tag_and_select_button_is_displaying_on_the_profile() {
 		try {
 			Assert.assertTrue(waitForElement(PROFILE_1_RECOMMENDED_TAG).isDisplayed());
-			PageObjectHelper.log(LOGGER, "Recommended tag is displaying on Recommended Profile");
+			LOGGER.info("Recommended tag is displaying on Recommended Profile");
 			WebElement selectBtn = waitForElement(PROFILE_1_SELECT_BTN);
 			Assert.assertTrue(selectBtn.isDisplayed());
 			Assert.assertEquals("true", selectBtn.getAttribute("aria-checked").toString());
-			PageObjectHelper.log(LOGGER, "Select button is displaying and in Selected status by default");
+			LOGGER.info("Select button is displaying and in Selected status by default");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_recommended_tag_and_select_button_is_displaying_on_the_profile", "Issue verifying Recommended tag and Select button", e);
 		}
@@ -366,7 +366,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			Assert.assertTrue(matches, 
 				"Recommended Profile Grade '" + gradeText + "' does not match Matched Success Profile. " +
 				"ProfileDetails: " + ProfileDetails.get());
-			PageObjectHelper.log(LOGGER, "Recommended Profile Grade matches with Matched Success Profile Grade");
+			LOGGER.info("Recommended Profile Grade matches with Matched Success Profile Grade");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_grade_matches_with_matched_success_profile_grade", "Issue validating Recommended Profile Grade", e);
 		}
@@ -376,7 +376,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 		try {
 			String levelText = getElementText(PROFILE_1_LEVEL);
 			Assert.assertTrue(ProfileDetails.get().contains("Level / Sublevel:" + levelText));
-			PageObjectHelper.log(LOGGER, "Recommended Profile Level / Sublevels matches with Matched Success Profile");
+			LOGGER.info("Recommended Profile Level / Sublevels matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_level_sublevels_matches_with_matched_success_profile_level_sublevels", "Issue validating Recommended Profile Level / Sublevels", e);
 		}
@@ -387,7 +387,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			scrollToElement(driver.findElement(PROFILE_1_FUNCTION));
 			String functionText = getElementText(PROFILE_1_FUNCTION);
 			Assert.assertTrue(ProfileDetails.get().contains("Function / Sub-function:" + functionText));
-			PageObjectHelper.log(LOGGER, "Recommended Profile Function / Sub-function matches with Matched Success Profile");
+			LOGGER.info("Recommended Profile Function / Sub-function matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_function_subfunction_matches_with_matched_success_profile_function_subfunction", "Issue validating Recommended Profile Function / Sub-function", e);
 		}
@@ -398,7 +398,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			scrollToElement(driver.findElement(PROFILE_1_SENIORITY));
 			String seniorityText = getElementText(PROFILE_1_SENIORITY);
 			Assert.assertTrue(ProfileDetails.get().contains("Seniority level:" + seniorityText));
-			PageObjectHelper.log(LOGGER, "Recommended Profile Seniority level matches with Matched Success Profile");
+			LOGGER.info("Recommended Profile Seniority level matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_seniority_level_matches_with_matched_success_profile_seniority_level", "Issue validating Recommended Profile Seniority level", e);
 		}
@@ -421,7 +421,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			Assert.assertTrue(matches,
 				"Recommended Profile Managerial Experience '" + managerialText + "' does not match Matched Success Profile. " +
 				"ProfileDetails: " + ProfileDetails.get());
-			PageObjectHelper.log(LOGGER, "Recommended Profile Managerial experience matches with Matched Success Profile");
+			LOGGER.info("Recommended Profile Managerial experience matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_managerial_experience_matches_with_matched_success_profile_managerial_experience", "Issue validating Recommended Profile Managerial experience", e);
 		}
@@ -432,7 +432,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			scrollToElement(driver.findElement(PROFILE_1_EDUCATION));
 			String educationText = getElementText(PROFILE_1_EDUCATION);
 			Assert.assertTrue(ProfileDetails.get().contains("Education:" + educationText));
-			PageObjectHelper.log(LOGGER, "Recommended Profile Education matches with Matched Success Profile");
+			LOGGER.info("Recommended Profile Education matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_education_matches_with_matched_success_profile_education", "Issue validating Recommended Profile Education", e);
 		}
@@ -443,7 +443,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			scrollToElement(driver.findElement(PROFILE_1_GENERAL_EXP));
 			String generalExpText = getElementText(PROFILE_1_GENERAL_EXP);
 			Assert.assertTrue(ProfileDetails.get().contains("General experience:" + generalExpText));
-			PageObjectHelper.log(LOGGER, "Recommended Profile General experience matches with Matched Success Profile");
+			LOGGER.info("Recommended Profile General experience matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_general_experience_matches_with_matched_success_profile_general_experience", "Issue validating Recommended Profile General experience", e);
 		}
@@ -454,7 +454,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			scrollToElement(driver.findElement(PROFILE_1_ROLE_SUMMARY));
 			String roleSummaryText = getElementText(PROFILE_1_ROLE_SUMMARY);
 			Assert.assertEquals(ProfileRoleSummary.get(), roleSummaryText);
-			PageObjectHelper.log(LOGGER, "Recommended Profile Role Summary matches with Matched Success Profile");
+			LOGGER.info("Recommended Profile Role Summary matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_role_summary_matches_with_matched_success_profile_role_summary", "Issue validating Recommended Profile Role Summary", e);
 		}
@@ -482,7 +482,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			
 			Assert.assertEquals(ProfileResponsibilities.get(), responsibilitiesText,
 				"Recommended Profile Responsibilities do not match Matched Success Profile Responsibilities");
-			PageObjectHelper.log(LOGGER, "Recommended Profile Responsibilities matches with Matched Success Profile");
+			LOGGER.info("Recommended Profile Responsibilities matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_responsibilities_matches_with_matched_success_profile_responsibilities", "Issue validating Recommended Profile Responsibilities", e);
 		}
@@ -496,7 +496,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			expandAllViewMoreButtons(VIEW_MORE_COMPETENCIES);
 			String competenciesText = getElementText(PROFILE_1_COMPETENCIES);
 			Assert.assertEquals(ProfileBehaviouralCompetencies.get(), competenciesText);
-			PageObjectHelper.log(LOGGER, "Recommended Profile Behavioural Competencies matches with Matched Success Profile");
+			LOGGER.info("Recommended Profile Behavioural Competencies matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_behavioural_competencies_matches_with_matched_success_profile_behavioural_competencies", "Issue validating Recommended Profile Behavioural Competencies", e);
 		}
@@ -515,7 +515,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 			String skillsText = getElementText(PROFILE_1_SKILLS);
 			Assert.assertEquals(ProfileSkills.get(), skillsText);
-			PageObjectHelper.log(LOGGER, "Recommended Profile Skills matches with Matched Success Profile");
+			LOGGER.info("Recommended Profile Skills matches with Matched Success Profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_skills_matches_with_matched_success_profile_skills", "Issue validating Recommended Profile Skills", e);
 		}
@@ -523,14 +523,14 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 	// Methods moved from PO05_ValidateJobProfileDetailsPopup
 
 	public void user_is_on_profile_details_popup() {
-		PageObjectHelper.log(LOGGER, "User is on Profile Details Popup");
+		LOGGER.info("User is on Profile Details Popup");
 	}
 
 	public void verify_profile_header_matches_with_matched_profile_name() {
 		try {
 			String profileHeaderName = getElementText(PROFILE_HEADER);
 			Assert.assertEquals(matchedSuccessPrflName.get(), profileHeaderName);
-			PageObjectHelper.log(LOGGER, "Profile header on the details popup: " + profileHeaderName);
+			LOGGER.info("Profile header on the details popup: " + profileHeaderName);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_profile_header_matches_with_matched_profile_name", "Failed to verify profile details popup header", e);
 		}
@@ -540,7 +540,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 		try {
 			String profileDetailsText = getElementText(PROFILE_DETAILS);
 			ProfileDetails.set(profileDetailsText);
-			PageObjectHelper.log(LOGGER, "Profile Details displaying on the popup screen:\n" + profileDetailsText);
+			LOGGER.info("Profile Details displaying on the popup screen:\n" + profileDetailsText);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_profile_details_displaying_on_the_popup", "Failed to display profile details on the popup screen", e);
 		}
@@ -558,9 +558,9 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 					levels.append(option.getText()).append(", ");
 				}
 				dropdown.click();
-				PageObjectHelper.log(LOGGER, "Profile Level dropdown verified. Levels: " + levels.toString().replaceAll(", $", ""));
+				LOGGER.info("Profile Level dropdown verified. Levels: " + levels.toString().replaceAll(", $", ""));
 			} else {
-				PageObjectHelper.log(LOGGER, "No Profile Levels available for profile: " + matchedSuccessPrflName.get());
+				LOGGER.info("No Profile Levels available for profile: " + matchedSuccessPrflName.get());
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown", "Failed to validate profile level dropdown", e);
@@ -571,7 +571,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 		try {
 			String roleSummaryText = getElementText(ROLE_SUMMARY);
 			ProfileRoleSummary.set(roleSummaryText.split(": ", 2)[1].trim());
-			PageObjectHelper.log(LOGGER, "Role summary of Matched Success Profile: " + ProfileRoleSummary.get());
+			LOGGER.info("Role summary of Matched Success Profile: " + ProfileRoleSummary.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_role_summary_is_displaying", "Failed to validate Role Summary in Profile Details Popup", e);
 		}
@@ -584,7 +584,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 			String responsibilitiesDataText = getElementText(POPUP_RESPONSIBILITIES_DATA);
 			ProfileResponsibilities.set(responsibilitiesDataText);
-			PageObjectHelper.log(LOGGER, "Responsibilities data validated successfully");
+			LOGGER.info("Responsibilities data validated successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_data_in_responsibilities_tab", "Failed to validate data in Responsibilities screen", e);
 		}
@@ -599,7 +599,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 			String behaviourDataText = getElementText(POPUP_BEHAVIOUR_DATA);
 			ProfileBehaviouralCompetencies.set(behaviourDataText);
-			PageObjectHelper.log(LOGGER, "Behavioural Competencies data validated successfully");
+			LOGGER.info("Behavioural Competencies data validated successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_data_in_behavioural_competencies_tab", "Failed to validate data in Behaviour Competencies screen", e);
 		}
@@ -614,7 +614,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 			String skillsDataText = getElementText(POPUP_SKILLS_DATA);
 			ProfileSkills.set(skillsDataText);
-			PageObjectHelper.log(LOGGER, "Skills data validated successfully");
+			LOGGER.info("Skills data validated successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_data_in_skills_tab", "Failed to validate data in Skills screen", e);
 		}
@@ -645,7 +645,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				throw new Exception("Publish button found but not displayed");
 			}
 
-			PageObjectHelper.log(LOGGER, "Publish button is displaying on the Profile Details Popup and is clickable");
+			LOGGER.info("Publish button is displaying on the Profile Details Popup and is clickable");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_publish_profile_button_is_available_on_popup_screen", "Failed to verify Publish Profile button", e);
 		}

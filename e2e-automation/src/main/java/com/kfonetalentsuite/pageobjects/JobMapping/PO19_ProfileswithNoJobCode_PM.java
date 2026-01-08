@@ -31,7 +31,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 			String[] resultsCountText_split = resultsCountText.split(" ");
 			int totalProfiles = Integer.parseInt(resultsCountText_split[3]);
 
-			PageObjectHelper.log(LOGGER, "Searching through " + totalProfiles + " profiles for Success Profile with No Job Code...");
+			LOGGER.info("Searching through " + totalProfiles + " profiles for Success Profile with No Job Code...");
 
 			for (int i = 1; i <= totalProfiles; i++) {
 				try {
@@ -40,7 +40,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 					scrollToElement(SP_Checkbox);
 					String text = SP_Checkbox.getAttribute("class");
 					if (text.contains("disable")) {
-						PageObjectHelper.log(LOGGER, "Success profile with No Job Code assigned is found at row " + rowNumber.get());
+						LOGGER.info("Success profile with No Job Code assigned is found at row " + rowNumber.get());
 						noJobCode.set(true);
 						break;
 					}
@@ -52,7 +52,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 					scrollToElement(SP_Checkbox);
 					String text = SP_Checkbox.getAttribute("class");
 					if (text.contains("disable")) {
-						PageObjectHelper.log(LOGGER, "Success profile with No Job Code assigned is found at row " + rowNumber.get() + " (after retry)");
+						LOGGER.info("Success profile with No Job Code assigned is found at row " + rowNumber.get() + " (after retry)");
 						noJobCode.set(true);
 						break;
 					}
@@ -60,7 +60,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 			}
 
 			if (!noJobCode.get()) {
-				PageObjectHelper.log(LOGGER, "No Success profile with No Job Code was found in the current results");
+				LOGGER.info("No Success profile with No Job Code was found in the current results");
 			}
 
 		} catch (Exception s) {
@@ -114,8 +114,8 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 				Assert.assertTrue(tooltip.isDisplayed(), "Tooltip should be visible on hover");
 				String tipMessage = getElementText(NO_JOB_CODE_TOOLTIP);
 
-				PageObjectHelper.log(LOGGER, "Tooltip verified on Checkbox of SP with No Job Code at row " + rowNumber.get());
-				PageObjectHelper.log(LOGGER, "Tooltip Message: " + tipMessage);
+				LOGGER.info("Tooltip verified on Checkbox of SP with No Job Code at row " + rowNumber.get());
+				LOGGER.info("Tooltip Message: " + tipMessage);
 
 			} catch (Exception e) {
 				ScreenshotHandler.captureFailureScreenshot("tooltip_verification_failed", e);
@@ -123,7 +123,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 					"Issue in verifying Tooltip on checkbox of Success profile with No Job Code assigned in HCM Sync Profiles screen in PM", e);
 			}
 		} else {
-			PageObjectHelper.log(LOGGER, "Skipping tooltip verification - No profile with No Job Code was found");
+			LOGGER.info("Skipping tooltip verification - No profile with No Job Code was found");
 		}
 	}
 
@@ -152,7 +152,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 				WebElement SP_LastModified = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[8]//*"));
 				WebElement SP_ExportStatus = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[9]//*"));
 
-			PageObjectHelper.log(LOGGER, "Below are the details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM (Row " + rowNumber.get() + "): \n "
+			LOGGER.info("Below are the details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM (Row " + rowNumber.get() + "): \n "
 					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_NAME).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobName.getText() + "   "
 					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_STATUS).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Status.getText() + "   "
 					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_KF_GRADE).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobCode.getText() + "   "
@@ -167,7 +167,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 				PageObjectHelper.handleError(LOGGER, "verify_details_of_the_success_profile_with_no_job_code_assigned_in_hcm_sync_profiles_tab", "Issue in Verifying details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM", e);
 			}
 		} else {
-			PageObjectHelper.log(LOGGER, "Currently, Job Code has been assigned to all Success Profiles in HCM Sync Profiles screen in PM");
+			LOGGER.info("Currently, Job Code has been assigned to all Success Profiles in HCM Sync Profiles screen in PM");
 		}
 	}
 }

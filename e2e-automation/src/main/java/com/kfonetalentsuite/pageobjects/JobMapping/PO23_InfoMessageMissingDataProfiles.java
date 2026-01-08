@@ -370,7 +370,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 	public void find_and_verify_profile_with_missing_data_has_info_message_displayed() throws IOException {
 		try {
-			PageObjectHelper.log(LOGGER, "Finding and verifying profile with missing data has Info Message displayed");
+			LOGGER.info("Finding and verifying profile with missing data has Info Message displayed");
 			waitForUIStabilityInMs(2000);
 
 			List<WebElement> infoMessages = driver.findElements(By.xpath(
@@ -418,8 +418,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			Assert.assertTrue(infoMessageDisplayed,
 					"Info Message should be displayed for profiles with missing data (checked visible content + scrolled for more)");
 
-			PageObjectHelper.log(LOGGER,
-					"Successfully found and verified profile with missing data has Info Message displayed (searched across multiple pages)");
+			LOGGER.info("Successfully found and verified profile with missing data has Info Message displayed (searched across multiple pages)");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "find_and_verify_profile_with_missing_data_has_info_message_displayed",
 					"Failed to find and verify profile with missing data has Info Message", e);
@@ -427,7 +426,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 	}
 
 	public void find_profile_with_missing_data_and_info_message() throws IOException {
-		PageObjectHelper.log(LOGGER, "Searching for AutoMapped profile with missing data");
+		LOGGER.info("Searching for AutoMapped profile with missing data");
 
 		try {
 			waitForUIStabilityInMs(2000);
@@ -665,7 +664,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 						currentRowIndex.set(foundAtRow);
 						currentRowIndexStatic.set(foundAtRow);
 
-						PageObjectHelper.log(LOGGER, "Found AutoMapped profile at row " + currentRowIndexStatic.get() +
+						LOGGER.info("Found AutoMapped profile at row " + currentRowIndexStatic.get() +
 									": " + jobName + " (Grade: " + grade + ", Dept: " + department + ")");
 							return;
 						}
@@ -707,7 +706,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 				previousRowCount = rowsAfterScrollCount;
 			}
 
-			PageObjectHelper.log(LOGGER, "No AutoMapped profiles found with missing data and info message (checked all " + profilesChecked + " profiles)");
+			LOGGER.info("No AutoMapped profiles found with missing data and info message (checked all " + profilesChecked + " profiles)");
 			LOGGER.warn("SKIPPING SCENARIO: No AutoMapped profiles with missing data and info message found (checked all " + profilesChecked + " profiles)");
 
 			throw new SkipException("SKIPPED: No AutoMapped profiles with missing data and info message found after checking all " + profilesChecked
@@ -719,7 +718,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 	}
 
 	public void find_second_profile_with_missing_data_and_info_message() throws IOException {
-		PageObjectHelper.log(LOGGER, "Searching for SECOND AutoMapped profile with missing data");
+		LOGGER.info("Searching for SECOND AutoMapped profile with missing data");
 
 		String firstJobName = jobNameWithInfoMessage.get();
 		LOGGER.debug("First job to skip: '{}'", firstJobName);
@@ -944,7 +943,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 						secondCurrentRowIndex.set(foundAtRow);
 						secondCurrentRowIndexStatic.set(foundAtRow);
 
-						PageObjectHelper.log(LOGGER, "Found SECOND AutoMapped profile at row " + secondCurrentRowIndexStatic.get() +
+						LOGGER.info("Found SECOND AutoMapped profile at row " + secondCurrentRowIndexStatic.get() +
 									": " + jobName + " (Grade: " + grade + ", Dept: " + department + ")");
 							return;
 						}
@@ -986,7 +985,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 				previousRowCount = rowsAfterScrollCount;
 			}
 
-			PageObjectHelper.log(LOGGER, "No SECOND AutoMapped profile found with missing data and info message (checked all " + profilesChecked + " profiles)");
+			LOGGER.info("No SECOND AutoMapped profile found with missing data and info message (checked all " + profilesChecked + " profiles)");
 			LOGGER.warn("SKIPPING SCENARIO: No SECOND AutoMapped profile with missing data and info message found (checked all " + profilesChecked + " profiles)");
 
 			throw new SkipException("SKIPPED: No SECOND AutoMapped profile with missing data and info message found after checking all " + profilesChecked
@@ -1028,7 +1027,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 			Assert.assertTrue(correctTextFound, "Info Message should contain text about 'Reduced match accuracy due to missing data'");
 
-			PageObjectHelper.log(LOGGER, "Successfully verified Info Message contains correct text about reduced match accuracy due to missing data");
+			LOGGER.info("Successfully verified Info Message contains correct text about reduced match accuracy due to missing data");
 			LOGGER.info("Successfully verified Info Message text");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_data",
@@ -1067,7 +1066,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 			Assert.assertTrue(infoMessageDisplayed, "Info Message should be displayed for second profile with missing data");
 
-			PageObjectHelper.log(LOGGER, "Successfully found and verified second profile with missing data has Info Message displayed");
+			LOGGER.info("Successfully found and verified second profile with missing data has Info Message displayed");
 			LOGGER.info("SUCCESS: Successfully verified second profile with missing data has Info Message displayed");
 		} catch (Exception e) {
 			LOGGER.error("ERROR: Error finding second profile with missing data and Info Message: " + e.getMessage());
@@ -1107,7 +1106,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 			Assert.assertTrue(infoMessageDisplayed, "Info Message should be visible in Job Comparison page for first profile");
 
-			PageObjectHelper.log(LOGGER, "Successfully verified Info Message persists in Job Comparison page for first profile");
+			LOGGER.info("Successfully verified Info Message persists in Job Comparison page for first profile");
 			LOGGER.info("SUCCESS: Info Message persistence verified for first profile");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_info_message_is_still_displayed_in_job_comparison_page",
@@ -1136,7 +1135,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 			Assert.assertTrue(infoMessageDisplayed, "Info Message should be visible in Job Comparison page for second profile");
 
-			PageObjectHelper.log(LOGGER, "Successfully verified Info Message persists in Job Comparison page for second profile");
+			LOGGER.info("Successfully verified Info Message persists in Job Comparison page for second profile");
 			LOGGER.info("SUCCESS: Info Message persistence verified for second profile");
 		} catch (Exception e) {
 			LOGGER.error("ERROR: Error verifying Info Message persistence for second profile: " + e.getMessage());
@@ -1173,7 +1172,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 			Assert.assertTrue(correctTextFound, "Info Message should contain text about 'Reduced match accuracy due to missing data' for second profile validation");
 
-			PageObjectHelper.log(LOGGER, "Successfully verified Info Message contains correct text for second profile");
+			LOGGER.info("Successfully verified Info Message contains correct text for second profile");
 			LOGGER.info("Successfully verified Info Message text for second profile");
 		} catch (Exception e) {
 			LOGGER.error("Error verifying second profile Info Message text: " + e.getMessage());
@@ -1232,7 +1231,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			waitForUIStabilityInMs(200);
 			jsClick(targetButton);
 
-			PageObjectHelper.log(LOGGER, "Clicked '" + buttonText + "' button for profile with Info Message");
+			LOGGER.info("Clicked '" + buttonText + "' button for profile with Info Message");
 			LOGGER.info("Clicked '{}' button", buttonText);
 		} catch (Exception e) {
 			LOGGER.error("Error clicking button for profile with Info Message: " + e.getMessage());
@@ -1291,7 +1290,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			waitForUIStabilityInMs(200);
 			jsClick(targetButton);
 
-			PageObjectHelper.log(LOGGER, "Clicked '" + buttonText + "' button for second profile with Info Message");
+			LOGGER.info("Clicked '" + buttonText + "' button for second profile with Info Message");
 			LOGGER.info("Clicked '{}' button for second profile", buttonText);
 		} catch (Exception e) {
 			LOGGER.error("Error clicking button for second profile with Info Message: " + e.getMessage());
@@ -1309,7 +1308,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?",
 					"Job Comparison page header text does not match expected value");
 
-						PageObjectHelper.log(LOGGER, "Successfully verified navigation to Job Comparison page");
+						LOGGER.info("Successfully verified navigation to Job Comparison page");
 			LOGGER.info("SUCCESS: User is successfully navigated to Job Comparison page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_is_navigated_to_job_comparison_page",
@@ -1440,9 +1439,9 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			}
 
 		if (allMatch) {
-			PageObjectHelper.log(LOGGER, "Job details match verified between Job Mapping and Job Comparison pages for: " + jobNameWithInfoMessage.get());
+			LOGGER.info("Job details match verified between Job Mapping and Job Comparison pages for: " + jobNameWithInfoMessage.get());
 			} else {
-				PageObjectHelper.log(LOGGER, "Job details mismatch: " + mismatchDetails.toString());
+				LOGGER.info("Job details mismatch: " + mismatchDetails.toString());
 				Assert.fail("Job details do NOT match between Job Mapping and Job Comparison pages:" + mismatchDetails.toString());
 			}
 		} catch (Exception e) {
@@ -1574,9 +1573,9 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			}
 
 		if (allMatch) {
-			PageObjectHelper.log(LOGGER, "Job details match verified between Job Mapping and Job Comparison pages for second profile: " + secondJobNameWithInfoMessage.get());
+			LOGGER.info("Job details match verified between Job Mapping and Job Comparison pages for second profile: " + secondJobNameWithInfoMessage.get());
 			} else {
-				PageObjectHelper.log(LOGGER, "Job details mismatch for second profile: " + mismatchDetails.toString());
+				LOGGER.info("Job details mismatch for second profile: " + mismatchDetails.toString());
 				Assert.fail("Job details do NOT match between Job Mapping and Job Comparison pages for second profile:" + mismatchDetails.toString());
 			}
 		} catch (Exception e) {
@@ -1617,7 +1616,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 			Assert.assertTrue(correctTextFound, "Info Message should contain same text about reduced match accuracy in Job Comparison page");
 
-			PageObjectHelper.log(LOGGER, "Successfully verified Info Message contains same text in Job Comparison page");
+			LOGGER.info("Successfully verified Info Message contains same text in Job Comparison page");
 			LOGGER.info("SUCCESS: Info Message text consistency verified in Job Comparison page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_info_message_contains_same_text_about_reduced_match_accuracy",
@@ -1649,7 +1648,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 			Assert.assertTrue(correctTextFound, "Info Message should contain same text about reduced match accuracy in Job Comparison page for second profile");
 
-			PageObjectHelper.log(LOGGER, "Successfully verified Info Message contains same text in Job Comparison page for second profile");
+			LOGGER.info("Successfully verified Info Message contains same text in Job Comparison page for second profile");
 			LOGGER.info("SUCCESS: Info Message text consistency verified in Job Comparison page for second profile");
 		} catch (Exception e) {
 			LOGGER.error("ERROR: Error verifying Info Message text consistency for second profile: " + e.getMessage());
@@ -1680,7 +1679,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 			waitForPageLoad();
 			waitForUIStabilityInMs(500);
 
-			PageObjectHelper.log(LOGGER, "Navigated back to Job Mapping page");
+			LOGGER.info("Navigated back to Job Mapping page");
 			LOGGER.info("Navigated back to Job Mapping page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "navigate_back_to_job_mapping_page_from_job_comparison",

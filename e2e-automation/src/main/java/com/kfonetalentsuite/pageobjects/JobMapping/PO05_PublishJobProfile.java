@@ -106,7 +106,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			LOGGER.info("Job name extracted and stored: '{}', Job code: '{}'", extractedJobName, extractedJobCode);
 			
 			Assert.assertTrue(waitForElement(JOB_1_PUBLISH_BTN).isDisplayed());
-			PageObjectHelper.log(LOGGER, "Publish button on first job profile (Org: " + job1OrgName.get() + ", Code: " + job1OrgCode.get() + ") is displaying");
+			LOGGER.info("Publish button on first job profile (Org: " + job1OrgName.get() + ", Code: " + job1OrgCode.get() + ") is displaying");
 		} catch (Exception e) {
 			ScreenshotHandler.handleTestFailure("verify_publish_btn_on_first_job_profile", e, "Issue in verifying Publish button on first job");
 		}
@@ -115,7 +115,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void click_on_publish_button_on_first_job_profile() {
 		try {
 			clickElement(JOB_1_PUBLISH_BTN);
-			PageObjectHelper.log(LOGGER, "Clicked Publish button on first job (Org: " + job1OrgName.get() + ")");
+			LOGGER.info("Clicked Publish button on first job (Org: " + job1OrgName.get() + ")");
 			waitForSpinners();
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_publish_button_on_first_job_profile", "Issue clicking Publish button on first job", e);
@@ -169,7 +169,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 
 			Assert.assertTrue(successElement.isDisplayed(), "Success popup element is not displayed");
 			String publishSuccessMsgText = successElement.getText();
-			PageObjectHelper.log(LOGGER, "Success message: " + publishSuccessMsgText);
+			LOGGER.info("Success message: " + publishSuccessMsgText);
 
 			// Wait for popup to dismiss with short timeout
 			try {
@@ -195,11 +195,11 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 3);
 			WebElement toggle = driver.findElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
 			if ("true".equals(toggle.getAttribute("aria-checked")) || toggle.isSelected()) {
-				PageObjectHelper.log(LOGGER, "View published toggle button is already ON");
+				LOGGER.info("View published toggle button is already ON");
 			} else {
 				clickElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
 				PageObjectHelper.waitForPageReady(driver, 3);
-				PageObjectHelper.log(LOGGER, "View published toggle button is turned ON");
+				LOGGER.info("View published toggle button is turned ON");
 				waitForBackgroundDataLoad();
 				// PARALLEL EXECUTION FIX: Only clear if ThreadLocal is initialized for this thread
 				try {
@@ -237,7 +237,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			safeSleep(1500); // Extra wait for results stability
 			
 			LOGGER.info("Search completed for job: '{}'", jobName);
-			PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in View Published screen");
+			LOGGER.info("Searched for job: " + jobName + " in View Published screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name_in_view_published_screen", "Failed to search for job in View Published screen", e);
 		}
@@ -271,12 +271,12 @@ public class PO05_PublishJobProfile extends BasePageObject {
 				Assert.fail(errorMsg);
 			}
 			
-			PageObjectHelper.log(LOGGER, "Found expected job: " + actualJobName);
+			LOGGER.info("Found expected job: " + actualJobName);
 			
 			// PARALLEL EXECUTION FIX: Re-fetch element to avoid stale reference
 			waitForSpinners();
 			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN, 10).isDisplayed());
-			PageObjectHelper.log(LOGGER, "Published Job (Org: " + job1OrgName.get() + ") is displayed in view published screen");
+			LOGGER.info("Published Job (Org: " + job1OrgName.get() + ") is displayed in view published screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_view_published_screen", "Issue verifying Published Job", e);
 		}
@@ -288,7 +288,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver, 5);
 			Assert.assertEquals("HCM Sync Profiles", getElementText(HCM_SYNC_HEADER));
-			PageObjectHelper.log(LOGGER, "Navigated to HCM Sync Profiles screen in PM");
+			LOGGER.info("Navigated to HCM Sync Profiles screen in PM");
 			// Wait for background API (~100K records) to complete
 			waitForBackgroundDataLoad();
 		} catch (Exception e) {
@@ -309,11 +309,11 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void change_search_type_to_search_by_job_code_in_hcm_sync_profiles_screen_in_pm() {
 		try {
 			clickElement(Locators.HCMSyncProfiles.SEARCH_DROPDOWN);
-			PageObjectHelper.log(LOGGER, "Clicked on search dropdown button in HCM Sync Profiles screen");
+			LOGGER.info("Clicked on search dropdown button in HCM Sync Profiles screen");
 			safeSleep(1000);
 			clickElement(Locators.HCMSyncProfiles.SEARCH_BY_JOBCODE);
 			safeSleep(2000); // Wait for search type to fully change before proceeding
-			PageObjectHelper.log(LOGGER,"Search type successfully changed to Job Code");
+			LOGGER.info("Search type successfully changed to Job Code");
 		} catch(Exception e) {
 			PageObjectHelper.handleError(LOGGER, "change_search_type_to_search_by_job_code_in_hcm_sync_profiles_screen_in_pm", "Failed to change search type in HCM Sync Profiles", e);
 		}
@@ -322,11 +322,11 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void change_search_type_to_search_by_job_profile_in_hcm_sync_profiles_screen_in_pm() {
 		try {
 			clickElement(Locators.HCMSyncProfiles.SEARCH_DROPDOWN);
-			PageObjectHelper.log(LOGGER, "Clicked on search dropdown button in HCM Sync Profiles screen");
+			LOGGER.info("Clicked on search dropdown button in HCM Sync Profiles screen");
 			safeSleep(1000);
 			clickElement(Locators.HCMSyncProfiles.SEARCH_BY_JOBPROFILE);
 			safeSleep(2000); // Wait for search type to fully change before proceeding
-			PageObjectHelper.log(LOGGER,"Search type successfully changed to Job Profile");
+			LOGGER.info("Search type successfully changed to Job Profile");
 		} catch(Exception e) {
 			PageObjectHelper.handleError(LOGGER, "change_search_type_to_search_by_job_profile_in_hcm_sync_profiles_screen_in_pm", "Failed to change search type in HCM Sync Profiles", e);
 		}
@@ -354,7 +354,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			clearAndSearch(PROFILES_SEARCH, searchTerm);
 			safeSleep(1500); // Extra wait for results stability
 			
-			PageObjectHelper.log(LOGGER, "Searched for job: " + searchTerm + " in HCM Sync Profiles");
+			LOGGER.info("Searched for job: " + searchTerm + " in HCM Sync Profiles");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name_in_hcm_sync_profiles_tab_in_pm", 
@@ -383,7 +383,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			clearAndSearch(PROFILES_SEARCH, jobCode);
 			safeSleep(1500); // Extra wait for results stability
 			
-			PageObjectHelper.log(LOGGER, "Searched for job code: " + jobCode + " in HCM Sync Profiles");
+			LOGGER.info("Searched for job code: " + jobCode + " in HCM Sync Profiles");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_code_in_hcm_sync_profiles_tab_in_pm", 
@@ -420,7 +420,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 				Assert.fail(errorMsg);
 			}
 			
-			PageObjectHelper.log(LOGGER, "Published Job (Org: " + actualJobName + ") is displayed in HCM Sync Profiles");
+			LOGGER.info("Published Job (Org: " + actualJobName + ") is displayed in HCM Sync Profiles");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm", 
@@ -443,7 +443,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 				Assert.fail(errorMsg);
 			}
 			
-			PageObjectHelper.log(LOGGER, "Job Code Verified in HCM Sync Profiles screen for Published Job: " + job1OrgCode.get());
+			LOGGER.info("Job Code Verified in HCM Sync Profiles screen for Published Job: " + job1OrgCode.get());
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_code_in_hcm_sync_profiles_tab_in_pm", 
@@ -466,7 +466,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 				Assert.fail(errorMsg);
 			}
 			
-			PageObjectHelper.log(LOGGER, "Last Modified date verified on Published Job: " + job1OrgName.get());
+			LOGGER.info("Last Modified date verified on Published Job: " + job1OrgName.get());
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_date_on_published_job_matches_with_current_date", 
@@ -477,7 +477,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void user_should_verify_sp_details_page_opens_on_click_of_published_job_name() {
 		try {
 			clickElement(HCM_JOB_ROW_1);
-			PageObjectHelper.log(LOGGER, "Clicked Published Job (Org: " + job1OrgName.get() + ") in HCM Sync Profiles");
+			LOGGER.info("Clicked Published Job (Org: " + job1OrgName.get() + ") in HCM Sync Profiles");
 			PageObjectHelper.waitForPageReady(driver, 5);
 			Assert.assertTrue(waitForElement(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT).isDisplayed());
 			LOGGER.info("SP details page opened on click of Published Job name");
@@ -491,7 +491,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			waitForSpinners();
 			PageObjectHelper.waitForPageReady(driver, 5);
 			clickElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
-			PageObjectHelper.log(LOGGER, "Clicked KFONE Global Menu in Job Mapping UI");
+			LOGGER.info("Clicked KFONE Global Menu in Job Mapping UI");
 			PageObjectHelper.waitForPageReady(driver, 2);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_kfone_global_menu_in_job_mapping_ui", "Issue clicking KFone Global Menu", e);
@@ -507,10 +507,10 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			pmBtn = PageObjectHelper.waitForClickable(wait, pmBtn);
 
 			String applicationNameText = pmBtn.getAttribute("aria-label");
-			PageObjectHelper.log(LOGGER, applicationNameText + " application is displaying in KFONE Global Menu");
+			LOGGER.info(applicationNameText + " application is displaying in KFONE Global Menu");
 
 			clickElement(pmBtn);
-			PageObjectHelper.log(LOGGER, "Successfully clicked Profile Manager application button");
+			LOGGER.info("Successfully clicked Profile Manager application button");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_profile_manager_application_button_in_kfone_global_menu", "Issue clicking Profile Manager button", e);
 		}
@@ -524,7 +524,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			dismissProfileManagerNotificationIfPresent();
 			
 			String PMHeaderText = getElementText(PM_HEADER);
-			PageObjectHelper.log(LOGGER, "User landed on " + PMHeaderText + " Dashboard Page");
+			LOGGER.info("User landed on " + PMHeaderText + " Dashboard Page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_should_land_on_profile_manager_dashboard_page", "Issue landing on Profile Manager dashboard", e);
 		}
@@ -598,10 +598,10 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			architectBtn = PageObjectHelper.waitForClickable(wait, architectBtn);
 
 			String applicationNameText = architectBtn.getAttribute("aria-label");
-			PageObjectHelper.log(LOGGER, applicationNameText + " application is displaying in KFONE Global Menu");
+			LOGGER.info(applicationNameText + " application is displaying in KFONE Global Menu");
 
 			clickElement(architectBtn);
-			PageObjectHelper.log(LOGGER, "Successfully clicked Architect application button");
+			LOGGER.info("Successfully clicked Architect application button");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_architect_application_button_in_kfone_global_menu", "Issue clicking Architect button", e);
 		}
@@ -610,7 +610,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void verify_user_should_land_on_architect_dashboard_page() {
 		try {
 			PageObjectHelper.waitForPageReady(driver, 10);
-			PageObjectHelper.log(LOGGER, "User landed on Architect Dashboard Page");
+			LOGGER.info("User landed on Architect Dashboard Page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_should_land_on_architect_dashboard_page", "Issue landing on Architect dashboard", e);
 		}
@@ -621,7 +621,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			clickElement(JOBS_LINK);
 			PageObjectHelper.waitForPageReady(driver, 5);
 			Assert.assertEquals("Jobs", getElementText(JOBS_LINK));
-			PageObjectHelper.log(LOGGER, "Navigated to Jobs page in Architect");
+			LOGGER.info("Navigated to Jobs page in Architect");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_navigate_to_jobs_page_in_architect", "Failed to navigate to Jobs page in Architect", e);
 		}
@@ -649,7 +649,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			clearAndSearch(PROFILES_SEARCH, searchTerm);
 			safeSleep(1500); // Extra wait for results stability
 			
-			PageObjectHelper.log(LOGGER, "Searched for job: " + searchTerm + " in Jobs page in Architect");
+			LOGGER.info("Searched for job: " + searchTerm + " in Jobs page in Architect");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_published_job_name_in_jobs_page_in_architect", "Failed to search for job in Architect", e);
 		}
@@ -683,7 +683,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 				Assert.fail(errorMsg);
 			}
 			
-			PageObjectHelper.log(LOGGER, "Published Job (Org: " + expectedJobName + ") is displayed in Jobs page in Architect");
+			LOGGER.info("Published Job (Org: " + expectedJobName + ") is displayed in Jobs page in Architect");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_jobs_page_in_architect", "Issue verifying published job in Architect", e);
 		}
@@ -694,7 +694,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			String todayDate = formatDateForDisplay();
 			String jobPublishedDate = getElementText(ARCHITECT_DATE_ROW_1);
 			Assert.assertEquals(jobPublishedDate, todayDate);
-			PageObjectHelper.log(LOGGER, "Updated date verified on Published Job: " + job1OrgName.get() + " in Architect");
+			LOGGER.info("Updated date verified on Published Job: " + job1OrgName.get() + " in Architect");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify__updated_date_on_published_job_matches_with_current_date_in_architect", "Issue verifying date in Architect", e);
 		}
@@ -784,7 +784,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 10);
 			String compareAndSelectHeaderText = getElementText(COMPARE_SELECT_HEADER);
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?");
-			PageObjectHelper.log(LOGGER, "User landed on the Job Comparison screen successfully");
+			LOGGER.info("User landed on the Job Comparison screen successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_job_comparison_screen", "Issue in landing Job Comparison screen", e);
 		}
@@ -803,7 +803,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 						jsClick(btn);
 					}
 					String jobTitle = getElementText(JC_ORG_JOB_TITLE);
-					PageObjectHelper.log(LOGGER, "Second Profile selected from DS Suggestions for job: " + jobTitle);
+					LOGGER.info("Second Profile selected from DS Suggestions for job: " + jobTitle);
 					break;
 				}
 			}
@@ -836,7 +836,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			waitForSpinners();
 			PageObjectHelper.waitForPageReady(driver, 5);
 			
-			PageObjectHelper.log(LOGGER, "Clicked Publish Selected button for job: " + job1OrgName.get() + " (Code: " + job1OrgCode.get() + ")");
+			LOGGER.info("Clicked Publish Selected button for job: " + job1OrgName.get() + " (Code: " + job1OrgCode.get() + ")");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_publish_selected_button_in_job_comparison_page", "Issue clicking Publish Selected button", e);
 		}
@@ -844,13 +844,13 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	// Methods moved from PO08_PublishJobFromDetailsPopup
 
 	public void user_is_on_profile_details_popup() {
-		PageObjectHelper.log(LOGGER, "User is on Profile details Popup");
+		LOGGER.info("User is on Profile details Popup");
 	}
 
 	public void click_on_publish_profile_button_in_profile_details_popup() {
 		try {
 			clickElement(POPUP_PUBLISH_PROFILE_BTN);
-			PageObjectHelper.log(LOGGER, "Clicked Publish Profile button in Profile Details popup");
+			LOGGER.info("Clicked Publish Profile button in Profile Details popup");
 			waitForSpinners();
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_publish_profile_button_in_profile_details_popup", "Failed to click Publish Profile button in popup", e);

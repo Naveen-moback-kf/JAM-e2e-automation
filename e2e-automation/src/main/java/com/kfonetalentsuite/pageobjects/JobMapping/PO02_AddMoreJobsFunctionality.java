@@ -44,13 +44,13 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			try {
 				WebElement resultsCount = PageObjectHelper.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
 				ResultsCountBeforeAddingMoreJobs.set(resultsCount.getText().split(" ")[3]);
-				PageObjectHelper.log(LOGGER, "Unpublished Job Profiles Count before Adding More Jobs: " + ResultsCountBeforeAddingMoreJobs.get());
+				LOGGER.info("Unpublished Job Profiles Count before Adding More Jobs: " + ResultsCountBeforeAddingMoreJobs.get());
 			} catch (Exception e) {
 				try {
 					WebElement emptyState = PageObjectHelper.waitForPresent(wait, NOTHING_TO_SEE_MESSAGE);
 					if (emptyState.isDisplayed()) {
 						ResultsCountBeforeAddingMoreJobs.set("0");
-						PageObjectHelper.log(LOGGER, "No unpublished jobs found - Count set to 0");
+						LOGGER.info("No unpublished jobs found - Count set to 0");
 					}
 				} catch (Exception ex) {
 					throw e;
@@ -67,7 +67,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				return PageObjectHelper.waitForVisible(wait, ADD_MORE_JOBS_PAGE_HEADER).getText();
 			});
 			Assert.assertEquals(headerText, "Add Job Data");
-			PageObjectHelper.log(LOGGER, "User landed on KFONE Add Job Data page Successfully");
+			LOGGER.info("User landed on KFONE Add Job Data page Successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_be_landed_on_kfone_add_job_data_page", "Issue in landing KFONE Add Job Data page", e);
 		}
@@ -78,7 +78,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			WebElement header = PageObjectHelper.waitForVisible(wait, ADD_MORE_JOBS_PAGE_HEADER);
 			Assert.assertTrue(header.isDisplayed());
 			Assert.assertEquals(header.getText(), "Add Job Data");
-			PageObjectHelper.log(LOGGER, "User is in KFONE Add Job Data page - Page header verified");
+			LOGGER.info("User is in KFONE Add Job Data page - Page header verified");
 			handleCookiesBanner();
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_is_in_kfone_add_job_data_page", "Issue in validating KFONE Add Job Data page", e);
@@ -91,7 +91,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				return PageObjectHelper.waitForVisible(wait, MANUAL_UPLOAD_BTN).getText();
 			});
 			PageObjectHelper.waitForClickable(wait, MANUAL_UPLOAD_BTN).click();
-			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
+			LOGGER.info(buttonText + " button clicked successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_click_on_manual_upload_button", "Issue in clicking Manual upload Button", e);
 		}
@@ -102,7 +102,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 2);
 			WebElement jobsCount = PageObjectHelper.waitForVisible(wait, KFONE_JOBS_COUNT);
 			KFONEjobsCountBeforeAddingMoreJobs.set(jobsCount.getText());
-			PageObjectHelper.log(LOGGER, "Jobs count before Adding More Jobs: " + KFONEjobsCountBeforeAddingMoreJobs.get());
+			LOGGER.info("Jobs count before Adding More Jobs: " + KFONEjobsCountBeforeAddingMoreJobs.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs", "Issue in verifying Jobs count", e);
 		}
@@ -115,7 +115,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			WebElement lastSynced = PageObjectHelper.waitForVisible(wait, LAST_SYNCED_INFO);
 			Assert.assertTrue(lastSynced.isDisplayed());
 			lastSyncedInfo1.set(lastSynced.getText());
-			PageObjectHelper.log(LOGGER, "Last Synced Info before adding More Jobs: " + lastSyncedInfo1.get());
+			LOGGER.info("Last Synced Info before adding More Jobs: " + lastSyncedInfo1.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_last_synced_info_on_add_job_data_screen_before_adding_more_jobs", "Issue in verifying Last Synced Info", e);
 		}
@@ -134,7 +134,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 		}
 
 		try {
-			PageObjectHelper.log(LOGGER, "Starting file upload process...");
+			LOGGER.info("Starting file upload process...");
 			boolean success = Utilities.uploadFile(driver, filePath, BROWSE_FILES_BTN);
 			if (!success) {
 				throw new RuntimeException("All file upload strategies failed");
@@ -143,7 +143,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			PageObjectHelper.waitForUIStability(driver, 1);
 			WebElement uploadedFile = PageObjectHelper.waitForVisible(wait, ATTACHED_FILE_NAME);
 			Assert.assertTrue(uploadedFile.isDisplayed());
-			PageObjectHelper.log(LOGGER, "Job catalog file uploaded successfully. File name: " + uploadedFile.getText());
+			LOGGER.info("Job catalog file uploaded successfully. File name: " + uploadedFile.getText());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "upload_file_using_browse_files_button", "Issue in uploading Job Catalog file", e);
 		}
@@ -154,7 +154,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			WebElement closeBtn = PageObjectHelper.waitForVisible(wait, FILE_CLOSE_BTN);
 			Assert.assertTrue(closeBtn.isDisplayed());
 			closeBtn.click();
-			PageObjectHelper.log(LOGGER, "File Close button clicked successfully");
+			LOGGER.info("File Close button clicked successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_file_close_button_displaying_and_clickable", "Issue in verifying File Close Button", e);
 		}
@@ -166,7 +166,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				return PageObjectHelper.waitForVisible(wait, CONTINUE_BTN).getText();
 			});
 			PageObjectHelper.waitForClickable(wait, CONTINUE_BTN).click();
-			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
+			LOGGER.info(buttonText + " button clicked successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_continue_button_in_add_job_data_screen", "Issue in clicking Continue Button", e);
 		}
@@ -176,7 +176,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 		try {
 			WebElement uploadProgress = PageObjectHelper.waitForVisible(wait, UPLOAD_PROGRESS_TEXT);
 			Assert.assertTrue(uploadProgress.isDisplayed());
-			PageObjectHelper.log(LOGGER, "Upload in progress - " + uploadProgress.getText());
+			LOGGER.info("Upload in progress - " + uploadProgress.getText());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_job_data_upload_is_in_progress", "Issue in validating Upload in Progress", e);
 		}
@@ -184,14 +184,14 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void user_should_validate_job_data_added_successfully() {
 		try {
-			PageObjectHelper.log(LOGGER, "Waiting for 2 minutes before refreshing page...");
+			LOGGER.info("Waiting for 2 minutes before refreshing page...");
 			safeSleep(120000);
 			PageObjectHelper.waitForClickable(wait, CLICK_HERE_BTN).click();
-			PageObjectHelper.log(LOGGER, "Clicked on Click Here button to refresh the page");
+			LOGGER.info("Clicked on Click Here button to refresh the page");
 
 			PageObjectHelper.waitForUIStability(driver, 2);
 			WebElement successMsg = PageObjectHelper.waitForVisible(wait, UPLOAD_SUCCESS_MESSAGE);
-			PageObjectHelper.log(LOGGER, successMsg.getText() + " - Job data added successfully");
+			LOGGER.info(successMsg.getText() + " - Job data added successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_job_data_added_successfully", "Issue in validating Job data added", e);
 		}
@@ -203,10 +203,10 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			scrollToTop();
 			WebElement jobsCount = PageObjectHelper.waitForVisible(wait, KFONE_JOBS_COUNT);
 			String countAfter = jobsCount.getText();
-			PageObjectHelper.log(LOGGER, "Jobs count after Adding More Jobs: " + countAfter);
+			LOGGER.info("Jobs count after Adding More Jobs: " + countAfter);
 
 			if (!KFONEjobsCountBeforeAddingMoreJobs.get().equals(countAfter)) {
-				PageObjectHelper.log(LOGGER, "KFONE Jobs count UPDATED as expected");
+				LOGGER.info("KFONE Jobs count UPDATED as expected");
 			} else {
 				throw new Exception("KFONE Jobs count NOT UPDATED (Before: " + KFONEjobsCountBeforeAddingMoreJobs.get() + ", After: " + countAfter + ")");
 			}
@@ -221,10 +221,10 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			WebElement lastSynced = PageObjectHelper.waitForVisible(wait, LAST_SYNCED_INFO);
 			Assert.assertTrue(lastSynced.isDisplayed());
 			String infoAfter = lastSynced.getText();
-			PageObjectHelper.log(LOGGER, "Last Synced Info after adding More Jobs: " + infoAfter);
+			LOGGER.info("Last Synced Info after adding More Jobs: " + infoAfter);
 
 			if (!lastSyncedInfo1.get().equals(infoAfter)) {
-				PageObjectHelper.log(LOGGER, "Last Synced Info UPDATED as expected");
+				LOGGER.info("Last Synced Info UPDATED as expected");
 			} else {
 				throw new Exception("Last Synced Info NOT UPDATED (Before: " + lastSyncedInfo1.get() + ", After: " + infoAfter + ")");
 			}
@@ -239,7 +239,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				WebElement closeBtn = PageObjectHelper.waitForClickable(wait, ADD_MORE_JOBS_CLOSE_BTN);
 				closeBtn.click();
 			});
-			PageObjectHelper.log(LOGGER, "Clicked on Add more jobs Close button");
+			LOGGER.info("Clicked on Add more jobs Close button");
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			
 			// AUTOMATION FIX: Handle "Keep working?" popup (method now in BasePageObject)
@@ -252,33 +252,33 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void verify_unpublished_jobs_count_after_adding_more_jobs() {
 		try {
-			PageObjectHelper.log(LOGGER, "Waiting for 2 minutes before validating uploaded jobs count...");
+			LOGGER.info("Waiting for 2 minutes before validating uploaded jobs count...");
 			safeSleep(120000);
 			refreshPage();
-			PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
+			LOGGER.info("Refreshed Job Mapping page");
 			safeSleep(2000);
 			WebElement resultsCount = PageObjectHelper.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
 			String countAfter = resultsCount.getText().split(" ")[3];
-			PageObjectHelper.log(LOGGER, "Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
+			LOGGER.info("Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
 
 			if (!ResultsCountBeforeAddingMoreJobs.get().equals(countAfter)) {
-				PageObjectHelper.log(LOGGER, "Unpublished Jobs count UPDATED as expected");
+				LOGGER.info("Unpublished Jobs count UPDATED as expected");
 			} else {
 				throw new Exception("Unpublished Jobs count NOT UPDATED (Before: " + ResultsCountBeforeAddingMoreJobs.get() + ", After: " + countAfter + ")");
 			}
 		} catch (Exception e) {
 			try {
-				PageObjectHelper.log(LOGGER, "Waiting for 1 more minute before validating uploaded jobs count...");
+				LOGGER.info("Waiting for 1 more minute before validating uploaded jobs count...");
 				safeSleep(60000);
 				refreshPage();
-				PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
+				LOGGER.info("Refreshed Job Mapping page");
 				safeSleep(2000);
 				WebElement resultsCount = PageObjectHelper.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
 				String countAfter = resultsCount.getText().split(" ")[3];
-				PageObjectHelper.log(LOGGER, "Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
+				LOGGER.info("Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
 
 				if (!ResultsCountBeforeAddingMoreJobs.get().equals(countAfter)) {
-					PageObjectHelper.log(LOGGER, "Unpublished Jobs count UPDATED as expected");
+					LOGGER.info("Unpublished Jobs count UPDATED as expected");
 				} else {
 					throw new Exception("Unpublished Jobs count NOT UPDATED (Before: " + ResultsCountBeforeAddingMoreJobs.get() + ", After: " + countAfter + ")");
 				}
@@ -294,23 +294,23 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				return PageObjectHelper.waitForVisible(wait, DONE_BTN).getText();
 			});
 			PageObjectHelper.waitForClickable(wait, DONE_BTN).click();
-			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
+			LOGGER.info(buttonText + " button clicked successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_done_button_in_kfone_add_job_data_page", "Issue in clicking Done Button", e);
 		}
 	}
 
 	public void user_is_in_kfone_add_job_data_page_afer_uploading_file() {
-		PageObjectHelper.log(LOGGER, "User is in KFONE Add Job Data page after uploading file");
+		LOGGER.info("User is in KFONE Add Job Data page after uploading file");
 	}
 	// These methods are optional and should NOT fail the test
 	// They log warnings if they fail instead of throwing exceptions
 
 	public void verify_jobs_count_before_adding_more_jobs_optional() {
 		try {
-			PageObjectHelper.log(LOGGER, "[OPTIONAL] Verifying Jobs count before adding more jobs...");
+			LOGGER.info("[OPTIONAL] Verifying Jobs count before adding more jobs...");
 			verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs();
-			PageObjectHelper.log(LOGGER, "[OPTIONAL] ✓ Jobs count verified successfully");
+			LOGGER.info("[OPTIONAL] ✓ Jobs count verified successfully");
 		} catch (Exception e) {
 			LOGGER.warn("[OPTIONAL STEP] Could not verify Jobs count before adding jobs: {} - {}", 
 					e.getClass().getSimpleName(), e.getMessage());
@@ -320,9 +320,9 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void click_on_done_button_optional() {
 		try {
-			PageObjectHelper.log(LOGGER, "[OPTIONAL] Clicking Done button...");
+			LOGGER.info("[OPTIONAL] Clicking Done button...");
 			click_on_done_button_in_kfone_add_job_data_page();
-			PageObjectHelper.log(LOGGER, "[OPTIONAL] ✓ Done button clicked successfully");
+			LOGGER.info("[OPTIONAL] ✓ Done button clicked successfully");
 		} catch (Exception e) {
 			LOGGER.warn("[OPTIONAL STEP] Could not click Done button: {} - {}", 
 					e.getClass().getSimpleName(), e.getMessage());
@@ -332,9 +332,9 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void validate_job_data_upload_is_in_progress_optional() {
 		try {
-			PageObjectHelper.log(LOGGER, "[OPTIONAL] Validating Job Data Upload is in Progress...");
+			LOGGER.info("[OPTIONAL] Validating Job Data Upload is in Progress...");
 			user_should_validate_job_data_upload_is_in_progress();
-			PageObjectHelper.log(LOGGER, "[OPTIONAL] ✓ Upload progress validated successfully");
+			LOGGER.info("[OPTIONAL] ✓ Upload progress validated successfully");
 		} catch (Exception e) {
 			LOGGER.warn("[OPTIONAL STEP] Could not validate upload progress: {} - {}", 
 					e.getClass().getSimpleName(), e.getMessage());
@@ -344,9 +344,9 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void validate_job_data_added_successfully_optional() {
 		try {
-			PageObjectHelper.log(LOGGER, "[OPTIONAL] Validating Job Data added successfully...");
+			LOGGER.info("[OPTIONAL] Validating Job Data added successfully...");
 			user_should_validate_job_data_added_successfully();
-			PageObjectHelper.log(LOGGER, "[OPTIONAL] ✓ Job Data addition validated successfully");
+			LOGGER.info("[OPTIONAL] ✓ Job Data addition validated successfully");
 		} catch (Exception e) {
 			LOGGER.warn("[OPTIONAL STEP] Could not validate job data addition: {} - {}", 
 					e.getClass().getSimpleName(), e.getMessage());
@@ -356,9 +356,9 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void verify_jobs_count_after_adding_more_jobs_optional() {
 		try {
-			PageObjectHelper.log(LOGGER, "[OPTIONAL] Verifying Jobs count after adding more jobs...");
+			LOGGER.info("[OPTIONAL] Verifying Jobs count after adding more jobs...");
 			verify_jobs_count_in_kfone_add_job_data_screen_after_adding_more_jobs();
-			PageObjectHelper.log(LOGGER, "[OPTIONAL] ✓ Jobs count verified successfully");
+			LOGGER.info("[OPTIONAL] ✓ Jobs count verified successfully");
 		} catch (Exception e) {
 			LOGGER.warn("[OPTIONAL STEP] Could not verify Jobs count after adding jobs: {} - {}", 
 					e.getClass().getSimpleName(), e.getMessage());

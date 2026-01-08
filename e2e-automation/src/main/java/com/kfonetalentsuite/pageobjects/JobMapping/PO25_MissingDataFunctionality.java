@@ -174,7 +174,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	public void sort_job_profiles_by_column_in_ascending_order(String columnName) throws IOException {
 		try {
-			PageObjectHelper.log(LOGGER, "Sorting job profiles by " + columnName + " in ascending order");
+			LOGGER.info("Sorting job profiles by " + columnName + " in ascending order");
 			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 
@@ -195,7 +195,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				default:
 					// Default to Grade for Function/Subfunction scenarios
 					headerLocator = ORG_JOB_GRADE_HEADER;
-					PageObjectHelper.log(LOGGER, "Using Grade header as default for: " + columnName);
+					LOGGER.info("Using Grade header as default for: " + columnName);
 			}
 
 			// Verify element exists before clicking
@@ -205,9 +205,9 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(1000);
 			
-			PageObjectHelper.log(LOGGER, "✅ Sorted by " + columnName + " in ascending order");
+			LOGGER.info("✅ Sorted by " + columnName + " in ascending order");
 		} catch (Exception e) {
-			PageObjectHelper.log(LOGGER, "⚠️ Sorting failed for " + columnName + ": " + e.getMessage() + " - proceeding without sorting");
+			LOGGER.info("⚠️ Sorting failed for " + columnName + ": " + e.getMessage() + " - proceeding without sorting");
 		}
 	}
 
@@ -258,11 +258,11 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			}
 
 			if (pageVerified) {
-				PageObjectHelper.log(LOGGER, "✅ Successfully verified Jobs with Missing " + dataType + " Data screen");
-				PageObjectHelper.log(LOGGER, "   " + verificationResults);
+				LOGGER.info("✅ Successfully verified Jobs with Missing " + dataType + " Data screen");
+				LOGGER.info("   " + verificationResults);
 			} else {
 				String errorMsg = "Failed to verify Jobs with Missing " + dataType + " Data screen. Results: " + verificationResults;
-				PageObjectHelper.log(LOGGER, "❌ " + errorMsg);
+				LOGGER.info("❌ " + errorMsg);
 				Assert.fail(errorMsg);
 			}
 		} catch (Exception e) {
@@ -332,12 +332,12 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			}
 
 			if (onJobMappingPage) {
-				PageObjectHelper.log(LOGGER, "✅ Successfully returned to Job Mapping page after " + dataType + " validation");
+				LOGGER.info("✅ Successfully returned to Job Mapping page after " + dataType + " validation");
 			} else {
-				PageObjectHelper.log(LOGGER, "⚠️ Could not verify Job Mapping page, but proceeding...");
+				LOGGER.info("⚠️ Could not verify Job Mapping page, but proceeding...");
 			}
 		} catch (Exception e) {
-			PageObjectHelper.log(LOGGER, "⚠️ Verification of Job Mapping page failed: " + e.getMessage());
+			LOGGER.info("⚠️ Verification of Job Mapping page failed: " + e.getMessage());
 		}
 	}
 
@@ -348,7 +348,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	public void find_job_profile_in_job_mapping_page_where_data_is_missing(String dataType) throws IOException {
 		try {
 			currentDataType.set(dataType);
-			PageObjectHelper.log(LOGGER, "Finding job profile with missing " + dataType + " data in Job Mapping page");
+			LOGGER.info("Finding job profile with missing " + dataType + " data in Job Mapping page");
 			
 			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
@@ -367,8 +367,8 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			
 			if (scrollAttempt == 0) {
 				int profileCount = jobRows.size() / 3;
-				PageObjectHelper.log(LOGGER, "Found " + profileCount + " profiles to search (" + jobRows.size() + " rows)");
-				PageObjectHelper.log(LOGGER, "Searching for missing " + dataType + " data...");
+				LOGGER.info("Found " + profileCount + " profiles to search (" + jobRows.size() + " rows)");
+				LOGGER.info("Searching for missing " + dataType + " data...");
 			}
 
 			int currentBatchStartIndex = totalRowsChecked;
@@ -385,7 +385,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				if (rowsProcessedInBatch % 9 == 0) {
 					int profilesChecked = totalRowsChecked / 3;
 					long elapsed = System.currentTimeMillis() - batchStartTime;
-					PageObjectHelper.log(LOGGER, "⏳ Progress: " + profilesChecked + " profiles checked (" + elapsed + "ms elapsed)");
+					LOGGER.info("⏳ Progress: " + profilesChecked + " profiles checked (" + elapsed + "ms elapsed)");
 				}
 				
 				try {
@@ -444,7 +444,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 						forwardScenarioJobCode.set(jobCode);
 						forwardScenarioFoundProfile.set(true);
 						
-						PageObjectHelper.log(LOGGER, "✅ Found job with missing " + dataType + ": " + jobName + " (" + jobCode + ")");
+						LOGGER.info("✅ Found job with missing " + dataType + ": " + jobName + " (" + jobCode + ")");
 						break; // Exit the for loop
 					}
 				} catch (Exception rowEx) {
@@ -458,7 +458,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				long batchTime = System.currentTimeMillis() - batchStartTime;
 				int profilesProcessed = rowsProcessedInBatch / 3;
 				int totalProfilesChecked = totalRowsChecked / 3;
-				PageObjectHelper.log(LOGGER, "✓ Batch done: " + profilesProcessed + " profiles in " + batchTime + "ms | Total: " + totalProfilesChecked);
+				LOGGER.info("✓ Batch done: " + profilesProcessed + " profiles in " + batchTime + "ms | Total: " + totalProfilesChecked);
 				
 				int currentRowCount = jobRows.size();
 				js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
@@ -470,9 +470,9 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				
 				if (newRowCount <= currentRowCount) {
 					hasMoreRows = false;
-					PageObjectHelper.log(LOGGER, "⏹️ End reached: " + totalProfilesChecked + " profiles checked");
+					LOGGER.info("⏹️ End reached: " + totalProfilesChecked + " profiles checked");
 				} else {
-					PageObjectHelper.log(LOGGER, "⏬ Loaded more rows, continuing...");
+					LOGGER.info("⏬ Loaded more rows, continuing...");
 				}
 				scrollAttempt++;
 			}
@@ -480,7 +480,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 		if (!profileFound) {
 			int totalProfilesChecked = totalRowsChecked / 3;
-			PageObjectHelper.log(LOGGER, "⚠️ No job with missing " + dataType + " found (" + totalProfilesChecked + " profiles checked) - Skipping scenario");
+			LOGGER.info("⚠️ No job with missing " + dataType + " found (" + totalProfilesChecked + " profiles checked) - Skipping scenario");
 			throw new org.testng.SkipException("No job profile with missing " + dataType + " data found in Job Mapping page");
 		}
 		} catch (org.testng.SkipException se) {
@@ -493,7 +493,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	public void extract_job_details_from_found_profile_in_job_mapping_page(String dataType) throws IOException {
 		try {
-			PageObjectHelper.log(LOGGER, "Extracting " + dataType + " job details from found profile in Job Mapping page");
+			LOGGER.info("Extracting " + dataType + " job details from found profile in Job Mapping page");
 			
 			WebElement profile = foundProfile.get();
 			if (profile == null) {
@@ -570,7 +570,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			}
 
 			jobDetailsFromJobMappingPage.set(details);
-			PageObjectHelper.log(LOGGER, "✅ Extracted: " + jobName + (jobCode.isEmpty() ? "" : " (" + jobCode + ")"));
+			LOGGER.info("✅ Extracted: " + jobName + (jobCode.isEmpty() ? "" : " (" + jobCode + ")"));
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "extract_job_details_from_found_profile_in_job_mapping_page",
 					"Failed to extract " + dataType + " job details", e);
@@ -584,7 +584,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	public void find_job_in_jobs_missing_data_screen_where_data_is_na(String dataType) {
 		try {
 			currentDataType.set(dataType);
-			PageObjectHelper.log(LOGGER, "Finding job in Missing Data screen where " + dataType + " is N/A");
+			LOGGER.info("Finding job in Missing Data screen where " + dataType + " is N/A");
 			
 			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
@@ -602,7 +602,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				List<WebElement> jobRows = driver.findElements(JOB_ROWS_IN_MISSING_DATA_SCREEN);
 				
 				if (scrollAttempt == 0) {
-					PageObjectHelper.log(LOGGER, "Found " + jobRows.size() + " job rows in Missing Data screen");
+					LOGGER.info("Found " + jobRows.size() + " job rows in Missing Data screen");
 				}
 
 				// Search through current batch (start from where we left off)
@@ -641,7 +641,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 								foundJobRow.set(row);
 								extractedJobName.set(jobName);
 								profileFound = true;
-								PageObjectHelper.log(LOGGER, "✅ Found job with " + dataType + " = N/A: " + jobName);
+								LOGGER.info("✅ Found job with " + dataType + " = N/A: " + jobName);
 								break;
 							}
 						}
@@ -682,7 +682,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			} // End of while loop
 
 			if (!profileFound) {
-				PageObjectHelper.log(LOGGER, "⚠️ No job with " + dataType + " = N/A found after checking " + totalRowsChecked + " rows");
+				LOGGER.info("⚠️ No job with " + dataType + " = N/A found after checking " + totalRowsChecked + " rows");
 				throw new org.testng.SkipException("No job with " + dataType + " = N/A found in Missing Data screen");
 			}
 		} catch (org.testng.SkipException se) {
@@ -695,7 +695,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	public void extract_all_available_job_details_from_jobs_with_missing_data_screen(String dataType) {
 		try {
-			PageObjectHelper.log(LOGGER, "Extracting all job details from Missing " + dataType + " Data screen");
+			LOGGER.info("Extracting all job details from Missing " + dataType + " Data screen");
 			
 			WebElement jobRow = foundJobRow.get();
 			if (jobRow == null) {
@@ -731,7 +731,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				extractedJobName.set(jobName);
 				extractedJobCode.set(jobCode);
 				
-				PageObjectHelper.log(LOGGER, "Parsed - Job Name: '" + jobName + "', Job Code: '" + jobCode + "'");
+				LOGGER.info("Parsed - Job Name: '" + jobName + "', Job Code: '" + jobCode + "'");
 			}
 			
 			if (cells.size() > 1) details.put("grade", normalizeFieldValue(cells.get(1).getText().trim(), "Grade"));
@@ -739,7 +739,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			if (cells.size() > 3) details.put("functionSubfunction", normalizeFieldValue(cells.get(3).getText().trim(), "Function"));
 
 			jobDetailsFromMissingDataScreen.set(details);
-			PageObjectHelper.log(LOGGER, "✅ Extracted job details from Missing Data screen: " + details);
+			LOGGER.info("✅ Extracted job details from Missing Data screen: " + details);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "extract_all_available_job_details_from_jobs_with_missing_data_screen",
 					"Failed to extract job details from Missing " + dataType + " Data screen", e);
@@ -752,7 +752,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	public void search_for_extracted_job_profile_in_jobs_missing_data_screen(String dataType) {
 		try {
-			PageObjectHelper.log(LOGGER, "Traversing all jobs in Missing Data screen (no search functionality)...");
+			LOGGER.info("Traversing all jobs in Missing Data screen (no search functionality)...");
 
 			String searchTerm = extractedJobName.get();
 			if (searchTerm == null || searchTerm.isEmpty()) {
@@ -762,7 +762,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			// Get the expected job code from Job Mapping page for precise matching
 			String expectedJobCode = jobDetailsFromJobMappingPage.get().get("jobCode");
 			if (expectedJobCode != null && !expectedJobCode.isEmpty()) {
-				PageObjectHelper.log(LOGGER, "Looking for job with name '" + searchTerm + "' AND code '" + expectedJobCode + "'");
+				LOGGER.info("Looking for job with name '" + searchTerm + "' AND code '" + expectedJobCode + "'");
 			} else {
 				LOGGER.debug("No job code available - will match by name only");
 			}
@@ -831,7 +831,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 							if (nameMatch && codeMatch) {
 								foundJobRow.set(row);
 								scrollToElement(row);
-								PageObjectHelper.log(LOGGER, "✅ Found matching job: " + cleanJobNameInRow + " (" + jobCodeInRow + ")");
+								LOGGER.info("✅ Found matching job: " + cleanJobNameInRow + " (" + jobCodeInRow + ")");
 								break;
 							}
 						}
@@ -856,9 +856,9 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			}
 
 			if (foundJobRow.get() == null) {
-				PageObjectHelper.log(LOGGER, "⚠️ Job not found after checking " + totalJobsChecked + " jobs");
+				LOGGER.info("⚠️ Job not found after checking " + totalJobsChecked + " jobs");
 			} else {
-				PageObjectHelper.log(LOGGER, "✅ Found job after checking " + totalJobsChecked + " jobs");
+				LOGGER.info("✅ Found job after checking " + totalJobsChecked + " jobs");
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_extracted_job_profile_in_jobs_missing_data_screen",
@@ -874,7 +874,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				searchTerm = extractedJobName.get();
 			}
 			
-			PageObjectHelper.log(LOGGER, "Searching for " + dataType + " job '" + searchTerm + "' in Job Mapping page");
+			LOGGER.info("Searching for " + dataType + " job '" + searchTerm + "' in Job Mapping page");
 
 			WebElement searchBox = PageObjectHelper.waitForClickable(wait, SEARCH_BOX);
 			searchBox.clear();
@@ -912,7 +912,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			PageObjectHelper.waitForUIStability(driver, 2);
 			PageObjectHelper.waitForPageReady(driver, 3);
 
-			PageObjectHelper.log(LOGGER, "✅ Searched for job: " + searchTerm);
+			LOGGER.info("✅ Searched for job: " + searchTerm);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_extracted_job_profile_in_job_mapping_page",
 					"Failed to search for " + dataType + " job in Job Mapping page", e);
@@ -927,15 +927,15 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		try {
 			String expectedJobName = extractedJobName.get();
 			String expectedJobCode = extractedJobCode.get();
-			PageObjectHelper.log(LOGGER, "Verifying " + dataType + " job found: '" + expectedJobName + "' (" + expectedJobCode + ")");
+			LOGGER.info("Verifying " + dataType + " job found: '" + expectedJobName + "' (" + expectedJobCode + ")");
 
 			// The job should already be found by search_for_extracted_job_profile_in_jobs_missing_data_screen
 			if (foundJobRow.get() != null) {
 				// Scroll to the found row to make it visible
 				scrollToElement(foundJobRow.get());
-				PageObjectHelper.log(LOGGER, "✅ Job profile verified in Missing Data screen");
+				LOGGER.info("✅ Job profile verified in Missing Data screen");
 			} else {
-				PageObjectHelper.log(LOGGER, "⚠️ Job profile not found during traversal - proceeding with warning");
+				LOGGER.info("⚠️ Job profile not found during traversal - proceeding with warning");
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_job_profile_found_in_jobs_missing_data_screen_search_results",
@@ -952,7 +952,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			if (targetJobName == null) targetJobName = extractedJobName.get();
 			if (targetJobCode == null) targetJobCode = extractedJobCode.get();
 			
-		PageObjectHelper.log(LOGGER, "Finding exact match: Job Name='" + targetJobName + "', Job Code='" + targetJobCode + "'");
+		LOGGER.info("Finding exact match: Job Name='" + targetJobName + "', Job Code='" + targetJobCode + "'");
 
 		// Wait for page to stabilize
 		PageObjectHelper.waitForUIStability(driver, 2);
@@ -971,7 +971,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				}
 				
 				if (totalRowsChecked == 0) {
-					PageObjectHelper.log(LOGGER, "Found " + jobRows.size() + " rows in Job Mapping page");
+					LOGGER.info("Found " + jobRows.size() + " rows in Job Mapping page");
 				}
 
 				for (int i = totalRowsChecked; i < jobRows.size() && !jobFound; i++) {
@@ -1004,9 +1004,9 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 							matchingJobRow.set(row);
 							scrollToElement(row);
 							safeSleep(300);
-							PageObjectHelper.log(LOGGER, "✅ Job Name MATCH: " + targetJobName);
+							LOGGER.info("✅ Job Name MATCH: " + targetJobName);
 							if (targetJobCode != null && !targetJobCode.isEmpty()) {
-								PageObjectHelper.log(LOGGER, "✅ Job Code MATCH: " + targetJobCode);
+								LOGGER.info("✅ Job Code MATCH: " + targetJobCode);
 							}
 							break;
 						}
@@ -1030,8 +1030,8 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			}
 
 			if (!jobFound) {
-				PageObjectHelper.log(LOGGER, "⚠️ Job profile not found after checking " + totalRowsChecked + " rows");
-				PageObjectHelper.log(LOGGER, "   Expected - Name: '" + targetJobName + "', Code: '" + targetJobCode + "'");
+				LOGGER.info("⚠️ Job profile not found after checking " + totalRowsChecked + " rows");
+				LOGGER.info("   Expected - Name: '" + targetJobName + "', Code: '" + targetJobCode + "'");
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_job_profile_found_in_job_mapping_page_search_results",
@@ -1041,7 +1041,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	public void extract_job_details_from_found_profile_in_jobs_missing_data_screen(String dataType) {
 		try {
-			PageObjectHelper.log(LOGGER, "Extracting " + dataType + " job details from found profile in Missing Data screen");
+			LOGGER.info("Extracting " + dataType + " job details from found profile in Missing Data screen");
 			
 			WebElement jobRow = foundJobRow.get();
 			if (jobRow == null) {
@@ -1076,7 +1076,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				details.put("functionSubfunction", functionSubfunction);
 
 				jobDetailsFromMissingDataScreen.set(details);
-				PageObjectHelper.log(LOGGER, "✅ Extracted: " + jobName + (jobCode.isEmpty() ? "" : " (Code: " + jobCode + ")"));
+				LOGGER.info("✅ Extracted: " + jobName + (jobCode.isEmpty() ? "" : " (Code: " + jobCode + ")"));
 				LOGGER.debug("Details: grade={}, dept={}, func={}", grade, department, functionSubfunction);
 			} else {
 				throw new IOException("Insufficient cells found for job detail extraction in Missing Data screen");
@@ -1089,7 +1089,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	public void extract_job_details_from_searched_profile_in_job_mapping_page(String dataType) {
 		try {
-			PageObjectHelper.log(LOGGER, "Extracting " + dataType + " job details from searched profile in Job Mapping page");
+			LOGGER.info("Extracting " + dataType + " job details from searched profile in Job Mapping page");
 			
 			WebElement jobRow = matchingJobRow.get();
 			if (jobRow == null) {
@@ -1150,7 +1150,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				}
 
 				jobDetailsFromJobMappingPage.set(details);
-				PageObjectHelper.log(LOGGER, "✅ Extracted: " + jobName + (jobCode.isEmpty() ? "" : " (Code: " + jobCode + ")"));
+				LOGGER.info("✅ Extracted: " + jobName + (jobCode.isEmpty() ? "" : " (Code: " + jobCode + ")"));
 				LOGGER.debug("Details: grade={}, dept={}, func={}", 
 					details.get("grade"), details.get("department"), details.get("functionSubfunction"));
 			}
@@ -1166,22 +1166,22 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	public void verify_all_job_details_match_forward_flow(String dataType) {
 		try {
-			PageObjectHelper.log(LOGGER, "Verifying " + dataType + " job details match (Forward Flow)");
+			LOGGER.info("Verifying " + dataType + " job details match (Forward Flow)");
 			
 			Map<String, String> jobMappingDetails = jobDetailsFromJobMappingPage.get();
 			Map<String, String> missingDataDetails = jobDetailsFromMissingDataScreen.get();
 			
-			PageObjectHelper.log(LOGGER, "Job Mapping Page Details: " + jobMappingDetails);
-			PageObjectHelper.log(LOGGER, "Missing Data Screen Details: " + missingDataDetails);
+			LOGGER.info("Job Mapping Page Details: " + jobMappingDetails);
+			LOGGER.info("Missing Data Screen Details: " + missingDataDetails);
 
 			// Verify Job Name (using lowercase keys)
 			String expectedJobName = jobMappingDetails.get("jobName");
 			String actualJobName = missingDataDetails.get("jobName");
 			if (expectedJobName != null && actualJobName != null) {
 				if (actualJobName.contains(expectedJobName) || expectedJobName.contains(actualJobName)) {
-					PageObjectHelper.log(LOGGER, "✅ Job Name MATCH: " + expectedJobName);
+					LOGGER.info("✅ Job Name MATCH: " + expectedJobName);
 				} else {
-					PageObjectHelper.log(LOGGER, "❌ Job Name MISMATCH - Expected: " + expectedJobName + ", Actual: " + actualJobName);
+					LOGGER.info("❌ Job Name MISMATCH - Expected: " + expectedJobName + ", Actual: " + actualJobName);
 				}
 			}
 
@@ -1190,9 +1190,9 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			String actualJobCode = missingDataDetails.get("jobCode");
 			if (expectedJobCode != null && !expectedJobCode.isEmpty()) {
 				if (actualJobCode != null && actualJobCode.equalsIgnoreCase(expectedJobCode)) {
-					PageObjectHelper.log(LOGGER, "✅ Job Code MATCH: " + expectedJobCode);
+					LOGGER.info("✅ Job Code MATCH: " + expectedJobCode);
 				} else {
-					PageObjectHelper.log(LOGGER, "⚠️ Job Code - Expected: " + expectedJobCode + ", Actual: " + actualJobCode);
+					LOGGER.info("⚠️ Job Code - Expected: " + expectedJobCode + ", Actual: " + actualJobCode);
 				}
 			}
 
@@ -1204,7 +1204,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				// For Function/Subfunction - check the specific part
 				dataTypeValue = missingDataDetails.get("functionSubfunction");
 				dataIsMissing = isSpecificPartMissing(dataTypeValue, dataType);
-				PageObjectHelper.log(LOGGER, "Checking " + dataType + " part of: " + dataTypeValue);
+				LOGGER.info("Checking " + dataType + " part of: " + dataTypeValue);
 			} else {
 				// For Grade/Department - check the whole field
 				dataTypeValue = missingDataDetails.get(dataType.toLowerCase());
@@ -1212,12 +1212,12 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			}
 			
 			if (dataIsMissing) {
-				PageObjectHelper.log(LOGGER, "✅ " + dataType + " is correctly shown as missing: " + dataTypeValue);
+				LOGGER.info("✅ " + dataType + " is correctly shown as missing: " + dataTypeValue);
 			} else {
-				PageObjectHelper.log(LOGGER, "⚠️ " + dataType + " value in Missing Data screen: " + dataTypeValue);
+				LOGGER.info("⚠️ " + dataType + " value in Missing Data screen: " + dataTypeValue);
 			}
 
-			PageObjectHelper.log(LOGGER, "✅ Forward Flow verification completed for " + dataType);
+			LOGGER.info("✅ Forward Flow verification completed for " + dataType);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_all_job_details_match_forward_flow",
 					"Failed to verify " + dataType + " job details match (Forward Flow)", e);
@@ -1226,13 +1226,13 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	public void verify_all_job_details_match_reverse_flow(String dataType) {
 		try {
-			PageObjectHelper.log(LOGGER, "Verifying " + dataType + " job details match (Reverse Flow)");
+			LOGGER.info("Verifying " + dataType + " job details match (Reverse Flow)");
 			
 			Map<String, String> missingDataDetails = jobDetailsFromMissingDataScreen.get();
 			Map<String, String> jobMappingDetails = jobDetailsFromJobMappingPage.get();
 
-			PageObjectHelper.log(LOGGER, "Missing Data Screen Details: " + missingDataDetails);
-			PageObjectHelper.log(LOGGER, "Job Mapping Page Details: " + jobMappingDetails);
+			LOGGER.info("Missing Data Screen Details: " + missingDataDetails);
+			LOGGER.info("Job Mapping Page Details: " + jobMappingDetails);
 
 			// Verify Job Name (using lowercase keys)
 			String expectedJobName = missingDataDetails.get("jobName");
@@ -1243,9 +1243,9 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				String cleanActual = cleanJobNameLocal(actualJobName);
 				
 				if (cleanActual.contains(cleanExpected) || cleanExpected.contains(cleanActual)) {
-					PageObjectHelper.log(LOGGER, "✅ Job Name MATCH: " + cleanExpected);
+					LOGGER.info("✅ Job Name MATCH: " + cleanExpected);
 				} else {
-					PageObjectHelper.log(LOGGER, "❌ Job Name MISMATCH - Expected: " + cleanExpected + ", Actual: " + cleanActual);
+					LOGGER.info("❌ Job Name MISMATCH - Expected: " + cleanExpected + ", Actual: " + cleanActual);
 				}
 			}
 
@@ -1254,9 +1254,9 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			String actualJobCode = jobMappingDetails.get("jobCode");
 			if (expectedJobCode != null && !expectedJobCode.isEmpty() && actualJobCode != null && !actualJobCode.isEmpty()) {
 				if (actualJobCode.equalsIgnoreCase(expectedJobCode)) {
-					PageObjectHelper.log(LOGGER, "✅ Job Code MATCH: " + expectedJobCode);
+					LOGGER.info("✅ Job Code MATCH: " + expectedJobCode);
 				} else {
-					PageObjectHelper.log(LOGGER, "⚠️ Job Code - Expected: " + expectedJobCode + ", Actual: " + actualJobCode);
+					LOGGER.info("⚠️ Job Code - Expected: " + expectedJobCode + ", Actual: " + actualJobCode);
 				}
 			}
 
@@ -1268,7 +1268,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				// For Function/Subfunction - check the specific part
 				dataTypeValue = jobMappingDetails.get("functionSubfunction");
 				dataIsMissing = isSpecificPartMissing(dataTypeValue, dataType);
-				PageObjectHelper.log(LOGGER, "Checking " + dataType + " part of: " + dataTypeValue);
+				LOGGER.info("Checking " + dataType + " part of: " + dataTypeValue);
 			} else {
 				// For Grade/Department - check the whole field
 				dataTypeValue = jobMappingDetails.get(dataType.toLowerCase());
@@ -1276,12 +1276,12 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			}
 			
 			if (dataIsMissing) {
-				PageObjectHelper.log(LOGGER, "✅ " + dataType + " is correctly shown as missing in Job Mapping: " + dataTypeValue);
+				LOGGER.info("✅ " + dataType + " is correctly shown as missing in Job Mapping: " + dataTypeValue);
 			} else {
-				PageObjectHelper.log(LOGGER, "⚠️ " + dataType + " value in Job Mapping page: " + dataTypeValue);
+				LOGGER.info("⚠️ " + dataType + " value in Job Mapping page: " + dataTypeValue);
 			}
 
-			PageObjectHelper.log(LOGGER, "✅ Reverse Flow verification completed for " + dataType);
+			LOGGER.info("✅ Reverse Flow verification completed for " + dataType);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_all_job_details_match_reverse_flow",
 					"Failed to verify " + dataType + " job details match (Reverse Flow)", e);
@@ -1294,7 +1294,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	public void verify_info_message_is_displayed_indicating_missing_data(String dataType) {
 		try {
-			PageObjectHelper.log(LOGGER, "Verifying Info Message indicates missing " + dataType + " data");
+			LOGGER.info("Verifying Info Message indicates missing " + dataType + " data");
 			
 			WebElement jobRow = matchingJobRow.get();
 			if (jobRow == null) {
@@ -1310,7 +1310,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 					WebElement infoIcon = jobRow.findElement(INFO_MESSAGE_ICON);
 					if (infoIcon != null && infoIcon.isDisplayed()) {
 						infoMessageFound = true;
-						PageObjectHelper.log(LOGGER, "✅ Info Message icon found on profile indicating missing " + dataType + " data");
+						LOGGER.info("✅ Info Message icon found on profile indicating missing " + dataType + " data");
 					}
 				} catch (Exception e) {
 					// Try alternative locator
@@ -1318,7 +1318,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 						WebElement infoIcon = jobRow.findElement(By.xpath(".//*[contains(@class, 'info')] | .//button[contains(@class, 'C35500')]"));
 						if (infoIcon != null) {
 							infoMessageFound = true;
-							PageObjectHelper.log(LOGGER, "✅ Info Message indicator found (alternative locator)");
+							LOGGER.info("✅ Info Message indicator found (alternative locator)");
 						}
 					} catch (Exception ex) {
 						// Info icon not found
@@ -1327,7 +1327,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			}
 
 			if (!infoMessageFound) {
-				PageObjectHelper.log(LOGGER, "⚠️ Info Message icon not found, but proceeding with verification...");
+				LOGGER.info("⚠️ Info Message icon not found, but proceeding with verification...");
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_info_message_is_displayed_indicating_missing_data",
@@ -1336,7 +1336,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	}
 
 	public void verify_info_message_contains_reduced_accuracy_text(String dataType) {
-		PageObjectHelper.log(LOGGER, "✅ Info Message text about reduced accuracy verified for " + dataType + " (included in previous step)");
+		LOGGER.info("✅ Info Message text about reduced accuracy verified for " + dataType + " (included in previous step)");
 	}
 
 	// ═══════════════════════════════════════════════════════════════════════════
@@ -1345,7 +1345,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	public void click_on_close_button_to_return_to_job_mapping_page(String dataType) {
 		try {
-			PageObjectHelper.log(LOGGER, "Clicking Close button to return to Job Mapping page");
+			LOGGER.info("Clicking Close button to return to Job Mapping page");
 			
 			// Use short wait for close button (3 seconds max)
 			WebElement closeButton = null;
@@ -1381,9 +1381,9 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			
 			// Extra wait for page stabilization
 			safeSleep(1000);
-			PageObjectHelper.log(LOGGER, "✅ Closed Missing Data screen");
+			LOGGER.info("✅ Closed Missing Data screen");
 		} catch (Exception e) {
-			PageObjectHelper.log(LOGGER, "⚠️ Regular close failed, trying force close...");
+			LOGGER.info("⚠️ Regular close failed, trying force close...");
 			force_close_missing_data_screen();
 		}
 	}
@@ -1454,7 +1454,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			// Ignore
 		}
 
-		PageObjectHelper.log(LOGGER, "✅ Force close attempt completed");
+		LOGGER.info("✅ Force close attempt completed");
 		waitForSpinners();
 		PageObjectHelper.waitForPageReady(driver, 2);
 	}

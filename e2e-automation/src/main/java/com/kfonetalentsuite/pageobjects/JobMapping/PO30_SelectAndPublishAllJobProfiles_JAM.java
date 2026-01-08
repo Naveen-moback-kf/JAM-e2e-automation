@@ -46,7 +46,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			
 			if (count > 0) {
 				unpublishedProfilesCountBefore.set(count);
-				PageObjectHelper.log(LOGGER, "Un-Published Profiles count BEFORE Publishing: " + count);
+				LOGGER.info("Un-Published Profiles count BEFORE Publishing: " + count);
 			}
 
 		} catch (Exception e) {
@@ -63,7 +63,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			
 			if (count > 0) {
 				publishedProfilesCountBefore.set(count);
-				PageObjectHelper.log(LOGGER, "Published Profiles count BEFORE Publishing: " + count);
+				LOGGER.info("Published Profiles count BEFORE Publishing: " + count);
 			}
 
 		} catch (Exception e) {
@@ -80,7 +80,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			WebElement toggle = findElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
 			if (toggle.isSelected() || "true".equals(toggle.getAttribute("aria-checked"))) {
 				clickElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
-				PageObjectHelper.log(LOGGER, "Clicked View Published toggle to turn OFF");
+				LOGGER.info("Clicked View Published toggle to turn OFF");
 				PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 				PageObjectHelper.waitForPageReady(driver, 2);
 			}
@@ -105,7 +105,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			safeSleep(300);
 
 			clickElement(CHEVRON_BTN);
-			PageObjectHelper.log(LOGGER, "Clicked Chevron Button beside Header Checkbox");
+			LOGGER.info("Clicked Chevron Button beside Header Checkbox");
 			PageObjectHelper.waitForPageReady(driver, 2);
 
 		} catch (Exception e) {
@@ -117,7 +117,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	public void click_on_select_all_button_in_job_mapping_screen() {
 		try {
 			clickElement(Locators.Table.SELECT_ALL_BTN);
-			PageObjectHelper.log(LOGGER, "Clicked Select All button");
+			LOGGER.info("Clicked Select All button");
 
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver, 2);
@@ -146,7 +146,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 					
 					selectedProfilesCount.set(selectedCount);
 					
-					PageObjectHelper.log(LOGGER, "Selected Profiles Count: " + selectedCount + 
+					LOGGER.info("Selected Profiles Count: " + selectedCount + 
 							" (extracted from results count text without scrolling)");
 				} else {
 					LOGGER.warn("Could not extract selected profiles count from results text");
@@ -171,7 +171,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			WebElement asyncMsg = findElement(ASYNC_MESSAGE);
 			if (asyncMsg.isDisplayed()) {
 				String messageText = asyncMsg.getText();
-				PageObjectHelper.log(LOGGER, "Async functionality message: " + messageText);
+				LOGGER.info("Async functionality message: " + messageText);
 			}
 
 		} catch (Exception e) {
@@ -191,7 +191,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 			String successHeaderText = getElementText(SUCCESS_HEADER);
 			String successMsgText = getElementText(SUCCESS_MSG);
-			PageObjectHelper.log(LOGGER, "Success popup appeared - Header: " + successHeaderText + 
+			LOGGER.info("Success popup appeared - Header: " + successHeaderText + 
 					", Message: " + successMsgText);
 
 			// Close the popup with multiple fallback strategies
@@ -201,7 +201,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 2);
 
 			} catch (Exception popupException) {
-				PageObjectHelper.log(LOGGER, "Async publishing detected - no immediate success popup");
+				LOGGER.info("Async publishing detected - no immediate success popup");
 			}
 
 			if (!popupAppeared) {
@@ -213,7 +213,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver, 3);
 
-			PageObjectHelper.log(LOGGER, "Ready for progressive monitoring");
+			LOGGER.info("Ready for progressive monitoring");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("refresh_after_publish", e);
@@ -231,10 +231,10 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 			if (count >= 0) {
 				unpublishedProfilesCountAfter.set(count);
-				PageObjectHelper.log(LOGGER, "Un-Published Profiles count AFTER Publishing: " + count);
+				LOGGER.info("Un-Published Profiles count AFTER Publishing: " + count);
 
 				if (count < unpublishedProfilesCountBefore.get()) {
-					PageObjectHelper.log(LOGGER, "Unpublished count decreased from " + 
+					LOGGER.info("Unpublished count decreased from " + 
 							unpublishedProfilesCountBefore.get() + " to " + count);
 				}
 			}
@@ -258,18 +258,18 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 					unpublishedProfilesCountBefore.get(), unpublishedProfilesCountAfter.get(),
 					publishedProfilesCountBefore.get(), totalPublishedCount.get());
 
-			PageObjectHelper.log(LOGGER, "Total Published: " + totalPublishedCount.get() + " profiles");
+			LOGGER.info("Total Published: " + totalPublishedCount.get() + " profiles");
 
 			// Validation
 			if (selectedProfilesCount.get() > 0) {
 				int actualPublished = unpublishedProfilesCountBefore.get() - unpublishedProfilesCountAfter.get();
 
 				if (actualPublished == selectedProfilesCount.get()) {
-					PageObjectHelper.log(LOGGER, "Validation PASSED: " + actualPublished + 
+					LOGGER.info("Validation PASSED: " + actualPublished + 
 							" published (matches " + selectedProfilesCount.get() + " selected)");
 				} else {
 					int difference = Math.abs(actualPublished - selectedProfilesCount.get());
-					PageObjectHelper.log(LOGGER, "Validation WARNING: Expected " + selectedProfilesCount.get() + 
+					LOGGER.info("Validation WARNING: Expected " + selectedProfilesCount.get() + 
 							", Actual " + actualPublished + " (difference: " + difference + ")");
 				}
 			}
@@ -290,7 +290,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 			if (count > 0) {
 				publishedProfilesCountAfter.set(count);
-				PageObjectHelper.log(LOGGER, "Published Profiles count AFTER Publishing: " + count);
+				LOGGER.info("Published Profiles count AFTER Publishing: " + count);
 			}
 
 		} catch (Exception e) {
@@ -306,9 +306,9 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 2);
 
 			if (publishedProfilesCountAfter.get().equals(totalPublishedCount.get())) {
-				PageObjectHelper.log(LOGGER, "Published profiles count matches: " + totalPublishedCount.get());
+				LOGGER.info("Published profiles count matches: " + totalPublishedCount.get());
 			} else {
-				PageObjectHelper.log(LOGGER, "Count mismatch! Expected: " + totalPublishedCount.get() + 
+				LOGGER.info("Count mismatch! Expected: " + totalPublishedCount.get() + 
 						", Actual: " + publishedProfilesCountAfter.get());
 			}
 
@@ -335,7 +335,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			profilesToBePublished.set(selectedProfilesCount.get());
 			expectedTotalMinutes.set((int) Math.ceil((double) profilesToBePublished.get() / PROFILES_PER_MINUTE));
 
-			PageObjectHelper.log(LOGGER, "Publishing " + profilesToBePublished.get() + " profiles @ " + 
+			LOGGER.info("Publishing " + profilesToBePublished.get() + " profiles @ " + 
 					PROFILES_PER_MINUTE + "/min = ~" + expectedTotalMinutes.get() + " min expected");
 
 		} catch (Exception e) {
@@ -357,17 +357,17 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		String terminationReason = "";
 
 		try {
-			PageObjectHelper.log(LOGGER, "=== STARTING PROGRESSIVE BATCH PUBLISHING VALIDATION ===");
-			PageObjectHelper.log(LOGGER, "Objective: Confirm publishing is working (not waiting for completion)");
-			PageObjectHelper.log(LOGGER, "Dataset size: " + selectedProfilesCount.get() + " profiles");
-			PageObjectHelper.log(LOGGER, "Initial wait: " + INITIAL_WAIT_SECONDS + " seconds (for backend to start processing)");
-			PageObjectHelper.log(LOGGER, "Check interval: " + REFRESH_INTERVAL_SECONDS + " seconds");
-			PageObjectHelper.log(LOGGER, "Max check attempts: " + MAX_CHECK_ATTEMPTS);
-			PageObjectHelper.log(LOGGER, "Initial unpublished count: " + initialUnpublishedCount);
-			PageObjectHelper.log(LOGGER, "Target unpublished count: " + targetUnpublishedCount);
+			LOGGER.info("=== STARTING PROGRESSIVE BATCH PUBLISHING VALIDATION ===");
+			LOGGER.info("Objective: Confirm publishing is working (not waiting for completion)");
+			LOGGER.info("Dataset size: " + selectedProfilesCount.get() + " profiles");
+			LOGGER.info("Initial wait: " + INITIAL_WAIT_SECONDS + " seconds (for backend to start processing)");
+			LOGGER.info("Check interval: " + REFRESH_INTERVAL_SECONDS + " seconds");
+			LOGGER.info("Max check attempts: " + MAX_CHECK_ATTEMPTS);
+			LOGGER.info("Initial unpublished count: " + initialUnpublishedCount);
+			LOGGER.info("Target unpublished count: " + targetUnpublishedCount);
 
 			// Initial wait for backend to start processing (especially for large datasets)
-			PageObjectHelper.log(LOGGER, "⏳ Waiting " + INITIAL_WAIT_SECONDS + " seconds for backend to initialize batch publishing...");
+			LOGGER.info("⏳ Waiting " + INITIAL_WAIT_SECONDS + " seconds for backend to initialize batch publishing...");
 			safeSleep(INITIAL_WAIT_SECONDS * 1000);
 			totalElapsedSeconds += INITIAL_WAIT_SECONDS;
 
@@ -419,13 +419,13 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 						currentUnpublishedCount, profilesPublishedSinceLastCheck, totalPublishedSoFar,
 						publishingRate, progressPercentage, checksWithProgress);
 				
-				PageObjectHelper.log(LOGGER, progressMsg);
+				LOGGER.info(progressMsg);
 
 				// Check if all profiles are published (early completion)
 				if (currentUnpublishedCount <= targetUnpublishedCount) {
 					publishingConfirmed = true;
 					terminationReason = "All profiles published successfully";
-					PageObjectHelper.log(LOGGER, "✓ SUCCESS! All " + totalPublishedSoFar + 
+					LOGGER.info("✓ SUCCESS! All " + totalPublishedSoFar + 
 							" profiles published in " + elapsedMinutes + "m " + elapsedSecondsRemainder + "s");
 					break;
 				}
@@ -434,14 +434,14 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 				if (checksWithProgress >= MIN_CHECKS_TO_CONFIRM_PROGRESS) {
 					publishingConfirmed = true;
 					terminationReason = "Publishing confirmed - progress detected in " + checksWithProgress + " checks";
-					PageObjectHelper.log(LOGGER, "✓ SUCCESS! Publishing is working properly");
-					PageObjectHelper.log(LOGGER, "Published so far: " + totalPublishedSoFar + 
+					LOGGER.info("✓ SUCCESS! Publishing is working properly");
+					LOGGER.info("Published so far: " + totalPublishedSoFar + 
 							" out of " + selectedProfilesCount.get() + 
 							" (" + String.format("%.1f%%", progressPercentage) + ")");
-					PageObjectHelper.log(LOGGER, "Publishing rate: " + String.format("%.0f", publishingRate) + " profiles/min");
-					PageObjectHelper.log(LOGGER, "Estimated time for all profiles: ~" + 
+					LOGGER.info("Publishing rate: " + String.format("%.0f", publishingRate) + " profiles/min");
+					LOGGER.info("Estimated time for all profiles: ~" + 
 							Math.ceil((double) remainingToPublish / publishingRate) + " minutes remaining");
-					PageObjectHelper.log(LOGGER, "Validation complete - not waiting for full completion");
+					LOGGER.info("Validation complete - not waiting for full completion");
 					break;
 				}
 
@@ -449,24 +449,24 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 				if (consecutiveNoProgressChecks >= MAX_CONSECUTIVE_NO_PROGRESS_CHECKS) {
 					terminationReason = "No progress detected in " + MAX_CONSECUTIVE_NO_PROGRESS_CHECKS + 
 							" consecutive checks";
-					PageObjectHelper.log(LOGGER, "⚠ EARLY TERMINATION: " + terminationReason);
-					PageObjectHelper.log(LOGGER, "Total time elapsed: " + elapsedMinutes + "m " + elapsedSecondsRemainder + "s");
-					PageObjectHelper.log(LOGGER, "Published so far: " + totalPublishedSoFar + 
+					LOGGER.info("⚠ EARLY TERMINATION: " + terminationReason);
+					LOGGER.info("Total time elapsed: " + elapsedMinutes + "m " + elapsedSecondsRemainder + "s");
+					LOGGER.info("Published so far: " + totalPublishedSoFar + 
 							" out of " + selectedProfilesCount.get() + 
 							" (" + String.format("%.1f%%", progressPercentage) + ")");
-					PageObjectHelper.log(LOGGER, "Still remaining: " + remainingToPublish + " profiles");
+					LOGGER.info("Still remaining: " + remainingToPublish + " profiles");
 					
 					if (totalPublishedSoFar == 0) {
-						PageObjectHelper.log(LOGGER, "⚠ Publishing may not have started - check backend logs for errors");
+						LOGGER.info("⚠ Publishing may not have started - check backend logs for errors");
 					} else {
-						PageObjectHelper.log(LOGGER, "⚠ Publishing started but appears to have stalled");
+						LOGGER.info("⚠ Publishing started but appears to have stalled");
 					}
 					break;
 				}
 
 				// Warn if no progress but below consecutive threshold
 				if (consecutiveNoProgressChecks > 0) {
-					PageObjectHelper.log(LOGGER, "⚠ Warning: No progress in check #" + checkNumber + 
+					LOGGER.info("⚠ Warning: No progress in check #" + checkNumber + 
 							" (streak: " + consecutiveNoProgressChecks + "/" + MAX_CONSECUTIVE_NO_PROGRESS_CHECKS + ")");
 				}
 
@@ -486,27 +486,27 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 				double finalProgress = selectedProfilesCount.get() > 0 ? 
 						((double) totalPublishedSoFar / selectedProfilesCount.get()) * 100 : 0;
 
-				PageObjectHelper.log(LOGGER, "=== VALIDATION ENDED: " + terminationReason + " ===");
-				PageObjectHelper.log(LOGGER, "Total time elapsed: " + (totalElapsedSeconds / 60) + "m " + 
+				LOGGER.info("=== VALIDATION ENDED: " + terminationReason + " ===");
+				LOGGER.info("Total time elapsed: " + (totalElapsedSeconds / 60) + "m " + 
 						(totalElapsedSeconds % 60) + "s");
-				PageObjectHelper.log(LOGGER, "Profiles published: " + totalPublishedSoFar + " out of " + 
+				LOGGER.info("Profiles published: " + totalPublishedSoFar + " out of " + 
 						selectedProfilesCount.get() + " (" + String.format("%.1f%%", finalProgress) + ")");
-				PageObjectHelper.log(LOGGER, "Checks with progress: " + checksWithProgress + "/" + checkNumber);
+				LOGGER.info("Checks with progress: " + checksWithProgress + "/" + checkNumber);
 				
 				if (checksWithProgress > 0) {
-					PageObjectHelper.log(LOGGER, "⚠ Publishing appears to be working but needs more time");
+					LOGGER.info("⚠ Publishing appears to be working but needs more time");
 				} else {
-					PageObjectHelper.log(LOGGER, "⚠ No publishing progress detected in any checks");
+					LOGGER.info("⚠ No publishing progress detected in any checks");
 				}
 			}
 
 			// Final validation result summary
-			PageObjectHelper.log(LOGGER, "=== PROGRESSIVE BATCH PUBLISHING VALIDATION COMPLETE ===");
-			PageObjectHelper.log(LOGGER, "Status: " + (publishingConfirmed ? "CONFIRMED - Publishing is working" : "UNCONFIRMED - Publishing may have issues"));
-			PageObjectHelper.log(LOGGER, "Termination reason: " + terminationReason);
-			PageObjectHelper.log(LOGGER, "Total checks performed: " + checkNumber + "/" + MAX_CHECK_ATTEMPTS);
-			PageObjectHelper.log(LOGGER, "Checks showing progress: " + checksWithProgress);
-			PageObjectHelper.log(LOGGER, "Total time: " + (totalElapsedSeconds / 60) + " minutes " + 
+			LOGGER.info("=== PROGRESSIVE BATCH PUBLISHING VALIDATION COMPLETE ===");
+			LOGGER.info("Status: " + (publishingConfirmed ? "CONFIRMED - Publishing is working" : "UNCONFIRMED - Publishing may have issues"));
+			LOGGER.info("Termination reason: " + terminationReason);
+			LOGGER.info("Total checks performed: " + checkNumber + "/" + MAX_CHECK_ATTEMPTS);
+			LOGGER.info("Checks showing progress: " + checksWithProgress);
+			LOGGER.info("Total time: " + (totalElapsedSeconds / 60) + " minutes " + 
 					(totalElapsedSeconds % 60) + " seconds");
 
 		} catch (Exception e) {
@@ -537,9 +537,9 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			int remainingToPublish = finalUnpublishedCount - expectedTargetUnpublished;
 
 			if (finalUnpublishedCount <= expectedTargetUnpublished) {
-				PageObjectHelper.log(LOGGER, "SUCCESS! All " + actualPublished + " profiles published");
+				LOGGER.info("SUCCESS! All " + actualPublished + " profiles published");
 			} else {
-				PageObjectHelper.log(LOGGER, "Incomplete! " + remainingToPublish + " of " + 
+				LOGGER.info("Incomplete! " + remainingToPublish + " of " + 
 						selectedProfilesCount.get() + " profiles still pending");
 			}
 

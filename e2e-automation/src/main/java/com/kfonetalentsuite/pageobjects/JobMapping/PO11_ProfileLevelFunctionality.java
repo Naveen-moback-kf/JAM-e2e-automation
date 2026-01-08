@@ -39,14 +39,14 @@ public class PO11_ProfileLevelFunctionality extends BasePageObject {
 				select.selectByVisibleText(changedlevelvalue.get());
 				waitForSpinners();
 				PageObjectHelper.waitForPageReady(driver, 4);
-				PageObjectHelper.log(LOGGER, "Successfully changed Profile Level to: " + changedlevelvalue.get());
+				LOGGER.info("Successfully changed Profile Level to: " + changedlevelvalue.get());
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER, "change_profile_level", "Issue changing Profile Level", e);
 			}
 
 			try {
 				clickElement(dropdown);
-				PageObjectHelper.log(LOGGER, "Profile Level dropdown closed successfully");
+				LOGGER.info("Profile Level dropdown closed successfully");
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER, "change_profile_level", "Issue clicking Profile Level dropdown to close it", e);
 			}
@@ -68,7 +68,7 @@ public class PO11_ProfileLevelFunctionality extends BasePageObject {
 				select.selectByVisibleText(changedlevelvalue.get());
 				waitForSpinners();
 				PageObjectHelper.waitForPageReady(driver, 4);
-				PageObjectHelper.log(LOGGER, "Successfully changed Profile Level to: " + changedlevelvalue.get());
+				LOGGER.info("Successfully changed Profile Level to: " + changedlevelvalue.get());
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER, "change_profile_level_in_job_comparison_page", "Issue changing Profile Level in Job Comparison Page", e);
 			}
@@ -81,7 +81,7 @@ public class PO11_ProfileLevelFunctionality extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 2);
 			String profileHeaderName = getElementText(PROFILE_HEADER);
 			Assert.assertEquals(profileHeaderName, changedlevelvalue.get());
-			PageObjectHelper.log(LOGGER, "Profile header on details popup: " + profileHeaderName + " matches with changed profile level: " + changedlevelvalue.get());
+			LOGGER.info("Profile header on details popup: " + profileHeaderName + " matches with changed profile level: " + changedlevelvalue.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_profile_header_matches_with_changed_profile_level_in_job_profile_details_popup", "Issue verifying profile details popup header matches with changed profile level", e);
 		}
@@ -93,7 +93,7 @@ public class PO11_ProfileLevelFunctionality extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 2);
 			String profileTitle = getElementText(PROFILE_1_TITLE);
 			Assert.assertEquals(profileTitle, changedlevelvalue.get());
-			PageObjectHelper.log(LOGGER, "Recommended Profile Name in Job Compare page matches with Changed Profile Level: " + changedlevelvalue.get());
+			LOGGER.info("Recommended Profile Name in Job Compare page matches with Changed Profile Level: " + changedlevelvalue.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_recommended_profile_name_matches_with_changed_profile_level", "Issue verifying Recommended Profile Name matches with changed profile level", e);
 		}
@@ -101,6 +101,6 @@ public class PO11_ProfileLevelFunctionality extends BasePageObject {
 
 	public void user_is_in_job_comparison_page_after_changing_profile_level() {
 		PageObjectHelper.waitForPageReady(driver, 1);
-		PageObjectHelper.log(LOGGER, "User is in Job Comparison Page after changing profile level");
+		LOGGER.info("User is in Job Comparison Page after changing profile level");
 	}
 }

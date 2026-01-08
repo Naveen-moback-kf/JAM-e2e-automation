@@ -81,7 +81,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 			Assert.assertTrue(targetCheckbox.isSelected(), "Grade checkbox not selected: " + gradeValue);
 			GradesOption.set(gradeValue);
-			PageObjectHelper.log(LOGGER, "Selected Grades Value: '" + gradeValue + "' from Grades Filters dropdown");
+			LOGGER.info("Selected Grades Value: '" + gradeValue + "' from Grades Filters dropdown");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_one_option_in_grades_filters_dropdown", "Issue selecting option from Grades dropdown", e);
 			throw e;
@@ -115,7 +115,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 			Assert.assertTrue(targetCheckbox.isSelected(), "Grade checkbox not selected: " + gradeValue);
 			GradesOption2.set(gradeValue);  // Store in GradesOption2 for alternative validation
-			PageObjectHelper.log(LOGGER, "Selected DIFFERENT Grades Value: '" + gradeValue + "' (2nd option) from Grades Filters dropdown");
+			LOGGER.info("Selected DIFFERENT Grades Value: '" + gradeValue + "' (2nd option) from Grades Filters dropdown");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_different_option_in_grades_filters_dropdown", "Issue selecting different option from Grades dropdown", e);
 			throw e;
@@ -124,7 +124,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void user_should_scroll_down_to_view_last_result_with_applied_filters() throws InterruptedException {
 		try {
-			PageObjectHelper.log(LOGGER, "Scrolling down to last filtered result");
+			LOGGER.info("Scrolling down to last filtered result");
 			int maxScrollAttempts = 50;
 			int scrollAttempts = 0;
 			int stableCountIterations = 0;
@@ -144,7 +144,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 					if (consecutiveFailures >= 5) {
 						try {
 							List<WebElement> visibleRows = driver.findElements(VISIBLE_ROWS);
-							PageObjectHelper.log(LOGGER, "Scrolled down and loaded " + visibleRows.size() + " job profiles (headless mode)");
+							LOGGER.info("Scrolled down and loaded " + visibleRows.size() + " job profiles (headless mode)");
 						} catch (Exception altEx) {
 							LOGGER.error("Alternative row count also failed");
 						}
@@ -153,7 +153,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 					try {
 						if (driver.findElement(NO_DATA_CONTAINER).isDisplayed()) {
-							PageObjectHelper.log(LOGGER, driver.findElement(NO_DATA_CONTAINER).getText() + " with applied Filters");
+							LOGGER.info(driver.findElement(NO_DATA_CONTAINER).getText() + " with applied Filters");
 							break;
 						}
 					} catch (Exception ex) {
@@ -168,7 +168,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 					int totalResults = Integer.parseInt(parts[3]);
 
 					if (currentShowing == totalResults) {
-						PageObjectHelper.log(LOGGER, "Scrolled down till last Search Result - " + resultsCountText);
+						LOGGER.info("Scrolled down till last Search Result - " + resultsCountText);
 						break;
 					}
 
@@ -186,7 +186,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				} else {
 					try {
 						if (driver.findElement(NO_DATA_CONTAINER).isDisplayed()) {
-							PageObjectHelper.log(LOGGER, driver.findElement(NO_DATA_CONTAINER).getText() + " with applied Filters");
+							LOGGER.info(driver.findElement(NO_DATA_CONTAINER).getText() + " with applied Filters");
 							break;
 						}
 					} catch (Exception ex) {
@@ -243,7 +243,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				WebElement grade = driver.findElements(ALL_GRADES_COLUMN).get(i);
 				String text = grade.getText();
 				if (expectedGrades.contains(text)) {
-					PageObjectHelper.log(LOGGER, "Organization Job with Grade: " + text + " correctly filtered");
+					LOGGER.info("Organization Job with Grade: " + text + " correctly filtered");
 				} else {
 					throw new Exception("Job Profile with incorrect Grade Value: " + text + ". Expected one of: " + expectedGrades);
 				}
@@ -260,7 +260,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			clickElement(CLEAR_FILTERS_X_BTN);
 			PageObjectHelper.waitForPageReady(driver, 2);
 			Thread.sleep(300);
-			PageObjectHelper.log(LOGGER, "Clicked on clear Filters button (X) and cleared all applied filters");
+			LOGGER.info("Clicked on clear Filters button (X) and cleared all applied filters");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_clear_x_applied_filter", "Issue clicking Clear Filters Button (X)", e);
 			throw e;
@@ -292,7 +292,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				Assert.assertTrue(checkbox.isSelected(), "Grade checkbox not selected: " + gradeValue);
 				if (i == 0) GradesOption1.set(gradeValue);
 				else GradesOption2.set(gradeValue);
-				PageObjectHelper.log(LOGGER, "Selected Grades Value: " + gradeValue);
+				LOGGER.info("Selected Grades Value: " + gradeValue);
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_two_options_in_grades_filters_dropdown", "Issue selecting two grades", e);
@@ -337,7 +337,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			safeSleep(500);
 			
 			PO04_JobMappingPageComponents.initialFilteredResultsCount.set(null);
-			PageObjectHelper.log(LOGGER, "Clicked on Clear Filters button and cleared all applied filters");
+			LOGGER.info("Clicked on Clear Filters button and cleared all applied filters");
 		} catch (Exception e) {
 			LOGGER.warn("Could not click Clear Filters button: {}", e.getMessage());
 			// Don't throw - filters might not be applied, which is okay
@@ -368,7 +368,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 			Assert.assertTrue(targetCheckbox.isSelected(), "Department checkbox not selected: " + departmentValue);
 			DepartmentsOption.set(departmentValue);
-			PageObjectHelper.log(LOGGER, "Selected Departments Value: " + departmentValue);
+			LOGGER.info("Selected Departments Value: " + departmentValue);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_one_option_in_departments_filters_dropdown", "Issue selecting department", e);
 			throw e;
@@ -391,7 +391,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		// FIRST: Check if no data is available - this is a valid outcome when filter has no matching data
 		try {
 			if (driver.findElement(NO_DATA_CONTAINER).isDisplayed()) {
-				PageObjectHelper.log(LOGGER, "✅ Department filter applied successfully - No matching data found (valid outcome)");
+				LOGGER.info("✅ Department filter applied successfully - No matching data found (valid outcome)");
 				scrollToTop();
 				return;
 			}
@@ -403,7 +403,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		try {
 			String resultsText = driver.findElement(Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
 			if (resultsText.contains("0 of 0")) {
-				PageObjectHelper.log(LOGGER, "✅ Department filter applied successfully - No matching profiles (0 of 0 results)");
+				LOGGER.info("✅ Department filter applied successfully - No matching profiles (0 of 0 results)");
 				scrollToTop();
 				return;
 			}
@@ -441,7 +441,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				WebElement department = driver.findElements(ALL_DEPARTMENTS_COLUMN).get(i);
 				String text = department.getText();
 				if (expectedDepts.contains(text)) {
-					PageObjectHelper.log(LOGGER, "Organization Job with Department: " + text + " correctly filtered");
+					LOGGER.info("Organization Job with Department: " + text + " correctly filtered");
 				} else {
 					throw new Exception("Job Profile with incorrect Department Value: " + text + ". Expected one of: " + expectedDepts);
 				}
@@ -478,7 +478,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				Assert.assertTrue(checkbox.isSelected(), "Department checkbox not selected: " + deptValue);
 				if (i == 0) DepartmentsOption1.set(deptValue);
 				else DepartmentsOption2.set(deptValue);
-				PageObjectHelper.log(LOGGER, "Selected Departments Value: " + deptValue);
+				LOGGER.info("Selected Departments Value: " + deptValue);
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_two_options_in_departments_filters_dropdown", "Issue selecting two departments", e);
@@ -699,7 +699,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			}
 			
 			if (matches) {
-				PageObjectHelper.log(LOGGER, "Organization Job with Function: " + function + " correctly filtered");
+				LOGGER.info("Organization Job with Function: " + function + " correctly filtered");
 			} else {
 				throw new Exception("Job Profile with incorrect Function Value: " + function + ". Expected one of: " + expectedFunctions);
 			}
@@ -713,7 +713,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		try {
 			PageObjectHelper.waitForPageReady(driver, 2);
 			Assert.assertTrue(waitForElement(FUNCTIONS_SEARCH).isDisplayed());
-			PageObjectHelper.log(LOGGER, "Search bar is available in Functions Subfunctions dropdown");
+			LOGGER.info("Search bar is available in Functions Subfunctions dropdown");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_search_bar_is_available_in_functions_subfunctions_filters_dropdown", "Issue verifying search bar", e);
 			throw e;
@@ -738,7 +738,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			searchBox.clear();
 			searchBox.sendKeys(FunctionsOption.get());
 			PageObjectHelper.waitForPageReady(driver, 2);
-			PageObjectHelper.log(LOGGER, "Entered function name: " + FunctionsOption.get());
+			LOGGER.info("Entered function name: " + FunctionsOption.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_inside_search_bar_and_enter_function_name", "Issue entering function name", e);
 			throw e;
@@ -754,7 +754,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			scrollToElement(toggleBtn);
 			Thread.sleep(500);
 			clickElement(toggleBtn);
-			PageObjectHelper.log(LOGGER, "Clicked on dropdown button of Searched Function: " + FunctionsOption.get());
+			LOGGER.info("Clicked on dropdown button of Searched Function: " + FunctionsOption.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_click_on_dropdown_button_of_searched_function_name", "Issue clicking dropdown button", e);
 			throw e;
@@ -793,7 +793,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				// Re-fetch checkbox to verify selection
 				checkboxes = driver.findElements(SUBFUNCTIONS_CHECKBOXES);
 				Assert.assertTrue(checkboxes.get(1).isSelected(), "Subfunction not selected: " + subfunctionText);
-				PageObjectHelper.log(LOGGER, "Selected SubFunction '" + subfunctionText + "' from Function '" + FunctionsOption.get() + "'");
+				LOGGER.info("Selected SubFunction '" + subfunctionText + "' from Function '" + FunctionsOption.get() + "'");
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_one_subfunction_option_inside_function_name_dropdown", "Issue selecting subfunction", e);
@@ -824,7 +824,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 					List<WebElement> subfuncs = driver.findElements(SUBFUNCTIONS_VALUES);
 					if (subfuncs.size() > 1) {
 						FunctionsOption.set(functionName);
-						PageObjectHelper.log(LOGGER, "Found function with subfunctions: " + functionName);
+						LOGGER.info("Found function with subfunctions: " + functionName);
 						return true;
 					}
 
@@ -850,7 +850,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			boolean isSelected = wait.until(driver -> functionCheckbox.isSelected());
 
 			if (isSelected) {
-				PageObjectHelper.log(LOGGER, FunctionsOption.get() + " Function checkbox is automatically selected as expected");
+				LOGGER.info(FunctionsOption.get() + " Function checkbox is automatically selected as expected");
 			} else {
 				Assert.fail("Function checkbox '" + FunctionsOption.get() + "' was NOT automatically selected");
 			}
@@ -888,7 +888,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				// Re-fetch checkbox to verify selection
 				checkboxes = driver.findElements(SUBFUNCTIONS_CHECKBOXES);
 				Assert.assertTrue(checkboxes.get(j).isSelected(), "Subfunction not selected: " + subfunctionText);
-				PageObjectHelper.log(LOGGER, "Selected SubFunction #" + j + ": '" + subfunctionText + "'");
+				LOGGER.info("Selected SubFunction #" + j + ": '" + subfunctionText + "'");
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_two_subfunction_options_inside_function_name_filters_dropdown", "Issue selecting two subfunctions", e);
@@ -907,7 +907,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			try {
 				// Check for "No data available" message
 				if (driver.findElement(NO_DATA_CONTAINER).isDisplayed()) {
-					PageObjectHelper.log(LOGGER, "✅ Combined filters applied successfully - No matching data found (this is valid for strict multi-filter combination)");
+					LOGGER.info("✅ Combined filters applied successfully - No matching data found (this is valid for strict multi-filter combination)");
 					scrollToTop();
 					return;
 				}
@@ -920,7 +920,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				WebElement resultsElement = driver.findElement(Locators.JAMScreen.SHOWING_RESULTS_COUNT);
 				String resultsText = resultsElement.getText();
 				if (resultsText.contains("Showing 0 of")) {
-					PageObjectHelper.log(LOGGER, "✅ Combined filters applied successfully - " + resultsText + " (no profiles match all filter criteria)");
+					LOGGER.info("✅ Combined filters applied successfully - " + resultsText + " (no profiles match all filter criteria)");
 					scrollToTop();
 					return;
 				}
@@ -939,7 +939,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			// Check if there are any results to validate
 			List<WebElement> gradeElements = driver.findElements(gradesXpath);
 			if (gradeElements.isEmpty()) {
-				PageObjectHelper.log(LOGGER, "✅ Combined filters applied - No profiles found matching all criteria (Grades: " + expectedGrade + ", Dept: " + expectedDept + ", Func: " + expectedFunc + ")");
+				LOGGER.info("✅ Combined filters applied - No profiles found matching all criteria (Grades: " + expectedGrade + ", Dept: " + expectedDept + ", Func: " + expectedFunc + ")");
 				scrollToTop();
 				return;
 			}
@@ -998,7 +998,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				}
 			}
 
-			PageObjectHelper.log(LOGGER, "✅ All " + gradeCount + " profiles correctly filtered with combined filters (Grades: " + expectedGrade + ", Dept: " + expectedDept + ", Func: " + expectedFunc + ")");
+			LOGGER.info("✅ All " + gradeCount + " profiles correctly filtered with combined filters (Grades: " + expectedGrade + ", Dept: " + expectedDept + ", Func: " + expectedFunc + ")");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_combined_filters", "Issue validating combined filters", e);
 			throw e;
@@ -1026,7 +1026,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 						Assert.assertTrue(checkboxes.get(i).isSelected());
 						DepartmentsOption.set(actualStatusText);
-						PageObjectHelper.log(LOGGER, "Selected Mapping Status: " + actualStatusText);
+						LOGGER.info("Selected Mapping Status: " + actualStatusText);
 						optionSelected = true;
 						break;
 					}
@@ -1088,7 +1088,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				safeSleep(300); // Extra stabilization for departments/functions/mapping
 			}
 			
-			PageObjectHelper.log(LOGGER, "Clicked on " + filterType + " filter dropdown");
+			LOGGER.info("Clicked on " + filterType + " filter dropdown");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_filter_dropdown_button", "Issue clicking " + filterType + " dropdown", e);
 			throw e;
@@ -1113,7 +1113,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				default:
 					throw new IllegalArgumentException("Unknown filter type: " + filterType);
 			}
-			PageObjectHelper.log(LOGGER, "Selected one option in " + filterType + " filter");
+			LOGGER.info("Selected one option in " + filterType + " filter");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_one_option_in_filter_dropdown", "Issue selecting option in " + filterType + " dropdown", e);
 			throw e;
@@ -1138,7 +1138,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				default:
 					throw new IllegalArgumentException("Two-option selection not supported for filter type: " + filterType);
 			}
-			PageObjectHelper.log(LOGGER, "Selected two options in " + filterType + " filter");
+			LOGGER.info("Selected two options in " + filterType + " filter");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_two_options_in_filter_dropdown", "Issue selecting two options in " + filterType + " dropdown", e);
 			throw e;
@@ -1159,12 +1159,12 @@ public class PO08_JobMappingFilters extends BasePageObject {
 					break;
 				case "mappingstatus":
 					// Mapping status validation - just verify filter was applied (count changed)
-					PageObjectHelper.log(LOGGER, "Mapping Status filter validation completed");
+					LOGGER.info("Mapping Status filter validation completed");
 					break;
 				default:
 					throw new IllegalArgumentException("Unknown filter type: " + filterType);
 			}
-			PageObjectHelper.log(LOGGER, "Validated filter results for " + filterType);
+			LOGGER.info("Validated filter results for " + filterType);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_filter_results", "Issue validating " + filterType + " filter results", e);
 			throw e;

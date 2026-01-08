@@ -89,7 +89,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				previousCount = currentCount;
 			}
 
-			PageObjectHelper.log(LOGGER, "Loaded " + currentCount + " search results for validation in " + getScreenName(screen));
+			LOGGER.info("Loaded " + currentCount + " search results for validation in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_scroll_down_to_view_last_search_result",
@@ -119,9 +119,9 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			}
 
 			if (nonMatchingResults == 0) {
-				PageObjectHelper.log(LOGGER, "✅ All " + totalResults + " results contain '" + searchSubstring + "' in " + getScreenName(screen));
+				LOGGER.info("✅ All " + totalResults + " results contain '" + searchSubstring + "' in " + getScreenName(screen));
 			} else {
-				PageObjectHelper.log(LOGGER, "⚠️ " + nonMatchingResults + " of " + totalResults +
+				LOGGER.info("⚠️ " + nonMatchingResults + " of " + totalResults +
 						" results do NOT contain '" + searchSubstring + "' in " + getScreenName(screen));
 			}
 
@@ -143,7 +143,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			safeSleep(500);
 
 			clickElement(getChevronButtonLocator(screen));
-			PageObjectHelper.log(LOGGER, "Clicked chevron button in " + getScreenName(screen));
+			LOGGER.info("Clicked chevron button in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_chevron_button",
@@ -162,7 +162,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
-			PageObjectHelper.log(LOGGER, "Clicked Select All button in " + getScreenName(screen));
+			LOGGER.info("Clicked Select All button in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_select_all_button",
@@ -184,7 +184,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
-			PageObjectHelper.log(LOGGER, "Clicked header checkbox to select " + loadedProfilesBeforeScroll.get() +
+			LOGGER.info("Clicked header checkbox to select " + loadedProfilesBeforeScroll.get() +
 					" loaded profiles in " + getScreenName(screen));
 
 		} catch (Exception e) {
@@ -213,9 +213,9 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			LOGGER.info("Button found: '{}', enabled: {}", buttonText, isEnabled);
 
 			if (isEnabled) {
-				PageObjectHelper.log(LOGGER, "✅ " + buttonName + " button is enabled in " + getScreenName(screen));
+				LOGGER.info("✅ " + buttonName + " button is enabled in " + getScreenName(screen));
 			} else {
-				PageObjectHelper.log(LOGGER, "❌ " + buttonName + " button is NOT enabled in " + getScreenName(screen));
+				LOGGER.info("❌ " + buttonName + " button is NOT enabled in " + getScreenName(screen));
 				Assert.fail(buttonName + " button should be enabled after selection");
 			}
 
@@ -238,7 +238,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
 
 			int newCount = findElements(getAllProfileRowsLocator(screen)).size();
-			PageObjectHelper.log(LOGGER, "Scrolled to load more profiles. Now " + newCount + " visible in " + getScreenName(screen));
+			LOGGER.info("Scrolled to load more profiles. Now " + newCount + " visible in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "scroll_page_to_view_more_job_profiles",
@@ -259,7 +259,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			int newlyLoaded = currentTotal - initialLoaded;
 
 			if (newlyLoaded <= 0) {
-				PageObjectHelper.log(LOGGER, "No newly loaded profiles to verify in " + getScreenName(screen));
+				LOGGER.info("No newly loaded profiles to verify in " + getScreenName(screen));
 				return;
 			}
 
@@ -268,11 +268,11 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			int expectedSelected = initialLoaded; // Header checkbox selected all loaded at that time
 			
 			if (selectedCount <= expectedSelected) {
-				PageObjectHelper.log(LOGGER, "✅ Newly loaded " + newlyLoaded + " profiles are NOT selected in " + getScreenName(screen) + 
+				LOGGER.info("✅ Newly loaded " + newlyLoaded + " profiles are NOT selected in " + getScreenName(screen) + 
 						" (selected: " + selectedCount + ", expected max: " + expectedSelected + ")");
 			} else {
 				int extraSelected = selectedCount - expectedSelected;
-				PageObjectHelper.log(LOGGER, "⚠️ " + extraSelected + " newly loaded profiles are unexpectedly selected in " + getScreenName(screen));
+				LOGGER.info("⚠️ " + extraSelected + " newly loaded profiles are unexpectedly selected in " + getScreenName(screen));
 			}
 
 		} catch (Exception e) {
@@ -316,7 +316,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			int estimatedScrolls = expectedTotal > 0 ? (expectedTotal / profilesPerScroll) + 10 : maxScrollAttempts;
 			maxScrollAttempts = Math.min(estimatedScrolls, maxScrollAttempts);
 			
-			PageObjectHelper.log(LOGGER, "Counting selected profiles in " + getScreenName(screen) + 
+			LOGGER.info("Counting selected profiles in " + getScreenName(screen) + 
 					" (est. " + estimatedScrolls + " scrolls for " + expectedTotal + " profiles)...");
 			
 			while (scrollAttempts < maxScrollAttempts) {
@@ -373,7 +373,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				PO18_HCMSyncProfilesTab_PM.profilesCount.set(selectedCount);
 			}
 
-			PageObjectHelper.log(LOGGER, "Baseline captured: " + selectedCount + " selected profiles in " + getScreenName(screen) + 
+			LOGGER.info("Baseline captured: " + selectedCount + " selected profiles in " + getScreenName(screen) + 
 					" (scrolls: " + scrollAttempts + ", total loaded: " + totalVisible + ")");
 
 		} catch (Exception e) {
@@ -429,7 +429,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 		safeSleep(1500); // Wait for results to reload
 
-		PageObjectHelper.log(LOGGER, "Cleared search bar in " + getScreenName(screen));
+		LOGGER.info("Cleared search bar in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "clear_search_bar",
@@ -461,11 +461,11 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		try {
 			currentScreen.set(screen);
 			
-			PageObjectHelper.log(LOGGER, "Verifying only " + baseline +
+			LOGGER.info("Verifying only " + baseline +
 					" profiles remain selected in " + getScreenName(screen) + "...");
 
 			if (baseline == 0) {
-				PageObjectHelper.log(LOGGER, "No search results to verify - skipping");
+				LOGGER.info("No search results to verify - skipping");
 				return;
 			}
 			
@@ -618,7 +618,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			currentScreen.set(screen);
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
-			PageObjectHelper.log(LOGGER, "Alternative validation: Searching different substring in " + getScreenName(screen) + "...");
+			LOGGER.info("Alternative validation: Searching different substring in " + getScreenName(screen) + "...");
 
 			String[] searchOptions = getSearchOptions(screen);
 			int attemptCount = 0;
@@ -699,7 +699,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 					if (resultsCountText.contains("Showing") && !resultsCountText.contains("Showing 0")) {
 						alternativeSearchSubstring.set(substring);
 						foundResults = true;
-						PageObjectHelper.log(LOGGER, "Second search: '" + substring + "' - " + resultsCountText);
+						LOGGER.info("Second search: '" + substring + "' - " + resultsCountText);
 						break;
 					} else {
 						LOGGER.debug("No results for '{}', trying next...", substring);
@@ -734,13 +734,13 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			String resultsCountText = getElementText(getShowingResultsCountLocator(screen));
 
 			if (resultsCountText.matches(".*Showing\\s+0\\s+of.*")) {
-				PageObjectHelper.log(LOGGER, "Second search returned 0 results - skipping");
+				LOGGER.info("Second search returned 0 results - skipping");
 				totalSecondSearchResults.set(0);
 				return;
 			}
 
 			int expectedTotal = parseProfileCountFromText(resultsCountText);
-			PageObjectHelper.log(LOGGER, "Second search '" + secondSearchSubstring + 
+			LOGGER.info("Second search '" + secondSearchSubstring + 
 					"': " + expectedTotal + " total profiles in " + getScreenName(screen));
 
 			// Quick validation: Check if any selected profiles are visible that shouldn't be
@@ -752,7 +752,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			
 			if (selectedCount == 0) {
 				// Perfect - no selections visible means validation passes
-				PageObjectHelper.log(LOGGER, "✅ No selected profiles visible in second search - PASS");
+				LOGGER.info("✅ No selected profiles visible in second search - PASS");
 				totalSecondSearchResults.set(expectedTotal);
 				return;
 			}
@@ -782,10 +782,10 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			totalSecondSearchResults.set(expectedTotal);
 
 			if (invalidCount > 0) {
-				PageObjectHelper.log(LOGGER, "❌ Found profiles selected that shouldn't be - FAIL");
+				LOGGER.info("❌ Found profiles selected that shouldn't be - FAIL");
 				Assert.fail("Found invalid selections in second search results");
 			} else {
-				PageObjectHelper.log(LOGGER, "✅ All " + selectedCount + " selected profiles are valid (from first search) - PASS");
+				LOGGER.info("✅ All " + selectedCount + " selected profiles are valid (from first search) - PASS");
 			}
 
 		} catch (Exception e) {
@@ -797,7 +797,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	}
 
 	public void verify_all_loaded_profiles_in_second_search_are_not_selected(String screen) {
-		PageObjectHelper.log(LOGGER, "✅ Validation completed in previous step for " + getScreenName(screen));
+		LOGGER.info("✅ Validation completed in previous step for " + getScreenName(screen));
 	}
 
 	private void applyFallbackSearch(String screen, String firstSearchSubstring) {
@@ -809,7 +809,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				break;
 			}
 		}
-		PageObjectHelper.log(LOGGER, "Using fallback: '" + selectedSubstring + "' (no results found)");
+		LOGGER.info("Using fallback: '" + selectedSubstring + "' (no results found)");
 		
 		// Actually execute the fallback search
 		try {
@@ -856,7 +856,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		// Early success exit - found all expected with no extras in loaded profiles
 		if (earlySuccessExit) {
 			int pctLoaded = expectedTotalProfiles > 0 ? (totalProfilesVisible * 100 / expectedTotalProfiles) : 0;
-			PageObjectHelper.log(LOGGER, "✅ PASS (Early Success): All " + baseline +
+			LOGGER.info("✅ PASS (Early Success): All " + baseline +
 					" searched profiles remain selected (" + pctLoaded + "% of profiles checked)");
 			return;
 		}
@@ -866,33 +866,33 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			if (actualSelectedCount == 0) {
 				String errorMsg = "FAIL: No selections found in " + totalProfilesVisible +
 						" loaded profiles (expected " + baseline + ")";
-				PageObjectHelper.log(LOGGER, errorMsg);
+				LOGGER.info(errorMsg);
 				Assert.fail(errorMsg);
 			} else if (actualSelectedCount > baseline) {
 				String errorMsg = "FAIL: Found " + actualSelectedCount + " selected (expected " +
 						baseline + "), " + extraSelections + " extra profiles incorrectly selected";
-				PageObjectHelper.log(LOGGER, errorMsg);
+				LOGGER.info(errorMsg);
 				Assert.fail(errorMsg);
 			} else if (actualSelectedCount < baseline) {
-				PageObjectHelper.log(LOGGER, "✅ PASS: Found " + actualSelectedCount + " of " + baseline +
+				LOGGER.info("✅ PASS: Found " + actualSelectedCount + " of " + baseline +
 						" selected (remaining " + missingSelections + " likely in unloaded profiles)");
 			} else {
-				PageObjectHelper.log(LOGGER, "✅ PASS: All " + baseline + " searched profiles found selected");
+				LOGGER.info("✅ PASS: All " + baseline + " searched profiles found selected");
 			}
 		} else {
 			// Full validation
 			if (actualSelectedCount == baseline) {
-				PageObjectHelper.log(LOGGER, "✅ PASS: All " + baseline +
+				LOGGER.info("✅ PASS: All " + baseline +
 						" searched profiles remain selected in " + getScreenName(screen));
 			} else if (actualSelectedCount < baseline) {
 				String errorMsg = "FAIL: Only " + actualSelectedCount + " selected (expected " + baseline +
 						"), " + missingSelections + " profiles lost selection";
-				PageObjectHelper.log(LOGGER, errorMsg);
+				LOGGER.info(errorMsg);
 				Assert.fail(errorMsg);
 			} else {
 				String errorMsg = "FAIL: " + actualSelectedCount + " selected (expected " + baseline +
 						"), " + extraSelections + " extra profiles incorrectly selected";
-				PageObjectHelper.log(LOGGER, errorMsg);
+				LOGGER.info(errorMsg);
 				Assert.fail(errorMsg);
 			}
 		}

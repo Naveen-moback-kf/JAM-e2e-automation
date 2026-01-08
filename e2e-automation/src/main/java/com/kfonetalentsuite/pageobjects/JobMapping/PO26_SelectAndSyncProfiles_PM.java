@@ -48,19 +48,19 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 			newlyLoadedProfilesAfterScrolling = totalProfilesCurrentlyLoaded - loadedProfilesBeforeHeaderCheckboxClick;
 
 			if (newlyLoadedProfilesAfterScrolling <= 0) {
-				PageObjectHelper.log(LOGGER, "No newly loaded profiles to verify (Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
+				LOGGER.info("No newly loaded profiles to verify (Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
 						", Selected: " + selectedProfilesAfterHeaderCheckboxClick + 
 						", Disabled: " + disabledProfilesInLoadedProfiles + 
 						", Total Now: " + totalProfilesCurrentlyLoaded + ")");
 				return;
 			}
 
-			PageObjectHelper.log(LOGGER, "Profile Summary - Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
+			LOGGER.info("Profile Summary - Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
 					", Selected: " + selectedProfilesAfterHeaderCheckboxClick + 
 					", Disabled: " + disabledProfilesInLoadedProfiles + 
 					", Total Now: " + totalProfilesCurrentlyLoaded + 
 					", Newly Loaded: " + newlyLoadedProfilesAfterScrolling);
-			PageObjectHelper.log(LOGGER, "Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
+			LOGGER.info("Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
 
 			// Step 3: Verify that newly loaded profiles are NOT selected
 			for (int i = loadedProfilesBeforeHeaderCheckboxClick + 1; i <= totalProfilesCurrentlyLoaded; i++) {
@@ -110,11 +110,11 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 			int expectedUnselected = newlyLoadedProfilesAfterScrolling - disabledInNewlyLoadedProfiles;
 
 			if (unselectedProfilesCount >= expectedUnselected) {
-				PageObjectHelper.log(LOGGER, "✅ Validation PASSED: " + unselectedProfilesCount
+				LOGGER.info("✅ Validation PASSED: " + unselectedProfilesCount
 						+ " newly loaded profiles are NOT selected (as expected)");
 			} else {
 				int missingUnselected = expectedUnselected - unselectedProfilesCount;
-				PageObjectHelper.log(LOGGER, "❌ Validation FAILED: " + missingUnselected
+				LOGGER.info("❌ Validation FAILED: " + missingUnselected
 						+ " newly loaded profiles are unexpectedly selected");
 				Assert.fail("Validation FAILED: " + missingUnselected
 						+ " newly loaded profiles are selected (should be unselected)");
@@ -145,7 +145,7 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 				}
 			}
 			
-			PageObjectHelper.log(LOGGER, "Clicked on Chevron Button beside Header Checkbox in HCM Sync Profiles Screen");
+			LOGGER.info("Clicked on Chevron Button beside Header Checkbox in HCM Sync Profiles Screen");
 			PageObjectHelper.waitForPageReady(driver, 2);
 			
 		} catch (Exception e) {
@@ -170,7 +170,7 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 				}
 			}
 			
-			PageObjectHelper.log(LOGGER, "Clicked on Select All button in HCM Sync Profiles Screen");
+			LOGGER.info("Clicked on Select All button in HCM Sync Profiles Screen");
 			PageObjectHelper.waitForPageReady(driver, 2);
 			
 		} catch (Exception e) {
@@ -201,7 +201,7 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 
 					if (!totalCountStr.isEmpty()) {
 						totalProfiles = Integer.parseInt(totalCountStr);
-						PageObjectHelper.log(LOGGER, "Total profiles to process: " + totalProfiles);
+						LOGGER.info("Total profiles to process: " + totalProfiles);
 					}
 				}
 			} catch (Exception e) {
@@ -210,11 +210,11 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 
 			if (totalProfiles == 0) {
 				LOGGER.warn("Could not determine total profile count. Will scroll until no more data loads.");
-				PageObjectHelper.log(LOGGER, "Could not determine total profile count. Scrolling through all available profiles...");
+				LOGGER.info("Could not determine total profile count. Scrolling through all available profiles...");
 			}
 
 			// Step 2: Scroll to load all profiles
-			PageObjectHelper.log(LOGGER, "Loading all profiles by scrolling...");
+			LOGGER.info("Loading all profiles by scrolling...");
 
 			// DYNAMIC maxScrollAttempts calculation based on total profiles
 			int maxScrollAttempts;
@@ -346,20 +346,20 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 			totalProfiles = currentRowCount;
 			int unselectedProfiles = totalProfiles - selectedCount - disabledCount;
 			
-			PageObjectHelper.log(LOGGER, "=== PROFILE COUNT SUMMARY ===");
-			PageObjectHelper.log(LOGGER, "Total Profiles: " + totalProfiles);
-			PageObjectHelper.log(LOGGER, "✅ Selected (to be synced): " + selectedCount);
-			PageObjectHelper.log(LOGGER, "⬜ Unselected (enabled but not selected): " + unselectedProfiles);
-			PageObjectHelper.log(LOGGER, "🚫 Disabled (cannot be selected): " + disabledCount);
+			LOGGER.info("=== PROFILE COUNT SUMMARY ===");
+			LOGGER.info("Total Profiles: " + totalProfiles);
+			LOGGER.info("✅ Selected (to be synced): " + selectedCount);
+			LOGGER.info("⬜ Unselected (enabled but not selected): " + unselectedProfiles);
+			LOGGER.info("🚫 Disabled (cannot be selected): " + disabledCount);
 
 			CountOfProfilesSelectedToExport.set(selectedCount);
 			PO18_HCMSyncProfilesTab_PM.profilesCount.set(CountOfProfilesSelectedToExport.get());
 			PO18_HCMSyncProfilesTab_PM.isProfilesCountComplete.set(!reachedMaxScrollLimit);
 
 			if (reachedMaxScrollLimit) {
-				PageObjectHelper.log(LOGGER, "Count Status: INCOMPLETE (max scroll limit reached)");
+				LOGGER.info("Count Status: INCOMPLETE (max scroll limit reached)");
 			} else {
-				PageObjectHelper.log(LOGGER, "Count Status: COMPLETE (all profiles loaded and counted)");
+				LOGGER.info("Count Status: COMPLETE (all profiles loaded and counted)");
 			}
 
 		} catch (Exception e) {

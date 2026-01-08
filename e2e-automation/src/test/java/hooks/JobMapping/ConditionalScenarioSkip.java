@@ -7,8 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.SkipException;
 
-import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
-
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
@@ -42,13 +40,12 @@ public class ConditionalScenarioSkip {
 
 		// Check if skip condition is enabled for this feature
 		if (skipEnabledFeatures.contains(featureName) || skipEnabledFeatures.contains("ALL_MAPPED")) {
-			String skipMessage = String.format(
-					"CONDITIONAL SKIP: Scenario '%s' skipped because all profiles are already mapped with BIC profiles. "
-							+ "No unmapped jobs available for manual mapping in this test run.",
-					scenarioName);
+		String skipMessage = String.format(
+				"CONDITIONAL SKIP: Scenario '%s' skipped because all profiles are already mapped with BIC profiles. "
+						+ "No unmapped jobs available for manual mapping in this test run.",
+				scenarioName);
 
-			LOGGER.warn(skipMessage);
-			PageObjectHelper.log(LOGGER, skipMessage);
+		LOGGER.warn(skipMessage);
 
 			// Skip this scenario
 			throw new SkipException(skipMessage);
@@ -81,28 +78,25 @@ public class ConditionalScenarioSkip {
 				skipEnabledFeatures.add(TARGET_FEATURE_21);
 				skipEnabledFeatures.add("ALL_MAPPED"); // Global flag
 
-				String message = String.format("SKIP CONDITION DETECTED: All profiles are mapped with BIC profiles. "
-						+ "All remaining scenarios in Feature 20 and 21 will be skipped.");
+			String message = String.format("SKIP CONDITION DETECTED: All profiles are mapped with BIC profiles. "
+					+ "All remaining scenarios in Feature 20 and 21 will be skipped.");
 
-				LOGGER.warn(message);
-				PageObjectHelper.log(LOGGER, message);
+			LOGGER.warn(message);
 
 				// Log which scenarios will be skipped
 				LOGGER.info(" SCENARIOS TO BE SKIPPED in Feature 20:");
 				LOGGER.info("    - Click on Find Match button and Search for SP in Manual Mapping screen");
 				LOGGER.info("    - Validate and Manually Map SP to Organization Job in Auto AI");
 				LOGGER.info(" SCENARIOS TO BE SKIPPED in Feature 21:");
-				LOGGER.info("    - All scenarios related to mapping different SP to profile");
-				LOGGER.info(" SCENARIOS THAT WILL STILL EXECUTE:");
-				LOGGER.info("    - @CloseBrowser scenarios (always execute for cleanup)");
-				PageObjectHelper.log(LOGGER, 
-						"Remaining functional scenarios will be skipped, but cleanup scenarios will still execute");
+			LOGGER.info("    - All scenarios related to mapping different SP to profile");
+			LOGGER.info(" SCENARIOS THAT WILL STILL EXECUTE:");
+			LOGGER.info("    - @CloseBrowser scenarios (always execute for cleanup)");
+			LOGGER.info("Remaining functional scenarios will be skipped, but cleanup scenarios will still execute");
 
-			} else {
-				LOGGER.info(" PROFILES AVAILABLE: Found unmapped profiles - manual mapping scenarios will proceed");
-				PageObjectHelper.log(LOGGER, "Found unmapped profiles - proceeding with manual mapping tests");
-			}
+		} else {
+			LOGGER.info(" PROFILES AVAILABLE: Found unmapped profiles - manual mapping scenarios will proceed");
 		}
+	}
 	}
 
 	private boolean checkIfAllProfilesMapped() {

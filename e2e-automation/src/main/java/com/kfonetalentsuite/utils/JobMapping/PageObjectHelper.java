@@ -3,7 +3,6 @@ package com.kfonetalentsuite.utils.JobMapping;
 import java.time.Duration;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.ElementNotInteractableException;
@@ -18,10 +17,6 @@ import java.util.function.Supplier;
 
 public class PageObjectHelper {
 
-	public static void log(Logger logger, String message) {
-		logger.info(message);
-	}
-	
 	public static void handleError(Logger logger, String methodName, String issueDescription, Exception e) {
 		String errorMsg = issueDescription + " - Method: " + methodName;
 		logger.error(errorMsg, e);
@@ -205,7 +200,7 @@ public class PageObjectHelper {
 			originalImplicitWait = driver.manage().timeouts().getImplicitWaitTimeout();
 			driver.manage().timeouts().implicitlyWait(Duration.ZERO);
 		} catch (Exception e) {
-			log(LogManager.getLogger(PageObjectHelper.class), "Could not modify implicit wait: " + e.getMessage());
+			// Implicit wait modification failed - continue anyway
 		}
 
 		WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofMillis(500));

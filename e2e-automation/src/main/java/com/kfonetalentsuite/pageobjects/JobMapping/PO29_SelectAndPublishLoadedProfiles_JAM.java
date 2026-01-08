@@ -44,19 +44,19 @@ public class PO29_SelectAndPublishLoadedProfiles_JAM extends BasePageObject {
 			newlyLoadedProfilesAfterScrolling = totalProfilesCurrentlyLoaded - loadedProfilesBeforeHeaderCheckboxClick;
 
 			if (newlyLoadedProfilesAfterScrolling <= 0) {
-				PageObjectHelper.log(LOGGER, "No newly loaded profiles to verify (Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
+				LOGGER.info("No newly loaded profiles to verify (Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
 						", Selected: " + selectedProfilesAfterHeaderCheckboxClick + 
 						", Disabled: " + disabledProfilesInLoadedProfiles + 
 						", Total Now: " + totalProfilesCurrentlyLoaded + ")");
 				return;
 			}
 
-			PageObjectHelper.log(LOGGER, "Profile Summary - Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
+			LOGGER.info("Profile Summary - Before: " + loadedProfilesBeforeHeaderCheckboxClick + 
 					", Selected: " + selectedProfilesAfterHeaderCheckboxClick + 
 					", Disabled: " + disabledProfilesInLoadedProfiles + 
 					", Total Now: " + totalProfilesCurrentlyLoaded + 
 					", Newly Loaded: " + newlyLoadedProfilesAfterScrolling);
-			PageObjectHelper.log(LOGGER, "Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
+			LOGGER.info("Verifying " + newlyLoadedProfilesAfterScrolling + " newly loaded profiles are NOT selected...");
 
 			// Step 3: Get all checkboxes and verify newly loaded ones are NOT selected
 			// Get all checkbox elements directly (not by row position, as some rows don't have checkboxes)
@@ -115,11 +115,11 @@ public class PO29_SelectAndPublishLoadedProfiles_JAM extends BasePageObject {
 			int expectedUnselected = newlyLoadedProfilesAfterScrolling - disabledInNewlyLoadedProfiles;
 
 			if (unselectedProfilesCount >= expectedUnselected) {
-				PageObjectHelper.log(LOGGER, "Validation PASSED: " + unselectedProfilesCount
+				LOGGER.info("Validation PASSED: " + unselectedProfilesCount
 						+ " newly loaded profiles are NOT selected (as expected)");
 			} else {
 				int missingUnselected = expectedUnselected - unselectedProfilesCount;
-				PageObjectHelper.log(LOGGER, "Validation FAILED: " + missingUnselected
+				LOGGER.info("Validation FAILED: " + missingUnselected
 						+ " newly loaded profiles are unexpectedly selected");
 				Assert.fail("Validation FAILED: " + missingUnselected
 						+ " newly loaded profiles are selected (should be unselected)");

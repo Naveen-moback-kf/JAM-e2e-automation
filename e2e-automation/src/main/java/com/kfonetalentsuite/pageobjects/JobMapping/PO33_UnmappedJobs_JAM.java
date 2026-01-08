@@ -46,7 +46,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 				String statusText = mappingStatusValues.get(i).getText();
 
 				if (statusText.contains("Unmapped")) {
-					PageObjectHelper.log(LOGGER, "Found Unmapped option: " + statusText);
+					LOGGER.info("Found Unmapped option: " + statusText);
 
 					js.executeScript("arguments[0].scrollIntoView();", mappingStatusValues.get(i));
 
@@ -64,7 +64,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 					PageObjectHelper.waitForPageReady(driver, 3);
 
 					Assert.assertTrue(mappingStatusCheckboxes.get(i).isSelected(), "Unmapped option should be selected");
-					PageObjectHelper.log(LOGGER, "Selected Unmapped jobs option from Mapping Status Filters");
+					LOGGER.info("Selected Unmapped jobs option from Mapping Status Filters");
 
 					unmappedFound = true;
 					break;
@@ -74,7 +74,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 			if (!unmappedFound) {
 				skipScenario.set(true);
 				String skipMessage = "Unmapped option not found in Mapping Status Filters dropdown - Skipping Feature 46 validation";
-				PageObjectHelper.log(LOGGER, skipMessage);
+				LOGGER.info(skipMessage);
 				throw new SkipException(skipMessage);
 			}
 
@@ -103,7 +103,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 			boolean isEnabled = headerCheckbox.isEnabled();
 			Assert.assertFalse(isEnabled, "Header Checkbox should be disabled when Unmapped filter is applied");
 
-			PageObjectHelper.log(LOGGER, "Header Checkbox is disabled as expected (Unmapped jobs cannot be selected)");
+			LOGGER.info("Header Checkbox is disabled as expected (Unmapped jobs cannot be selected)");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_header_checkbox_is_disabled_in_job_mapping_screen", e);
@@ -146,7 +146,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 			Assert.assertTrue(classAttribute.contains("opacity-30"),
 					"Chevron button should have 'opacity-30' class");
 
-			PageObjectHelper.log(LOGGER, "Chevron button is disabled as expected (Unmapped jobs cannot be selected)");
+			LOGGER.info("Chevron button is disabled as expected (Unmapped jobs cannot be selected)");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_chevron_button_is_disabled_in_job_mapping_screen", e);
@@ -250,8 +250,8 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 						"First checkbox should have tooltip. Expected: " + expectedTooltipText);
 			}
 
-			PageObjectHelper.log(LOGGER, "Validation PASSED: All " + disabledCheckboxes + " unmapped job checkboxes are disabled");
-			PageObjectHelper.log(LOGGER, "First checkbox has correct tooltip: '" + expectedTooltipText + "'");
+			LOGGER.info("Validation PASSED: All " + disabledCheckboxes + " unmapped job checkboxes are disabled");
+			LOGGER.info("First checkbox has correct tooltip: '" + expectedTooltipText + "'");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_checkbox_of_all_unmapped_jobs_is_disabled_with_tooltip", e);

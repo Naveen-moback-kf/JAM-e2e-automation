@@ -27,7 +27,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 			waitForBackgroundDataLoad();
 			scrollToTop();
 			safeSleep(800);
-			PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
+			LOGGER.info("Refreshed Job Mapping page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "refresh_job_mapping_page", "Issue refreshing Job Mapping page", e);
 		}
@@ -67,7 +67,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		try {
 			driver.navigate().back();
 			PageObjectHelper.waitForPageReady(driver, 2);
-			PageObjectHelper.log(LOGGER, "Browser back button clicked");
+			LOGGER.info("Browser back button clicked");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_browser_back_button", "Issue clicking Browser back button", e);
 		}
@@ -77,7 +77,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		try {
 			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForElement(VIEW_PUBLISHED_TOGGLE).isEnabled();
-			PageObjectHelper.log(LOGGER, "View Published toggle button persisted on Job Mapping page");
+			LOGGER.info("View Published toggle button persisted on Job Mapping page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_view_published_toggle_button_is_persisted", "View Published toggle button not persisted", e);
 		}
@@ -87,13 +87,13 @@ public class PO09_FilterPersistence extends BasePageObject {
 		try {
 			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForElement(ORG_JOB_GRADE_SORT_ICON).isDisplayed();
-			PageObjectHelper.log(LOGGER, "Sorting persisted on Job Mapping page");
+			LOGGER.info("Sorting persisted on Job Mapping page");
 		} catch (Exception e) {
 			try {
 				waitForSpinners();
 				PageObjectHelper.waitForPageReady(driver, 2);
 				waitForElement(MATCHED_SP_GRADE_SORT_ICON).isDisplayed();
-				PageObjectHelper.log(LOGGER, "Sorting persisted on Job Mapping page");
+				LOGGER.info("Sorting persisted on Job Mapping page");
 			} catch (Exception s) {
 				PageObjectHelper.handleError(LOGGER, "verify_applied_sorting_persist_on_job_mapping_ui", "Issue validating Sorting Persistence", s);
 			}

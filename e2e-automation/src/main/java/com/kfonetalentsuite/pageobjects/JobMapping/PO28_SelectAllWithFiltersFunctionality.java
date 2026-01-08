@@ -63,7 +63,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 					"'Click on Grades Filters dropdown button' and 'Select one option in Grades Filters dropdown'");
 			}
 
-			PageObjectHelper.log(LOGGER, "Applied filter: " + firstFilterType.get() + " = " + firstFilterValue.get() + 
+			LOGGER.info("Applied filter: " + firstFilterType.get() + " = " + firstFilterValue.get() + 
 					" in " + getScreenName(screen));
 
 		} catch (Exception e) {
@@ -211,7 +211,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 				previousCount = currentCount;
 			}
 
-			PageObjectHelper.log(LOGGER, "Loaded " + currentCount + " filtered results in " + getScreenName(screen));
+			LOGGER.info("Loaded " + currentCount + " filtered results in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("scroll_filtered_results_" + screen, e);
@@ -242,7 +242,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 				}
 			}
 
-			PageObjectHelper.log(LOGGER, "Validated " + validatedCount + " of " + totalResults + 
+			LOGGER.info("Validated " + validatedCount + " of " + totalResults + 
 					" filtered results in " + getScreenName(screen));
 
 		} catch (Exception e) {
@@ -263,7 +263,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			safeSleep(500);
 
-			PageObjectHelper.log(LOGGER, "Cleared all filters in " + getScreenName(screen));
+			LOGGER.info("Cleared all filters in " + getScreenName(screen));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("clear_filters_" + screen, e);
@@ -279,7 +279,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 				// Click outside to close dropdown
 				js.executeScript("document.body.click();");
 				safeSleep(300);
-				PageObjectHelper.log(LOGGER, "Closed filters dropdown in " + getScreenName(screen));
+				LOGGER.info("Closed filters dropdown in " + getScreenName(screen));
 			}
 		} catch (Exception e) {
 			LOGGER.debug("Error closing filters dropdown: {}", e.getMessage());
@@ -313,11 +313,11 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		try {
 			currentScreen.set(screen);
 			
-			PageObjectHelper.log(LOGGER, "Verifying only " + baseline +
+			LOGGER.info("Verifying only " + baseline +
 					" profiles remain selected in " + getScreenName(screen) + "...");
 
 			if (baseline == 0) {
-				PageObjectHelper.log(LOGGER, "No filter results to verify - skipping");
+				LOGGER.info("No filter results to verify - skipping");
 				return;
 			}
 
@@ -442,17 +442,17 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 			if (earlySuccessExit) {
 				int pctLoaded = expectedTotalProfiles > 0 ? (totalProfilesVisible * 100 / expectedTotalProfiles) : 0;
-				PageObjectHelper.log(LOGGER, "✅ PASS (Early Success): All " + baseline +
+				LOGGER.info("✅ PASS (Early Success): All " + baseline +
 						" filtered profiles remain selected (" + pctLoaded + "% of profiles checked)");
 			} else if (actualSelectedCount == baseline) {
-				PageObjectHelper.log(LOGGER, "✅ PASS: All " + baseline + " filtered profiles remain selected");
+				LOGGER.info("✅ PASS: All " + baseline + " filtered profiles remain selected");
 			} else if (actualSelectedCount < baseline) {
-				PageObjectHelper.log(LOGGER, "⚠️ Only " + actualSelectedCount + " selected (expected " + baseline + 
+				LOGGER.info("⚠️ Only " + actualSelectedCount + " selected (expected " + baseline + 
 						"), " + missingSelections + " profiles lost selection");
 			} else {
 				String errorMsg = "FAIL: Found " + actualSelectedCount + " selected (expected " + baseline + 
 						"), " + extraSelections + " extra profiles incorrectly selected";
-				PageObjectHelper.log(LOGGER, "❌ " + errorMsg);
+				LOGGER.info("❌ " + errorMsg);
 				Assert.fail(errorMsg);
 			}
 
@@ -471,7 +471,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 			boolean isPM = "PM".equalsIgnoreCase(screen);
 
-			PageObjectHelper.log(LOGGER, "Alternative validation: Applying different filter in " + getScreenName(screen) + "...");
+			LOGGER.info("Alternative validation: Applying different filter in " + getScreenName(screen) + "...");
 
 			if (isPM) {
 				applyDifferentPMFilter();
@@ -481,7 +481,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 					"'Select two options in Grades Filters dropdown'");
 			}
 
-			PageObjectHelper.log(LOGGER, "Applied alternative filter: " + secondFilterType.get() + " = " + secondFilterValue.get());
+			LOGGER.info("Applied alternative filter: " + secondFilterType.get() + " = " + secondFilterValue.get());
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("apply_different_filter_" + screen, e);
@@ -540,7 +540,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			int expectedTotal = parseProfileCountFromText(resultsCountText);
 
 			if (expectedTotal == 0 || resultsCountText.contains("Showing 0")) {
-				PageObjectHelper.log(LOGGER, "Second filter returned 0 results");
+				LOGGER.info("Second filter returned 0 results");
 				totalSecondFilterResults.set(0);
 				return;
 			}
@@ -551,7 +551,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			var profileRows = findElements(getAllProfileRowsLocator(screen));
 			totalSecondFilterResults.set(profileRows.size());
 
-			PageObjectHelper.log(LOGGER, "Second filter has " + expectedTotal + " total profiles, " + 
+			LOGGER.info("Second filter has " + expectedTotal + " total profiles, " + 
 					profileRows.size() + " visible for validation");
 
 		} catch (Exception e) {
@@ -566,7 +566,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			currentScreen.set(screen);
 
 			if (totalSecondFilterResults.get() == 0) {
-				PageObjectHelper.log(LOGGER, "No second filter results to verify");
+				LOGGER.info("No second filter results to verify");
 				return;
 			}
 
@@ -574,12 +574,12 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			int selectedCount = countSelectedProfilesJS(screen);
 
 			if (selectedCount == 0) {
-				PageObjectHelper.log(LOGGER, "✅ PASS: No profiles selected in second filter results (" + 
+				LOGGER.info("✅ PASS: No profiles selected in second filter results (" + 
 						secondFilterType.get() + " = " + secondFilterValue.get() + ")");
 			} else {
 				// Some selections found - these should be from the FIRST filter, not second
 				// This is expected behavior if first and second filters have overlapping results
-				PageObjectHelper.log(LOGGER, "Found " + selectedCount + " selected profiles in second filter view " +
+				LOGGER.info("Found " + selectedCount + " selected profiles in second filter view " +
 						"(may be from first filter overlap)");
 			}
 

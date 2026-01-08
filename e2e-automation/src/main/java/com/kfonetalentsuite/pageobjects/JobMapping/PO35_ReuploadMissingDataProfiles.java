@@ -62,7 +62,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			PageObjectHelper.waitForVisible(wait, MISSING_DATA_SCREEN_TITLE);
 			Assert.assertTrue(findElement(MISSING_DATA_SCREEN_TITLE).isDisplayed(),
 					"Jobs With Missing Data screen title should be displayed");
-			PageObjectHelper.log(LOGGER, "Successfully navigated to Jobs With Missing Data screen");
+			LOGGER.info("Successfully navigated to Jobs With Missing Data screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_navigation_to_missing_data_screen",
 					"Failed to verify navigation to Jobs With Missing Data screen", e);
@@ -74,7 +74,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 3);
 			PageObjectHelper.waitForVisible(wait, REUPLOAD_BUTTON);
 			Assert.assertTrue(findElement(REUPLOAD_BUTTON).isDisplayed(), "Re-upload button should be displayed");
-			PageObjectHelper.log(LOGGER, "Re-upload button is displayed on Jobs Missing Data screen");
+			LOGGER.info("Re-upload button is displayed on Jobs Missing Data screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_reupload_button_is_displayed",
 					"Failed to verify Re-upload button display", e);
@@ -97,7 +97,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 					reuploadBtn = findElement(REUPLOAD_BUTTON);
 					jsClick(reuploadBtn);
 
-					PageObjectHelper.log(LOGGER, "Clicked on Re-upload button in Jobs Missing Data screen");
+					LOGGER.info("Clicked on Re-upload button in Jobs Missing Data screen");
 					PageObjectHelper.waitForPageReady(driver, 5);
 					return;
 
@@ -120,9 +120,9 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 			if (totalCount > 0) {
 				totalProfilesInMissingDataScreen.set(totalCount);
-				PageObjectHelper.log(LOGGER, "Captured total profiles in Missing Data screen: " + totalCount);
+				LOGGER.info("Captured total profiles in Missing Data screen: " + totalCount);
 			} else {
-				PageObjectHelper.log(LOGGER, "No profiles found in Missing Data screen");
+				LOGGER.info("No profiles found in Missing Data screen");
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "capture_total_count", "Failed to capture total profile count", e);
@@ -139,9 +139,9 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			int maxProfiles = Math.min(10, totalAvailable);
 
 			if (totalAvailable < 10) {
-				PageObjectHelper.log(LOGGER, "Found " + totalAvailable + " profiles (less than 10). Fetching all available profiles.");
+				LOGGER.info("Found " + totalAvailable + " profiles (less than 10). Fetching all available profiles.");
 			} else {
-				PageObjectHelper.log(LOGGER, "Found " + totalAvailable + " profiles. Fetching top 10 profiles.");
+				LOGGER.info("Found " + totalAvailable + " profiles. Fetching top 10 profiles.");
 			}
 
 			LOGGER.info("Extracting details of {} profiles from Missing Data screen", maxProfiles);
@@ -226,7 +226,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			}
 
 			extractedProfiles.set(profiles);
-			PageObjectHelper.log(LOGGER, "Successfully extracted " + profiles.size() + " profiles from Missing Data screen");
+			LOGGER.info("Successfully extracted " + profiles.size() + " profiles from Missing Data screen");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "extract_top_10_profiles",
@@ -254,7 +254,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				}
 			}
 
-			PageObjectHelper.log(LOGGER, "CSV file created with " + profiles.size() + " profiles at: " + filePath);
+			LOGGER.info("CSV file created with " + profiles.size() + " profiles at: " + filePath);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "create_csv_file", "Failed to create CSV file", e);
@@ -276,7 +276,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				defaultFile.renameTo(newFile);
 			}
 
-			PageObjectHelper.log(LOGGER, "CSV file saved as: " + fileName);
+			LOGGER.info("CSV file saved as: " + fileName);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "save_csv_file", "Failed to save CSV file", e);
@@ -296,7 +296,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				Assert.assertEquals(headerLine.trim(), CSV_HEADER, "CSV header should match expected format");
 			}
 
-			PageObjectHelper.log(LOGGER, "CSV file verified with correct headers");
+			LOGGER.info("CSV file verified with correct headers");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_csv_headers", "Failed to verify CSV file headers", e);
@@ -317,7 +317,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			int dataRows = lineCount - 1;
 			Assert.assertTrue(dataRows > 0, "CSV file should contain profile data");
 
-			PageObjectHelper.log(LOGGER, "CSV file contains " + dataRows + " profile records");
+			LOGGER.info("CSV file contains " + dataRows + " profile records");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_csv_data", "Failed to verify CSV file data", e);
@@ -335,7 +335,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 			File csvFile = new File(filePath);
 			Assert.assertTrue(csvFile.exists(), "CSV file should exist for processing");
-			PageObjectHelper.log(LOGGER, "Confirmed CSV file exists at: " + filePath);
+			LOGGER.info("Confirmed CSV file exists at: " + filePath);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "csv_file_exists", "CSV file does not exist", e);
@@ -362,7 +362,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			}
 
 			extractedProfiles.set(profiles);
-			PageObjectHelper.log(LOGGER, "Read " + profiles.size() + " profiles from CSV file");
+			LOGGER.info("Read " + profiles.size() + " profiles from CSV file");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "read_csv_file", "Failed to read CSV file", e);
@@ -389,7 +389,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			}
 
 			extractedProfiles.set(profiles);
-			PageObjectHelper.log(LOGGER, "Filled " + filledCount + " missing Grade values with: " + defaultGrade);
+			LOGGER.info("Filled " + filledCount + " missing Grade values with: " + defaultGrade);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "fill_missing_grade", "Failed to fill missing Grade values", e);
@@ -416,7 +416,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			}
 
 			extractedProfiles.set(profiles);
-			PageObjectHelper.log(LOGGER, "Filled " + filledCount + " missing Department values with: " + defaultDepartment);
+			LOGGER.info("Filled " + filledCount + " missing Department values with: " + defaultDepartment);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "fill_missing_department", "Failed to fill missing Department values", e);
@@ -443,7 +443,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			}
 
 			extractedProfiles.set(profiles);
-			PageObjectHelper.log(LOGGER, "Filled " + filledCount + " missing Job Family values with: " + defaultValue);
+			LOGGER.info("Filled " + filledCount + " missing Job Family values with: " + defaultValue);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "fill_missing_job_family", "Failed to fill missing Job Family values", e);
@@ -470,7 +470,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			}
 
 			extractedProfiles.set(profiles);
-			PageObjectHelper.log(LOGGER, "Filled " + filledCount + " missing Job Sub Family values with: " + defaultValue);
+			LOGGER.info("Filled " + filledCount + " missing Job Sub Family values with: " + defaultValue);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "fill_missing_job_sub_family", "Failed to fill missing Job Sub Family values", e);
@@ -489,7 +489,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				}
 			}
 
-			PageObjectHelper.log(LOGGER, "Updated CSV file saved with " + profiles.size() + " profiles");
+			LOGGER.info("Updated CSV file saved with " + profiles.size() + " profiles");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "save_updated_csv", "Failed to save updated CSV file", e);
@@ -507,7 +507,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				}
 			}
 
-			PageObjectHelper.log(LOGGER, "Verified all Grade values are filled in CSV");
+			LOGGER.info("Verified all Grade values are filled in CSV");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_no_empty_grades", "Found empty Grade values in CSV", e);
@@ -525,7 +525,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				}
 			}
 
-			PageObjectHelper.log(LOGGER, "Verified all Department values are filled in CSV");
+			LOGGER.info("Verified all Department values are filled in CSV");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_no_empty_departments", "Found empty Department values in CSV", e);
@@ -541,7 +541,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				Assert.assertFalse(profile[1] == null || profile[1].trim().isEmpty(), "Job Title should not be empty");
 			}
 
-			PageObjectHelper.log(LOGGER, "Verified all required fields are filled in CSV");
+			LOGGER.info("Verified all required fields are filled in CSV");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_no_empty_required_fields", "Found empty required fields in CSV", e);
@@ -556,7 +556,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			// CRITICAL: Ensure no search filters are active to get TOTAL results, not filtered results
 			// Use JavaScript to clear - most reliable approach (same as PO27)
 			try {
-				PageObjectHelper.log(LOGGER, "Clearing search filter to get total results count...");
+				LOGGER.info("Clearing search filter to get total results count...");
 				
 				JavascriptExecutor js = (JavascriptExecutor) driver;
 				String clearScript = 
@@ -587,7 +587,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			WebElement resultsElement = PageObjectHelper.waitForVisible(wait, SHOWING_JOB_RESULTS);
 			String resultsText = resultsElement.getText().trim();
 			
-			PageObjectHelper.log(LOGGER, "Results text: " + resultsText);
+			LOGGER.info("Results text: " + resultsText);
 			
 			// Parse "Showing X of Y results" format - extract Y (total results)
 			// Example: "Showing 1-50 of 1234 results"
@@ -597,13 +597,13 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 					if (parts[i].equals("of") && i + 1 < parts.length) {
 						int totalCount = Integer.parseInt(parts[i + 1]);
 						totalResultsCountBefore.set(totalCount);
-						PageObjectHelper.log(LOGGER, "Total Results count BEFORE re-upload: " + totalCount);
+						LOGGER.info("Total Results count BEFORE re-upload: " + totalCount);
 						return;
 					}
 				}
 			}
 			
-			PageObjectHelper.log(LOGGER, "Could not parse Total Results count from: " + resultsText);
+			LOGGER.info("Could not parse Total Results count from: " + resultsText);
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "capture_total_results_count_before",
@@ -619,7 +619,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			// CRITICAL: Clear any active search filters to get TOTAL results, not filtered results
 			// Use JavaScript to clear - most reliable approach (same as PO27)
 			try {
-				PageObjectHelper.log(LOGGER, "Clearing search filter to get total results count...");
+				LOGGER.info("Clearing search filter to get total results count...");
 				
 				JavascriptExecutor js = (JavascriptExecutor) driver;
 				String clearScript = 
@@ -656,7 +656,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 					WebElement resultsElement = PageObjectHelper.waitForVisible(wait, SHOWING_JOB_RESULTS);
 					String resultsText = resultsElement.getText().trim();
 					
-					PageObjectHelper.log(LOGGER, "Attempt " + attempt + " - Results text: " + resultsText);
+					LOGGER.info("Attempt " + attempt + " - Results text: " + resultsText);
 					
 					// Parse "Showing X of Y results" format - extract Y (total results)
 					if (resultsText.contains("of") && resultsText.contains("results")) {
@@ -676,7 +676,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 								}
 								
 								totalResultsCountAfter.set(totalCount);
-								PageObjectHelper.log(LOGGER, "Total Results count AFTER re-upload: " + totalCount);
+								LOGGER.info("Total Results count AFTER re-upload: " + totalCount);
 								return;
 							}
 						}
@@ -697,7 +697,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				}
 			}
 			
-			PageObjectHelper.log(LOGGER, "Could not capture Total Results count after all retry attempts");
+			LOGGER.info("Could not capture Total Results count after all retry attempts");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "capture_total_results_count_after",
@@ -713,7 +713,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			Assert.assertEquals(after, before,
 					"Total Results count should remain unchanged after re-upload (updating existing profiles, not adding new). Before: " + before + ", After: " + after);
 			
-			PageObjectHelper.log(LOGGER, "✓ Total Results count unchanged: " + before + " → " + after + " (as expected - updating existing profiles)");
+			LOGGER.info("✓ Total Results count unchanged: " + before + " → " + after + " (as expected - updating existing profiles)");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_total_results_unchanged",
@@ -732,7 +732,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			if (matcher.find()) {
 				int count = Integer.parseInt(matcher.group(1));
 				missingDataCountBefore.set(count);
-				PageObjectHelper.log(LOGGER, "Missing data count BEFORE re-upload: " + count);
+				LOGGER.info("Missing data count BEFORE re-upload: " + count);
 			}
 
 		} catch (Exception e) {
@@ -765,7 +765,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 						if (count < beforeCount) {
 							// Count has decreased - data is updated!
 							missingDataCountAfter.set(count);
-							PageObjectHelper.log(LOGGER, "Missing data count AFTER re-upload: " + count + " (decreased from " + beforeCount + ")");
+							LOGGER.info("Missing data count AFTER re-upload: " + count + " (decreased from " + beforeCount + ")");
 							return;
 						} else if (count == beforeCount && attempt < maxRetries) {
 							// Count hasn't changed yet - retry
@@ -779,7 +779,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 						} else {
 							// Last attempt or count increased (unexpected)
 				missingDataCountAfter.set(count);
-				PageObjectHelper.log(LOGGER, "Missing data count AFTER re-upload: " + count);
+				LOGGER.info("Missing data count AFTER re-upload: " + count);
 							return;
 						}
 					}
@@ -807,7 +807,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 					"Missing data count should decrease after re-upload. Before: " + before + ", After: " + after);
 
 			int decreased = before - after;
-			PageObjectHelper.log(LOGGER, "✓ Missing data count decreased from " + before + " to " + after + " (by " + decreased + ")");
+			LOGGER.info("✓ Missing data count decreased from " + before + " to " + after + " (by " + decreased + ")");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_count_decreased",
@@ -818,19 +818,19 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 	public void wait_and_refresh_job_mapping_page_after_upload() {
 		try {
 			// Simple fixed wait approach - let the profile verification scenario handle smart retries
-			PageObjectHelper.log(LOGGER, "Waiting for backend to process uploaded data...");
-			PageObjectHelper.log(LOGGER, "Waiting 3 minutes for backend processing (profile validation will have smart retries)...");
+			LOGGER.info("Waiting for backend to process uploaded data...");
+			LOGGER.info("Waiting 3 minutes for backend processing (profile validation will have smart retries)...");
 			safeSleep(180000); // 3 minutes fixed wait
 
-			PageObjectHelper.log(LOGGER, "Refreshing Job Mapping page...");
+			LOGGER.info("Refreshing Job Mapping page...");
 			driver.navigate().refresh();
 			PageObjectHelper.waitForPageReady(driver, 5);
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 15);
 			waitForBackgroundDataLoad(); // Wait for background data API to complete
 			safeSleep(2000);
 
-			PageObjectHelper.log(LOGGER, "✓ Backend wait completed - page refreshed and ready for validation");
-			PageObjectHelper.log(LOGGER, "Note: Profile verification scenario will retry if data is not yet updated");
+			LOGGER.info("✓ Backend wait completed - page refreshed and ready for validation");
+			LOGGER.info("Note: Profile verification scenario will retry if data is not yet updated");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "wait_and_refresh", "Failed to wait and refresh Job Mapping page", e);
@@ -845,7 +845,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				throw new IOException("No job name captured for search. Please ensure extraction step ran first.");
 			}
 
-			PageObjectHelper.log(LOGGER, "Searching for re-uploaded profile by Job Name: " + jobName);
+			LOGGER.info("Searching for re-uploaded profile by Job Name: " + jobName);
 
 			// Retry logic with dynamic polling: Profile might not be searchable immediately after backend processing
 			// Use same polling strategy as profile validation - 30 second intervals, up to 20 attempts (10 minutes)
@@ -889,7 +889,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 					LOGGER.info("Search returned {} results", results.size());
 					
 					if (!results.isEmpty()) {
-						PageObjectHelper.log(LOGGER, "✓ Search completed for Job Name: " + jobName + " (found " + results.size() + " results)");
+						LOGGER.info("✓ Search completed for Job Name: " + jobName + " (found " + results.size() + " results)");
 						return;
 					}
 					
@@ -899,7 +899,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 						safeSleep(retryDelay);
 						// Page will be refreshed at the start of the next attempt
 					} else {
-						PageObjectHelper.log(LOGGER, "Search completed for Job Name: " + jobName + " (no results found after " + maxRetries + " attempts - 10 minutes)");
+						LOGGER.info("Search completed for Job Name: " + jobName + " (no results found after " + maxRetries + " attempts - 10 minutes)");
 					}
 
 				} catch (Exception retryEx) {
@@ -935,7 +935,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			searchInput.sendKeys(jobCode);
 
 			PageObjectHelper.waitForPageReady(driver, 3);
-			PageObjectHelper.log(LOGGER, "Searched for profile by Job Code in Missing Data screen: " + jobCode);
+			LOGGER.info("Searched for profile by Job Code in Missing Data screen: " + jobCode);
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_by_job_code_missing_data",
@@ -956,7 +956,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			if (resultCount == 0) {
 				String jobName = firstProfileJobName.get();
 				String errorMsg = "ERROR: Profile NOT found in search results for Job Name: " + jobName;
-				PageObjectHelper.log(LOGGER, errorMsg);
+				LOGGER.info(errorMsg);
 				Assert.fail(errorMsg);
 			} else {
 				// Search by Job Name may return multiple results - verify our specific Job Code is present
@@ -998,11 +998,11 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				if (jobCodeFound) {
 					// Store the matching row index for later validations
 					searchResultsFoundCount.set(matchingRowIndex + 1); // Store 1-based index
-					PageObjectHelper.log(LOGGER, "✓ Profile found in Job Mapping search results at row " + (matchingRowIndex + 1) + 
+					LOGGER.info("✓ Profile found in Job Mapping search results at row " + (matchingRowIndex + 1) + 
 							" (total " + resultCount + " results) with matching Job Code: " + expectedJobCode);
 				} else {
 					String errorMsg = "ERROR: Job Code '" + expectedJobCode + "' NOT found in " + resultCount + " search results";
-					PageObjectHelper.log(LOGGER, errorMsg);
+					LOGGER.info(errorMsg);
 					Assert.fail(errorMsg);
 				}
 			}
@@ -1017,7 +1017,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			int rowIndexStored = searchResultsFoundCount.get();
 			if (rowIndexStored == 0) {
 				String errorMsg = "CANNOT verify missing data icon - no search results found!";
-				PageObjectHelper.log(LOGGER, errorMsg);
+				LOGGER.info(errorMsg);
 				Assert.fail(errorMsg);
 				return;
 			}
@@ -1069,7 +1069,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 					if (infoIcons.isEmpty()) {
 						// Success! Icon is not present
-						PageObjectHelper.log(LOGGER, "✓ Profile with Job Code '" + expectedJobCode + 
+						LOGGER.info("✓ Profile with Job Code '" + expectedJobCode + 
 								"' successfully fixed - no missing data warning (verified on attempt " + attempt + ")");
 						return;
 					}
@@ -1109,7 +1109,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			int rowIndexStored = searchResultsFoundCount.get();
 			if (rowIndexStored == 0) {
 				String errorMsg = "CANNOT verify corrected data values - no search results found!";
-				PageObjectHelper.log(LOGGER, errorMsg);
+				LOGGER.info(errorMsg);
 				Assert.fail(errorMsg);
 				return;
 			}
@@ -1134,7 +1134,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			int pollingInterval = 20000; // 20 seconds
 			long startTime = System.currentTimeMillis();
 			
-			PageObjectHelper.log(LOGGER, "Starting dynamic polling (checking every 20 seconds for up to 10 minutes)...");
+			LOGGER.info("Starting dynamic polling (checking every 20 seconds for up to 10 minutes)...");
 			
 			for (int attempt = 1; attempt <= maxPollingAttempts; attempt++) {
 				try {
@@ -1335,7 +1335,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 						String successMsg = String.format("✓ ALL VALUES VALIDATED after %d min %d sec (attempt %d/%d): Grade='%s', Dept='%s', Family='%s', SubFamily='%s'",
 								totalWaitMinutes, totalWaitSeconds % 60, attempt, maxPollingAttempts, 
 								actualGrade, actualDept, actualFunction, actualSubFunction);
-						PageObjectHelper.log(LOGGER, successMsg);
+						LOGGER.info(successMsg);
 						LOGGER.info("===== VALIDATION PASSED =====");
 				return;
 			}
@@ -1402,7 +1402,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 					if (!profileFound) {
 						// Success! Profile not found
-						PageObjectHelper.log(LOGGER, "✓ Profile no longer appears in Missing Data screen (verified on attempt " + attempt + ")");
+						LOGGER.info("✓ Profile no longer appears in Missing Data screen (verified on attempt " + attempt + ")");
 						return;
 					}
 					
@@ -1450,7 +1450,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			PageObjectHelper.waitForClickable(wait, CLOSE_BUTTON);
 			jsClick(findElement(CLOSE_BUTTON));
 			PageObjectHelper.waitForPageReady(driver, 3);
-			PageObjectHelper.log(LOGGER, "Clicked Close button to return to Job Mapping page");
+			LOGGER.info("Clicked Close button to return to Job Mapping page");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_close_button", "Failed to click Close button", e);
@@ -1468,7 +1468,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				}
 			}
 
-			PageObjectHelper.log(LOGGER, "Found " + missingCount + " profiles with missing Grade value");
+			LOGGER.info("Found " + missingCount + " profiles with missing Grade value");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "identify_missing_grade", "Failed to identify profiles with missing Grade", e);
@@ -1486,7 +1486,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				}
 			}
 
-			PageObjectHelper.log(LOGGER, "Found " + missingCount + " profiles with missing Department value");
+			LOGGER.info("Found " + missingCount + " profiles with missing Department value");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "identify_missing_department", "Failed to identify profiles with missing Department", e);
@@ -1511,7 +1511,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				}
 			}
 
-			PageObjectHelper.log(LOGGER, "Found " + missingCount + " profiles with any missing values");
+			LOGGER.info("Found " + missingCount + " profiles with any missing values");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "identify_all_missing", "Failed to identify profiles with missing values", e);
@@ -1525,7 +1525,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			fill_missing_job_family_values_with_default_value("General");
 			fill_missing_job_sub_family_values_with_default_value("Operations");
 
-			PageObjectHelper.log(LOGGER, "All missing values filled with default data");
+			LOGGER.info("All missing values filled with default data");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "fill_all_missing_values", "Failed to fill all missing values", e);
@@ -1546,12 +1546,12 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				throw new IOException("Generated CSV file does not exist at: " + filePath);
 			}
 
-			PageObjectHelper.log(LOGGER, "Uploading generated CSV file: " + csvFile.getName());
+			LOGGER.info("Uploading generated CSV file: " + csvFile.getName());
 
 			PO02_AddMoreJobsFunctionality po02 = new PO02_AddMoreJobsFunctionality();
 			po02.upload_file_using_browse_files_button(filePath);
 
-			PageObjectHelper.log(LOGGER, "Successfully uploaded generated CSV file");
+			LOGGER.info("Successfully uploaded generated CSV file");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "upload_generated_csv_file", "Failed to upload generated CSV file", e);

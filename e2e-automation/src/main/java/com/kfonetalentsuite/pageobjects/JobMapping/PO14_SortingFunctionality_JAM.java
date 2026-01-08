@@ -78,7 +78,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(3000);
 			String resultsCountText_updated = getElementText(Locators.JobMappingResults.SHOWING_JOB_RESULTS);
-			PageObjectHelper.log(LOGGER, "Scrolled down till third page and now " + resultsCountText_updated + " of Job Profiles as expected");
+			LOGGER.info("Scrolled down till third page and now " + resultsCountText_updated + " of Job Profiles as expected");
 
 			scrollToTop();
 			waitForSpinners();
@@ -98,15 +98,14 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			// FIXED: Extract text immediately to avoid stale element references
 			List<WebElement> allElements = driver
 					.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
-			PageObjectHelper.log(LOGGER,
-					"Below is default Order of first thirty Job Profiles before applying sorting:");
+			LOGGER.info("Below is default Order of first thirty Job Profiles before applying sorting:");
 
 			// Clear previous values and store new ones
 			jobNamesTextInDefaultOrder.get().clear();
 			for (WebElement element : allElements) {
 				String text = element.getText();
 				jobNamesTextInDefaultOrder.get().add(text);
-				PageObjectHelper.log(LOGGER, "Organization Job Profile with Job Name / Code : " + text);
+				LOGGER.info("Organization Job Profile with Job Name / Code : " + text);
 			}
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
@@ -120,7 +119,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			safeSleep(2000);
 			clickElement(ORG_JOB_NAME_HEADER);
 			PageObjectHelper.waitForPageReady(driver, 5);
-			PageObjectHelper.log(LOGGER, "Clicked on Organization job name / code header to Sort Job Profiles by Name in ascending order");
+			LOGGER.info("Clicked on Organization job name / code header to Sort Job Profiles by Name in ascending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_organiztion_job_name_in_ascending_order", "Issue in clicking on Organization job name / code header to Sort Job Profiles by Name in ascending order", e);
 		}
@@ -135,8 +134,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 
 			List<WebElement> allElements = driver
 					.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
-			PageObjectHelper.log(LOGGER,
-					"Below are first thirty Job Profiles After sorting Job Profiles by Name in Ascending Order:");
+			LOGGER.info("Below are first thirty Job Profiles After sorting Job Profiles by Name in Ascending Order:");
 
 			// Get ALL Find Match buttons in ONE query, then map to job indices
 			Set<Integer> unmappedJobIndices = new HashSet<>();
@@ -186,7 +184,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					unmappedCount++;
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " - UNMAPPED (has Find Match button) - SKIPPED from sort validation");
-					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED - Appears at top");
+					LOGGER.info("Organization Job Profile: " + text + " - UNMAPPED - Appears at top");
 					continue; // Skip this job from sort validation
 				}
 
@@ -206,23 +204,22 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 				} else {
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text);
 				}
-				PageObjectHelper.log(LOGGER, "Organization Job Profile with Name Job Name / Code : " + text);
+				LOGGER.info("Organization Job Profile with Name Job Name / Code : " + text);
 			}
 
 			if (unmappedCount > 0) {
 				LOGGER.info("ℹ Found " + unmappedCount
 						+ " unmapped job(s) - these appear at top and are EXCLUDED from sort validation");
-				PageObjectHelper.log(LOGGER, 
-						"ℹ " + unmappedCount + " unmapped job(s) excluded from sort validation (appear at top)");
+				LOGGER.info("ℹ " + unmappedCount + " unmapped job(s) excluded from sort validation (appear at top)");
 			}
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount
 						+ " job(s) with special characters - these appear at top in Ascending order as expected");
-				PageObjectHelper.log(LOGGER, "ℹ " + specialCharCount
+				LOGGER.info("ℹ " + specialCharCount
 						+ " job(s) start with special characters (?, -, etc.) - expected at top");
 			}
 			if (nonAsciiCount > 0) {
-				PageObjectHelper.log(LOGGER, nonAsciiCount + " job(s) contain non-ASCII characters");
+				LOGGER.info(nonAsciiCount + " job(s) contain non-ASCII characters");
 			}
 
 			// ✅ HIGH-LEVEL VALIDATION: Just confirm sorting is generally working
@@ -253,10 +250,10 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					String.format("%.1f", correctPercentage), correctPairs, totalPairs);
 			
 			if (correctPercentage >= 50) {
-				PageObjectHelper.log(LOGGER, "✅ Sorting validation PASSED - Ascending order is working (" + 
+				LOGGER.info("✅ Sorting validation PASSED - Ascending order is working (" + 
 						String.format("%.1f", correctPercentage) + "% correct)");
 			} else {
-				PageObjectHelper.log(LOGGER, "⚠ Sorting may have issues - only " + 
+				LOGGER.info("⚠ Sorting may have issues - only " + 
 						String.format("%.1f", correctPercentage) + "% in correct order");
 			}
 
@@ -273,7 +270,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			driver.navigate().refresh();
 			PageObjectHelper.waitForSpinnersToDisappear(driver);
 			PageObjectHelper.waitForPageReady(driver, 5);
-			PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page....");
+			LOGGER.info("Refreshed Job Mapping page....");
 			List<WebElement> allElements = driver
 					.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
 			for (int i = 0; i < allElements.size(); i++) {
@@ -287,8 +284,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 							+ " after Refreshing Job Mapping page");
 				}
 			}
-			PageObjectHelper.log(LOGGER,
-					"Organization Job Profiles are in Default Order as expected After Refreshing the Job Mapping page....");
+			LOGGER.info("Organization Job Profiles are in Default Order as expected After Refreshing the Job Mapping page....");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_refresh_job_mapping_and_verify_job_profiles_are_in_default_order",
@@ -298,13 +294,13 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 
 	public void sort_job_profiles_by_organiztion_job_name_in_descending_order() {
 		try {
-			PageObjectHelper.log(LOGGER, "First click on Organization job name header to sort ascending...");
+			LOGGER.info("First click on Organization job name header to sort ascending...");
 			clickElement(ORG_JOB_NAME_HEADER);
 			waitForLoaderToDisappear();
-			PageObjectHelper.log(LOGGER, "First sort completed. Now clicking second time for descending order...");
+			LOGGER.info("First sort completed. Now clicking second time for descending order...");
 			clickElement(ORG_JOB_NAME_HEADER);
 			waitForLoaderToDisappear();
-			PageObjectHelper.log(LOGGER, "Clicked two times on Organization job name / code header to Sort Job Profiles by Name in Descending order");
+			LOGGER.info("Clicked two times on Organization job name / code header to Sort Job Profiles by Name in Descending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_organiztion_job_name_in_descending_order", "Issue in clicking on Organization job name / code header to Sort Job Profiles by Name in Descending order", e);
 		}
@@ -319,8 +315,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 
 			List<WebElement> allElements = driver
 					.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
-			PageObjectHelper.log(LOGGER,
-					"Below are first thirty Job Profiles After sorting Job Profiles by Name in Descending Order:");
+			LOGGER.info("Below are first thirty Job Profiles After sorting Job Profiles by Name in Descending Order:");
 
 			// Get ALL Find Match buttons in ONE query, then map to job indices
 			Set<Integer> unmappedJobIndices = new HashSet<>();
@@ -370,7 +365,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					unmappedCount++;
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " - UNMAPPED (has Find Match button) - SKIPPED from sort validation");
-					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED - Appears at top");
+					LOGGER.info("Organization Job Profile: " + text + " - UNMAPPED - Appears at top");
 					continue; // Skip this job from sort validation
 				}
 
@@ -390,23 +385,22 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 				} else {
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text);
 				}
-				PageObjectHelper.log(LOGGER, "Organization Job Profile with Name Job Name / Code : " + text);
+				LOGGER.info("Organization Job Profile with Name Job Name / Code : " + text);
 			}
 
 			if (unmappedCount > 0) {
 				LOGGER.info("ℹ Found " + unmappedCount
 						+ " unmapped job(s) - these appear at top and are EXCLUDED from sort validation");
-				PageObjectHelper.log(LOGGER, 
-						"ℹ " + unmappedCount + " unmapped job(s) excluded from sort validation (appear at top)");
+				LOGGER.info("ℹ " + unmappedCount + " unmapped job(s) excluded from sort validation (appear at top)");
 			}
 			if (nonAsciiCount > 0) {
 				LOGGER.info("ℹ Found " + nonAsciiCount
 						+ " job(s) with non-ASCII characters - these appear at top in Descending order as expected");
-				PageObjectHelper.log(LOGGER, "ℹ " + nonAsciiCount
+				LOGGER.info("ℹ " + nonAsciiCount
 						+ " job(s) start with non-ASCII characters (Chinese, etc.) - expected at top");
 			}
 			if (specialCharCount > 0) {
-				PageObjectHelper.log(LOGGER, "ℹ " + specialCharCount + " job(s) start with special characters");
+				LOGGER.info("ℹ " + specialCharCount + " job(s) start with special characters");
 			}
 
 			// ✅ HIGH-LEVEL VALIDATION: Just confirm sorting is generally working
@@ -437,10 +431,10 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					String.format("%.1f", correctPercentage), correctPairs, totalPairs);
 			
 			if (correctPercentage >= 50) {
-				PageObjectHelper.log(LOGGER, "✅ Sorting validation PASSED - Descending order is working (" + 
+				LOGGER.info("✅ Sorting validation PASSED - Descending order is working (" + 
 						String.format("%.1f", correctPercentage) + "% correct)");
 			} else {
-				PageObjectHelper.log(LOGGER, "⚠ Sorting may have issues - only " + 
+				LOGGER.info("⚠ Sorting may have issues - only " + 
 						String.format("%.1f", correctPercentage) + "% in correct order");
 			}
 
@@ -456,7 +450,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		try {
 			clickElement(MATCHED_SP_GRADE_HEADER);
 			waitForLoaderToDisappear();
-			PageObjectHelper.log(LOGGER, "Clicked on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in ascending order");
+			LOGGER.info("Clicked on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in ascending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_matched_success_profile_grade_in_ascending_order", "Issue in clicking on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in ascending order", e);
 		}
@@ -471,8 +465,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 
 			List<WebElement> allElements = driver
 					.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
-			PageObjectHelper.log(LOGGER,
-					"Below are Job Profiles After sorting by Matched Success Profile Grade in Ascending Order:");
+			LOGGER.info("Below are Job Profiles After sorting by Matched Success Profile Grade in Ascending Order:");
 
 			// FAST: Pre-detect unmapped jobs using Find Match buttons
 			Set<Integer> unmappedJobIndices = new HashSet<>();
@@ -519,7 +512,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					unmappedCount++;
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " - UNMAPPED (has Find Match button) - SKIPPED from sort validation");
-					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
+					LOGGER.info("Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
 					continue; // Skip to next job, don't increment gradeIndex
 				}
 
@@ -553,13 +546,12 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 						LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 								+ " with Matched SP Grade : " + gradeText);
 					}
-					PageObjectHelper.log(LOGGER, 
-							"Organization Job Profile: " + text + " with Matched SP Grade : " + gradeText);
+					LOGGER.info("Organization Job Profile: " + text + " with Matched SP Grade : " + gradeText);
 				} else {
 					unmappedCount++;
 					LOGGER.info(
 							"Organization Job Profile with Job Name / Code : " + text + " - UNMAPPED (No SP Grade)");
-					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
+					LOGGER.info("Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
 				}
 			}
 
@@ -601,10 +593,10 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					String.format("%.1f", correctPercentage), correctPairs, totalPairs);
 			
 			if (spGrades.size() > 1) {
-				PageObjectHelper.log(LOGGER, "✅ SP Grade sorting validation completed - " + 
+				LOGGER.info("✅ SP Grade sorting validation completed - " + 
 						String.format("%.1f", correctPercentage) + "% in correct order");
 			} else {
-				PageObjectHelper.log(LOGGER, "ℹ Validation skipped - insufficient data");
+				LOGGER.info("ℹ Validation skipped - insufficient data");
 			}
 
 		} catch (Exception e) {
@@ -617,15 +609,15 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 
 	public void sort_job_profiles_by_matched_success_profile_grade_in_descending_order() {
 		try {
-			PageObjectHelper.log(LOGGER, "First click on SP Grade header to sort ascending...");
+			LOGGER.info("First click on SP Grade header to sort ascending...");
 			clickElement(MATCHED_SP_GRADE_HEADER);
 			waitForLoaderToDisappear();
-			PageObjectHelper.log(LOGGER, "First sort completed. Now clicking second time for descending order...");
+			LOGGER.info("First sort completed. Now clicking second time for descending order...");
 			safeSleep(2000);
 			clickElement(MATCHED_SP_GRADE_HEADER);
 			waitForLoaderToDisappear();
 			safeSleep(2000);
-			PageObjectHelper.log(LOGGER, "Clicked two times on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in descending order");
+			LOGGER.info("Clicked two times on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in descending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_matched_success_profile_grade_in_descending_order", "Issue in clicking two times on Matched Success Profile Grade header to Sort Job Profiles by Matched SP Grade in descending order", e);
 		}
@@ -640,8 +632,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 
 			List<WebElement> allElements = driver
 					.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
-			PageObjectHelper.log(LOGGER,
-					"Below are Job Profiles After sorting by Matched Success Profile Grade in Descending Order:");
+			LOGGER.info("Below are Job Profiles After sorting by Matched Success Profile Grade in Descending Order:");
 
 			// FAST: Pre-detect unmapped jobs using Find Match buttons
 			Set<Integer> unmappedJobIndices = new HashSet<>();
@@ -688,7 +679,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					unmappedCount++;
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " - UNMAPPED (has Find Match button) - SKIPPED from sort validation");
-					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
+					LOGGER.info("Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
 					continue; // Skip to next job, don't increment gradeIndex
 				}
 
@@ -722,13 +713,12 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 						LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 								+ " with Matched SP Grade : " + gradeText);
 					}
-					PageObjectHelper.log(LOGGER, 
-							"Organization Job Profile: " + text + " with Matched SP Grade : " + gradeText);
+					LOGGER.info("Organization Job Profile: " + text + " with Matched SP Grade : " + gradeText);
 				} else {
 					unmappedCount++;
 					LOGGER.info(
 							"Organization Job Profile with Job Name / Code : " + text + " - UNMAPPED (No SP Grade)");
-					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
+					LOGGER.info("Organization Job Profile: " + text + " - UNMAPPED (No SP Grade)");
 				}
 			}
 
@@ -738,10 +728,10 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			if (nonAsciiCount > 0) {
 				LOGGER.info("ℹ Found " + nonAsciiCount
 						+ " SP grade(s) with non-ASCII characters - expected at top in Descending order");
-				PageObjectHelper.log(LOGGER, nonAsciiCount + " SP grade(s) start with non-ASCII characters");
+				LOGGER.info(nonAsciiCount + " SP grade(s) start with non-ASCII characters");
 			}
 			if (specialCharCount > 0) {
-				PageObjectHelper.log(LOGGER, specialCharCount + " SP grade(s) start with special characters");
+				LOGGER.info(specialCharCount + " SP grade(s) start with special characters");
 			}
 
 			// ✅ HIGH-LEVEL VALIDATION: Just confirm SP Grade sorting is generally working
@@ -771,10 +761,10 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					String.format("%.1f", correctPercentage), correctPairs, totalPairs);
 			
 			if (spGrades.size() > 1) {
-				PageObjectHelper.log(LOGGER, "✅ SP Grade sorting validation completed - " + 
+				LOGGER.info("✅ SP Grade sorting validation completed - " + 
 						String.format("%.1f", correctPercentage) + "% in correct order");
 			} else {
-				PageObjectHelper.log(LOGGER, "ℹ Validation skipped - insufficient data");
+				LOGGER.info("ℹ Validation skipped - insufficient data");
 			}
 
 		} catch (Exception e) {
@@ -790,7 +780,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			clickElement(MATCHED_SP_NAME_HEADER);
 			waitForSpinners();
 			PageObjectHelper.waitForPageReady(driver, 3);
-			PageObjectHelper.log(LOGGER, "Clicked on Matched Success Profile Name header to Sort Job Profiles by Matched SP Name in ascending order");
+			LOGGER.info("Clicked on Matched Success Profile Name header to Sort Job Profiles by Matched SP Name in ascending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_matched_success_profile_name_in_ascending_order", "Issue in clicking on Matched Success Profile Name header to Sort Job Profiles by Matched SP Name in ascending order", e);
 		}
@@ -803,8 +793,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			safeSleep(3000);
 			List<WebElement> allElements = driver
 					.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
-			PageObjectHelper.log(LOGGER,
-					"Below are Job Profiles After sorting by Matched Success Profile Name in Ascending Order:");
+			LOGGER.info("Below are Job Profiles After sorting by Matched Success Profile Name in Ascending Order:");
 
 			// Collect SP names for validation (only mapped jobs)
 			ArrayList<String> spNames = new ArrayList<String>();
@@ -837,7 +826,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 				// Check if this is an unmapped job (no SP name)
 				if (NameText == null || NameText.trim().isEmpty() || NameText.equals("-")) {
 					unmappedCount++;
-					PageObjectHelper.log(LOGGER, "Organization Job Profile: " + text + " - UNMAPPED (No SP Name)");
+					LOGGER.info("Organization Job Profile: " + text + " - UNMAPPED (No SP Name)");
 				} else {
 					spNames.add(NameText); // Store for validation (keep original case for Unicode)
 
@@ -856,21 +845,20 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 						LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 								+ " with Matched SP Name : " + NameText);
 					}
-					PageObjectHelper.log(LOGGER, 
-							"Organization Job Profile: " + text + " with Matched SP Name : " + NameText);
+					LOGGER.info("Organization Job Profile: " + text + " with Matched SP Name : " + NameText);
 				}
 			}
 
 			if (unmappedCount > 0) {
-				PageObjectHelper.log(LOGGER, "Found " + unmappedCount + " unmapped job(s) without SP name details");
+				LOGGER.info("Found " + unmappedCount + " unmapped job(s) without SP name details");
 			}
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount
 						+ " SP name(s) with special characters - expected at top in Ascending order");
-				PageObjectHelper.log(LOGGER, specialCharCount + " SP name(s) start with special characters");
+				LOGGER.info(specialCharCount + " SP name(s) start with special characters");
 			}
 			if (nonAsciiCount > 0) {
-				PageObjectHelper.log(LOGGER, "ℹ " + nonAsciiCount + " SP name(s) contain non-ASCII characters");
+				LOGGER.info("ℹ " + nonAsciiCount + " SP name(s) contain non-ASCII characters");
 			}
 
 			// ✅ HIGH-LEVEL VALIDATION: Just confirm SP Name sorting is generally working
@@ -891,10 +879,10 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					String.format("%.1f", correctPercentage), correctPairs, totalPairs);
 			
 			if (spNames.size() > 1) {
-				PageObjectHelper.log(LOGGER, "✅ SP Name sorting validation completed - " + 
+				LOGGER.info("✅ SP Name sorting validation completed - " + 
 						String.format("%.1f", correctPercentage) + "% in correct order");
 			} else {
-				PageObjectHelper.log(LOGGER, "ℹ Validation skipped - insufficient data");
+				LOGGER.info("ℹ Validation skipped - insufficient data");
 			}
 
 		} catch (Exception e) {
@@ -910,7 +898,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			clickElement(ORG_JOB_GRADE_HEADER);
 			waitForSpinners();
 			PageObjectHelper.waitForPageReady(driver, 3);
-			PageObjectHelper.log(LOGGER, "Clicked on Organization Grade header to Sort Job Profiles by Grade in ascending order");
+			LOGGER.info("Clicked on Organization Grade header to Sort Job Profiles by Grade in ascending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_organization_grade_in_ascending_order", "Issue in clicking on Organization Grade header to Sort Job Profiles by Grade in ascending order", e);
 		}
@@ -929,8 +917,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			List<WebElement> OrgGradeElements = driver
 					.findElements(By.xpath("//*[@id='org-job-container']/div/table/tbody/tr/td[3]/div"));
 
-			PageObjectHelper.log(LOGGER,
-					"Below are Job Profiles After sorting by Organization Grade and Organization Job Name in Ascending Order:");
+			LOGGER.info("Below are Job Profiles After sorting by Organization Grade and Organization Job Name in Ascending Order:");
 
 			// Use the smaller size to avoid IndexOutOfBoundsException
 			int iterationLimit = Math.min(allElements.size(), OrgGradeElements.size());
@@ -969,17 +956,17 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " with Organization Job Grade : " + GradeText);
 				}
-				PageObjectHelper.log(LOGGER, "Organization Job Profile with Job Name / Code : " + text
+				LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 						+ " with Organization Job Grade : " + GradeText);
 			}
 
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount
 						+ " org grade(s) with special characters - expected at top in Ascending order");
-				PageObjectHelper.log(LOGGER, specialCharCount + " org grade(s) start with special characters");
+				LOGGER.info(specialCharCount + " org grade(s) start with special characters");
 			}
 			if (nonAsciiCount > 0) {
-				PageObjectHelper.log(LOGGER, nonAsciiCount + " org grade(s) contain non-ASCII characters");
+				LOGGER.info(nonAsciiCount + " org grade(s) contain non-ASCII characters");
 			}
 
 			// ✅ HIGH-LEVEL VALIDATION: Just confirm multi-level sorting is generally working
@@ -1012,7 +999,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					String.format("%.1f", correctPercentage), correctPairs, totalPairs);
 			
 			if (jobData.size() > 1) {
-				PageObjectHelper.log(LOGGER, "✅ Multi-level sorting validation completed - " + 
+				LOGGER.info("✅ Multi-level sorting validation completed - " + 
 						String.format("%.1f", correctPercentage) + "% in correct order");
 			}
 
@@ -1026,15 +1013,15 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 
 	public void sort_job_profiles_by_organization_grade_in_descending_order() {
 		try {
-			PageObjectHelper.log(LOGGER, "First click on Organization Grade header to sort ascending...");
+			LOGGER.info("First click on Organization Grade header to sort ascending...");
 			clickElement(ORG_JOB_GRADE_HEADER);
 			waitForLoaderToDisappear();
-			PageObjectHelper.log(LOGGER, "First sort completed. Now clicking second time for descending order...");
+			LOGGER.info("First sort completed. Now clicking second time for descending order...");
 			safeSleep(2000);
 			clickElement(ORG_JOB_GRADE_HEADER);
 			waitForLoaderToDisappear();
 			safeSleep(2000);
-			PageObjectHelper.log(LOGGER, "Clicked two times on Organization Grade header to Sort Job Profiles by Grade in Descending order");
+			LOGGER.info("Clicked two times on Organization Grade header to Sort Job Profiles by Grade in Descending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_organization_grade_in_descending_order", "Issue in clicking on Organization Grade to Sort Job Profiles by Grade in Descending order", e);
 		}
@@ -1052,8 +1039,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			int gradeElementCount = driver
 					.findElements(By.xpath("//*[@id='org-job-container']/div/table/tbody/tr/td[3]/div")).size();
 
-			PageObjectHelper.log(LOGGER,
-					"Below are Job Profiles After sorting by Organization Grade in Descending Order and Organization Job Name in Ascending Order:");
+			LOGGER.info("Below are Job Profiles After sorting by Organization Grade in Descending Order and Organization Job Name in Ascending Order:");
 
 			// Use the smaller size to avoid IndexOutOfBoundsException
 			int iterationLimit = Math.min(elementCount, gradeElementCount);
@@ -1095,17 +1081,17 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 							+ " with Organization Job Grade : " + GradeText);
 				}
-				PageObjectHelper.log(LOGGER, "Organization Job Profile with Job Name / Code : " + text
+				LOGGER.info("Organization Job Profile with Job Name / Code : " + text
 						+ " with Organization Job Grade : " + GradeText);
 			}
 
 			if (nonAsciiCount > 0) {
 				LOGGER.info("ℹ Found " + nonAsciiCount
 						+ " org grade(s) with non-ASCII characters - expected at top in Descending order");
-				PageObjectHelper.log(LOGGER, nonAsciiCount + " org grade(s) start with non-ASCII characters");
+				LOGGER.info(nonAsciiCount + " org grade(s) start with non-ASCII characters");
 			}
 			if (specialCharCount > 0) {
-				PageObjectHelper.log(LOGGER, specialCharCount + " org grade(s) start with special characters");
+				LOGGER.info(specialCharCount + " org grade(s) start with special characters");
 			}
 
 			// ✅ HIGH-LEVEL VALIDATION: Just confirm multi-level sorting is generally working
@@ -1142,7 +1128,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					String.format("%.1f", correctPercentage), correctPairs, totalPairs);
 			
 			if (jobData.size() > 1) {
-				PageObjectHelper.log(LOGGER, "✅ Multi-level sorting validation completed - " + 
+				LOGGER.info("✅ Multi-level sorting validation completed - " + 
 						String.format("%.1f", correctPercentage) + "% in correct order");
 			}
 
@@ -1160,7 +1146,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			String columnLower = column.toLowerCase().trim();
 			String orderLower = order.toLowerCase().trim();
 			
-			PageObjectHelper.log(LOGGER, "Sorting by column: '" + column + "' in '" + order + "' order");
+			LOGGER.info("Sorting by column: '" + column + "' in '" + order + "' order");
 			
 			if (columnLower.contains("organization job name") || columnLower.contains("org job name")) {
 				if (orderLower.contains("ascending") || orderLower.contains("asc")) {
@@ -1196,7 +1182,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			String columnLower = column.toLowerCase().trim();
 			String orderLower = order.toLowerCase().trim();
 			
-			PageObjectHelper.log(LOGGER, "Verifying sort by column: '" + column + "' in '" + order + "' order");
+			LOGGER.info("Verifying sort by column: '" + column + "' in '" + order + "' order");
 			
 			if (columnLower.contains("organization job name") || columnLower.contains("org job name")) {
 				if (orderLower.contains("ascending") || orderLower.contains("asc")) {

@@ -187,7 +187,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_page_load_time_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure page load time: " + e.getMessage());
+			LOGGER.info(" Failed to measure page load time: " + e.getMessage());
 		}
 	}
 
@@ -218,7 +218,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 			// Summary
 			String summaryMsg = String.format(" Components Loaded: %d/%d", loadedComponents, totalComponents);
-			PageObjectHelper.log(LOGGER, summaryMsg);
+			LOGGER.info(summaryMsg);
 
 			if (loadedComponents < totalComponents) {
 				String failMsg = String.format(" Only %d/%d components loaded", loadedComponents, totalComponents);
@@ -229,7 +229,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_critical_components_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify critical components: " + e.getMessage());
+			LOGGER.info(" Failed to verify critical components: " + e.getMessage());
 			Assert.fail("Failed to verify critical components: " + e.getMessage());
 		}
 	}
@@ -282,7 +282,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	private void validateThreshold(long actualTime, long threshold, String operationName, String screenshotPrefix) {
 		if (actualTime == 0) {
 			String errorMsg = " TECHNICAL FAILURE: " + operationName + " time was not measured";
-			PageObjectHelper.log(LOGGER, errorMsg);
+			LOGGER.info(errorMsg);
 			Assert.fail(errorMsg);
 		}
 
@@ -309,13 +309,13 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		if (actualTime <= threshold) {
 			String successMsg = String.format(" %s: %d ms (%.2f sec) | %s", operationName, actualTime,
 					actualTime / 1000.0, performanceRating);
-			PageObjectHelper.log(LOGGER, successMsg);
+			LOGGER.info(successMsg);
 		} else {
 			long difference = actualTime - threshold;
 			String warnMsg = String.format(" %s: %d ms (%.2f sec) | Exceeded by %d ms | %s", operationName, actualTime,
 					actualTime / 1000.0, difference, performanceRating);
 			LOGGER.warn(warnMsg);
-			PageObjectHelper.log(LOGGER, warnMsg);
+			LOGGER.info(warnMsg);
 			// as they are alerts, not test failures
 		}
 	}
@@ -325,7 +325,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			validateThreshold(actualTime, threshold, operationName, screenshotPrefix);
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_" + screenshotPrefix + "_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate " + operationName.toLowerCase() + " threshold: " + e.getMessage());
+			LOGGER.info(" Failed to validate " + operationName.toLowerCase() + " threshold: " + e.getMessage());
 			Assert.fail("Failed to validate " + operationName.toLowerCase() + " threshold: " + e.getMessage());
 		}
 	}
@@ -418,7 +418,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("job_mapping_page_not_ready", e);
-			PageObjectHelper.log(LOGGER, " Job Mapping page not ready: " + e.getMessage());
+			LOGGER.info(" Job Mapping page not ready: " + e.getMessage());
 			Assert.fail("Job Mapping page not ready: " + e.getMessage());
 		}
 	}
@@ -453,7 +453,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_search_time_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure search time: " + e.getMessage());
+			LOGGER.info(" Failed to measure search time: " + e.getMessage());
 			Assert.fail("Failed to measure search time: " + e.getMessage());
 		}
 	}
@@ -484,11 +484,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			String accuracyMsg = String.format(" Search '%s': %d matching | %d  %d profiles", searchKeyword.get(),
 					matchingResults, resultsCountBeforeSearch.get(), resultsCountAfterSearch.get());
 
-			PageObjectHelper.log(LOGGER, accuracyMsg);
+			LOGGER.info(accuracyMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_search_results_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify search results: " + e.getMessage());
+			LOGGER.info(" Failed to verify search results: " + e.getMessage());
 			Assert.fail("Failed to verify search results: " + e.getMessage());
 		}
 	}
@@ -509,11 +509,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 				responseMsg = String.format(" Search UI Slow: %d ms", searchTime);
 				LOGGER.error(responseMsg);
 			}
-			PageObjectHelper.log(LOGGER, responseMsg);
+			LOGGER.info(responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_search_suggestions_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate search UI: " + e.getMessage());
+			LOGGER.info(" Failed to validate search UI: " + e.getMessage());
 			Assert.fail("Failed to validate search UI: " + e.getMessage());
 		}
 	}
@@ -529,13 +529,13 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			String currentSearchText = findElement(SEARCH_BAR).getAttribute("value");
 			if (currentSearchText == null || currentSearchText.trim().isEmpty()) {
 				String errorMsg = " Search bar is empty";
-				PageObjectHelper.log(LOGGER, errorMsg);
+				LOGGER.info(errorMsg);
 				Assert.fail(errorMsg);
 			}
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("search_not_performed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify search state: " + e.getMessage());
+			LOGGER.info(" Failed to verify search state: " + e.getMessage());
 			Assert.fail("Failed to verify search state: " + e.getMessage());
 		}
 	}
@@ -574,7 +574,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_clear_search_time_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure clear search time: " + e.getMessage());
+			LOGGER.info(" Failed to measure clear search time: " + e.getMessage());
 			Assert.fail("Failed to measure clear search time: " + e.getMessage());
 		}
 	}
@@ -596,19 +596,19 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			String restorationMsg = String.format(" Restoration: %d  %d  %d profiles | Empty: %s | Match: %s",
 					resultsCountBeforeSearch.get(), resultsCountAfterSearch.get(), resultsCountAfterClear.get(),
 					isSearchBarEmpty ? "" : "-", countsMatch ? "" : "-");
-			PageObjectHelper.log(LOGGER, restorationMsg);
+			LOGGER.info(restorationMsg);
 
 			if (!countsMatch) {
 				String failMsg = String.format(" Profile count mismatch: Expected %d, Actual %d",
 						resultsCountBeforeSearch.get(), resultsCountAfterClear.get());
-				PageObjectHelper.log(LOGGER, failMsg);
+				LOGGER.info(failMsg);
 				ScreenshotHandler.captureFailureScreenshot("profiles_not_restored", new Exception(failMsg));
 				Assert.fail(failMsg);
 			}
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_restoration_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify profile restoration: " + e.getMessage());
+			LOGGER.info(" Failed to verify profile restoration: " + e.getMessage());
 			Assert.fail("Failed to verify profile restoration: " + e.getMessage());
 		}
 	}
@@ -629,11 +629,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 				responseMsg = String.format(" Clear UI Slow: %d ms", clearTime);
 				LOGGER.error(responseMsg);
 			}
-			PageObjectHelper.log(LOGGER, responseMsg);
+			LOGGER.info(responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_clear_ui_responsiveness_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate clear UI: " + e.getMessage());
+			LOGGER.info(" Failed to validate clear UI: " + e.getMessage());
 			Assert.fail("Failed to validate clear UI: " + e.getMessage());
 		}
 	}
@@ -657,11 +657,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 			String performanceLog = String.format(" Dropdown Open: %d ms (%.2f sec)", totalFilterDropdownOpenTime.get(),
 					totalFilterDropdownOpenTime.get() / 1000.0);
-			PageObjectHelper.log(LOGGER, performanceLog);
+			LOGGER.info(performanceLog);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_filter_dropdown_open_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure filter dropdown open time: " + e.getMessage());
+			LOGGER.info(" Failed to measure filter dropdown open time: " + e.getMessage());
 			Assert.fail("Failed to measure filter dropdown open time: " + e.getMessage());
 		}
 	}
@@ -797,7 +797,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_single_filter_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure single filter time: " + e.getMessage());
+			LOGGER.info(" Failed to measure single filter time: " + e.getMessage());
 			Assert.fail("Failed to measure single filter time: " + e.getMessage());
 		}
 	}
@@ -824,11 +824,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			String validationMsg = String.format(" Filter %s=%s: %d  %d profiles | Clear Btn: %s", appliedFilterType.get(),
 					appliedFilterValue.get(), resultsCountBeforeFilter.get(), resultsCountAfterFilter.get(),
 					clearFiltersVisible ? "" : "-");
-			PageObjectHelper.log(LOGGER, validationMsg);
+			LOGGER.info(validationMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_filtered_results_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify filtered results: " + e.getMessage());
+			LOGGER.info(" Failed to verify filtered results: " + e.getMessage());
 			Assert.fail("Failed to verify filtered results: " + e.getMessage());
 		}
 	}
@@ -849,11 +849,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 				responseMsg = String.format(" Filter UI Slow: %d ms", filterTime);
 				LOGGER.error(responseMsg);
 			}
-			PageObjectHelper.log(LOGGER, responseMsg);
+			LOGGER.info(responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_filter_ui_responsiveness_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate filter UI: " + e.getMessage());
+			LOGGER.info(" Failed to validate filter UI: " + e.getMessage());
 			Assert.fail("Failed to validate filter UI: " + e.getMessage());
 		}
 	}
@@ -984,11 +984,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 							+ "    Total Time: %d ms (%.2f sec)%n" + "    Results: %d  %d profiles",
 					numberOfFiltersApplied.get(), appliedFiltersLog.toString(), totalMultipleFiltersTime.get(),
 					totalMultipleFiltersTime.get() / 1000.0, resultsCountBeforeFilter.get(), resultsCountAfterFilter.get());
-			PageObjectHelper.log(LOGGER, performanceLog);
+			LOGGER.info(performanceLog);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_multiple_filters_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure multiple filters time: " + e.getMessage());
+			LOGGER.info(" Failed to measure multiple filters time: " + e.getMessage());
 			Assert.fail("Failed to measure multiple filters time: " + e.getMessage());
 		}
 	}
@@ -1022,15 +1022,15 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 					" Combined Filter Results: %d filters applied | %d  %d profiles | Clear button: %s",
 					numberOfFiltersApplied.get(), resultsCountBeforeFilter.get(), resultsCountAfterFilter.get(),
 					clearFiltersVisible ? "Visible " : "Not visible -");
-			PageObjectHelper.log(LOGGER, validationMsg);
+			LOGGER.info(validationMsg);
 
 			if (resultsDecreased && clearFiltersVisible && resultsCountDisplayed) {
-				PageObjectHelper.log(LOGGER, " All combined filter validations passed");
+				LOGGER.info(" All combined filter validations passed");
 			}
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_combined_filtered_results_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify combined filtered results: " + e.getMessage());
+			LOGGER.info(" Failed to verify combined filtered results: " + e.getMessage());
 			Assert.fail("Failed to verify combined filtered results: " + e.getMessage());
 		}
 	}
@@ -1045,11 +1045,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			} else {
 				responseMsg = String.format(" UI Acceptable: %d ms (Not instant)", filterTime);
 			}
-			PageObjectHelper.log(LOGGER, responseMsg);
+			LOGGER.info(responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_multi_filter_ui_lag_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate UI lag: " + e.getMessage());
+			LOGGER.info(" Failed to validate UI lag: " + e.getMessage());
 			Assert.fail("Failed to validate UI lag: " + e.getMessage());
 		}
 	}
@@ -1215,11 +1215,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 			String setupMsg = String.format(" Filter applied: %s = %s | %d  %d profiles", appliedFilterType.get(),
 					appliedFilterValue.get(), resultsCountBeforeFilter.get(), resultsCountAfterFilter.get());
-			PageObjectHelper.log(LOGGER, setupMsg);
+			LOGGER.info(setupMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("apply_filter_for_clear_test_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to apply filter for clear test: " + e.getMessage());
+			LOGGER.info(" Failed to apply filter for clear test: " + e.getMessage());
 			Assert.fail("Failed to apply filter for clear test: " + e.getMessage());
 		}
 	}
@@ -1265,11 +1265,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 					totalClearFiltersTime.get(), totalClearFiltersTime.get() / 1000.0, resultsCountAfterFilter.get(),
 					resultsCountAfterClearFilters.get(),
 					resultsCountAfterClearFilters.get().equals(resultsCountBeforeFilter.get()) ? "Yes " : "No -");
-			PageObjectHelper.log(LOGGER, performanceLog);
+			LOGGER.info(performanceLog);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_clear_filters_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure clear filters time: " + e.getMessage());
+			LOGGER.info(" Failed to measure clear filters time: " + e.getMessage());
 			Assert.fail("Failed to measure clear filters time: " + e.getMessage());
 		}
 	}
@@ -1286,15 +1286,15 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			String restorationMsg = String.format(" Restored profiles: %d  %d  %d | Match: %s",
 					resultsCountBeforeFilter.get(), resultsCountAfterFilter.get(), resultsCountAfterClearFilters.get(),
 					resultsCountAfterClearFilters.get().equals(resultsCountBeforeFilter.get()) ? "Yes " : "No -");
-			PageObjectHelper.log(LOGGER, restorationMsg);
+			LOGGER.info(restorationMsg);
 
 			if (resultsCountAfterClearFilters.get().equals(resultsCountBeforeFilter.get())) {
-				PageObjectHelper.log(LOGGER, " All profiles restored to original count");
+				LOGGER.info(" All profiles restored to original count");
 			} else {
 				int difference = Math.abs(resultsCountAfterClearFilters.get() - resultsCountBeforeFilter.get());
 				String failMsg = String.format(" Count mismatch: Expected %d, Actual %d (Diff: %d)",
 						resultsCountBeforeFilter.get(), resultsCountAfterClearFilters.get(), difference);
-				PageObjectHelper.log(LOGGER, failMsg);
+				LOGGER.info(failMsg);
 				ScreenshotHandler.captureFailureScreenshot("profiles_not_restored_after_clear_filters",
 						new Exception(failMsg));
 				Assert.fail(failMsg);
@@ -1302,7 +1302,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_restoration_after_clear_filters_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify profile restoration: " + e.getMessage());
+			LOGGER.info(" Failed to verify profile restoration: " + e.getMessage());
 			Assert.fail("Failed to verify profile restoration: " + e.getMessage());
 		}
 	}
@@ -1317,11 +1317,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			} else {
 				responseMsg = String.format(" UI Acceptable: %d ms (Not instant)", clearTime);
 			}
-			PageObjectHelper.log(LOGGER, responseMsg);
+			LOGGER.info(responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_clear_filters_ui_freeze_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate UI freeze: " + e.getMessage());
+			LOGGER.info(" Failed to validate UI freeze: " + e.getMessage());
 			Assert.fail("Failed to validate UI freeze: " + e.getMessage());
 		}
 	}
@@ -1383,11 +1383,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			String performanceLog = String.format(
 					" Scroll Metrics: %d scrolls | %d  %d profiles | Avg lazy load: %d ms | Total: %d ms", totalScrolls.get(),
 					initialProfileCount.get(), finalProfileCount.get(), avgLazyLoadTime.get(), totalScrollTime.get());
-			PageObjectHelper.log(LOGGER, performanceLog);
+			LOGGER.info(performanceLog);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_scroll_time_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure scroll time: " + e.getMessage());
+			LOGGER.info(" Failed to measure scroll time: " + e.getMessage());
 			Assert.fail("Failed to measure scroll time: " + e.getMessage());
 		}
 	}
@@ -1396,18 +1396,18 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		try {
 			if (lazyLoadTimes.get().isEmpty()) {
 				LOGGER.warn(" No lazy loading detected");
-				PageObjectHelper.log(LOGGER, " No lazy loading detected");
+				LOGGER.info(" No lazy loading detected");
 				return;
 			}
 
 			boolean lazyLoadPerformanceGood = avgLazyLoadTime.get() <= LAZY_LOAD_THRESHOLD_MS;
 			String validationMsg = String.format(" Lazy Load: %d triggers | Avg: %d ms | Status: %s",
 					lazyLoadTimes.get().size(), avgLazyLoadTime.get(), lazyLoadPerformanceGood ? "" : "-");
-			PageObjectHelper.log(LOGGER, validationMsg);
+			LOGGER.info(validationMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_lazy_loading_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate lazy loading: " + e.getMessage());
+			LOGGER.info(" Failed to validate lazy loading: " + e.getMessage());
 			Assert.fail("Failed to validate lazy loading: " + e.getMessage());
 		}
 	}
@@ -1419,7 +1419,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	public void user_validates_newly_loaded_profiles_render_within_acceptable_time() {
 		try {
 			if (lazyLoadTimes.get().isEmpty()) {
-				PageObjectHelper.log(LOGGER, " No lazy loading - all profiles available on page load");
+				LOGGER.info(" No lazy loading - all profiles available on page load");
 				return;
 			}
 
@@ -1431,7 +1431,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 					" Render Times: Min %d ms | Avg %d ms | Max %d ms | Threshold: %d ms | Status: %s", minLazyLoadTime,
 					avgLazyLoadTime.get(), maxLazyLoadTime, LAZY_LOAD_THRESHOLD_MS, allWithinThreshold ? "" : "-");
 
-			PageObjectHelper.log(LOGGER, renderMsg);
+			LOGGER.info(renderMsg);
 
 			if (allWithinThreshold) {
 				LOGGER.info(" All profile render times within acceptable threshold");
@@ -1439,12 +1439,12 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 				String warnMsg = String.format(" Some lazy load times exceeded threshold (Max: %d ms > %d ms)",
 						maxLazyLoadTime, LAZY_LOAD_THRESHOLD_MS);
 				LOGGER.warn(warnMsg);
-				PageObjectHelper.log(LOGGER, warnMsg);
+				LOGGER.info(warnMsg);
 			}
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_render_time_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate render time: " + e.getMessage());
+			LOGGER.info(" Failed to validate render time: " + e.getMessage());
 			Assert.fail("Failed to validate render time: " + e.getMessage());
 		}
 	}
@@ -1461,7 +1461,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 					(finalProfileCount.get() - initialProfileCount.get()), lazyLoadTimes.get().size(), avgLazyLoadTime.get(),
 					getPerformanceRating(totalScrollTime.get(), SCROLL_OPERATION_THRESHOLD_MS));
 
-			PageObjectHelper.log(LOGGER, summaryMsg);
+			LOGGER.info(summaryMsg);
 
 			if (totalScrollTime.get() <= SCROLL_OPERATION_THRESHOLD_MS
 					&& (lazyLoadTimes.get().isEmpty() || avgLazyLoadTime.get() <= LAZY_LOAD_THRESHOLD_MS)) {
@@ -1472,7 +1472,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_total_scroll_time_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify total scroll time: " + e.getMessage());
+			LOGGER.info(" Failed to verify total scroll time: " + e.getMessage());
 			Assert.fail("Failed to verify total scroll time: " + e.getMessage());
 		}
 	}
@@ -1542,7 +1542,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_navigation_to_comparison_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure navigation time: " + e.getMessage());
+			LOGGER.info(" Failed to measure navigation time: " + e.getMessage());
 			Assert.fail("Failed to measure navigation time: " + e.getMessage());
 		}
 	}
@@ -1560,7 +1560,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			if (headerText.equals("Which profile do you want to use for this job?")) {
 				LOGGER.info(String.format(" Job Comparison screen loaded successfully | Profile: %s",
 						jobNameForComparison.get()));
-				PageObjectHelper.log(LOGGER, " Job Comparison screen verified");
+				LOGGER.info(" Job Comparison screen verified");
 			} else {
 				throw new Exception(
 						"Job Comparison screen header mismatch. Expected: 'Which profile do you want to use for this job?', Got: '"
@@ -1569,7 +1569,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_comparison_screen_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify Job Comparison screen: " + e.getMessage());
+			LOGGER.info(" Failed to verify Job Comparison screen: " + e.getMessage());
 			Assert.fail("Failed to verify Job Comparison screen: " + e.getMessage());
 		}
 	}
@@ -1589,7 +1589,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_navigation_back_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure back navigation time: " + e.getMessage());
+			LOGGER.info(" Failed to measure back navigation time: " + e.getMessage());
 			Assert.fail("Failed to measure back navigation time: " + e.getMessage());
 		}
 	}
@@ -1608,11 +1608,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			String resultsText = resultsCountElement.getText().trim();
 			int profileCount = extractResultsCount(resultsText);
 
-			PageObjectHelper.log(LOGGER, "Job Mapping screen verified - " + profileCount + " profiles loaded");
+			LOGGER.info("Job Mapping screen verified - " + profileCount + " profiles loaded");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_mapping_screen_after_nav_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify Job Mapping screen: " + e.getMessage());
+			LOGGER.info(" Failed to verify Job Mapping screen: " + e.getMessage());
 			Assert.fail("Failed to verify Job Mapping screen: " + e.getMessage());
 		}
 	}
@@ -1643,11 +1643,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 			LOGGER.info(String.format(" Maximum profiles loaded: %d profiles (%d initial  %d final)", finalCount,
 					currentCount, finalCount));
-			PageObjectHelper.log(LOGGER, " Maximum profiles loaded for sort test: " + finalCount);
+			LOGGER.info(" Maximum profiles loaded for sort test: " + finalCount);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("load_max_profiles_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to load maximum profiles: " + e.getMessage());
+			LOGGER.info(" Failed to load maximum profiles: " + e.getMessage());
 			Assert.fail("Failed to load maximum profiles: " + e.getMessage());
 		}
 	}
@@ -1676,7 +1676,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sort_by_title_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure sort by Job Title: " + e.getMessage());
+			LOGGER.info(" Failed to measure sort by Job Title: " + e.getMessage());
 			Assert.fail("Failed to measure sort by Job Title: " + e.getMessage());
 		}
 	}
@@ -1705,7 +1705,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sort_by_grade_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure sort by Grade: " + e.getMessage());
+			LOGGER.info(" Failed to measure sort by Grade: " + e.getMessage());
 			Assert.fail("Failed to measure sort by Grade: " + e.getMessage());
 		}
 	}
@@ -1721,7 +1721,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_sort_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate sort threshold: " + e.getMessage());
+			LOGGER.info(" Failed to validate sort threshold: " + e.getMessage());
 			Assert.fail("Failed to validate sort threshold: " + e.getMessage());
 		}
 	}
@@ -1735,11 +1735,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 			LOGGER.info(
 					String.format(" Sort completed successfully | %d profiles visible in sorted view", rows.size()));
-			PageObjectHelper.log(LOGGER, " Sorted results verified (table populated)");
+			LOGGER.info(" Sorted results verified (table populated)");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_sorted_results_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify sorted results: " + e.getMessage());
+			LOGGER.info(" Failed to verify sorted results: " + e.getMessage());
 			Assert.fail("Failed to verify sorted results: " + e.getMessage());
 		}
 	}
@@ -1760,11 +1760,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 				responseMsg = String.format(" Sort operations too slow (max: %d ms)", maxSortTime);
 				LOGGER.error(responseMsg);
 			}
-			PageObjectHelper.log(LOGGER, responseMsg);
+			LOGGER.info(responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_sort_ui_responsiveness_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate UI responsiveness: " + e.getMessage());
+			LOGGER.info(" Failed to validate UI responsiveness: " + e.getMessage());
 			Assert.fail("Failed to validate UI responsiveness: " + e.getMessage());
 		}
 	}
@@ -1799,7 +1799,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_chevron_click_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure chevron click time: " + e.getMessage());
+			LOGGER.info(" Failed to measure chevron click time: " + e.getMessage());
 			Assert.fail("Failed to measure chevron click time: " + e.getMessage());
 		}
 	}
@@ -1828,7 +1828,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_select_all_click_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure Select All click time: " + e.getMessage());
+			LOGGER.info(" Failed to measure Select All click time: " + e.getMessage());
 			Assert.fail("Failed to measure Select All click time: " + e.getMessage());
 		}
 	}
@@ -1845,7 +1845,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_select_all_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate Select All threshold: " + e.getMessage());
+			LOGGER.info(" Failed to validate Select All threshold: " + e.getMessage());
 			Assert.fail("Failed to validate Select All threshold: " + e.getMessage());
 		}
 	}
@@ -1874,12 +1874,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			LOGGER.info(
 					String.format(" Selected profiles verified: %d profiles selected (Sample of %d checkboxes checked)",
 							profilesCountAfterSelectAll.get(), selectedCount));
-			PageObjectHelper.log(LOGGER, 
-					String.format(" Select All successful: %d profiles selected", profilesCountAfterSelectAll.get()));
+			LOGGER.info(String.format(" Select All successful: %d profiles selected", profilesCountAfterSelectAll.get()));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_all_profiles_selected_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify all profiles selected: " + e.getMessage());
+			LOGGER.info(" Failed to verify all profiles selected: " + e.getMessage());
 			Assert.fail("Failed to verify all profiles selected: " + e.getMessage());
 		}
 	}
@@ -1901,11 +1900,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 				responseMsg = String.format(" Select All operation too slow (%d ms)", totalOperationTime);
 				LOGGER.error(responseMsg);
 			}
-			PageObjectHelper.log(LOGGER, responseMsg);
+			LOGGER.info(responseMsg);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_bulk_selection_ui_responsiveness_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate UI responsiveness: " + e.getMessage());
+			LOGGER.info(" Failed to validate UI responsiveness: " + e.getMessage());
 			Assert.fail("Failed to validate UI responsiveness: " + e.getMessage());
 		}
 	}
@@ -1948,11 +1947,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			PageObjectHelper.waitForVisible(wait, PROFILE_MANAGER_HEADER);
 			PageObjectHelper.waitForPageReady(driver, 2);
 
-			PageObjectHelper.log(LOGGER, " Navigated to Profile Manager screen");
+			LOGGER.info(" Navigated to Profile Manager screen");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("navigate_to_profile_manager_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to navigate to Profile Manager: " + e.getMessage());
+			LOGGER.info(" Failed to navigate to Profile Manager: " + e.getMessage());
 			Assert.fail("Failed to navigate to Profile Manager: " + e.getMessage());
 		}
 	}
@@ -1962,11 +1961,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			PageObjectHelper.waitForClickable(wait, HCM_SYNC_PROFILES_HEADER_TAB).click();
 			safeSleep(500);
 
-			PageObjectHelper.log(LOGGER, " Clicked on HCM Sync Profiles tab");
+			LOGGER.info(" Clicked on HCM Sync Profiles tab");
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_hcm_tab_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to click HCM tab: " + e.getMessage());
+			LOGGER.info(" Failed to click HCM tab: " + e.getMessage());
 			Assert.fail("Failed to click HCM tab: " + e.getMessage());
 		}
 	}
@@ -1985,7 +1984,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_hcm_page_load_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure HCM page load time: " + e.getMessage());
+			LOGGER.info(" Failed to measure HCM page load time: " + e.getMessage());
 			Assert.fail("Failed to measure HCM page load time: " + e.getMessage());
 		}
 	}
@@ -2009,11 +2008,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 						String.format(" HCM Sync Profiles loaded successfully | %d profiles found", hcmProfilesCount.get()));
 			}
 
-			PageObjectHelper.log(LOGGER, String.format(" HCM profiles loaded: %d profiles", hcmProfilesCount.get()));
+			LOGGER.info(String.format(" HCM profiles loaded: %d profiles", hcmProfilesCount.get()));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_hcm_profiles_loaded_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify HCM profiles loaded: " + e.getMessage());
+			LOGGER.info(" Failed to verify HCM profiles loaded: " + e.getMessage());
 			Assert.fail("Failed to verify HCM profiles loaded: " + e.getMessage());
 		}
 	}
@@ -2052,8 +2051,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 			LOGGER.info(String.format(" Selected profiles using header checkbox: %d profiles ready for sync",
 					selectedProfilesCountBeforeSync.get()));
-			PageObjectHelper.log(LOGGER, 
-					String.format(" %d profiles selected for sync test", selectedProfilesCountBeforeSync.get()));
+			LOGGER.info(String.format(" %d profiles selected for sync test", selectedProfilesCountBeforeSync.get()));
 
 			// Verify Sync button is enabled
 			WebElement syncBtn = PageObjectHelper.waitForVisible(wait, Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN);
@@ -2063,7 +2061,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_selected_profiles_for_sync_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify selected profiles for sync: " + e.getMessage());
+			LOGGER.info(" Failed to verify selected profiles for sync: " + e.getMessage());
 			Assert.fail("Failed to verify selected profiles for sync: " + e.getMessage());
 		}
 	}
@@ -2088,7 +2086,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sync_click_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure sync click time: " + e.getMessage());
+			LOGGER.info(" Failed to measure sync click time: " + e.getMessage());
 			Assert.fail("Failed to measure sync click time: " + e.getMessage());
 		}
 	}
@@ -2104,7 +2102,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("measure_sync_process_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to measure sync process time: " + e.getMessage());
+			LOGGER.info(" Failed to measure sync process time: " + e.getMessage());
 			Assert.fail("Failed to measure sync process time: " + e.getMessage());
 		}
 	}
@@ -2121,7 +2119,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("validate_sync_threshold_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to validate sync threshold: " + e.getMessage());
+			LOGGER.info(" Failed to validate sync threshold: " + e.getMessage());
 			Assert.fail("Failed to validate sync threshold: " + e.getMessage());
 		}
 	}
@@ -2131,7 +2129,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			// PARALLEL EXECUTION FIX: Use wait with locator instead of direct findElement
 			WebElement successPopup = PageObjectHelper.waitForVisible(wait, SYNC_SUCCESS_POPUP_TEXT);
 			String successMsg = successPopup.getText().trim();
-			PageObjectHelper.log(LOGGER, "Sync success message displayed: " + successMsg);
+			LOGGER.info("Sync success message displayed: " + successMsg);
 
 			// PARALLEL EXECUTION FIX: Use elementToBeClickable for close button
 			WebElement closeBtn = PageObjectHelper.waitForClickable(wait, SYNC_SUCCESS_POPUP_CLOSE_BTN);
@@ -2140,11 +2138,11 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 			LOGGER.info(String.format(" Sync operation completed | %d profiles synced with HCM",
 					selectedProfilesCountBeforeSync.get()));
-			PageObjectHelper.log(LOGGER, String.format(" Synced %d profiles successfully", selectedProfilesCountBeforeSync.get()));
+			LOGGER.info(String.format(" Synced %d profiles successfully", selectedProfilesCountBeforeSync.get()));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_sync_status_failed", e);
-			PageObjectHelper.log(LOGGER, " Failed to verify sync status: " + e.getMessage());
+			LOGGER.info(" Failed to verify sync status: " + e.getMessage());
 			Assert.fail("Failed to verify sync status: " + e.getMessage());
 		}
 	}
