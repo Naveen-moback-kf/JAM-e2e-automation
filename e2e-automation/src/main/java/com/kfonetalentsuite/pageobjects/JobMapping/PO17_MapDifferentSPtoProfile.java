@@ -367,7 +367,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				waitForSpinners();
 				Assert.assertTrue(waitForElement(PROFILE_DETAILS_POPUP_HEADER).isDisplayed());
-				LOGGER.info("Mapped Profile details popup is displayed on screen as expected");
+				LOGGER.info("Mapped Profile details popup is displayed on screen");
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER, "verify_mapped_profile_details_popup_is_displayed",
 						"Issue displaying profile details popup", e);
@@ -733,7 +733,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			// PERFORMANCE: Replaced Thread.sleep(3000) with element readiness wait
 			PageObjectHelper.waitForVisible(wait, By.xpath("//*[contains(text(),'Which profile')]"));
 			Assert.assertEquals(actualHeader, expectedHeader);
-				LOGGER.info("User navigated to Manual Mapping screen as expected");
+				LOGGER.info("User navigated to Manual Mapping screen");
 				if (actualHeader.contentEquals(expectedHeader)) {
 					manualMapping.set(true);
 				}
@@ -902,7 +902,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						.until(ExpectedConditions.visibilityOf(findElement(MANUAL_MAPPING_PROFILE_TITLE))).getText();
 				Assert.assertEquals(mappedSuccessPrflName.get(), manualMappingProfile1TitleText);
 				Assert.assertEquals(lastSavedProfileName.get(), manualMappingProfile1TitleText);
-								LOGGER.info("Last Saved Profile Name in the Manual Mapping screen matches with Profile Name in the details popup as expected");
+								LOGGER.info("Last Saved Profile Name in the Manual Mapping screen matches with Profile Name in the details popup");
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER,
 						"user_should_verify_last_saved_profile_name_in_manual_mapping_screen_matches_with_profile_name_in_details_popup",
@@ -956,7 +956,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						.until(ExpectedConditions.visibilityOf(findElement(MANUAL_MAPPING_ROLE_SUMMARY))).getText();
 				Assert.assertEquals(ProfileRoleSummary.get(),
 						roleSummaryText.split(": ", 2)[1].trim());
-								LOGGER.info("Last Saved Profile Role Summary in the Manual Mapping screen matches with Mapped Success Profile Role Summary in details popup as expected");
+								LOGGER.info("Last Saved Profile Role Summary in the Manual Mapping screen matches with Mapped Success Profile Role Summary in details popup");
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER,
 						"validate_last_saved_success_profile_role_summary_matches_with_profile_role_summary_in_details_popup",
@@ -976,7 +976,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				String profileDetailsText = wait
 						.until(ExpectedConditions.visibilityOf(findElement(MANUAL_MAPPING_PROFILE_DETAILS))).getText();
 				Assert.assertEquals(ProfileDetails.get(), profileDetailsText);
-								LOGGER.info("Last Saved Profile Details in the Manual Mapping screen matches with Mapped Success Profile Details in details popup as expected");
+								LOGGER.info("Last Saved Profile Details in the Manual Mapping screen matches with Mapped Success Profile Details in details popup");
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER,
 						"validate_last_saved_success_profile_details_matches_with_profile_details_in_details_popup",
@@ -1035,7 +1035,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				String responsibilitiesText = wait
 						.until(ExpectedConditions.visibilityOf(findElement(MANUAL_MAPPING_RESPONSIBILITIES_DATA))).getText();
 				Assert.assertEquals(ProfileResponsibilities.get(), responsibilitiesText);
-								LOGGER.info("Last Saved Success Profile Responsibilities in the Job Compare page matches with Mapped Success Profile Responsibilities in details popup as expected");
+								LOGGER.info("Last Saved Success Profile Responsibilities in the Job Compare page matches with Mapped Success Profile Responsibilities in details popup");
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER,
 						"validate_last_saved_success_profile_responsibilities_matches_with_profile_responsibilities_in_details_popup",
@@ -1090,7 +1090,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						.getText();
 				Assert.assertEquals(ProfileBehaviouralCompetencies.get(),
 						behaviourText);
-				LOGGER.info("Last Saved Success Profile Behavioural Competencies in the Job Compare page matches with Mapped Success Profile Behavioural Competencies in details popup as expected");
+				LOGGER.info("Last Saved Success Profile Behavioural Competencies in the Job Compare page matches with Mapped Success Profile Behavioural Competencies in details popup");
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER,
 						"validate_last_saved_success_profile_behavioural_competencies_matches_with_profile_behavioural_competencies_in_details_popup",
@@ -1151,7 +1151,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				String skillsText = wait
 						.until(ExpectedConditions.visibilityOf(findElement(MANUAL_MAPPING_SKILLS_DATA))).getText();
 				Assert.assertEquals(ProfileSkills.get(), skillsText);
-								LOGGER.info("Last Saved Success Profile Skills in the Job Compare page matches with Mapped Success Profile Skills in details popup as expected");
+								LOGGER.info("Last Saved Success Profile Skills in the Job Compare page matches with Mapped Success Profile Skills in details popup");
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER,
 						"validate_last_saved_success_profile_skills_macthes_with_profile_skills_in_details_popup",
@@ -1561,7 +1561,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				// header
 				PageObjectHelper.waitForVisible(wait, findElement(JOB_MAPPING_PAGE_CONTAINER));
 				Assert.assertTrue(PageObjectHelper.waitForVisible(wait, findElement(JOB_MAPPING_PAGE_CONTAINER)).isDisplayed());
-				LOGGER.info("User navigated to JOB MAPPING page successfully");
+				LOGGER.info("User navigated to JOB MAPPING page");
 			} catch (Exception e) {
 				e.printStackTrace();
 				LOGGER.info("Issue in navigating to Job Mapping page...Please Investigate!!!");
@@ -1585,7 +1585,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 					rowNumber.set(2);
 					LOGGER.info("Organization Job profile " + orgJobName.get()
 							+ " with new Mapped Success Profile " + manualMappingProfileName.get()
-							+ " is displaying on Top of Profiles List as Expected");
+							+ " is displaying on Top of Profiles List");
 				} else {
 					mapSP.set(false);
 					manualMapping.set(false);
@@ -1641,7 +1641,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						.getText();
 				Assert.assertEquals(mappedProfileRoleSummaryText.split(": ", 2)[1].trim(),
 						manualMappingProfileRoleSummary.get());
-								LOGGER.info("Profile Role Summary in the Details Popup matches with Mapped Success Profile Role Summary as expected");
+								LOGGER.info("Profile Role Summary in the Details Popup matches with Mapped Success Profile Role Summary");
 			} catch (Exception e) {
 				e.printStackTrace();
 				Assert.fail(
@@ -1657,7 +1657,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				js.executeScript("arguments[0].scrollIntoView(true);", findElement(PROFILE_DETAILS));
 				String mappedProfileDetailsText = PageObjectHelper.waitForVisible(wait, findElement(PROFILE_DETAILS)).getText();
 				Assert.assertEquals(mappedProfileDetailsText, manualMappingProfileDetails.get());
-				LOGGER.info("Profile Details in Details Popup matches with Mapped Success Profile Details as expected");
+				LOGGER.info("Profile Details in Details Popup matches with Mapped Success Profile Details");
 			} catch (Exception e) {
 				e.printStackTrace();
 				Assert.fail(
@@ -1712,7 +1712,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				String ProfileResponsibilitiesText = PageObjectHelper.waitForVisible(wait, findElement(RESPONSIBILITIES_DATA))
 						.getText();
 				Assert.assertEquals(ProfileResponsibilitiesText, manualMappingProfileResponsibilities.get());
-								LOGGER.info("Profile Responsibilities in Details Popup matches with Mapped Success Profile Responsibilities as expected");
+								LOGGER.info("Profile Responsibilities in Details Popup matches with Mapped Success Profile Responsibilities");
 			} catch (Exception e) {
 				e.printStackTrace();
 				Assert.fail(
@@ -1791,7 +1791,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						.getText();
 				Assert.assertEquals(ProfileBehaviouralCompetenciesText,
 						manualMappingProfileBehaviouralCompetencies.get());
-								LOGGER.info("Profile Behavioural Competencies in Details Popup matches with Mapped Success Profile Behavioural Competencies as expected");
+								LOGGER.info("Profile Behavioural Competencies in Details Popup matches with Mapped Success Profile Behavioural Competencies");
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER,
 						"validate_profile_behavioural_competencies_in_details_popup_matches_with_mapped_success_profile_behavioural_competencies",
@@ -1851,7 +1851,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				}
 				String ProfileSkillsText = PageObjectHelper.waitForVisible(wait, findElement(SKILLS_DATA)).getText();
 				Assert.assertEquals(ProfileSkillsText, manualMappingProfileSkills.get());
-				LOGGER.info("Profile Skills in Details Popup matches with Mapped Success Profile Skills as expected");
+				LOGGER.info("Profile Skills in Details Popup matches with Mapped Success Profile Skills");
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER,
 						"validate_profile_skills_in_details_popup_matches_with_mapped_success_profile_skills",

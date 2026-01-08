@@ -203,7 +203,6 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 				try {
 					clickElement(ALTERNATIVE_CLOSE_BUTTON);
-					LOGGER.info("Clicked Alternative Close button");
 					LOGGER.info("Successfully clicked Close button using alternative locator");
 					navigatedSuccessfully = true;
 				} catch (Exception e2) {
@@ -267,8 +266,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			waitForClickable(CLOSE_TIP_MESSAGE_BUTTON);
 
 			clickElement(CLOSE_TIP_MESSAGE_BUTTON);
-			LOGGER.info("Clicked Missing Data Tip Message close button");
-		} catch (Exception e) {
+			} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_close_button_in_missing_data_tip_message",
 					"Failed to click on missing data tip message close button", e);
 		}

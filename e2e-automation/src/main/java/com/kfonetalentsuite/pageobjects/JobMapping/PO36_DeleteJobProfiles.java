@@ -42,7 +42,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			boolean isDisabled = disabledAttr != null || deleteBtn.getAttribute("class").contains("cursor-not-allowed");
 			
 			Assert.assertTrue(isDisabled, "Delete button should be disabled when no profiles are selected");
-			LOGGER.info("✅ Verified Delete button is DISABLED as expected");
+			LOGGER.info("✅ Verified Delete button is DISABLED");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_delete_button_is_disabled", 
@@ -63,7 +63,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			boolean isEnabled = disabledAttr == null && !deleteBtn.getAttribute("class").contains("cursor-not-allowed");
 			
 			Assert.assertTrue(isEnabled, "Delete button should be enabled when profiles are selected");
-			LOGGER.info("✅ Verified Delete button is ENABLED as expected");
+			LOGGER.info("✅ Verified Delete button is ENABLED");
 			
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_delete_button_is_enabled", 
@@ -152,7 +152,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			// Verify success title
 			WebElement successTitle = waitForElement(DELETE_SUCCESS_TITLE, 15);
 			Assert.assertTrue(successTitle.isDisplayed(), "Delete success title should be displayed");
-			Assert.assertEquals(successTitle.getText(), "Job Profiles Deleted Successfully", "Success title should match");
+			Assert.assertEquals(successTitle.getText(), "Job Profiles Deleted", "Success title should match");
 			
 			// Verify success message
 			WebElement successMsg = waitForElement(DELETE_SUCCESS_MSG, 5);

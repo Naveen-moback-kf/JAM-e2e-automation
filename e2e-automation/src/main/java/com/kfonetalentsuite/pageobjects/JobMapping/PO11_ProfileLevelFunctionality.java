@@ -46,7 +46,7 @@ public class PO11_ProfileLevelFunctionality extends BasePageObject {
 
 			try {
 				clickElement(dropdown);
-				LOGGER.info("Profile Level dropdown closed successfully");
+				LOGGER.info("Profile Level dropdown closed");
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER, "change_profile_level", "Issue clicking Profile Level dropdown to close it", e);
 			}

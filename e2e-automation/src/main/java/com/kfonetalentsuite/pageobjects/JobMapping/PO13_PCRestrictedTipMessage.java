@@ -97,7 +97,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 
 					WebElement uamBtn = waitForElement(UAM_BUTTON);
 					if (uamBtn.isDisplayed()) {
-						LOGGER.info("User landed on the SYSTEM CONFIGURATION page successfully");
+						LOGGER.info("User landed on the SYSTEM CONFIGURATION page");
 						return;
 					}
 
@@ -129,7 +129,6 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			scrollToElement(driver.findElement(UAM_BUTTON));
 			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(UAM_BUTTON);
-			LOGGER.info("Clicked on User Admin Module button");
 			waitForSpinners();
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_user_admin_module_button", "Issue in clicking on User Admin Module button", e);
@@ -173,7 +172,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			waitForSpinners();
 			String text = getElementText(TEAMS_PAGE_HEADER);
 			Assert.assertEquals(text, "TEAMS");
-			LOGGER.info("User landed on the " + text + " page successfully");
+			LOGGER.info("User landed on the " + text + " page");
 			String text1 = getElementText(TEAMS_PAGE_DESC);
 			LOGGER.info(text1);
 		} catch (Exception e) {
@@ -374,7 +373,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		Assert.assertEquals(text, teamName.get());
 			LOGGER.info("Team with name : " + teamName.get() + " is successfully created");
 		} catch (Exception e) {
-			PageObjectHelper.handleError(LOGGER, "search_for_team_name_in_teams_page_and_verify_team_is_created_successfully", "Issue in Searching and Verifying a Team is created successfully", e);
+			PageObjectHelper.handleError(LOGGER, "search_for_team_name_in_teams_page_and_verify_team_is_created_successfully", "Issue in Searching and Verifying a Team is created", e);
 			Assert.fail("Issue in Searching and Verifying a Team is created successfully....Please Investigate!!!");
 		}
 	}
@@ -398,7 +397,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			waitForSpinners();
 			String text = getElementText(PC_PAGE_HEADER);
 			Assert.assertEquals(text, "MANAGE SUCCESS PROFILES");
-			LOGGER.info("User landed on the " + text + " page successfully");
+			LOGGER.info("User landed on the " + text + " page");
 			String text1 = getElementText(PC_PAGE_DESC);
 			LOGGER.info(text1);
 		} catch (Exception e) {
@@ -543,7 +542,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			waitForElement(TEAM_COUNT);
 			String text = getElementText(TEAM_COUNT);
 			Assert.assertEquals(text, "Page 1 of 1");
-			LOGGER.info("Recently created team " + teamName.get() + " is available in Selected Teams as Expected");
+			LOGGER.info("Recently created team " + teamName.get() + " is available in Selected Teams");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_recently_created_team_name_is_available_in_selected_teams", "Issue in Verifing Recently created team name is available in selected teams", e);
 			Assert.fail("Issue in Verifing Recently created team name is available in selected teams....Please Investigate!!!");
@@ -703,7 +702,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			PageObjectHelper.handleError(LOGGER, "click_on_done_button_on_create_profile_collection_page_and_verify_success_popup_appears", "Issue in verifying appearing of success popup after creating a Profile Collection", e);
 			Assert.fail("Issue in verifying appearing of success popup after creating a Profile Collection....Please Investigate!!!");
 		}
-		LOGGER.info("Profile Collection with name " + pcName.get() + " is created successfully");
+		LOGGER.info("Profile Collection with name " + pcName.get() + " is created");
 	}
 
 	public void search_and_delete_profile_collection() {

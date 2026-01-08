@@ -125,7 +125,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 			waitForElement(Locators.KFONE.LANDING_PAGE_TITLE);
 			String text = getElementText(KFONE_CLIENTS_PAGE_TITLE);
 			Assert.assertEquals("Clients", text);
-			LOGGER.info("User navigated to KFONE Clients Page as Expected");
+			LOGGER.info("User navigated to KFONE Clients Page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_kfone_clients_page", "Issue in navigating to KFONE clients page", e);
 		}
@@ -154,7 +154,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 	public void verify_user_name_is_displayed_in_profile_menu() {
 		try {
 			String profileUserNameText = getElementText(Locators.UserProfile.PROFILE_USER_NAME);
-			LOGGER.info("User Name: " + profileUserNameText + " is displayed in Profile Menu as expected");
+			LOGGER.info("User Name: " + profileUserNameText + " is displayed in Profile Menu");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_name_is_displayed_in_profile_menu", "Issue in displaying User name", e);
 		}
@@ -165,7 +165,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 			String profileUserEmailText = getElementText(Locators.UserProfile.PROFILE_EMAIL);
 			Assert.assertTrue(PO01_KFoneLogin.username.get().equalsIgnoreCase(profileUserEmailText),
 					"Expected email: " + PO01_KFoneLogin.username.get() + " but found: " + profileUserEmailText);
-			LOGGER.info("User Email: " + profileUserEmailText + " is displayed in Profile Menu as expected");
+			LOGGER.info("User Email: " + profileUserEmailText + " is displayed in Profile Menu");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_email_is_displayed_in_profile_menu", "Issue in displaying User email", e);
 		}

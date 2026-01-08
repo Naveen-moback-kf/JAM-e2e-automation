@@ -249,7 +249,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			}
 
 			LOGGER.info("Export Status of SP with name " + SPJobName.get() + " updated as " + actualStatus
-					+ " as expected");
+					+ "");
 		} catch (AssertionError e) {
 			PageObjectHelper.handleWithContext("user_should_verify_export_status_of_sp_updated_as_exported", e,
 					"Export status assertion for profile: " + SPJobName.get());

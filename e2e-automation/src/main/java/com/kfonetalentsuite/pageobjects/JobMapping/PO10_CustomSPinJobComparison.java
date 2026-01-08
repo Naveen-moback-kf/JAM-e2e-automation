@@ -136,7 +136,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			LOGGER.info("Select button is displaying and is in De-Select status");
 			jsClick(selectBtn);
 			Assert.assertTrue(selectBtn.isEnabled());
-			LOGGER.info("Custom SP Profile selected successfully");
+			LOGGER.info("Custom SP Profile selected");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_close_button_and_select_button_are_displaying_on_the_profile", "Issue verifying Close and Select buttons", e);
 		}
@@ -320,7 +320,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 			LOGGER.info("Clicked on close button on Custom SP Profile");
 			wait.until(ExpectedConditions.attributeToBe(SEARCH_BAR_JC, "value", ""));
 			Assert.assertEquals(driver.findElement(SEARCH_BAR_JC).getAttribute("value"), "");
-			LOGGER.info("Custom SP and text in Search bar cleared successfully");
+			LOGGER.info("Custom SP and text in Search bar cleared");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "clear_custom_sp_and_text_in_search_bar_with_close_button_on_the_profile", "Issue clearing Custom SP and text in Search bar", e);
 		}

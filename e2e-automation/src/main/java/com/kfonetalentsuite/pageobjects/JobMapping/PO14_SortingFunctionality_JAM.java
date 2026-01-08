@@ -78,7 +78,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(3000);
 			String resultsCountText_updated = getElementText(Locators.JobMappingResults.SHOWING_JOB_RESULTS);
-			LOGGER.info("Scrolled down till third page and now " + resultsCountText_updated + " of Job Profiles as expected");
+			LOGGER.info("Scrolled down till third page and now " + resultsCountText_updated + " of Job Profiles");
 
 			scrollToTop();
 			waitForSpinners();
@@ -214,7 +214,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			}
 			if (specialCharCount > 0) {
 				LOGGER.info("ℹ Found " + specialCharCount
-						+ " job(s) with special characters - these appear at top in Ascending order as expected");
+						+ " job(s) with special characters - these appear at top in Ascending order");
 				LOGGER.info("ℹ " + specialCharCount
 						+ " job(s) start with special characters (?, -, etc.) - expected at top");
 			}
@@ -395,7 +395,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			}
 			if (nonAsciiCount > 0) {
 				LOGGER.info("ℹ Found " + nonAsciiCount
-						+ " job(s) with non-ASCII characters - these appear at top in Descending order as expected");
+						+ " job(s) with non-ASCII characters - these appear at top in Descending order");
 				LOGGER.info("ℹ " + nonAsciiCount
 						+ " job(s) start with non-ASCII characters (Chinese, etc.) - expected at top");
 			}

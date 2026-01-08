@@ -175,7 +175,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 10);
 			WebElement clientsHeader = waitForElement(Locators.KFONE.CLIENTS_PAGE_HEADER);
 			Assert.assertEquals("Clients", clientsHeader.getText(), "Expected 'Clients' header on KFONE landing page");
-			LOGGER.info("Landed on KFONE Clients Page as Expected");
+			LOGGER.info("Landed on KFONE Clients Page");
 			SessionManager.markAuthenticated();
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_the_kfone_landing_page", "Issue in verifying KFONE landing page after login", e);

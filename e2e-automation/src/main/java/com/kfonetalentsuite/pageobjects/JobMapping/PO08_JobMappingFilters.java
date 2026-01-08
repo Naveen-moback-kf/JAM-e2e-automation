@@ -850,7 +850,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			boolean isSelected = wait.until(driver -> functionCheckbox.isSelected());
 
 			if (isSelected) {
-				LOGGER.info(FunctionsOption.get() + " Function checkbox is automatically selected as expected");
+				LOGGER.info(FunctionsOption.get() + " Function checkbox is automatically selected");
 			} else {
 				Assert.fail("Function checkbox '" + FunctionsOption.get() + "' was NOT automatically selected");
 			}

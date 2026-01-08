@@ -67,7 +67,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				return PageObjectHelper.waitForVisible(wait, ADD_MORE_JOBS_PAGE_HEADER).getText();
 			});
 			Assert.assertEquals(headerText, "Add Job Data");
-			LOGGER.info("User landed on KFONE Add Job Data page Successfully");
+			LOGGER.info("User landed on KFONE Add Job Data page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_be_landed_on_kfone_add_job_data_page", "Issue in landing KFONE Add Job Data page", e);
 		}
@@ -91,7 +91,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				return PageObjectHelper.waitForVisible(wait, MANUAL_UPLOAD_BTN).getText();
 			});
 			PageObjectHelper.waitForClickable(wait, MANUAL_UPLOAD_BTN).click();
-			LOGGER.info(buttonText + " button clicked successfully");
+			LOGGER.info(buttonText + " button clicked");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_click_on_manual_upload_button", "Issue in clicking Manual upload Button", e);
 		}
@@ -154,8 +154,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			WebElement closeBtn = PageObjectHelper.waitForVisible(wait, FILE_CLOSE_BTN);
 			Assert.assertTrue(closeBtn.isDisplayed());
 			closeBtn.click();
-			LOGGER.info("File Close button clicked successfully");
-		} catch (Exception e) {
+			} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_file_close_button_displaying_and_clickable", "Issue in verifying File Close Button", e);
 		}
 	}
@@ -166,7 +165,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				return PageObjectHelper.waitForVisible(wait, CONTINUE_BTN).getText();
 			});
 			PageObjectHelper.waitForClickable(wait, CONTINUE_BTN).click();
-			LOGGER.info(buttonText + " button clicked successfully");
+			LOGGER.info(buttonText + " button clicked");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_continue_button_in_add_job_data_screen", "Issue in clicking Continue Button", e);
 		}
@@ -191,7 +190,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 			PageObjectHelper.waitForUIStability(driver, 2);
 			WebElement successMsg = PageObjectHelper.waitForVisible(wait, UPLOAD_SUCCESS_MESSAGE);
-			LOGGER.info(successMsg.getText() + " - Job data added successfully");
+			LOGGER.info(successMsg.getText() + " - Job data added");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_job_data_added_successfully", "Issue in validating Job data added", e);
 		}
@@ -206,7 +205,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			LOGGER.info("Jobs count after Adding More Jobs: " + countAfter);
 
 			if (!KFONEjobsCountBeforeAddingMoreJobs.get().equals(countAfter)) {
-				LOGGER.info("KFONE Jobs count UPDATED as expected");
+				LOGGER.info("KFONE Jobs count UPDATED");
 			} else {
 				throw new Exception("KFONE Jobs count NOT UPDATED (Before: " + KFONEjobsCountBeforeAddingMoreJobs.get() + ", After: " + countAfter + ")");
 			}
@@ -224,7 +223,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			LOGGER.info("Last Synced Info after adding More Jobs: " + infoAfter);
 
 			if (!lastSyncedInfo1.get().equals(infoAfter)) {
-				LOGGER.info("Last Synced Info UPDATED as expected");
+				LOGGER.info("Last Synced Info UPDATED");
 			} else {
 				throw new Exception("Last Synced Info NOT UPDATED (Before: " + lastSyncedInfo1.get() + ", After: " + infoAfter + ")");
 			}
@@ -239,7 +238,6 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				WebElement closeBtn = PageObjectHelper.waitForClickable(wait, ADD_MORE_JOBS_CLOSE_BTN);
 				closeBtn.click();
 			});
-			LOGGER.info("Clicked on Add more jobs Close button");
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			
 			// AUTOMATION FIX: Handle "Keep working?" popup (method now in BasePageObject)
@@ -262,7 +260,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			LOGGER.info("Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
 
 			if (!ResultsCountBeforeAddingMoreJobs.get().equals(countAfter)) {
-				LOGGER.info("Unpublished Jobs count UPDATED as expected");
+				LOGGER.info("Unpublished Jobs count UPDATED");
 			} else {
 				throw new Exception("Unpublished Jobs count NOT UPDATED (Before: " + ResultsCountBeforeAddingMoreJobs.get() + ", After: " + countAfter + ")");
 			}
@@ -278,7 +276,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				LOGGER.info("Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
 
 				if (!ResultsCountBeforeAddingMoreJobs.get().equals(countAfter)) {
-					LOGGER.info("Unpublished Jobs count UPDATED as expected");
+					LOGGER.info("Unpublished Jobs count UPDATED");
 				} else {
 					throw new Exception("Unpublished Jobs count NOT UPDATED (Before: " + ResultsCountBeforeAddingMoreJobs.get() + ", After: " + countAfter + ")");
 				}
@@ -294,7 +292,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				return PageObjectHelper.waitForVisible(wait, DONE_BTN).getText();
 			});
 			PageObjectHelper.waitForClickable(wait, DONE_BTN).click();
-			LOGGER.info(buttonText + " button clicked successfully");
+			LOGGER.info(buttonText + " button clicked");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_done_button_in_kfone_add_job_data_page", "Issue in clicking Done Button", e);
 		}
@@ -310,7 +308,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 		try {
 			LOGGER.info("[OPTIONAL] Verifying Jobs count before adding more jobs...");
 			verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs();
-			LOGGER.info("[OPTIONAL] ✓ Jobs count verified successfully");
+			LOGGER.info("[OPTIONAL] ✓ Jobs count verified");
 		} catch (Exception e) {
 			LOGGER.warn("[OPTIONAL STEP] Could not verify Jobs count before adding jobs: {} - {}", 
 					e.getClass().getSimpleName(), e.getMessage());
@@ -322,8 +320,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 		try {
 			LOGGER.info("[OPTIONAL] Clicking Done button...");
 			click_on_done_button_in_kfone_add_job_data_page();
-			LOGGER.info("[OPTIONAL] ✓ Done button clicked successfully");
-		} catch (Exception e) {
+			} catch (Exception e) {
 			LOGGER.warn("[OPTIONAL STEP] Could not click Done button: {} - {}", 
 					e.getClass().getSimpleName(), e.getMessage());
 			LOGGER.warn("[OPTIONAL STEP] Continuing test execution - this is informational only");
@@ -334,7 +331,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 		try {
 			LOGGER.info("[OPTIONAL] Validating Job Data Upload is in Progress...");
 			user_should_validate_job_data_upload_is_in_progress();
-			LOGGER.info("[OPTIONAL] ✓ Upload progress validated successfully");
+			LOGGER.info("[OPTIONAL] ✓ Upload progress validated");
 		} catch (Exception e) {
 			LOGGER.warn("[OPTIONAL STEP] Could not validate upload progress: {} - {}", 
 					e.getClass().getSimpleName(), e.getMessage());
@@ -346,7 +343,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 		try {
 			LOGGER.info("[OPTIONAL] Validating Job Data added successfully...");
 			user_should_validate_job_data_added_successfully();
-			LOGGER.info("[OPTIONAL] ✓ Job Data addition validated successfully");
+			LOGGER.info("[OPTIONAL] ✓ Job Data addition validated");
 		} catch (Exception e) {
 			LOGGER.warn("[OPTIONAL STEP] Could not validate job data addition: {} - {}", 
 					e.getClass().getSimpleName(), e.getMessage());
@@ -358,7 +355,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 		try {
 			LOGGER.info("[OPTIONAL] Verifying Jobs count after adding more jobs...");
 			verify_jobs_count_in_kfone_add_job_data_screen_after_adding_more_jobs();
-			LOGGER.info("[OPTIONAL] ✓ Jobs count verified successfully");
+			LOGGER.info("[OPTIONAL] ✓ Jobs count verified");
 		} catch (Exception e) {
 			LOGGER.warn("[OPTIONAL STEP] Could not verify Jobs count after adding jobs: {} - {}", 
 					e.getClass().getSimpleName(), e.getMessage());

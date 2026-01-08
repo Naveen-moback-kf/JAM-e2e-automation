@@ -116,7 +116,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		try {
 			Assert.assertTrue(waitForElement(PM_HEADER).isDisplayed());
 			String PMHeaderText = waitForElement(PM_HEADER).getText();
-			LOGGER.info("User is on " + PMHeaderText + " page as expected");
+			LOGGER.info("User is on " + PMHeaderText + " page");
 		} catch (AssertionError e) {
 			PageObjectHelper.handleError(LOGGER, "user_is_on_profile_manager_page",
 					"Assertion failed - User is NOT on Profile Manager page", new Exception(e));
@@ -367,7 +367,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 				if (matchesSearch) {
 										LOGGER.info("Searched String present in Job Profile with name: "
-							+ profileNameFromList + " is displaying in HCM Sync Profiles screen in PM as expected");
+							+ profileNameFromList + " is displaying in HCM Sync Profiles screen in PM");
 				} else {
 					String errorMsg = String.format("Profile found but does not match search criteria. "
 							+ "Searched for: '%s', Found profile: '%s', " + "Profile does not contain searched text.",
@@ -624,7 +624,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			LOGGER.info("Clicked on filters dropdown button in HCM Sync Profiles screen");
 
 			PageObjectHelper.waitForVisible(wait, FILTER_OPTIONS);
-			LOGGER.debug("Filters dropdown opened successfully");
+			LOGGER.debug("Filters dropdown opened");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_filters_dropdown_button_in_hcm_sync_profiles_tab",
 					"Issue clicking filters dropdown", e);
@@ -1540,7 +1540,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			verifyHeaderText(Locators.HCMSyncProfiles.TABLE_HEADER_CREATED_BY, "CREATED BY");
 			verifyHeaderText(Locators.HCMSyncProfiles.TABLE_HEADER_LAST_MODIFIED, "LAST MODIFIED");
 			verifyHeaderText(Locators.HCMSyncProfiles.TABLE_HEADER_EXPORT_STATUS, "EXPORT STATUS");
-			LOGGER.info("Organization jobs table headers verified successfully");
+			LOGGER.info("Organization jobs table headers verified");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_jobs_table_headers_are_correctly_displaying_in_hcm_sync_profiles_tab",
 					"Issue verifying table headers", e);
@@ -1937,7 +1937,6 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			js.executeScript("window.scrollTo(0, 0);");
 			waitForPageStability(3);
 			clickWithFallback(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN);
-			LOGGER.info("Clicked on Sync with HCM button");
 			waitForSpinners();
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_sync_with_hcm_button_in_hcm_sync_profiles_tab",

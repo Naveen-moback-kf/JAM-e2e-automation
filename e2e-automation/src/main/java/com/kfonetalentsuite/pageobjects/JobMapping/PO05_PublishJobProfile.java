@@ -784,7 +784,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 10);
 			String compareAndSelectHeaderText = getElementText(COMPARE_SELECT_HEADER);
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?");
-			LOGGER.info("User landed on the Job Comparison screen successfully");
+			LOGGER.info("User landed on the Job Comparison screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_job_comparison_screen", "Issue in landing Job Comparison screen", e);
 		}

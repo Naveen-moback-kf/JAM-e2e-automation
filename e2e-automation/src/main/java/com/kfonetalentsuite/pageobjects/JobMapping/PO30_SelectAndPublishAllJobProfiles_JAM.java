@@ -117,8 +117,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	public void click_on_select_all_button_in_job_mapping_screen() {
 		try {
 			clickElement(Locators.Table.SELECT_ALL_BTN);
-			LOGGER.info("Clicked Select All button");
-
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver, 2);
 
@@ -424,7 +422,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 				// Check if all profiles are published (early completion)
 				if (currentUnpublishedCount <= targetUnpublishedCount) {
 					publishingConfirmed = true;
-					terminationReason = "All profiles published successfully";
+					terminationReason = "All profiles published";
 					LOGGER.info("✓ SUCCESS! All " + totalPublishedSoFar + 
 							" profiles published in " + elapsedMinutes + "m " + elapsedSecondsRemainder + "s");
 					break;

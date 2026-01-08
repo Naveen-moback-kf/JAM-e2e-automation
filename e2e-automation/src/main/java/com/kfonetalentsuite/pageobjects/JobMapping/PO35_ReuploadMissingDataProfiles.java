@@ -811,7 +811,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_count_decreased",
-					"Missing data count did not decrease as expected", e);
+					"Missing data count did not decrease", e);
 		}
 	}
 
@@ -876,7 +876,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 					LOGGER.debug("Search input cleared, sending keys: '{}'", jobName);
 					
 			searchInput.sendKeys(jobName);
-					LOGGER.debug("Keys sent successfully");
+					LOGGER.debug("Keys sent");
 
 			safeSleep(2000);
 					LOGGER.debug("Waiting for spinners after search...");

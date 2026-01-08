@@ -97,9 +97,9 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			PO18_HCMSyncProfilesTab_PM.profilesCount.set(0);
 			ProfilesCountInRow1.set(Integer.parseInt(getElementText(JPH_PROFILES_COUNT_ROW1)));
 			Assert.assertEquals(getElementText(JPH_ACCESSED_DATE_ROW1), todayDate);
-			LOGGER.info("Accessed Date of the Recently downloaded Job Profile Matches with today's date as expected");
+			LOGGER.info("Accessed Date of the Recently downloaded Job Profile Matches with today's date");
 			Assert.assertEquals(getElementText(JPH_ACTION_TAKEN_ROW1), "Downloaded");
-			LOGGER.info("Action taken tag displaying as Downloaded for the Recently downloaded Job Profile as expected");
+			LOGGER.info("Action taken tag displaying as Downloaded for the Recently downloaded Job Profile");
 			LOGGER.info("Below are the details of the Recently Downloaded Job Profile in Job Profile History screen : \n "
 							+ getElementText(JPH_HEADER1).replaceAll("\\s+[^\\w\\s]+$", "") + " : "
 							+ getElementText(JPH_PROFILES_COUNT_ROW1) + "   "
@@ -310,9 +310,9 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 			ProfilesCountInRow1.set(actualExported);
 			Assert.assertEquals(getElementText(JPH_ACCESSED_DATE_ROW1), todayDate);
-			LOGGER.info("Accessed Date of the Recently Exported Job Profile Matches with today's date as expected");
+			LOGGER.info("Accessed Date of the Recently Exported Job Profile Matches with today's date");
 			Assert.assertEquals(getElementText(JPH_ACTION_TAKEN_ROW1), "Exported to HCM");
-			LOGGER.info("Action taken tag displaying as Exported to HCM for the Recently downloaded Job Profile as expected");
+			LOGGER.info("Action taken tag displaying as Exported to HCM for the Recently downloaded Job Profile");
 			LOGGER.info("Below are the details of the Recently Exported Job Profiles in Job Profile History screen : \n "
 							+ getElementText(JPH_HEADER1).replaceAll("\\s+[^\\w\\s]+$", "") + " : "
 							+ profilesCountText + "   "
@@ -411,7 +411,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 			String resultsCountText_updated = getElementText(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 			LOGGER.info("Scrolled down till third page and now " + resultsCountText_updated
-					+ " of Job Profiles as expected");
+					+ " of Job Profiles");
 
 			scrollToTop();
 			waitForSpinners();
@@ -450,7 +450,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 						+ " : " + jphStatus.getText());
 				profilesCountInDefaultOrder.get().add(jphProfilesCount.getText());
 			}
-			LOGGER.info("Default Order of Job Profiles before applying sorting in Job Profile History screen is verified successfully");
+			LOGGER.info("Default Order of Job Profiles before applying sorting in Job Profile History screen is verified");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting_in_job_profile_history_screen",

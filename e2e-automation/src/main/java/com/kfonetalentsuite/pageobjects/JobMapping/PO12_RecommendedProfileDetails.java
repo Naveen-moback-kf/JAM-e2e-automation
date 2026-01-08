@@ -267,7 +267,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			waitForSpinners();
 			String compareAndSelectHeaderText = getElementText(COMPARE_AND_SELECT_HEADER);
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?");
-			LOGGER.info("User navigated to Job Compare page successfully");
+			LOGGER.info("User navigated to Job Compare page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_navigated_to_job_comparison_page", "Issue navigating to Job Compare page", e);
 		}
@@ -283,7 +283,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			String orgJobTitleHeaderText = getElementText(ORG_JOB_TITLE_HEADER);
 			Assert.assertTrue(orgJobTitleHeaderText.contains(PO12_RecommendedProfileDetails.orgJobName.get()));
 			Assert.assertTrue(orgJobTitleHeaderText.contains(PO12_RecommendedProfileDetails.orgJobCode.get()));
-			LOGGER.info("Organization Job Name and Job code validated successfully");
+			LOGGER.info("Organization Job Name and Job code validated");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_organization_job_name_and_code_in_job_comparison_page", "Issue validating Organization Job Name and Job Code", e);
 		}
@@ -296,7 +296,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				gradeValueText = "NULL";
 			}
 			Assert.assertTrue(gradeValueText.contains(PO12_RecommendedProfileDetails.orgJobGrade.get()));
-			LOGGER.info("Organization Job Grade value validated successfully");
+			LOGGER.info("Organization Job Grade value validated");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_grade", "Issue validating Organization Job Grade value", e);
 		}
@@ -307,7 +307,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				departmentValueText = "NULL";
 			}
 			Assert.assertTrue(departmentValueText.contains(PO12_RecommendedProfileDetails.orgJobDepartment.get()));
-			LOGGER.info("Organization Job Department value validated successfully");
+			LOGGER.info("Organization Job Department value validated");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_department", "Issue validating Organization Job Department value", e);
 		}
@@ -321,7 +321,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				functionValueText = functionValueText + " | NULL";
 			}
 			Assert.assertTrue(functionValueText.contains(PO12_RecommendedProfileDetails.orgJobFunction.get()));
-			LOGGER.info("Organization Job Function / Sub-function values validated successfully");
+			LOGGER.info("Organization Job Function / Sub-function values validated");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_organization_job_function_or_subfunction", "Issue validating Organization Job Function / Sub-function values", e);
 		}
@@ -584,7 +584,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 			String responsibilitiesDataText = getElementText(POPUP_RESPONSIBILITIES_DATA);
 			ProfileResponsibilities.set(responsibilitiesDataText);
-			LOGGER.info("Responsibilities data validated successfully");
+			LOGGER.info("Responsibilities data validated");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_data_in_responsibilities_tab", "Failed to validate data in Responsibilities screen", e);
 		}
@@ -599,7 +599,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 			String behaviourDataText = getElementText(POPUP_BEHAVIOUR_DATA);
 			ProfileBehaviouralCompetencies.set(behaviourDataText);
-			LOGGER.info("Behavioural Competencies data validated successfully");
+			LOGGER.info("Behavioural Competencies data validated");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_data_in_behavioural_competencies_tab", "Failed to validate data in Behaviour Competencies screen", e);
 		}
@@ -614,7 +614,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 			String skillsDataText = getElementText(POPUP_SKILLS_DATA);
 			ProfileSkills.set(skillsDataText);
-			LOGGER.info("Skills data validated successfully");
+			LOGGER.info("Skills data validated");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "validate_data_in_skills_tab", "Failed to validate data in Skills screen", e);
 		}

@@ -110,7 +110,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void user_should_verify_job_mapping_logo_is_displayed_on_screen() {
 		try {
 			Assert.assertTrue(waitForElement(JAM_LOGO).isDisplayed());
-			LOGGER.info("Job Mapping logo is displayed on screen as expected");
+			LOGGER.info("Job Mapping logo is displayed on screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_job_mapping_logo_is_displayed_on_screen", "Issue in displaying Job Mapping Logo", e);
 		}
@@ -182,7 +182,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 		try {
 			PageObjectHelper.waitForPageReady(driver, 5);
 			Assert.assertTrue(waitForElement(Locators.JobMapping.PAGE_CONTAINER).isDisplayed());
-			LOGGER.info("User landed on the JOB MAPPING page successfully");
+			LOGGER.info("User landed on the JOB MAPPING page");
 			waitForBackgroundDataLoad();
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_be_landed_on_job_mapping_page", "Issue in landing Job Mapping page", e);
@@ -200,7 +200,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			String actualTitleHeader = wait.until(ExpectedConditions.refreshed(ExpectedConditions.presenceOfElementLocated(PAGE_TITLE_HEADER))).getText();
 			PageObjectHelper.waitForPageReady(driver, 3);
 			Assert.assertEquals(actualTitleHeader, expectedTitleHeader);
-			LOGGER.info("Title header '" + actualTitleHeader + "' is displaying as expected");
+			LOGGER.info("Title header '" + actualTitleHeader + "' is displaying");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_title_header_is_correctly_displaying", "Issue in verifying title header", e);
 		}
@@ -220,7 +220,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR);
 			scrollToElement(searchBar);
 			clickElement(searchBar);
-			LOGGER.info("Organization Jobs Search bar text box is clickable as expected");
+			LOGGER.info("Organization Jobs Search bar text box is clickable");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_organization_jobs_search_bar_text_box_is_clickable", "Failed to click search bar", e);
 		}
@@ -409,7 +409,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 		try {
 			waitForSpinners();
 			Assert.assertTrue(waitForElement(Locators.Modals.PROFILE_DETAILS_POPUP_HEADER).isDisplayed());
-			LOGGER.info("Profile details popup is displayed on screen as expected");
+			LOGGER.info("Profile details popup is displayed on screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_profile_details_popup_is_displayed", "Issue displaying popup", e);
 		}
@@ -429,7 +429,6 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 		try {
 			scrollToTop();
 			clickElement(Locators.SearchAndFilters.FILTERS_BTN);
-			LOGGER.info("Clicked on filters dropdown button");
 			waitForSpinners();
 			PageObjectHelper.waitForPageReady(driver, 2);
 		} catch (Exception e) {
@@ -444,7 +443,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			Assert.assertEquals(getElementText(FILTER_OPTION_2), "Departments");
 			Assert.assertEquals(getElementText(FILTER_OPTION_3), "Functions / Subfunctions");
 			Assert.assertEquals(getElementText(FILTER_OPTION_4), "Mapping Status");
-			LOGGER.info("Options inside Filter dropdown verified successfully");
+			LOGGER.info("Options inside Filter dropdown verified");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_options_available_inside_filters_dropdown", "Issue verifying filter options", e);
 		}
@@ -473,7 +472,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void user_should_see_add_more_jobs_button_is_displaying() {
 		try {
 			String btnText = getElementText(ADD_MORE_JOBS_BTN);
-			LOGGER.info(btnText + " button is displaying as expected");
+			LOGGER.info(btnText + " button is displaying");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_see_add_more_jobs_button_is_displaying", "Issue displaying add more jobs button", e);
 		}
@@ -488,7 +487,6 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			scrollToElement(button);
 			clickElement(button);
 
-			LOGGER.info("Clicked on Add more jobs button");
 			PageObjectHelper.waitForPageReady(driver, 10);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_add_more_jobs_button_is_clickable", "Issue clicking Add more jobs button", e);
@@ -499,7 +497,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 		try {
 			String headerText = getElementText(ADD_MORE_JOBS_PAGE_HEADER);
 			Assert.assertEquals(headerText, "Add Job Data");
-			LOGGER.info("Add More Jobs landing page is Verified Successfully");
+			LOGGER.info("Add More Jobs landing page is Verified");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_add_more_jobs_page", "Issue verifying Add more jobs page", e);
 		}
@@ -522,7 +520,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void user_should_verify_publish_selected_profiles_button_is_disabled() {
 		try {
 			Assert.assertTrue(!waitForElement(PUBLISH_SELECTED_BTN).isEnabled());
-			LOGGER.info("Publish Selected Profiles button is disabled as expected");
+			LOGGER.info("Publish Selected Profiles button is disabled");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_publish_selected_profiles_button_is_disabled", "Issue verifying button disabled", e);
 		}
@@ -582,7 +580,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			PageObjectHelper.waitForPageReady(driver, 2);
 			Thread.sleep(500);
 			Assert.assertTrue(driver.findElement(PUBLISH_SELECTED_BTN).isEnabled(), "Publish button should be enabled");
-			LOGGER.info("Publish Selected Profiles button is enabled as expected");
+			LOGGER.info("Publish Selected Profiles button is enabled");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_publish_selected_profiles_button_is_enabled", "Issue verifying button enabled", e);
 		}
@@ -672,7 +670,6 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void click_on_publish_selected_profiles_button() {
 		try {
 			clickElement(PUBLISH_SELECTED_BTN);
-			LOGGER.info("Clicked on Publish Selected Profiles button");
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 30);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_publish_selected_profiles_button", "Issue clicking Publish Selected button", e);
@@ -768,7 +765,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void user_should_verify_view_published_toggle_button_is_displaying() {
 		Assert.assertTrue(waitForElement(VIEW_PUBLISHED_TOGGLE).isDisplayed());
-		LOGGER.info("View published toggle button is displaying on screen as expected");
+		LOGGER.info("View published toggle button is displaying on screen");
 	}
 
 	public void click_on_toggle_button_to_turn_on() throws InterruptedException {
@@ -784,10 +781,10 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void user_should_verify_published_jobs_are_displaying_in_the_listing_table() {
 		try {
 			waitForElement(PUBLISHED_BTN);
-			LOGGER.info("Published jobs are displaying in the profile table as expected");
+			LOGGER.info("Published jobs are displaying in the profile table");
 
 			Assert.assertFalse(driver.findElement(PUBLISHED_BTN).isEnabled(), "Published button should be disabled");
-			LOGGER.info("Published button is disabled as expected");
+			LOGGER.info("Published button is disabled");
 		} catch (TimeoutException e) {
 			try {
 				waitForElement(NO_DATA_AVAILABLE);
@@ -815,7 +812,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 		try {
 			WebElement publishButton = waitForElement(PUBLISH_BTN);
 			Assert.assertTrue(publishButton.isDisplayed() && publishButton.isEnabled());
-			LOGGER.info("Unpublished jobs with enabled Publish button are displaying as expected");
+			LOGGER.info("Unpublished jobs with enabled Publish button are displaying");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_unpublished_jobs_are_displaying_in_the_listing_table", "Issue verifying unpublished jobs", e);
 		}
@@ -824,7 +821,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void user_should_verify_organization_jobs_table_title_and_headers() {
 		try {
 			Assert.assertEquals(getElementText(TABLE_1_TITLE), "Organization jobs");
-			LOGGER.info("Organization jobs table title verified successfully");
+			LOGGER.info("Organization jobs table title verified");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_jobs_table_title_and_headers", "Issue verifying table title", e);
 		}
@@ -832,7 +829,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			Assert.assertEquals(getElementText(TABLE_1_HEADER_1), "NAME / JOB CODE");
 			Assert.assertEquals(getElementText(TABLE_1_HEADER_2), "GRADE");
 			Assert.assertEquals(getElementText(TABLE_1_HEADER_3), "DEPARTMENT");
-			LOGGER.info("Organization jobs table headers verified successfully");
+			LOGGER.info("Organization jobs table headers verified");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_organization_jobs_table_title_and_headers", "Issue verifying table headers", e);
 		}
@@ -841,7 +838,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void user_should_verify_matched_success_profiles_table_title_and_headers() {
 		try {
 			Assert.assertEquals(getElementText(TABLE_2_TITLE), "Matched success profiles");
-			LOGGER.info("Matched success profiles table title verified successfully");
+			LOGGER.info("Matched success profiles table title verified");
 		} catch (Exception e) {
 			Assert.fail("Issue verifying Matched success profiles table title");
 		}
@@ -851,7 +848,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			Assert.assertEquals(getElementText(TABLE_2_HEADER_3), "TOP RESPONSIBILITIES");
 			Assert.assertEquals(getElementText(TABLE_2_HEADER_4), "LEVEL / SUBLEVEL");
 			Assert.assertEquals(getElementText(TABLE_2_HEADER_5), "FUNCTION / SUBFUNCTION");
-			LOGGER.info("Matched success profiles table headers verified successfully");
+			LOGGER.info("Matched success profiles table headers verified");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_verify_matched_success_profiles_table_title_and_headers", "Issue verifying table headers", e);
 		}
@@ -880,7 +877,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 		try {
 			waitForSpinners();
 			Assert.assertEquals(getElementText(COMPARE_SELECT_HEADER), "Which profile do you want to use for this job?");
-			LOGGER.info("User landed on the Job Compare page successfully");
+			LOGGER.info("User landed on the Job Compare page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_landed_on_job_compare_page", "Issue landing Job Compare page", e);
 		}

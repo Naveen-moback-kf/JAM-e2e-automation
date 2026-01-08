@@ -1331,7 +1331,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 				WebElement orgJobSection = driver.findElement(By.xpath(
 						"//div[contains(@class, 'border-b-10') and contains(@class, 'bg-grey')]//h3[contains(text(), 'Organization Job')]/ancestor::div[contains(@class, 'border-b-10')]"));
 				pageText = orgJobSection.getText();
-				LOGGER.info("Organization Job section text captured successfully");
+				LOGGER.info("Organization Job section text captured");
 			} catch (Exception e) {
 				LOGGER.warn("Could not find Organization Job section, trying broader approach: " + e.getMessage());
 				try {

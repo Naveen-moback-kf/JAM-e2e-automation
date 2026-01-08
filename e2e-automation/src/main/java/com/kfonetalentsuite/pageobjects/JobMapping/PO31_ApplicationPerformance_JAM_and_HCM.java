@@ -2138,7 +2138,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 			LOGGER.info(String.format(" Sync operation completed | %d profiles synced with HCM",
 					selectedProfilesCountBeforeSync.get()));
-			LOGGER.info(String.format(" Synced %d profiles successfully", selectedProfilesCountBeforeSync.get()));
+			LOGGER.info(String.format(" Synced %d profiles", selectedProfilesCountBeforeSync.get()));
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("verify_sync_status_failed", e);
