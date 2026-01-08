@@ -15,10 +15,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
@@ -69,15 +67,12 @@ import com.kfonetalentsuite.webdriverManager.DriverManager;
  * - Use clearAndSearch() instead of manually clearing search bars (handles stubborn inputs)
  * - Use clickElementSafely() for elements that sometimes go stale
  * - Always call waitForSpinners() after actions that trigger data loading
- * - Use PerformanceUtils.waitForPageReady() after critical page interactions
+ * - Use PageObjectHelper.waitForPageReady() after critical page interactions
  * 
  * ================================
  */
 public class BasePageObject {
-
-	// =============================================
 	// CORE COMPONENTS - Available to all page objects
-	// =============================================
 	protected WebDriver driver;
 	protected WebDriverWait wait;
 	protected JavascriptExecutor js;
@@ -89,25 +84,16 @@ public class BasePageObject {
 		this.js = (JavascriptExecutor) driver;
 		PageFactory.initElements(driver, this);
 	}
-
-	// =============================================
 	// CENTRALIZED LOCATORS - Update XPaths here only
-	// =============================================
 
 	public static class Locators {
-
-		// -----------------------------------------
 		// SPINNERS & LOADERS (Used in 20+ page objects)
-		// -----------------------------------------
 		public static class Spinners {
 			public static final By PAGE_LOAD_SPINNER = By.xpath("//*[@class='blocking-loader']//img");
 			public static final By DATA_LOADER = By.xpath("//div[@data-testid='loader']//img");
 			public static final By KF_LOADER = By.xpath("//div[@id='kf-loader']//*");
 		}
-
-		// -----------------------------------------
 		// GLOBAL NAVIGATION (Header components)
-		// -----------------------------------------
 		public static class Navigation {
 			public static final By KF_TALENT_SUITE_LOGO = By.xpath("//div[contains(@class,'global-nav-title-icon-container')]");
 			public static final By GLOBAL_NAV_MENU_BTN = By.xpath("//button[@id='global-nav-menu-btn']");
@@ -118,10 +104,7 @@ public class BasePageObject {
 			public static final By KFONE_MENU_PM_BTN = By.xpath("//span[@aria-label='Profile Manager']");
 			public static final By KFONE_MENU_ARCHITECT_BTN = By.xpath("//span[@aria-label='Architect']");
 		}
-
-		// -----------------------------------------
 		// USER PROFILE (Profile dropdown)
-		// -----------------------------------------
 		public static class UserProfile {
 			public static final By PROFILE_AVATAR = By.xpath("//*[@data-testid='global-nav-user-avatar-avatar-0']");
 			public static final By PROFILE_BTN = By.xpath("//button[@id='global-nav-user-dropdown-btn']");
@@ -130,10 +113,7 @@ public class BasePageObject {
 			public static final By SIGN_OUT_BTN = By.xpath("//span[text()='Sign Out']");
 			public static final By MY_PROFILE_BTN = By.xpath("//button[text()='My Profile']");
 		}
-
-		// -----------------------------------------
 		// SEARCH & FILTERS (Common across JAM/PM screens)
-		// -----------------------------------------
 		public static class SearchAndFilters {
 			public static final By SEARCH_BAR = By.xpath("//input[contains(@id,'search-job-title')]");
 			public static final By FILTERS_BTN = By.xpath("//button[@id='filters-btn']");
@@ -141,10 +121,7 @@ public class BasePageObject {
 			public static final By APPLY_FILTERS_BTN = By.xpath("//button[text()='Apply']");
 			public static final By FILTER_OPTIONS_PANEL = By.xpath("//div[@id='filters-search-btns']//div[2]//div");
 		}
-
-		// -----------------------------------------
 		// TABLE & GRID (Common table elements)
-		// -----------------------------------------
 		public static class Table {
 			public static final By HEADER_CHECKBOX = By.xpath("//th[@scope='col']//input[@type='checkbox']");
 			public static final By HEADER_CHEVRON_BTN = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]");
@@ -153,19 +130,13 @@ public class BasePageObject {
 			public static final By SELECT_NONE_BTN = By.xpath("//*[contains(text(),'None')]");
 			public static final By RESULTS_COUNT_TEXT = By.xpath("//div[@id='results-toggle-container']//p//span");
 		}
-
-		// -----------------------------------------
 		// TOGGLES & BUTTONS (Common action buttons)
-		// -----------------------------------------
 		public static class Actions {
 			public static final By VIEW_PUBLISHED_TOGGLE = By.xpath("//input[@id='toggleSwitch']");
 			public static final By PUBLISH_BTN = By.xpath("//button[@id='publish-approved-mappings-btn']");
 			public static final By ACCEPT_COOKIES_BTN = By.xpath("//button[@id='ensAcceptAll']");
 		}
-
-		// -----------------------------------------
 		// MODALS & POPUPS (Common modal elements)
-		// -----------------------------------------
 		public static class Modals {
 			public static final By SUCCESS_MODAL_HEADER = By.xpath("//h2[@id='modal-header']");
 			public static final By SUCCESS_MODAL_MESSAGE = By.xpath("//*[@id='modal-description']");
@@ -179,39 +150,27 @@ public class BasePageObject {
 			public static final By PUBLISHED_SUCCESS_MSG = By.xpath("//p[@id='modal-message']");
 			public static final By PUBLISHED_SUCCESS_CLOSE_BTN = By.xpath("//button[@aria-label='Close']");
 		}
-
-		// -----------------------------------------
 		// JOB MAPPING SPECIFIC (JAM screen elements)
-		// -----------------------------------------
 		public static class JobMapping {
 			public static final By PAGE_CONTAINER = By.xpath("//div[@id='org-job-container']");
 			public static final By MAIN_HEADER = By.xpath("//h2[contains(text(),'JOB MAPPING')]");
 			public static final By PAGE_TITLE_HEADER = By.xpath("//div[@id='page-heading']//h1");
 			public static final By ASYNC_MESSAGE = By.xpath("//*[contains(text(),'Publish process') or contains(text(),'Please check')]");
 		}
-
-		// -----------------------------------------
 		// KFONE / LOGIN (KFONE portal elements)
-		// -----------------------------------------
 		public static class KFONE {
 			public static final By LANDING_PAGE_TITLE = By.xpath("//*[@id='title-svg-icon']");
 			public static final By CLIENTS_PAGE_HEADER = By.xpath("//*[@data-testid='clients']//h2");
 			public static final By CLIENTS_PAGE_TITLE = By.xpath("//h2[text()='Clients']");
 			public static final By LOGIN_PAGE_TEXT = By.xpath("//*[text()='Sign in to your account']");
 		}
-
-		// -----------------------------------------
 		// COMPARISON PAGE (Used in PO04,PO07,PO15,PO27)
-		// -----------------------------------------
 		public static class ComparisonPage {
 			public static final By COMPARE_HEADER = By.xpath("//h1[@id='compare-desc']");
 			public static final By CARD_HEADER = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span");
 			public static final By CARD_TITLE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-title')]");
 		}
-
-		// -----------------------------------------
 		// PROFILE DETAILS POPUP (Used in PO05,PO14,PO21)
-		// -----------------------------------------
 		public static class ProfileDetails {
 			public static final By PROFILE_LEVEL_DROPDOWN = By.xpath("//select[contains(@id,'profileLevel') or @id='profile-level']");
 			public static final By PUBLISH_PROFILE_BTN = By.xpath("//button[@id='publish-job-profile']");
@@ -224,10 +183,7 @@ public class BasePageObject {
 			public static final By SKILLS_TAB = By.xpath("//button[text()='SKILLS']");
 			public static final By BEHAVIOUR_TAB = By.xpath("//button[contains(text(),'BEHAVIOUR')]");
 		}
-
-		// -----------------------------------------
 		// HCM SYNC PROFILES (Used in PO18,PO19,PO21,PO22,PO23,PO25,PO31)
-		// -----------------------------------------
 		public static class HCMSyncProfiles {
 			public static final By HCM_SYNC_TAB = By.xpath("//span[contains(text(),'HCM Sync')]");
 			public static final By SYNC_PROFILES_TITLE = By.xpath("//h1[contains(text(),'Sync Profiles')]");
@@ -249,10 +205,7 @@ public class BasePageObject {
 			public static final By SEARCH_BY_JOBPROFILE = By.xpath("//div[contains(@class,'search-type-item') and contains(text(),'Job Profile')]");
 			public static final By SEARCH_BY_JOBCODE = By.xpath("//div[contains(@class,'search-type-item') and contains(text(),'Job Code')]");
 		}
-
-		// -----------------------------------------
 		// PM SCREEN LOCATORS (HCM Sync Profiles - Used in PO35, PO36, PO42)
-		// -----------------------------------------
 	public static class PMScreen {
 		public static final By ALL_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-checkbox]");
 		public static final By SELECTED_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]");
@@ -263,10 +216,7 @@ public class BasePageObject {
 			public static final By SEARCH_BAR = By.xpath("//input[@type='search']");
 			public static final By CLEAR_ALL_FILTERS_BTN = By.xpath("//a[contains(text(),'Clear All')]");
 		}
-
-		// -----------------------------------------
 		// JAM SCREEN LOCATORS (Job Mapping - Used in PO35, PO36, PO42)
-		// -----------------------------------------
 		public static class JAMScreen {
 			public static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
 			public static final By ALL_PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]");
@@ -277,10 +227,7 @@ public class BasePageObject {
 			public static final By SEARCH_BAR = By.xpath("//input[@id='search-job-title-input-search-input']");
 			public static final By CLEAR_FILTERS_BTN = By.xpath("//button[@data-testid='Clear Filters']");
 		}
-
-		// -----------------------------------------
 		// JOB MAPPING RESULTS (Used in 7+ files)
-		// -----------------------------------------
 		public static class JobMappingResults {
 			public static final By SHOWING_JOB_RESULTS = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
 			public static final By FIRST_ROW_PROFILE_MATCH = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
@@ -299,14 +246,11 @@ public class BasePageObject {
 			public static final By ARCHITECT_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[9]");
 		}
 	}
-
-	// =============================================
 	// COMMON UTILITY METHODS
-	// =============================================
 
 	protected void clickElement(WebElement element) {
 		try {
-			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+			PageObjectHelper.waitForClickable(wait, element).click();
 		} catch (Exception e) {
 			try {
 				js.executeScript("arguments[0].click();", element);
@@ -322,18 +266,17 @@ public class BasePageObject {
 
 	protected void clickElementSafely(By locator, int timeoutSeconds) {
 		// Wait for page to be ready before interaction
-		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.waitForPageReady(driver, 2);
 		
-		WebDriverWait customWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 		int maxRetries = 3;
 		
 		for (int attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
 				// Re-fetch element on each attempt to avoid stale references
-				WebElement element = customWait.until(ExpectedConditions.elementToBeClickable(locator));
+				WebElement element = PageObjectHelper.waitForClickable(wait, locator);
 				element.click();
 				// Wait for UI to stabilize after click
-				PerformanceUtils.waitForUIStability(driver, 1);
+				PageObjectHelper.waitForUIStability(driver, 1);
 				return; // Success
 			} catch (org.openqa.selenium.StaleElementReferenceException e) {
 				if (attempt == maxRetries) {
@@ -342,7 +285,7 @@ public class BasePageObject {
 					try {
 						WebElement element = driver.findElement(locator);
 						js.executeScript("arguments[0].click();", element);
-						PerformanceUtils.waitForUIStability(driver, 1);
+						PageObjectHelper.waitForUIStability(driver, 1);
 						return;
 					} catch (Exception ex) {
 						LOGGER.error("JavaScript click also failed: {}", ex.getMessage());
@@ -362,7 +305,7 @@ public class BasePageObject {
 					try {
 						WebElement element = driver.findElement(locator);
 						js.executeScript("arguments[0].click();", element);
-						PerformanceUtils.waitForUIStability(driver, 1);
+						PageObjectHelper.waitForUIStability(driver, 1);
 						LOGGER.debug("Used JavaScript click fallback for locator: {}", locator);
 						return;
 					} catch (Exception ex) {
@@ -389,7 +332,7 @@ public class BasePageObject {
 		try {
 			if (element.isDisplayed() && element.isEnabled()) {
 				element.click();
-				PerformanceUtils.waitForUIStability(driver, 1);
+				PageObjectHelper.waitForUIStability(driver, 1);
 				return true;
 			}
 		} catch (Exception e) {
@@ -397,14 +340,14 @@ public class BasePageObject {
 
 		try {
 			js.executeScript("arguments[0].click();", element);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			return true;
 		} catch (Exception e) {
 		}
 
 		try {
 			new Actions(driver).moveToElement(element).click().perform();
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			return true;
 		} catch (Exception e) {
 		}
@@ -428,8 +371,7 @@ public class BasePageObject {
 
 	protected void handleCookiesBanner() {
 		try {
-			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-			WebElement cookiesBtn = shortWait.until(ExpectedConditions.elementToBeClickable(Locators.Actions.ACCEPT_COOKIES_BTN));
+			WebElement cookiesBtn = PageObjectHelper.waitForClickable(wait, Locators.Actions.ACCEPT_COOKIES_BTN);
 			tryClickWithStrategies(cookiesBtn);
 			LOGGER.debug("Accepted cookies banner");
 		} catch (Exception e) {
@@ -442,12 +384,11 @@ public class BasePageObject {
 	}
 
 	protected WebElement waitForElement(By locator, int timeoutSeconds) {
-		WebDriverWait customWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
-		return customWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		return PageObjectHelper.waitForVisible(wait, locator);
 	}
 
 	protected WebElement waitForClickable(By locator) {
-		return wait.until(ExpectedConditions.elementToBeClickable(locator));
+		return PageObjectHelper.waitForClickable(wait, locator);
 	}
 
 	protected WebElement findElement(By locator) {
@@ -477,7 +418,7 @@ public class BasePageObject {
 
 	protected String getElementText(By locator) {
 		try {
-			return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).getText();
+			return PageObjectHelper.waitForVisible(wait, locator).getText();
 		} catch (Exception e) {
 			LOGGER.debug("Could not get text from element: {}", e.getMessage());
 			return "";
@@ -500,14 +441,11 @@ public class BasePageObject {
 	protected void scrollToBottom() {
 		js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 	}
-
-	// =============================================
 	// COMMON PAGE OPERATIONS
-	// =============================================
 
 	protected void waitForPageLoad() {
-		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-		PerformanceUtils.waitForPageReady(driver, 3);
+		PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+		PageObjectHelper.waitForPageReady(driver, 3);
 	}
 
 	protected void waitForSpinners() {
@@ -516,12 +454,12 @@ public class BasePageObject {
 	
 	protected void waitForSpinners(int timeoutSeconds) {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, timeoutSeconds);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, timeoutSeconds);
 		} catch (Exception e) {
 			LOGGER.warn("Spinner wait encountered issue, checking page readiness as fallback: {}", e.getMessage());
 			// Fallback: Check if page is actually ready even if spinner is still visible
 			try {
-				PerformanceUtils.waitForPageReady(driver, 3);
+				PageObjectHelper.waitForPageReady(driver, 3);
 				LOGGER.info("Page appears ready despite spinner visibility - continuing");
 			} catch (Exception fallbackEx) {
 				LOGGER.warn("Page readiness check also failed, but continuing execution: {}", fallbackEx.getMessage());
@@ -535,10 +473,7 @@ public class BasePageObject {
 	}
 
 	// acceptCookiesIfPresent() removed - use handleCookiesBanner() instead
-
-	// =============================================
 	// NAVIGATION HELPERS
-	// =============================================
 
 	protected void clickLogo() {
 		clickElement(Locators.Navigation.KF_TALENT_SUITE_LOGO);
@@ -547,7 +482,7 @@ public class BasePageObject {
 
 	protected void openGlobalNavMenu() {
 		clickElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
-		PerformanceUtils.waitForUIStability(driver, 1);
+		PageObjectHelper.waitForUIStability(driver, 1);
 	}
 
 	protected void navigateToJobMapping() {
@@ -559,7 +494,7 @@ public class BasePageObject {
 
 	protected void openUserProfile() {
 		clickElement(Locators.UserProfile.PROFILE_BTN);
-		PerformanceUtils.waitForUIStability(driver, 1);
+		PageObjectHelper.waitForUIStability(driver, 1);
 	}
 
 	protected void signOut() {
@@ -568,10 +503,7 @@ public class BasePageObject {
 		waitForPageLoad();
 		PageObjectHelper.log(LOGGER, "Signed out from application");
 	}
-
-	// =============================================
 	// TABLE HELPERS
-	// =============================================
 
 	protected int getResultsCount() {
 		String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
@@ -580,7 +512,7 @@ public class BasePageObject {
 
 	protected void selectAllProfiles() {
 		clickElement(Locators.Table.HEADER_CHEVRON_BTN);
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		clickElement(Locators.Table.SELECT_ALL_BTN);
 		waitForSpinners();
 		PageObjectHelper.log(LOGGER, "Selected all profiles");
@@ -588,19 +520,16 @@ public class BasePageObject {
 
 	protected void deselectAllProfiles() {
 		clickElement(Locators.Table.HEADER_CHEVRON_BTN);
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		clickElement(Locators.Table.SELECT_NONE_BTN);
 		waitForSpinners();
 		PageObjectHelper.log(LOGGER, "Deselected all profiles");
 	}
-
-	// =============================================
 	// FILTER HELPERS
-	// =============================================
 
 	protected void openFilters() {
 		clickElement(Locators.SearchAndFilters.FILTERS_BTN);
-		PerformanceUtils.waitForUIStability(driver, 1);
+		PageObjectHelper.waitForUIStability(driver, 1);
 	}
 
 	protected void clearFilters() {
@@ -617,7 +546,7 @@ public class BasePageObject {
 	protected void closeFilters() {
 		try {
 			clickElement(Locators.SearchAndFilters.FILTERS_BTN);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			PageObjectHelper.log(LOGGER, "Closed filters panel");
 		} catch (Exception e) {
 			LOGGER.debug("Filters panel already closed or not present");
@@ -634,7 +563,7 @@ public class BasePageObject {
 		try {
 			By filterLocator = By.xpath("//div[contains(text(),'" + filterName + "')]");
 			clickElement(filterLocator);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			PageObjectHelper.log(LOGGER, "Opened " + filterName + " filter dropdown");
 		} catch (Exception e) {
 			LOGGER.error("Failed to open " + filterName + " filter dropdown", e);
@@ -659,7 +588,11 @@ public class BasePageObject {
 	 */
 	protected void clearAndSearch(By searchLocator, String searchTerm) {
 		try {
-			WebElement searchBar = waitForElement(searchLocator, 10);
+			waitForSpinners();
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			
+			WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+			WebElement searchBar = PageObjectHelper.waitForClickable(extendedWait, searchLocator);
 			searchBar.click();
 			safeSleep(200);
 			
@@ -676,7 +609,7 @@ public class BasePageObject {
 			
 			// Wait for results to load
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			
 			PageObjectHelper.log(LOGGER, "Searched for: " + searchTerm);
 		} catch (Exception e) {
@@ -709,8 +642,6 @@ public class BasePageObject {
 			throw new RuntimeException("Clear search operation failed", e);
 		}
 	}
-
-	// ==================== POPUP HANDLING METHODS ====================
 	
 	/**
 	 * Dismisses the "Keep working?" popup if it appears after closing Add Job Data screen.
@@ -741,13 +672,10 @@ public class BasePageObject {
 				By.xpath("//button[@type='button' and @aria-label='Continue']")
 			};
 			
-			WebDriverWait quickWait = new WebDriverWait(driver, Duration.ofSeconds(3));
-			
-			// Check if popup is present
 			boolean popupFound = false;
 			for (By locator : popupLocators) {
 				try {
-					WebElement popup = quickWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+					WebElement popup = PageObjectHelper.waitForVisible(wait, locator);
 					if (popup.isDisplayed()) {
 						popupFound = true;
 						LOGGER.info("'Keep working?' popup detected - dismissing...");
@@ -763,12 +691,12 @@ public class BasePageObject {
 				boolean continueClicked = false;
 				for (By buttonLocator : continueButtonLocators) {
 					try {
-						WebElement continueBtn = quickWait.until(ExpectedConditions.elementToBeClickable(buttonLocator));
+						WebElement continueBtn = PageObjectHelper.waitForClickable(wait, buttonLocator);
 						continueBtn.click();
 						LOGGER.info("Clicked 'Continue' button (id='global-nav-modal-success-btn') to dismiss popup");
 						continueClicked = true;
 						safeSleep(2000);
-						PerformanceUtils.waitForPageReady(driver, 5);
+						PageObjectHelper.waitForPageReady(driver, 5);
 						break;
 					} catch (Exception e) {
 						LOGGER.debug("Continue button locator failed: {}, trying next...", buttonLocator);
@@ -788,9 +716,7 @@ public class BasePageObject {
 						PO04_JobMappingPageComponents jamPO = new PO04_JobMappingPageComponents();
 						PO05_PublishJobProfile po05 = new PO05_PublishJobProfile();
 						handleCookiesBanner();
-						// ================================================================
 						// SCENARIO 1: @Client_with_PM_Access - ALL STEPS
-						// ================================================================
 						LOGGER.info("=== Executing @Client_with_PM_Access Scenario ===");
 						
 						// Step 1: User is in KFONE Clients page (already there after clicking Continue)
@@ -833,10 +759,7 @@ public class BasePageObject {
 						LOGGER.info("Step 10: Store user session details from session storage - SKIPPED (method not needed for popup recovery)");
 						
 						LOGGER.info("✓ @Client_with_PM_Access scenario completed successfully");
-						
-						// ================================================================
 						// SCENARIO 2: @Navigate_To_Job_Mapping - ALL STEPS
-						// ================================================================
 						LOGGER.info("=== Executing @Navigate_To_Job_Mapping Scenario ===");
 						
 						// Step 1: Navigate to Job Mapping page from KFONE Global Menu in PM
@@ -869,8 +792,6 @@ public class BasePageObject {
 			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
 		}
 	}
-
-	// ==================== COMMON HELPER METHODS ====================
 
 	protected void safeSleep(int milliseconds) {
 		try {
@@ -1059,8 +980,6 @@ public class BasePageObject {
 		return invalidCount;
 	}
 
-	// ==================== COMMON PARSING HELPERS ====================
-
 	protected int parseProfileCountFromText(String countText) {
 		try {
 			if (countText != null && countText.contains("of")) {
@@ -1079,8 +998,6 @@ public class BasePageObject {
 	protected String getValueOrEmpty(String value) {
 		return isMissingData(value) ? "[EMPTY]" : value;
 	}
-
-	// ==================== COMMON CHECKBOX COUNTING HELPERS ====================
 	// Supports both kf-checkbox components (PM screens) and native checkboxes (JAM screens)
 
 	protected int countSelectedCheckboxes(String containerSelector) {
@@ -1158,8 +1075,6 @@ public class BasePageObject {
 		LOGGER.info(" Unselected (enabled but not selected): {}", unselected);
 		LOGGER.info(" Disabled (cannot be selected): {}", disabled);
 	}
-
-	// ==================== SCREEN-BASED LOCATOR HELPERS (PM/JAM) ====================
 	// These methods return screen-specific locators based on the "PM" or "JAM" parameter
 	// Used by PO35, PO36, PO42, and other consolidated Page Objects
 
@@ -1199,8 +1114,6 @@ public class BasePageObject {
 		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.CLEAR_ALL_FILTERS_BTN : Locators.JAMScreen.CLEAR_FILTERS_BTN;
 	}
 
-	// ==================== SCREEN-BASED JAVASCRIPT COUNTING ====================
-
 	protected int countSelectedProfilesJS(String screen) {
 		try {
 			JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -1239,8 +1152,6 @@ public class BasePageObject {
 			return 0;
 		}
 	}
-
-	// ==================== COMMON SORTING VALIDATION HELPERS ====================
 
 	protected String normalizeForSorting(String value) {
 		if (value == null) return "";

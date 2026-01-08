@@ -14,8 +14,6 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
@@ -52,7 +50,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	private void clickWithFallback(By locator) {
 		WebElement element = findElement(locator);
 		try {
-			wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+			PageObjectHelper.waitForClickable(wait, element).click();
 		} catch (Exception e) {
 			try {
 				js.executeScript("arguments[0].click();", element);
@@ -63,7 +61,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	}
 
 	private void waitForPageStability(int timeoutSeconds) {
-		PerformanceUtils.waitForPageReady(driver, timeoutSeconds);
+		PageObjectHelper.waitForPageReady(driver, timeoutSeconds);
 	}
 
 	private void scrollToAndWait(WebElement element) {
@@ -131,7 +129,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	}
 
 	public void click_on_menu_button() {
-		PerformanceUtils.waitForPageReady(driver, 3);
+		PageObjectHelper.waitForPageReady(driver, 3);
 		try {
 			jsClick(findElement(MENU_BTN));
 		} catch (Exception e) {
@@ -170,11 +168,11 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void user_should_be_navigated_to_hcm_sync_profiles_screen() {
 		try {
-			wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_TITLE))).isDisplayed();
+			PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_TITLE)).isDisplayed();
 			PageObjectHelper.log(LOGGER, "User navigated to HCM Sync Profiles screen in Profile Manager");
 			waitForSpinners(15);
 			waitForBackgroundDataLoad();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(60000);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_be_navigated_to_hcm_sync_profiles_screen",
@@ -184,7 +182,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void verify_title_is_correctly_displaying_in_hcm_sync_profiles_tab() {
 		try {
-			String titleText = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_TITLE))).getText();
+			String titleText = PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_TITLE)).getText();
 			Assert.assertEquals(titleText, "HCM Sync Profiles");
 			PageObjectHelper.log(LOGGER, "Title is correctly displaying in HCM Sync Profiles screen");
 		} catch (AssertionError e) {
@@ -199,7 +197,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void verify_description_below_the_title_is_correctly_displaying_in_hcm_sync_profiles_tab() {
 		try {
-			String titleDesc = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_TITLE_DESC))).getText();
+			String titleDesc = PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_TITLE_DESC)).getText();
 			Assert.assertEquals(titleDesc, "Select a job profile to sync with HCM.");
 			PageObjectHelper.log(LOGGER, "Title description is correctly displaying in HCM Sync Profiles screen");
 		} catch (Exception e) {
@@ -212,7 +210,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		try {
 			waitForPageStability(15);
 			scrollToAndWait(findElement(HCM_SYNC_PROFILES_SEARCHBAR));
-			wait.until(ExpectedConditions.elementToBeClickable(findElement(HCM_SYNC_PROFILES_SEARCHBAR))).click();
+			PageObjectHelper.waitForClickable(wait, findElement(HCM_SYNC_PROFILES_SEARCHBAR)).click();
 			PageObjectHelper.log(LOGGER, "Search bar is displayed and clickable in HCM Sync Profiles screen");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_search_bar_text_box_is_clickable_in_hcm_sync_profiles_tab",
@@ -222,7 +220,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void verify_search_bar_placeholder_text_in_hcm_sync_profiles_tab() {
 		try {
-			String placeHolderText = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_SEARCHBAR)))
+			String placeHolderText = PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_SEARCHBAR))
 					.getAttribute("placeholder");
 			Assert.assertEquals(placeHolderText, "Search job profiles within your organization...");
 			PageObjectHelper.log(LOGGER, "Placeholder Text: '" + placeHolderText + "' is displaying correctly");
@@ -246,17 +244,16 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					LOGGER.info("Search attempt {}: trying profile name '{}'", attemptNumber, profileName);
 
 					// Clear and enter profile name
-					wait.until(ExpectedConditions.elementToBeClickable(findElement(HCM_SYNC_PROFILES_SEARCHBAR))).clear();
-					wait.until(ExpectedConditions.elementToBeClickable(findElement(HCM_SYNC_PROFILES_SEARCHBAR))).sendKeys(profileName);
+					PageObjectHelper.waitForClickable(wait, findElement(HCM_SYNC_PROFILES_SEARCHBAR)).clear();
+					PageObjectHelper.waitForClickable(wait, findElement(HCM_SYNC_PROFILES_SEARCHBAR)).sendKeys(profileName);
 
 					// CRITICAL FIX: Press Enter to trigger search
 					findElement(HCM_SYNC_PROFILES_SEARCHBAR).sendKeys(Keys.ENTER);
 
 					// CRITICAL: Wait for loader to APPEAR first (indicates search started)
 					try {
-						WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(2));
-						shortWait.until(ExpectedConditions.visibilityOfElementLocated(
-								By.xpath("//*[@class='blocking-loader']//img | //div[@data-testid='loader']")));
+						PageObjectHelper.waitForVisible(wait, 
+								By.xpath("//*[@class='blocking-loader']//img | //div[@data-testid='loader']"));
 					} catch (Exception e) {
 						// Loader might have appeared and disappeared too quickly
 					}
@@ -349,16 +346,14 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			String searchedProfileName = jobProfileName.get();
 			LOGGER.info("Verifying if profile name '{}' is displaying in HCM Sync Profiles list", searchedProfileName);
 
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 
 			// ENHANCED: First check if profile is found or "No SP" message is displayed
 			boolean profileFound = false;
 			String job1NameText = "";
 
 			try {
-				// Try to get the first row profile name with a shorter wait
-				WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(5));
-				job1NameText = shortWait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW1))).getText();
+				job1NameText = PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_JOB_ROW1)).getText();
 				profileFound = true;
 				LOGGER.info("Found profile in first row: '{}'", job1NameText);
 			} catch (Exception e) {
@@ -384,12 +379,12 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			} else {
 				// No profile in first row - check if "No SP" message is displayed
 				try {
-					wait.until(ExpectedConditions.visibilityOf(findElement(NO_SP_MSG))).isDisplayed();
+					PageObjectHelper.waitForVisible(wait, findElement(NO_SP_MSG)).isDisplayed();
 					PageObjectHelper.log(LOGGER, "No Success Profile Found with searched String: " + searchedProfileName);
 
 					// Clear the search bar
 					Assert.assertTrue(
-							wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_SEARCHBAR))).isDisplayed());
+							PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_SEARCHBAR)).isDisplayed());
 					Actions actions = new Actions(driver);
 
 					actions.click(findElement(HCM_SYNC_PROFILES_SEARCHBAR)).keyDown(Keys.CONTROL).sendKeys("a").keyUp(Keys.CONTROL)
@@ -433,8 +428,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void click_on_name_matching_profile_in_hcm_sync_profiles_tab() {
 		try {
-			String job1NameText = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW1))).getText();
-			wait.until(ExpectedConditions.elementToBeClickable(findElement(HCM_SYNC_PROFILES_JOB_ROW1))).click();
+			String job1NameText = PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_JOB_ROW1)).getText();
+			PageObjectHelper.waitForClickable(wait, findElement(HCM_SYNC_PROFILES_JOB_ROW1)).click();
 			LOGGER.info("Clicked on profile with name : " + job1NameText.split("-", 2)[0].trim()
 					+ " in Row1 in HCM Sync Profiles screen in PM");
 			PageObjectHelper.log(LOGGER, "Clicked on profile with name : "
@@ -452,7 +447,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void user_should_be_navigated_to_sp_details_page_on_click_of_matching_profile() {
 		try {
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT))).isDisplayed());
+			Assert.assertTrue(PageObjectHelper.waitForVisible(wait, findElement(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT)).isDisplayed());
 						PageObjectHelper.log(LOGGER, 
 					"User navigated to SP details page as expected on click of Matching Profile Job name in HCM Sync Profiles screen in PM....");
 		} catch (Exception e) {
@@ -468,18 +463,11 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void clear_search_bar_in_hcm_sync_profiles_tab() {
 		try {
 			// PARALLEL EXECUTION FIX: Extended wait for page readiness
-			PerformanceUtils.waitForPageReady(driver, 3);
-
-			// PARALLEL EXECUTION FIX: Wait for element to be present in DOM (avoid stale
-			// element)
-			WebDriverWait extendedWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(20));
-
-			// STALE ELEMENT FIX: Use visibilityOfElementLocated instead of visibilityOf to
-			// avoid stale element
+			PageObjectHelper.waitForPageReady(driver, 3);
 			By searchBarLocator = By.xpath("//input[@type='search']");
 
 			// Wait for element visibility using locator (not WebElement)
-			WebElement searchBar = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(searchBarLocator));
+			WebElement searchBar = PageObjectHelper.waitForVisible(wait, searchBarLocator);
 
 			Assert.assertTrue(searchBar.isDisplayed(), "Search bar not visible in HCM Sync Profiles screen");
 
@@ -495,10 +483,10 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			}
 
 			// HEADLESS FIX: Longer wait for page to stabilize after scroll
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			// PARALLEL EXECUTION FIX: Re-fetch element to ensure it's fresh and clickable
-			searchBar = extendedWait.until(ExpectedConditions.elementToBeClickable(searchBarLocator));
+			searchBar = PageObjectHelper.waitForClickable(wait, searchBarLocator);
 
 			// Try clicking with multiple fallback options
 			try {
@@ -525,9 +513,9 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 			// CRITICAL HEADLESS FIX: Wait for spinners after clearing search - triggers
 			// data reload
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 
 			PageObjectHelper.log(LOGGER, "Cleared Search bar in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
@@ -541,7 +529,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void verify_job_profiles_count_is_displaying_on_the_page_in_hcm_sync_profiles_tab() {
 		try {
 			waitForSpinners(15);
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			safeSleep(1000);
 			
 			WebElement resultsCountElement = waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT, 15);
@@ -573,8 +561,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void user_should_verify_count_of_job_profiles_is_correctly_showing_on_top_of_job_profiles_listing_table_in_hcm_sync_profiles_tab() {
 		try {
 			scrollToElement(findElement(HCM_SYNC_PROFILES_TITLE));
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(2000);
 
 			String initialCount = intialResultsCount.get();
@@ -639,9 +627,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			clickWithFallback(FILTERS_DROPDOWN_BTN);
 			PageObjectHelper.log(LOGGER, "Clicked on filters dropdown button in HCM Sync Profiles screen");
 
-			// Wait for dropdown to be visible using LOCATOR-based wait (avoids stale element)
-			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-			shortWait.until(ExpectedConditions.visibilityOfElementLocated(FILTER_OPTIONS));
+			PageObjectHelper.waitForVisible(wait, FILTER_OPTIONS);
 			LOGGER.debug("Filters dropdown opened successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_filters_dropdown_button_in_hcm_sync_profiles_tab",
@@ -652,8 +638,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab() {
 		try {
 			// Use locator-based wait to avoid stale element
-			wait.until(ExpectedConditions.visibilityOfElementLocated(FILTER_OPTIONS));
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForVisible(wait, FILTER_OPTIONS);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 			safeSleep(500);
 
 			// Get filter option texts
@@ -698,7 +684,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			WebElement filterOptionsElement = driver.findElement(FILTER_OPTIONS);
 			if (filterOptionsElement.isDisplayed()) {
 				jsClick(findElement(FILTERS_DROPDOWN_BTN));
-				wait.until(ExpectedConditions.invisibilityOf(filterOptionsElement));
+				PageObjectHelper.waitForInvisible(wait, filterOptionsElement);
 				PageObjectHelper.log(LOGGER, "Closed Filters dropdown after verification");
 			}
 		} catch (Exception e) {
@@ -709,11 +695,11 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void apply_kf_grade_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab() {
 		try {
 			try {
-				PerformanceUtils.waitForElement(driver, findElement(KF_GRADE_FILTERS_DROPDOWN));
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
-				wait.until(ExpectedConditions.visibilityOf(findElement(KF_GRADE_FILTERS_DROPDOWN))).isDisplayed();
+				PageObjectHelper.waitForVisible(wait, KF_GRADE_FILTERS_DROPDOWN);
+				PageObjectHelper.waitForUIStability(driver, 1);
+				PageObjectHelper.waitForVisible(wait, findElement(KF_GRADE_FILTERS_DROPDOWN)).isDisplayed();
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(findElement(KF_GRADE_FILTERS_DROPDOWN))).click();
+					PageObjectHelper.waitForClickable(wait, findElement(KF_GRADE_FILTERS_DROPDOWN)).click();
 				} catch (Exception e) {
 					try {
 						js.executeScript("arguments[0].click();", findElement(KF_GRADE_FILTERS_DROPDOWN));
@@ -734,7 +720,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			try {
 				// DYNAMIC XPATH: Find all available KF Grade options using updated class-based
 				// XPATH
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 
 				if (findElements(KF_GRADE_ALL_CHECKBOXES).isEmpty() || findElements(KF_GRADE_ALL_LABELS).isEmpty()) {
 					LOGGER.error(" No KF Grade options found after expanding dropdown");
@@ -756,7 +742,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				Thread.sleep(300);
 
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(firstCheckbox)).click();
+					PageObjectHelper.waitForClickable(wait, firstCheckbox).click();
 					LOGGER.info(" Clicked KF Grade option using standard click");
 				} catch (Exception e) {
 					LOGGER.warn("Standard click failed, trying JS click...");
@@ -764,7 +750,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					LOGGER.info(" Clicked KF Grade option using JS click");
 				}
 
-				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(CLOSE_APPLIED_FILTER))).isDisplayed());
+				Assert.assertTrue(PageObjectHelper.waitForVisible(wait, findElement(CLOSE_APPLIED_FILTER)).isDisplayed());
 								PageObjectHelper.log(LOGGER, "Selected KF Grade Value : " + kfGradeValue
 						+ " from Filters dropdown in HCM Sync Profiles screen in PM....");
 			} catch (Exception e) {
@@ -779,7 +765,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			try {
 				js.executeScript("window.scrollTo(0, 0);");
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(findElement(HCM_SYNC_PROFILES_HEADER))).click();
+					PageObjectHelper.waitForClickable(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
 				} catch (Exception e) {
 					try {
 						js.executeScript("arguments[0].click();", findElement(HCM_SYNC_PROFILES_HEADER));
@@ -787,7 +773,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 						jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
 					}
 				}
-				Assert.assertTrue(wait.until(ExpectedConditions.invisibilityOf(findElement(FILTER_OPTIONS))));
+				Assert.assertTrue(PageObjectHelper.waitForInvisible(wait, findElement(FILTER_OPTIONS)));
 				PageObjectHelper.log(LOGGER, "Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -798,7 +784,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			}
 
 			try {
-				PerformanceUtils.waitForPageReady(driver, 5);
+				PageObjectHelper.waitForPageReady(driver, 5);
 
 				// Check if there are no results after applying the filter
 				boolean noResults = false;
@@ -824,8 +810,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					}
 				} else {
 					// There are results, verify count changed
-					PerformanceUtils.waitForElement(driver, findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT));
-					String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT)))
+					PageObjectHelper.waitForVisible(wait, Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
+					String resultsCountText2 = PageObjectHelper.waitForVisible(wait, findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT))
 							.getText();
 					Assert.assertNotEquals(updatedResultsCount.get(), resultsCountText2);
 					if (!resultsCountText2.equals(updatedResultsCount.get())) {
@@ -865,7 +851,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			closeFilterElement.click();
 			safeSleep(500);
 			waitForSpinners(15);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			PageObjectHelper.log(LOGGER, "Cleared Applied KF Grade Filter in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
 			LOGGER.error("Issue clearing KF Grade filter", e);
@@ -880,8 +866,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void apply_levels_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab() {
 		try {
 			try {
-				PerformanceUtils.waitForElement(driver, findElement(LEVELS_FILTERS_DROPDOWN));
-				wait.until(ExpectedConditions.visibilityOf(findElement(LEVELS_FILTERS_DROPDOWN))).isDisplayed();
+				PageObjectHelper.waitForVisible(wait, LEVELS_FILTERS_DROPDOWN);
+				PageObjectHelper.waitForVisible(wait, findElement(LEVELS_FILTERS_DROPDOWN)).isDisplayed();
 				jsClick(findElement(LEVELS_FILTERS_DROPDOWN));
 				PageObjectHelper.log(LOGGER, "Clicked on Levels dropdown in Filters in HCM Sync Profiles screen in PM");
 			} catch (Exception e) {
@@ -896,7 +882,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			try {
 				// DYNAMIC XPATH: Find all available Levels options using updated class-based
 				// XPATH
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 
 				if (findElements(LEVELS_ALL_CHECKBOXES).isEmpty() || findElements(LEVELS_ALL_LABELS).isEmpty()) {
 					LOGGER.error(" No Levels options found after expanding dropdown");
@@ -938,7 +924,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				Thread.sleep(300);
 
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(firstCheckbox)).click();
+					PageObjectHelper.waitForClickable(wait, firstCheckbox).click();
 					LOGGER.info(" Clicked Levels option using standard click");
 				} catch (Exception e) {
 					LOGGER.warn("Standard click failed, trying JS click...");
@@ -946,7 +932,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					LOGGER.info(" Clicked Levels option using JS click");
 				}
 
-				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(CLOSE_APPLIED_FILTER))).isDisplayed());
+				Assert.assertTrue(PageObjectHelper.waitForVisible(wait, findElement(CLOSE_APPLIED_FILTER)).isDisplayed());
 								PageObjectHelper.log(LOGGER, "Selected Levels Value : " + levelsValue
 						+ " from Filters dropdown in HCM Sync Profiles screen in PM....");
 			} catch (Exception e) {
@@ -963,7 +949,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			try {
 				js.executeScript("window.scrollTo(0, 0);");
 				try {
-					wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_HEADER))).click();
+					PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
 				} catch (Exception e) {
 					try {
 						js.executeScript("arguments[0].click();", findElement(HCM_SYNC_PROFILES_HEADER));
@@ -971,7 +957,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 						jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
 					}
 				}
-				Assert.assertTrue(wait.until(ExpectedConditions.invisibilityOf(findElement(FILTER_OPTIONS))));
+				Assert.assertTrue(PageObjectHelper.waitForInvisible(wait, findElement(FILTER_OPTIONS)));
 				PageObjectHelper.log(LOGGER, "Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -982,7 +968,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			}
 
 			try {
-				PerformanceUtils.waitForPageReady(driver, 5);
+				PageObjectHelper.waitForPageReady(driver, 5);
 
 				// Check if there are no results after applying the filter
 				boolean noResults = false;
@@ -1009,8 +995,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				} else {
 					// There are results, verify count changed
 					// PARALLEL EXECUTION FIX: Add spinner wait before checking count
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-					PerformanceUtils.waitForPageReady(driver, 5);
+					PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+					PageObjectHelper.waitForPageReady(driver, 5);
 
 					// PARALLEL EXECUTION FIX: Use locator-based wait to avoid stale element
 					String resultsCountText2 = wait
@@ -1060,7 +1046,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void clear_levels_filter_in_hcm_sync_profiles_tab() {
 		try {
-			WebElement closeFilterElement = wait.until(ExpectedConditions.visibilityOf(findElement(CLOSE_APPLIED_FILTER)));
+			WebElement closeFilterElement = PageObjectHelper.waitForVisible(wait, findElement(CLOSE_APPLIED_FILTER));
 			closeFilterElement.click();
 			waitForSpinners();
 			PageObjectHelper.log(LOGGER, "Cleared Applied Levels Filter in HCM Sync Profiles screen in PM");
@@ -1077,8 +1063,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void apply_different_levels_filter_in_hcm_sync_profiles_tab() {
 		try {
 			try {
-				PerformanceUtils.waitForElement(driver, findElement(LEVELS_FILTERS_DROPDOWN));
-				wait.until(ExpectedConditions.visibilityOf(findElement(LEVELS_FILTERS_DROPDOWN))).isDisplayed();
+				PageObjectHelper.waitForVisible(wait, LEVELS_FILTERS_DROPDOWN);
+				PageObjectHelper.waitForVisible(wait, findElement(LEVELS_FILTERS_DROPDOWN)).isDisplayed();
 				jsClick(findElement(LEVELS_FILTERS_DROPDOWN));
 				PageObjectHelper.log(LOGGER, "Clicked on Levels dropdown in Filters for different option selection");
 			} catch (Exception e) {
@@ -1087,7 +1073,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			}
 
 			try {
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 
 				if (findElements(LEVELS_ALL_CHECKBOXES).size() < 2 || findElements(LEVELS_ALL_LABELS).size() < 2) {
 					LOGGER.error("Need at least 2 Levels options for different selection");
@@ -1128,12 +1114,12 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				Thread.sleep(300);
 
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(secondCheckbox)).click();
+					PageObjectHelper.waitForClickable(wait, secondCheckbox).click();
 				} catch (Exception e) {
 					js.executeScript("arguments[0].click();", secondCheckbox);
 				}
 
-				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(CLOSE_APPLIED_FILTER))).isDisplayed());
+				Assert.assertTrue(PageObjectHelper.waitForVisible(wait, findElement(CLOSE_APPLIED_FILTER)).isDisplayed());
 				PageObjectHelper.log(LOGGER, "Selected DIFFERENT Levels Value: " + levelsValue + " (2nd option) from Filters dropdown");
 			} catch (Exception e) {
 				LOGGER.error("Issue selecting different Levels option", e);
@@ -1143,15 +1129,15 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			// Close filters dropdown
 			try {
 				js.executeScript("window.scrollTo(0, 0);");
-				wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_HEADER))).click();
-				Assert.assertTrue(wait.until(ExpectedConditions.invisibilityOf(findElement(FILTER_OPTIONS))));
+				PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
+				Assert.assertTrue(PageObjectHelper.waitForInvisible(wait, findElement(FILTER_OPTIONS)));
 				PageObjectHelper.log(LOGGER, "Filters dropdown closed after selecting different Levels option");
 			} catch (Exception e) {
 				LOGGER.warn("Issue closing filters dropdown: " + e.getMessage());
 			}
 
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 		} catch (Exception e) {
 			LOGGER.error("Issue applying different Levels filter", e);
@@ -1162,8 +1148,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab() {
 		try {
 			try {
-				PerformanceUtils.waitForElement(driver, findElement(FUNCTIONS_SUBFUNCTIONS_FILTERS_DROPDOWN));
-				wait.until(ExpectedConditions.visibilityOf(findElement(FUNCTIONS_SUBFUNCTIONS_FILTERS_DROPDOWN))).isDisplayed();
+				PageObjectHelper.waitForVisible(wait, FUNCTIONS_SUBFUNCTIONS_FILTERS_DROPDOWN);
+				PageObjectHelper.waitForVisible(wait, findElement(FUNCTIONS_SUBFUNCTIONS_FILTERS_DROPDOWN)).isDisplayed();
 				jsClick(findElement(FUNCTIONS_SUBFUNCTIONS_FILTERS_DROPDOWN));
 								PageObjectHelper.log(LOGGER, 
 						"Clicked on Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...");
@@ -1181,7 +1167,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			try {
 				// DYNAMIC XPATH: Find all available Functions/Subfunctions options using
 				// updated class-based XPATH
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 
 				if (findElements(FUNCTIONS_SUBFUNCTIONS_ALL_CHECKBOXES).isEmpty() || findElements(FUNCTIONS_SUBFUNCTIONS_ALL_LABELS).isEmpty()) {
 					LOGGER.error(" No Functions/Subfunctions options found after expanding dropdown");
@@ -1196,7 +1182,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				if (checkboxes.size() != labels.size()) {
 					LOGGER.warn("Mismatch between checkbox count ({}) and label count ({}). Re-fetching elements...", 
 							checkboxes.size(), labels.size());
-					PerformanceUtils.waitForPageReady(driver, 1);
+					PageObjectHelper.waitForPageReady(driver, 1);
 					checkboxes = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_CHECKBOXES);
 					labels = findElements(FUNCTIONS_SUBFUNCTIONS_ALL_LABELS);
 				}
@@ -1268,7 +1254,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				Thread.sleep(300);
 
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(selectedCheckbox)).click();
+					PageObjectHelper.waitForClickable(wait, selectedCheckbox).click();
 					LOGGER.info(" Clicked Functions/Subfunctions option using standard click");
 				} catch (Exception e) {
 					LOGGER.warn("Standard click failed, trying JS click...");
@@ -1276,7 +1262,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					LOGGER.info(" Clicked Functions/Subfunctions option using JS click");
 				}
 
-				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(Locators.PMScreen.CLEAR_ALL_FILTERS_BTN))).isDisplayed());
+				Assert.assertTrue(PageObjectHelper.waitForVisible(wait, findElement(Locators.PMScreen.CLEAR_ALL_FILTERS_BTN)).isDisplayed());
 								PageObjectHelper.log(LOGGER, "Selected Function Value : " + functionsValue
 						+ " from Filters dropdown in HCM Sync Profiles screen in PM....");
 			} catch (Exception e) {
@@ -1314,7 +1300,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				// Wait for dropdown to close
 				safeSleep(800);
 				waitForSpinners(10);
-				PerformanceUtils.waitForPageReady(driver, 3);
+				PageObjectHelper.waitForPageReady(driver, 3);
 				
 				PageObjectHelper.log(LOGGER, "Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 			} catch (Exception e) {
@@ -1329,7 +1315,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			}
 
 			try {
-				PerformanceUtils.waitForPageReady(driver, 5);
+				PageObjectHelper.waitForPageReady(driver, 5);
 
 				// Check if there are no results after applying the filter
 				boolean noResults = false;
@@ -1355,8 +1341,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					}
 				} else {
 					// There are results, verify count changed
-					PerformanceUtils.waitForElement(driver, findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT));
-					String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT)))
+					PageObjectHelper.waitForVisible(wait, Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
+					String resultsCountText2 = PageObjectHelper.waitForVisible(wait, findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT))
 							.getText();
 					Assert.assertNotEquals(intialResultsCount.get(), resultsCountText2);
 					if (!resultsCountText2.equals(intialResultsCount.get())) {
@@ -1404,7 +1390,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			Thread.sleep(300);
 
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(Locators.PMScreen.CLEAR_ALL_FILTERS_BTN))).click();
+				PageObjectHelper.waitForClickable(wait, findElement(Locators.PMScreen.CLEAR_ALL_FILTERS_BTN)).click();
 				LOGGER.info("Clicked on Clear All Filters button using standard click");
 			} catch (Exception e) {
 				LOGGER.warn("Standard click failed, trying JS click...");
@@ -1429,8 +1415,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab() {
 		try {
 			try {
-				PerformanceUtils.waitForElement(driver, findElement(PROFILE_STATUS_FILTERS_DROPDOWN));
-				wait.until(ExpectedConditions.visibilityOf(findElement(PROFILE_STATUS_FILTERS_DROPDOWN))).isDisplayed();
+				PageObjectHelper.waitForVisible(wait, PROFILE_STATUS_FILTERS_DROPDOWN);
+				PageObjectHelper.waitForVisible(wait, findElement(PROFILE_STATUS_FILTERS_DROPDOWN)).isDisplayed();
 				jsClick(findElement(PROFILE_STATUS_FILTERS_DROPDOWN));
 				PageObjectHelper.log(LOGGER, 
 						"Clicked on Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...");
@@ -1448,7 +1434,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			try {
 				// DYNAMIC XPATH: Find all available Profile Status options using updated
 				// class-based XPATH
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 
 				if (findElements(PROFILE_STATUS_ALL_CHECKBOXES).isEmpty() || findElements(PROFILE_STATUS_ALL_LABELS).isEmpty()) {
 					LOGGER.error(" No Profile Status options found after expanding dropdown");
@@ -1466,7 +1452,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				Thread.sleep(300);
 
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(firstCheckbox)).click();
+					PageObjectHelper.waitForClickable(wait, firstCheckbox).click();
 					LOGGER.info(" Clicked Profile Status option using standard click");
 				} catch (Exception e) {
 					LOGGER.warn("Standard click failed, trying JS click...");
@@ -1474,7 +1460,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					LOGGER.info(" Clicked Profile Status option using JS click");
 				}
 
-				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(CLOSE_APPLIED_FILTER))).isDisplayed());
+				Assert.assertTrue(PageObjectHelper.waitForVisible(wait, findElement(CLOSE_APPLIED_FILTER)).isDisplayed());
 								PageObjectHelper.log(LOGGER, "Selected Profile Status Value : " + profileStatusValue
 						+ " from Filters dropdown in HCM Sync Profiles screen in PM....");
 			} catch (Exception e) {
@@ -1491,7 +1477,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			try {
 				js.executeScript("window.scrollTo(0, 0);");
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(findElement(HCM_SYNC_PROFILES_HEADER))).click();
+					PageObjectHelper.waitForClickable(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
 				} catch (Exception e) {
 					try {
 						js.executeScript("arguments[0].click();", findElement(HCM_SYNC_PROFILES_HEADER));
@@ -1499,7 +1485,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 						jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
 					}
 				}
-				Assert.assertTrue(wait.until(ExpectedConditions.invisibilityOf(findElement(FILTER_OPTIONS))));
+				Assert.assertTrue(PageObjectHelper.waitForInvisible(wait, findElement(FILTER_OPTIONS)));
 				PageObjectHelper.log(LOGGER, "Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1510,7 +1496,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			}
 
 			try {
-				PerformanceUtils.waitForPageReady(driver, 5);
+				PageObjectHelper.waitForPageReady(driver, 5);
 
 				// Check if there are no results after applying the filter
 				boolean noResults = false;
@@ -1536,8 +1522,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					}
 				} else {
 					// There are results, verify count changed
-					PerformanceUtils.waitForElement(driver, findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT));
-					String resultsCountText2 = wait.until(ExpectedConditions.visibilityOf(findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT)))
+					PageObjectHelper.waitForVisible(wait, Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
+					String resultsCountText2 = PageObjectHelper.waitForVisible(wait, findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT))
 							.getText();
 					Assert.assertNotEquals(updatedResultsCount.get(), resultsCountText2);
 					if (!resultsCountText2.equals(updatedResultsCount.get())) {
@@ -1595,7 +1581,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	}
 
 	private void verifyHeaderText(By headerLocator, String expectedText) {
-		String actualText = wait.until(ExpectedConditions.visibilityOf(findElement(headerLocator))).getText();
+		String actualText = PageObjectHelper.waitForVisible(wait, findElement(headerLocator)).getText();
 		Assert.assertEquals(actualText, expectedText, "Header mismatch: expected '" + expectedText + "' but got '" + actualText + "'");
 	}
 
@@ -1604,7 +1590,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			// Ensure we're at the top of the page and everything is loaded
 			js.executeScript("window.scrollTo(0, 0);");
 			waitForSpinners(15);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(1000);
 			
 			// Step 1: Store count of profiles loaded BEFORE clicking header checkbox
@@ -1636,7 +1622,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			// Wait for selection to complete
 			safeSleep(800);
 			waitForSpinners(15);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			// Step 3: Count selected and disabled profiles (without scrolling)
 			profilesCount.set(loadedProfilesBeforeHeaderCheckboxClick.get());
@@ -1653,7 +1639,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 						profilesCount.set(profilesCount.get() - 1);
 					}
 				} catch (Exception e) {
-					PerformanceUtils.waitForPageReady(driver, 5);
+					PageObjectHelper.waitForPageReady(driver, 5);
 					WebElement SP_Checkbox = driver.findElement(
 							By.xpath("//tbody//tr[" + Integer.toString(i) + "]//td[1]//*//..//div//kf-checkbox//div"));
 					// REMOVED: Scroll operation -
@@ -1714,7 +1700,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 			// Wait for deselection to complete
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			safeSleep(1000);
 
 			// Verify deselection - check that no profile checkboxes are selected
@@ -1749,7 +1735,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		try {
 			// Wait for table to be fully loaded
 			waitForSpinners(15);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(1000);
 			
 			// Wait for first row to be visible
@@ -1789,7 +1775,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void click_on_second_profile_checkbox_in_hcm_sync_profiles_tab() {
 		try {
 			scrollToAndWait(findElement(HCM_SYNC_PROFILES_JOB_ROW2));
-			jobname2.set(wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW2))).getText());
+			jobname2.set(PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_JOB_ROW2)).getText());
 			
 			// Check if already selected - skip if yes
 			if (isCheckboxSelected(2)) return;
@@ -1818,7 +1804,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					ExpectedConditions.presenceOfElementLocated(By.xpath("//tbody//tr[3]//td//div//span[1]//a")));
 
 			scrollToAndWait(row3);
-			jobname3.set(shortWait.until(ExpectedConditions.visibilityOf(row3)).getText());
+			jobname3.set(PageObjectHelper.waitForVisible(wait, row3).getText());
 
 			// Check if already selected - skip if yes
 			if (isCheckboxSelected(3)) return;
@@ -1839,13 +1825,13 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void user_should_verify_sync_with_hcm_button_is_disabled_in_hcm_sync_profiles_tab() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 
 			// Wait for button state to update with retry logic
 			WebDriverWait buttonWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
 			boolean isDisabled = buttonWait.until(driver -> {
 				try {
-					WebElement syncButton = wait.until(ExpectedConditions.visibilityOf(findElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN)));
+					WebElement syncButton = PageObjectHelper.waitForVisible(wait, findElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN));
 
 					// Check 1: Check for 'text-disabled' class (Angular Material disabled state)
 					String classAttribute = syncButton.getAttribute("class");
@@ -1898,13 +1884,13 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void user_should_verify_sync_with_hcm_button_is_enabled_in_hcm_sync_profiles_tab() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 
 			// Wait for button state to update with retry logic
 			WebDriverWait buttonWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
 			boolean isEnabled = buttonWait.until(driver -> {
 				try {
-					WebElement syncButton = wait.until(ExpectedConditions.visibilityOf(findElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN)));
+					WebElement syncButton = PageObjectHelper.waitForVisible(wait, findElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN));
 
 					// Check 1: Verify 'text-disabled' class is NOT present
 					String classAttribute = syncButton.getAttribute("class");
@@ -1957,19 +1943,19 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void verify_checkboxes_of_first_second_and_third_profile_are_selected_in_hcm_sync_profiles_tab() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 5);
-			String jobname1 = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW1))).getText();
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(PROFILE1_CHECKBOX))).isSelected());
+			PageObjectHelper.waitForPageReady(driver, 5);
+			String jobname1 = PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_JOB_ROW1)).getText();
+			Assert.assertTrue(PageObjectHelper.waitForVisible(wait, findElement(PROFILE1_CHECKBOX)).isSelected());
 						PageObjectHelper.log(LOGGER, "First job profile with name : " + jobname1
 					+ " is Already Selected in HCM Sync Profiles screen in PM");
 
-			String jobname2 = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW2))).getText();
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(PROFILE2_CHECKBOX))).isSelected());
+			String jobname2 = PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_JOB_ROW2)).getText();
+			Assert.assertTrue(PageObjectHelper.waitForVisible(wait, findElement(PROFILE2_CHECKBOX)).isSelected());
 						PageObjectHelper.log(LOGGER, "Second job profile with name : " + jobname2
 					+ " is Already Selected in HCM Sync Profiles screen in PM");
 
-			String jobname3 = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW3))).getText();
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(PROFILE3_CHECKBOX))).isSelected());
+			String jobname3 = PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_JOB_ROW3)).getText();
+			Assert.assertTrue(PageObjectHelper.waitForVisible(wait, findElement(PROFILE3_CHECKBOX)).isSelected());
 						PageObjectHelper.log(LOGGER, "Third job profile with name : " + jobname3
 					+ " is Already Selected in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
@@ -2005,12 +1991,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			LOGGER.info("[Thread-{}] Waiting for Sync with HCM success popup...", threadId);
-			
-			// PARALLEL EXECUTION FIX: Use shorter timeout with multiple locator attempts
-			// In parallel execution, popup might be captured by another thread or auto-dismiss
-			WebDriverWait popupWait = new WebDriverWait(driver, Duration.ofSeconds(15));
-			
-			// Try multiple locators for the popup
+
 			By[] popupLocators = {
 				SYNC_WITH_HCM_SUCCESS_POPUP_TEXT,
 				By.xpath("//div[contains(@class,'p-toast')]//div[contains(@class,'detail')]"),
@@ -2021,7 +2002,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			WebElement successPopup = null;
 			for (By locator : popupLocators) {
 				try {
-					successPopup = popupWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+					successPopup = PageObjectHelper.waitForVisible(wait, locator);
 					if (successPopup != null && successPopup.isDisplayed()) {
 						popupFound = true;
 						syncMessage = successPopup.getText();
@@ -2069,14 +2050,13 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 		// Warning message verification - optional, may not always appear
 		try {
-			WebDriverWait warningWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-			WebElement warningMsg = warningWait.until(ExpectedConditions.visibilityOfElementLocated(SYNC_WITH_HCM_WARNING_MSG));
+			WebElement warningMsg = PageObjectHelper.waitForVisible(wait, SYNC_WITH_HCM_WARNING_MSG);
 			if (warningMsg.isDisplayed()) {
 				String warningMsgText = warningMsg.getText();
 				PageObjectHelper.log(LOGGER, "Sync with HCM Warning Message : " + warningMsgText);
 				
 				try {
-					WebElement warningCloseBtn = warningWait.until(ExpectedConditions.elementToBeClickable(SYNC_WITH_HCM_WARNING_MSG_CLOSE_BTN));
+					WebElement warningCloseBtn = PageObjectHelper.waitForClickable(wait, SYNC_WITH_HCM_WARNING_MSG_CLOSE_BTN);
 					warningCloseBtn.click();
 					PageObjectHelper.log(LOGGER, 
 							"Sync with HCM Warning Message closed successfully in HCM Sync Profiles screen in PM....");
@@ -2093,8 +2073,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	
 	private void closePopupSafely() {
 		try {
-			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
-			WebElement closeBtn = shortWait.until(ExpectedConditions.elementToBeClickable(SYNC_WITH_HCM_SUCCESS_POPUP_CLOSE_BTN));
+			WebElement closeBtn = PageObjectHelper.waitForClickable(wait, SYNC_WITH_HCM_SUCCESS_POPUP_CLOSE_BTN);
 			closeBtn.click();
 		} catch (Exception e) {
 			// Try alternative close methods
@@ -2108,19 +2087,19 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void verify_checkboxes_of_first_second_and_third_profile_are_deselected_in_hcm_sync_profiles_tab() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 5);
-			String jobname1 = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW1))).getText();
-			Assert.assertTrue(!(wait.until(ExpectedConditions.visibilityOf(findElement(PROFILE1_CHECKBOX))).isSelected()));
+			PageObjectHelper.waitForPageReady(driver, 5);
+			String jobname1 = PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_JOB_ROW1)).getText();
+			Assert.assertTrue(!(PageObjectHelper.waitForVisible(wait, findElement(PROFILE1_CHECKBOX)).isSelected()));
 						PageObjectHelper.log(LOGGER, "First job profile with name : " + jobname1
 					+ " is De-Selected as expected after Sync with HCM is successful in HCM Sync Profiles screen in PM");
 
-			String jobname2 = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW2))).getText();
-			Assert.assertTrue(!(wait.until(ExpectedConditions.visibilityOf(findElement(PROFILE2_CHECKBOX))).isSelected()));
+			String jobname2 = PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_JOB_ROW2)).getText();
+			Assert.assertTrue(!(PageObjectHelper.waitForVisible(wait, findElement(PROFILE2_CHECKBOX)).isSelected()));
 						PageObjectHelper.log(LOGGER, "Second job profile with name : " + jobname2
 					+ " is De-Selected as expected after Sync with HCM is successful in HCM Sync Profiles screen in PM");
 
-			String jobname3 = wait.until(ExpectedConditions.visibilityOf(findElement(HCM_SYNC_PROFILES_JOB_ROW3))).getText();
-			Assert.assertTrue(!(wait.until(ExpectedConditions.visibilityOf(findElement(PROFILE3_CHECKBOX))).isSelected()));
+			String jobname3 = PageObjectHelper.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_JOB_ROW3)).getText();
+			Assert.assertTrue(!(PageObjectHelper.waitForVisible(wait, findElement(PROFILE3_CHECKBOX)).isSelected()));
 						PageObjectHelper.log(LOGGER, "Third job profile with name : " + jobname3
 					+ " is De-Selected as expected after Sync with HCM is successful in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {

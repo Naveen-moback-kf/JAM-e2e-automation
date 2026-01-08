@@ -6,11 +6,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO02_AddMoreJobsFunctionality extends BasePageObject {
@@ -42,14 +40,14 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void verify_unpublished_jobs_count_before_adding_more_jobs() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			try {
-				WebElement resultsCount = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+				WebElement resultsCount = PageObjectHelper.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
 				ResultsCountBeforeAddingMoreJobs.set(resultsCount.getText().split(" ")[3]);
 				PageObjectHelper.log(LOGGER, "Unpublished Job Profiles Count before Adding More Jobs: " + ResultsCountBeforeAddingMoreJobs.get());
 			} catch (Exception e) {
 				try {
-					WebElement emptyState = wait.until(ExpectedConditions.presenceOfElementLocated(NOTHING_TO_SEE_MESSAGE));
+					WebElement emptyState = PageObjectHelper.waitForPresent(wait, NOTHING_TO_SEE_MESSAGE);
 					if (emptyState.isDisplayed()) {
 						ResultsCountBeforeAddingMoreJobs.set("0");
 						PageObjectHelper.log(LOGGER, "No unpublished jobs found - Count set to 0");
@@ -66,7 +64,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 	public void user_should_be_landed_on_kfone_add_job_data_page() {
 		try {
 			String headerText = PageObjectHelper.retryOnStaleElement(LOGGER, () -> {
-				return wait.until(ExpectedConditions.visibilityOfElementLocated(ADD_MORE_JOBS_PAGE_HEADER)).getText();
+				return PageObjectHelper.waitForVisible(wait, ADD_MORE_JOBS_PAGE_HEADER).getText();
 			});
 			Assert.assertEquals(headerText, "Add Job Data");
 			PageObjectHelper.log(LOGGER, "User landed on KFONE Add Job Data page Successfully");
@@ -77,7 +75,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void user_is_in_kfone_add_job_data_page() {
 		try {
-			WebElement header = wait.until(ExpectedConditions.visibilityOfElementLocated(ADD_MORE_JOBS_PAGE_HEADER));
+			WebElement header = PageObjectHelper.waitForVisible(wait, ADD_MORE_JOBS_PAGE_HEADER);
 			Assert.assertTrue(header.isDisplayed());
 			Assert.assertEquals(header.getText(), "Add Job Data");
 			PageObjectHelper.log(LOGGER, "User is in KFONE Add Job Data page - Page header verified");
@@ -90,9 +88,9 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 	public void user_should_click_on_manual_upload_button() {
 		try {
 			String buttonText = PageObjectHelper.retryOnStaleElement(LOGGER, () -> {
-				return wait.until(ExpectedConditions.visibilityOfElementLocated(MANUAL_UPLOAD_BTN)).getText();
+				return PageObjectHelper.waitForVisible(wait, MANUAL_UPLOAD_BTN).getText();
 			});
-			wait.until(ExpectedConditions.elementToBeClickable(MANUAL_UPLOAD_BTN)).click();
+			PageObjectHelper.waitForClickable(wait, MANUAL_UPLOAD_BTN).click();
 			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_click_on_manual_upload_button", "Issue in clicking Manual upload Button", e);
@@ -101,8 +99,8 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void verify_jobs_count_in_kfone_add_job_data_screen_before_adding_more_jobs() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
-			WebElement jobsCount = wait.until(ExpectedConditions.visibilityOfElementLocated(KFONE_JOBS_COUNT));
+			PageObjectHelper.waitForPageReady(driver, 2);
+			WebElement jobsCount = PageObjectHelper.waitForVisible(wait, KFONE_JOBS_COUNT);
 			KFONEjobsCountBeforeAddingMoreJobs.set(jobsCount.getText());
 			PageObjectHelper.log(LOGGER, "Jobs count before Adding More Jobs: " + KFONEjobsCountBeforeAddingMoreJobs.get());
 		} catch (Exception e) {
@@ -113,8 +111,8 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 	public void verify_last_synced_info_on_add_job_data_screen_before_adding_more_jobs() {
 		try {
 			scrollToBottom();
-			PerformanceUtils.waitForUIStability(driver, 2);
-			WebElement lastSynced = wait.until(ExpectedConditions.visibilityOfElementLocated(LAST_SYNCED_INFO));
+			PageObjectHelper.waitForUIStability(driver, 2);
+			WebElement lastSynced = PageObjectHelper.waitForVisible(wait, LAST_SYNCED_INFO);
 			Assert.assertTrue(lastSynced.isDisplayed());
 			lastSyncedInfo1.set(lastSynced.getText());
 			PageObjectHelper.log(LOGGER, "Last Synced Info before adding More Jobs: " + lastSyncedInfo1.get());
@@ -142,8 +140,8 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				throw new RuntimeException("All file upload strategies failed");
 			}
 
-			PerformanceUtils.waitForUIStability(driver, 1);
-			WebElement uploadedFile = wait.until(ExpectedConditions.visibilityOfElementLocated(ATTACHED_FILE_NAME));
+			PageObjectHelper.waitForUIStability(driver, 1);
+			WebElement uploadedFile = PageObjectHelper.waitForVisible(wait, ATTACHED_FILE_NAME);
 			Assert.assertTrue(uploadedFile.isDisplayed());
 			PageObjectHelper.log(LOGGER, "Job catalog file uploaded successfully. File name: " + uploadedFile.getText());
 		} catch (Exception e) {
@@ -153,7 +151,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void user_should_verify_file_close_button_displaying_and_clickable() {
 		try {
-			WebElement closeBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(FILE_CLOSE_BTN));
+			WebElement closeBtn = PageObjectHelper.waitForVisible(wait, FILE_CLOSE_BTN);
 			Assert.assertTrue(closeBtn.isDisplayed());
 			closeBtn.click();
 			PageObjectHelper.log(LOGGER, "File Close button clicked successfully");
@@ -165,9 +163,9 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 	public void click_on_continue_button_in_add_job_data_screen() {
 		try {
 			String buttonText = PageObjectHelper.retryOnStaleElement(LOGGER, () -> {
-				return wait.until(ExpectedConditions.visibilityOfElementLocated(CONTINUE_BTN)).getText();
+				return PageObjectHelper.waitForVisible(wait, CONTINUE_BTN).getText();
 			});
-			wait.until(ExpectedConditions.elementToBeClickable(CONTINUE_BTN)).click();
+			PageObjectHelper.waitForClickable(wait, CONTINUE_BTN).click();
 			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_continue_button_in_add_job_data_screen", "Issue in clicking Continue Button", e);
@@ -176,7 +174,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void user_should_validate_job_data_upload_is_in_progress() {
 		try {
-			WebElement uploadProgress = wait.until(ExpectedConditions.visibilityOfElementLocated(UPLOAD_PROGRESS_TEXT));
+			WebElement uploadProgress = PageObjectHelper.waitForVisible(wait, UPLOAD_PROGRESS_TEXT);
 			Assert.assertTrue(uploadProgress.isDisplayed());
 			PageObjectHelper.log(LOGGER, "Upload in progress - " + uploadProgress.getText());
 		} catch (Exception e) {
@@ -188,11 +186,11 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 		try {
 			PageObjectHelper.log(LOGGER, "Waiting for 2 minutes before refreshing page...");
 			safeSleep(120000);
-			wait.until(ExpectedConditions.elementToBeClickable(CLICK_HERE_BTN)).click();
+			PageObjectHelper.waitForClickable(wait, CLICK_HERE_BTN).click();
 			PageObjectHelper.log(LOGGER, "Clicked on Click Here button to refresh the page");
 
-			PerformanceUtils.waitForUIStability(driver, 2);
-			WebElement successMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(UPLOAD_SUCCESS_MESSAGE));
+			PageObjectHelper.waitForUIStability(driver, 2);
+			WebElement successMsg = PageObjectHelper.waitForVisible(wait, UPLOAD_SUCCESS_MESSAGE);
 			PageObjectHelper.log(LOGGER, successMsg.getText() + " - Job data added successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_validate_job_data_added_successfully", "Issue in validating Job data added", e);
@@ -201,9 +199,9 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void verify_jobs_count_in_kfone_add_job_data_screen_after_adding_more_jobs() {
 		try {
-			PerformanceUtils.waitForUIStability(driver, 2);
+			PageObjectHelper.waitForUIStability(driver, 2);
 			scrollToTop();
-			WebElement jobsCount = wait.until(ExpectedConditions.visibilityOfElementLocated(KFONE_JOBS_COUNT));
+			WebElement jobsCount = PageObjectHelper.waitForVisible(wait, KFONE_JOBS_COUNT);
 			String countAfter = jobsCount.getText();
 			PageObjectHelper.log(LOGGER, "Jobs count after Adding More Jobs: " + countAfter);
 
@@ -219,8 +217,8 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void verify_last_synced_info_on_add_job_data_screen_after_adding_more_jobs() {
 		try {
-			PerformanceUtils.waitForUIStability(driver, 2);
-			WebElement lastSynced = wait.until(ExpectedConditions.visibilityOfElementLocated(LAST_SYNCED_INFO));
+			PageObjectHelper.waitForUIStability(driver, 2);
+			WebElement lastSynced = PageObjectHelper.waitForVisible(wait, LAST_SYNCED_INFO);
 			Assert.assertTrue(lastSynced.isDisplayed());
 			String infoAfter = lastSynced.getText();
 			PageObjectHelper.log(LOGGER, "Last Synced Info after adding More Jobs: " + infoAfter);
@@ -238,11 +236,11 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 	public void close_add_job_data_screen() {
 		try {
 			PageObjectHelper.retryOnStaleElement(LOGGER, () -> {
-				WebElement closeBtn = wait.until(ExpectedConditions.elementToBeClickable(ADD_MORE_JOBS_CLOSE_BTN));
+				WebElement closeBtn = PageObjectHelper.waitForClickable(wait, ADD_MORE_JOBS_CLOSE_BTN);
 				closeBtn.click();
 			});
 			PageObjectHelper.log(LOGGER, "Clicked on Add more jobs Close button");
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			
 			// AUTOMATION FIX: Handle "Keep working?" popup (method now in BasePageObject)
 			dismissKeepWorkingPopupIfPresent();
@@ -259,7 +257,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			refreshPage();
 			PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
 			safeSleep(2000);
-			WebElement resultsCount = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+			WebElement resultsCount = PageObjectHelper.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
 			String countAfter = resultsCount.getText().split(" ")[3];
 			PageObjectHelper.log(LOGGER, "Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
 
@@ -275,7 +273,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				refreshPage();
 				PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page");
 				safeSleep(2000);
-				WebElement resultsCount = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+				WebElement resultsCount = PageObjectHelper.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
 				String countAfter = resultsCount.getText().split(" ")[3];
 				PageObjectHelper.log(LOGGER, "Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
 
@@ -293,9 +291,9 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 	public void click_on_done_button_in_kfone_add_job_data_page() {
 		try {
 			String buttonText = PageObjectHelper.retryOnStaleElement(LOGGER, () -> {
-				return wait.until(ExpectedConditions.visibilityOfElementLocated(DONE_BTN)).getText();
+				return PageObjectHelper.waitForVisible(wait, DONE_BTN).getText();
 			});
-			wait.until(ExpectedConditions.elementToBeClickable(DONE_BTN)).click();
+			PageObjectHelper.waitForClickable(wait, DONE_BTN).click();
 			PageObjectHelper.log(LOGGER, buttonText + " button clicked successfully");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_done_button_in_kfone_add_job_data_page", "Issue in clicking Done Button", e);
@@ -305,8 +303,6 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 	public void user_is_in_kfone_add_job_data_page_afer_uploading_file() {
 		PageObjectHelper.log(LOGGER, "User is in KFONE Add Job Data page after uploading file");
 	}
-
-	// ==================== OPTIONAL VALIDATION METHODS ====================
 	// These methods are optional and should NOT fail the test
 	// They log warnings if they fail instead of throwing exceptions
 
@@ -369,6 +365,4 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			LOGGER.warn("[OPTIONAL STEP] Continuing test execution - this is informational only");
 		}
 	}
-
-	// ==================== END OPTIONAL METHODS ====================
 }

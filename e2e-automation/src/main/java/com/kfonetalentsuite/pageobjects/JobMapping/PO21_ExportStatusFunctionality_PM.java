@@ -6,12 +6,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
@@ -37,7 +34,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	private WebElement findTableElement(int rowNum, int colNum) {
 		String xpath = String.format("//tbody//tr[%d]//td[%d]//*", rowNum, colNum);
 		try {
-			return wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpath)));
+			return PageObjectHelper.waitForPresent(wait, By.xpath(xpath));
 		} catch (Exception e) {
 			waitForSpinners();
 			safeSleep(1000);
@@ -282,9 +279,9 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 						WebElement lastRow = driver.findElement(By.xpath(lastRowXpath));
 
 						scrollToElement(lastRow);
-						PerformanceUtils.waitForUIStability(driver, 1);
+						PageObjectHelper.waitForUIStability(driver, 1);
 						scrollToBottom();
-						PerformanceUtils.waitForUIStability(driver, 1);
+						PageObjectHelper.waitForUIStability(driver, 1);
 
 						try {
 							String retryXpath = String.format("//tbody//tr[%d]//td[1]//*", j);
@@ -318,7 +315,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	public void user_should_click_on_recently_exported_success_profile_job_name() {
 		try {
 			waitForSpinners(15);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			// Scroll to appropriate position
 			if (rowNumber.get() == 1) {
@@ -333,7 +330,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			}
 
 			safeSleep(1000);
-			PerformanceUtils.waitForUIStability(driver, 2);
+			PageObjectHelper.waitForUIStability(driver, 2);
 
 			// Find the job name link element (must be <a> tag for navigation)
 			String linkXpath = "//tbody//tr[" + rowNumber.get() + "]//td[1]//a";
@@ -357,7 +354,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			// Strategy 1: Regular click on link element
 			if (!navigationSuccessful) {
 				try {
-					WebElement clickableLink = wait.until(ExpectedConditions.elementToBeClickable(jobNameLink));
+					WebElement clickableLink = PageObjectHelper.waitForClickable(wait, jobNameLink);
 					clickableLink.click();
 					safeSleep(1500);
 					
@@ -518,7 +515,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 			clickElement(FUNCTION_DROPDOWN);
 			PageObjectHelper.log(LOGGER, "Clicked Function dropdown in Success Profile Details section");
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 
 			List<WebElement> functionOptions = driver.findElements(DROPDOWN_OPTIONS);
 			if (functionOptions.isEmpty()) {
@@ -542,11 +539,11 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			jsClick(selectedFunctionOption);
 			PageObjectHelper.log(LOGGER, "Function value Modified to '" + functionValue + "' in Success Profile Details section");
 
-			PerformanceUtils.waitForUIStability(driver, 2);
+			PageObjectHelper.waitForUIStability(driver, 2);
 
 			clickElement(SUBFUNCTION_DROPDOWN);
 			PageObjectHelper.log(LOGGER, "Clicked Subfunction dropdown in Success Profile Details section");
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 
 			List<WebElement> subFunctionOptions = driver.findElements(DROPDOWN_OPTIONS);
 			if (subFunctionOptions.isEmpty()) {

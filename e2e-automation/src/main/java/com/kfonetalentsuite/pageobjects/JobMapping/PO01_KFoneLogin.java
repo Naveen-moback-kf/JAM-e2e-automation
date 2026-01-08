@@ -13,7 +13,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.SessionManager;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.utils.common.CommonVariable;
@@ -103,8 +102,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 		try {
 			handleCookiesBanner();
 			String ssoUsername = getCredential("SSO", "Username");
-			WebElement userNameTxt = wait.until(ExpectedConditions.elementToBeClickable(USERNAME_INPUT));
-			userNameTxt.sendKeys(ssoUsername);
+			PageObjectHelper.waitAndSendKeys(wait, USERNAME_INPUT, ssoUsername);
 			username.set(ssoUsername);
 			jsClick(driver.findElement(KFONE_SIGNIN_BTN));
 			safeSleep(2000);
@@ -117,7 +115,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 
 	public void user_should_navigate_to_microsoft_login_page() {
 		try {
-			wait.until(ExpectedConditions.visibilityOfElementLocated(MICROSOFT_PASSWORD_HEADER)).isDisplayed();
+			PageObjectHelper.waitForVisible(wait, MICROSOFT_PASSWORD_HEADER);
 			PageObjectHelper.log(LOGGER, "Navigated to Microsoft Login page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_navigate_to_microsoft_login_page", "Issue in navigating to Microsoft Login page", e);
@@ -127,10 +125,10 @@ public class PO01_KFoneLogin extends BasePageObject {
 	public void provide_sso_login_password_and_click_sign_in() {
 		try {
 			String ssoPassword = getCredential("SSO", "Password");
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOfElementLocated(MICROSOFT_PASSWORD_HEADER)).isDisplayed());
-			wait.until(ExpectedConditions.elementToBeClickable(PASSWORD_INPUT)).sendKeys(ssoPassword);
+			Assert.assertTrue(PageObjectHelper.waitForVisible(wait, MICROSOFT_PASSWORD_HEADER).isDisplayed());
+			PageObjectHelper.waitAndSendKeys(wait, PASSWORD_INPUT, ssoPassword);
 			jsClick(driver.findElement(MICROSOFT_SUBMIT_BTN));
-			wait.until(ExpectedConditions.elementToBeClickable(MICROSOFT_SUBMIT_BTN)).click();
+			PageObjectHelper.waitAndClick(wait, MICROSOFT_SUBMIT_BTN);
 			PageObjectHelper.log(LOGGER, "Entered SSO password and completed Microsoft login");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "provide_sso_login_password_and_click_sign_in", "Issue in providing SSO login password", e);
@@ -140,18 +138,18 @@ public class PO01_KFoneLogin extends BasePageObject {
 	public void provide_non_sso_login_username_and_click_sign_in_button_in_kfone_login_page() {
 		handleCookiesBanner();
 		String nonSsoUsername = getCredential("NON_SSO", "Username");
-		wait.until(ExpectedConditions.elementToBeClickable(USERNAME_INPUT)).sendKeys(nonSsoUsername);
+		PageObjectHelper.waitAndSendKeys(wait, USERNAME_INPUT, nonSsoUsername);
 		username.set(nonSsoUsername);
-		jsClick(wait.until(ExpectedConditions.elementToBeClickable(KFONE_SIGNIN_BTN)));
-		wait.until(ExpectedConditions.elementToBeClickable(PASSWORD_INPUT));
+		jsClick(PageObjectHelper.waitForClickable(wait, KFONE_SIGNIN_BTN));
+		PageObjectHelper.waitForClickable(wait, PASSWORD_INPUT);
 		PageObjectHelper.log(LOGGER, "Entered username and proceeded to password screen");
 	}
 
 	public void provide_non_sso_login_password_and_click_sign_in_button_in_kfone_login_page() {
 		String nonSsoPassword = getCredential("NON_SSO", "Password");
-		wait.until(ExpectedConditions.elementToBeClickable(PASSWORD_INPUT)).sendKeys(nonSsoPassword);
-		jsClick(wait.until(ExpectedConditions.elementToBeClickable(KFONE_SIGNIN_BTN)));
-		PerformanceUtils.waitForPageReady(driver, 10);
+		PageObjectHelper.waitAndSendKeys(wait, PASSWORD_INPUT, nonSsoPassword);
+		jsClick(PageObjectHelper.waitForClickable(wait, KFONE_SIGNIN_BTN));
+		PageObjectHelper.waitForPageReady(driver, 10);
 		PageObjectHelper.log(LOGGER, "Entered password and submitted login");
 	}
 
@@ -174,7 +172,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 				driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
 			}
 
-			PerformanceUtils.waitForPageReady(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 10);
 			WebElement clientsHeader = waitForElement(Locators.KFONE.CLIENTS_PAGE_HEADER);
 			Assert.assertEquals("Clients", clientsHeader.getText(), "Expected 'Clients' header on KFONE landing page");
 			PageObjectHelper.log(LOGGER, "Landed on KFONE Clients Page as Expected");
@@ -191,10 +189,10 @@ public class PO01_KFoneLogin extends BasePageObject {
 
 			for (int retry = 1; retry <= maxRetries && !pmHeaderFound; retry++) {
 				try {
-					WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(30));
-					PerformanceUtils.waitForPageReady(driver, 10);
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
-					PerformanceUtils.safeSleep(driver, 2000);
+				WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(30));
+				PageObjectHelper.waitForPageReady(driver, 10);
+				PageObjectHelper.waitForSpinnersToDisappear(driver, 15);
+				PageObjectHelper.waitForUIStability(driver, 2);
 
 					WebElement pmHeader = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(PM_HEADER));
 					if (pmHeader.isDisplayed()) {
@@ -206,7 +204,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 					if (retry < maxRetries) {
 						LOGGER.warn("Blank page detected (attempt {}/{}) - refreshing page...", retry, maxRetries);
 						driver.navigate().refresh();
-						PerformanceUtils.waitForPageReady(driver, 10);
+						PageObjectHelper.waitForPageReady(driver, 10);
 					}
 				}
 			}
@@ -222,7 +220,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 	public void user_is_in_kfone_clients_page() {
 		try {
 			waitForPageLoad();
-			wait.until(ExpectedConditions.visibilityOfElementLocated(CLIENTS_TABLE)).isDisplayed();
+			PageObjectHelper.waitForVisible(wait, CLIENTS_TABLE).isDisplayed();
 			PageObjectHelper.log(LOGGER, "User is successfully on KFONE Clients page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_is_in_kfone_clients_page", "Issue in verifying user is on KFONE Clients page", e);
@@ -239,7 +237,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 				extendedWait.until(ExpectedConditions.visibilityOfElementLocated(CLIENTS_TABLE_BODY));
 			} catch (Exception e) {
 				safeSleep(2000);
-				wait.until(ExpectedConditions.visibilityOfElementLocated(CLIENTS_TABLE_BODY));
+				PageObjectHelper.waitForVisible(wait, CLIENTS_TABLE_BODY);
 			}
 
 			List<WebElement> clientRows = driver.findElements(CLIENT_ROWS);
@@ -285,7 +283,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 				return;
 			}
 
-			wait.until(ExpectedConditions.visibilityOfElementLocated(CLIENTS_TABLE_BODY));
+			PageObjectHelper.waitForVisible(wait, CLIENTS_TABLE_BODY);
 			List<WebElement> clientRows = driver.findElements(CLIENT_ROWS);
 
 			for (WebElement row : clientRows) {
@@ -310,13 +308,13 @@ public class PO01_KFoneLogin extends BasePageObject {
 				return;
 			}
 
-			wait.until(ExpectedConditions.visibilityOfElementLocated(CLIENTS_TABLE));
-			WebElement searchBar = wait.until(ExpectedConditions.elementToBeClickable(CLIENT_SEARCH_BAR));
+			PageObjectHelper.waitForVisible(wait, CLIENTS_TABLE);
+			WebElement searchBar = PageObjectHelper.waitForClickable(wait, CLIENT_SEARCH_BAR);
 			searchBar.clear();
 			searchBar.sendKeys(targetPamsId);
 			PageObjectHelper.log(LOGGER, "Searching for client with PAMS ID: " + targetPamsId);
 
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(2000);
 
 			List<WebElement> filteredRows = driver.findElements(CLIENT_ROWS);
@@ -332,7 +330,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 	public void click_on_client_with_access_to_profile_manager_application() {
 		try {
 			String targetPamsId = getPamsId();
-			wait.until(ExpectedConditions.visibilityOfElementLocated(CLIENTS_TABLE_BODY));
+			PageObjectHelper.waitForVisible(wait, CLIENTS_TABLE_BODY);
 			List<WebElement> clientRows = driver.findElements(CLIENT_ROWS);
 			Assert.assertTrue(clientRows.size() > 0, "No client rows found");
 
@@ -346,13 +344,13 @@ public class PO01_KFoneLogin extends BasePageObject {
 					boolean isTarget = (targetPamsId == null || targetPamsId.isEmpty()) || pamsId.equals(targetPamsId);
 					boolean hasPM = products.toLowerCase().contains("profile manager");
 
-					if (isTarget && hasPM) {
-						scrollToElement(nameElement);
-						PerformanceUtils.waitForElementClickable(driver, nameElement);
-						clickElement(nameElement);
-						clientName.set(clientNameStr);
+				if (isTarget && hasPM) {
+					scrollToElement(nameElement);
+					PageObjectHelper.waitForClickable(wait, nameElement);
+					clickElement(nameElement);
+					clientName.set(clientNameStr);
 						PageObjectHelper.log(LOGGER, "Clicked on client: " + clientNameStr + " (PAMS ID: " + pamsId + ")");
-						PerformanceUtils.waitForPageReady(driver, 5);
+						PageObjectHelper.waitForPageReady(driver, 5);
 						return;
 					}
 				} catch (Exception e) {
@@ -369,9 +367,9 @@ public class PO01_KFoneLogin extends BasePageObject {
 		try {
 			waitForPageLoad();
 			waitForElement(Locators.KFONE.LANDING_PAGE_TITLE);
-			WebElement homeHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(KFONE_HOME_HEADER));
+			WebElement homeHeader = PageObjectHelper.waitForVisible(wait, KFONE_HOME_HEADER);
 			LOGGER.info(homeHeader.getText() + " is displaying on KFONE Home Page");
-			WebElement productsSection = wait.until(ExpectedConditions.visibilityOfElementLocated(YOUR_PRODUCTS_SECTION));
+			WebElement productsSection = PageObjectHelper.waitForVisible(wait, YOUR_PRODUCTS_SECTION);
 			Assert.assertEquals("Your products", productsSection.getText(), "User is not on KFONE Home page");
 			PageObjectHelper.log(LOGGER, "User successfully navigated to KFONE Home Page");
 		} catch (Exception e) {
@@ -382,7 +380,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 	public void click_on_profile_manager_application_in_your_products_section() {
 		try {
 			scrollToElement(driver.findElement(YOUR_PRODUCTS_SECTION));
-			WebElement pmTile = wait.until(ExpectedConditions.elementToBeClickable(PM_IN_PRODUCTS_SECTION));
+			WebElement pmTile = PageObjectHelper.waitForClickable(wait, PM_IN_PRODUCTS_SECTION);
 			waitForPageLoad();
 			clickElement(pmTile);
 			PageObjectHelper.log(LOGGER, "Clicked on Profile Manager application");
@@ -391,10 +389,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 			PageObjectHelper.handleError(LOGGER, "click_on_profile_manager_application_in_your_products_section", "Issue clicking PM tile", e);
 		}
 	}
-
-	// =============================================
 	// PRIVATE HELPER METHODS (PO01-specific config)
-	// =============================================
 
 	private String getEnvironment() {
 		return CommonVariable.ENVIRONMENT != null ? CommonVariable.ENVIRONMENT : "qa";

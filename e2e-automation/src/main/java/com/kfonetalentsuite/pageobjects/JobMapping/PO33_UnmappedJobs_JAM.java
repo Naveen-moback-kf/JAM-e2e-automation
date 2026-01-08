@@ -6,11 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 import org.testng.SkipException;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
@@ -37,8 +34,8 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		skipScenario.set(false);
 
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			List<WebElement> mappingStatusCheckboxes = findElements(MAPPING_STATUS_CHECKBOXES);
 			List<WebElement> mappingStatusValues = findElements(MAPPING_STATUS_VALUES);
@@ -54,7 +51,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 					js.executeScript("arguments[0].scrollIntoView();", mappingStatusValues.get(i));
 
 					try {
-						wait.until(ExpectedConditions.elementToBeClickable(mappingStatusValues.get(i))).click();
+						PageObjectHelper.waitForClickable(wait, mappingStatusValues.get(i)).click();
 					} catch (Exception e) {
 						try {
 							js.executeScript("arguments[0].click();", mappingStatusValues.get(i));
@@ -63,8 +60,8 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 						}
 					}
 
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-					PerformanceUtils.waitForPageReady(driver, 3);
+					PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+					PageObjectHelper.waitForPageReady(driver, 3);
 
 					Assert.assertTrue(mappingStatusCheckboxes.get(i).isSelected(), "Unmapped option should be selected");
 					PageObjectHelper.log(LOGGER, "Selected Unmapped jobs option from Mapping Status Filters");
@@ -97,7 +94,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		}
 
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			WebElement headerCheckbox = findElement(HEADER_CHECKBOX);
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", headerCheckbox);
@@ -122,7 +119,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		}
 
 		try {
-			PerformanceUtils.waitForPageReady(driver, 1);
+			PageObjectHelper.waitForPageReady(driver, 1);
 			js.executeScript("window.scrollTo(0, 0);");
 			safeSleep(300);
 
@@ -170,7 +167,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		String expectedTooltipText = "No Success Profile have been mapped to this Job.";
 
 		try {
-			PerformanceUtils.waitForPageReady(driver, 1);
+			PageObjectHelper.waitForPageReady(driver, 1);
 
 			LOGGER.info("========================================");
 			LOGGER.info("VERIFYING UNMAPPED JOB CHECKBOXES");

@@ -5,8 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO03_JobMappingHeaderSection extends BasePageObject {
@@ -46,26 +44,26 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 				if (attempt > 1) {
 					LOGGER.warn("Retry attempt {}/{} - Refreshing browser", attempt, maxRetries);
 					refreshPage();
-					PerformanceUtils.waitForUIStability(driver, 3);
+					PageObjectHelper.waitForUIStability(driver, 3);
 					Thread.sleep(5000);
 				}
 
 				waitForSpinners();
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 
 				try {
 					WebElement menuButton = waitForClickable(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
 					if (!tryClickWithStrategies(menuButton)) {
 						jsClick(menuButton);
 					}
-					PerformanceUtils.waitForUIStability(driver, 1);
+					PageObjectHelper.waitForUIStability(driver, 1);
 				} catch (Exception e) {
 					LOGGER.warn("Failed to click KFONE Global Menu on attempt {}/{}", attempt, maxRetries);
 					if (attempt < maxRetries) continue;
 					throw new RuntimeException("KFONE Global Menu button not clickable after " + maxRetries + " attempts");
 				}
 
-				PerformanceUtils.waitForPageReady(driver, 1);
+				PageObjectHelper.waitForPageReady(driver, 1);
 
 				try {
 					WebElement jamButton = waitForClickable(Locators.Navigation.JOB_MAPPING_BTN);
@@ -82,7 +80,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 				}
 
 				waitForSpinners();
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				// Wait for background API (~100K records) to complete
 				waitForBackgroundDataLoad();
 				PageObjectHelper.log(LOGGER, "Successfully Navigated to Job Mapping screen");
@@ -123,7 +121,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 	public void verify_user_navigated_to_kfone_clients_page() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			waitForElement(Locators.KFONE.LANDING_PAGE_TITLE);
 			String text = getElementText(KFONE_CLIENTS_PAGE_TITLE);
 			Assert.assertEquals("Clients", text);
@@ -145,7 +143,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 
 	public void verify_user_profile_menu_is_opened() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			Assert.assertTrue(waitForElement(Locators.UserProfile.PROFILE_USER_NAME).isDisplayed());
 			PageObjectHelper.log(LOGGER, "User profile menu is opened on click of user profile logo");
 		} catch (Exception e) {
@@ -185,7 +183,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 
 	public void user_should_be_signed_out_from_the_application() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			Assert.assertTrue(waitForElement(Locators.KFONE.LOGIN_PAGE_TEXT).isDisplayed());
 			PageObjectHelper.log(LOGGER, "User signed out successfully and navigated back to Korn Ferry Talent Suite Sign In page");
 		} catch (Exception e) {

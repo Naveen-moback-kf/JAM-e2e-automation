@@ -6,9 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
@@ -44,7 +41,7 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 			int stableCount = 0;
 
 			while (scrollCount < maxScrollAttempts) {
-				String resultsCountText = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JAMScreen.SHOWING_RESULTS_COUNT)).getText();
+				String resultsCountText = PageObjectHelper.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
 				String[] parts = resultsCountText.split(" ");
 				int currentShowing = Integer.parseInt(parts[1]);
 				int totalResults = Integer.parseInt(parts[3]);
@@ -68,8 +65,8 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 
 				scrollToBottom();
 				safeSleep(3000);
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				safeSleep(1000);
 
 				previousShowing = currentShowing;

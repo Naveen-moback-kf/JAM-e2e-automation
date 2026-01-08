@@ -15,15 +15,11 @@ import org.testng.Assert;
 
 import java.time.Duration;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO25_MissingDataFunctionality extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO25_MissingDataFunctionality.class);
-
-	// Thread-safe storage for extracted job details
 	public static ThreadLocal<Map<String, String>> jobDetailsFromMissingDataScreen = ThreadLocal.withInitial(HashMap::new);
 	public static ThreadLocal<Map<String, String>> jobDetailsFromJobMappingPage = ThreadLocal.withInitial(HashMap::new);
 	public static ThreadLocal<String> extractedJobName = ThreadLocal.withInitial(() -> "NOT_SET");
@@ -43,8 +39,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	public PO25_MissingDataFunctionality() {
 		super();
 	}
-
-	// ==================== LOCATORS ====================
 	private static final By REUPLOAD_PAGE_TITLE_DESC = By.xpath("//div//p[contains(text(), 're-upload the jobs')]");
 	private static final By CLOSE_REUPLOAD_JOBS_PAGE_BUTTON = By.xpath("//button[contains(@class, 'border-[#007BC7]') and contains(text(), 'Close')]");
 	private static final By JOB_ROWS_IN_MISSING_DATA_SCREEN = By.xpath("//table//tr[contains(@class, 'border-b')]");
@@ -54,7 +48,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	private static final By INFO_MESSAGE_ICON = By.xpath("//*[contains(@class, 'info-icon')] | //*[@data-testid='info-message'] | //button[contains(@class, 'text-[#C35500]')]");
 
 	// Column indices for different data types in Job Mapping page
-	// Note: Column 1 = Checkbox, Column 2 = Job Name/Code, Column 3 = Grade, Column 4 = Department
 	private static final int GRADE_COLUMN_INDEX = 3;
 	private static final int DEPARTMENT_COLUMN_INDEX = 4;
 	private static final int FUNCTION_COLUMN_INDEX = 5; // Function/Subfunction combined column
@@ -182,7 +175,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	public void sort_job_profiles_by_column_in_ascending_order(String columnName) throws IOException {
 		try {
 			PageObjectHelper.log(LOGGER, "Sorting job profiles by " + columnName + " in ascending order");
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 
 			By headerLocator;
@@ -209,7 +202,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			driver.findElement(headerLocator);
 			clickElement(headerLocator);
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(1000);
 			
 			PageObjectHelper.log(LOGGER, "✅ Sorted by " + columnName + " in ascending order");
@@ -226,15 +219,14 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		try {
 			currentDataType.set(dataType);
 			LOGGER.debug("Verifying Jobs with Missing {} Data screen is displayed", dataType);
-			PerformanceUtils.safeSleep(driver, 2000);
+			PageObjectHelper.waitForUIStability(driver, 2);
 
 			boolean pageVerified = false;
 			StringBuilder verificationResults = new StringBuilder();
 
 			// Check for page title description
 			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(15));
-				shortWait.until(ExpectedConditions.visibilityOfElementLocated(REUPLOAD_PAGE_TITLE_DESC));
+				PageObjectHelper.waitForVisible(wait, REUPLOAD_PAGE_TITLE_DESC);
 				if (findElement(REUPLOAD_PAGE_TITLE_DESC).isDisplayed()) {
 					String pageTitle = findElement(REUPLOAD_PAGE_TITLE_DESC).getText();
 					verificationResults.append("✅ Page title found: ").append(pageTitle).append("; ");
@@ -246,8 +238,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 			// Check for Close button
 			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-				shortWait.until(ExpectedConditions.visibilityOfElementLocated(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON));
+				PageObjectHelper.waitForVisible(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
 				if (findElement(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON).isDisplayed()) {
 					verificationResults.append("✅ Close button found; ");
 					pageVerified = true;
@@ -296,7 +287,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				// Modal not present, which is good
 			}
 			
-			PerformanceUtils.waitForPageReady(driver, 2);  // Reduced from 5s
+			PageObjectHelper.waitForPageReady(driver, 2);  // Reduced from 5s
 			waitForSpinners();
 			safeSleep(500);  // Reduced from 1500ms
 
@@ -359,7 +350,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			currentDataType.set(dataType);
 			PageObjectHelper.log(LOGGER, "Finding job profile with missing " + dataType + " data in Job Mapping page");
 			
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 			safeSleep(1000);
 
@@ -590,12 +581,12 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// FIND MISSING DATA METHODS - REVERSE FLOW (Missing Data Screen)
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	public void find_job_in_jobs_missing_data_screen_where_data_is_na(String dataType) throws IOException {
+	public void find_job_in_jobs_missing_data_screen_where_data_is_na(String dataType) {
 		try {
 			currentDataType.set(dataType);
 			PageObjectHelper.log(LOGGER, "Finding job in Missing Data screen where " + dataType + " is N/A");
 			
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 			safeSleep(1000);
 
@@ -702,7 +693,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	public void extract_all_available_job_details_from_jobs_with_missing_data_screen(String dataType) throws IOException {
+	public void extract_all_available_job_details_from_jobs_with_missing_data_screen(String dataType) {
 		try {
 			PageObjectHelper.log(LOGGER, "Extracting all job details from Missing " + dataType + " Data screen");
 			
@@ -759,7 +750,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// SEARCH METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	public void search_for_extracted_job_profile_in_jobs_missing_data_screen(String dataType) throws IOException {
+	public void search_for_extracted_job_profile_in_jobs_missing_data_screen(String dataType) {
 		try {
 			PageObjectHelper.log(LOGGER, "Traversing all jobs in Missing Data screen (no search functionality)...");
 
@@ -875,7 +866,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	public void search_for_extracted_job_profile_in_job_mapping_page(String dataType) throws IOException {
+	public void search_for_extracted_job_profile_in_job_mapping_page(String dataType) {
 		try {
 			// Use job name from Missing Data screen details (matching original PO pattern)
 			String searchTerm = jobDetailsFromMissingDataScreen.get().get("jobName");
@@ -885,7 +876,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			
 			PageObjectHelper.log(LOGGER, "Searching for " + dataType + " job '" + searchTerm + "' in Job Mapping page");
 
-			WebElement searchBox = wait.until(ExpectedConditions.elementToBeClickable(SEARCH_BOX));
+			WebElement searchBox = PageObjectHelper.waitForClickable(wait, SEARCH_BOX);
 			searchBox.clear();
 			searchBox.sendKeys(searchTerm);
 			searchBox.sendKeys(Keys.ENTER);
@@ -911,16 +902,15 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 			// Wait for actual job rows to appear
 			try {
-				WebDriverWait rowWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-				rowWait.until(ExpectedConditions.presenceOfElementLocated(
-					By.xpath("//div[@id='org-job-container']//tbody//tr[not(contains(@class, 'bg-gray'))]")));
+				PageObjectHelper.waitForPresent(wait, 
+					By.xpath("//div[@id='org-job-container']//tbody//tr[not(contains(@class, 'bg-gray')]"));
 			} catch (Exception e) {
 				LOGGER.debug("No job rows appeared after search");
 			}
 
 			// Additional wait for results to stabilize
-			PerformanceUtils.safeSleep(driver, 2000);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForUIStability(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			PageObjectHelper.log(LOGGER, "✅ Searched for job: " + searchTerm);
 		} catch (Exception e) {
@@ -933,7 +923,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// VERIFICATION METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	public void verify_job_profile_found_in_jobs_missing_data_screen_search_results(String dataType) throws IOException {
+	public void verify_job_profile_found_in_jobs_missing_data_screen_search_results(String dataType) {
 		try {
 			String expectedJobName = extractedJobName.get();
 			String expectedJobCode = extractedJobCode.get();
@@ -953,7 +943,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	public void verify_job_profile_found_in_job_mapping_page_search_results(String dataType) throws IOException {
+	public void verify_job_profile_found_in_job_mapping_page_search_results(String dataType) {
 		try {
 			// Get target values from Missing Data screen (matching original PO pattern)
 			String targetJobName = jobDetailsFromMissingDataScreen.get().get("jobName");
@@ -962,11 +952,11 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			if (targetJobName == null) targetJobName = extractedJobName.get();
 			if (targetJobCode == null) targetJobCode = extractedJobCode.get();
 			
-			PageObjectHelper.log(LOGGER, "Finding exact match: Job Name='" + targetJobName + "', Job Code='" + targetJobCode + "'");
+		PageObjectHelper.log(LOGGER, "Finding exact match: Job Name='" + targetJobName + "', Job Code='" + targetJobCode + "'");
 
-			// Wait for page to stabilize
-			PerformanceUtils.safeSleep(driver, 2000);
-			PerformanceUtils.waitForPageReady(driver, 2);
+		// Wait for page to stabilize
+		PageObjectHelper.waitForUIStability(driver, 2);
+		PageObjectHelper.waitForPageReady(driver, 2);
 
 			boolean jobFound = false;
 			int totalRowsChecked = 0;
@@ -1049,7 +1039,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	public void extract_job_details_from_found_profile_in_jobs_missing_data_screen(String dataType) throws IOException {
+	public void extract_job_details_from_found_profile_in_jobs_missing_data_screen(String dataType) {
 		try {
 			PageObjectHelper.log(LOGGER, "Extracting " + dataType + " job details from found profile in Missing Data screen");
 			
@@ -1097,7 +1087,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	public void extract_job_details_from_searched_profile_in_job_mapping_page(String dataType) throws IOException {
+	public void extract_job_details_from_searched_profile_in_job_mapping_page(String dataType) {
 		try {
 			PageObjectHelper.log(LOGGER, "Extracting " + dataType + " job details from searched profile in Job Mapping page");
 			
@@ -1174,7 +1164,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// COMPARISON METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	public void verify_all_job_details_match_forward_flow(String dataType) throws IOException {
+	public void verify_all_job_details_match_forward_flow(String dataType) {
 		try {
 			PageObjectHelper.log(LOGGER, "Verifying " + dataType + " job details match (Forward Flow)");
 			
@@ -1234,7 +1224,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	public void verify_all_job_details_match_reverse_flow(String dataType) throws IOException {
+	public void verify_all_job_details_match_reverse_flow(String dataType) {
 		try {
 			PageObjectHelper.log(LOGGER, "Verifying " + dataType + " job details match (Reverse Flow)");
 			
@@ -1302,7 +1292,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// INFO MESSAGE VERIFICATION METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	public void verify_info_message_is_displayed_indicating_missing_data(String dataType) throws IOException {
+	public void verify_info_message_is_displayed_indicating_missing_data(String dataType) {
 		try {
 			PageObjectHelper.log(LOGGER, "Verifying Info Message indicates missing " + dataType + " data");
 			
@@ -1345,7 +1335,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	public void verify_info_message_contains_reduced_accuracy_text(String dataType) throws IOException {
+	public void verify_info_message_contains_reduced_accuracy_text(String dataType) {
 		PageObjectHelper.log(LOGGER, "✅ Info Message text about reduced accuracy verified for " + dataType + " (included in previous step)");
 	}
 
@@ -1353,15 +1343,14 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	// CLOSE AND NAVIGATION METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
 
-	public void click_on_close_button_to_return_to_job_mapping_page(String dataType) throws IOException {
+	public void click_on_close_button_to_return_to_job_mapping_page(String dataType) {
 		try {
 			PageObjectHelper.log(LOGGER, "Clicking Close button to return to Job Mapping page");
 			
 			// Use short wait for close button (3 seconds max)
 			WebElement closeButton = null;
 			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
-				closeButton = shortWait.until(ExpectedConditions.elementToBeClickable(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON));
+				closeButton = PageObjectHelper.waitForClickable(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
 			} catch (Exception e) {
 				// Try alternative close button locators
 				try {
@@ -1378,7 +1367,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 			// Wait for modal to close
 			safeSleep(500);
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 			// Verify modal is closed
 			try {
@@ -1399,7 +1388,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	public void force_close_missing_data_screen() throws IOException {
+	public void force_close_missing_data_screen() {
 		LOGGER.debug("Force closing Missing Data screen...");
 		
 		// Strategy 1: Try to find any close button using multiple XPaths
@@ -1467,7 +1456,7 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 		PageObjectHelper.log(LOGGER, "✅ Force close attempt completed");
 		waitForSpinners();
-		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.waitForPageReady(driver, 2);
 	}
 }
 

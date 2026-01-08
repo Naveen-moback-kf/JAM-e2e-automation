@@ -4,19 +4,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO36_DeleteJobProfiles extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO36_DeleteJobProfiles.class);
-
-	// ============================================================
 	// LOCATORS
-	// ============================================================
 	
 	// Delete Button in Job Mapping screen
 	private static final By DELETE_BUTTON = By.id("delete-selected-mappings-btn");
@@ -37,7 +31,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 
 	public void user_should_verify_delete_button_is_disabled() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 			
 			WebElement deleteBtn = waitForElement(DELETE_BUTTON, 10);
@@ -58,7 +52,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 
 	public void user_should_verify_delete_button_is_enabled() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 			
 			WebElement deleteBtn = waitForElement(DELETE_BUTTON, 10);
@@ -79,10 +73,10 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 
 	public void click_on_delete_button_in_job_mapping() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 			
-			WebElement deleteBtn = wait.until(ExpectedConditions.elementToBeClickable(DELETE_BUTTON));
+			WebElement deleteBtn = PageObjectHelper.waitForClickable(wait, DELETE_BUTTON);
 			clickElement(deleteBtn);
 			
 			PageObjectHelper.log(LOGGER, "Clicked on Delete button in Job Mapping screen");
@@ -96,7 +90,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 
 	public void verify_delete_confirmation_popup_is_displayed() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 			// Verify popup title
 			WebElement popupTitle = waitForElement(DELETE_POPUP_TITLE, 10);
@@ -121,9 +115,9 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 
 	public void click_on_cancel_button_on_delete_confirmation_popup() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
-			WebElement cancelBtn = wait.until(ExpectedConditions.elementToBeClickable(DELETE_POPUP_CANCEL_BTN));
+			WebElement cancelBtn = PageObjectHelper.waitForClickable(wait, DELETE_POPUP_CANCEL_BTN);
 			clickElement(cancelBtn);
 			
 			PageObjectHelper.log(LOGGER, "Clicked on Cancel button on Delete Confirmation popup");
@@ -137,9 +131,9 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 
 	public void click_on_delete_button_on_delete_confirmation_popup() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
-			WebElement deleteBtn = wait.until(ExpectedConditions.elementToBeClickable(DELETE_POPUP_CONFIRM_BTN));
+			WebElement deleteBtn = PageObjectHelper.waitForClickable(wait, DELETE_POPUP_CONFIRM_BTN);
 			clickElement(deleteBtn);
 			
 			PageObjectHelper.log(LOGGER, "Clicked on Delete button on Delete Confirmation popup");
@@ -153,7 +147,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 
 	public void user_should_verify_delete_success_popup_appears_on_screen() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 			// Verify success title
 			WebElement successTitle = waitForElement(DELETE_SUCCESS_TITLE, 15);

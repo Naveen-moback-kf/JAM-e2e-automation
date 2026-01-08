@@ -7,7 +7,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
@@ -16,7 +15,6 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 	private static final Logger LOGGER = LogManager.getLogger(PO26_SelectAndSyncProfiles_PM.class);
 
 	// Static variable for storing count of profiles selected to export
-	// THREAD-SAFE: Converted to ThreadLocal for parallel execution
 	public static ThreadLocal<Integer> CountOfProfilesSelectedToExport = ThreadLocal.withInitial(() -> 0);
 
 	// Locators - Uses centralized locators from BasePageObject.Locators where available
@@ -26,10 +24,7 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 	public PO26_SelectAndSyncProfiles_PM() {
 		super();
 	}
-
-	// =====================================================
 	// FLOW 1: HEADER CHECKBOX SELECTION (Loaded Profiles)
-	// =====================================================
 
 	public void verify_profiles_loaded_after_clicking_header_checkbox_are_not_selected_in_HCM_Sync_Profiles_screen() {
 		int loadedProfilesBeforeHeaderCheckboxClick = PO18_HCMSyncProfilesTab_PM.loadedProfilesBeforeHeaderCheckboxClick.get();
@@ -42,7 +37,7 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 
 		try {
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.PAGE_LOAD_SPINNER));
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			// Step 1: Count TOTAL profiles currently in DOM (includes newly loaded after scrolling)
 			totalProfilesCurrentlyLoaded = findElements(ALL_CHECKBOXES).size();
@@ -134,17 +129,14 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 			Assert.fail("Error verifying newly loaded profiles are not selected: " + e.getMessage());
 		}
 	}
-
-	// =====================================================
 	// FLOW 2: SELECT ALL (Chevron + Select All Button)
-	// =====================================================
 
 	public void click_on_chevron_button_beside_header_checkbox_in_hcm_sync_profiles_screen() {
 		try {
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.PAGE_LOAD_SPINNER));
 			
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(Locators.PMScreen.CHEVRON_BUTTON)).click();
+				PageObjectHelper.waitForClickable(wait, Locators.PMScreen.CHEVRON_BUTTON).click();
 			} catch (Exception e) {
 				try {
 					jsClick(findElement(Locators.PMScreen.CHEVRON_BUTTON));
@@ -154,7 +146,7 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 			}
 			
 			PageObjectHelper.log(LOGGER, "Clicked on Chevron Button beside Header Checkbox in HCM Sync Profiles Screen");
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot(
@@ -169,7 +161,7 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 		try {
 			// Wait directly for Select All button to be clickable (dropdown appears immediately after chevron click)
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(Locators.Table.SELECT_ALL_BTN)).click();
+				PageObjectHelper.waitForClickable(wait, Locators.Table.SELECT_ALL_BTN).click();
 			} catch (Exception e) {
 				try {
 					jsClick(findElement(Locators.Table.SELECT_ALL_BTN));
@@ -179,7 +171,7 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 			}
 			
 			PageObjectHelper.log(LOGGER, "Clicked on Select All button in HCM Sync Profiles Screen");
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_on_select_all_button_in_hcm_sync_profiles_screen", e);
@@ -195,7 +187,7 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 
 		try {
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.PAGE_LOAD_SPINNER));
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			// Step 1: Get total profile count from "Showing X of Y Success Profiles" text
 			try {
@@ -257,8 +249,8 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 
 				scrollCount++;
 				safeSleep(3000);
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				safeSleep(1000);
 
 				currentRowCount = findElements(ALL_ROWS).size();
@@ -281,7 +273,7 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 						js.executeScript(
 								"window.scrollTo(0, Math.max(document.body.scrollHeight, document.documentElement.scrollHeight));");
 						safeSleep(2000);
-						PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+						PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 					}
 				} else {
 					noChangeCount = 0;

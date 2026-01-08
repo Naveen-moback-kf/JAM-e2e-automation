@@ -11,8 +11,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
@@ -23,19 +21,13 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public PO27_SelectAllWithSearchFunctionality() {
 		super();
 	}
-
-	// ==================== LOCATORS ====================
 	// Common locators are now in BasePageObject.Locators.PMScreen and JAMScreen
 	// Only search-specific locators remain here if needed
-
-	// ==================== THREAD-SAFE STATE ====================
 	public static ThreadLocal<Integer> searchResultsCount = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<String> alternativeSearchSubstring = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<Integer> totalSecondSearchResults = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<String> currentScreen = ThreadLocal.withInitial(() -> "PM");
 	public static ThreadLocal<Integer> loadedProfilesBeforeScroll = ThreadLocal.withInitial(() -> 0);
-
-	// ==================== HELPER METHODS ====================
 	// Common helper methods (getScreenName, getShowingResultsCountLocator, getAllProfileRowsLocator,
 	// getSelectedProfileRowsLocator, getChevronButtonLocator, getHeaderCheckboxLocator, 
 	// getSearchBarLocator, getActionButtonLocator) are now inherited from BasePageObject
@@ -61,12 +53,10 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	// ==================== SCROLL AND VIEW METHODS ====================
-
 	public void user_should_scroll_down_to_view_last_search_result(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			// Get initial count
 			int initialCount = findElements(getAllProfileRowsLocator(screen)).size();
@@ -83,7 +73,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				scrollCount++;
 				safeSleep(500);
 
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 3);
+				PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
 
 				currentCount = findElements(getAllProfileRowsLocator(screen)).size();
 
@@ -112,7 +102,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void user_should_validate_all_search_results_contains_substring(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			String searchSubstring = getSearchSubstring(screen).toLowerCase();
 
@@ -143,12 +133,10 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	// ==================== SELECTION METHODS ====================
-
 	public void click_on_chevron_button_beside_header_checkbox(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			// Scroll to top to ensure chevron button is visible
 			scrollToTop();
@@ -172,7 +160,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 			clickElement(getSelectAllButtonLocator(screen));
 
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			PageObjectHelper.log(LOGGER, "Clicked Select All button in " + getScreenName(screen));
 
@@ -187,14 +175,14 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void click_on_header_checkbox_to_select_loaded_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			// Capture count before clicking
 			loadedProfilesBeforeScroll.set(findElements(getAllProfileRowsLocator(screen)).size());
 
 			clickElement(getHeaderCheckboxLocator(screen));
 
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			PageObjectHelper.log(LOGGER, "Clicked header checkbox to select " + loadedProfilesBeforeScroll.get() +
 					" loaded profiles in " + getScreenName(screen));
@@ -213,12 +201,12 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 			
 			scrollToTop();
 			safeSleep(300);
 
-			WebElement button = wait.until(ExpectedConditions.visibilityOfElementLocated(getActionButtonLocator(screen)));
+			WebElement button = PageObjectHelper.waitForVisible(wait, getActionButtonLocator(screen));
 			boolean isEnabled = button.isEnabled();
 			String buttonText = button.getText();
 			
@@ -242,12 +230,12 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void scroll_page_to_view_more_job_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
 
 			scrollToBottom();
 			safeSleep(500);
 
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
 
 			int newCount = findElements(getAllProfileRowsLocator(screen)).size();
 			PageObjectHelper.log(LOGGER, "Scrolled to load more profiles. Now " + newCount + " visible in " + getScreenName(screen));
@@ -261,7 +249,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void verify_profiles_loaded_after_header_checkbox_are_not_selected(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
 
 			int initialLoaded = loadedProfilesBeforeScroll.get();
 			
@@ -296,7 +284,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void capture_baseline_of_selected_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 			safeSleep(300);
 			
 			scrollToTop();
@@ -347,7 +335,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				// Wait for lazy loading - JAM needs less time, PM needs more
 				int scrollWait = isJAM ? 500 : 1500;
 				safeSleep(scrollWait);
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 3);
+				PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
 				
 				// Count current selected using BasePageObject helper method
 				selectedCount = countSelectedProfilesJS(screen);
@@ -397,7 +385,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void clear_search_bar(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 			
 			// Scroll to top first to ensure search bar is accessible
 			scrollToTop();
@@ -438,7 +426,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			clearAndSearch(searchBarLocator, "");
 		}
 
-		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+		PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 		safeSleep(1500); // Wait for results to reload
 
 		PageObjectHelper.log(LOGGER, "Cleared search bar in " + getScreenName(screen));
@@ -448,8 +436,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 					"Error clearing search bar in " + getScreenName(screen), e);
 		}
 	}
-
-	// ==================== VERIFICATION METHODS ====================
 
 	public void verify_only_searched_profiles_are_selected_after_clearing_search_bar(String screen) {
 		int totalProfilesVisible = 0;
@@ -484,7 +470,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			}
 			
 			// Wait for page to stabilize after clearing search
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			safeSleep(500);
 			
 			// Scroll to top first
@@ -530,7 +516,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				// Wait for lazy loading - JAM needs less time, PM needs more
 				int scrollWait = isJAM ? 500 : 1500;
 				safeSleep(scrollWait);
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 3);
+				PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
 
 				// Count visible profiles
 				totalProfilesVisible = findElements(getAllProfileRowsLocator(screen)).size();
@@ -623,8 +609,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 		}
 	}
 
-	// ==================== ALTERNATIVE VALIDATION METHODS ====================
-
 	public void enter_different_job_name_substring_for_alternative_validation(String screen) {
 		boolean foundResults = false;
 		String firstSearchSubstring = getSearchSubstring(screen);
@@ -632,7 +616,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			PageObjectHelper.log(LOGGER, "Alternative validation: Searching different substring in " + getScreenName(screen) + "...");
 
@@ -697,7 +681,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 					}
 
 					// Wait for spinners and page to stabilize
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+					PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 					safeSleep(2000); // Critical: Wait for results to load
 					
 					// For JAM, also wait for background data
@@ -745,7 +729,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			String resultsCountText = getElementText(getShowingResultsCountLocator(screen));
 
@@ -815,8 +799,6 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	public void verify_all_loaded_profiles_in_second_search_are_not_selected(String screen) {
 		PageObjectHelper.log(LOGGER, "✅ Validation completed in previous step for " + getScreenName(screen));
 	}
-
-	// ==================== PRIVATE HELPER METHODS ====================
 
 	private void applyFallbackSearch(String screen, String firstSearchSubstring) {
 		String selectedSubstring = "";

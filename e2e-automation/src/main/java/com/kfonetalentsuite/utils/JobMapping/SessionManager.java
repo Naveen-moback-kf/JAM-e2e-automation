@@ -134,7 +134,7 @@ public class SessionManager {
 
 				LOGGER.info("Navigating to login page: {}", loginUrl);
 				driver.get(loginUrl);
-				PerformanceUtils.waitForPageReady(driver, 5);
+				PageObjectHelper.waitForPageReady(driver, 5);
 
 				// Step 2: Perform login using PO01_KFoneLogin
 				PO01_KFoneLogin loginPage = new PO01_KFoneLogin();
@@ -145,17 +145,17 @@ public class SessionManager {
 				if (isSSOLogin) {
 					LOGGER.info("Performing SSO re-login for user: {}", CommonVariable.SSO_USERNAME);
 					loginPage.provide_sso_login_username_and_click_sign_in_button_in_kfone_login_page();
-					PerformanceUtils.waitForPageReady(driver, 3);
+					PageObjectHelper.waitForPageReady(driver, 3);
 					loginPage.provide_sso_login_password_and_click_sign_in();
 				} else {
 					LOGGER.info("Performing non-SSO re-login for user: {}", CommonVariable.NON_SSO_USERNAME);
 					loginPage.provide_non_sso_login_username_and_click_sign_in_button_in_kfone_login_page();
-					PerformanceUtils.waitForPageReady(driver, 3);
+					PageObjectHelper.waitForPageReady(driver, 3);
 					loginPage.provide_non_sso_login_password_and_click_sign_in_button_in_kfone_login_page();
 				}
 
 				// Step 3: Wait for login to complete
-				PerformanceUtils.waitForPageReady(driver, 10);
+				PageObjectHelper.waitForPageReady(driver, 10);
 				Thread.sleep(2000); // Allow session to establish
 
 				// Step 4: Validate session after re-login

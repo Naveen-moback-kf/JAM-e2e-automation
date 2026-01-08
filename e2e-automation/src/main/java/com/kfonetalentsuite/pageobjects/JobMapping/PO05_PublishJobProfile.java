@@ -12,7 +12,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
@@ -24,10 +23,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	// All other page objects should reference these when setting/getting job details
 	public static ThreadLocal<String> job1OrgName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> job1OrgCode = ThreadLocal.withInitial(() -> "NOT_SET");
-
-	// ============================================================
 	// LOCATORS - Using centralized Locators from BasePageObject where available
-	// ============================================================
 	
 	// JAM Table Rows - from Locators.JobMappingResults
 	private static final By JOB_NAME_ROW_1 = Locators.JobMappingResults.JOB_NAME_ROW_1;
@@ -75,7 +71,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 
 	public void user_should_verify_publish_button_is_displaying_on_first_job_profile() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(1000);
 			
@@ -139,12 +135,8 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			try {
 				driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 				
-				// Create a short wait for popup detection (popups appear quickly or not at all)
-				WebDriverWait popupWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-				
-				// Try primary locator first with short timeout
 				try {
-					successElement = popupWait.until(ExpectedConditions.visibilityOfElementLocated(PUBLISH_SUCCESS_MSG));
+					successElement = PageObjectHelper.waitForVisible(wait, PUBLISH_SUCCESS_MSG);
 					primarySuccess = true;
 				} catch (TimeoutException e1) {
 					// Try alternative locators with very short timeout
@@ -155,10 +147,9 @@ public class PO05_PublishJobProfile extends BasePageObject {
 						By.xpath("//div[contains(@class,'toast')]//p[contains(text(),'Success') or contains(text(),'success')]")
 					};
 					
-					WebDriverWait quickWait = new WebDriverWait(driver, Duration.ofSeconds(2));
 					for (By locator : alternativeLocators) {
 						try {
-							successElement = quickWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+							successElement = PageObjectHelper.waitForVisible(wait, locator);
 							break;
 						} catch (TimeoutException ignored) {
 							// Continue to next locator
@@ -186,7 +177,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 				if (primarySuccess) {
 					shortWait.until(ExpectedConditions.invisibilityOfElementLocated(PUBLISH_SUCCESS_MSG));
 				} else {
-					shortWait.until(ExpectedConditions.invisibilityOf(successElement));
+					PageObjectHelper.waitForInvisible(wait, successElement);
 				}
 			} catch (TimeoutException te) {
 				LOGGER.debug("Success popup did not auto-dismiss within timeout");
@@ -201,13 +192,13 @@ public class PO05_PublishJobProfile extends BasePageObject {
 
 	public void click_on_view_published_toggle_button_to_turn_on() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			WebElement toggle = driver.findElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
 			if ("true".equals(toggle.getAttribute("aria-checked")) || toggle.isSelected()) {
 				PageObjectHelper.log(LOGGER, "View published toggle button is already ON");
 			} else {
 				clickElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
-				PerformanceUtils.waitForPageReady(driver, 3);
+				PageObjectHelper.waitForPageReady(driver, 3);
 				PageObjectHelper.log(LOGGER, "View published toggle button is turned ON");
 				waitForBackgroundDataLoad();
 				// PARALLEL EXECUTION FIX: Only clear if ThreadLocal is initialized for this thread
@@ -217,7 +208,6 @@ public class PO05_PublishJobProfile extends BasePageObject {
 						jobNames.clear();
 					}
 				} catch (Exception ignored) {
-					// ThreadLocal may not be initialized for this thread - ignore
 				}
 			}
 		} catch (Exception e) {
@@ -235,7 +225,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			LOGGER.info("Searching for published job with name: '{}'", jobName);
 			
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			scrollToTop();
 			safeSleep(500);
 			
@@ -263,7 +253,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			LOGGER.info("[Thread-{}] Verifying job '{}' in View Published screen", Thread.currentThread().getId(), expectedJobName);
 			
 			// Wait for search results to filter
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(2000);
 			
@@ -295,8 +285,8 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void user_should_navigate_to_hcm_sync_profiles_tab_in_pm() {
 		try {
 			clickElement(HCM_SYNC_TAB);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			Assert.assertEquals("HCM Sync Profiles", getElementText(HCM_SYNC_HEADER));
 			PageObjectHelper.log(LOGGER, "Navigated to HCM Sync Profiles screen in PM");
 			// Wait for background API (~100K records) to complete
@@ -308,7 +298,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	
 	public void user_should_verify_search_dropdown_is_displaying_in_hcm_sync_profiles_screen_in_pm() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			Assert.assertTrue(waitForElement(Locators.HCMSyncProfiles.SEARCH_DROPDOWN).isDisplayed());
 			LOGGER.info("Search Dropdown is displaying in HCM Sync Profiles screen in PM");
 		}catch(Exception e) {
@@ -353,7 +343,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			}
 			
 			// Perform search
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 			safeSleep(300);
 			
@@ -382,7 +372,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			}
 			
 			// Perform search
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 			safeSleep(300);
 			
@@ -403,8 +393,8 @@ public class PO05_PublishJobProfile extends BasePageObject {
 
 	public void user_should_verify_published_job_is_displayed_in_hcm_sync_profiles_tab_in_pm() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			
 			String expectedJobName = getJobNameToSearch();
 			LOGGER.info("[Thread-{}] Verifying job '{}' in HCM Sync Profiles", Thread.currentThread().getId(), expectedJobName);
@@ -488,7 +478,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 		try {
 			clickElement(HCM_JOB_ROW_1);
 			PageObjectHelper.log(LOGGER, "Clicked Published Job (Org: " + job1OrgName.get() + ") in HCM Sync Profiles");
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			Assert.assertTrue(waitForElement(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT).isDisplayed());
 			LOGGER.info("SP details page opened on click of Published Job name");
 		} catch (Exception e) {
@@ -499,10 +489,10 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void click_on_kfone_global_menu_in_job_mapping_ui() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			clickElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
 			PageObjectHelper.log(LOGGER, "Clicked KFONE Global Menu in Job Mapping UI");
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_kfone_global_menu_in_job_mapping_ui", "Issue clicking KFone Global Menu", e);
 		}
@@ -511,13 +501,10 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void click_on_profile_manager_application_button_in_kfone_global_menu() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
-
-			// PARALLEL EXECUTION FIX: Reduced from 30s to 12s for faster failure detection
-			WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(12));
-			WebElement pmBtn = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(KFONE_MENU_PM_BTN));
+			PageObjectHelper.waitForPageReady(driver, 3);
+			WebElement pmBtn = PageObjectHelper.waitForVisible(wait, KFONE_MENU_PM_BTN);
 			scrollToElement(pmBtn);
-			pmBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(pmBtn));
+			pmBtn = PageObjectHelper.waitForClickable(wait, pmBtn);
 
 			String applicationNameText = pmBtn.getAttribute("aria-label");
 			PageObjectHelper.log(LOGGER, applicationNameText + " application is displaying in KFONE Global Menu");
@@ -531,7 +518,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 
 	public void verify_user_should_land_on_profile_manager_dashboard_page() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			
 			// AUTO-DISMISS: Remove temporary notification if displayed
 			dismissProfileManagerNotificationIfPresent();
@@ -605,13 +592,10 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void click_on_architect_application_button_in_kfone_global_menu() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
-
-			// PARALLEL EXECUTION FIX: Reduced from 30s to 12s for faster failure detection
-			WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(12));
-			WebElement architectBtn = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(KFONE_MENU_ARCHITECT_BTN));
+			PageObjectHelper.waitForPageReady(driver, 3);
+			WebElement architectBtn = PageObjectHelper.waitForVisible(wait, KFONE_MENU_ARCHITECT_BTN);
 			scrollToElement(architectBtn);
-			architectBtn = extendedWait.until(ExpectedConditions.elementToBeClickable(architectBtn));
+			architectBtn = PageObjectHelper.waitForClickable(wait, architectBtn);
 
 			String applicationNameText = architectBtn.getAttribute("aria-label");
 			PageObjectHelper.log(LOGGER, applicationNameText + " application is displaying in KFONE Global Menu");
@@ -625,7 +609,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 
 	public void verify_user_should_land_on_architect_dashboard_page() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 10);
 			PageObjectHelper.log(LOGGER, "User landed on Architect Dashboard Page");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "verify_user_should_land_on_architect_dashboard_page", "Issue landing on Architect dashboard", e);
@@ -635,7 +619,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void user_should_navigate_to_jobs_page_in_architect() {
 		try {
 			clickElement(JOBS_LINK);
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			Assert.assertEquals("Jobs", getElementText(JOBS_LINK));
 			PageObjectHelper.log(LOGGER, "Navigated to Jobs page in Architect");
 		} catch (Exception e) {
@@ -654,7 +638,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			LOGGER.info("[Thread-{}] Searching for job '{}' in Architect", Thread.currentThread().getId(), searchTerm);
 			
 			// PARALLEL EXECUTION FIX: Use clearAndSearch helper for reliable search in parallel execution
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 			safeSleep(300);
 			
@@ -681,7 +665,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			LOGGER.info("[Thread-{}] Verifying job '{}' in Architect", Thread.currentThread().getId(), expectedJobName);
 			
 			// Wait for search results to filter
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(2000);
 			
@@ -793,14 +777,11 @@ public class PO05_PublishJobProfile extends BasePageObject {
 		LOGGER.debug("Using job code for validation: '{}'", jobCode);
 		return jobCode;
 	}
-
-	// ============================================================
 	// Methods moved from PO07_PublishJobFromComparisonScreen
-	// ============================================================
 
 	public void verify_user_landed_on_job_comparison_screen() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 10);
 			String compareAndSelectHeaderText = getElementText(COMPARE_SELECT_HEADER);
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?");
 			PageObjectHelper.log(LOGGER, "User landed on the Job Comparison screen successfully");
@@ -811,13 +792,13 @@ public class PO05_PublishJobProfile extends BasePageObject {
 
 	public void select_second_profile_from_ds_suggestions_of_organization_job() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			List<WebElement> selectBtns = driver.findElements(SELECT_BTNS_IN_JC);
 
 			for (int i = 0; i < selectBtns.size(); i++) {
 				if (i == 2) {
 					WebElement btn = selectBtns.get(i);
-					wait.until(ExpectedConditions.visibilityOf(btn));
+					PageObjectHelper.waitForVisible(wait, btn);
 					if (!tryClickWithStrategies(btn)) {
 						jsClick(btn);
 					}
@@ -826,7 +807,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 					break;
 				}
 			}
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "select_second_profile_from_ds_suggestions_of_organization_job", "Issue in selecting Second Profile from DS Suggestions", e);
 		}
@@ -853,17 +834,14 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			
 			clickElement(JC_PUBLISH_SELECT_BTN);
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			
 			PageObjectHelper.log(LOGGER, "Clicked Publish Selected button for job: " + job1OrgName.get() + " (Code: " + job1OrgCode.get() + ")");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_publish_selected_button_in_job_comparison_page", "Issue clicking Publish Selected button", e);
 		}
 	}
-
-	// ============================================================
 	// Methods moved from PO08_PublishJobFromDetailsPopup
-	// ============================================================
 
 	public void user_is_on_profile_details_popup() {
 		PageObjectHelper.log(LOGGER, "User is on Profile details Popup");

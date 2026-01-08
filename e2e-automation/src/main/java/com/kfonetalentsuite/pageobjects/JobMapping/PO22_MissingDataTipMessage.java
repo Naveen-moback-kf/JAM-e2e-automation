@@ -1,7 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,11 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO22_MissingDataTipMessage extends BasePageObject {
@@ -39,7 +34,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 	private void waitForUIStabilityInMs(int milliseconds) {
 		try {
-			PerformanceUtils.waitForUIStability(driver, Math.max(1, milliseconds / 1000));
+			PageObjectHelper.waitForUIStability(driver, Math.max(1, milliseconds / 1000));
 		} catch (Exception e) {
 			Thread.currentThread().interrupt();
 		}
@@ -66,7 +61,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		}
 	}
 
-	public void verify_missing_data_tip_message_is_displaying_on_job_mapping_page() throws IOException {
+	public void verify_missing_data_tip_message_is_displaying_on_job_mapping_page() {
 		try {
 			WebElement container = waitForElement(MISSING_DATA_TIP_MESSAGE_CONTAINER);
 			Assert.assertTrue(container.isDisplayed(),
@@ -78,7 +73,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		}
 	}
 
-	public void verify_missing_data_tip_message_contains_correct_count_of_jobs_with_missing_data() throws IOException {
+	public void verify_missing_data_tip_message_contains_correct_count_of_jobs_with_missing_data() {
 		try {
 			WebElement countText = waitForElement(MISSING_DATA_COUNT_AND_TEXT);
 			String tipMessageText = countText.getText();
@@ -101,7 +96,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		}
 	}
 
-	public void verify_link_is_present_in_missing_data_tip_message(String linkText) throws IOException {
+	public void verify_link_is_present_in_missing_data_tip_message(String linkText) {
 		try {
 			WebElement link = waitForElement(VIEW_REUPLOAD_JOBS_LINK);
 			Assert.assertTrue(link.isDisplayed(),
@@ -115,11 +110,10 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		}
 	}
 
-	public void click_on_link_in_missing_data_tip_message(String linkText) throws IOException {
+	public void click_on_link_in_missing_data_tip_message(String linkText) {
 		try {
-			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-			shortWait.until(ExpectedConditions.visibilityOfElementLocated(VIEW_REUPLOAD_JOBS_LINK));
-			shortWait.until(ExpectedConditions.elementToBeClickable(VIEW_REUPLOAD_JOBS_LINK));
+			PageObjectHelper.waitForVisible(wait, VIEW_REUPLOAD_JOBS_LINK);
+			PageObjectHelper.waitForClickable(wait, VIEW_REUPLOAD_JOBS_LINK);
 
 			clickElement(VIEW_REUPLOAD_JOBS_LINK);
 			PageObjectHelper.log(LOGGER, "Clicked '" + linkText + "' link");
@@ -138,8 +132,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			String verificationResults = "";
 
 			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-				shortWait.until(ExpectedConditions.visibilityOfElementLocated(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON));
+				PageObjectHelper.waitForVisible(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
 				if (isElementDisplayed(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON)) {
 					verificationResults += " Close button found; ";
 					pageVerified = true;
@@ -149,8 +142,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			}
 
 			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-				shortWait.until(ExpectedConditions.visibilityOfElementLocated(REUPLOAD_BUTTON));
+				PageObjectHelper.waitForVisible(wait, REUPLOAD_BUTTON);
 				if (isElementDisplayed(REUPLOAD_BUTTON)) {
 					verificationResults += " Re-upload button found; ";
 					pageVerified = true;
@@ -200,9 +192,8 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			boolean navigatedSuccessfully = false;
 
 			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-				shortWait.until(ExpectedConditions.visibilityOfElementLocated(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON));
-				shortWait.until(ExpectedConditions.elementToBeClickable(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON));
+				PageObjectHelper.waitForVisible(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
+				PageObjectHelper.waitForClickable(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
 
 				clickElement(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
 				PageObjectHelper.log(LOGGER, "Clicked Close button on re-upload page");
@@ -255,7 +246,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		}
 	}
 
-	public void verify_missing_data_tip_message_is_still_displaying_on_job_mapping_page() throws IOException {
+	public void verify_missing_data_tip_message_is_still_displaying_on_job_mapping_page() {
 		try {
 			WebElement container = waitForElement(MISSING_DATA_TIP_MESSAGE_CONTAINER);
 			Assert.assertTrue(container.isDisplayed(),
@@ -269,7 +260,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		}
 	}
 
-	public void click_on_close_button_in_missing_data_tip_message() throws IOException {
+	public void click_on_close_button_in_missing_data_tip_message() {
 		try {
 			PageObjectHelper.log(LOGGER,
 					"Clicking close button on Missing Data Tip Message (targeting correct tip message)...");
@@ -285,7 +276,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		}
 	}
 
-	public void verify_missing_data_tip_message_is_no_longer_displayed_on_job_mapping_page() throws IOException {
+	public void verify_missing_data_tip_message_is_no_longer_displayed_on_job_mapping_page() {
 		try {
 			waitForUIStabilityInMs(1000);
 
@@ -336,7 +327,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		}
 	}
 
-	public void verify_missing_data_tip_message_contains_text_about_jobs_having_missing_data() throws IOException {
+	public void verify_missing_data_tip_message_contains_text_about_jobs_having_missing_data() {
 		try {
 			WebElement countText = waitForElement(MISSING_DATA_COUNT_AND_TEXT);
 			String tipMessageText = countText.getText();
@@ -351,7 +342,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		}
 	}
 
-	public void verify_missing_data_tip_message_contains_text_about_reduced_match_accuracy() throws IOException {
+	public void verify_missing_data_tip_message_contains_text_about_reduced_match_accuracy() {
 		try {
 			WebElement countText = waitForElement(MISSING_DATA_COUNT_AND_TEXT);
 			String tipMessageText = countText.getText();

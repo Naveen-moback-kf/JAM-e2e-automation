@@ -13,8 +13,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO14_SortingFunctionality_JAM extends BasePageObject {
@@ -35,7 +33,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	private void waitForLoaderToDisappear() {
 		try {
 			try {
-				wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.Spinners.DATA_LOADER));
+				PageObjectHelper.waitForVisible(wait, Locators.Spinners.DATA_LOADER);
 				LOGGER.debug("Loader appeared - sort operation started");
 			} catch (Exception e) {
 				LOGGER.debug("Loader not caught appearing (too fast) - continuing");
@@ -58,33 +56,33 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	public void user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(2000);
 			Assert.assertTrue(waitForElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).isDisplayed());
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(2000);
 
 			scrollToBottom();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(2000);
 
 			scrollToBottom();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(2000);
 
 			scrollToBottom();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(3000);
 			String resultsCountText_updated = getElementText(Locators.JobMappingResults.SHOWING_JOB_RESULTS);
 			PageObjectHelper.log(LOGGER, "Scrolled down till third page and now " + resultsCountText_updated + " of Job Profiles as expected");
 
 			scrollToTop();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			safeSleep(5000);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles", "Issue in scrolling page down two times to view first thirty job profiles", e);
@@ -93,8 +91,8 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 
 	public void user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(500); // Additional wait for DOM stability
 
 			// FIXED: Extract text immediately to avoid stale element references
@@ -121,7 +119,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		try {
 			safeSleep(2000);
 			clickElement(ORG_JOB_NAME_HEADER);
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			PageObjectHelper.log(LOGGER, "Clicked on Organization job name / code header to Sort Job Profiles by Name in ascending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_organiztion_job_name_in_ascending_order", "Issue in clicking on Organization job name / code header to Sort Job Profiles by Name in ascending order", e);
@@ -131,8 +129,8 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_organiztion_job_name_in_ascending_order() {
 		try {
 			// ENHANCED: Ensure DOM is fully stable after sorting
-			PerformanceUtils.waitForSpinnersToDisappear(driver);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(3000); // Additional wait for DOM stability
 
 			List<WebElement> allElements = driver
@@ -273,8 +271,8 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	public void user_should_refresh_job_mapping_and_verify_job_profiles_are_in_default_order() {
 		try {
 			driver.navigate().refresh();
-			PerformanceUtils.waitForSpinnersToDisappear(driver);
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			PageObjectHelper.log(LOGGER, "Refreshed Job Mapping page....");
 			List<WebElement> allElements = driver
 					.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
@@ -315,8 +313,8 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_organiztion_job_name_in_descending_order() {
 		try {
 			// ENHANCED: Ensure DOM is fully stable after sorting
-			PerformanceUtils.waitForSpinnersToDisappear(driver);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(3000); // Additional wait for DOM stability
 
 			List<WebElement> allElements = driver
@@ -467,8 +465,8 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_grade_in_ascending_order() {
 		try {
 			// ENHANCED: Ensure DOM is fully stable after sorting
-			PerformanceUtils.waitForSpinnersToDisappear(driver);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(3000); // Additional wait for DOM stability
 
 			List<WebElement> allElements = driver
@@ -636,8 +634,8 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_grade_in_descending_order() {
 		try {
 			// ENHANCED: Ensure DOM is fully stable after sorting
-			PerformanceUtils.waitForSpinnersToDisappear(driver);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(3000); // Additional wait for DOM stability
 
 			List<WebElement> allElements = driver
@@ -791,7 +789,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		try {
 			clickElement(MATCHED_SP_NAME_HEADER);
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			PageObjectHelper.log(LOGGER, "Clicked on Matched Success Profile Name header to Sort Job Profiles by Matched SP Name in ascending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_matched_success_profile_name_in_ascending_order", "Issue in clicking on Matched Success Profile Name header to Sort Job Profiles by Matched SP Name in ascending order", e);
@@ -800,8 +798,8 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_matched_success_profile_name_in_ascending_order() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver);
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			safeSleep(3000);
 			List<WebElement> allElements = driver
 					.findElements(By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]"));
@@ -911,7 +909,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 		try {
 			clickElement(ORG_JOB_GRADE_HEADER);
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			PageObjectHelper.log(LOGGER, "Clicked on Organization Grade header to Sort Job Profiles by Grade in ascending order");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "sort_job_profiles_by_organization_grade_in_ascending_order", "Issue in clicking on Organization Grade header to Sort Job Profiles by Grade in ascending order", e);
@@ -920,8 +918,8 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_and_organization_job_name_in_ascending_order() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(3000);
 
 			List<WebElement> allElements = driver
@@ -1045,8 +1043,8 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_organization_grade_in_descending_order_and_organization_job_name_in_ascending_order() {
 		try {
 			// ENHANCED: Ensure DOM is fully stable after sorting
-			PerformanceUtils.waitForSpinnersToDisappear(driver);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			safeSleep(3000); // Additional wait for DOM stability
 
 			// FIXED: Get element counts first to avoid stale elements
@@ -1155,10 +1153,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 					e);
 		}
 	}
-
-	// ============================================================================
 	// PARAMETERIZED METHODS FOR SCENARIO OUTLINE SUPPORT
-	// ============================================================================
 
 	public void sort_job_profiles_by_column_in_order(String column, String order) {
 		try {

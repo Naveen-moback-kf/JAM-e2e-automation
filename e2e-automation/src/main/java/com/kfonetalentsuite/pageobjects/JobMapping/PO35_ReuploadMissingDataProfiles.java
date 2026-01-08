@@ -14,17 +14,12 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO35_ReuploadMissingDataProfiles.class);
-
-	// ==================== THREAD-SAFE STATE ====================
 	public static ThreadLocal<Integer> missingDataCountBefore = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> missingDataCountAfter = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> totalResultsCountBefore = ThreadLocal.withInitial(() -> 0);
@@ -39,12 +34,8 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 	public static ThreadLocal<String> firstProfileExpectedJobSubFamily = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> csvFilePath = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<Integer> searchResultsFoundCount = ThreadLocal.withInitial(() -> 0);
-
-	// ==================== CONSTANTS ====================
 	private static final String CSV_HEADER = "Client Job Code,Client Job Title,Department,Job Family,Job Sub Family,Job Grade,Is Executive";
 	private static final String DEFAULT_CSV_FILENAME = "MissingDataProfiles_ToFix.csv";
-
-	// ==================== LOCATORS ====================
 	private static final By REUPLOAD_BUTTON = By.xpath("//button[contains(text(), 'Re-upload')] | //button[contains(text(), 'upload')]");
 	private static final By CLOSE_BUTTON = By.xpath("//button[contains(@class, 'border-[#007BC7]') and contains(text(), 'Close')]");
 	private static final By JOB_ROWS_MISSING_DATA = By.xpath("//table//tbody//tr[td]");
@@ -65,12 +56,10 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		super();
 	}
 
-	// ==================== NAVIGATION METHODS ====================
-
 	public void verify_user_is_navigated_to_jobs_with_missing_data_screen() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 5);
-			wait.until(ExpectedConditions.visibilityOfElementLocated(MISSING_DATA_SCREEN_TITLE));
+			PageObjectHelper.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForVisible(wait, MISSING_DATA_SCREEN_TITLE);
 			Assert.assertTrue(findElement(MISSING_DATA_SCREEN_TITLE).isDisplayed(),
 					"Jobs With Missing Data screen title should be displayed");
 			PageObjectHelper.log(LOGGER, "Successfully navigated to Jobs With Missing Data screen");
@@ -82,8 +71,8 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	public void verify_reupload_button_is_displayed_on_jobs_missing_data_screen() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
-			wait.until(ExpectedConditions.visibilityOfElementLocated(REUPLOAD_BUTTON));
+			PageObjectHelper.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForVisible(wait, REUPLOAD_BUTTON);
 			Assert.assertTrue(findElement(REUPLOAD_BUTTON).isDisplayed(), "Re-upload button should be displayed");
 			PageObjectHelper.log(LOGGER, "Re-upload button is displayed on Jobs Missing Data screen");
 		} catch (Exception e) {
@@ -95,13 +84,13 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 	public void click_on_reupload_button_in_jobs_missing_data_screen() {
 		try {
 			driver.manage().deleteAllCookies();
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			safeSleep(2000);
 
 			int maxRetries = 3;
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
-					WebElement reuploadBtn = wait.until(ExpectedConditions.elementToBeClickable(REUPLOAD_BUTTON));
+					WebElement reuploadBtn = PageObjectHelper.waitForClickable(wait, REUPLOAD_BUTTON);
 					scrollToElement(reuploadBtn);
 					safeSleep(500);
 
@@ -109,7 +98,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 					jsClick(reuploadBtn);
 
 					PageObjectHelper.log(LOGGER, "Clicked on Re-upload button in Jobs Missing Data screen");
-					PerformanceUtils.waitForPageReady(driver, 5);
+					PageObjectHelper.waitForPageReady(driver, 5);
 					return;
 
 				} catch (StaleElementReferenceException e) {
@@ -124,11 +113,9 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	// ==================== EXTRACT PROFILES METHODS ====================
-
 	public void capture_total_count_of_profiles_in_jobs_missing_data_screen() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			int totalCount = findElements(JOB_ROWS_MISSING_DATA).size();
 
 			if (totalCount > 0) {
@@ -144,7 +131,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	public void extract_details_of_top_10_profiles_from_jobs_missing_data_screen() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			List<String[]> profiles = new ArrayList<>();
 
 			List<WebElement> currentRows = findElements(JOB_ROWS_MISSING_DATA);
@@ -247,8 +234,6 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	// ==================== CSV FILE METHODS ====================
-
 	public void create_csv_file_with_extracted_profiles_in_job_catalog_format() {
 		try {
 			List<String[]> profiles = extractedProfiles.get();
@@ -338,8 +323,6 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			PageObjectHelper.handleError(LOGGER, "verify_csv_data", "Failed to verify CSV file data", e);
 		}
 	}
-
-	// ==================== FILL MISSING DATA METHODS ====================
 
 	public void csv_file_with_missing_data_profiles_exists() {
 		try {
@@ -565,12 +548,10 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	// ==================== COUNT CAPTURE/VERIFY METHODS ====================
-
 	public void capture_total_results_count_before_reupload() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			
 			// CRITICAL: Ensure no search filters are active to get TOTAL results, not filtered results
 			// Use JavaScript to clear - most reliable approach (same as PO27)
@@ -593,7 +574,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				if (cleared != null && cleared) {
 					LOGGER.info("Search filter cleared using JavaScript");
 					safeSleep(3000);
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+					PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 					waitForBackgroundDataLoad(); // Wait for full data to reload
 					safeSleep(2000);
 				} else {
@@ -603,7 +584,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				LOGGER.debug("Could not clear search filter: {}", clearEx.getMessage());
 			}
 			
-			WebElement resultsElement = wait.until(ExpectedConditions.visibilityOfElementLocated(SHOWING_JOB_RESULTS));
+			WebElement resultsElement = PageObjectHelper.waitForVisible(wait, SHOWING_JOB_RESULTS);
 			String resultsText = resultsElement.getText().trim();
 			
 			PageObjectHelper.log(LOGGER, "Results text: " + resultsText);
@@ -632,8 +613,8 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	public void capture_total_results_count_after_reupload() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			
 			// CRITICAL: Clear any active search filters to get TOTAL results, not filtered results
 			// Use JavaScript to clear - most reliable approach (same as PO27)
@@ -656,7 +637,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				if (cleared != null && cleared) {
 					LOGGER.info("Search filter cleared using JavaScript");
 					safeSleep(3000);
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+					PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 					waitForBackgroundDataLoad(); // Wait for full data to reload
 					safeSleep(2000);
 				} else {
@@ -672,7 +653,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
-					WebElement resultsElement = wait.until(ExpectedConditions.visibilityOfElementLocated(SHOWING_JOB_RESULTS));
+					WebElement resultsElement = PageObjectHelper.waitForVisible(wait, SHOWING_JOB_RESULTS);
 					String resultsText = resultsElement.getText().trim();
 					
 					PageObjectHelper.log(LOGGER, "Attempt " + attempt + " - Results text: " + resultsText);
@@ -762,7 +743,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	public void capture_the_count_of_jobs_with_missing_data_after_reupload() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			// Retry logic: Sometimes the count takes time to update
 			int maxRetries = 5;
@@ -792,7 +773,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 									attempt, maxRetries, count);
 							safeSleep(retryDelay);
 							driver.navigate().refresh();
-							PerformanceUtils.waitForPageReady(driver, 3);
+							PageObjectHelper.waitForPageReady(driver, 3);
 							waitForBackgroundDataLoad(); // Wait for background data API to complete
 							continue;
 						} else {
@@ -834,8 +815,6 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	// ==================== SEARCH/VERIFY METHODS ====================
-
 	public void wait_and_refresh_job_mapping_page_after_upload() {
 		try {
 			// Simple fixed wait approach - let the profile verification scenario handle smart retries
@@ -845,8 +824,8 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 			PageObjectHelper.log(LOGGER, "Refreshing Job Mapping page...");
 			driver.navigate().refresh();
-			PerformanceUtils.waitForPageReady(driver, 5);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
+			PageObjectHelper.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 15);
 			waitForBackgroundDataLoad(); // Wait for background data API to complete
 			safeSleep(2000);
 
@@ -880,16 +859,16 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 					// Refresh page before each attempt to ensure fresh data
 					LOGGER.debug("Refreshing page to get latest data...");
 					driver.navigate().refresh();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 					waitForBackgroundDataLoad();
 					safeSleep(2000);
 					LOGGER.debug("Page refreshed and ready");
 					
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 					LOGGER.debug("Spinners cleared");
 
 					LOGGER.debug("Waiting for search input element to be clickable...");
-			WebElement searchInput = wait.until(ExpectedConditions.elementToBeClickable(JOB_SEARCH_INPUT));
+			WebElement searchInput = PageObjectHelper.waitForClickable(wait, JOB_SEARCH_INPUT);
 					LOGGER.debug("Search input element is clickable");
 					
 			searchInput.clear();
@@ -901,8 +880,8 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 			safeSleep(2000);
 					LOGGER.debug("Waiting for spinners after search...");
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 3);
 					LOGGER.debug("Search completed, checking results...");
 
 					// Check if search returned results
@@ -950,12 +929,12 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				throw new IOException("No job code captured for search");
 			}
 
-			PerformanceUtils.waitForPageReady(driver, 2);
-			WebElement searchInput = wait.until(ExpectedConditions.elementToBeClickable(SEARCH_INPUT_MISSING_DATA));
+			PageObjectHelper.waitForPageReady(driver, 2);
+			WebElement searchInput = PageObjectHelper.waitForClickable(wait, SEARCH_INPUT_MISSING_DATA);
 			searchInput.clear();
 			searchInput.sendKeys(jobCode);
 
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			PageObjectHelper.log(LOGGER, "Searched for profile by Job Code in Missing Data screen: " + jobCode);
 
 		} catch (Exception e) {
@@ -966,8 +945,8 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	public void verify_profile_is_found_in_job_mapping_search_results() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 
 			List<WebElement> searchResults = findElements(SEARCH_RESULTS_ROWS);
 			int resultCount = searchResults.size();
@@ -1051,14 +1030,14 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			List<WebElement> rows = findElements(SEARCH_RESULTS_ROWS);
 			if (rows.isEmpty()) {
 						if (attempt < maxRetries) {
 							LOGGER.info("Attempt {}/{}: No profile rows found, refreshing...", attempt, maxRetries);
 							driver.navigate().refresh();
-							PerformanceUtils.waitForPageReady(driver, 2);
+							PageObjectHelper.waitForPageReady(driver, 2);
 							waitForBackgroundDataLoad();
 							safeSleep(retryDelay);
 							reSearchProfile();
@@ -1075,7 +1054,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 							LOGGER.info("Attempt {}/{}: Job Code '{}' not found in results, refreshing...", 
 									attempt, maxRetries, expectedJobCode);
 							driver.navigate().refresh();
-							PerformanceUtils.waitForPageReady(driver, 2);
+							PageObjectHelper.waitForPageReady(driver, 2);
 							waitForBackgroundDataLoad();
 							safeSleep(retryDelay);
 							reSearchProfile();
@@ -1101,7 +1080,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 								attempt, maxRetries, expectedJobCode);
 						safeSleep(retryDelay);
 						driver.navigate().refresh();
-						PerformanceUtils.waitForPageReady(driver, 2);
+						PageObjectHelper.waitForPageReady(driver, 2);
 						waitForBackgroundDataLoad();
 						safeSleep(3000);
 						reSearchProfile();
@@ -1159,13 +1138,13 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			
 			for (int attempt = 1; attempt <= maxPollingAttempts; attempt++) {
 				try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			List<WebElement> rows = findElements(SEARCH_RESULTS_ROWS);
 			if (rows.isEmpty()) {
 						LOGGER.info("Attempt {}/{}: No profile rows found, refreshing...", attempt, maxPollingAttempts);
 						driver.navigate().refresh();
-						PerformanceUtils.waitForPageReady(driver, 2);
+						PageObjectHelper.waitForPageReady(driver, 2);
 						waitForBackgroundDataLoad();
 						safeSleep(pollingInterval);
 						reSearchProfile();
@@ -1178,7 +1157,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 						LOGGER.warn("Attempt {}/{}: Job Code '{}' not found in search results, refreshing...", 
 								attempt, maxPollingAttempts, expectedJobCode);
 						driver.navigate().refresh();
-						PerformanceUtils.waitForPageReady(driver, 2);
+						PageObjectHelper.waitForPageReady(driver, 2);
 						waitForBackgroundDataLoad();
 						safeSleep(pollingInterval);
 						reSearchProfile();
@@ -1368,7 +1347,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 						LOGGER.info("Waiting 20 seconds before next polling attempt...");
 						safeSleep(pollingInterval);
 						driver.navigate().refresh();
-						PerformanceUtils.waitForPageReady(driver, 2);
+						PageObjectHelper.waitForPageReady(driver, 2);
 						waitForBackgroundDataLoad();
 						safeSleep(2000);
 						reSearchProfile();
@@ -1404,7 +1383,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			boolean profileFound = false;
 			List<WebElement> rows = findElements(JOB_ROWS_MISSING_DATA);
@@ -1432,13 +1411,13 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 						LOGGER.info("Attempt {}/{}: Profile still in Missing Data screen. Refreshing and retrying in 10 seconds...", 
 								attempt, maxRetries);
 						driver.navigate().refresh();
-						PerformanceUtils.waitForPageReady(driver, 3);
+						PageObjectHelper.waitForPageReady(driver, 3);
 						waitForBackgroundDataLoad(); // Wait for background data API to complete
 						safeSleep(retryDelay);
 						
 						// Re-search for the profile
 						try {
-							WebElement searchInput = wait.until(ExpectedConditions.elementToBeClickable(SEARCH_INPUT_MISSING_DATA));
+							WebElement searchInput = PageObjectHelper.waitForClickable(wait, SEARCH_INPUT_MISSING_DATA);
 							searchInput.clear();
 							safeSleep(500);
 							searchInput.sendKeys(searchedJobCode);
@@ -1467,18 +1446,16 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	public void click_on_close_button_to_return_to_job_mapping_page() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
-			wait.until(ExpectedConditions.elementToBeClickable(CLOSE_BUTTON));
+			PageObjectHelper.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForClickable(wait, CLOSE_BUTTON);
 			jsClick(findElement(CLOSE_BUTTON));
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			PageObjectHelper.log(LOGGER, "Clicked Close button to return to Job Mapping page");
 
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_close_button", "Failed to click Close button", e);
 		}
 	}
-
-	// ==================== HELPER METHODS ====================
 
 	public void identify_profiles_with_missing_grade_value_in_csv() {
 		try {
@@ -1606,8 +1583,6 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		csvFilePath.remove();
 		searchResultsFoundCount.remove();
 	}
-
-	// ==================== PRIVATE HELPER METHODS ====================
 
 	private String cleanNAValue(String value) {
 		if (value == null || value.equalsIgnoreCase("N/A") || value.equalsIgnoreCase("NA") || value.equals("-")) {
@@ -1757,12 +1732,12 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 	private void reSearchProfile() {
 		try {
 			String jobName = firstProfileJobName.get();
-			WebElement searchInput = wait.until(ExpectedConditions.elementToBeClickable(JOB_SEARCH_INPUT));
+			WebElement searchInput = PageObjectHelper.waitForClickable(wait, JOB_SEARCH_INPUT);
 			searchInput.clear();
 			safeSleep(500);
 			searchInput.sendKeys(jobName);
 			safeSleep(2000);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 		} catch (Exception e) {
 			LOGGER.warn("Failed to re-search for profile: {}", e.getMessage());
 		}

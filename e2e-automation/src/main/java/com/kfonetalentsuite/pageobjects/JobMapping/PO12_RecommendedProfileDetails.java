@@ -12,14 +12,11 @@ import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO12_RecommendedProfileDetails.class);
-
-	// ThreadLocal variables for thread-safe test execution
 	public static ThreadLocal<Integer> rowNumber = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<String> orgJobName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> orgJobCode = ThreadLocal.withInitial(() -> "NOT_SET");
@@ -27,20 +24,13 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 	public static ThreadLocal<String> orgJobFunction = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> orgJobDepartment = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> matchedSuccessPrflName = ThreadLocal.withInitial(() -> "NOT_SET");
-
-	// ============================================================
 	// Static variables moved from PO05_ValidateJobProfileDetailsPopup
-	// THREAD-SAFE: Converted to ThreadLocal for parallel execution
-	// ============================================================
 	public static ThreadLocal<String> ProfileDetails = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> ProfileRoleSummary = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> ProfileResponsibilities = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> ProfileBehaviouralCompetencies = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> ProfileSkills = ThreadLocal.withInitial(() -> "NOT_SET");
-
-	// ============================================================
 	// Locators moved from PO05_ValidateJobProfileDetailsPopup (Profile Details Popup)
-	// ============================================================
 	private static final By PROFILE_HEADER = By.xpath("//h2[@id='summary-modal']//p");
 	private static final By PROFILE_DETAILS = By.xpath("//div[@id='details-container']//div[contains(@class,'mt-2')]");
 	private static final By PROFILE_LEVEL_DROPDOWN = By.xpath("//select[contains(@id,'profileLevel') or @id='profile-level']");
@@ -86,25 +76,25 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 	public void search_for_job_profile_with_view_other_matches_button() {
 		try {
-			wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//tbody")));
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPresent(wait, By.xpath("//tbody"));
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			for (int i = 2; i <= 47; i = i + 3) {
 				try {
-					WebElement button = wait.until(ExpectedConditions.presenceOfElementLocated(
-							By.xpath("//tbody//tr[" + i + "]//button[not(contains(@id,'publish'))]")));
+					WebElement button = PageObjectHelper.waitForPresent(wait, 
+							By.xpath("//tbody//tr[" + i + "]//button[not(contains(@id,'publish'))]"));
 
 					scrollToElement(button);
-					PerformanceUtils.waitForUIStability(driver, 1);
+					PageObjectHelper.waitForUIStability(driver, 1);
 
-					wait.until(ExpectedConditions.visibilityOf(button));
+					PageObjectHelper.waitForVisible(wait, button);
 					String text = button.getText();
 
 					if (text.contains("Other Matches")) {
 						rowNumber.set(i);
 						WebElement jobName = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 1) + "]//td[2]//div[contains(text(),'(')]"));
-						Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobName)).isDisplayed());
-						String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText();
+						Assert.assertTrue(PageObjectHelper.waitForVisible(wait, jobName).isDisplayed());
+						String jobname1 = PageObjectHelper.waitForVisible(wait, jobName).getText();
 						orgJobName.set(jobname1.split("-", 2)[0].trim());
 						PageObjectHelper.log(LOGGER, "View Other Matches button found for Job Profile: " + orgJobName.get());
 						break;
@@ -123,10 +113,10 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 	public void user_should_verify_organization_job_name_and_job_code_values_of_job_profile_with_view_other_matches_button() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			WebElement jobName = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 1) + "]//td[2]//div[contains(text(),'(')]"));
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobName)).isDisplayed());
-			String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText();
+			Assert.assertTrue(PageObjectHelper.waitForVisible(wait, jobName).isDisplayed());
+			String jobname1 = PageObjectHelper.waitForVisible(wait, jobName).getText();
 			
 			String extractedJobName = jobname1.split("-", 2)[0].trim();
 			String extractedJobCode = jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length() - 2);
@@ -149,8 +139,8 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 	public void user_should_verify_organization_job_grade_and_department_values_of_job_profile_with_view_other_matches_button() {
 		try {
 			WebElement jobGrade = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 1) + "]//td[3]//div[1]"));
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobGrade)).isDisplayed());
-			String jobGradeText = wait.until(ExpectedConditions.visibilityOf(jobGrade)).getText();
+			Assert.assertTrue(PageObjectHelper.waitForVisible(wait, jobGrade).isDisplayed());
+			String jobGradeText = PageObjectHelper.waitForVisible(wait, jobGrade).getText();
 			if (jobGradeText.contentEquals("-") || jobGradeText.isEmpty() || jobGradeText.isBlank()) {
 				jobGradeText = "NULL";
 			}
@@ -162,8 +152,8 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 		try {
 			WebElement jobDepartment = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 1) + "]//td[4]//div[1]"));
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobDepartment)).isDisplayed());
-			String jobDepartmentText = wait.until(ExpectedConditions.visibilityOf(jobDepartment)).getText();
+			Assert.assertTrue(PageObjectHelper.waitForVisible(wait, jobDepartment).isDisplayed());
+			String jobDepartmentText = PageObjectHelper.waitForVisible(wait, jobDepartment).getText();
 			if (jobDepartmentText.contentEquals("-") || jobDepartmentText.isEmpty() || jobDepartmentText.isBlank()) {
 				jobDepartmentText = "NULL";
 			}
@@ -177,8 +167,8 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 	public void user_should_verify_organization_job_function_or_sub_function_of_job_profile_with_view_other_matches_button() {
 		try {
 			WebElement jobFunction = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//div//span[2]"));
-			Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobFunction)).isDisplayed());
-			String jobFunctionText = wait.until(ExpectedConditions.visibilityOf(jobFunction)).getText();
+			Assert.assertTrue(PageObjectHelper.waitForVisible(wait, jobFunction).isDisplayed());
+			String jobFunctionText = PageObjectHelper.waitForVisible(wait, jobFunction).getText();
 			if (jobFunctionText.contentEquals("-") || jobFunctionText.isEmpty() || jobFunctionText.isBlank()) {
 				jobFunctionText = "NULL | NULL";
 			} else if (jobFunctionText.endsWith("-") || jobFunctionText.endsWith("| -") || jobFunctionText.endsWith("|")
@@ -194,7 +184,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 	public void click_on_matched_profile_of_job_profile_with_view_other_matches_button() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			waitForSpinners();
 
 			int currentRow = rowNumber.get();
@@ -205,10 +195,9 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			int matchedProfileRow = currentRow - 1;
 			String matchedProfileXPath = "//div[@id='kf-job-container']//div//table//tbody//tr[" + matchedProfileRow + "]//td[1]//div";
 
-			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-			WebElement linkedMatchedProfile = shortWait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(matchedProfileXPath)));
+			WebElement linkedMatchedProfile = PageObjectHelper.waitForPresent(wait, By.xpath(matchedProfileXPath));
 
-			WebElement clickableElement = shortWait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile));
+			WebElement clickableElement = PageObjectHelper.waitForClickable(wait, linkedMatchedProfile);
 			String matchedProfileNameText = clickableElement.getText();
 
 			if (matchedProfileNameText == null || matchedProfileNameText.trim().isEmpty()) {
@@ -255,13 +244,13 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				}
 			}
 
-			clickableElement = shortWait.until(ExpectedConditions.elementToBeClickable(linkedMatchedProfile));
+			clickableElement = PageObjectHelper.waitForClickable(wait, linkedMatchedProfile);
 
 			boolean clickSuccessful = tryClickWithStrategies(clickableElement);
 
 			if (clickSuccessful) {
 				PageObjectHelper.log(LOGGER, "Clicked on Matched Profile: " + matchedProfileNameText + " of Organization Job: " + orgJobName.get());
-				PerformanceUtils.waitForPageReady(driver, 10);
+				PageObjectHelper.waitForPageReady(driver, 10);
 			} else {
 				throw new Exception("All click strategies failed for Matched Profile: " + matchedProfileNameText);
 			}
@@ -531,10 +520,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 			PageObjectHelper.handleError(LOGGER, "validate_recommended_profile_skills_matches_with_matched_success_profile_skills", "Issue validating Recommended Profile Skills", e);
 		}
 	}
-
-	// ============================================================
 	// Methods moved from PO05_ValidateJobProfileDetailsPopup
-	// ============================================================
 
 	public void user_is_on_profile_details_popup() {
 		PageObjectHelper.log(LOGGER, "User is on Profile Details Popup");
@@ -593,7 +579,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 	public void validate_data_in_responsibilities_tab() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			expandAllViewMoreButtons(POPUP_VIEW_MORE_RESPONSIBILITIES);
 
 			String responsibilitiesDataText = getElementText(POPUP_RESPONSIBILITIES_DATA);
@@ -607,7 +593,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 	public void validate_data_in_behavioural_competencies_tab() {
 		try {
 			scrollToElement(driver.findElement(ROLE_SUMMARY));
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			clickElement(BEHAVIOUR_TAB_BTN);
 			expandAllViewMoreButtons(POPUP_VIEW_MORE_BEHAVIOUR);
 
@@ -622,7 +608,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 	public void validate_data_in_skills_tab() {
 		try {
 			scrollToElement(driver.findElement(ROLE_SUMMARY));
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			clickElement(SKILLS_TAB_BTN);
 			expandAllViewMoreButtons(POPUP_VIEW_MORE_SKILLS);
 
@@ -651,10 +637,10 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 				}
 			}
 
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			Thread.sleep(500);
 
-			boolean isButtonDisplayed = wait.until(ExpectedConditions.elementToBeClickable(PUBLISH_PROFILE_BTN)).isDisplayed();
+			boolean isButtonDisplayed = PageObjectHelper.waitForClickable(wait, PUBLISH_PROFILE_BTN).isDisplayed();
 			if (!isButtonDisplayed) {
 				throw new Exception("Publish button found but not displayed");
 			}

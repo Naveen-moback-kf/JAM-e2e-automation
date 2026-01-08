@@ -8,8 +8,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO16_ManualMappingofSP extends BasePageObject {
@@ -30,10 +28,10 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 	public void verify_profile_with_no_bic_mapping_is_displaying_on_top_after_sorting() throws InterruptedException {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
-			WebElement button = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(
-					"//tbody//tr[2]//button[not(contains(@id,'view'))] | //tbody//tr[1]//button[contains(text(),'Find')]")));
+			WebElement button = PageObjectHelper.waitForVisible(wait, By.xpath(
+					"//tbody//tr[2]//button[not(contains(@id,'view')] | //tbody//tr[1]//button[contains(text(),'Find')]"));
 			scrollToElement(button);
 			String text = button.getText();
 
@@ -42,11 +40,11 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 				PageObjectHelper.log(LOGGER, "Currently, All Profiles in Job Mapping are Mapped with BIC Profiles");
 				refreshPage();
 				waitForSpinners();
-				PerformanceUtils.waitForPageReady(driver, 3);
+				PageObjectHelper.waitForPageReady(driver, 3);
 			} else {
 				PO17_MapDifferentSPtoProfile.mapSP.set(true);
 				PageObjectHelper.log(LOGGER, "Job profile with No BIC Profile Mapping is found");
-				PerformanceUtils.waitForPageReady(driver, 3);
+				PageObjectHelper.waitForPageReady(driver, 3);
 
 				WebElement jobName = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]")));
 				String jobname1 = jobName.getText();
@@ -91,7 +89,7 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 	public void user_should_verify_search_a_different_profile_button_is_displaying_on_manually_mapped_success_profile() {
 		if (PO17_MapDifferentSPtoProfile.manualMapping.get()) {
 			try {
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				Assert.assertTrue(waitForClickable(SEARCH_DIFFERENT_SP_BTN).isDisplayed(), "Search a Different Profile button should be visible");
 				PageObjectHelper.log(LOGGER, "Search a Different Profile is Displaying on matched success profile which is on the Top of the Profiles List");
 			} catch (Exception e) {

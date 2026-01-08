@@ -7,7 +7,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO13_PCRestrictedTipMessage extends BasePageObject {
@@ -81,20 +80,20 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 					LOGGER.info("Navigation attempt {}/{}", attempt, maxRetries);
 
 					waitForSpinners();
-					PerformanceUtils.waitForPageReady(driver, 2);
+					PageObjectHelper.waitForPageReady(driver, 2);
 
 					PageObjectHelper.log(LOGGER, "Clicking KFONE Global Menu...");
 					clickElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
 					PageObjectHelper.log(LOGGER, "Successfully clicked KFONE Global Menu");
 
-					PerformanceUtils.waitForUIStability(driver, 1);
+					PageObjectHelper.waitForUIStability(driver, 1);
 
 					PageObjectHelper.log(LOGGER, "Clicking User Access button in KFONE menu...");
 					clickElement(USER_ACCESS_BTN);
 					PageObjectHelper.log(LOGGER, "Successfully clicked User Access button in KFONE menu");
 
 					waitForSpinners();
-					PerformanceUtils.waitForPageReady(driver, 2);
+					PageObjectHelper.waitForPageReady(driver, 2);
 
 					WebElement uamBtn = waitForElement(UAM_BUTTON);
 					if (uamBtn.isDisplayed()) {
@@ -107,8 +106,8 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 						LOGGER.warn("Navigation failed on attempt {}/{} - refreshing page...", attempt, maxRetries);
 						refreshPage();
 						waitForSpinners();
-						PerformanceUtils.waitForPageReady(driver, 5);
-						PerformanceUtils.waitForUIStability(driver, 3);
+						PageObjectHelper.waitForPageReady(driver, 5);
+						PageObjectHelper.waitForUIStability(driver, 3);
 						Thread.sleep(5000);
 					} else {
 						LOGGER.error("Failed to navigate to System Configuration page after {} attempts", maxRetries);
@@ -128,7 +127,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_user_admin_module_button() {
 		try {
 			scrollToElement(driver.findElement(UAM_BUTTON));
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(UAM_BUTTON);
 			PageObjectHelper.log(LOGGER, "Clicked on User Admin Module button");
 			waitForSpinners();
@@ -159,7 +158,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_teams_section() {
 		try {
 			scrollToElement(driver.findElement(TEAMS_SECTION));
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(TEAMS_SECTION);
 			PageObjectHelper.log(LOGGER, "Clicked on Teams section in User Admin Module....");
 			waitForSpinners();
@@ -186,7 +185,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_create_teams_button() {
 		try {
 			scrollToElement(driver.findElement(CREATE_TEAMS_BTN));
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(CREATE_TEAMS_BTN);
 			PageObjectHelper.log(LOGGER, "Clicked on CREATE TEAMS button in Teams section....");
 			waitForSpinners();
@@ -227,7 +226,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_next_button_in_create_team_page() {
 		try {
 			scrollToElement(driver.findElement(NEXT_BTN));
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(NEXT_BTN);
 			PageObjectHelper.log(LOGGER, "Clicked on Next button in Create Teams page....");
 			waitForSpinners();
@@ -266,13 +265,13 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			waitForSpinners();
 			scrollToBottom();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			String xpath = "//td[contains(@class,'check-box')]//kf-checkbox";
 			js.executeScript(
 					"var element = document.evaluate(arguments[0], document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; if (element) element.click();",
 					xpath);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 
 			PageObjectHelper.log(LOGGER, "User " + PO01_KFoneLogin.username.get() + " is Selected to add as Team Member");
 			waitForSpinners();
@@ -285,7 +284,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_team_members_header_and_verify_user_is_added_successfully_as_team_member() {
 		try {
 			scrollToElement(driver.findElement(TEAM_MEMBERS_HEADER));
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(TEAM_MEMBERS_HEADER);
 			waitForSpinners();
 			PageObjectHelper.log(LOGGER, "Clicked on Team Members header in Create Teams page....");
@@ -310,7 +309,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			WebElement element = waitForClickable(SAVE_BTN);
 			scrollToElement(element);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(element);
 			PageObjectHelper.log(LOGGER, "Clicked on Save button in Create Teams page....");
 		} catch (Exception e) {
@@ -319,7 +318,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		}
 
 		try {
-			PerformanceUtils.shortWait(driver);
+			PageObjectHelper.waitForPageReady(driver, 5);
 
 			boolean popupFound = false;
 			String popupMessage = "";
@@ -368,11 +367,11 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void search_for_team_name_in_teams_page_and_verify_team_is_created_successfully() {
 		try {
 			waitForElement(TEAMS_PAGE_SEARCHBAR).sendKeys(teamName.get());
-			waitForSpinners();
-			Thread.sleep(2000);
-			PerformanceUtils.waitForElement(driver, driver.findElement(TEAM_NAME_IN_TOP_ROW), 2);
-			String text = getElementText(TEAM_NAME_IN_TOP_ROW);
-			Assert.assertEquals(text, teamName.get());
+		waitForSpinners();
+		Thread.sleep(2000);
+		PageObjectHelper.waitForVisible(wait, driver.findElement(TEAM_NAME_IN_TOP_ROW));
+		String text = getElementText(TEAM_NAME_IN_TOP_ROW);
+		Assert.assertEquals(text, teamName.get());
 			PageObjectHelper.log(LOGGER, "Team with name : " + teamName.get() + " is successfully created");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "search_for_team_name_in_teams_page_and_verify_team_is_created_successfully", "Issue in Searching and Verifying a Team is created successfully", e);
@@ -384,7 +383,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			WebElement element = waitForClickable(PC_SECTION);
 			scrollToElement(element);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(element);
 			PageObjectHelper.log(LOGGER, "Clicked on Profile Collections section in User Admin Module....");
 			waitForSpinners();
@@ -412,7 +411,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			WebElement element = waitForClickable(CREATE_PC_BTN);
 			scrollToElement(element);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(element);
 			PageObjectHelper.log(LOGGER, "Clicked on CREATE PROFILE COLLECTION button in Teams section");
 			waitForSpinners();
@@ -441,13 +440,13 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			pcName.set("PC_" + todayDate);
 			WebElement nameElement = waitForClickable(PC_NAME_TEXTBOX);
 			scrollToElement(nameElement);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(nameElement);
 			waitForElement(PC_NAME_TEXTBOX).sendKeys(pcName.get());
 			PageObjectHelper.log(LOGGER, "Entered Profile Collection Name : " + pcName.get());
 			WebElement descElement = waitForClickable(PC_DESC_TEXTBOX);
 			scrollToElement(descElement);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(descElement);
 			waitForElement(PC_DESC_TEXTBOX).sendKeys("Creating a Profile Collection through Automation on " + todayDate);
 			PageObjectHelper.log(LOGGER, "Entered Profile Collection Description : Creating a Team through Automation on " + todayDate);
@@ -461,7 +460,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			WebElement element = waitForClickable(NEXT_BTN);
 			scrollToElement(element);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(element);
 			PageObjectHelper.log(LOGGER, "Clicked on Next button in Create Profile Collection page....");
 			waitForSpinners();
@@ -488,10 +487,10 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_all_teams_header() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver);
+			PageObjectHelper.waitForPageReady(driver);
 			WebElement element = waitForClickable(ALL_TEAMS_HEADER);
 			scrollToElement(element);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(element);
 			PageObjectHelper.log(LOGGER, "Clicked on All Teams button in Create Profile Collection page....");
 			waitForSpinners();
@@ -506,13 +505,13 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 			waitForSpinners();
 			scrollToBottom();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			String xpath = "//td[contains(@class,'check-box')]//kf-checkbox";
 			js.executeScript(
 					"var element = document.evaluate(arguments[0], document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; if (element) element.click();",
 					xpath);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 
 			PageObjectHelper.log(LOGGER, "Recently Created Team with name " + teamName.get() + " is Selected for Profile Collection");
 			waitForSpinners();
@@ -524,10 +523,10 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 
 	public void click_on_selected_teams_header() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			WebElement element = waitForClickable(SELECTED_TEAMS_HEADER);
 			scrollToElement(element);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(element);
 			PageObjectHelper.log(LOGGER, "Clicked on Selected Teams button in Create Profile Collection page");
 			waitForSpinners();
@@ -540,7 +539,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void user_should_verify_recently_created_team_name_is_available_in_selected_teams() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForElement(TEAM_COUNT);
 			String text = getElementText(TEAM_COUNT);
 			Assert.assertEquals(text, "Page 1 of 1");
@@ -568,15 +567,15 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_add_additional_success_profiles_header() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			WebElement element = waitForClickable(ADD_ADDITIONAL_SP_HEADER);
 			scrollToElement(element);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(element);
 			PageObjectHelper.log(LOGGER, "Clicked on ADD ADDITIONAL SUCCESS PROFILES button in Create Profile Collection page....");
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_add_additional_success_profiles_header", "Issue in clicking on ADD ADDITIONAL SUCCESS PROFILES header button in Create Profile Collection page", e);
 			Assert.fail("Issue in clicking on ADD ADDITIONAL SUCCESS PROFILES header button in Create Profile Collection page...Please Investigate!!!");
@@ -586,13 +585,13 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void search_and_add_success_profiles_to_profile_collection() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 
 			waitForElement(PC_STEP3_SEARCHBAR).sendKeys(spNameString.get());
 			LOGGER.info("Entered search term: " + spNameString.get() + " in Success Profiles search bar");
 
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			waitForSpinners();
 
 			int maxAttempts = 3;
@@ -602,12 +601,12 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 				try {
 					WebElement selectAllElement = waitForClickable(SELECT_ALL_CHECKBOX);
 					scrollToElement(selectAllElement);
-					PerformanceUtils.waitForUIStability(driver, 1);
+					PageObjectHelper.waitForUIStability(driver, 1);
 					Thread.sleep(2000);
 					clickElement(selectAllElement);
 					LOGGER.info("Clicked Select All checkbox (attempt {}/{})", attempt, maxAttempts);
 
-					PerformanceUtils.waitForUIStability(driver, 3);
+					PageObjectHelper.waitForUIStability(driver, 3);
 					waitForSpinners();
 
 					try {
@@ -629,7 +628,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 					}
 
 					if (!profilesSelected && attempt < maxAttempts) {
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					}
 
 				} catch (Exception e) {
@@ -654,15 +653,15 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void click_on_success_profiles_header() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			WebElement element = waitForClickable(SP_HEADER_IN_PC);
 			scrollToElement(element);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(element);
 			PageObjectHelper.log(LOGGER, "Clicked on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection....");
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_success_profiles_header", "Issue in clicking on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection", e);
 			Assert.fail("Issue in clicking on SUCCESS PROFILES header button after selecting Success Profiles to Profile Collection...Please Investigate!!!");
@@ -672,7 +671,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void user_should_verify_added_profiles_are_available_in_success_profiles_header() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			waitForElement(PC_COUNT);
 			String resultsCountText = getElementText(PC_COUNT);
 			String[] resultsCountText_split = resultsCountText.split(" ");
@@ -687,7 +686,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			WebElement element = waitForClickable(DONE_BTN);
 			scrollToElement(element);
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			clickElement(element);
 			PageObjectHelper.log(LOGGER, "Clicked on Done button in Create Profile Collections page....");
 		} catch (Exception e) {
@@ -696,7 +695,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		}
 
 		try {
-			PerformanceUtils.shortWait(driver);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			waitForElement(PC_SUCCESS_POPUP);
 			String SuccesstText = getElementText(PC_SUCCESS_POPUP);
 			PageObjectHelper.log(LOGGER, SuccesstText);
@@ -710,22 +709,22 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public void search_and_delete_profile_collection() {
 		try {
 			waitForElement(PC_SEARCHBAR).sendKeys(pcName.get());
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 			waitForSpinners();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			waitForClickable(TOP_ROW_THREE_DOTS).click();
-			PerformanceUtils.waitForUIStability(driver, 2);
+			PageObjectHelper.waitForUIStability(driver, 2);
 
 			WebElement deleteButton = waitForClickable(By.xpath("//div[@class='item-top-row']//*[contains(text(),'Delete')]"));
 			deleteButton.click();
-			PerformanceUtils.waitForUIStability(driver, 2);
+			PageObjectHelper.waitForUIStability(driver, 2);
 
 			WebElement confirmButton = waitForClickable(DELETE_CONFIRM_BTN);
 			confirmButton.click();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			String text = getElementText(DELETION_SUCCESS_POPUP);
 			PageObjectHelper.log(LOGGER, text);
@@ -739,19 +738,19 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			waitForElement(TEAMS_PAGE_SEARCHBAR).sendKeys(teamName.get());
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			waitForClickable(TOP_ROW_THREE_DOTS).click();
-			PerformanceUtils.waitForUIStability(driver, 2);
+			PageObjectHelper.waitForUIStability(driver, 2);
 
 			WebElement deleteButton = waitForClickable(By.xpath("//div[@class='item-top-row']//*[contains(text(),'Delete')]"));
 			deleteButton.click();
-			PerformanceUtils.waitForUIStability(driver, 2);
+			PageObjectHelper.waitForUIStability(driver, 2);
 
 			WebElement confirmButton = waitForClickable(DELETE_CONFIRM_BTN);
 			confirmButton.click();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			String text = getElementText(DELETION_SUCCESS_POPUP);
 			PageObjectHelper.log(LOGGER, text);
 		} catch (Exception e) {
@@ -775,37 +774,37 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	}
 
 	public void user_is_on_teams_page() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		PageObjectHelper.log(LOGGER, "User is on TEAMS page");
 	}
 
 	public void user_is_on_second_step_of_creating_a_team() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		PageObjectHelper.log(LOGGER, "User is on second step of creating a team");
 	}
 
 	public void user_is_on_team_creation_page_with_team_members_added() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		PageObjectHelper.log(LOGGER, "User is on Team creation page with team members added");
 	}
 
 	public void user_is_on_manage_success_profiles_page() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		PageObjectHelper.log(LOGGER, "User is on Manage Success Profiles page");
 	}
 
 	public void user_is_on_second_step_of_creating_a_profile_collection() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		PageObjectHelper.log(LOGGER, "User is on second step of creating a Profile Collection");
 	}
 
 	public void user_is_on_third_step_of_creating_a_profile_collection() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		PageObjectHelper.log(LOGGER, "User is on third step of creating a Profile Collection");
 	}
 
 	public void user_is_on_profile_collection_page_with_profiles_added() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		PageObjectHelper.log(LOGGER, "User is on Profile Collection creation page with profiles added");
 	}
 

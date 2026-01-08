@@ -13,9 +13,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
-
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
+
 
 public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 
@@ -27,11 +26,6 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		super();
 		this.jsExecutor = (JavascriptExecutor) driver;
 	}
-
-	// ==================== LOCATORS ====================
-	// Note: This file uses dynamic XPath construction, so locators are defined inline in methods
-
-	// THREAD-SAFE: Converted instance variables to ThreadLocal for parallel execution
 	private static ThreadLocal<List<WebElement>> manualProfilesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);
 	private static ThreadLocal<List<Integer>> manualRowIndicesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);
 	private static ThreadLocal<Integer> currentManualRowIndex = ThreadLocal.withInitial(() -> -1);
@@ -73,7 +67,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			safeSleep(200);
 
 			// Try standard click first
-			wait.until(ExpectedConditions.elementToBeClickable(element));
+			PageObjectHelper.waitForClickable(wait, element);
 			element.click();
 
 		} catch (Exception e) {
@@ -341,13 +335,13 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 
-	public void user_is_in_job_mapping_page_with_manual_mapping_filters_applied() throws IOException {
+	public void user_is_in_job_mapping_page_with_manual_mapping_filters_applied() {
 		safeSleep(2000);
 		
 		// Check if we have any manually mapped jobs
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 			// Get results count from "Showing X of Y results" text
 			String resultsCountText = getElementText(By.xpath("//span[contains(text(), 'Showing') and contains(text(), 'results')] | //div[contains(text(), 'Showing') and contains(text(), 'results')]"));
@@ -379,8 +373,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 
 	// Manual Profile Validation Methods
 
-	public void find_and_verify_manually_mapped_profile_with_missing_data_has_info_message_displayed()
-			throws IOException {
+	public void find_and_verify_manually_mapped_profile_with_missing_data_has_info_message_displayed() {
 		// SKIP CHECK: If no manually mapped jobs found in filter results, skip this scenario
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found ({} total) - Scenario skipped", totalManuallyMappedJobs.get());
@@ -407,8 +400,8 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 					missingDataJobs.size(), approximateProfilesWithMissingData);
 
 			// Find Info Messages
-			wait.until(ExpectedConditions.presenceOfElementLocated(
-					By.xpath("//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']")));
+			PageObjectHelper.waitForPresent(wait, 
+					By.xpath("//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']"));
 
 			List<WebElement> infoMessages = driver.findElements(
 					By.xpath("//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']"));
@@ -439,8 +432,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_data_for_manual_mapping()
-			throws IOException {
+	public void verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_data_for_manual_mapping() throws IOException {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
@@ -790,8 +782,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 
 			// Wait for button to be clickable
 			try {
-				WebDriverWait clickWait = new WebDriverWait(driver, Duration.ofSeconds(5));
-				clickWait.until(ExpectedConditions.elementToBeClickable(searchButton));
+				PageObjectHelper.waitForClickable(wait, searchButton);
 			} catch (Exception e) {
 				LOGGER.debug("Button clickability wait timed out, proceeding with click");
 			}
@@ -1014,8 +1005,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_info_message_contains_same_text_about_reduced_match_accuracy_for_manual_mapping()
-			throws IOException {
+	public void verify_info_message_contains_same_text_about_reduced_match_accuracy_for_manual_mapping() throws IOException {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
@@ -1099,8 +1089,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 	// Second Manual Profile Methods (Placeholder implementations - to be completed
 	// similar to first profile)
 
-	public void find_and_verify_second_manually_mapped_profile_with_missing_data_has_info_message_displayed()
-			throws IOException {
+	public void find_and_verify_second_manually_mapped_profile_with_missing_data_has_info_message_displayed() throws IOException {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
@@ -1130,8 +1119,8 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 					missingDataJobs.size(), approximateProfilesWithMissingData);
 
 			// Find Info Messages - same approach as first profile
-			wait.until(ExpectedConditions.presenceOfElementLocated(
-					By.xpath("//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']")));
+			PageObjectHelper.waitForPresent(wait, 
+					By.xpath("//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']"));
 
 			List<WebElement> infoMessages = driver.findElements(
 					By.xpath("//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']"));
@@ -1187,8 +1176,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_data_for_second_manually_mapped_profile()
-			throws IOException {
+	public void verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_data_for_second_manually_mapped_profile() throws IOException {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
@@ -1518,8 +1506,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 
-	public void click_on_button_for_second_manually_mapped_profile_with_info_message(String buttonText)
-			throws IOException {
+	public void click_on_button_for_second_manually_mapped_profile_with_info_message(String buttonText) throws IOException {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
@@ -1609,8 +1596,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_job_details_match_between_job_mapping_and_manual_mapping_pages_for_second_manually_mapped_profile()
-			throws IOException {
+	public void verify_job_details_match_between_job_mapping_and_manual_mapping_pages_for_second_manually_mapped_profile() throws IOException {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
@@ -1642,16 +1628,8 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 				String[] jobTitleXPaths = {
 						"//div[contains(@class, 'job-title')] | //div[contains(@class, 'job-name')]",
 						"//div[contains(@class, 'text-[24px]') and contains(text(), '-') and contains(text(), '(')]", // Job
-																														// titles
-																														// with
-																														// proper
-																														// format
 						"//h2[contains(text(), '-') and contains(text(), '(')]", // Job titles in h2 with proper format
 						"//div[contains(@class, 'font-semibold') and contains(text(), '-') and contains(text(), '(')]", // Font-semibold
-																														// elements
-																														// with
-																														// job
-																														// format
 						"//h1[contains(text(), '-') and contains(text(), '(')]", // Job titles in h1 with proper format
 						"//div[contains(@class, 'title')]" // Last resort but more specific
 				};
@@ -1667,13 +1645,6 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 								&& !candidateTitle.equalsIgnoreCase("MANUAL MAPPING")
 								&& !candidateTitle.equalsIgnoreCase("JOB MAPPING")
 								&& !candidateTitle.equalsIgnoreCase("MANUAL MAP") && candidateTitle.length() > 10) { // Job
-																														// titles
-																														// are
-																														// usually
-																														// longer
-																														// than
-																														// 10
-																														// chars
 
 							LOGGER.debug("Found job title in Manual Mapping page using XPath: {}", xpath);
 							comparisonJobTitle = candidateTitle;
@@ -1872,8 +1843,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_info_message_is_still_displayed_in_manual_mapping_page_for_second_manually_mapped_profile()
-			throws IOException {
+	public void verify_info_message_is_still_displayed_in_manual_mapping_page_for_second_manually_mapped_profile() throws IOException {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");
@@ -1916,8 +1886,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_info_message_contains_same_text_about_reduced_match_accuracy_for_second_manually_mapped_profile()
-			throws IOException {
+	public void verify_info_message_contains_same_text_about_reduced_match_accuracy_for_second_manually_mapped_profile() throws IOException {
 		// SKIP CHECK
 		if (skipFeature24DueToNoResults.get()) {
 			LOGGER.info("⊘ SKIPPING: No manually mapped jobs found - Scenario skipped");

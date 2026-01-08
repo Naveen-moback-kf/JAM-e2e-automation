@@ -16,7 +16,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
@@ -34,8 +33,6 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 	private static final By KF_JOB_TABLE_ROWS = By.xpath("//div[@id='kf-job-container']//tbody//tr");
 	private static final By COMPARE_SELECT_HEADER = Locators.ComparisonPage.COMPARE_HEADER;
 	private static final By LOADER_ELEMENTS = By.xpath("//div[@data-testid='loader'] | //div[contains(@class, 'loader')] | //div[contains(@class, 'loading')]");
-
-	// THREAD-SAFE: Converted instance variables to ThreadLocal for parallel execution
 	private static ThreadLocal<List<WebElement>> profilesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);
 	private static ThreadLocal<List<Integer>> rowIndicesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);
 	private static ThreadLocal<Integer> currentRowIndex = ThreadLocal.withInitial(() -> -1);
@@ -45,8 +42,6 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 	private static ThreadLocal<Integer> globalFirstProfileNumber = ThreadLocal.withInitial(() -> -1);
 	private static ThreadLocal<String> globalFirstJobNameWithInfoMessage = ThreadLocal.withInitial(() -> "");
 	private static ThreadLocal<String> globalFirstJobCodeWithInfoMessage = ThreadLocal.withInitial(() -> "");
-
-	// THREAD-SAFE: Converted static variables to ThreadLocal for parallel execution
 	private static ThreadLocal<String> jobNameWithInfoMessage = ThreadLocal.withInitial(() -> "");
 	private static ThreadLocal<String> jobCodeWithInfoMessage = ThreadLocal.withInitial(() -> "");
 	private static ThreadLocal<String> gradeWithInfoMessage = ThreadLocal.withInitial(() -> "");
@@ -63,7 +58,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 
 	private void waitForUIStabilityInMs(int milliseconds) {
 		try {
-			PerformanceUtils.waitForUIStability(driver, Math.max(1, milliseconds / 1000));
+			PageObjectHelper.waitForUIStability(driver, Math.max(1, milliseconds / 1000));
 		} catch (Exception e) {
 			Thread.currentThread().interrupt();
 			LOGGER.warn("Sleep interrupted: " + e.getMessage());
@@ -688,12 +683,12 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 					js.executeScript("var container = document.getElementById('org-job-container');"
 							+ "if (container) { container.scrollTop = container.scrollHeight; }");
 					waitForUIStabilityInMs(2000);
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+					PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 					waitForUIStabilityInMs(1000);
 				} else {
 					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 					waitForUIStabilityInMs(2000);
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+					PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 				}
 
 				List<WebElement> rowsAfterScroll = driver.findElements(ORG_JOB_TABLE_ROWS);
@@ -967,12 +962,12 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 					js.executeScript("var container = document.getElementById('org-job-container');"
 							+ "if (container) { container.scrollTop = container.scrollHeight; }");
 					waitForUIStabilityInMs(2000);
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+					PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 					waitForUIStabilityInMs(1000);
 				} else {
 					js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 					waitForUIStabilityInMs(2000);
-					PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+					PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 				}
 
 				List<WebElement> rowsAfterScroll = driver.findElements(ORG_JOB_TABLE_ROWS);
@@ -1013,7 +1008,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_data() throws IOException {
+	public void verify_info_message_contains_text_about_reduced_match_accuracy_due_to_missing_data() {
 		try {
 			LOGGER.info("Verifying Info Message contains correct text about reduced match accuracy");
 
@@ -1091,7 +1086,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_info_message_is_still_displayed_in_job_comparison_page() throws IOException {
+	public void verify_info_message_is_still_displayed_in_job_comparison_page() {
 		try {
 			LOGGER.info("Verifying Info Message is still displayed in Job Comparison page for first profile");
 			waitForUIStabilityInMs(2000);
@@ -1304,7 +1299,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_user_is_navigated_to_job_comparison_page() throws IOException {
+	public void verify_user_is_navigated_to_job_comparison_page() {
 		try {
 			LOGGER.info("Verifying user is navigated to Job Comparison page");
 
@@ -1590,15 +1585,15 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_job_details_match_between_job_mapping_and_job_comparison_pages() throws IOException {
+	public void verify_job_details_match_between_job_mapping_and_job_comparison_pages() {
 		// Verification done inline within extract_job_details_from_job_comparison_page()
 	}
 
-	public void verify_job_details_match_between_job_mapping_and_job_comparison_pages_for_second_profile() throws IOException {
+	public void verify_job_details_match_between_job_mapping_and_job_comparison_pages_for_second_profile() {
 		// Verification done inline within extract_job_details_from_job_comparison_page_for_second_profile()
 	}
 
-	public void verify_info_message_contains_same_text_about_reduced_match_accuracy() throws IOException {
+	public void verify_info_message_contains_same_text_about_reduced_match_accuracy() {
 		try {
 			LOGGER.info("Verifying Info Message contains same text about reduced match accuracy in Job Comparison page");
 			waitForUIStabilityInMs(2000);
@@ -1662,7 +1657,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void navigate_back_to_job_mapping_page_from_job_comparison() throws IOException {
+	public void navigate_back_to_job_mapping_page_from_job_comparison() {
 		try {
 			LOGGER.info("Navigating back to Job Mapping page from Job Comparison");
 

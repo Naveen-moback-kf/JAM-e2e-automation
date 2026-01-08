@@ -6,8 +6,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 
@@ -28,7 +26,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 	public void user_should_search_for_success_profile_with_no_job_code_assigned() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			String resultsCountText = getElementText(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 			String[] resultsCountText_split = resultsCountText.split(" ");
 			int totalProfiles = Integer.parseInt(resultsCountText_split[3]);
@@ -48,7 +46,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 					}
 				} catch (Exception e) {
 					waitForSpinners();
-					PerformanceUtils.waitForPageReady(driver, 3);
+					PageObjectHelper.waitForPageReady(driver, 3);
 					rowNumber.set(i);
 					WebElement SP_Checkbox = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[1]//*//..//div//kf-checkbox//div"));
 					scrollToElement(SP_Checkbox);
@@ -92,7 +90,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 				}
 
 				safeSleep(500); // Allow scroll to complete
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 
 				// Find the checkbox for the profile with no job code
 				WebElement SP_Checkbox = waitForElement(
@@ -139,7 +137,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 					scrollToElement(driver.findElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN));
 				}
 
-				PerformanceUtils.waitForPageReady(driver, 1);
+				PageObjectHelper.waitForPageReady(driver, 1);
 
 				WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[1]//*"));
 				scrollToElement(SP_JobName);

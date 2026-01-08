@@ -9,10 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO08_JobMappingFilters extends BasePageObject {
@@ -74,7 +71,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			jsClick(targetCheckbox);
 
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 1);
+			PageObjectHelper.waitForPageReady(driver, 1);
 
 			if (!targetCheckbox.isSelected()) {
 				jsClick(targetCheckbox);
@@ -108,7 +105,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			jsClick(targetCheckbox);
 
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 1);
+			PageObjectHelper.waitForPageReady(driver, 1);
 
 			if (!targetCheckbox.isSelected()) {
 				jsClick(targetCheckbox);
@@ -135,12 +132,11 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 			while (scrollAttempts < maxScrollAttempts) {
 				scrollAttempts++;
-				PerformanceUtils.waitForUIStability(driver, 1);
+				PageObjectHelper.waitForUIStability(driver, 1);
 
 				String resultsCountText = "";
 				try {
-					WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(1));
-					WebElement resultsElement = shortWait.until(ExpectedConditions.presenceOfElementLocated(Locators.JAMScreen.SHOWING_RESULTS_COUNT));
+					WebElement resultsElement = PageObjectHelper.waitForPresent(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT);
 					resultsCountText = resultsElement.getText();
 					consecutiveFailures = 0;
 				} catch (Exception e) {
@@ -213,7 +209,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			if (GradesOption2.get() != null && !GradesOption2.get().isEmpty()) expectedGrades.add(GradesOption2.get());
 			
 			// Wait for filter to apply
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 			safeSleep(1000);
 			
@@ -262,7 +258,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	public void click_on_clear_x_applied_filter() throws Exception {
 		try {
 			clickElement(CLEAR_FILTERS_X_BTN);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			Thread.sleep(300);
 			PageObjectHelper.log(LOGGER, "Clicked on clear Filters button (X) and cleared all applied filters");
 		} catch (Exception e) {
@@ -273,7 +269,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void select_two_options_in_grades_filters_dropdown() throws Exception {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			List<WebElement> checkboxes = driver.findElements(GRADES_CHECKBOXES);
 			List<WebElement> values = driver.findElements(GRADES_VALUES);
 
@@ -336,8 +332,8 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				js.executeScript("arguments[0].click();", clearBtn);
 			}
 			
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			safeSleep(500);
 			
 			PO04_JobMappingPageComponents.initialFilteredResultsCount.set(null);
@@ -350,7 +346,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void select_one_option_in_departments_filters_dropdown() throws Exception {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			List<WebElement> checkboxes = driver.findElements(DEPARTMENTS_CHECKBOXES);
 			List<WebElement> values = driver.findElements(DEPARTMENTS_VALUES);
 
@@ -388,7 +384,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			if (DepartmentsOption2.get() != null && !DepartmentsOption2.get().isEmpty()) expectedDepts.add(DepartmentsOption2.get());
 			
 		// Wait for filter to apply
-		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.waitForPageReady(driver, 2);
 		waitForSpinners();
 		safeSleep(1000);
 		
@@ -459,7 +455,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void select_two_options_in_departments_filters_dropdown() throws Exception {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			List<WebElement> checkboxes = driver.findElements(DEPARTMENTS_CHECKBOXES);
 			List<WebElement> values = driver.findElements(DEPARTMENTS_VALUES);
 
@@ -492,7 +488,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 
 	public void select_a_function_and_verify_all_subfunctions_inside_function_are_selected_automatically() throws Exception {
-		PerformanceUtils.waitForPageReady(driver, 3);
+		PageObjectHelper.waitForPageReady(driver, 3);
 		waitForSpinners();
 		safeSleep(1000);
 		
@@ -562,7 +558,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				WebElement targetCheckbox = checkboxes.get(functionIndex);
 				jsClick(targetCheckbox);
 				waitForSpinners();
-				PerformanceUtils.waitForPageReady(driver, 3);
+				PageObjectHelper.waitForPageReady(driver, 3);
 				safeSleep(500);
 
 				// Verify checkbox is selected
@@ -584,7 +580,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		}
 
 		// Verify subfunctions are auto-selected
-		PerformanceUtils.waitForPageReady(driver, 3);
+		PageObjectHelper.waitForPageReady(driver, 3);
 		waitForSpinners();
 		safeSleep(500);
 		
@@ -638,7 +634,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		LOGGER.info("Validating against expected functions: {}", expectedFunctions);
 		
 		// Wait for filter to apply
-		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.waitForPageReady(driver, 2);
 		waitForSpinners();
 		safeSleep(1000);
 		
@@ -715,7 +711,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void user_should_verify_search_bar_is_available_in_functions_subfunctions_filters_dropdown() throws Exception {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			Assert.assertTrue(waitForElement(FUNCTIONS_SEARCH).isDisplayed());
 			PageObjectHelper.log(LOGGER, "Search bar is available in Functions Subfunctions dropdown");
 		} catch (Exception e) {
@@ -726,7 +722,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void click_inside_search_bar_and_enter_function_name() throws Exception {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			if (FunctionsOption.get() == null || FunctionsOption.get().isEmpty()) {
 				List<WebElement> toggleBtns = driver.findElements(TOGGLE_SUBOPTIONS);
@@ -741,7 +737,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			clickElement(searchBox);
 			searchBox.clear();
 			searchBox.sendKeys(FunctionsOption.get());
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER, "Entered function name: " + FunctionsOption.get());
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_inside_search_bar_and_enter_function_name", "Issue entering function name", e);
@@ -751,10 +747,10 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void user_should_click_on_dropdown_button_of_searched_function_name() throws Exception {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			Thread.sleep(1000);
 
-			WebElement toggleBtn = wait.until(ExpectedConditions.presenceOfElementLocated(TOGGLE_SUBOPTIONS));
+			WebElement toggleBtn = PageObjectHelper.waitForPresent(wait, TOGGLE_SUBOPTIONS);
 			scrollToElement(toggleBtn);
 			Thread.sleep(500);
 			clickElement(toggleBtn);
@@ -766,7 +762,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	}
 
 	public void select_one_subfunction_option_inside_function_name_dropdown() throws Exception {
-		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.waitForPageReady(driver, 2);
 		waitForSpinners();
 		
 		List<WebElement> checkboxes = driver.findElements(SUBFUNCTIONS_CHECKBOXES);
@@ -791,7 +787,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				
 				// Wait for filter to apply after selection
 				waitForSpinners();
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				safeSleep(500);
 				
 				// Re-fetch checkbox to verify selection
@@ -810,7 +806,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			WebElement searchBox = waitForElement(FUNCTIONS_SEARCH);
 			searchBox.clear();
 			Thread.sleep(300);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			List<WebElement> funcLabels = driver.findElements(FUNCTIONS_VALUES);
 			List<WebElement> toggleBtns = driver.findElements(TOGGLE_SUBOPTIONS);
@@ -848,8 +844,8 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		String xpath = "//div[@data-testid='dropdown-Functions_SubFunctions']//input[@type='checkbox'][contains(@id,'" + FunctionsOption.get() + "')][not(ancestor::button[contains(@data-testid,'suboption')])]";
 
 		try {
-			WebElement functionCheckbox = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpath)));
-			wait.until(ExpectedConditions.visibilityOf(functionCheckbox));
+			WebElement functionCheckbox = PageObjectHelper.waitForPresent(wait, By.xpath(xpath));
+			PageObjectHelper.waitForVisible(wait, functionCheckbox);
 
 			boolean isSelected = wait.until(driver -> functionCheckbox.isSelected());
 
@@ -865,7 +861,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	}
 
 	public void select_two_subfunction_options_inside_function_name_filters_dropdown() throws Exception {
-		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.waitForPageReady(driver, 2);
 		waitForSpinners();
 		
 		List<WebElement> checkboxes = driver.findElements(SUBFUNCTIONS_CHECKBOXES);
@@ -886,7 +882,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				
 				// Wait for filter to apply after each selection
 				waitForSpinners();
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				safeSleep(500);
 				
 				// Re-fetch checkbox to verify selection
@@ -903,7 +899,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_grades_departments_and_functions_subfunctions_options() throws Exception {
 		try {
 			// Wait for filter to apply
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForSpinners();
 			safeSleep(1000);
 			
@@ -1012,7 +1008,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	public void select_one_option_in_mapping_status_filters_dropdown() throws Exception {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			List<WebElement> checkboxes = driver.findElements(MAPPING_STATUS_CHECKBOXES);
 			List<WebElement> values = driver.findElements(MAPPING_STATUS_VALUES);
 
@@ -1026,7 +1022,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 						scrollToElement(values.get(i));
 						clickElement(values.get(i));
 						waitForSpinners();
-						PerformanceUtils.waitForPageReady(driver, 1);
+						PageObjectHelper.waitForPageReady(driver, 1);
 
 						Assert.assertTrue(checkboxes.get(i).isSelected());
 						DepartmentsOption.set(actualStatusText);
@@ -1060,7 +1056,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	public void click_on_filter_dropdown_button(String filterType) throws Exception {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 			By dropdownLocator;
 			String normalizedFilterType = filterType.toLowerCase().replace(" ", "").replace("_", "");

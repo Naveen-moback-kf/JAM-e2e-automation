@@ -10,7 +10,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO20_PublishCenter_PM extends BasePageObject {
@@ -18,7 +17,6 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	private static final Logger LOGGER = LogManager.getLogger(PO20_PublishCenter_PM.class);
 
 	// formatDateForDisplay() is inherited from BasePageObject
-	// THREAD-SAFE: Converted to ThreadLocal for parallel execution
 	public static ThreadLocal<Integer> ProfilesCountInRow1 = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<ArrayList<String>> profilesCountInDefaultOrder = ThreadLocal.withInitial(ArrayList::new);
 
@@ -68,7 +66,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void verify_user_navigated_to_job_profile_history_screen_succcessfully() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			WebElement screenTitle = waitForElement(JPH_SCREEN_TITLE);
 			Assert.assertTrue(screenTitle.isDisplayed());
 			PageObjectHelper.log(LOGGER, "User navigated to " + screenTitle.getText() + " screen successfully....");
@@ -142,7 +140,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_be_navigated_to_profiles_downloaded_screen() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			WebElement title = waitForElement(PROFILES_DOWNLOADED_TITLE);
 			Assert.assertTrue(title.isDisplayed());
 			PageObjectHelper.log(LOGGER,
@@ -157,7 +155,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void verify_details_in_profiles_downloaded_screen() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER,
 					"Below are the Header Details of the Recently Downloaded Job Profiles in Profiles Downloaded screen : \n "
 							+ getElementText(PROFILES_DOWNLOADED_HEADER));
@@ -366,7 +364,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_be_navigated_to_profiles_exported_screen() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			WebElement title = waitForElement(PROFILES_EXPORTED_TITLE);
 			Assert.assertTrue(title.isDisplayed());
 			PageObjectHelper.log(LOGGER,
@@ -426,11 +424,11 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 			scrollToBottom();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			scrollToBottom();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			String resultsCountText_updated = getElementText(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 			PageObjectHelper.log(LOGGER, "Scrolled down till third page and now " + resultsCountText_updated
@@ -438,7 +436,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 			scrollToTop();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 1);
+			PageObjectHelper.waitForPageReady(driver, 1);
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER,
 					"scroll_page_down_two_times_to_view_first_thirty_job_profiles_in_job_profile_history_screen",
@@ -450,7 +448,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_in_default_order_before_applying_sorting_in_job_profile_history_screen() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
 			PageObjectHelper.log(LOGGER,
@@ -488,7 +486,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			clickElement(JPH_HEADER1);
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER,
 					"Clicked on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in ascending order in Job Profile History screen");
 		} catch (Exception e) {
@@ -502,7 +500,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_ascending_order_in_job_profile_history_screen() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
 			PageObjectHelper.log(LOGGER,
@@ -559,7 +557,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			refreshPage();
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			PageObjectHelper.log(LOGGER, "Refreshed Job Profile History screen....");
 			waitForElement(JPH_PROFILES_COUNT_ROW1);
 			for (int i = 1; i <= 10; i++) {
@@ -588,14 +586,14 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			clickElement(JPH_HEADER1);
 			waitForSpinners();
 			safeSleep(2000);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			safeSleep(1000);
 
 			LOGGER.info("First sort completed. Now clicking second time for descending order...");
 			clickElement(JPH_HEADER1);
 			waitForSpinners();
 			safeSleep(2000);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			PageObjectHelper.log(LOGGER,
 					"Clicked two times on NO. OF PROFILES header to Sort Job Profiles by No. of Profiles in descending order in Job Profile History screen");
@@ -612,7 +610,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_no_of_profiles_in_descending_order_in_job_profile_history_screen() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForElement(JPH_PROFILES_COUNT_ROW1);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
@@ -670,7 +668,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			clickElement(JPH_HEADER3);
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER,
 					"Clicked on ACCESSED DATE header to Sort Job Profiles by Accessed Date in ascending order in Job Profile History screen");
 		} catch (Exception e) {
@@ -684,7 +682,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_ascending_order_in_job_profile_history_screen() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
 			LOGGER.info(
@@ -756,14 +754,14 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			clickElement(JPH_HEADER3);
 			waitForSpinners();
 			safeSleep(2000);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			safeSleep(1000);
 
 			LOGGER.info("First sort completed. Now clicking second time for descending order...");
 			clickElement(JPH_HEADER3);
 			waitForSpinners();
 			safeSleep(2000);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			PageObjectHelper.log(LOGGER,
 					"Clicked two times on ACCESSED DATE header to Sort Job Profiles by Accessed Date in descending order in Job Profile History screen");
@@ -778,7 +776,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public void user_should_verify_first_thirty_job_profiles_sorted_by_accessed_date_in_descending_order_in_job_profile_history_screen() {
 		try {
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForElement(JPH_PROFILES_COUNT_ROW1);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
@@ -840,8 +838,6 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 					e);
 		}
 	}
-
-	// ==================== HELPER METHODS ====================
 
 	private int getAvailableJPHRowCount() {
 		int actualRowCount = driver.findElements(By.xpath("//*/kf-page-content/div[2]/div[2]/div[div[1]/span]")).size();

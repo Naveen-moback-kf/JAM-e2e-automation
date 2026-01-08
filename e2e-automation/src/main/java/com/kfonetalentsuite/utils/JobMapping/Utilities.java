@@ -65,7 +65,7 @@ public class Utilities {
 				for (WebElement input : inputs) {
 					if (input.isEnabled()) {
 						input.sendKeys(filePath);
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 						return true;
 					}
 				}
@@ -80,7 +80,7 @@ public class Utilities {
 		try {
 			WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 			wait.until(ExpectedConditions.elementToBeClickable(browseBtn)).click();
-			PerformanceUtils.waitForUIStability(driver, 1);
+			PageObjectHelper.waitForUIStability(driver, 1);
 
 			String[] selectors = {
 				"//input[@type='file']",
@@ -98,7 +98,7 @@ public class Utilities {
 						try {
 							js.executeScript("arguments[0].style.display='block'; arguments[0].style.visibility='visible'; arguments[0].style.opacity='1';", input);
 							input.sendKeys(filePath);
-							PerformanceUtils.waitForUIStability(driver, 2);
+							PageObjectHelper.waitForUIStability(driver, 2);
 							return true;
 						} catch (Exception e) {
 							continue;

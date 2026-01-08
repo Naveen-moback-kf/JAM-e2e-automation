@@ -6,10 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
@@ -32,11 +30,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	public PO32_ClearProfileSelectionFunctionality() {
 		super();
 	}
-
-	// ═══════════════════════════════════════════════════════════════════════════
-	// UTILITY METHODS
-	// ═══════════════════════════════════════════════════════════════════════════
-	// getHeaderCheckboxLocator() and getScreenName() are inherited from BasePageObject
 
 	private By getAllCheckboxesLocator(String screen) {
 		return screen.equalsIgnoreCase("PM") ? PM_ALL_CHECKBOXES : JAM_ALL_CHECKBOXES;
@@ -74,17 +67,11 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 		}
 	}
 
-	// getScreenName() is now inherited from BasePageObject
-
-	// ═══════════════════════════════════════════════════════════════════════════
-	// HEADER CHECKBOX METHODS
-	// ═══════════════════════════════════════════════════════════════════════════
-
 	public void click_on_header_checkbox_to_select_loaded_job_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			// Store counts before selecting
 			List<WebElement> allCheckboxes = findElements(getAllCheckboxesLocator(screen));
@@ -102,14 +89,14 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 			// Click header checkbox
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(headerCheckbox)).click();
+				PageObjectHelper.waitForClickable(wait, headerCheckbox).click();
 			} catch (Exception e) {
 				jsClick(headerCheckbox);
 			}
 
 			safeSleep(1000);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			PageObjectHelper.log(LOGGER, "Clicked header checkbox to select loaded profiles in " + getScreenName(screen));
 
@@ -124,8 +111,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	public void click_on_header_checkbox_to_unselect_loaded_job_profiles(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			// Store counts before unchecking
 			List<WebElement> allCheckboxes = findElements(getAllCheckboxesLocator(screen));
@@ -153,14 +140,14 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 			// Click header checkbox
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(headerCheckbox)).click();
+				PageObjectHelper.waitForClickable(wait, headerCheckbox).click();
 			} catch (Exception e) {
 				jsClick(headerCheckbox);
 			}
 
 			safeSleep(1000);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			PageObjectHelper.log(LOGGER, "Clicked header checkbox to clear selection in " + getScreenName(screen));
 
@@ -182,7 +169,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			
 			// Wait for None button to be clickable (dropdown appears after chevron click)
 			try {
-				wait.until(ExpectedConditions.elementToBeClickable(getNoneButtonLocator(screen))).click();
+				PageObjectHelper.waitForClickable(wait, getNoneButtonLocator(screen)).click();
 			} catch (Exception e) {
 				try {
 					jsClick(findElement(getNoneButtonLocator(screen)));
@@ -192,8 +179,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			}
 
 			safeSleep(1000);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			PageObjectHelper.log(LOGGER, "Clicked None button in " + getScreenName(screen));
 
@@ -212,8 +199,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	public void verify_loaded_profiles_are_unselected(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			LOGGER.info("========================================");
 			LOGGER.info("VERIFYING UNSELECTED PROFILES - {}", getScreenName(screen));
@@ -251,8 +238,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			List<WebElement> allCheckboxes = findElements(getAllCheckboxesLocator(screen));
 			int totalNow = allCheckboxes.size();
@@ -331,8 +318,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	public void verify_all_loaded_profiles_are_unselected(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			LOGGER.info("========================================");
 			LOGGER.info("VERIFYING ALL PROFILES UNSELECTED - {}", getScreenName(screen));
@@ -362,8 +349,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	public void verify_profiles_loaded_after_header_checkbox_are_not_selected(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			int totalNow = countAllProfilesJS(screen);
 			int newlyLoaded = totalNow - loadedProfilesBeforeUncheck.get();
@@ -405,8 +392,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			currentScreen.set(screen);
 			js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);");
 			safeSleep(2000);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 			PageObjectHelper.log(LOGGER, "Scrolled to load more profiles in " + getScreenName(screen));
 		} catch (Exception e) {
@@ -419,8 +406,8 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			currentScreen.set(screen);
 			driver.navigate().refresh();
 			safeSleep(2000);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 15);
-			PerformanceUtils.waitForPageReady(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 15);
+			PageObjectHelper.waitForPageReady(driver, 5);
 			
 			// Reset counters after refresh
 			loadedProfilesBeforeUncheck.set(0);
@@ -447,7 +434,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			
 			By buttonLocator = getActionButtonLocator(screen);
 
-			WebElement button = wait.until(ExpectedConditions.visibilityOfElementLocated(buttonLocator));
+			WebElement button = PageObjectHelper.waitForVisible(wait, buttonLocator);
 			boolean isEnabled = button.isEnabled();
 			
 			LOGGER.info("Button found: '{}', enabled: {}", button.getText().trim(), isEnabled);
@@ -476,7 +463,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 			
 			By buttonLocator = getActionButtonLocator(screen);
 
-			WebElement button = wait.until(ExpectedConditions.visibilityOfElementLocated(buttonLocator));
+			WebElement button = PageObjectHelper.waitForVisible(wait, buttonLocator);
 			boolean isDisabled = !button.isEnabled() || button.getAttribute("class").contains("disabled");
 			
 			LOGGER.info("Button found: '{}', disabled: {}", button.getText().trim(), isDisabled);

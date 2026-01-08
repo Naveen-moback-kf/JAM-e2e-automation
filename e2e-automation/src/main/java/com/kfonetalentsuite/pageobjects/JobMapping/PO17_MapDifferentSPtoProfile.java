@@ -13,7 +13,6 @@ import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
 import org.testng.SkipException;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO17_MapDifferentSPtoProfile extends BasePageObject {
@@ -95,7 +94,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		try {
 			waitForSpinners();
 			// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
-			PerformanceUtils.waitForPageReady(driver);
+			PageObjectHelper.waitForPageReady(driver);
 
 			// Reset the flag at the start
 			mapSP.set(false);
@@ -180,7 +179,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 
 				// Wait for spinner and page to stabilize
 				waitForSpinners();
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 			}
 
 			// If we exit the loop without finding the button
@@ -220,11 +219,11 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				waitForSpinners();
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart page ready wait
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				WebElement jobName = driver.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get() - 1)
 						+ "]//td[2]//div[contains(text(),'(')]"));
-				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobName)).isDisplayed());
-				String jobname1 = wait.until(ExpectedConditions.visibilityOf(jobName)).getText();
+				Assert.assertTrue(PageObjectHelper.waitForVisible(wait, jobName).isDisplayed());
+				String jobname1 = PageObjectHelper.waitForVisible(wait, jobName).getText();
 				orgJobName.set(jobname1.split("-", 2)[0].trim());
 				orgJobCode.set(jobname1.split("-", 2)[1].trim().substring(1, jobname1.split("-", 2)[1].length() - 2));
 				PageObjectHelper.log(LOGGER, 
@@ -250,8 +249,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				WebElement jobGrade = driver.findElement(
 						By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get() - 1) + "]//td[3]//div[1]"));
-				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobGrade)).isDisplayed());
-				String jobGradeText = wait.until(ExpectedConditions.visibilityOf(jobGrade)).getText();
+				Assert.assertTrue(PageObjectHelper.waitForVisible(wait, jobGrade).isDisplayed());
+				String jobGradeText = PageObjectHelper.waitForVisible(wait, jobGrade).getText();
 				if (jobGradeText.contentEquals("-") || jobGradeText.isEmpty() || jobGradeText.isBlank()) {
 					jobGradeText = "NULL";
 					orgJobGrade.set(jobGradeText);
@@ -273,8 +272,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				WebElement jobDepartment = driver.findElement(
 						By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get() - 1) + "]//td[4]//div[1]"));
-				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobDepartment)).isDisplayed());
-				String jobDepartmentText = wait.until(ExpectedConditions.visibilityOf(jobDepartment)).getText();
+				Assert.assertTrue(PageObjectHelper.waitForVisible(wait, jobDepartment).isDisplayed());
+				String jobDepartmentText = PageObjectHelper.waitForVisible(wait, jobDepartment).getText();
 				if (jobDepartmentText.contentEquals("-") || jobDepartmentText.isEmpty()
 						|| jobDepartmentText.isBlank()) {
 					jobDepartmentText = "NULL";
@@ -302,8 +301,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				WebElement jobFunction = driver
 						.findElement(By.xpath("//tbody//tr[" + Integer.toString(rowNumber.get()) + "]//div//span[2]"));
-				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(jobFunction)).isDisplayed());
-				String jobFunctionText = wait.until(ExpectedConditions.visibilityOf(jobFunction)).getText();
+				Assert.assertTrue(PageObjectHelper.waitForVisible(wait, jobFunction).isDisplayed());
+				String jobFunctionText = PageObjectHelper.waitForVisible(wait, jobFunction).getText();
 				if (jobFunctionText.contentEquals("-") || jobFunctionText.isEmpty() || jobFunctionText.isBlank()) {
 					jobFunctionText = "NULL | NULL";
 					orgJobFunction.set(jobFunctionText);
@@ -337,11 +336,11 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				WebElement linkedMappedProfile = driver
 						.findElement(By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr["
 								+ Integer.toString(rowNumber.get() - 1) + "]//td[1]//div"));
-				String MappedProfileNameText = wait.until(ExpectedConditions.elementToBeClickable(linkedMappedProfile))
+				String MappedProfileNameText = PageObjectHelper.waitForClickable(wait, linkedMappedProfile)
 						.getText();
 				mappedSuccessPrflName.set(MappedProfileNameText);
 				// Scroll element into view before clicking
-				WebElement element = wait.until(ExpectedConditions.elementToBeClickable(linkedMappedProfile));
+				WebElement element = PageObjectHelper.waitForClickable(wait, linkedMappedProfile);
 				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
 				try {
 					Thread.sleep(500);
@@ -430,10 +429,6 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						PageObjectHelper.log(LOGGER, option.getText());
 					}
 					waitForClickable(PROFILE_LEVEL_DROPDOWN).click(); // This click is
-																										// to close
-																										// dropdown
-																										// options
-																										// visibility
 					PageObjectHelper.log(LOGGER, 
 							"Successfully Verified Profile Level dropdown and levels present inside it...");
 				} else {
@@ -477,12 +472,12 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		if (mapSP.get() | manualMapping.get()) {
 			try {
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
+				PageObjectHelper.waitForUIStability(driver, 2);
 				
 				// Safely get first View More button - may not exist
 				List<WebElement> viewMoreButtons = findElements(VIEW_MORE_RESPONSIBILITIES);
 				if (!viewMoreButtons.isEmpty()) {
-					wait.until(ExpectedConditions.elementToBeClickable(viewMoreButtons.get(0))).click();
+					PageObjectHelper.waitForClickable(wait, viewMoreButtons.get(0)).click();
 				}
 				
 				while (true) {
@@ -494,17 +489,17 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
 						js.executeScript("arguments[0].scrollIntoView(true);", viewMoreBtn);
-						String ViewMoreBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						viewMoreBtn.click();
 						PageObjectHelper.log(LOGGER, "Clicked on " + ViewMoreBtnText + " button in Responsibilities screen");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						PageObjectHelper.log(LOGGER, "Reached end of content in Responsibilities screen");
 						break;
 					}
 				}
-				String responsibilitiesDataText = wait.until(ExpectedConditions.visibilityOf(findElement(RESPONSIBILITIES_DATA)))
+				String responsibilitiesDataText = PageObjectHelper.waitForVisible(wait, findElement(RESPONSIBILITIES_DATA))
 						.getText();
 				ProfileResponsibilities.set(responsibilitiesDataText);
 			} catch (Exception e) {
@@ -524,8 +519,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				scrollToElement(findElement(ROLE_SUMMARY));
 				// PERFORMANCE: Replaced Thread.sleep(3000) with smart element wait
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(BEHAVIOUR_COMPETENCIES_TAB))).click();
+				PageObjectHelper.waitForUIStability(driver, 2);
+				PageObjectHelper.waitForClickable(wait, findElement(BEHAVIOUR_COMPETENCIES_TAB)).click();
 				PageObjectHelper.log(LOGGER, "Clicked on Behaviour Competencies screen");
 				while (true) {
 					try {
@@ -536,18 +531,18 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
 						js.executeScript("arguments[0].scrollIntoView(true);", viewMoreBtn);
-						String ViewMoreBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						viewMoreBtn.click();
 						PageObjectHelper.log(LOGGER, 
 								"Clicked on " + ViewMoreBtnText + " button in Behaviour Competencies screen");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						PageObjectHelper.log(LOGGER, "Reached end of content in Behaviour Competencies screen");
 						break;
 					}
 				}
-				String behaviourDataText = wait.until(ExpectedConditions.visibilityOf(findElement(BEHAVIOUR_DATA))).getText();
+				String behaviourDataText = PageObjectHelper.waitForVisible(wait, findElement(BEHAVIOUR_DATA)).getText();
 				ProfileBehaviouralCompetencies.set(behaviourDataText);
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER, "validate_data_in_behavioural_competencies_tab_of_mapped_profile",
@@ -566,7 +561,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				scrollToElement(findElement(ROLE_SUMMARY));
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
+				PageObjectHelper.waitForUIStability(driver, 2);
 
 				// Wait for any blocking loader overlays to disappear
 				try {
@@ -576,7 +571,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 					// Loader not present or already gone
 				}
 
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(SKILLS_TAB))).click();
+				PageObjectHelper.waitForClickable(wait, findElement(SKILLS_TAB)).click();
 				PageObjectHelper.log(LOGGER, "Clicked on Skills screen");
 				while (true) {
 					try {
@@ -587,17 +582,17 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
 						js.executeScript("arguments[0].scrollIntoView(true);", viewMoreBtn);
-						String ViewMoreBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						viewMoreBtn.click();
 						PageObjectHelper.log(LOGGER, "Clicked on " + ViewMoreBtnText + " button in Skills screen");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						PageObjectHelper.log(LOGGER, "Reached end of content in Skills screen");
 						break;
 					}
 				}
-				String skillsDataText = wait.until(ExpectedConditions.visibilityOf(findElement(SKILLS_DATA))).getText();
+				String skillsDataText = PageObjectHelper.waitForVisible(wait, findElement(SKILLS_DATA)).getText();
 				ProfileSkills.set(skillsDataText);
 //				LOGGER.info("Data present in Skills screen : \n" + skillsDataText);
 //				PageObjectHelper.log(LOGGER, "Data present in Skills screen : \n" + skillsDataText);
@@ -644,12 +639,12 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				}
 
 				// STEP 2: Wait for page stability after scroll (critical for headless)
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				Thread.sleep(500); // Additional buffer for DOM updates in headless mode
 
 				// STEP 3: Verify the button is now visible and clickable
 				LOGGER.debug("Waiting for Publish button to be clickable after scroll...");
-				boolean isButtonDisplayed = wait.until(ExpectedConditions.elementToBeClickable(findElement(PUBLISH_PROFILE_BTN)))
+				boolean isButtonDisplayed = PageObjectHelper.waitForClickable(wait, findElement(PUBLISH_PROFILE_BTN))
 						.isDisplayed();
 
 				if (isButtonDisplayed) {
@@ -681,7 +676,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		if (mapSP.get() | manualMapping.get()) {
 			try {
 				// Scroll element into view before clicking
-				WebElement element = wait.until(ExpectedConditions.elementToBeClickable(findElement(PROFILE_DETAILS_POPUP_CLOSE_BTN)));
+				WebElement element = PageObjectHelper.waitForClickable(wait, findElement(PROFILE_DETAILS_POPUP_CLOSE_BTN));
 				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
 				try {
 					Thread.sleep(500);
@@ -716,7 +711,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				WebElement searchDifferntProfileBtn = driver.findElement(By.xpath("//tbody//tr["
 						+ Integer.toString(rowNumber.get()) + "]//td//button[contains(text(),'different profile')]"));
 				// Scroll element into view before clicking
-				WebElement element = wait.until(ExpectedConditions.elementToBeClickable(searchDifferntProfileBtn));
+				WebElement element = PageObjectHelper.waitForClickable(wait, searchDifferntProfileBtn);
 				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
 				try {
 					Thread.sleep(500);
@@ -756,10 +751,9 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						.until(ExpectedConditions.refreshed(ExpectedConditions
 								.presenceOfElementLocated(By.xpath("//*[contains(text(),'Which profile')]"))))
 						.getText();
-				// PERFORMANCE: Replaced Thread.sleep(3000) with element readiness wait
-				PerformanceUtils.waitForElement(driver,
-						driver.findElement(By.xpath("//*[contains(text(),'Which profile')]")));
-				Assert.assertEquals(actualHeader, expectedHeader);
+			// PERFORMANCE: Replaced Thread.sleep(3000) with element readiness wait
+			PageObjectHelper.waitForVisible(wait, By.xpath("//*[contains(text(),'Which profile')]"));
+			Assert.assertEquals(actualHeader, expectedHeader);
 				PageObjectHelper.log(LOGGER, "User navigated to Manual Mapping screen as expected");
 				if (actualHeader.contentEquals(expectedHeader)) {
 					manualMapping.set(true);
@@ -920,7 +914,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				}
 				PageObjectHelper.log(LOGGER, 
 						"Clicked on Last Saved Profile name : " + text + " in the Manual Mapping screen");
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(MANUAL_MAPPING_PROFILE_TITLE))).isDisplayed();
+				PageObjectHelper.waitForClickable(wait, findElement(MANUAL_MAPPING_PROFILE_TITLE)).isDisplayed();
 			} catch (Exception e) {
 				PageObjectHelper.handleError(LOGGER, "click_on_last_saved_profile_name_in_manual_mapping_screen",
 						"Issue clicking last saved profile name", e);
@@ -969,10 +963,6 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						PageObjectHelper.log(LOGGER, option.getText());
 					}
 					waitForClickable(PROFILE_LEVEL_DROPDOWN).click(); // This click is
-																										// to close
-																										// dropdown
-																										// options
-																										// visibility
 										PageObjectHelper.log(LOGGER, 
 							"Successfully Verified Profile Level dropdown in Manual Mapping screen and levels present inside it...");
 				} else {
@@ -1050,7 +1040,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				List<WebElement> viewMoreButtons = findElements(MANUAL_MAPPING_VIEW_MORE_RESPONSIBILITIES);
 				if (!viewMoreButtons.isEmpty()) {
 					js.executeScript("arguments[0].scrollIntoView(true);", viewMoreButtons.get(0));
-					wait.until(ExpectedConditions.elementToBeClickable(viewMoreButtons.get(0))).click();
+					PageObjectHelper.waitForClickable(wait, viewMoreButtons.get(0)).click();
 				}
 				
 				while (true) {
@@ -1063,21 +1053,21 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 							break;
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
-						String ViewMoreResponsibilitiesBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreResponsibilitiesBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						// Scroll element into view before clicking
 						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", viewMoreBtn);
 						safeSleep(500);
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 						try {
-							wait.until(ExpectedConditions.elementToBeClickable(viewMoreBtn)).click();
+							PageObjectHelper.waitForClickable(wait, viewMoreBtn).click();
 						} catch (Exception e) {
 							js.executeScript("arguments[0].click();", viewMoreBtn);
 						}
 						PageObjectHelper.log(LOGGER, "Clicked on " + ViewMoreResponsibilitiesBtnText
 								+ " button in Last Saved Success Profile Responsibilities Section in Manual Mapping screen");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Headless-compatible
 						PageObjectHelper.log(LOGGER, 
@@ -1108,8 +1098,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				js.executeScript("arguments[0].scrollIntoView(true);", findElement(MANUAL_MAPPING_ROLE_SUMMARY));
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(MANUAL_MAPPING_BEHAVIOUR_TAB)))
+				PageObjectHelper.waitForUIStability(driver, 2);
+				PageObjectHelper.waitForClickable(wait, findElement(MANUAL_MAPPING_BEHAVIOUR_TAB))
 						.click();
 								PageObjectHelper.log(LOGGER, 
 						"Clicked on BEHAVIOURAL COMPETENCIES screen of Last Saved Profile in Manual Mapping screen");
@@ -1122,21 +1112,21 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 							break;
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
-						String ViewMoreCompetenciesBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreCompetenciesBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						// Scroll element into view before clicking
 						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", viewMoreBtn);
 						safeSleep(500);
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 						try {
-							wait.until(ExpectedConditions.elementToBeClickable(viewMoreBtn)).click();
+							PageObjectHelper.waitForClickable(wait, viewMoreBtn).click();
 						} catch (Exception e) {
 							js.executeScript("arguments[0].click();", viewMoreBtn);
 						}
 						PageObjectHelper.log(LOGGER, "Clicked on " + ViewMoreCompetenciesBtnText
 								+ " button in Last Saved Success Profile Behavioural Competencies Section in Manual Mapping screen");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						PageObjectHelper.log(LOGGER, 
 								"Reached end of content in Last Saved Success Profile Behavioural Competencies Section in Manual Mapping screen");
@@ -1168,7 +1158,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				js.executeScript("arguments[0].scrollIntoView(true);", findElement(MANUAL_MAPPING_ROLE_SUMMARY));
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
+				PageObjectHelper.waitForUIStability(driver, 2);
 
 				// Wait for any blocking loader overlays to disappear
 				try {
@@ -1178,7 +1168,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 					// Loader not present or already gone
 				}
 
-			wait.until(ExpectedConditions.elementToBeClickable(findElement(MANUAL_MAPPING_SKILLS_TAB))).click();
+			PageObjectHelper.waitForClickable(wait, findElement(MANUAL_MAPPING_SKILLS_TAB)).click();
 				PageObjectHelper.log(LOGGER, "Clicked on SKILLS screen of Last Saved Profile in Manual Mapping screen");
 				while (true) {
 					try {
@@ -1189,21 +1179,21 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 							break;
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
-						String ViewMoreSkillsBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreSkillsBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						// Scroll element into view before clicking
 						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", viewMoreBtn);
 						safeSleep(500);
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 						try {
-							wait.until(ExpectedConditions.elementToBeClickable(viewMoreBtn)).click();
+							PageObjectHelper.waitForClickable(wait, viewMoreBtn).click();
 						} catch (Exception e) {
 							js.executeScript("arguments[0].click();", viewMoreBtn);
 						}
 						PageObjectHelper.log(LOGGER, "Clicked on " + ViewMoreSkillsBtnText
 								+ " button in Last Saved Success Profile Skills Section in Manual Mapping screen");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						PageObjectHelper.log(LOGGER, 
 								"Reached end of content in Last Saved Success Profile Skills Section in Manual Mapping screen");
@@ -1234,9 +1224,9 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 			try {
 				// PERFORMANCE: Replaced Thread.sleep(2000) with element readiness wait
-				PerformanceUtils.waitForElement(driver, findElement(KF_SP_SEARCH_BAR), 2);
-				wait.until(ExpectedConditions.visibilityOf(findElement(KF_SP_SEARCH_BAR))).sendKeys(Keys.chord(Keys.CONTROL, "a"));
-				wait.until(ExpectedConditions.visibilityOf(findElement(KF_SP_SEARCH_BAR))).sendKeys(SPSearchString.get());
+				PageObjectHelper.waitForVisible(wait, KF_SP_SEARCH_BAR);
+				PageObjectHelper.waitForVisible(wait, findElement(KF_SP_SEARCH_BAR)).sendKeys(Keys.chord(Keys.CONTROL, "a"));
+				PageObjectHelper.waitForVisible(wait, findElement(KF_SP_SEARCH_BAR)).sendKeys(SPSearchString.get());
 				Assert.assertEquals(SPSearchString.get(), findElement(KF_SP_SEARCH_BAR).getAttribute("value"));
 				PageObjectHelper.log(LOGGER, "Entered " + SPSearchString.get()
 						+ " as Korn Ferry SP Search String in the search bar in Manual Mapping screen");
@@ -1258,16 +1248,16 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				// Wait for search results to load - use presenceOfElementLocated then visibilityOfElementLocated
 				// This properly waits for the element to exist before checking visibility
-				wait.until(ExpectedConditions.presenceOfElementLocated(FIRST_SEARCH_RESULT_BTN));
-				WebElement firstResultBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(FIRST_SEARCH_RESULT_BTN));
+				PageObjectHelper.waitForPresent(wait, FIRST_SEARCH_RESULT_BTN);
+				WebElement firstResultBtn = PageObjectHelper.waitForVisible(wait, FIRST_SEARCH_RESULT_BTN);
 				Assert.assertTrue(firstResultBtn.isDisplayed());
 				
 				// Get the text before clicking
-				WebElement firstResultText = wait.until(ExpectedConditions.visibilityOfElementLocated(FIRST_SEARCH_RESULT_TEXT));
+				WebElement firstResultText = PageObjectHelper.waitForVisible(wait, FIRST_SEARCH_RESULT_TEXT);
 				customSPNameinSearchResults.set(firstResultText.getText());
 				
 				// Click the first result
-				wait.until(ExpectedConditions.elementToBeClickable(FIRST_SEARCH_RESULT_BTN)).click();
+				PageObjectHelper.waitForClickable(wait, FIRST_SEARCH_RESULT_BTN).click();
 				
 				PageObjectHelper.log(LOGGER, "First SP with Name : " + customSPNameinSearchResults.get()
 						+ " from search results is selected in Manual Mapping screen");
@@ -1288,7 +1278,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public void verify_success_profile_is_added_in_manual_job_mapping_screen() {
 		if (manualMapping.get()) {
 			try {
-				String profileHeaderName = wait.until(ExpectedConditions.visibilityOf(findElement(MANUAL_MAPPING_PROFILE_TITLE)))
+				String profileHeaderName = PageObjectHelper.waitForVisible(wait, findElement(MANUAL_MAPPING_PROFILE_TITLE))
 						.getText();
 				Assert.assertEquals(customSPNameinSearchResults.get(), profileHeaderName);
 				manualMappingProfileName.set(profileHeaderName);
@@ -1320,10 +1310,6 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						PageObjectHelper.log(LOGGER, option.getText());
 					}
 					waitForClickable(PROFILE_LEVEL_DROPDOWN).click(); // This click is
-																										// to close
-																										// dropdown
-																										// options
-																										// visibility
 										PageObjectHelper.log(LOGGER, 
 							"Successfully Verified Profile Level dropdown in Manual Mapping screen and levels present inside it...");
 				} else {
@@ -1350,11 +1336,11 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		if (manualMapping.get()) {
 			if (waitForElement(PROFILE_LEVEL_DROPDOWN).isEnabled()) {
 				js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
-				try {
-					waitForClickable(PROFILE_LEVEL_DROPDOWN).click();
-					// PERFORMANCE: Replaced Thread.sleep(2000) with dropdown readiness wait
-					PerformanceUtils.waitForDropdownOptions(driver, By.xpath("//select//option"));
-					Select dropdown = new Select(findElement(PROFILE_LEVEL_DROPDOWN));
+			try {
+				waitForClickable(PROFILE_LEVEL_DROPDOWN).click();
+				// PERFORMANCE: Replaced Thread.sleep(2000) with dropdown readiness wait
+				PageObjectHelper.waitForVisible(wait, By.xpath("//select//option"));
+				Select dropdown = new Select(findElement(PROFILE_LEVEL_DROPDOWN));
 					List<WebElement> allOptions = dropdown.getOptions();
 					for (WebElement option : allOptions) {
 						String lastlevelvalue = option.getText();
@@ -1365,10 +1351,10 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 //					dropdown.selectByIndex(levels - 1);
 					waitForSpinners();
 					// PERFORMANCE: Replaced Thread.sleep(4000+4000) with UI stability wait
-					PerformanceUtils.waitForUIStability(driver);
+					PageObjectHelper.waitForUIStability(driver);
 					PageObjectHelper.log(LOGGER, "Successfully Changed Profile Level to : "
 							+ changedlevelvalue.get() + " in Manual Mapping screen");
-					PerformanceUtils.waitForUIStability(driver);
+					PageObjectHelper.waitForUIStability(driver);
 				} catch (Exception e) {
 					PageObjectHelper.handleError(LOGGER, "change_profile_level_in_manual_job_mapping_screen",
 							"Issue changing profile level", e);
@@ -1431,7 +1417,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public void verify_profile_details_displaying_in_manual_job_mapping_screen() {
 		if (manualMapping.get()) {
 			try {
-				String profileDeatilsText = wait.until(ExpectedConditions.visibilityOf(findElement(MANUAL_MAPPING_PROFILE_DETAILS)))
+				String profileDeatilsText = PageObjectHelper.waitForVisible(wait, findElement(MANUAL_MAPPING_PROFILE_DETAILS))
 						.getText();
 				manualMappingProfileDetails.set(profileDeatilsText);
 				PageObjectHelper.log(LOGGER, "Profile Details for " + manualMappingProfileName.get()
@@ -1450,8 +1436,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				js.executeScript("arguments[0].scrollIntoView(true);", findElement(MANUAL_MAPPING_ROLE_SUMMARY));
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
-			wait.until(ExpectedConditions.elementToBeClickable(findElement(MANUAL_MAPPING_RESPONSIBILITIES_TAB))).click();
+				PageObjectHelper.waitForUIStability(driver, 2);
+			PageObjectHelper.waitForClickable(wait, findElement(MANUAL_MAPPING_RESPONSIBILITIES_TAB)).click();
 				PageObjectHelper.log(LOGGER, "Clicked on Responsibilities screen in Manual Mapping screen");
 				while (true) {
 					try {
@@ -1463,21 +1449,21 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 							break;
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
-						String ViewMoreResponsibilitiesBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreResponsibilitiesBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						// Scroll element into view before clicking
 						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", viewMoreBtn);
 						safeSleep(500);
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 						try {
-							wait.until(ExpectedConditions.elementToBeClickable(viewMoreBtn)).click();
+							PageObjectHelper.waitForClickable(wait, viewMoreBtn).click();
 						} catch (Exception e) {
 							js.executeScript("arguments[0].click();", viewMoreBtn);
 						}
 						PageObjectHelper.log(LOGGER, "Clicked on " + ViewMoreResponsibilitiesBtnText
 								+ " button in Success Profile Responsibilities Section in Manual Mapping screen");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
 						PageObjectHelper.log(LOGGER, 
@@ -1505,8 +1491,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				js.executeScript("arguments[0].scrollIntoView(true);", findElement(MANUAL_MAPPING_ROLE_SUMMARY));
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(MANUAL_MAPPING_BEHAVIOUR_TAB)))
+				PageObjectHelper.waitForUIStability(driver, 2);
+				PageObjectHelper.waitForClickable(wait, findElement(MANUAL_MAPPING_BEHAVIOUR_TAB))
 						.click();
 				PageObjectHelper.log(LOGGER, "Clicked on Behaviour Competencies screen in Manual Mapping screen");
 				while (true) {
@@ -1518,21 +1504,21 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 							break;
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
-						String ViewMoreCompetenciesBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreCompetenciesBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						// Scroll element into view before clicking
 						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", viewMoreBtn);
 						safeSleep(500);
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 						try {
-							wait.until(ExpectedConditions.elementToBeClickable(viewMoreBtn)).click();
+							PageObjectHelper.waitForClickable(wait, viewMoreBtn).click();
 						} catch (Exception e) {
 							js.executeScript("arguments[0].click();", viewMoreBtn);
 						}
 						PageObjectHelper.log(LOGGER, "Clicked on " + ViewMoreCompetenciesBtnText
 								+ " button in Success Profile Behavioural Competencies Section in Manual Mapping screen");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						PageObjectHelper.log(LOGGER, 
 								"Reached end of content in Success Profile Behavioural Competencies Section in Manual Mapping screen");
@@ -1560,8 +1546,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				js.executeScript("arguments[0].scrollIntoView(true);", findElement(MANUAL_MAPPING_ROLE_SUMMARY));
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
-			wait.until(ExpectedConditions.elementToBeClickable(findElement(MANUAL_MAPPING_SKILLS_TAB))).click();
+				PageObjectHelper.waitForUIStability(driver, 2);
+			PageObjectHelper.waitForClickable(wait, findElement(MANUAL_MAPPING_SKILLS_TAB)).click();
 				PageObjectHelper.log(LOGGER, "Clicked on Skills screen in Manual Mapping screen");
 				while (true) {
 					try {
@@ -1572,21 +1558,21 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 							break;
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
-						String ViewMoreSkillsBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreSkillsBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						// Scroll element into view before clicking
 						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", viewMoreBtn);
 						safeSleep(500);
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 						try {
-							wait.until(ExpectedConditions.elementToBeClickable(viewMoreBtn)).click();
+							PageObjectHelper.waitForClickable(wait, viewMoreBtn).click();
 						} catch (Exception e) {
 							js.executeScript("arguments[0].click();", viewMoreBtn);
 						}
 						PageObjectHelper.log(LOGGER, "Clicked on " + ViewMoreSkillsBtnText
 								+ " button in Success Profile Skills Section in Manual Mapping screen");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						PageObjectHelper.log(LOGGER, 
 								"Reached end of content in Success Profile Skills Section in Manual Mapping screen");
@@ -1613,7 +1599,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 				// Scroll element into view before clicking
-				WebElement element = wait.until(ExpectedConditions.elementToBeClickable(findElement(SAVE_SELECTION_BTN)));
+				WebElement element = PageObjectHelper.waitForClickable(wait, findElement(SAVE_SELECTION_BTN));
 				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
 				try {
 					Thread.sleep(500);
@@ -1646,8 +1632,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				waitForSpinners();
 				// FIXED: Use more reliable org-job-container for page detection, then verify
 				// header
-				wait.until(ExpectedConditions.visibilityOf(findElement(JOB_MAPPING_PAGE_CONTAINER)));
-				Assert.assertTrue(wait.until(ExpectedConditions.visibilityOf(findElement(JOB_MAPPING_PAGE_CONTAINER))).isDisplayed());
+				PageObjectHelper.waitForVisible(wait, findElement(JOB_MAPPING_PAGE_CONTAINER));
+				Assert.assertTrue(PageObjectHelper.waitForVisible(wait, findElement(JOB_MAPPING_PAGE_CONTAINER)).isDisplayed());
 				PageObjectHelper.log(LOGGER, "User navigated to JOB MAPPING page successfully");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1663,7 +1649,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				waitForSpinners();
 				waitForSpinners();
 				Thread.sleep(2000);
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				WebElement button = driver.findElement(By.xpath(
 						"//tbody//tr[2]//button[contains(text(),'different profile')] | //tbody//tr[2]//button[contains(@id,'view')]"));
 				js.executeScript("arguments[0].scrollIntoView(true);", button);
@@ -1705,10 +1691,6 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						PageObjectHelper.log(LOGGER, option.getText());
 					}
 					waitForClickable(PROFILE_LEVEL_DROPDOWN).click(); // This click is
-																										// to close
-																										// dropdown
-																										// options
-																										// visibility
 										PageObjectHelper.log(LOGGER, 
 							"Successfully Verified Profile Level dropdown in Mapped Profile details Popup and levels present inside it...");
 				} else {
@@ -1752,7 +1734,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		if (manualMapping.get()) {
 			try {
 				js.executeScript("arguments[0].scrollIntoView(true);", findElement(PROFILE_DETAILS));
-				String mappedProfileDetailsText = wait.until(ExpectedConditions.visibilityOf(findElement(PROFILE_DETAILS))).getText();
+				String mappedProfileDetailsText = PageObjectHelper.waitForVisible(wait, findElement(PROFILE_DETAILS)).getText();
 				Assert.assertEquals(mappedProfileDetailsText, manualMappingProfileDetails.get());
 				PageObjectHelper.log(LOGGER, 
 						"Profile Details in Details Popup matches with Mapped Success Profile Details as expected");
@@ -1770,12 +1752,12 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		if (manualMapping.get()) {
 			try {
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
+				PageObjectHelper.waitForUIStability(driver, 2);
 				
 				// Safely get first View More button - may not exist
 				List<WebElement> viewMoreButtons = findElements(VIEW_MORE_RESPONSIBILITIES);
 				if (!viewMoreButtons.isEmpty()) {
-					wait.until(ExpectedConditions.elementToBeClickable(viewMoreButtons.get(0))).click();
+					PageObjectHelper.waitForClickable(wait, viewMoreButtons.get(0)).click();
 				}
 				
 				while (true) {
@@ -1788,21 +1770,21 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 							break;
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
-						String ViewMoreResponsibilitiesBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreResponsibilitiesBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						// Scroll element into view before clicking
 						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", viewMoreBtn);
 						safeSleep(500);
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 						try {
-							wait.until(ExpectedConditions.elementToBeClickable(viewMoreBtn)).click();
+							PageObjectHelper.waitForClickable(wait, viewMoreBtn).click();
 						} catch (Exception e) {
 							js.executeScript("arguments[0].click();", viewMoreBtn);
 						}
 						PageObjectHelper.log(LOGGER, "Clicked on " + ViewMoreResponsibilitiesBtnText
 								+ " button in Profile Responsibilities Section in Details Popup");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						js.executeScript("window.scrollTo(0, document.documentElement.scrollHeight);"); // Scroll DOWN (headless-compatible)
 						PageObjectHelper.log(LOGGER, 
@@ -1810,7 +1792,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						break;
 					}
 				}
-				String ProfileResponsibilitiesText = wait.until(ExpectedConditions.visibilityOf(findElement(RESPONSIBILITIES_DATA)))
+				String ProfileResponsibilitiesText = PageObjectHelper.waitForVisible(wait, findElement(RESPONSIBILITIES_DATA))
 						.getText();
 				Assert.assertEquals(ProfileResponsibilitiesText, manualMappingProfileResponsibilities.get());
 								PageObjectHelper.log(LOGGER, 
@@ -1830,7 +1812,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				scrollToElement(findElement(ROLE_SUMMARY));
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
+				PageObjectHelper.waitForUIStability(driver, 2);
 
 				// Wait for any blocking loader overlays to disappear
 				try {
@@ -1850,7 +1832,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				}
 
 				// Wait for element to be clickable without any overlay
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(BEHAVIOUR_COMPETENCIES_TAB)));
+				PageObjectHelper.waitForClickable(wait, findElement(BEHAVIOUR_COMPETENCIES_TAB));
 
 				try {
 					element.click();
@@ -1871,28 +1853,28 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 							break;
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
-						String ViewMoreCompetenciesBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreCompetenciesBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						// Scroll element into view before clicking
 						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", viewMoreBtn);
 						safeSleep(500);
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 						try {
-							wait.until(ExpectedConditions.elementToBeClickable(viewMoreBtn)).click();
+							PageObjectHelper.waitForClickable(wait, viewMoreBtn).click();
 						} catch (Exception e) {
 							js.executeScript("arguments[0].click();", viewMoreBtn);
 						}
 						PageObjectHelper.log(LOGGER, "Clicked on " + ViewMoreCompetenciesBtnText
 								+ " button in Profile Behavioural Competencies Section in Details Popup");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						PageObjectHelper.log(LOGGER, 
 								"Reached end of content in Profile Behavioural Competencies Section in Details Popup");
 						break;
 					}
 				}
-				String ProfileBehaviouralCompetenciesText = wait.until(ExpectedConditions.visibilityOf(findElement(BEHAVIOUR_DATA)))
+				String ProfileBehaviouralCompetenciesText = PageObjectHelper.waitForVisible(wait, findElement(BEHAVIOUR_DATA))
 						.getText();
 				Assert.assertEquals(ProfileBehaviouralCompetenciesText,
 						manualMappingProfileBehaviouralCompetencies.get());
@@ -1916,7 +1898,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 			try {
 				scrollToElement(findElement(ROLE_SUMMARY));
 				// PERFORMANCE: Replaced Thread.sleep(2000) with smart element wait
-				PerformanceUtils.waitForElement(driver, driver.findElement(By.xpath("//div")));
+				PageObjectHelper.waitForUIStability(driver, 2);
 
 				// Wait for any blocking loader overlays to disappear
 				try {
@@ -1926,7 +1908,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 					// Loader not present or already gone
 				}
 
-				wait.until(ExpectedConditions.elementToBeClickable(findElement(SKILLS_TAB))).click();
+				PageObjectHelper.waitForClickable(wait, findElement(SKILLS_TAB)).click();
 				PageObjectHelper.log(LOGGER, "Clicked on SKILLS screen in Profiles Details Popup");
 				while (true) {
 					try {
@@ -1937,27 +1919,27 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 							break;
 						}
 						WebElement viewMoreBtn = viewMoreButtons.get(0);
-						String ViewMoreSkillsBtnText = wait.until(ExpectedConditions.visibilityOf(viewMoreBtn)).getText();
+						String ViewMoreSkillsBtnText = PageObjectHelper.waitForVisible(wait, viewMoreBtn).getText();
 						// Scroll element into view before clicking
 						js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", viewMoreBtn);
 						safeSleep(500);
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 						try {
-							wait.until(ExpectedConditions.elementToBeClickable(viewMoreBtn)).click();
+							PageObjectHelper.waitForClickable(wait, viewMoreBtn).click();
 						} catch (Exception e) {
 							js.executeScript("arguments[0].click();", viewMoreBtn);
 						}
 						PageObjectHelper.log(LOGGER, "Clicked on " + ViewMoreSkillsBtnText
 								+ " button in Profile Skills Section in Details Popup");
 						// PERFORMANCE: Replaced Thread.sleep(2000) with UI stability wait
-						PerformanceUtils.waitForUIStability(driver, 2);
+						PageObjectHelper.waitForUIStability(driver, 2);
 					} catch (StaleElementReferenceException e) {
 						PageObjectHelper.log(LOGGER, "Reached end of content in Profile Skills Section in Details Popup");
 						break;
 					}
 				}
-				String ProfileSkillsText = wait.until(ExpectedConditions.visibilityOf(findElement(SKILLS_DATA))).getText();
+				String ProfileSkillsText = PageObjectHelper.waitForVisible(wait, findElement(SKILLS_DATA)).getText();
 				Assert.assertEquals(ProfileSkillsText, manualMappingProfileSkills.get());
 				PageObjectHelper.log(LOGGER, 
 						"Profile Skills in Details Popup matches with Mapped Success Profile Skills as expected");
@@ -1977,9 +1959,9 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public void search_for_organization_job_with_manually_mapped_sp() {
 		if (manualMapping.get()) {
 			try {
-				wait.until(ExpectedConditions.visibilityOf(findElement(SEARCH_BAR))).clear();
+				PageObjectHelper.waitForVisible(wait, findElement(SEARCH_BAR)).clear();
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(findElement(SEARCH_BAR))).click();
+					PageObjectHelper.waitForClickable(wait, findElement(SEARCH_BAR)).click();
 				} catch (Exception e) {
 					try {
 						js.executeScript("arguments[0].click();", findElement(SEARCH_BAR));
@@ -1987,14 +1969,15 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 						jsClick(findElement(SEARCH_BAR));
 					}
 				}
-				wait.until(ExpectedConditions.visibilityOf(findElement(SEARCH_BAR))).sendKeys(orgJobName.get());
-				wait.until(ExpectedConditions.visibilityOf(findElement(SEARCH_BAR))).sendKeys(Keys.ENTER);
-				waitForSpinners();
-				// PERFORMANCE: Replaced Thread.sleep(2000) with search results wait
-				PerformanceUtils.waitForSearchResults(driver, By.xpath("//tbody//tr"), 2);
-				PageObjectHelper.log(LOGGER, "Entered job name as " + orgJobName.get() + " in the search bar");
+			PageObjectHelper.waitForVisible(wait, findElement(SEARCH_BAR)).sendKeys(orgJobName.get());
+			PageObjectHelper.waitForVisible(wait, findElement(SEARCH_BAR)).sendKeys(Keys.ENTER);
+			waitForSpinners();
+			// PERFORMANCE: Replaced Thread.sleep(2000) with search results wait
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 2);
+			PageObjectHelper.waitForVisible(wait, By.xpath("//tbody//tr"));
+			PageObjectHelper.log(LOGGER, "Entered job name as " + orgJobName.get() + " in the search bar");
 				// PERFORMANCE: Replaced Thread.sleep(2000) with page ready wait
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 			} catch (Exception e) {
 				e.printStackTrace();
 				Assert.fail("Failed to enter Organization job name text in search bar...Please investigate!!!");

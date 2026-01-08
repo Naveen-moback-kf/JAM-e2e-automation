@@ -8,10 +8,8 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
@@ -22,15 +20,10 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 	public PO28_SelectAllWithFiltersFunctionality() {
 		super();
 	}
-
-	// ==================== LOCATORS ====================
 	// Common locators are inherited from BasePageObject.Locators.PMScreen and JAMScreen
 	// Only filter-specific locators remain here
 	private static final By PM_KF_GRADE_HEADER = By.xpath("//thcl-expansion-panel-header[@id='expansion-panel-header-0']");
 	private static final By PM_LEVELS_HEADER = By.xpath("//thcl-expansion-panel-header[@id='expansion-panel-header-1']");
-	// NOTE: JAM filter locators removed - JAM now uses SD08 steps directly (PO08_JobMappingFilters)
-
-	// ==================== THREAD-SAFE STATE ====================
 	public static ThreadLocal<Integer> filterResultsCount = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<String> firstFilterType = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> firstFilterValue = ThreadLocal.withInitial(() -> "NOT_SET");
@@ -38,8 +31,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 	public static ThreadLocal<String> secondFilterValue = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<Integer> totalSecondFilterResults = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<String> currentScreen = ThreadLocal.withInitial(() -> "PM");
-
-	// ==================== HELPER METHODS ====================
 	// Common helper methods (getScreenName, getShowingResultsCountLocator, getAllProfileRowsLocator,
 	// getSelectedProfileRowsLocator, getClearFiltersButtonLocator, parseProfileCountFromText) 
 	// are inherited from BasePageObject
@@ -53,13 +44,11 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		}
 	}
 
-	// ==================== FILTER APPLICATION METHODS ====================
-
 	public void apply_filter_and_verify_profiles_count(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			scrollToTop();
 			safeSleep(500);
@@ -69,10 +58,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			if (isPM) {
 				applyPMFilter();
 			} else {
-				// JAM filters should use SD08 steps directly in feature file:
-				// - Click on Grades Filters dropdown button
-				// - Select one option in Grades Filters dropdown
-				// - Store applied filter value for validation in "JAM" screen
 				throw new UnsupportedOperationException(
 					"JAM filters should use SD08 steps directly. Update feature file to use: " +
 					"'Click on Grades Filters dropdown button' and 'Select one option in Grades Filters dropdown'");
@@ -98,7 +83,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			var kfGradeHeader = driver.findElements(PM_KF_GRADE_HEADER);
 			if (!kfGradeHeader.isEmpty()) {
 				jsClick(kfGradeHeader.get(0));
-				PerformanceUtils.waitForPageReady(driver, 1);
+				PageObjectHelper.waitForPageReady(driver, 1);
 				safeSleep(500);
 
 				// Find KF Grade options
@@ -118,7 +103,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			var levelsHeader = driver.findElements(PM_LEVELS_HEADER);
 			if (!levelsHeader.isEmpty()) {
 				jsClick(levelsHeader.get(0));
-				PerformanceUtils.waitForPageReady(driver, 1);
+				PageObjectHelper.waitForPageReady(driver, 1);
 				safeSleep(500);
 
 				var levelsOptions = findFilterOptions("expansion-panel-header-1");
@@ -131,8 +116,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			throw new Exception("Both KF Grade and Levels filters failed");
 		}
 	}
-
-	// NOTE: JAM filter methods removed - now using SD08 steps directly in feature files
 	// Use: "Click on Grades Filters dropdown button" + "Select one option in Grades Filters dropdown"
 
 	private List<WebElement> findFilterOptions(String panelHeaderId) {
@@ -166,21 +149,19 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		safeSleep(300);
 
 		try {
-			wait.until(ExpectedConditions.elementToBeClickable(elementToClick)).click();
+			PageObjectHelper.waitForClickable(wait, elementToClick).click();
 		} catch (Exception e) {
 			js.executeScript("arguments[0].click();", elementToClick);
 		}
 
-		PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+		PageObjectHelper.waitForPageReady(driver, 2);
 	}
-
-	// ==================== SCROLL AND VALIDATION METHODS ====================
 
 	public void user_should_scroll_down_to_view_last_filtered_result(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			int expectedTotal = 0;
 			try {
@@ -210,7 +191,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 				scrollCount++;
 				int scrollWait = isPM ? 1500 : 500;
 				safeSleep(scrollWait);
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+				PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 				currentCount = findElements(getAllProfileRowsLocator(screen)).size();
 
@@ -243,7 +224,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 	public void user_should_validate_all_filtered_results_match_the_applied_filter(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			var profileRows = findElements(getAllProfileRowsLocator(screen));
 			int totalResults = profileRows.size();
@@ -272,8 +253,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		}
 	}
 
-	// ==================== CLEAR FILTER METHODS ====================
-
 	public void click_on_clear_all_filters_button(String screen) {
 		try {
 			currentScreen.set(screen);
@@ -281,7 +260,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			safeSleep(300);
 
 			clickElement(getClearFiltersButtonLocator(screen));
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			safeSleep(500);
 
 			PageObjectHelper.log(LOGGER, "Cleared all filters in " + getScreenName(screen));
@@ -306,8 +285,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			LOGGER.debug("Error closing filters dropdown: {}", e.getMessage());
 		}
 	}
-
-	// ==================== VERIFICATION METHODS ====================
 
 	public void verify_only_filtered_profiles_are_selected_after_clearing_all_filters(String screen) {
 		int totalProfilesVisible = 0;
@@ -344,7 +321,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 				return;
 			}
 
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			safeSleep(500);
 			
 			scrollToTop();
@@ -383,7 +360,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 
 				int scrollWait = isPM ? 1500 : 500;
 				safeSleep(scrollWait);
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 3);
+				PageObjectHelper.waitForSpinnersToDisappear(driver, 3);
 
 				totalProfilesVisible = findElements(getAllProfileRowsLocator(screen)).size();
 
@@ -487,12 +464,10 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		}
 	}
 
-	// ==================== ALTERNATIVE VALIDATION ====================
-
 	public void apply_different_filter_for_alternative_validation(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			boolean isPM = "PM".equalsIgnoreCase(screen);
 
@@ -501,10 +476,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			if (isPM) {
 				applyDifferentPMFilter();
 			} else {
-				// JAM filters should use SD08 steps directly in feature file:
-				// - Click on Grades Filters dropdown button
-				// - Select two options in Grades Filters dropdown
-				// - Store second filter value for validation in "JAM" screen
 				throw new UnsupportedOperationException(
 					"JAM filters should use SD08 steps directly. Update feature file to use: " +
 					"'Select two options in Grades Filters dropdown'");
@@ -550,12 +521,12 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 				safeSleep(300);
 
 				try {
-					wait.until(ExpectedConditions.elementToBeClickable(elementToClick)).click();
+					PageObjectHelper.waitForClickable(wait, elementToClick).click();
 				} catch (Exception e) {
 					js.executeScript("arguments[0].click();", elementToClick);
 				}
 
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+				PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			}
 		}
 	}
@@ -563,7 +534,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 	public void scroll_down_to_load_all_second_filter_results(String screen) {
 		try {
 			currentScreen.set(screen);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 5);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 5);
 
 			String resultsCountText = getElementText(getShowingResultsCountLocator(screen));
 			int expectedTotal = parseProfileCountFromText(resultsCountText);

@@ -4,9 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 public class PO09_FilterPersistence extends BasePageObject {
@@ -25,7 +22,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 	public void refresh_job_mapping_page() {
 		try {
 			refreshPage();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			// Wait for background API (~100K records) to complete after refresh
 			waitForBackgroundDataLoad();
 			scrollToTop();
@@ -69,7 +66,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 	public void click_on_browser_back_button() {
 		try {
 			driver.navigate().back();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			PageObjectHelper.log(LOGGER, "Browser back button clicked");
 		} catch (Exception e) {
 			PageObjectHelper.handleError(LOGGER, "click_on_browser_back_button", "Issue clicking Browser back button", e);
@@ -78,7 +75,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 
 	public void verify_view_published_toggle_button_is_persisted() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForElement(VIEW_PUBLISHED_TOGGLE).isEnabled();
 			PageObjectHelper.log(LOGGER, "View Published toggle button persisted on Job Mapping page");
 		} catch (Exception e) {
@@ -88,13 +85,13 @@ public class PO09_FilterPersistence extends BasePageObject {
 
 	public void verify_applied_sorting_persist_on_job_mapping_ui() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			waitForElement(ORG_JOB_GRADE_SORT_ICON).isDisplayed();
 			PageObjectHelper.log(LOGGER, "Sorting persisted on Job Mapping page");
 		} catch (Exception e) {
 			try {
 				waitForSpinners();
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				waitForElement(MATCHED_SP_GRADE_SORT_ICON).isDisplayed();
 				PageObjectHelper.log(LOGGER, "Sorting persisted on Job Mapping page");
 			} catch (Exception s) {
@@ -109,7 +106,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		} catch (Exception e) {
 			// Spinner might not be present
 		}
-		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.waitForPageReady(driver, 2);
 
 		try {
 			Thread.sleep(500);
@@ -118,7 +115,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		}
 
 		try {
-			WebElement resultsElement = wait.until(ExpectedConditions.visibilityOfElementLocated(Locators.JAMScreen.SHOWING_RESULTS_COUNT));
+			WebElement resultsElement = PageObjectHelper.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT);
 			String currentCount = resultsElement.getText();
 
 			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
@@ -136,7 +133,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		} catch (Exception e) {
 			// Continue
 		}
-		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.waitForPageReady(driver, 2);
 
 		try {
 			Thread.sleep(500);
@@ -162,7 +159,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		} catch (Exception e) {
 			// Continue
 		}
-		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.waitForPageReady(driver, 2);
 
 		try {
 			Thread.sleep(500);
@@ -192,7 +189,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		} catch (Exception e) {
 			// Continue
 		}
-		PerformanceUtils.waitForPageReady(driver, 2);
+		PageObjectHelper.waitForPageReady(driver, 2);
 
 		try {
 			Thread.sleep(500);
@@ -217,17 +214,17 @@ public class PO09_FilterPersistence extends BasePageObject {
 	}
 
 	public void user_is_in_job_mapping_page_with_multi_level_sorting_applied() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		LOGGER.info("User is in Job Mapping page with multi-level sorting applied");
 	}
 
 	public void user_is_in_job_mapping_page_with_sorting_and_filters_applied() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		LOGGER.info("User is in Job Mapping page with sorting and filters applied");
 	}
 
 	public void user_is_in_view_published_screen_with_sorting_applied() {
-		PerformanceUtils.waitForPageReady(driver, 1);
+		PageObjectHelper.waitForPageReady(driver, 1);
 		LOGGER.info("User is in View Published screen with sorting applied");
 	}
 }

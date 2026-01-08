@@ -20,7 +20,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 
 import com.kfonetalentsuite.utils.common.CommonVariable;
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
+import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 
@@ -463,7 +463,7 @@ public class DriverManager {
 				if (attempt < maxRetries) {
 					try {
 						recoverSession();
-						PerformanceUtils.waitForPageReady(driver.get(), 1);
+						PageObjectHelper.waitForPageReady(driver.get(), 1);
 					} catch (Exception recoveryException) {
 						if (attempt == maxRetries) {
 							throw new RuntimeException("Session recovery failed for: " + operationName, e);

@@ -5,10 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 
@@ -19,16 +15,12 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	public PO30_SelectAndPublishAllJobProfiles_JAM() {
 		super();
 	}
-
-	// ==================== CONSTANTS ====================
 	public static final int PROFILES_PER_MINUTE = 100;
 	public static final int REFRESH_INTERVAL_SECONDS = 30;
 	public static final int MAX_CHECK_ATTEMPTS = 10;
 	public static final int MAX_CONSECUTIVE_NO_PROGRESS_CHECKS = 5; // Increased to 5 for large datasets
 	public static final int MIN_CHECKS_TO_CONFIRM_PROGRESS = 2; // Minimum checks showing progress to confirm publishing is working
 	public static final int INITIAL_WAIT_SECONDS = 60; // Initial wait before first check (for backend to start processing)
-
-	// ==================== LOCATORS ====================
 	// Using centralized Locators from BasePageObject
 	private static final By CHEVRON_BTN = Locators.JAMScreen.CHEVRON_BUTTON;
 	// SELECT_ALL_BTN is available via Locators.Table.SELECT_ALL_BTN
@@ -38,8 +30,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	private static final By SUCCESS_HEADER = Locators.Modals.SUCCESS_MODAL_HEADER;
 	private static final By SUCCESS_MSG = Locators.Modals.SUCCESS_MODAL_MESSAGE;
 	private static final By SUCCESS_CLOSE_BTN = Locators.Modals.SUCCESS_MODAL_CLOSE_BTN;
-
-	// ==================== THREAD-SAFE STATE ====================
 	public static ThreadLocal<Integer> unpublishedProfilesCountBefore = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> publishedProfilesCountBefore = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> unpublishedProfilesCountAfter = ThreadLocal.withInitial(() -> 0);
@@ -85,14 +75,14 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void click_on_view_published_toggle_button_to_turn_off() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 
 			WebElement toggle = findElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
 			if (toggle.isSelected() || "true".equals(toggle.getAttribute("aria-checked"))) {
 				clickElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
 				PageObjectHelper.log(LOGGER, "Clicked View Published toggle to turn OFF");
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+				PageObjectHelper.waitForPageReady(driver, 2);
 			}
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_view_published_toggle_off", e);
@@ -103,12 +93,12 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void click_on_chevron_button_beside_header_checkbox_in_job_mapping_screen() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 1);
+			PageObjectHelper.waitForPageReady(driver, 1);
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 
 			js.executeScript("window.scrollTo(0, 0);");
 			safeSleep(300);
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 
 			WebElement chevronBtn = findElement(CHEVRON_BTN);
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", chevronBtn);
@@ -116,7 +106,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 			clickElement(CHEVRON_BTN);
 			PageObjectHelper.log(LOGGER, "Clicked Chevron Button beside Header Checkbox");
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_chevron_button", e);
@@ -129,8 +119,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			clickElement(Locators.Table.SELECT_ALL_BTN);
 			PageObjectHelper.log(LOGGER, "Clicked Select All button");
 
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 		} catch (Exception e) {
 			ScreenshotHandler.captureFailureScreenshot("click_select_all_button", e);
@@ -142,8 +132,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		int selectedCount = 0;
 
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			// Get total profile count from "Showing X of Y results" text
 			try {
@@ -175,8 +165,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void verify_async_functionality_message_is_displayed_on_jam_screen() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			WebElement asyncMsg = findElement(ASYNC_MESSAGE);
 			if (asyncMsg.isDisplayed()) {
@@ -196,8 +186,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			boolean popupAppeared = false;
 
 			try {
-				WebDriverWait shortWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
-				shortWait.until(ExpectedConditions.visibilityOfElementLocated(SUCCESS_HEADER));
+				PageObjectHelper.waitForVisible(wait, SUCCESS_HEADER);
 				popupAppeared = true;
 
 			String successHeaderText = getElementText(SUCCESS_HEADER);
@@ -208,8 +197,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			// Close the popup with multiple fallback strategies
 			closeSuccessPopupWithFallback();
 
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			} catch (Exception popupException) {
 				PageObjectHelper.log(LOGGER, "Async publishing detected - no immediate success popup");
@@ -221,8 +210,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			}
 
 			driver.navigate().refresh();
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 3);
 
 			PageObjectHelper.log(LOGGER, "Ready for progressive monitoring");
 
@@ -234,8 +223,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void verify_count_of_total_un_published_profiles_after_publishing_selected_profiles() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
 			int count = parseProfileCountFromText(countText);
@@ -259,8 +248,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void get_count_of_published_profiles_in_job_mapping_screen() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			totalPublishedCount.set(unpublishedProfilesCountBefore.get() - unpublishedProfilesCountAfter.get()
 					+ publishedProfilesCountBefore.get());
@@ -293,8 +282,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void verify_count_of_total_published_profiles_after_publishing_selected_profiles() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
 			int count = parseProfileCountFromText(countText);
@@ -313,8 +302,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void verify_published_profiles_count_matches_in_view_published_screen() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			if (publishedProfilesCountAfter.get().equals(totalPublishedCount.get())) {
 				PageObjectHelper.log(LOGGER, "Published profiles count matches: " + totalPublishedCount.get());
@@ -331,8 +320,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void user_is_in_job_mapping_page_after_initial_refresh() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			LOGGER.debug("Job Mapping page ready");
 
 		} catch (Exception e) {
@@ -389,8 +378,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 				driver.navigate().refresh();
 				// Refresh and wait for page ready
 				driver.navigate().refresh();
-				PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+				PageObjectHelper.waitForPageReady(driver, 2);
 
 				// Get current unpublished count from results text
 				try {
@@ -529,8 +518,8 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void verify_all_profiles_are_published_successfully() {
 		try {
-			PerformanceUtils.waitForSpinnersToDisappear(driver, 10);
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
+			PageObjectHelper.waitForPageReady(driver, 2);
 
 			int finalUnpublishedCount = 0;
 
@@ -559,8 +548,6 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			PageObjectHelper.handleError(LOGGER, "verify_all_published", "Error verifying final status", e);
 		}
 	}
-
-	// ==================== HELPER METHODS ====================
 	
 	private void closeSuccessPopupWithFallback() {
 		// Try multiple close button selectors
@@ -605,6 +592,4 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			}
 		}
 	}
-	
-	// Note: Common helpers (parseProfileCountFromText, etc.) are inherited from BasePageObject
 }

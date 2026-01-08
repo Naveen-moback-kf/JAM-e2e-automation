@@ -6,8 +6,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-
-import com.kfonetalentsuite.utils.JobMapping.PerformanceUtils;
 import com.kfonetalentsuite.utils.JobMapping.PageObjectHelper;
 import com.kfonetalentsuite.utils.JobMapping.ScreenshotHandler;
 
@@ -37,7 +35,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			}
 			
 			LOGGER.info("Searching for job: {}", jobName);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(500);
 			
@@ -70,7 +68,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			boolean found = false;
 			
 			while (retryCount < maxRetries && !found) {
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				waitForSpinners();
 				safeSleep(500);
 				
@@ -142,7 +140,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			}
 			
 			LOGGER.info("Searching for job: {}", jobName);
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(500);
 			
@@ -175,7 +173,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			boolean found = false;
 			
 			while (retryCount < maxRetries && !found) {
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				waitForSpinners();
 				safeSleep(500);
 				
@@ -241,7 +239,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 
 	public void user_should_verify_date_on_published_first_job_matches_with_current_date() {
 		try {
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			String todayDate = formatDateForDisplay();
 			String jobPublishedDate = getElementText(HCM_DATE_ROW_1);
 			Assert.assertEquals(jobPublishedDate, todayDate);
@@ -269,7 +267,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				throw new Exception("Job name to search is null or empty");
 			}
 			
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(500);
 			
@@ -282,7 +280,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			// Additional wait for HCM sync profile filtering
 			safeSleep(1000);
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 			LOGGER.info("HCM Search completed for job: {}", jobName);
 			PageObjectHelper.log(LOGGER, "Searched for job: " + jobName + " in HCM Sync Profiles");
@@ -298,7 +296,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				throw new Exception("Job code to search is null or empty");
 			}
 			
-			PerformanceUtils.waitForPageReady(driver, 3);
+			PageObjectHelper.waitForPageReady(driver, 3);
 			waitForSpinners();
 			safeSleep(500);
 			
@@ -311,7 +309,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			// Additional wait for HCM sync profile filtering
 			safeSleep(1000);
 			waitForSpinners();
-			PerformanceUtils.waitForPageReady(driver, 2);
+			PageObjectHelper.waitForPageReady(driver, 2);
 			
 			LOGGER.info("HCM Search completed for job code: {}", jobCode);
 			PageObjectHelper.log(LOGGER, "Searched for job code: " + jobCode + " in HCM Sync Profiles");
@@ -334,7 +332,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			boolean found = false;
 			
 			while (retryCount < maxRetries && !found) {
-				PerformanceUtils.waitForPageReady(driver, 2);
+				PageObjectHelper.waitForPageReady(driver, 2);
 				waitForSpinners();
 				safeSleep(500);
 				
