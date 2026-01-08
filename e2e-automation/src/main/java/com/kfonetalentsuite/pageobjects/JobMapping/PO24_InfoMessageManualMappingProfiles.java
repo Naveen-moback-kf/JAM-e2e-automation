@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -343,8 +344,17 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 			PageObjectHelper.waitForSpinnersToDisappear(driver, 10);
 			PageObjectHelper.waitForPageReady(driver, 2);
 			
-			// Get results count from "Showing X of Y results" text
-			String resultsCountText = getElementText(By.xpath("//span[contains(text(), 'Showing') and contains(text(), 'results')] | //div[contains(text(), 'Showing') and contains(text(), 'results')]"));
+			// Get results count from "Showing X of Y results" text (use short timeout - optional element)
+			String resultsCountText = "";
+			try {
+				WebDriverWait quickWait = new WebDriverWait(driver, Duration.ofSeconds(3));
+				WebElement resultsElement = quickWait.until(ExpectedConditions.visibilityOfElementLocated(
+						By.xpath("//span[contains(text(), 'Showing') and contains(text(), 'results')] | //div[contains(text(), 'Showing') and contains(text(), 'results')]")));
+				resultsCountText = resultsElement.getText();
+			} catch (TimeoutException e) {
+				LOGGER.debug("Results count element not found within 3 seconds - likely no results");
+				resultsCountText = "";
+			}
 			int totalJobs = parseProfileCountFromText(resultsCountText);
 			totalManuallyMappedJobs.set(totalJobs);
 			
