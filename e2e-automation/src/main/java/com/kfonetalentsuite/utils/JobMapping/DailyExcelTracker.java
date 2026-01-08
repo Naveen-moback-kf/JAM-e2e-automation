@@ -4254,32 +4254,44 @@ public class DailyExcelTracker {
 			}
 		}
 		
-		totals.executionCount = calculateExecutionRunsFromHistory(sheet, currentExecution.executionDate);
+		// FIXED: Calculate execution count AND cumulative duration from Execution History
+		HistoryMetrics historyMetrics = calculateExecutionMetricsFromHistory(sheet, currentExecution.executionDate);
+		totals.executionCount = historyMetrics.executionCount;
+		totals.totalDurationMs = historyMetrics.cumulativeDurationMs;
 		
 		if (totals.executionCount == 0) {
 			totals.executionCount = Math.max(1, uniqueFeatures.size());
+			// If no history found, use current execution duration
+			totals.totalDurationMs = parseDurationToMs(currentExecution.totalDuration);
 		}
 		
-		totals.totalDurationMs = parseDurationToMs(currentExecution.totalDuration);
-		
-		LOGGER.info("CUMULATIVE TOTALS (from {} scenario rows): {} total tests, {} passed, {} failed, {} skipped, {} execution runs",
+		LOGGER.info("CUMULATIVE TOTALS (from {} scenario rows): {} total tests, {} passed, {} failed, {} skipped, {} execution runs, duration: {}",
 				totals.totalTests, totals.totalTests, totals.passedTests, totals.failedTests, 
-				totals.skippedTests, totals.executionCount);
+				totals.skippedTests, totals.executionCount, ExcelReportingHelper.formatDuration(totals.totalDurationMs));
 
 		return totals;
 	}
 
-	private static int calculateExecutionRunsFromHistory(Sheet testResultsSheet, String targetDate) {
+	/**
+	 * Calculate both execution count AND cumulative duration from Execution History sheet
+	 */
+	private static class HistoryMetrics {
+		int executionCount = 0;
+		long cumulativeDurationMs = 0;
+	}
+	
+	private static HistoryMetrics calculateExecutionMetricsFromHistory(Sheet testResultsSheet, String targetDate) {
+		HistoryMetrics metrics = new HistoryMetrics();
+		
 		try {
 			Workbook workbook = testResultsSheet.getWorkbook();
 			Sheet historySheet = workbook.getSheet(EXECUTION_HISTORY_SHEET);
 			
 			if (historySheet == null) {
-				LOGGER.warn("?? No Execution History sheet found - cannot calculate execution runs");
-				return 0;
+				LOGGER.warn("?? No Execution History sheet found - cannot calculate execution metrics");
+				return metrics;
 			}
 			
-			int executionCount = 0;
 			int lastRow = historySheet.getLastRowNum();
 			
 			LOGGER.debug("Scanning Execution History sheet (rows 1 to {}) for date: {}", lastRow, targetDate);
@@ -4288,7 +4300,7 @@ public class DailyExcelTracker {
 				Row row = historySheet.getRow(i);
 				if (row == null) continue;
 				
-				// FIXED: Date is in column 2 (Testing Date), not column 0
+				// Date is in column 2 (Testing Date)
 				Cell dateCell = row.getCell(2);
 				if (dateCell == null) continue;
 				
@@ -4296,26 +4308,43 @@ public class DailyExcelTracker {
 				try {
 					dateValue = dateCell.getStringCellValue();
 				} catch (Exception e) {
-					continue;
-				}
-				
-				if (dateValue != null && dateValue.contains(targetDate)) {
-					Cell runnerCell = row.getCell(7); // Runner / Suite File column
-					String runnerName = runnerCell != null ? getCellValueAsString(runnerCell) : "Unknown";
-					
-					executionCount++;
-					LOGGER.debug("  Row {}: Found execution for '{}' on {}", i, runnerName, dateValue);
-				}
+				continue;
 			}
 			
-			LOGGER.info("Execution runs count for {}: {} runs found in history", targetDate, executionCount);
-			return executionCount;
-			
-		} catch (Exception e) {
-			LOGGER.error("Could not calculate execution runs from history: {}", e.getMessage(), e);
-			return 0;
+			if (dateValue != null && dateValue.contains(targetDate)) {
+				Cell runnerCell = row.getCell(7); // Runner / Suite File column
+				String runnerName = runnerCell != null ? getCellValueAsString(runnerCell) : "Unknown";
+				
+				metrics.executionCount++;
+				
+				// Extract duration from column 13 (Duration column)
+				Cell durationCell = row.getCell(13);
+				if (durationCell != null) {
+					try {
+						String durationStr = getCellValueAsString(durationCell);
+						if (durationStr != null && !durationStr.trim().isEmpty()) {
+							long durationMs = parseDurationToMs(durationStr);
+							metrics.cumulativeDurationMs += durationMs;
+							LOGGER.debug("  Row {}: Found execution '{}' with duration: {} ({} ms)", 
+								i, runnerName, durationStr, durationMs);
+						}
+					} catch (Exception e) {
+						LOGGER.warn("Could not parse duration at row {}: {}", i, e.getMessage());
+					}
+				}
+			}
 		}
+		
+		LOGGER.info("Execution metrics for {}: {} runs, cumulative duration: {} ms ({})", 
+			targetDate, metrics.executionCount, metrics.cumulativeDurationMs, 
+			ExcelReportingHelper.formatDuration(metrics.cumulativeDurationMs));
+		return metrics;
+		
+	} catch (Exception e) {
+		LOGGER.error("Could not calculate execution metrics from history: {}", e.getMessage(), e);
+		return metrics;
 	}
+}
 
 	private static String determineDailyStatus(DailyCumulativeTotals totals) {
 		if (totals.totalTests == 0)
