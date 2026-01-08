@@ -553,36 +553,49 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			Utilities.waitForPageReady(driver, 3);
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			
-			// CRITICAL: Ensure no search filters are active to get TOTAL results, not filtered results
-			// Use JavaScript to clear - most reliable approach (same as PO27)
+		// CRITICAL: Ensure no search filters are active to get TOTAL results, not filtered results
+		// Clear BOTH search bar AND filters panel
+		try {
+			LOGGER.info("Clearing ALL filters (search bar + filter panel) to get total results count...");
+			
+			// Step 1: Clear search bar using JavaScript
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			String clearScript = 
+				"var searchBar = document.querySelector('#search-job-title-input-search-input');" +
+				"if (searchBar && searchBar.value) {" +
+				"  searchBar.focus();" +
+				"  searchBar.value = '';" +
+				"  searchBar.dispatchEvent(new Event('input', { bubbles: true }));" +
+				"  searchBar.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));" +
+				"  return true;" +
+				"} return false;";
+			
+			Boolean searchCleared = (Boolean) js.executeScript(clearScript);
+			if (searchCleared != null && searchCleared) {
+				LOGGER.info("✓ Search bar cleared");
+				safeSleep(2000);
+			}
+			
+			// Step 2: Click "Clear Filters" button to remove any filter panel selections
 			try {
-				LOGGER.info("Clearing search filter to get total results count...");
-				
-				JavascriptExecutor js = (JavascriptExecutor) driver;
-				String clearScript = 
-					"var searchBar = document.querySelector('#search-job-title-input-search-input');" +
-					"if (searchBar && searchBar.value) {" +
-					"  searchBar.focus();" +
-					"  searchBar.value = '';" +
-					"  searchBar.dispatchEvent(new Event('input', { bubbles: true }));" +
-					"  searchBar.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));" +
-					"  return true;" +
-					"} return false;";
-				
-				Boolean cleared = (Boolean) js.executeScript(clearScript);
-				
-				if (cleared != null && cleared) {
-					LOGGER.info("Search filter cleared using JavaScript");
+				WebElement clearFiltersBtn = driver.findElement(Locators.JAMScreen.CLEAR_FILTERS_BTN);
+				if (clearFiltersBtn.isDisplayed()) {
+					clickElement(Locators.JAMScreen.CLEAR_FILTERS_BTN);
+					LOGGER.info("✓ Clicked 'Clear Filters' button");
 					safeSleep(3000);
 					Utilities.waitForSpinnersToDisappear(driver, 10);
 					waitForBackgroundDataLoad(); // Wait for full data to reload
 					safeSleep(2000);
-				} else {
-					LOGGER.info("Search bar was already empty or not found");
 				}
-			} catch (Exception clearEx) {
-				LOGGER.debug("Could not clear search filter: {}", clearEx.getMessage());
+			} catch (Exception e) {
+				LOGGER.debug("Clear Filters button not found or not clickable: {}", e.getMessage());
 			}
+			
+			LOGGER.info("✓ All filters cleared successfully");
+			
+		} catch (Exception clearEx) {
+			LOGGER.debug("Could not clear filters: {}", clearEx.getMessage());
+		}
 			
 			WebElement resultsElement = Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
 			String resultsText = resultsElement.getText().trim();
@@ -616,36 +629,49 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			Utilities.waitForPageReady(driver, 3);
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			
-			// CRITICAL: Clear any active search filters to get TOTAL results, not filtered results
-			// Use JavaScript to clear - most reliable approach (same as PO27)
+		// CRITICAL: Clear any active search filters to get TOTAL results, not filtered results
+		// Clear BOTH search bar AND filters panel
+		try {
+			LOGGER.info("Clearing ALL filters (search bar + filter panel) to get total results count...");
+			
+			// Step 1: Clear search bar using JavaScript
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			String clearScript = 
+				"var searchBar = document.querySelector('#search-job-title-input-search-input');" +
+				"if (searchBar && searchBar.value) {" +
+				"  searchBar.focus();" +
+				"  searchBar.value = '';" +
+				"  searchBar.dispatchEvent(new Event('input', { bubbles: true }));" +
+				"  searchBar.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));" +
+				"  return true;" +
+				"} return false;";
+			
+			Boolean searchCleared = (Boolean) js.executeScript(clearScript);
+			if (searchCleared != null && searchCleared) {
+				LOGGER.info("✓ Search bar cleared");
+				safeSleep(2000);
+			}
+			
+			// Step 2: Click "Clear Filters" button to remove any filter panel selections
 			try {
-				LOGGER.info("Clearing search filter to get total results count...");
-				
-				JavascriptExecutor js = (JavascriptExecutor) driver;
-				String clearScript = 
-					"var searchBar = document.querySelector('#search-job-title-input-search-input');" +
-					"if (searchBar && searchBar.value) {" +
-					"  searchBar.focus();" +
-					"  searchBar.value = '';" +
-					"  searchBar.dispatchEvent(new Event('input', { bubbles: true }));" +
-					"  searchBar.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));" +
-					"  return true;" +
-					"} return false;";
-				
-				Boolean cleared = (Boolean) js.executeScript(clearScript);
-				
-				if (cleared != null && cleared) {
-					LOGGER.info("Search filter cleared using JavaScript");
+				WebElement clearFiltersBtn = driver.findElement(Locators.JAMScreen.CLEAR_FILTERS_BTN);
+				if (clearFiltersBtn.isDisplayed()) {
+					clickElement(Locators.JAMScreen.CLEAR_FILTERS_BTN);
+					LOGGER.info("✓ Clicked 'Clear Filters' button");
 					safeSleep(3000);
 					Utilities.waitForSpinnersToDisappear(driver, 10);
 					waitForBackgroundDataLoad(); // Wait for full data to reload
 					safeSleep(2000);
-				} else {
-					LOGGER.info("Search bar was already empty or not found");
 				}
-			} catch (Exception clearEx) {
-				LOGGER.debug("Could not clear search filter: {}", clearEx.getMessage());
+			} catch (Exception e) {
+				LOGGER.debug("Clear Filters button not found or not clickable: {}", e.getMessage());
 			}
+			
+			LOGGER.info("✓ All filters cleared successfully");
+			
+		} catch (Exception clearEx) {
+			LOGGER.debug("Could not clear filters: {}", clearEx.getMessage());
+		}
 			
 			// Retry logic: Ensure results element is stable
 			int maxRetries = 3;
