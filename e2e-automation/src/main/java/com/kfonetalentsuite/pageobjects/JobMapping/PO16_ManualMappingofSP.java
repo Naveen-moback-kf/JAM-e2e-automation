@@ -30,8 +30,8 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 			waitForSpinners();
 			PageObjectHelper.waitForPageReady(driver, 3);
 
-			WebElement button = PageObjectHelper.waitForVisible(wait, By.xpath(
-					"//tbody//tr[2]//button[not(contains(@id,'view')] | //tbody//tr[1]//button[contains(text(),'Find')]"));
+		WebElement button = PageObjectHelper.waitForVisible(wait, By.xpath(
+				"//tbody//tr[2]//button[not(contains(@id,'view'))] | //tbody//tr[1]//button[contains(text(),'Find')]"));
 			scrollToElement(button);
 			String text = button.getText();
 
