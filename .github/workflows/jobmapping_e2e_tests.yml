@@ -8,20 +8,6 @@ run-name: |
   }}
 
 on:
-  # Automatic triggers disabled - Manual execution only
-  # Uncomment below to re-enable automatic execution on push/PR
-  # push:
-  #   branches:
-  #     - main
-  #     - develop
-  #     - 'release/**'
-  # 
-  # pull_request:
-  #   branches:
-  #     - main
-  #     - develop
-  
-  # Manual trigger with parameters (ENABLED)
   workflow_dispatch:
     inputs:
       test_suite:
@@ -78,63 +64,32 @@ on:
           - NON_SSO
       
       pams_id:
-        description: 'Target PAMS ID (leave empty to verify all clients)'
+        description: 'Target PAMS ID'
         required: false
         default: '23139'
         type: string
       
       reset_excel_report:
-        description: '🔄 Reset Excel Report (Start Fresh)'
+        description: '🔄 Reset Excel Report'
         required: false
         default: false
         type: boolean
-      
-      # Note: Username and password inputs removed due to GitHub's 10-input limit
-      # All credentials are now sourced from GitHub Secrets (more secure)
-      # Configure in: Settings > Secrets and variables > Actions
-      # Required secrets: SSO_USERNAME, SSO_PASSWORD, NON_SSO_USERNAME, NON_SSO_PASSWORD
-  
-  # ═══════════════════════════════════════════════════════════════════
-  # 📅 SCHEDULED RUNS - CURRENTLY DISABLED (Manual execution only)
-  # ═══════════════════════════════════════════════════════════════════
-  # To enable: Uncomment "schedule:" and add cron expressions
-  # Cron format: minute hour day_of_month month day_of_week (UTC timezone)
-  # Examples: '0 2 * * *' (daily 2AM), '0 */6 * * *' (every 6hrs), '0 9 * * 1' (Mon 9AM)
-  # Use https://crontab.guru/ to build custom schedules
-  # ═══════════════════════════════════════════════════════════════════
-  
-  # schedule:
-    # - cron: '0 2 * * *'  # Daily at 2:00 AM UTC
 
 env:
   JAVA_VERSION: '17'
   MAVEN_VERSION: '3.9.5'
-  
-  # ═══════════════════════════════════════════════════════════════════
-  # 📅 SCHEDULED RUN CONFIGURATION
-  # ═══════════════════════════════════════════════════════════════════
-  # Configure what runs automatically when triggered by schedule
-  # These defaults are used ONLY for scheduled runs (cron triggers)
-  # Manual runs via workflow_dispatch use the UI input selections
-  # ═══════════════════════════════════════════════════════════════════
-  SCHEDULED_TEST_SUITE: 'JAM_SmokeTestSuite.xml'    # Options: JAM_SanityTestSuite.xml, JAM_SmokeTestSuite.xml, JAM_RegressionTestSuite.xml
-  SCHEDULED_BROWSER: 'chrome'                        # Options: chrome, firefox, edge
-  SCHEDULED_ENVIRONMENT: 'qa'                        # Options: dev, qa, stage, prod-eu, prod-us
-  SCHEDULED_HEADLESS: 'true'                         # Options: true, false
-  SCHEDULED_LOGIN_TYPE: 'NON_SSO'                    # Options: SSO, NON_SSO
-  SCHEDULED_PAMS_ID: '23139'                         # Target PAMS ID for scheduled runs
-  SCHEDULED_RESET_EXCEL: 'false'                     # Options: true (start fresh), false (append to existing)
+  SCHEDULED_TEST_SUITE: 'JAM_SmokeTestSuite.xml'
+  SCHEDULED_BROWSER: 'chrome'
+  SCHEDULED_ENVIRONMENT: 'qa'
+  SCHEDULED_HEADLESS: 'true'
+  SCHEDULED_LOGIN_TYPE: 'NON_SSO'
+  SCHEDULED_PAMS_ID: '23139'
+  SCHEDULED_RESET_EXCEL: 'false'
 
 jobs:
   e2e-tests:
-    name: 🧪 E2E Tests - ${{ github.event_name == 'schedule' && '⏰ Scheduled Run' || github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }} (${{ github.event.inputs.browser || 'chrome' }})
+    name: 🧪 ${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }} (${{ github.event.inputs.browser || 'chrome' }})
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        # For parallel browser testing
-        browser: [chrome]  # Add firefox, edge for multi-browser testing
-      fail-fast: false
     
     steps:
       - name: 📥 Checkout Code
@@ -153,13 +108,13 @@ jobs:
           maven-version: ${{ env.MAVEN_VERSION }}
       
       - name: 🌐 Setup Chrome Browser
-        if: ${{ github.event.inputs.browser == 'chrome' || matrix.browser == 'chrome' }}
+        if: ${{ github.event.inputs.browser == 'chrome' }}
         uses: browser-actions/setup-chrome@latest
         with:
           chrome-version: stable
       
       - name: 🦊 Setup Firefox Browser
-        if: ${{ github.event.inputs.browser == 'firefox' || matrix.browser == 'firefox' }}
+        if: ${{ github.event.inputs.browser == 'firefox' }}
         uses: browser-actions/setup-firefox@latest
         with:
           firefox-version: latest
@@ -172,21 +127,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       
-      - name: 🧹 Clean Previous Build
-        working-directory: e2e-automation
-        run: mvn clean
-      
       - name: 📁 Create Report Directories
         run: |
-          mkdir -p e2e-automation/AllureReports/allure-results
-          mkdir -p e2e-automation/AllureReports/allure-report
-          mkdir -p e2e-automation/test-output/screenshots
-          mkdir -p e2e-automation/ExcelReports
-          mkdir -p e2e-automation/logs
-          mkdir -p e2e-automation/src/test/resources/JobCatalogBackups
+          mkdir -p e2e-automation/{AllureReports/{allure-results,allure-report},test-output/screenshots,ExcelReports,logs,src/test/resources/JobCatalogBackups}
       
-      - name: 📥 Download Previous Excel Report (if NOT resetting)
-        if: ${{ github.event.inputs.reset_excel_report != 'true' && (github.event_name != 'schedule' || env.SCHEDULED_RESET_EXCEL != 'true') }}
+      - name: 📥 Download Previous Excel Report
+        if: ${{ github.event.inputs.reset_excel_report != 'true' }}
         continue-on-error: true
         uses: dawidd6/action-download-artifact@v3
         with:
@@ -195,472 +141,168 @@ jobs:
           name: ^excel-reports_.*
           path: e2e-automation/ExcelReports/
           if_no_artifact_found: ignore
-          search_artifacts: true
-          workflow_conclusion: ""
-          check_artifacts: true
       
-      - name: ✅ Check for Existing Excel Report
-        if: ${{ github.event.inputs.reset_excel_report != 'true' && (github.event_name != 'schedule' || env.SCHEDULED_RESET_EXCEL != 'true') }}
+      - name: 🔄 Reset Excel Report
+        if: ${{ github.event.inputs.reset_excel_report == 'true' }}
         run: |
+          echo "🔄 Resetting Excel Report"
           if [ -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" ]; then
-            echo "✅ Found existing Excel report - will append new results to it"
-            ls -lh e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx
-          else
-            echo "ℹ️  No existing Excel report found - will create new one"
-          fi
-      
-      - name: 🔄 Reset Excel Report (Optional)
-        if: ${{ github.event.inputs.reset_excel_report == 'true' || (github.event_name == 'schedule' && env.SCHEDULED_RESET_EXCEL == 'true') }}
-        run: |
-          echo "🔄 Resetting Excel Report - Starting with fresh data"
-          
-          # Check if Excel report exists
-          if [ -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" ]; then
-            echo "📋 Found existing report - creating backup..."
             BACKUP_DIR="e2e-automation/ExcelReports/Backup"
             mkdir -p "$BACKUP_DIR"
             TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-            BACKUP_FILE="TestResults_PreReset_${TIMESTAMP}.xlsx"
-            cp "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" "$BACKUP_DIR/$BACKUP_FILE"
-            
-            if [ -f "$BACKUP_DIR/$BACKUP_FILE" ]; then
-              echo "✅ Backup created: $BACKUP_FILE"
-              rm -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx"
-              echo "✅ Excel report deleted - next run will create fresh report"
-            else
-              echo "❌ Backup failed - aborting reset"
-              exit 1
-            fi
-          else
-            echo "ℹ️  No existing report found - will create new report"
+            cp "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx" "$BACKUP_DIR/TestResults_PreReset_${TIMESTAMP}.xlsx"
+            rm -f "e2e-automation/ExcelReports/JobMappingAutomationTestResults.xlsx"
+            echo "✅ Backup created and report deleted"
           fi
       
       - name: ⚙️ Configure Test Environment
         working-directory: e2e-automation
         run: |
-          echo "🔧 Configuring environment-specific settings..."
-          
-          # Get workflow inputs with defaults
           HEADLESS="${{ github.event.inputs.headless_mode || 'true' }}"
           BROWSER="${{ github.event.inputs.browser || 'chrome' }}"
           ENVIRONMENT="${{ github.event.inputs.environment || 'qa' }}"
           LOGIN_TYPE="${{ github.event.inputs.login_type || 'NON_SSO' }}"
           PAMS_ID="${{ github.event.inputs.pams_id || '23139' }}"
           
-          echo "════════════════════════════════════════"
-          echo "🌍 ENVIRONMENT CONFIGURATION"
-          echo "════════════════════════════════════════"
-          echo "Environment: ${ENVIRONMENT}"
-          echo "Browser: ${BROWSER}"
-          echo "Headless: ${HEADLESS}"
-          echo "Login Type: ${LOGIN_TYPE}"
-          echo "PAMS ID: ${PAMS_ID}"
-          echo "════════════════════════════════════════"
+          echo "🌍 Environment: ${ENVIRONMENT} | Browser: ${BROWSER} | Headless: ${HEADLESS}"
           
-          # Inject secrets into environment-specific config file
           ENV_FILE="src/test/resources/environments/${ENVIRONMENT}.properties"
           
           if [ -f "$ENV_FILE" ]; then
-            echo "✅ Found environment file: ${ENV_FILE}"
-            
-            # Update credentials from GitHub Secrets (more secure than hardcoding)
-            if [ -n "${{ secrets.SSO_USERNAME }}" ]; then
-              sed -i "s|^sso.username=.*|sso.username=${{ secrets.SSO_USERNAME }}|" "$ENV_FILE"
-              sed -i "s|^sso.password=.*|sso.password=${{ secrets.SSO_PASSWORD }}|" "$ENV_FILE"
-              echo "✅ SSO credentials injected from secrets"
-            fi
-            
-            if [ -n "${{ secrets.NON_SSO_USERNAME }}" ]; then
-              sed -i "s|^nonsso.username=.*|nonsso.username=${{ secrets.NON_SSO_USERNAME }}|" "$ENV_FILE"
-              sed -i "s|^nonsso.password=.*|nonsso.password=${{ secrets.NON_SSO_PASSWORD }}|" "$ENV_FILE"
-              echo "✅ NON-SSO credentials injected from secrets"
-            fi
-            
-            # Update login type if overridden
+            [ -n "${{ secrets.SSO_USERNAME }}" ] && sed -i "s|^sso.username=.*|sso.username=${{ secrets.SSO_USERNAME }}|" "$ENV_FILE"
+            [ -n "${{ secrets.SSO_PASSWORD }}" ] && sed -i "s|^sso.password=.*|sso.password=${{ secrets.SSO_PASSWORD }}|" "$ENV_FILE"
+            [ -n "${{ secrets.NON_SSO_USERNAME }}" ] && sed -i "s|^nonsso.username=.*|nonsso.username=${{ secrets.NON_SSO_USERNAME }}|" "$ENV_FILE"
+            [ -n "${{ secrets.NON_SSO_PASSWORD }}" ] && sed -i "s|^nonsso.password=.*|nonsso.password=${{ secrets.NON_SSO_PASSWORD }}|" "$ENV_FILE"
             sed -i "s|^login.type=.*|login.type=${LOGIN_TYPE}|" "$ENV_FILE"
-            
-            # Update PAMS ID if provided
-            if [ -n "${PAMS_ID}" ]; then
-              sed -i "s|^pams.id=.*|pams.id=${PAMS_ID}|" "$ENV_FILE"
-            fi
+            [ -n "${PAMS_ID}" ] && sed -i "s|^pams.id=.*|pams.id=${PAMS_ID}|" "$ENV_FILE"
+            echo "✅ Configuration complete"
           else
             echo "⚠️ Environment file not found: ${ENV_FILE}"
-            echo "Available environment files:"
-            ls -la src/test/resources/environments/ || echo "No environments directory found"
           fi
-          
-          echo ""
-          echo "✅ Configuration complete: -Denv=${ENVIRONMENT}"
       
-      - name: 🖥️ Setup Display for Headless (Linux)
-        if: runner.os == 'Linux'
+      - name: 🖥️ Setup Display for Headless
         run: |
-          echo "🖥️  Setting up virtual display for headless execution..."
           sudo apt-get update -qq
           sudo apt-get install -y xvfb libxi6 libgbm1
           sudo Xvfb :99 -ac -screen 0 1920x1080x24 > /dev/null 2>&1 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
-          echo "✅ Virtual display configured (Xvfb on :99)"
       
-      - name: 🔧 Configure Parallel Execution in Test Suite
-        if: always()
+      - name: 🔧 Configure Parallel Execution
         working-directory: e2e-automation
         run: |
-          # Determine parallel execution setting
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            PARALLEL="false"
-            TEST_SUITE="${{ env.SCHEDULED_TEST_SUITE }}"
-          else
-            PARALLEL="${{ github.event.inputs.parallel_execution || 'false' }}"
-            TEST_SUITE="${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}"
-          fi
+          PARALLEL="${{ github.event.inputs.parallel_execution || 'false' }}"
+          TEST_SUITE="${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}"
           
-          echo "════════════════════════════════════════"
-          echo "🔧 PARALLEL EXECUTION CONFIGURATION"
-          echo "════════════════════════════════════════"
-          echo "Test Suite: ${TEST_SUITE}"
-          echo "Parallel Execution: ${PARALLEL}"
-          echo "════════════════════════════════════════"
+          echo "Test Suite: ${TEST_SUITE} | Parallel: ${PARALLEL}"
           
-          # Create backup of original XML (for restoration later)
           if [ -f "${TEST_SUITE}" ]; then
             cp "${TEST_SUITE}" "${TEST_SUITE}.backup"
-            echo "✅ Created backup: ${TEST_SUITE}.backup"
+            
+            if [ "${PARALLEL}" = "false" ]; then
+              sed -i 's/parallel="tests"/parallel="none"/g; s/parallel="methods"/parallel="none"/g; s/parallel="classes"/parallel="none"/g; s/thread-count="[0-9]*"/thread-count="1"/g' "${TEST_SUITE}"
+              echo "✅ Parallel execution disabled"
+            else
+              echo "✅ Parallel execution enabled"
+            fi
           else
-            echo "❌ ERROR: Test suite file not found: ${TEST_SUITE}"
+            echo "❌ Test suite not found: ${TEST_SUITE}"
             exit 1
           fi
-          
-          # Modify XML based on parallel execution setting
-          if [ "${PARALLEL}" = "false" ]; then
-            echo "🔄 Disabling parallel execution in XML..."
-            # Remove parallel attribute or set it to "none"
-            sed -i 's/parallel="tests"/parallel="none"/g' "${TEST_SUITE}"
-            sed -i 's/parallel="methods"/parallel="none"/g' "${TEST_SUITE}"
-            sed -i 's/parallel="classes"/parallel="none"/g' "${TEST_SUITE}"
-            # Also set thread-count to 1 for clarity
-            sed -i 's/thread-count="[0-9]*"/thread-count="1"/g' "${TEST_SUITE}"
-            echo "✅ Parallel execution DISABLED (sequential execution)"
-          else
-            echo "⚡ Keeping parallel execution ENABLED (as defined in XML)"
-          fi
-          
-          # Show the modified suite configuration
-          echo ""
-          echo "📄 Current suite configuration:"
-          grep -E '<suite.*parallel.*thread-count' "${TEST_SUITE}" || echo "No parallel settings found"
-          echo ""
       
       - name: 🚀 Execute E2E Tests
         working-directory: e2e-automation
         run: |
-          # Record start time
-          START_TIME=$(date +%s)
+          TEST_SUITE="${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}"
+          BROWSER="${{ github.event.inputs.browser || 'chrome' }}"
+          ENVIRONMENT="${{ github.event.inputs.environment || 'qa' }}"
+          HEADLESS="${{ github.event.inputs.headless_mode || 'true' }}"
+          LOGIN_TYPE="${{ github.event.inputs.login_type || 'NON_SSO' }}"
+          PAMS_ID="${{ github.event.inputs.pams_id || '23139' }}"
           
-          # Detect if this is a scheduled run or manual run
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "⏰ SCHEDULED RUN DETECTED - Using scheduled configuration"
-            TEST_SUITE="${{ env.SCHEDULED_TEST_SUITE }}"
-            BROWSER="${{ env.SCHEDULED_BROWSER }}"
-            ENVIRONMENT="${{ env.SCHEDULED_ENVIRONMENT }}"
-            HEADLESS="${{ env.SCHEDULED_HEADLESS }}"
-            PARALLEL="false"
-            LOGIN_TYPE="${{ env.SCHEDULED_LOGIN_TYPE }}"
-            PAMS_ID="${{ env.SCHEDULED_PAMS_ID }}"
-          else
-            echo "👤 MANUAL RUN DETECTED - Using workflow inputs"
-            TEST_SUITE="${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}"
-            BROWSER="${{ github.event.inputs.browser || 'chrome' }}"
-            ENVIRONMENT="${{ github.event.inputs.environment || 'qa' }}"
-            HEADLESS="${{ github.event.inputs.headless_mode || 'true' }}"
-            PARALLEL="${{ github.event.inputs.parallel_execution || 'false' }}"
-            LOGIN_TYPE="${{ github.event.inputs.login_type || 'NON_SSO' }}"
-            PAMS_ID="${{ github.event.inputs.pams_id || '23139' }}"
-          fi
+          echo "🧪 Executing: ${TEST_SUITE} | ${BROWSER} | ${ENVIRONMENT}"
           
-          echo "════════════════════════════════════════"
-          echo "🧪 E2E TEST EXECUTION"
-          echo "════════════════════════════════════════"
-          echo "Test Suite: ${TEST_SUITE}"
-          echo "Config: ${BROWSER} | ${ENVIRONMENT} | Headless: ${HEADLESS} | Parallel: ${PARALLEL}"
-          echo "════════════════════════════════════════"
+          MVN_CMD="mvn test -DsuiteXmlFile=${TEST_SUITE} -Denv=${ENVIRONMENT} -Dlogin.type=${LOGIN_TYPE} -Dpams.id=${PAMS_ID} -Dbrowser=${BROWSER} -Dheadless.mode=${HEADLESS} -Dmaven.test.failure.ignore=true -B"
           
-          # Verify test suite file exists
-          if [ ! -f "${TEST_SUITE}" ]; then
-            echo "❌ ERROR: Test suite file not found: ${TEST_SUITE}"
-            echo "📂 Available suite files:"
-            ls -la *.xml || echo "No XML files found in current directory"
-            exit 1
-          fi
-          echo "✅ Test suite file found: ${TEST_SUITE}"
-          MVN_CMD="mvn test -DsuiteXmlFile=${TEST_SUITE}"
-          
-          # Add CI/CD parameters (using environment-specific config files)
-          MVN_CMD="${MVN_CMD} -Denv=${ENVIRONMENT} -Dlogin.type=${LOGIN_TYPE} -Dpams.id=${PAMS_ID} -Dbrowser=${BROWSER} -Dheadless.mode=${HEADLESS}"
-          
-          # Add CI/CD specific Maven options
-          MVN_CMD="${MVN_CMD} -Dmaven.test.failure.ignore=true -B"
-          
-          echo ""
-          echo "🚀 Executing Maven command:"
-          echo "${MVN_CMD}"
-          echo ""
-          
-          # Execute tests and capture exit code
-          set +e  # Temporarily disable exit on error
+          set +e
           ${MVN_CMD}
           MVN_EXIT_CODE=$?
-          set -e  # Re-enable exit on error
+          set -e
           
-          echo ""
-          echo "Maven Exit Code: ${MVN_EXIT_CODE}"
+          echo "Maven exit code: ${MVN_EXIT_CODE}"
           
-          if [ ${MVN_EXIT_CODE} -ne 0 ]; then
-            echo "⚠️  Maven execution completed with exit code: ${MVN_EXIT_CODE}"
-          fi
+          TESTNG_RESULTS="test-output/testng-results.xml"
+          [ ! -f "$TESTNG_RESULTS" ] && TESTNG_RESULTS="target/surefire-reports/testng-results.xml"
           
-          echo ""
-          echo "✅ Test execution completed"
-          echo ""
-          
-          # Display execution time and quick summary
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          MINUTES=$((DURATION / 60))
-          SECONDS=$((DURATION % 60))
-          echo "⏱️  Execution Time: ${MINUTES}m ${SECONDS}s"
-          
-          # Quick artifact check
-          [ -f "test-output/testng-results.xml" ] && echo "✅ TestNG results generated" || echo "⚠️  TestNG results missing"
-          
-          # Check Allure results (report is generated in next step)
-          if [ -d "AllureReports/allure-results" ]; then
-            RESULT_COUNT=$(find AllureReports/allure-results -type f 2>/dev/null | wc -l)
-            if [ "${RESULT_COUNT}" -gt 0 ]; then
-              echo "✅ Allure results found: ${RESULT_COUNT} files"
-            else
-              echo "⚠️  Allure results directory exists but is empty"
-            fi
-          else
-            echo "⚠️  Allure results directory missing"
-          fi
-          
-          [ -d "ExcelReports" ] && echo "✅ Excel report generated" || echo "⚠️  Excel report missing"
-          
-          # ═══════════════════════════════════════════════════════════════
-          # Test Validation
-          # ═══════════════════════════════════════════════════════════════
-          echo ""
-          echo "🔍 Validating test execution..."
-          
-          VALIDATION_FAILED=0
-          TESTNG_RESULTS=""
-          [ -f "test-output/testng-results.xml" ] && TESTNG_RESULTS="test-output/testng-results.xml"
-          [ -z "$TESTNG_RESULTS" ] && [ -f "target/surefire-reports/testng-results.xml" ] && TESTNG_RESULTS="target/surefire-reports/testng-results.xml"
-          
-          if [ -z "$TESTNG_RESULTS" ]; then
-            echo "❌ ERROR: TestNG results not found"
-            VALIDATION_FAILED=1
-          else
-            TOTAL_TESTS=$(grep -oP 'total="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
-            PASSED_TESTS=$(grep -oP 'passed="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
-            FAILED_TESTS=$(grep -oP 'failed="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
-            SKIPPED_TESTS=$(grep -oP 'skipped="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
+          if [ -f "$TESTNG_RESULTS" ]; then
+            TOTAL=$(grep -oP 'total="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
+            PASSED=$(grep -oP 'passed="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
+            FAILED=$(grep -oP 'failed="\K[^"]+' "$TESTNG_RESULTS" | head -1 || echo "0")
+            echo "📊 Total: ${TOTAL} | Passed: ${PASSED} | Failed: ${FAILED}"
             
-            echo "📊 Results: Total: ${TOTAL_TESTS} | Passed: ${PASSED_TESTS} | Failed: ${FAILED_TESTS} | Skipped: ${SKIPPED_TESTS}"
-            
-            if [ "$TOTAL_TESTS" = "0" ] || [ -z "$TOTAL_TESTS" ]; then
-              echo "❌ ERROR: No tests executed - check configuration"
-              VALIDATION_FAILED=1
-            elif [ "$FAILED_TESTS" != "0" ] && [ -n "$FAILED_TESTS" ]; then
-              echo "❌ TEST FAILURES: ${FAILED_TESTS}/${TOTAL_TESTS} failed (Pass rate: $(awk "BEGIN {printf \"%.1f%%\", (${PASSED_TESTS}/${TOTAL_TESTS})*100}"))"
-              VALIDATION_FAILED=1
-            else
-              echo "✅ All ${TOTAL_TESTS} test(s) PASSED"
-            fi
+            [ "$FAILED" != "0" ] && exit 1 || exit 0
+          else
+            echo "❌ TestNG results not found"
+            exit 1
           fi
-          
-          [ $VALIDATION_FAILED -eq 1 ] && exit 1 || exit 0
       
       - name: 📊 Generate Allure Report
         if: always()
         working-directory: e2e-automation
         run: |
           if [ -d "AllureReports/allure-results" ] && [ "$(ls -A AllureReports/allure-results 2>/dev/null)" ]; then
-            echo "📊 Generating Allure Report..."
-            RESULTS_DIR="AllureReports/allure-results"
-            REPORT_DIR="AllureReports/allure-report"
-            
-            # Clean previous report
-            rm -rf "${REPORT_DIR}"
-            
-            # Generate report using Maven plugin
-            mvn allure:report -B -Dallure.results.directory="${RESULTS_DIR}" -Dallure.report.directory="${REPORT_DIR}" || {
-              echo "⚠️  Maven Allure plugin failed, trying Allure CLI..."
-              # Install Allure CLI if not available
-              if ! command -v allure &> /dev/null; then
-                echo "📦 Installing Allure CLI..."
-                wget -qO- https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz | tar -xz
-                export PATH="$PWD/allure-2.27.0/bin:$PATH"
-              fi
-              
-              # Generate report using Allure CLI
-              allure generate "${RESULTS_DIR}" -o "${REPORT_DIR}" --clean
+            echo "📊 Generating Allure Report"
+            mvn allure:report -B || {
+              wget -qO- https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz | tar -xz
+              export PATH="$PWD/allure-2.27.0/bin:$PATH"
+              allure generate AllureReports/allure-results -o AllureReports/allure-report --clean
             }
-            
-            # Verify report was generated
-            if [ -d "${REPORT_DIR}" ] && [ -f "${REPORT_DIR}/index.html" ]; then
-              echo "✅ Allure report generated successfully"
-              echo "📄 Report location: ${REPORT_DIR}/index.html"
-            else
-              echo "❌ Allure report generation failed"
-              exit 1
-            fi
-          else
-            echo "⚠️  No Allure results found - skipping report generation"
+            echo "✅ Allure report generated"
           fi
       
-      - name: 🔄 Restore Original Test Suite XML
+      - name: 🔄 Restore Test Suite XML
         if: always()
         working-directory: e2e-automation
         run: |
-          # Determine which test suite was used
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            TEST_SUITE="${{ env.SCHEDULED_TEST_SUITE }}"
-          else
-            TEST_SUITE="${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}"
-          fi
-          
-          # Restore backup if it exists
-          if [ -f "${TEST_SUITE}.backup" ]; then
-            mv "${TEST_SUITE}.backup" "${TEST_SUITE}"
-            echo "✅ Restored original test suite XML: ${TEST_SUITE}"
-          else
-            echo "ℹ️  No backup found to restore"
-          fi
+          TEST_SUITE="${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}"
+          [ -f "${TEST_SUITE}.backup" ] && mv "${TEST_SUITE}.backup" "${TEST_SUITE}"
       
-      - name: 📊 Generate Test Report Summary
+      - name: 📊 Generate Test Summary
         if: always()
         run: |
           echo "## 🧪 Test Execution Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Show trigger type
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "**Trigger:** ⏰ Scheduled Run (Automatic)" >> $GITHUB_STEP_SUMMARY
-            echo "**Test Suite:** ${{ env.SCHEDULED_TEST_SUITE }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Browser:** ${{ env.SCHEDULED_BROWSER }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Environment:** ${{ env.SCHEDULED_ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Headless Mode:** ${{ env.SCHEDULED_HEADLESS }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Login Type:** ${{ env.SCHEDULED_LOGIN_TYPE }}" >> $GITHUB_STEP_SUMMARY
-            echo "**PAMS ID:** ${{ env.SCHEDULED_PAMS_ID }}" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "**Trigger:** 👤 Manual Run" >> $GITHUB_STEP_SUMMARY
-            echo "**Test Suite:** ${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Browser:** ${{ github.event.inputs.browser || 'chrome' }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Environment:** ${{ github.event.inputs.environment || 'qa' }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Headless Mode:** ${{ github.event.inputs.headless_mode || 'true' }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Parallel Execution:** ${{ github.event.inputs.parallel_execution || 'false' }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Login Type:** ${{ github.event.inputs.login_type || 'NON_SSO' }}" >> $GITHUB_STEP_SUMMARY
-            echo "**PAMS ID:** ${{ github.event.inputs.pams_id || '23139' }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Excel Report Reset:** ${{ github.event.inputs.reset_excel_report || 'false' }}" >> $GITHUB_STEP_SUMMARY
-          fi
-          
+          echo "**Test Suite:** ${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Browser:** ${{ github.event.inputs.browser || 'chrome' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ github.event.inputs.environment || 'qa' }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          # Find TestNG results file - check multiple possible locations
           TESTNG_FILE=""
-          echo "🔍 Searching for TestNG results file..."
+          [ -f "e2e-automation/test-output/testng-results.xml" ] && TESTNG_FILE="e2e-automation/test-output/testng-results.xml"
+          [ -z "$TESTNG_FILE" ] && [ -f "e2e-automation/target/surefire-reports/testng-results.xml" ] && TESTNG_FILE="e2e-automation/target/surefire-reports/testng-results.xml"
           
-          # Check location 1: test-output
-          if [ -f "e2e-automation/test-output/testng-results.xml" ]; then
-            TESTNG_FILE="e2e-automation/test-output/testng-results.xml"
-            echo "✅ Found TestNG results at: test-output/testng-results.xml"
-          fi
-          
-          # Check location 2: target/surefire-reports (Maven default)
-          if [ -z "$TESTNG_FILE" ] && [ -f "e2e-automation/target/surefire-reports/testng-results.xml" ]; then
-            TESTNG_FILE="e2e-automation/target/surefire-reports/testng-results.xml"
-            echo "✅ Found TestNG results at: target/surefire-reports/testng-results.xml"
-          fi
-          
-          if [ -z "$TESTNG_FILE" ]; then
-            echo "❌ TestNG results file not found at any location"
-          fi
-          
-          # Parse TestNG results and display test statistics
           if [ -n "$TESTNG_FILE" ]; then
-            echo "## 📈 Test Results" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            # Extract test counts from TestNG XML - using simpler regex patterns
             PASSED=$(grep -oP 'passed="\K[^"]+' "$TESTNG_FILE" | head -1 || echo "0")
             FAILED=$(grep -oP 'failed="\K[^"]+' "$TESTNG_FILE" | head -1 || echo "0")
             SKIPPED=$(grep -oP 'skipped="\K[^"]+' "$TESTNG_FILE" | head -1 || echo "0")
-            TOTAL=$(grep -oP 'total="\K[^"]+' "$TESTNG_FILE" | head -1 || echo "0")
+            TOTAL=$(grep -oP 'total="\K[^"]+' "$TESTNG_FILE" | head -1 || echo "$((PASSED + FAILED + SKIPPED))")
             
-            # If TOTAL is still 0 or not found, calculate it from other values
-            if [ "$TOTAL" -eq 0 ] 2>/dev/null || [ -z "$TOTAL" ]; then
-              TOTAL=$((PASSED + FAILED + SKIPPED))
-            fi
+            [ "$FAILED" -eq 0 ] && [ "$PASSED" -gt 0 ] && STATUS="✅ All Tests Passed" || STATUS="❌ Some Tests Failed"
             
-            # Calculate pass rate
-            if [ "$TOTAL" -gt 0 ]; then
-              PASS_RATE=$(awk "BEGIN {printf \"%.1f\", ($PASSED/$TOTAL)*100}")
-            else
-              PASS_RATE="0.0"
-            fi
-            
-            # Determine status emoji
-            if [ "$FAILED" -eq 0 ] && [ "$PASSED" -gt 0 ]; then
-              STATUS_EMOJI="✅"
-              STATUS_TEXT="All Tests Passed"
-            elif [ "$FAILED" -gt 0 ]; then
-              STATUS_EMOJI="❌"
-              STATUS_TEXT="Some Tests Failed"
-            else
-              STATUS_EMOJI="⚠️"
-              STATUS_TEXT="No Tests Executed"
-            fi
-            
-            echo "### ${STATUS_EMOJI} ${STATUS_TEXT}" >> $GITHUB_STEP_SUMMARY
+            echo "### ${STATUS}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "| Metric | Count | Percentage |" >> $GITHUB_STEP_SUMMARY
-            echo "|--------|-------|------------|" >> $GITHUB_STEP_SUMMARY
-            echo "| ✅ **Passed** | **${PASSED}** | $(awk "BEGIN {printf \"%.1f%%\", ($PASSED/$TOTAL)*100}" 2>/dev/null || echo "N/A") |" >> $GITHUB_STEP_SUMMARY
-            echo "| ❌ **Failed** | **${FAILED}** | $(awk "BEGIN {printf \"%.1f%%\", ($FAILED/$TOTAL)*100}" 2>/dev/null || echo "N/A") |" >> $GITHUB_STEP_SUMMARY
-            echo "| ⏭️ **Skipped** | **${SKIPPED}** | $(awk "BEGIN {printf \"%.1f%%\", ($SKIPPED/$TOTAL)*100}" 2>/dev/null || echo "N/A") |" >> $GITHUB_STEP_SUMMARY
-            echo "| 📊 **Total** | **${TOTAL}** | 100% |" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Pass Rate:** ${PASS_RATE}%" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "⚠️ **Warning:** TestNG results file not found at expected locations." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Searched locations:" >> $GITHUB_STEP_SUMMARY
-            echo "- \`e2e-automation/test-output/testng-results.xml\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`e2e-automation/target/surefire-reports/testng-results.xml\`" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ Passed | ${PASSED} |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ Failed | ${FAILED} |" >> $GITHUB_STEP_SUMMARY
+            echo "| ⏭️ Skipped | ${SKIPPED} |" >> $GITHUB_STEP_SUMMARY
+            echo "| 📊 Total | ${TOTAL} |" >> $GITHUB_STEP_SUMMARY
           fi
-          
-          # Add quick links to artifacts
-          echo "## 📦 Available Reports & Artifacts" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "After the workflow completes, the following artifacts will be available for download:" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- 📊 **Allure Report** - Interactive HTML test report with screenshots and environment info" >> $GITHUB_STEP_SUMMARY
-          echo "- 📈 **Excel Reports** - Comprehensive test results in Excel format" >> $GITHUB_STEP_SUMMARY
-          echo "- 🧪 **TestNG Results** - Raw TestNG XML and HTML reports" >> $GITHUB_STEP_SUMMARY
-          echo "- 📝 **Logs** - Detailed execution logs for debugging" >> $GITHUB_STEP_SUMMARY
-          echo "- 📸 **Screenshots** - Failure screenshots (if any tests failed)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> 💡 **Tip:** Click on the 'Summary' tab above to download artifacts quickly!" >> $GITHUB_STEP_SUMMARY
       
       - name: 📤 Upload Allure Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-report_${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}_${{ github.event.inputs.browser || 'chrome' }}_${{ github.event.inputs.environment || 'qa' }}_${{ github.run_number }}_${{ github.run_attempt }}
+          name: allure-report_${{ github.run_number }}
           path: e2e-automation/AllureReports/allure-report/
           retention-days: 30
           if-no-files-found: ignore
@@ -669,40 +311,27 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: testng-results_${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}_${{ github.event.inputs.browser || 'chrome' }}_${{ github.event.inputs.environment || 'qa' }}_${{ github.run_number }}_${{ github.run_attempt }}
+          name: testng-results_${{ github.run_number }}
           path: |
-            e2e-automation/test-output/testng-results.xml
-            e2e-automation/test-output/emailable-report.html
-            e2e-automation/target/surefire-reports/testng-results.xml
-            e2e-automation/target/surefire-reports/emailable-report.html
+            e2e-automation/test-output/
+            e2e-automation/target/surefire-reports/
           retention-days: 30
           if-no-files-found: ignore
-      
-      - name: 🔍 Verify Excel Report Generation
-        if: always()
-        run: |
-          echo "🔍 Checking Excel reports..."
-          if [ -d "e2e-automation/ExcelReports" ]; then
-            echo "✅ ExcelReports directory found"
-            ls -lh e2e-automation/ExcelReports/*.xlsx 2>/dev/null || echo "⚠️  No .xlsx files found"
-          else
-            echo "❌ ExcelReports directory missing"
-          fi
       
       - name: 📤 Upload Excel Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: excel-reports_${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}_${{ github.event.inputs.browser || 'chrome' }}_${{ github.event.inputs.environment || 'qa' }}_${{ github.run_number }}_${{ github.run_attempt }}
+          name: excel-reports_${{ github.run_number }}
           path: e2e-automation/ExcelReports/
           retention-days: 30
           if-no-files-found: ignore
       
       - name: 📤 Upload Screenshots
-        if: failure() || contains(github.event.head_commit.message, 'force-screenshots')
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots_${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}_${{ github.event.inputs.browser || 'chrome' }}_${{ github.event.inputs.environment || 'qa' }}_${{ github.run_number }}_${{ github.run_attempt }}
+          name: screenshots_${{ github.run_number }}
           path: e2e-automation/Screenshots/
           retention-days: 7
           if-no-files-found: warn
@@ -711,32 +340,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: logs_${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}_${{ github.event.inputs.browser || 'chrome' }}_${{ github.event.inputs.environment || 'qa' }}_${{ github.run_number }}_${{ github.run_attempt }}
+          name: logs_${{ github.run_number }}
           path: e2e-automation/logs/
           retention-days: 7
           if-no-files-found: warn
-      
-      - name: 💬 Comment PR with Results
-        if: github.event_name == 'pull_request' && always()
-        uses: actions/github-script@v7
-        continue-on-error: true
-        with:
-          script: |
-            const fs = require('fs');
-            let comment = `## 🧪 E2E Test Results\n\n`;
-            comment += `**Status:** ${{ job.status }}\n`;
-            comment += `**Browser:** ${{ github.event.inputs.browser || 'chrome' }}\n`;
-            comment += `**Test Suite:** ${{ github.event.inputs.test_suite || 'JAM_SmokeTestSuite.xml' }}\n\n`;
-            comment += `📊 [View Full Report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})\n`;
-            
-            try {
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
-            } catch (error) {
-              console.log('Could not create PR comment:', error.message);
-            }
-
