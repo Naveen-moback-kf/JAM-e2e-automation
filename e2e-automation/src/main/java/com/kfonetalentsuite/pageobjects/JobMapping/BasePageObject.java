@@ -305,11 +305,11 @@ public class BasePageObject {
 	// Delegate to Utilities for implementation
 	
 	protected WebElement findElement(By locator) {
-		return Utilities.findElement(driver, locator);
+		return driver.findElement(locator);
 	}
 
 	protected List<WebElement> findElements(By locator) {
-		return Utilities.findElements(driver, locator);
+		return driver.findElements(locator);
 	}
 
 	protected WebElement getFirstElementOrNull(By locator) {

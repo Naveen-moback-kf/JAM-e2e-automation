@@ -95,7 +95,12 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 					getElementText(JPH_PROFILES_COUNT_ROW1));
 			LOGGER.info("No.of Profiles count in Publish Center matches with No.of Profiles selected for Download in HCM Sync Profiles screen in PM");
 			PO18_HCMSyncProfilesTab_PM.profilesCount.set(0);
-			ProfilesCountInRow1.set(Integer.parseInt(getElementText(JPH_PROFILES_COUNT_ROW1)));
+			
+			// Parse profile count with validation
+			String profileCountText = getElementText(JPH_PROFILES_COUNT_ROW1).replaceAll("[^0-9]", "");
+			int profileCount = profileCountText.isEmpty() ? 0 : Integer.parseInt(profileCountText);
+			ProfilesCountInRow1.set(profileCount);
+			
 			Assert.assertEquals(getElementText(JPH_ACCESSED_DATE_ROW1), todayDate);
 			LOGGER.info("Accessed Date of the Recently downloaded Job Profile Matches with today's date");
 			Assert.assertEquals(getElementText(JPH_ACTION_TAKEN_ROW1), "Downloaded");
@@ -242,7 +247,16 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			String profilesCountTextinRow1 = getElementText(JPH_PROFILES_COUNT_ROW1);
 			int expectedCount = PO18_HCMSyncProfilesTab_PM.profilesCount.get();
-			int actualExportedCount = Integer.parseInt(profilesCountTextinRow1.replaceAll("[^0-9]", ""));
+			
+			// Clean the text and handle empty strings
+			String cleanedText = profilesCountTextinRow1.replaceAll("[^0-9]", "");
+			int actualExportedCount = 0;
+			
+			if (!cleanedText.isEmpty()) {
+				actualExportedCount = Integer.parseInt(cleanedText);
+			} else {
+				LOGGER.warn("Profile count text is empty or contains no numbers. Raw text: '{}'", profilesCountTextinRow1);
+			}
 			
 			LOGGER.info("Verifying export count - Selected: {} | Actually Exported (UI): {}", 
 					expectedCount, actualExportedCount);
@@ -274,7 +288,17 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			String todayDate = formatDateForDisplay();
 			String profilesCountText = getElementText(JPH_PROFILES_COUNT_ROW1);
-			int actualExported = Integer.parseInt(profilesCountText);
+			
+			// Clean and validate the text before parsing
+			String cleanedText = profilesCountText.replaceAll("[^0-9]", "");
+			int actualExported = 0;
+			
+			if (!cleanedText.isEmpty()) {
+				actualExported = Integer.parseInt(cleanedText);
+			} else {
+				LOGGER.warn("Profile count text is empty or contains no numbers. Raw text: '{}'", profilesCountText);
+			}
+			
 			int expectedSelected = PO18_HCMSyncProfilesTab_PM.profilesCount.get();
 
 			if (PO18_HCMSyncProfilesTab_PM.isProfilesCountComplete.get()) {
@@ -493,7 +517,9 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 				WebElement jphActionTaken = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + i + "]/div[4]/span | //*/kf-page-content/div[2]/div[2]/div[" + i + "]/div[4]"));
 				WebElement jphStatus = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + i + "]/div[5]/span"));
 
-				int profileCount = Integer.parseInt(jphProfilesCount.getText().trim());
+				// Parse profile count with validation
+				String countText = jphProfilesCount.getText().trim().replaceAll("[^0-9]", "");
+				int profileCount = countText.isEmpty() ? 0 : Integer.parseInt(countText);
 				profileCounts.add(profileCount);
 
 				LOGGER.info(getElementText(JPH_HEADER1).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText()
@@ -602,7 +628,9 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 				WebElement jphActionTaken = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + i + "]/div[4]/span | //*/kf-page-content/div[2]/div[2]/div[" + i + "]/div[4]"));
 				WebElement jphStatus = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + i + "]/div[5]/span"));
 
-				int profileCount = Integer.parseInt(jphProfilesCount.getText().trim());
+				// Parse profile count with validation
+				String countText = jphProfilesCount.getText().trim().replaceAll("[^0-9]", "");
+				int profileCount = countText.isEmpty() ? 0 : Integer.parseInt(countText);
 				profileCounts.add(profileCount);
 
 				LOGGER.info(getElementText(JPH_HEADER1).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + jphProfilesCount.getText()

@@ -303,14 +303,6 @@ public class Utilities {
 	// ELEMENT FINDING UTILITIES
 	// =============================================
 
-	public static WebElement findElement(WebDriver driver, By locator) {
-		return driver.findElement(locator);
-	}
-
-	public static List<WebElement> findElements(WebDriver driver, By locator) {
-		return driver.findElements(locator);
-	}
-
 	public static WebElement getFirstElementOrNull(WebDriver driver, By locator) {
 		List<WebElement> elements = driver.findElements(locator);
 		return elements.isEmpty() ? null : elements.get(0);
