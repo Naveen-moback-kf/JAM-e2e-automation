@@ -19,22 +19,6 @@ import org.apache.logging.log4j.Logger;
 public class Utilities {
 	private static final Logger LOGGER = LogManager.getLogger(Utilities.class);
 
-	public void jsClick(WebDriver driver, WebElement element) {
-		JavascriptExecutor executor = (JavascriptExecutor) driver;
-		executor.executeScript("arguments[0].click();", element);
-	}
-
-	public String readText(By value, WebDriver driver) {
-		String text = null;
-		try {
-			WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(40));
-			text = wait.until(ExpectedConditions.visibilityOfElementLocated((value))).getText();
-		} catch (Exception e) {
-			LOGGER.debug("Could not read text from element: {}", e.getMessage());
-		}
-		return text;
-	}
-
 	// =============================================
 	// FILE UPLOAD UTILITIES
 	// =============================================
