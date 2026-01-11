@@ -14,6 +14,7 @@ Feature: Using Find Match button, Manually Map Success Profile for the Organizat
 
   @Find_Match
   Scenario: Click on Find Match button and Search for SP in Manual Mapping screen
+    Given Skip scenario if all profiles are already mapped
     Then Click on Find Match button
     Then User should be navigated to Manual Job Mapping screen
     Then Verify Organization Job details in Manual Mapping screen
@@ -22,6 +23,7 @@ Feature: Using Find Match button, Manually Map Success Profile for the Organizat
 
   @Map_SP_to_Organization_Job
   Scenario: Validate and Manually Map SP to Organization Job in Auto AI
+    Given Skip scenario if all profiles are already mapped
     When Verify Success Profile is added in Manual Job Mapping screen
     Then User should verify Profile Level dropdown is available and Validate levels present inside dropdown in Manual Job Mapping screen
     Then Change Profile Level in Manual Job Mapping screen

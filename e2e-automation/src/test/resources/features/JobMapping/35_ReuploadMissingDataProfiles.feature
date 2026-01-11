@@ -24,6 +24,7 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
 
   @Export_Missing_Data_Profiles_To_CSV
   Scenario: Fetch profiles with missing data and export to CSV file (up to 10 or all if less)
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Jobs Missing Data screen
     Then Capture total count of profiles in Jobs Missing Data screen
     And Extract details of profiles from Jobs Missing Data screen up to 10 or all if less
@@ -36,7 +37,8 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
 
   @Fill_Missing_Grade_Data_In_CSV
   Scenario: Fill missing GRADE data in exported CSV file
-    Given CSV file with missing data profiles exists
+    Given Skip scenario if Missing Data Tip Message is not displayed
+    And CSV file with missing data profiles exists
     Then Read the exported CSV file with missing data profiles
     And Identify profiles with missing Grade value in CSV
     Then Fill missing Grade values with appropriate grade codes
@@ -46,7 +48,8 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
 
   @Fill_Missing_Department_Data_In_CSV
   Scenario: Fill missing DEPARTMENT data in exported CSV file
-    Given CSV file with missing data profiles exists
+    Given Skip scenario if Missing Data Tip Message is not displayed
+    And CSV file with missing data profiles exists
     Then Read the exported CSV file with missing data profiles
     And Identify profiles with missing Department value in CSV
     Then Fill missing Department values with appropriate department names
@@ -56,7 +59,8 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
 
   @Fill_All_Missing_Data_In_CSV
   Scenario: Fill all missing data fields in exported CSV file
-    Given CSV file with missing data profiles exists
+    Given Skip scenario if Missing Data Tip Message is not displayed
+    And CSV file with missing data profiles exists
     Then Read the exported CSV file with missing data profiles
     And Identify all profiles with any missing values in CSV
     Then Fill missing Grade values with default grade JGL01
@@ -68,6 +72,7 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
 
   @Reupload_Corrected_CSV_Via_Reupload_Button
   Scenario: Re-upload corrected CSV file using Re-upload button in Missing Data screen
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page
     Then Capture the count of jobs with missing data before re-upload
     And Capture Total Results count before re-upload
@@ -80,6 +85,7 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
     
   @UploadGeneratedCSVFile
   Scenario: User uploads generated CSV file through manual upload
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in KFONE Add Job Data page
     Then User should click on Manual Upload button
     Then Verify Jobs count in KFONE Add Job Data screen before adding more jobs
@@ -93,26 +99,28 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
 
   @ValidateJobDataUpdateSuccess
   Scenario: User validates successful job data update (re-upload updates existing profiles, not adding new ones)
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in KFONE Add Job Data page after uploading file
     Then User should Validate Job Data Upload is in Progress
     # OPTIONAL: Informational only - logs warning if fails, doesn't stop test execution
     Then User should validate Job Data added successfully
     # OPTIONAL: Informational only - logs warning if fails, doesn't stop test execution
-    # NOTE: Job count should NOT increase for re-upload - we are updating existing profiles, not adding new ones
-    Then Verify Jobs count in KFONE Add Job Data screen after adding more jobs
-    # OPTIONAL: Informational only - logs warning if fails, doesn't stop test execution
+    # NOTE: For re-upload, job count should remain UNCHANGED (updating existing jobs, not adding new ones)
+    Then Verify Jobs count remains unchanged after re-uploading jobs
     Then Close Add Job Data screen
     Then User should be landed on Job Mapping page
     # NOTE: Unpublished count may or may not change - skip this verification for re-upload scenario
 
   @Wait_For_Backend_Processing
   Scenario: Wait for backend to process uploaded data and refresh page
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page
     Then Wait for backend processing and refresh Job Mapping page
     # Simple 3-minute wait - Profile verification scenario will have smart retries to check actual data
 
   @Verify_Profiles_Fixed_In_Job_Mapping
   Scenario: Verify re-uploaded profile is fixed with corrected data (with dynamic polling)
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page
     Then Search for first re-uploaded profile by Job Name from CSV
     # Search retries: 20 attempts × 30 seconds = up to 10 minutes with dynamic polling
@@ -120,27 +128,27 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
     # Search by Job Name may return multiple profiles - validates specific Job Code match
     Then Verify profile does NOT display Missing Data info icon
     And Verify profile displays the corrected data values
-    # Value validation: checks every 20 seconds for up to 10 minutes until ALL fields match
-    # Validates Grade, Department, Job Family, and Job Sub Family with STRICT matching
-    # Uses Job Code to uniquely identify the profile even when multiple jobs have same name
 
   @Verify_Missing_Data_Count_Reduced
   Scenario: Verify missing data count has reduced after re-upload
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page
     Then Verify Missing Data Tip Message is displaying on Job Mapping page
     And Capture the count of jobs with missing data after re-upload
     Then Verify missing data count has decreased compared to before re-upload
-    # After confirming profile is fixed, validate aggregated missing data count decreased
 
   @Verify_Total_Results_Count_Unchanged
   Scenario: Verify Total Results count remains unchanged after re-upload (updating existing profiles, not adding new)
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page
+    Then Click on View Published toggle button to turn on
+    Then Click on View Published toggle button to turn off
     Then Capture Total Results count after re-upload
     And Verify Total Results count remains unchanged after re-upload
-    # After confirming profile is fixed, validate total count remained stable (no duplicates created)
 
   @Verify_Profiles_Removed_From_Missing_Data_Screen
   Scenario: Verify re-uploaded profiles are removed from Missing Data screen
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page
     Then Click on "View & Re-upload jobs" link in Missing Data Tip Message
     Then Verify user is navigated to Jobs with Missing "<DataType>" Data screen

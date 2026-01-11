@@ -89,6 +89,21 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	private static final By JOB_MAPPING_PAGE_CONTAINER = By.xpath("//div[@id='org-job-container']");
 	private static final By SEARCH_BAR = By.xpath("//input[contains(@id,'search-job-title')]");
 
+	/**
+	 * Universal method to check if profiles are available for manual mapping.
+	 * Throws SkipException if all profiles are already mapped - used across Features 16 and 17.
+	 * Called from Step Definition at the beginning of manual mapping scenarios.
+	 */
+	public void skipScenarioIfAllProfilesAlreadyMapped() {
+		// If mapSP is false or null, it means all profiles are already mapped
+		Boolean mapSPValue = mapSP.get();
+		
+		if (mapSPValue == null || !mapSPValue) {
+			LOGGER.warn("SKIPPED: All profiles are already mapped with BIC profiles - No unmapped profiles available for manual mapping");
+			throw new org.testng.SkipException("All profiles are already mapped with BIC profiles - No unmapped profiles available for manual mapping");
+		}
+	}
+
 	// METHODs
 	public void user_should_search_for_job_profile_with_search_a_different_profile_button_on_mapped_success_profile() {
 		try {

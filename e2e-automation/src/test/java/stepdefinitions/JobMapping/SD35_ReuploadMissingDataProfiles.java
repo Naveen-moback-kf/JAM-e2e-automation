@@ -14,6 +14,11 @@ public class SD35_ReuploadMissingDataProfiles {
 		super();
 	}
 
+	@Given("Skip scenario if Missing Data Tip Message is not displayed")
+	public void skip_scenario_if_missing_data_tip_message_is_not_displayed() throws IOException {
+		PageObjectManager.getInstance().getMissingDataTipMessage().skipScenarioIfMissingDataTipMessageNotDisplayed();
+	}
+
 	@Then("Verify Re-upload button is displayed on Jobs Missing Data screen")
 	public void verify_reupload_button_is_displayed_on_jobs_missing_data_screen() throws IOException {
 		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_reupload_button_is_displayed_on_jobs_missing_data_screen();

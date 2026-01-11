@@ -9,6 +9,7 @@ Feature: Validate Jobs with Missing Data in Job Mapping UI
   @Forward_Validate_Missing_Data_Flow
   Scenario Outline: Forward Flow - Find job with missing <DataType> in Job Mapping, then validate in Missing Data screen
     # Forward workflow: Job Mapping → find missing data job → Missing Data screen → validate
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page
     Then Sort Job Profiles by "<SortColumn>" in Ascending order
     Then Find job profile in Job Mapping page where "<DataType>" is missing
@@ -47,6 +48,7 @@ Feature: Validate Jobs with Missing Data in Job Mapping UI
   @Reverse_Validate_Missing_Data_Flow
   Scenario Outline: Reverse Flow - Validate jobs with missing <DataType> data from Missing Data screen to Job Mapping
     # Reverse workflow: Job Mapping → Missing Data screen → find missing data job → Job Mapping → validate
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page
     Then User should verify Job Mapping logo is displayed on screen
     Then Click on "View & Re-upload jobs" link in Missing Data Tip Message

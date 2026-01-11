@@ -2,20 +2,6 @@
 
 **Quick Start Guide for Team Members**
 
----
-
-## 📋 Table of Contents
-
-- [Prerequisites](#prerequisites)
-- [Initial Setup](#initial-setup)
-- [Running Tests](#running-tests)
-- [Viewing Reports](#viewing-reports)
-- [Configuration](#configuration)
-- [Troubleshooting](#troubleshooting)
-- [Quick Reference](#quick-reference)
-
----
-
 ## ✅ Prerequisites
 
 Before you begin, ensure you have the following installed:

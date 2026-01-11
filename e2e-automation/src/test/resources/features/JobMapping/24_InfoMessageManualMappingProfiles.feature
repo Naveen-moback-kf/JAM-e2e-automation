@@ -19,6 +19,7 @@ Feature: Verify Info Message for Multiple Profiles with Missing Data in Manual M
   @Verify_Manual_Profile_Info_Message
   Scenario: Verify Info Message displays on first manually mapped profile with missing data
     # Validates info message presence on first manually mapped profile with missing Grade/Department/Function/Subfunction
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page with Manual Mapping filters applied
     Then Find and verify manually mapped profile with missing data has Info Message displayed
     And Verify Info Message contains text about reduced match accuracy due to missing data for manual mapping
@@ -26,6 +27,7 @@ Feature: Verify Info Message for Multiple Profiles with Missing Data in Manual M
   @Verify_Manual_Job_Details_Extraction_And_Comparison
   Scenario: Verify job details extraction and comparison for first manually mapped profile between Job Mapping and Manual Mapping pages
     # Validates that job details (Name, Code, Grade, Department, Function/Sub-function) are accurately extracted from Job Mapping page and match on Manual Mapping page for first manually mapped profile
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page with Manual Mapping filters applied
     Then Find manually mapped profile with missing data and Info Message
     And Extract job details from manually mapped profile with Info Message
@@ -37,6 +39,7 @@ Feature: Verify Info Message for Multiple Profiles with Missing Data in Manual M
   @Verify_Manual_Info_Message_Persistence
   Scenario: Verify Info Message persists in Manual Mapping page for first manually mapped profile
     # Validates info message persistence when navigating to Manual Mapping via "Search a Different Profile" for first manually mapped profile
+    Given Skip scenario if Missing Data Tip Message is not displayed
     Then Verify Info Message is still displayed in Manual Mapping page
     And Verify Info Message contains same text about reduced match accuracy for manual mapping
     And Navigate back to Job Mapping page from Manual Mapping
@@ -44,6 +47,7 @@ Feature: Verify Info Message for Multiple Profiles with Missing Data in Manual M
   @Verify_Second_Manual_Profile_Info_Message
   Scenario: Verify Info Message displays on second manually mapped profile with missing data
     # Validates info message presence on second manually mapped profile with missing Grade/Department/Function/Subfunction
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page with Manual Mapping filters applied
     Then Find and verify second manually mapped profile with missing data has Info Message displayed
     And Verify Info Message contains text about reduced match accuracy due to missing data for second manually mapped profile  
@@ -51,6 +55,7 @@ Feature: Verify Info Message for Multiple Profiles with Missing Data in Manual M
   @Verify_Second_Manual_Job_Details_Extraction_And_Comparison
   Scenario: Verify job details extraction and comparison for second manually mapped profile between Job Mapping and Manual Mapping pages
     # Validates that job details (Name, Code, Grade, Department, Function/Sub-function) are accurately extracted from Job Mapping page and match on Manual Mapping page for second manually mapped profile
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page with Manual Mapping filters applied
     Then Find second manually mapped profile with missing data and Info Message
     And Extract job details from second manually mapped profile with Info Message
@@ -62,6 +67,7 @@ Feature: Verify Info Message for Multiple Profiles with Missing Data in Manual M
   @Verify_Second_Manual_Info_Message_Persistence
   Scenario: Verify Info Message persists in Manual Mapping page for second manually mapped profile
     # Validates info message persistence when navigating to Manual Mapping via "Search a Different Profile" for second manually mapped profile
+    Given Skip scenario if Missing Data Tip Message is not displayed
     Then Verify Info Message is still displayed in Manual Mapping page for second manually mapped profile
     And Verify Info Message contains same text about reduced match accuracy for second manually mapped profile
     

@@ -8,6 +8,7 @@ Feature: Verify Missing Data Tip Message in Job Mapping UI
     
   @Verify_Missing_Data_Tip_Message_Core
   Scenario: Verify Missing Data Tip Message displays correctly
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page
     Then Verify Missing Data Tip Message is displaying on Job Mapping page
     And Verify Missing Data Tip Message contains correct count of jobs with missing data
@@ -16,6 +17,7 @@ Feature: Verify Missing Data Tip Message in Job Mapping UI
     
   @Verify_Missing_Data_Tip_Message_Functions
   Scenario: Verify Missing Data Tip Message interactive elements
+    Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page
     Then Verify Missing Data Tip Message is displaying on Job Mapping page
     And Verify "View & Re-upload jobs" link is present in Missing Data Tip Message

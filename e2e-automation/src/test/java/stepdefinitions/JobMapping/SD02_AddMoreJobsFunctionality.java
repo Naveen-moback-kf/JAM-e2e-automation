@@ -77,6 +77,12 @@ public class SD02_AddMoreJobsFunctionality {
 		PageObjectManager.getInstance().getAddMoreJobsFunctionality().verify_jobs_count_after_adding_more_jobs_optional();
 	}
 	
+	@Then("Verify Jobs count remains unchanged after re-uploading jobs")
+	public void verify_jobs_count_remains_unchanged_after_reuploading_jobs() throws IOException {
+		// For re-upload scenarios (Feature 35) - expects count to stay SAME
+		PageObjectManager.getInstance().getAddMoreJobsFunctionality().verify_jobs_count_unchanged_after_reupload();
+	}
+	
 	@Then("Verify Last Synced Info on Add Job Data screen after adding more jobs")
 	public void verify_last_synced_info_on_add_job_data_screen_after_adding_more_jobs() throws IOException {
 		PageObjectManager.getInstance().getAddMoreJobsFunctionality().verify_last_synced_info_on_add_job_data_screen_after_adding_more_jobs();

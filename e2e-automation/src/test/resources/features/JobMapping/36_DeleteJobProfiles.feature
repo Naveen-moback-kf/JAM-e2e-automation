@@ -1,5 +1,5 @@
 @DeleteJobProfiles_JAM
-Feature: Validate Singl and Mass Delete of Job Profiles in Job Mapping
+Feature: Validate Single and Mass Delete of Job Profiles in Job Mapping
 
   @Navigate_To_Job_Mapping
   Scenario: Navigate to Job Mapping page

@@ -2,48 +2,21 @@
 
 import java.io.IOException;
 
-import org.testng.SkipException;
-
 import com.kfonetalentsuite.manager.PageObjectManager;
 
-import io.cucumber.java.Before;
-import io.cucumber.java.Scenario;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 public class SD17_MapDifferentSPtoProfile {	
-	// Track if the foundational scenario is skipped
-	private static boolean foundationalScenarioSkipped = false;
-	private static final String FOUNDATIONAL_SCENARIO_TAG = "@VerifyOrganizationJobDetails";
 	
 	public SD17_MapDifferentSPtoProfile() {
 		super();		
 	}
 	
-	@Before(value = "@Map_Different_SP_in_AutoAI", order = 1)
-	public void checkFoundationalScenarioStatus(Scenario scenario) {
-		// Check if this is the foundational scenario
-		if (scenario.getSourceTagNames().contains(FOUNDATIONAL_SCENARIO_TAG)) {
-			// Reset flag at the start of foundational scenario
-			foundationalScenarioSkipped = false;
-			return; // Allow foundational scenario to run
-		}
-		
-		// Skip all other scenarios if foundational scenario was skipped
-		if (foundationalScenarioSkipped) {
-			String scenarioName = scenario.getName();
-			throw new SkipException("SKIPPED: Dependent scenario '" + scenarioName + "' skipped because foundational scenario " +
-					"'Verify Organization Job details on Profile with Search a Different Profile button' was skipped. " +
-					"No manually mapped profiles available for testing.");
-		}
-	}
-	
-	@io.cucumber.java.After(value = "@VerifyOrganizationJobDetails", order = 1)
-	public void captureFoundationalScenarioResult(Scenario scenario) {
-		// Check if the scenario was skipped
-		if (scenario.getStatus().toString().equals("SKIPPED")) {
-			foundationalScenarioSkipped = true;
-		}
+	@Given("Skip scenario if all profiles are already mapped")
+	public void skip_scenario_if_all_profiles_are_already_mapped() throws IOException {
+		PageObjectManager.getInstance().getMapDifferentSPtoProfile().skipScenarioIfAllProfilesAlreadyMapped();
 	}
 	
 	@Then("User should search for Job Profile with Search a Different Profile button on Mapped Success Profile")

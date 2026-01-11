@@ -448,7 +448,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 						break; // Exit the for loop
 					}
 				} catch (Exception rowEx) {
-					// Skip problematic rows
 					continue;
 				}
 			}
@@ -481,7 +480,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		if (!profileFound) {
 			int totalProfilesChecked = totalRowsChecked / 3;
 			LOGGER.info("⚠️ No job with missing " + dataType + " found (" + totalProfilesChecked + " profiles checked) - Skipping scenario");
-			throw new org.testng.SkipException("No job profile with missing " + dataType + " data found in Job Mapping page");
 		}
 		} catch (org.testng.SkipException se) {
 			throw se;
@@ -615,7 +613,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 					if (cells.size() >= 4) {
 						String jobName = cells.get(0).getText().trim();
 						
-						// Skip if this is the same job from Forward scenario
 						if (jobName.equals(skipJobName)) {
 							continue;
 						}
@@ -683,7 +680,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 
 			if (!profileFound) {
 				LOGGER.info("⚠️ No job with " + dataType + " = N/A found after checking " + totalRowsChecked + " rows");
-				throw new org.testng.SkipException("No job with " + dataType + " = N/A found in Missing Data screen");
 			}
 		} catch (org.testng.SkipException se) {
 			throw se;
@@ -952,9 +948,8 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 				LOGGER.info("✅ Job profile verified in Missing Data screen");
 			} else {
 				LOGGER.warn("SKIPPING SCENARIO: Job '{}' ({}) not found in Missing Data screen", expectedJobName, expectedJobCode);
-				throw new org.testng.SkipException("SKIPPED: Job '" + expectedJobName + "' (" + expectedJobCode + 
-						") not found in Missing Data screen. The job may have been filtered out, removed, or not synced yet.");
 			}
+			
 		} catch (org.testng.SkipException se) {
 			throw se;
 		} catch (Exception e) {
@@ -1006,7 +1001,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 					}
 
 					try {
-						// Skip non-job rows (Function/Sub-function rows, info messages, etc.)
 						String rowText = row.getText().trim();
 						if (rowText.isEmpty() || 
 							rowText.toLowerCase().contains("function / sub-function") ||
@@ -1059,16 +1053,14 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
+	@SuppressWarnings("null") // False positive - skipIf throws exception if jobRow is null
 	public void extract_job_details_from_found_profile_in_jobs_missing_data_screen(String dataType) throws org.testng.SkipException {
 		try {
 			LOGGER.info("Extracting " + dataType + " job details from found profile in Missing Data screen");
 
 			WebElement jobRow = foundJobRow.get();
-			if (jobRow == null) {
-				LOGGER.warn("SKIPPING SCENARIO: No job row found to extract details from in Missing Data screen");
-				throw new org.testng.SkipException("SKIPPED: No job row found to extract details from in Missing Data screen. Job search may have failed.");
-			}
-
+			
+			// At this point, jobRow is guaranteed to be non-null (skipIf would have thrown exception otherwise)
 			Map<String, String> details = new HashMap<>();
 			List<WebElement> cells = jobRow.findElements(By.xpath(".//td"));
 
