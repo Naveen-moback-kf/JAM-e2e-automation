@@ -342,7 +342,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		if (mapSP.get() | manualMapping.get()) {
 			try {
 				waitForSpinners();
-				Assert.assertTrue(waitForElement(PROFILE_DETAILS_POPUP_HEADER).isDisplayed());
+				Assert.assertTrue(Utilities.waitForVisible(wait, PROFILE_DETAILS_POPUP_HEADER).isDisplayed());
 				LOGGER.info("Mapped Profile details popup is displayed on screen");
 			} catch (Exception e) {
 				Utilities.handleError(LOGGER, "verify_mapped_profile_details_popup_is_displayed",
@@ -386,8 +386,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public void user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown_of_mapped_profile() {
 		if (mapSP.get() | manualMapping.get()) {
 			try {
-				if (waitForElement(PROFILE_LEVEL_DROPDOWN).isEnabled()) {
-					waitForClickable(PROFILE_LEVEL_DROPDOWN).click();
+				if (Utilities.waitForVisible(wait, PROFILE_LEVEL_DROPDOWN).isEnabled()) {
+					Utilities.waitForClickable(wait, PROFILE_LEVEL_DROPDOWN).click();
 					LOGGER.info("Profile Level dropdown is available and Clicked on it...");
 					Select dropdown = new Select(findElement(PROFILE_LEVEL_DROPDOWN));
 					List<WebElement> allOptions = dropdown.getOptions();
@@ -395,7 +395,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 					for (WebElement option : allOptions) {
 						LOGGER.info(option.getText());
 					}
-					waitForClickable(PROFILE_LEVEL_DROPDOWN).click(); // This click is
+					Utilities.waitForClickable(wait, PROFILE_LEVEL_DROPDOWN).click(); // This click is
 					LOGGER.info("Successfully Verified Profile Level dropdown and levels present inside it...");
 				} else {
 					LOGGER.info("No Profile Levels available for this mapped profile with name : "
@@ -418,7 +418,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public void validate_role_summary_of_mapped_profile_is_displaying() {
 		if (mapSP.get() | manualMapping.get()) {
 			try {
-				String roleSummaryText = waitForElement(ROLE_SUMMARY).getText();
+				String roleSummaryText = Utilities.waitForVisible(wait, ROLE_SUMMARY).getText();
 				ProfileRoleSummary.set(roleSummaryText.split(": ", 2)[1].trim());
 				LOGGER.info("Role summary of Mapped Success Profile : " + ProfileRoleSummary.get());
 			} catch (Exception e) {
@@ -894,8 +894,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public void user_should_verify_profile_level_dropdown_is_available_on_last_saved_success_profile_and_validate_levels_present_inside_dropdown() {
 		if (manualMapping.get()) {
 			try {
-				if (waitForElement(PROFILE_LEVEL_DROPDOWN).isEnabled()) {
-					waitForClickable(PROFILE_LEVEL_DROPDOWN).click();
+				if (Utilities.waitForVisible(wait, PROFILE_LEVEL_DROPDOWN).isEnabled()) {
+					Utilities.waitForClickable(wait, PROFILE_LEVEL_DROPDOWN).click();
 					LOGGER.info("Profile Level dropdown is available and Clicked on it in Manual Mapping screen...");
 					Select dropdown = new Select(findElement(PROFILE_LEVEL_DROPDOWN));
 					List<WebElement> allOptions = dropdown.getOptions();
@@ -903,7 +903,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 					for (WebElement option : allOptions) {
 						LOGGER.info(option.getText());
 					}
-					waitForClickable(PROFILE_LEVEL_DROPDOWN).click(); // This click is
+					Utilities.waitForClickable(wait, PROFILE_LEVEL_DROPDOWN).click(); // This click is
 										LOGGER.info("Successfully Verified Profile Level dropdown in Manual Mapping screen and levels present inside it...");
 				} else {
 					LOGGER.info("No Profile Levels available for this Last Saved profile with name : "
@@ -1219,8 +1219,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public void user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown_in_manual_job_mapping_screen() {
 		if (manualMapping.get()) {
 			try {
-				if (waitForElement(PROFILE_LEVEL_DROPDOWN).isEnabled()) {
-					waitForClickable(PROFILE_LEVEL_DROPDOWN).click();
+				if (Utilities.waitForVisible(wait, PROFILE_LEVEL_DROPDOWN).isEnabled()) {
+					Utilities.waitForClickable(wait, PROFILE_LEVEL_DROPDOWN).click();
 					LOGGER.info("Profile Level dropdown is available and Clicked on it in Manual Mapping screen...");
 					Select dropdown = new Select(findElement(PROFILE_LEVEL_DROPDOWN));
 					List<WebElement> allOptions = dropdown.getOptions();
@@ -1228,7 +1228,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 					for (WebElement option : allOptions) {
 						LOGGER.info(option.getText());
 					}
-					waitForClickable(PROFILE_LEVEL_DROPDOWN).click(); // This click is
+					Utilities.waitForClickable(wait, PROFILE_LEVEL_DROPDOWN).click(); // This click is
 										LOGGER.info("Successfully Verified Profile Level dropdown in Manual Mapping screen and levels present inside it...");
 				} else {
 					LOGGER.info("No Profile Levels available for the profile with name : "
@@ -1251,10 +1251,10 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 
 	public void change_profile_level_in_manual_job_mapping_screen() {
 		if (manualMapping.get()) {
-			if (waitForElement(PROFILE_LEVEL_DROPDOWN).isEnabled()) {
+			if (Utilities.waitForVisible(wait, PROFILE_LEVEL_DROPDOWN).isEnabled()) {
 				js.executeScript("window.scrollTo(0, 0);"); // Scroll to top (headless-compatible)
 			try {
-				waitForClickable(PROFILE_LEVEL_DROPDOWN).click();
+				Utilities.waitForClickable(wait, PROFILE_LEVEL_DROPDOWN).click();
 				// PERFORMANCE: Replaced Thread.sleep(2000) with dropdown readiness wait
 				Utilities.waitForVisible(wait, By.xpath("//select//option"));
 				Select dropdown = new Select(findElement(PROFILE_LEVEL_DROPDOWN));
@@ -1283,7 +1283,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				try {
 					// This click is to close dropdown options visibility
 					// Scroll element into view before clicking
-					WebElement element = waitForClickable(PROFILE_LEVEL_DROPDOWN);
+					WebElement element = Utilities.waitForClickable(wait, PROFILE_LEVEL_DROPDOWN);
 					js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
 					try {
 						Thread.sleep(500);
@@ -1582,8 +1582,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public void user_should_verify_profile_level_dropdown_is_available_in_details_popup_and_validate_levels_present_inside_dropdown() {
 		if (manualMapping.get()) {
 			try {
-				if (waitForElement(PROFILE_LEVEL_DROPDOWN).isEnabled()) {
-					waitForClickable(PROFILE_LEVEL_DROPDOWN).click();
+				if (Utilities.waitForVisible(wait, PROFILE_LEVEL_DROPDOWN).isEnabled()) {
+					Utilities.waitForClickable(wait, PROFILE_LEVEL_DROPDOWN).click();
 										LOGGER.info("Profile Level dropdown is available and Clicked on it in Mapped Profile details Popup...");
 					Select dropdown = new Select(findElement(PROFILE_LEVEL_DROPDOWN));
 					List<WebElement> allOptions = dropdown.getOptions();
@@ -1591,7 +1591,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 					for (WebElement option : allOptions) {
 						LOGGER.info(option.getText());
 					}
-					waitForClickable(PROFILE_LEVEL_DROPDOWN).click(); // This click is
+					Utilities.waitForClickable(wait, PROFILE_LEVEL_DROPDOWN).click(); // This click is
 										LOGGER.info("Successfully Verified Profile Level dropdown in Mapped Profile details Popup and levels present inside it...");
 				} else {
 					LOGGER.info("No Profile Levels available for Mapped Profile in details Popup : "
@@ -1613,7 +1613,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		if (manualMapping.get()) {
 			try {
 				scrollToElement(findElement(ROLE_SUMMARY));
-				String mappedProfileRoleSummaryText = waitForElement(ROLE_SUMMARY)
+				String mappedProfileRoleSummaryText = Utilities.waitForVisible(wait, ROLE_SUMMARY)
 						.getText();
 				Assert.assertEquals(mappedProfileRoleSummaryText.split(": ", 2)[1].trim(),
 						manualMappingProfileRoleSummary.get());

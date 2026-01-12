@@ -156,7 +156,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 			}
 
 			Utilities.waitForPageReady(driver, 10);
-			WebElement clientsHeader = waitForElement(CLIENTS_PAGE_HEADER);
+			WebElement clientsHeader = Utilities.waitForVisible(wait, CLIENTS_PAGE_HEADER);
 			Assert.assertEquals("Clients", clientsHeader.getText(), "Expected 'Clients' header on KFONE landing page");
 			LOGGER.info("Landed on KFONE Clients Page");
 			SessionManager.markAuthenticated();
@@ -349,7 +349,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 	public void verify_user_navigated_to_kfone_home_page() {
 		try {
 			waitForPageLoad();
-			waitForElement(LANDING_PAGE_TITLE);
+			Utilities.waitForVisible(wait, LANDING_PAGE_TITLE);
 			WebElement homeHeader = Utilities.waitForVisible(wait, KFONE_HOME_HEADER);
 			LOGGER.info(homeHeader.getText() + " is displaying on KFONE Home Page");
 			WebElement productsSection = Utilities.waitForVisible(wait, YOUR_PRODUCTS_SECTION);

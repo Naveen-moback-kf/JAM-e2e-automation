@@ -3,10 +3,13 @@ import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locator
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.common.Utilities;
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
@@ -34,7 +37,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			waitForSpinners();
 			safeSleep(500);
 			
-			WebElement searchBar = waitForElement(SEARCH_BAR, 10);
+			WebElement searchBar = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), SEARCH_BAR);
 			scrollToElement(searchBar);
 			
 			// Use new clearAndSearch helper
@@ -69,7 +72,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				
 				try {
 					// Re-fetch element to avoid stale reference
-					WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 5);
+					WebElement jobNameElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), JOB_NAME_ROW_1);
 					String job1NameText = jobNameElement.getText();
 					String actualJobName = job1NameText.split("-", 2)[0].trim();
 					
@@ -103,7 +106,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				// Final attempt to get actual value for better error message
 				String actualJobName = "Unknown";
 				try {
-					WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 5);
+					WebElement jobNameElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), JOB_NAME_ROW_1);
 					String job1NameText = jobNameElement.getText();
 					actualJobName = job1NameText.split("-", 2)[0].trim();
 				} catch (Exception e) {
@@ -117,7 +120,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			}
 			
 			try {
-				Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
+				Assert.assertTrue(Utilities.waitForVisible(wait, JOB_1_PUBLISHED_BTN).isDisplayed());
 			} catch (Exception e) {
 				Utilities.handleError(LOGGER, "user_should_verify_published_first_job_profile_is_displayed_in_row1_in_view_published_screen", "Published button not displayed", e);
 			}
@@ -139,7 +142,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			waitForSpinners();
 			safeSleep(500);
 			
-			WebElement searchBar = waitForElement(SEARCH_BAR, 10);
+			WebElement searchBar = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), SEARCH_BAR);
 			scrollToElement(searchBar);
 			
 			// Use new clearAndSearch helper
@@ -174,7 +177,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				
 				try {
 					// Re-fetch element to avoid stale reference
-					WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 5);
+					WebElement jobNameElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), JOB_NAME_ROW_1);
 					String job1NameText = jobNameElement.getText();
 					String actualJobName = job1NameText.split("-", 2)[0].trim();
 					
@@ -208,7 +211,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				// Final attempt to get actual value for better error message
 				String actualJobName = "Unknown";
 				try {
-					WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 5);
+					WebElement jobNameElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), JOB_NAME_ROW_1);
 					String job1NameText = jobNameElement.getText();
 					actualJobName = job1NameText.split("-", 2)[0].trim();
 				} catch (Exception e) {
@@ -222,7 +225,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			}
 			
 			try {
-				Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN).isDisplayed());
+				Assert.assertTrue(Utilities.waitForVisible(wait, JOB_1_PUBLISHED_BTN).isDisplayed());
 			} catch (Exception e) {
 				Utilities.handleError(LOGGER, "user_should_verify_published_second_job_profile_is_displayed_in_row1_in_view_published_screen", "Published button not displayed", e);
 			}
@@ -235,7 +238,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 	public void user_should_verify_date_on_published_first_job_matches_with_current_date() {
 		try {
 			Utilities.waitForPageReady(driver, 2);
-			String todayDate = formatDateForDisplay();
+			String todayDate = Utilities.formatDateForDisplay();
 			String jobPublishedDate = getElementText(HCM_DATE_ROW_1);
 			Assert.assertEquals(jobPublishedDate, todayDate);
 			LOGGER.info("Current date verified on Published First Job: " + PO04_JobMappingPageComponents.orgJobNameInRow1.get());
@@ -246,7 +249,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 
 	public void user_should_verify_date_on_published_second_job_matches_with_current_date() {
 		try {
-			String todayDate = formatDateForDisplay();
+			String todayDate = Utilities.formatDateForDisplay();
 			String jobPublishedDate = getElementText(HCM_DATE_ROW_2);
 			Assert.assertEquals(jobPublishedDate, todayDate);
 			LOGGER.info("Current date verified on Published Second Job: " + PO04_JobMappingPageComponents.orgJobNameInRow2.get());
@@ -269,7 +272,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			waitForSpinners();
 			safeSleep(500);
 			
-			WebElement searchBar = waitForElement(PROFILES_SEARCH, 10);
+			WebElement searchBar = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), PROFILES_SEARCH);
 			scrollToElement(searchBar);
 			
 			// Use new clearAndSearch helper (includes all waits and retry logic)
@@ -301,7 +304,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			waitForSpinners();
 			safeSleep(500);
 			
-			WebElement searchBar = waitForElement(PROFILES_SEARCH, 10);
+			WebElement searchBar = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), PROFILES_SEARCH);
 			scrollToElement(searchBar);
 			
 			// Use new clearAndSearch helper (includes all waits and retry logic)
@@ -372,7 +375,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				
 				try {
 					// Re-fetch element to avoid stale reference
-					WebElement jobNameElement = waitForElement(HCM_JOB_ROW_1, 5);
+					WebElement jobNameElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), HCM_JOB_ROW_1);
 					String job2NameText = jobNameElement.getText();
 					String actualJobName = job2NameText.split("-", 2)[0].trim();
 					
@@ -406,7 +409,7 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 				// Final attempt to get actual value for better error message
 				String actualJobName = "Unknown";
 				try {
-					WebElement jobNameElement = waitForElement(HCM_JOB_ROW_1, 5);
+					WebElement jobNameElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), HCM_JOB_ROW_1);
 					String job2NameText = jobNameElement.getText();
 					actualJobName = job2NameText.split("-", 2)[0].trim();
 				} catch (Exception e) {

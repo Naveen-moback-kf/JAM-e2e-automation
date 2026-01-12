@@ -354,7 +354,7 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 				LOGGER.debug("Results count element not found within 3 seconds - likely no results");
 				resultsCountText = "";
 			}
-			int totalJobs = parseProfileCountFromText(resultsCountText);
+			int totalJobs = Utilities.parseProfileCountFromText(resultsCountText);
 			totalManuallyMappedJobs.set(totalJobs);
 			
 			if (totalJobs == 0) {

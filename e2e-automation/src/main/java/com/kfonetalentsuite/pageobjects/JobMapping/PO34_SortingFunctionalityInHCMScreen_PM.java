@@ -3,12 +3,14 @@ import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locator
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
@@ -74,7 +76,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			for (int i = 0; i < profileNames.size() - 1; i++) {
 				String current = profileNames.get(i);
 				String next = profileNames.get(i + 1);
-				if (!shouldSkipInSortValidation(current) && !shouldSkipInSortValidation(next)) {
+				if (!Utilities.shouldSkipInSortValidation(current) && !Utilities.shouldSkipInSortValidation(next)) {
 					totalPairs++;
 					if (current.compareToIgnoreCase(next) <= 0) {
 						correctPairs++;
@@ -127,7 +129,10 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_level_in_descending_order() {
 		try {
 			// Loader may not always appear - wait gracefully
-			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			try { 
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(2));
+				Utilities.waitForVisible(shortWait, PAGE_LOAD_SPINNER); 
+			} catch (Exception ignored) {}
 			Utilities.waitForPageReady(driver);
 
 			List<WebElement> profileNameElements = findElements(PROFILE_NAME_ELEMENTS);
@@ -284,7 +289,10 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			// First click - ascending
 			clickElement(TABLE_HEADER_EXPORT_STATUS);
 			// Loader may not always appear - wait gracefully
-			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			try { 
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(2));
+				Utilities.waitForVisible(shortWait, PAGE_LOAD_SPINNER); 
+			} catch (Exception ignored) {}
 			safeSleep(3000);
 			Utilities.waitForPageReady(driver);
 			safeSleep(1500);
@@ -293,7 +301,10 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", exportStatusHeader);
 			safeSleep(500);
 			clickElement(TABLE_HEADER_EXPORT_STATUS);
-			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			try { 
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(2));
+				Utilities.waitForVisible(shortWait, PAGE_LOAD_SPINNER); 
+			} catch (Exception ignored) {}
 			safeSleep(3000);
 			Utilities.waitForPageReady(driver);
 
@@ -315,7 +326,10 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 			clickElement(TABLE_HEADER_FUNCTION);
 			// Loader may not always appear - wait gracefully
-			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			try { 
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(2));
+				Utilities.waitForVisible(shortWait, PAGE_LOAD_SPINNER); 
+			} catch (Exception ignored) {}
 			Utilities.waitForPageReady(driver);
 			LOGGER.info("Clicked on Function header to Sort in ascending order");
 
@@ -332,14 +346,20 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			// First click - ascending
 			clickElement(TABLE_HEADER_FUNCTION);
 			// Loader may not always appear - wait gracefully
-			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			try { 
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(2));
+				Utilities.waitForVisible(shortWait, PAGE_LOAD_SPINNER); 
+			} catch (Exception ignored) {}
 			safeSleep(2000);
 			Utilities.waitForPageReady(driver);
 			safeSleep(1000);
 
 			// Second click - descending
 			clickElement(TABLE_HEADER_FUNCTION);
-			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			try { 
+				WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(2));
+				Utilities.waitForVisible(shortWait, PAGE_LOAD_SPINNER); 
+			} catch (Exception ignored) {}
 			safeSleep(2000);
 			Utilities.waitForPageReady(driver);
 
@@ -369,8 +389,8 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 			for (int i = 0; i < limit; i++) {
 				String profileName = profileNameElements.get(i).getText();
-				String jobStatusText = getValueOrEmpty(jobStatusElements.get(i).getText());
-				String functionText = getValueOrEmpty(functionElements.get(i).getText());
+				String jobStatusText = Utilities.getValueOrEmpty(jobStatusElements.get(i).getText());
+				String functionText = Utilities.getValueOrEmpty(functionElements.get(i).getText());
 
 				LOGGER.info("Profile: " + profileName + " - Job Status: " + 
 						jobStatusText + " - Function: " + functionText);
@@ -383,7 +403,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			for (int i = 0; i < limit - 1; i++) {
 				String currentStatus = jobStatusElements.get(i).getText();
 				String nextStatus = jobStatusElements.get(i + 1).getText();
-				if (!shouldSkipInSortValidation(currentStatus) && !shouldSkipInSortValidation(nextStatus)) {
+				if (!Utilities.shouldSkipInSortValidation(currentStatus) && !Utilities.shouldSkipInSortValidation(nextStatus)) {
 					totalPairs++;
 					if (currentStatus.compareToIgnoreCase(nextStatus) <= 0) {
 						correctPairs++;
@@ -420,9 +440,9 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 			for (int i = 0; i < limit; i++) {
 				String profileName = profileNameElements.get(i).getText();
-				String jobStatus = getValueOrEmpty(jobStatusElements.get(i).getText());
-				String exportStatus = getValueOrEmpty(exportStatusElements.get(i).getText());
-				String function = getValueOrEmpty(functionElements.get(i).getText());
+				String jobStatus = Utilities.getValueOrEmpty(jobStatusElements.get(i).getText());
+				String exportStatus = Utilities.getValueOrEmpty(exportStatusElements.get(i).getText());
+				String function = Utilities.getValueOrEmpty(functionElements.get(i).getText());
 
 				LOGGER.info("Profile: " + profileName + " | Job Status: " + jobStatus +
 						" | Export Status: " + exportStatus + " | Function: " + function);
@@ -435,7 +455,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			for (int i = 0; i < limit - 1; i++) {
 				String currentStatus = jobStatusElements.get(i).getText();
 				String nextStatus = jobStatusElements.get(i + 1).getText();
-				if (!shouldSkipInSortValidation(currentStatus) && !shouldSkipInSortValidation(nextStatus)) {
+				if (!Utilities.shouldSkipInSortValidation(currentStatus) && !Utilities.shouldSkipInSortValidation(nextStatus)) {
 					totalPairs++;
 					if (currentStatus.compareToIgnoreCase(nextStatus) <= 0) {
 						correctPairs++;

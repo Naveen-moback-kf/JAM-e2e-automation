@@ -1,9 +1,12 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.common.Utilities;
 
@@ -24,7 +27,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			Utilities.waitForPageReady(driver, 2);
 			waitForSpinners();
 			
-			WebElement deleteBtn = waitForElement(DELETE_BUTTON, 10);
+			WebElement deleteBtn = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), DELETE_BUTTON);
 			Assert.assertTrue(deleteBtn.isDisplayed(), "Delete button should be displayed");
 			
 			// Check if button has disabled attribute
@@ -45,7 +48,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			Utilities.waitForPageReady(driver, 2);
 			waitForSpinners();
 			
-			WebElement deleteBtn = waitForElement(DELETE_BUTTON, 10);
+			WebElement deleteBtn = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), DELETE_BUTTON);
 			Assert.assertTrue(deleteBtn.isDisplayed(), "Delete button should be displayed");
 			
 			// Check if button is NOT disabled
@@ -83,17 +86,17 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			Utilities.waitForPageReady(driver, 2);
 			
 			// Verify popup title
-			WebElement popupTitle = waitForElement(DELETE_POPUP_TITLE, 10);
+			WebElement popupTitle = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), DELETE_POPUP_TITLE);
 			Assert.assertTrue(popupTitle.isDisplayed(), "Delete Confirmation popup title should be displayed");
 			Assert.assertEquals(popupTitle.getText(), "Delete Selected Jobs", "Popup title should match");
 			
 			// Verify popup message
-			WebElement popupMessage = waitForElement(DELETE_POPUP_MESSAGE, 5);
+			WebElement popupMessage = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), DELETE_POPUP_MESSAGE);
 			Assert.assertTrue(popupMessage.isDisplayed(), "Delete Confirmation popup message should be displayed");
 			
 			// Verify Cancel and Delete buttons are present
-			Assert.assertTrue(waitForElement(DELETE_POPUP_CANCEL_BTN, 5).isDisplayed(), "Cancel button should be displayed");
-			Assert.assertTrue(waitForElement(DELETE_POPUP_CONFIRM_BTN, 5).isDisplayed(), "Delete button should be displayed");
+			Assert.assertTrue(Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), DELETE_POPUP_CANCEL_BTN).isDisplayed(), "Cancel button should be displayed");
+			Assert.assertTrue(Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), DELETE_POPUP_CONFIRM_BTN).isDisplayed(), "Delete button should be displayed");
 			
 			LOGGER.info("✅ Delete Confirmation popup is displayed with title: 'Delete Selected Jobs'");
 			
@@ -140,12 +143,12 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			Utilities.waitForPageReady(driver, 2);
 			
 			// Verify success title
-			WebElement successTitle = waitForElement(DELETE_SUCCESS_TITLE, 15);
+			WebElement successTitle = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), DELETE_SUCCESS_TITLE);
 			Assert.assertTrue(successTitle.isDisplayed(), "Delete success title should be displayed");
 			Assert.assertEquals(successTitle.getText(), "Job Profiles Deleted", "Success title should match");
 			
 			// Verify success message
-			WebElement successMsg = waitForElement(DELETE_SUCCESS_MSG, 5);
+			WebElement successMsg = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), DELETE_SUCCESS_MSG);
 			Assert.assertTrue(successMsg.isDisplayed(), "Delete success message should be displayed");
 			
 			String msgText = successMsg.getText();

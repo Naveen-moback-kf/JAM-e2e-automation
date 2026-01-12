@@ -306,7 +306,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			// Get expected total profile count
 			try {
 				String resultsCountText = getElementText(getShowingResultsCountLocator(screen));
-				expectedTotal = parseProfileCountFromText(resultsCountText);
+				expectedTotal = Utilities.parseProfileCountFromText(resultsCountText);
 				LOGGER.info("Expected total profiles: {}", expectedTotal);
 			} catch (Exception e) {
 				LOGGER.debug("Could not parse total profile count: {}", e.getMessage());
@@ -483,7 +483,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 			// Get expected total profile count from "Showing X of Y" text
 			try {
 				String resultsCountText = getElementText(getShowingResultsCountLocator(screen));
-				expectedTotalProfiles = parseProfileCountFromText(resultsCountText);
+				expectedTotalProfiles = Utilities.parseProfileCountFromText(resultsCountText);
 				LOGGER.info("Expected total profiles from 'Showing' text: {}", expectedTotalProfiles);
 			} catch (Exception e) {
 				LOGGER.debug("Could not parse total profile count: {}", e.getMessage());
@@ -740,7 +740,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 				return;
 			}
 
-			int expectedTotal = parseProfileCountFromText(resultsCountText);
+			int expectedTotal = Utilities.parseProfileCountFromText(resultsCountText);
 			LOGGER.info("Second search '" + secondSearchSubstring + 
 					"': " + expectedTotal + " total profiles in " + getScreenName(screen));
 

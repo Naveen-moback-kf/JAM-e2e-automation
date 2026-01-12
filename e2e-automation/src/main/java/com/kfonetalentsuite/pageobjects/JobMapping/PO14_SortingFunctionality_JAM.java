@@ -54,7 +54,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 3);
 			safeSleep(2000);
-			Assert.assertTrue(waitForElement(SHOWING_JOB_RESULTS).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS).isDisplayed());
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 3);
 			safeSleep(2000);

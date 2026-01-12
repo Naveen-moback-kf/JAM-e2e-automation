@@ -35,7 +35,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 			waitForSpinners();
 
 			String actualResultsCount = getElementText(SHOWING_RESULTS_COUNT);
-			waitForElement(CLEAR_FILTERS_BTN);
+			Utilities.waitForVisible(wait, CLEAR_FILTERS_BTN);
 
 			if (actualResultsCount.equals(PO04_JobMappingPageComponents.intialResultsCount.get())) {
 				throw new AssertionError("Filters NOT persisted - count reverted to unfiltered state: " + actualResultsCount);
@@ -71,7 +71,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 	public void verify_view_published_toggle_button_is_persisted() {
 		try {
 			Utilities.waitForPageReady(driver, 2);
-			waitForElement(VIEW_PUBLISHED_TOGGLE).isEnabled();
+			Utilities.waitForVisible(wait, VIEW_PUBLISHED_TOGGLE).isEnabled();
 			LOGGER.info("View Published toggle button persisted on Job Mapping page");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "verify_view_published_toggle_button_is_persisted", "View Published toggle button not persisted", e);
@@ -81,13 +81,13 @@ public class PO09_FilterPersistence extends BasePageObject {
 	public void verify_applied_sorting_persist_on_job_mapping_ui() {
 		try {
 			Utilities.waitForPageReady(driver, 2);
-			waitForElement(ORG_JOB_GRADE_SORT_ICON).isDisplayed();
+			Utilities.waitForVisible(wait, ORG_JOB_GRADE_SORT_ICON).isDisplayed();
 			LOGGER.info("Sorting persisted on Job Mapping page");
 		} catch (Exception e) {
 			try {
 				waitForSpinners();
 				Utilities.waitForPageReady(driver, 2);
-				waitForElement(MATCHED_SP_GRADE_SORT_ICON).isDisplayed();
+				Utilities.waitForVisible(wait, MATCHED_SP_GRADE_SORT_ICON).isDisplayed();
 				LOGGER.info("Sorting persisted on Job Mapping page");
 			} catch (Exception s) {
 				Utilities.handleError(LOGGER, "verify_applied_sorting_persist_on_job_mapping_ui", "Issue validating Sorting Persistence", s);

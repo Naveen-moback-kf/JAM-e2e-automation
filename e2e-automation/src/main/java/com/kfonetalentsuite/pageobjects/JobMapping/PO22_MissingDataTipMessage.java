@@ -55,7 +55,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 			try {
 				waitForSpinners();
-				waitForElement(MISSING_DATA_TIP_MESSAGE_CONTAINER);
+				Utilities.waitForVisible(wait, MISSING_DATA_TIP_MESSAGE_CONTAINER);
 				LOGGER.info("Missing Data Tip Message restored after page refresh");
 			} catch (Exception refreshException) {
 				LOGGER.info("Unable to restore Missing Data Tip Message after refresh");
@@ -267,7 +267,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 				waitForUIStabilityInMs(1500);
 
 				try {
-					waitForElement(PAGE_CONTAINER);
+					Utilities.waitForVisible(wait, PAGE_CONTAINER);
 					String currentUrl = driver.getCurrentUrl();
 					LOGGER.info("Successfully navigated back to Job Mapping page");
 					LOGGER.info("Current URL after navigation: " + currentUrl);
@@ -291,7 +291,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 	public void verify_missing_data_tip_message_is_still_displaying_on_job_mapping_page() {
 		try {
-			WebElement container = waitForElement(MISSING_DATA_TIP_MESSAGE_CONTAINER);
+			WebElement container = Utilities.waitForVisible(wait, MISSING_DATA_TIP_MESSAGE_CONTAINER);
 			Assert.assertTrue(container.isDisplayed(),
 					"Missing Data Tip Message should still be displayed on Job Mapping page after navigation");
 			LOGGER.info("Missing Data Tip Message is still displaying on Job Mapping page after navigation");
@@ -306,8 +306,8 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		try {
 			LOGGER.info("Clicking close button on Missing Data Tip Message (targeting correct tip message)...");
 
-			waitForElement(CLOSE_TIP_MESSAGE_BUTTON);
-			waitForClickable(CLOSE_TIP_MESSAGE_BUTTON);
+			Utilities.waitForVisible(wait, CLOSE_TIP_MESSAGE_BUTTON);
+			Utilities.waitForClickable(wait, CLOSE_TIP_MESSAGE_BUTTON);
 
 			clickElement(CLOSE_TIP_MESSAGE_BUTTON);
 			} catch (Exception e) {
@@ -365,7 +365,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 	public void verify_missing_data_tip_message_contains_text_about_jobs_having_missing_data() {
 		try {
-			WebElement countText = waitForElement(MISSING_DATA_COUNT_AND_TEXT);
+			WebElement countText = Utilities.waitForVisible(wait, MISSING_DATA_COUNT_AND_TEXT);
 			String tipMessageText = countText.getText();
 
 			Assert.assertTrue(tipMessageText.contains("jobs have missing data"),
@@ -380,7 +380,7 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 
 	public void verify_missing_data_tip_message_contains_text_about_reduced_match_accuracy() {
 		try {
-			WebElement countText = waitForElement(MISSING_DATA_COUNT_AND_TEXT);
+			WebElement countText = Utilities.waitForVisible(wait, MISSING_DATA_COUNT_AND_TEXT);
 			String tipMessageText = countText.getText();
 
 			Assert.assertTrue(tipMessageText.contains("reduce match accuracy"),

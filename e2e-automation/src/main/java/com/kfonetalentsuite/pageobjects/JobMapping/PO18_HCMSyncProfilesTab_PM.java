@@ -81,8 +81,8 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void user_is_on_profile_manager_page() {
 		try {
-			Assert.assertTrue(waitForElement(PM_HEADER).isDisplayed());
-			String PMHeaderText = waitForElement(PM_HEADER).getText();
+			Assert.assertTrue(Utilities.waitForVisible(wait, PM_HEADER).isDisplayed());
+			String PMHeaderText = Utilities.waitForVisible(wait, PM_HEADER).getText();
 			LOGGER.info("User is on " + PMHeaderText + " page");
 		} catch (AssertionError e) {
 			Utilities.handleError(LOGGER, "user_is_on_profile_manager_page",
@@ -112,7 +112,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			jsClick(findElement(PM_BTN));
 		} catch (Exception e) {
 
-			waitForClickable(PM_BTN).click();
+			Utilities.waitForClickable(wait, PM_BTN).click();
 		}
 		LOGGER.info("Able to click on Profile Manager Button");
 	}
@@ -495,7 +495,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			Utilities.waitForPageReady(driver, 5);
 			safeSleep(1000);
 			
-			WebElement resultsCountElement = waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT, 15);
+			WebElement resultsCountElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(15)), Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 			String resultsCountText = resultsCountElement.getText().trim();
 
 			if (resultsCountText.isEmpty()) {
@@ -804,7 +804,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void clear_kf_grade_filter_in_hcm_sync_profiles_tab() {
 		try {
-			WebElement closeFilterElement = waitForElement(CLOSE_APPLIED_FILTER, 10);
+			WebElement closeFilterElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), CLOSE_APPLIED_FILTER);
 			closeFilterElement.click();
 			safeSleep(500);
 			waitForSpinners(15);
@@ -1228,7 +1228,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				
 				// Try clicking the Filters button to close the dropdown
 				try {
-					WebElement filtersBtn = waitForElement(FILTERS_DROPDOWN_BTN, 10);
+					WebElement filtersBtn = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), FILTERS_DROPDOWN_BTN);
 					filtersBtn.click();
 					LOGGER.info("Clicked Filters button to close dropdown");
 				} catch (Exception e) {
@@ -1528,7 +1528,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			safeSleep(1000);
 			
 			// Step 1: Store count of profiles loaded BEFORE clicking header checkbox
-			WebElement resultsCountElement = waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT, 15);
+			WebElement resultsCountElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(15)), Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 			String resultsCountText = resultsCountElement.getText();
 			String[] resultsCountText_split = resultsCountText.split(" ");
 			loadedProfilesBeforeHeaderCheckboxClick.set(Integer.parseInt(resultsCountText_split[1]));
@@ -1536,7 +1536,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					+ loadedProfilesBeforeHeaderCheckboxClick.get());
 
 			// Step 2: Click header checkbox - try multiple approaches for kf-checkbox
-			WebElement headerCheckbox = waitForElement(TABLE_HEADER_CHECKBOX, 10);
+			WebElement headerCheckbox = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), TABLE_HEADER_CHECKBOX);
 			try {
 				WebElement innerInput = headerCheckbox.findElement(By.xpath(".//input | .//span | .//*[contains(@class,'checkbox')]"));
 				jsClick(innerInput);
@@ -1614,7 +1614,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			LOGGER.info("Selected profiles count (BEFORE unchecking header checkbox): " + profilesBeforeDeselect);
 
 			// Click header checkbox to deselect all - try multiple approaches
-			WebElement headerCheckbox = waitForElement(TABLE_HEADER_CHECKBOX, 10);
+			WebElement headerCheckbox = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), TABLE_HEADER_CHECKBOX);
 			
 			// Try clicking the inner input element first (more reliable for kf-checkbox)
 			try {
@@ -1671,7 +1671,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			safeSleep(1000);
 			
 			// Wait for first row to be visible
-			WebElement firstRow = waitForElement(HCM_SYNC_PROFILES_JOB_ROW1, 15);
+			WebElement firstRow = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(15)), HCM_SYNC_PROFILES_JOB_ROW1);
 			jobname1.set(firstRow.getText());
 			LOGGER.info("Found first profile: " + jobname1.get());
 			

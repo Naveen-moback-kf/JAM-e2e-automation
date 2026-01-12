@@ -87,7 +87,7 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 		if (PO17_MapDifferentSPtoProfile.manualMapping.get()) {
 			try {
 				Utilities.waitForPageReady(driver, 2);
-				Assert.assertTrue(waitForClickable(SEARCH_DIFFERENT_SP_BTN).isDisplayed(), "Search a Different Profile button should be visible");
+				Assert.assertTrue(Utilities.waitForClickable(wait, SEARCH_DIFFERENT_SP_BTN).isDisplayed(), "Search a Different Profile button should be visible");
 				LOGGER.info("Search a Different Profile is Displaying on matched success profile which is on the Top of the Profiles List");
 			} catch (Exception e) {
 				Utilities.handleError(LOGGER, "user_should_verify_search_a_different_profile_button_is_displaying_on_manually_mapped_success_profile", "Search a different profile is NOT displaying on Manually Mapped success profile which is on the Top of the Profiles List", e);
@@ -99,7 +99,7 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 		if (PO17_MapDifferentSPtoProfile.manualMapping.get()) {
 			try {
 				waitForSpinners();
-				WebElement linkedMappedProfile = waitForClickable(By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr[1]//td[1]//div"));
+				WebElement linkedMappedProfile = Utilities.waitForClickable(wait, By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr[1]//td[1]//div"));
 				String MappedProfileNameText = linkedMappedProfile.getText();
 				PO17_MapDifferentSPtoProfile.mappedSuccessPrflName.set(MappedProfileNameText);
 				tryClickWithStrategies(linkedMappedProfile);

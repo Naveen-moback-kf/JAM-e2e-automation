@@ -33,7 +33,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 
 	public void verify_search_bar_placeholder_text_in_job_comparison_page() {
 		try {
-			String placeholderText = waitForElement(SEARCH_BAR_JC).getAttribute("placeholder");
+			String placeholderText = Utilities.waitForVisible(wait, SEARCH_BAR_JC).getAttribute("placeholder");
 			Assert.assertEquals(placeholderText, "Search Korn Ferry Success Profiles...");
 			LOGGER.info("Search bar Placeholder text verified successfully in Job Comparison page");
 		} catch (Exception e) {
@@ -44,7 +44,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 	public void user_should_enter_custom_sp_search_string_in_the_search_bar() {
 		waitForSpinners();
 		try {
-			waitForElement(SEARCH_BAR_JC).sendKeys(customSPSearchString.get());
+			Utilities.waitForVisible(wait, SEARCH_BAR_JC).sendKeys(customSPSearchString.get());
 			LOGGER.info("Entered " + customSPSearchString.get() + " as Custom SP Search String in search bar");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "user_should_enter_custom_sp_search_string_in_the_search_bar", "Failed to enter Custom SP Search String", e);
@@ -54,7 +54,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 	public void select_first_custom_sp_from_search_results() {
 		waitForSpinners();
 		try {
-			Assert.assertTrue(waitForElement(FIRST_SEARCH_RESULT_BTN).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, FIRST_SEARCH_RESULT_BTN).isDisplayed());
 			customSPNameinSearchResults.set(getElementText(FIRST_SEARCH_RESULT_TEXT));
 			clickElement(FIRST_SEARCH_RESULT_BTN);
 			LOGGER.info("First Custom SP with Name: " + customSPNameinSearchResults.get() + " selected from search results");
@@ -67,7 +67,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 	public void verify_custom_sp_added_to_profiles_list_in_job_comparison_page() {
 		waitForSpinners();
 		try {
-			Assert.assertTrue(waitForElement(CUSTOM_SP_CLOSE_BTN).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, CUSTOM_SP_CLOSE_BTN).isDisplayed());
 			String profileTitle = getElementText(PROFILE_1_TITLE);
 			LOGGER.info("Custom SP with Name: " + profileTitle + " added to Profiles List");
 		} catch (Exception e) {
@@ -77,10 +77,10 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 
 	public void user_should_verify_custom_sp_name_and_close_button_are_displaying_in_search_bar_after_adding_custom_sp() {
 		try {
-			String customSPNameTextinSearchBar = waitForElement(SEARCH_BAR_JC).getAttribute("value");
+			String customSPNameTextinSearchBar = Utilities.waitForVisible(wait, SEARCH_BAR_JC).getAttribute("value");
 			Assert.assertEquals(customSPNameTextinSearchBar, customSPNameinSearchResults.get());
 			LOGGER.info("Custom SP Name is displaying in search bar");
-			Assert.assertTrue(waitForClickable(SEARCH_BAR_CANCEL_BTN).isDisplayed());
+			Assert.assertTrue(Utilities.waitForClickable(wait, SEARCH_BAR_CANCEL_BTN).isDisplayed());
 			LOGGER.info("Close or Cancel Button is displaying in search bar");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "user_should_verify_custom_sp_name_and_close_button_are_displaying_in_search_bar_after_adding_custom_sp", "Issue verifying Custom SP Name and Close button in Search Bar", e);
@@ -103,9 +103,9 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 
 	public void user_should_verify_close_button_and_select_button_are_displaying_on_the_profile() {
 		try {
-			Assert.assertTrue(waitForClickable(CUSTOM_SP_CLOSE_BTN).isDisplayed());
+			Assert.assertTrue(Utilities.waitForClickable(wait, CUSTOM_SP_CLOSE_BTN).isDisplayed());
 			LOGGER.info("Close Button is displaying on Custom SP Profile");
-			WebElement selectBtn = waitForElement(PROFILE_1_SELECT_BTN);
+			WebElement selectBtn = Utilities.waitForVisible(wait, PROFILE_1_SELECT_BTN);
 			Assert.assertTrue(selectBtn.isDisplayed());
 			Assert.assertFalse(selectBtn.isSelected());
 			LOGGER.info("Select button is displaying and is in De-Select status");
@@ -242,7 +242,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 	public void clear_text_in_search_bar_with_clear_button_in_the_search_bar() {
 		try {
 			scrollToTop();
-			Assert.assertTrue(waitForElement(SEARCH_BAR_CANCEL_BTN).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, SEARCH_BAR_CANCEL_BTN).isDisplayed());
 			jsClick(driver.findElement(SEARCH_BAR_CANCEL_BTN));
 			LOGGER.info("Clicked on clear button and cleared text in Search bar");
 		} catch (Exception e) {
@@ -253,7 +253,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 	public void user_should_verify_added_custom_sp_is_not_cleared_from_profiles_list_in_job_comparison_page() {
 		waitForSpinners();
 		try {
-			Assert.assertTrue(waitForElement(CUSTOM_SP_CLOSE_BTN).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, CUSTOM_SP_CLOSE_BTN).isDisplayed());
 			String profileTitle = getElementText(PROFILE_1_TITLE);
 			LOGGER.info("After clearing text, Custom SP: " + profileTitle + " is retained in Profiles List");
 		} catch (Exception e) {
@@ -264,7 +264,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 	public void select_third_custom_sp_from_search_results() {
 		waitForSpinners();
 		try {
-			Assert.assertTrue(waitForElement(THIRD_SEARCH_RESULT_BTN).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, THIRD_SEARCH_RESULT_BTN).isDisplayed());
 			customSPNameinSearchResults.set(getElementText(THIRD_SEARCH_RESULT_TEXT));
 			clickElement(THIRD_SEARCH_RESULT_BTN);
 			LOGGER.info("Third Custom SP with Name: " + customSPNameinSearchResults.get() + " selected");
@@ -278,7 +278,7 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 		waitForSpinners();
 		try {
 			scrollToElement(driver.findElement(CUSTOM_SP_CLOSE_BTN));
-			Assert.assertTrue(waitForElement(CUSTOM_SP_CLOSE_BTN).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, CUSTOM_SP_CLOSE_BTN).isDisplayed());
 			String profileTitle = getElementText(PROFILE_1_TITLE);
 			Assert.assertEquals(profileTitle, customSPNameinSearchResults.get());
 			LOGGER.info("New Custom SP: " + profileTitle + " successfully replaced existing Custom SP");

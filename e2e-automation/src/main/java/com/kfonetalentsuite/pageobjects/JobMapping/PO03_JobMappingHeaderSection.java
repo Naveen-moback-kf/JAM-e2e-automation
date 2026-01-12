@@ -18,7 +18,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 
 	public void verify_kf_talent_suite_logo_is_displaying() {
 		try {
-			Assert.assertTrue(waitForElement(KF_TALENT_SUITE_LOGO).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, KF_TALENT_SUITE_LOGO).isDisplayed());
 			LOGGER.info("KORN FERRY TALENT SUITE Logo is displaying as Expected on Job Mapping UI Header");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "verify_kf_talent_suite_logo_is_displaying", "Issue in displaying KF Talent Suite logo", e);
@@ -51,7 +51,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 				Utilities.waitForPageReady(driver, 2);
 
 				try {
-					WebElement menuButton = waitForClickable(GLOBAL_NAV_MENU_BTN);
+					WebElement menuButton = Utilities.waitForClickable(wait, GLOBAL_NAV_MENU_BTN);
 					if (!tryClickWithStrategies(menuButton)) {
 						jsClick(menuButton);
 					}
@@ -65,7 +65,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 				Utilities.waitForPageReady(driver, 1);
 
 				try {
-					WebElement jamButton = waitForClickable(JOB_MAPPING_BTN);
+					WebElement jamButton = Utilities.waitForClickable(wait, JOB_MAPPING_BTN);
 					jamButton.click();
 					navigationSuccess = true;
 				} catch (Exception e) {
@@ -98,7 +98,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 
 	public void user_should_verify_client_name_is_correctly_displaying() {
 		try {
-			WebElement clientNameElement = waitForElement(CLIENT_NAME);
+			WebElement clientNameElement = Utilities.waitForVisible(wait, CLIENT_NAME);
 			Assert.assertTrue(clientNameElement.isDisplayed());
 			String clientNameText = clientNameElement.getText();
 			Assert.assertEquals(PO01_KFoneLogin.clientName.get(), clientNameText);
@@ -121,7 +121,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 		try {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 5);
-			waitForElement(LANDING_PAGE_TITLE);
+			Utilities.waitForVisible(wait, LANDING_PAGE_TITLE);
 			String text = getElementText(CLIENTS_PAGE_TITLE);
 			Assert.assertEquals("Clients", text);
 			LOGGER.info("User navigated to KFONE Clients Page");
@@ -132,7 +132,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 
 	public void verify_user_profile_logo_is_displaying_and_clickable() {
 		try {
-			Assert.assertTrue(waitForElement(PROFILE_AVATAR).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, PROFILE_AVATAR).isDisplayed());
 			clickElement(PROFILE_BTN);
 			LOGGER.info("User Profile logo is displaying in Job Mapping Header and clicked on it");
 		} catch (Exception e) {
@@ -143,7 +143,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 	public void verify_user_profile_menu_is_opened() {
 		try {
 			Utilities.waitForPageReady(driver, 2);
-			Assert.assertTrue(waitForElement(PROFILE_USER_NAME).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, PROFILE_USER_NAME).isDisplayed());
 			LOGGER.info("User profile menu is opened on click of user profile logo");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "verify_user_profile_menu_is_opened", "Issue in opening User Profile Menu", e);
@@ -172,7 +172,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 
 	public void click_on_signout_button_in_user_profile_menu() {
 		try {
-			Assert.assertTrue(waitForElement(SIGN_OUT_BTN).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, SIGN_OUT_BTN).isDisplayed());
 			clickElement(SIGN_OUT_BTN);
 			LOGGER.info("Clicked on logout button in User Profile Menu");
 		} catch (Exception e) {
@@ -183,7 +183,7 @@ public class PO03_JobMappingHeaderSection extends BasePageObject {
 	public void user_should_be_signed_out_from_the_application() {
 		try {
 			Utilities.waitForPageReady(driver, 3);
-			Assert.assertTrue(waitForElement(LOGIN_PAGE_TEXT).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, LOGIN_PAGE_TEXT).isDisplayed());
 			LOGGER.info("User signed out successfully and navigated back to Korn Ferry Talent Suite Sign In page");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "user_should_be_signed_out_from_the_application", "Issue in signing out from Application", e);

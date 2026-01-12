@@ -2,11 +2,14 @@ package com.kfonetalentsuite.pageobjects.JobMapping;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileManagerScreen.*;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
 
+import java.time.Duration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.common.Utilities;
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
@@ -74,17 +77,17 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 				if (rowNumber.get() == 1) {
 					// Try to scroll to download button, but don't fail if it's not there
 					try {
-						WebElement SyncBtn = waitForElement(SYNC_WITH_HCM_BTN, 5);
+						WebElement SyncBtn = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), SYNC_WITH_HCM_BTN);
 						scrollToElement(SyncBtn);
 					} catch (Exception e) {
 						LOGGER.debug("Download button not found, scrolling to top instead");
 						scrollToTop();
 					}
 				} else if (rowNumber.get() < 5) {
-					WebElement SP_JobName = waitForElement(By.xpath("//tbody//tr[1]//td[1]//*"), 5);
+					WebElement SP_JobName = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), By.xpath("//tbody//tr[1]//td[1]//*"));
 					scrollToElement(SP_JobName);
 				} else if (rowNumber.get() > 5) {
-					WebElement SP_JobName = waitForElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 5) + "]//td[1]//*"), 5);
+					WebElement SP_JobName = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), By.xpath("//tbody//tr[" + (rowNumber.get() - 5) + "]//td[1]//*"));
 					scrollToElement(SP_JobName);
 				}
 
@@ -92,8 +95,8 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 				Utilities.waitForPageReady(driver, 2);
 
 				// Find the checkbox for the profile with no job code
-				WebElement SP_Checkbox = waitForElement(
-					By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[1]//*//..//div//kf-checkbox//div"), 10);
+				WebElement SP_Checkbox = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), 
+					By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[1]//*//..//div//kf-checkbox//div"));
 				
 				LOGGER.debug("Found checkbox at row {}, triggering hover for tooltip", rowNumber.get());
 
@@ -109,7 +112,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 				}
 
 				// Verify tooltip is displayed
-				WebElement tooltip = waitForElement(NO_JOB_CODE_TOOLTIP, 5);
+				WebElement tooltip = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), NO_JOB_CODE_TOOLTIP);
 				Assert.assertTrue(tooltip.isDisplayed(), "Tooltip should be visible on hover");
 				String tipMessage = getElementText(NO_JOB_CODE_TOOLTIP);
 

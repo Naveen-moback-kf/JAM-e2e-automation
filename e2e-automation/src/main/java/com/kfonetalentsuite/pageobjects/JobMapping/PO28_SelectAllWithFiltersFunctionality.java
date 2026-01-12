@@ -165,7 +165,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			int expectedTotal = 0;
 			try {
 				String resultsCountText = getElementText(getShowingResultsCountLocator(screen));
-				expectedTotal = parseProfileCountFromText(resultsCountText);
+				expectedTotal = Utilities.parseProfileCountFromText(resultsCountText);
 				LOGGER.info("Expected total filtered profiles: {}", expectedTotal);
 			} catch (Exception e) {
 				LOGGER.debug("Could not parse expected total: {}", e.getMessage());
@@ -331,7 +331,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			// Parse total profile count
 			try {
 				String resultsCountText = getElementText(getShowingResultsCountLocator(screen));
-				expectedTotalProfiles = parseProfileCountFromText(resultsCountText);
+				expectedTotalProfiles = Utilities.parseProfileCountFromText(resultsCountText);
 				LOGGER.info("Expected total profiles: {}", expectedTotalProfiles);
 			} catch (Exception e) {
 				LOGGER.debug("Could not parse total profile count: {}", e.getMessage());
@@ -536,7 +536,7 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 			Utilities.waitForSpinnersToDisappear(driver, 5);
 
 			String resultsCountText = getElementText(getShowingResultsCountLocator(screen));
-			int expectedTotal = parseProfileCountFromText(resultsCountText);
+			int expectedTotal = Utilities.parseProfileCountFromText(resultsCountText);
 
 			if (expectedTotal == 0 || resultsCountText.contains("Showing 0")) {
 				LOGGER.info("Second filter returned 0 results");

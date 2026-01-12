@@ -3,6 +3,7 @@ import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locator
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileManagerPage.*;
 
+import java.time.Duration;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -11,6 +12,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.common.Utilities;
 public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
@@ -138,7 +140,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	public void verify_success_profile_checkbox_is_enabled_and_able_to_perform_export_operation() {
 		try {
 			String checkboxXpath = String.format("//tbody//tr[%d]//td[1]//*//..//div//kf-checkbox", rowNumber.get());
-			WebElement checkbox = waitForElement(By.xpath(checkboxXpath));
+			WebElement checkbox = Utilities.waitForVisible(wait, By.xpath(checkboxXpath));
 			scrollToElement(checkbox);
 
 			if (!checkbox.isDisplayed()) {
@@ -150,7 +152,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 						"Checkbox is disabled for profile: " + SPJobName.get() + ". This profile cannot be exported.");
 			}
 
-			WebElement clickable = waitForClickable(By.xpath(checkboxXpath));
+			WebElement clickable = Utilities.waitForClickable(wait, By.xpath(checkboxXpath));
 			Assert.assertTrue(clickable.isEnabled());
 
 			LOGGER.info("Checkbox of the SP with Name " + SPJobName.get()
@@ -170,7 +172,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 		try {
 			String checkboxXpath = String.format("//tbody//tr[%d]//td[1]//*//..//div//kf-checkbox", rowNumber.get());
 			By checkboxLocator = By.xpath(checkboxXpath);
-			WebElement checkbox = waitForClickable(checkboxLocator);
+			WebElement checkbox = Utilities.waitForClickable(wait, checkboxLocator);
 
 			if (!checkbox.isEnabled()) {
 				LOGGER.warn("Checkbox is disabled for profile: {}", SPJobName.get());
@@ -310,12 +312,12 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 			// Scroll to appropriate position
 			if (rowNumber.get() == 1) {
-				scrollToElement(waitForElement(SHOWING_RESULTS_COUNT));
+				scrollToElement(Utilities.waitForVisible(wait, SHOWING_RESULTS_COUNT));
 			} else if (rowNumber.get() < 5) {
-				WebElement spJobName = waitForElement(By.xpath("//tbody//tr[1]//td[1]//*"));
+				WebElement spJobName = Utilities.waitForVisible(wait, By.xpath("//tbody//tr[1]//td[1]//*"));
 				scrollToElement(spJobName);
 			} else if (rowNumber.get() > 5) {
-				WebElement spJobName = waitForElement(
+				WebElement spJobName = Utilities.waitForVisible(wait, 
 						By.xpath("//tbody//tr[" + (rowNumber.get() - 5) + "]//td[1]//*"));
 				scrollToElement(spJobName);
 			}
@@ -326,7 +328,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			// Find the job name link element (must be <a> tag for navigation)
 			String linkXpath = "//tbody//tr[" + rowNumber.get() + "]//td[1]//a";
 			
-			WebElement jobNameLink = waitForElement(By.xpath(linkXpath), 10);
+			WebElement jobNameLink = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), By.xpath(linkXpath));
 
 			// Verify it's the right element
 			Assert.assertEquals(jobNameLink.getText(), SPJobName.get());
@@ -437,7 +439,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			waitForSpinners();
 
 			try {
-				WebElement pageText = waitForElement(SP_DETAILS_PAGE_TEXT);
+				WebElement pageText = Utilities.waitForVisible(wait, SP_DETAILS_PAGE_TEXT);
 				Assert.assertTrue(pageText.isDisplayed());
 			} catch (Exception e) {
 				String currentUrl = driver.getCurrentUrl();
@@ -588,7 +590,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	public void user_should_be_navigated_to_sp_details_page_after_saving_sp_details() {
 		try {
 			waitForSpinners();
-			WebElement pageText = waitForElement(SP_DETAILS_PAGE_TEXT);
+			WebElement pageText = Utilities.waitForVisible(wait, SP_DETAILS_PAGE_TEXT);
 			Assert.assertTrue(pageText.isDisplayed());
 			LOGGER.info("Navigated to SP details page as expected after Saving SP details....");
 		} catch (AssertionError e) {

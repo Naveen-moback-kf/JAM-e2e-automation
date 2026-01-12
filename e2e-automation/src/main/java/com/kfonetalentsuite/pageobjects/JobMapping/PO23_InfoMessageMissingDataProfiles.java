@@ -1343,7 +1343,7 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 		try {
 			LOGGER.info("Verifying user is navigated to Job Comparison page");
 
-			WebElement compareAndSelectHeader = waitForElement(COMPARE_SELECT_HEADER);
+			WebElement compareAndSelectHeader = Utilities.waitForVisible(wait, COMPARE_SELECT_HEADER);
 			String compareAndSelectHeaderText = compareAndSelectHeader.getText();
 
 			Assert.assertEquals(compareAndSelectHeaderText, "Which profile do you want to use for this job?",

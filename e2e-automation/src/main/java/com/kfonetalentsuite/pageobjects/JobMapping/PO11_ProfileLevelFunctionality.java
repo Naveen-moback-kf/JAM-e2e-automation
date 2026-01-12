@@ -21,7 +21,7 @@ public class PO11_ProfileLevelFunctionality extends BasePageObject {
 	}
 
 	public void change_profile_level() {
-		WebElement dropdown = waitForElement(PROFILE_LEVEL_DROPDOWN);
+		WebElement dropdown = Utilities.waitForVisible(wait, PROFILE_LEVEL_DROPDOWN);
 		if (dropdown.isEnabled()) {
 			scrollToTop();
 			try {
@@ -50,7 +50,7 @@ public class PO11_ProfileLevelFunctionality extends BasePageObject {
 	}
 
 	public void change_profile_level_in_job_comparison_page() {
-		WebElement dropdown = waitForElement(PROFILE_LEVEL_DROPDOWN);
+		WebElement dropdown = Utilities.waitForVisible(wait, PROFILE_LEVEL_DROPDOWN);
 		if (dropdown.isEnabled()) {
 			scrollToTop();
 			try {

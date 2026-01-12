@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -744,18 +745,16 @@ public class BasePageObject {
 	}  // END OF LOCATORS CLASS
 
 	// ==================== WAIT UTILITIES ====================
-	// Instance helper methods - delegate to Utilities for actual wait logic
+	// Instance helper method - delegate to Utilities for actual wait logic
 	
-	protected WebElement waitForElement(By locator) {
-		return waitForElement(locator, 10);
-	}
-
-	protected WebElement waitForElement(By locator, int timeoutSeconds) {
-		return Utilities.waitForVisible(wait, locator);
-	}
-
-	protected WebElement waitForClickable(By locator) {
-		return Utilities.waitForClickable(wait, locator);
+	protected void waitForInvisibility(By locator, int timeoutSeconds) {
+		try {
+			WebDriverWait customWait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+			Utilities.waitForInvisible(customWait, locator);
+		} catch (Exception e) {
+			// Element not found or already invisible - this is acceptable
+			LOGGER.debug("Element not found or already invisible: " + locator);
+		}
 	}
 
 	protected void waitForPageLoad() {
@@ -841,7 +840,7 @@ public class BasePageObject {
 
 	protected boolean tryClickWithStrategies(By locator, String elementName) {
 		try {
-			WebElement element = waitForClickable(locator);
+			WebElement element = Utilities.waitForClickable(wait, locator);
 			boolean result = Utilities.tryClickWithStrategies(driver, js, element);
 			if (result) {
 				LOGGER.debug("Clicked on {}", elementName);
@@ -1010,7 +1009,7 @@ public class BasePageObject {
 	// ==================== SEARCH UTILITIES ====================
 	
 	protected void searchFor(String searchText) {
-		WebElement searchBar = waitForElement(Locators.Common.SEARCH_BAR);
+		WebElement searchBar = Utilities.waitForVisible(wait, Locators.Common.SEARCH_BAR);
 		searchBar.clear();
 		searchBar.sendKeys(searchText);
 		waitForSpinners();
@@ -1020,11 +1019,22 @@ public class BasePageObject {
 	protected void clearAndSearch(By searchLocator, String searchTerm) {
 		try {
 			waitForSpinners();
-			Utilities.waitForSpinnersToDisappear(driver, 5);
+			Utilities.waitForSpinnersToDisappear(driver, 10);
+			Utilities.waitForPageReady(driver, 5);
+			
+			// Wait for blocking loader to disappear
+			waitForInvisibility(By.xpath("//div[contains(@class, 'blocking-loader')]"), 5);
 			
 			WebDriverWait extendedWait = new WebDriverWait(driver, Duration.ofSeconds(10));
 			WebElement searchBar = Utilities.waitForClickable(extendedWait, searchLocator);
-			searchBar.click();
+			
+			// Use JavaScript click as fallback to avoid interception
+			try {
+				searchBar.click();
+			} catch (ElementClickInterceptedException e) {
+				LOGGER.warn("Click intercepted, using JavaScript click");
+				js.executeScript("arguments[0].click();", searchBar);
+			}
 			safeSleep(200);
 			
 			searchBar.clear();
@@ -1048,7 +1058,7 @@ public class BasePageObject {
 
 	protected void clearSearchBar(By searchLocator) {
 		try {
-			WebElement searchBar = waitForElement(searchLocator, 10);
+			WebElement searchBar = Utilities.waitForVisible(wait, searchLocator);
 			searchBar.click();
 			safeSleep(200);
 			
@@ -1122,7 +1132,7 @@ public class BasePageObject {
 	
 	protected int getResultsCount() {
 		String countText = getElementText(Locators.Common.RESULTS_COUNT_TEXT);
-		return parseProfileCountFromText(countText);
+		return Utilities.parseProfileCountFromText(countText);
 	}
 
 	protected void selectAllProfiles() {
@@ -1319,26 +1329,6 @@ public class BasePageObject {
 	// ==================== TEXT PROCESSING UTILITIES ====================
 	// Generic methods delegated to Utilities
 	
-	protected String extractCellText(WebElement cell) {
-		return Utilities.extractCellText(cell);
-	}
-
-	protected String normalizeFieldValue(String fieldValue) {
-		return Utilities.normalizeFieldValue(fieldValue);
-	}
-
-	protected String getValueOrEmpty(String value) {
-		return Utilities.getValueOrEmpty(value);
-	}
-
-	protected String normalizeForSorting(String value) {
-		return Utilities.normalizeForSorting(value);
-	}
-
-	protected boolean isMissingData(String value) {
-		return Utilities.isMissingData(value);
-	}
-
 	// Job Mapping specific (kept in BasePageObject)
 	protected String cleanJobName(String rawJobName) {
 		if (rawJobName == null || rawJobName.isEmpty()) return "";
@@ -1359,24 +1349,9 @@ public class BasePageObject {
 		return cleaned;
 	}
 
-	// ==================== DATE UTILITIES ====================
-	// Delegate to Utilities for implementation
-	
-	protected String formatCurrentDate() {
-		return Utilities.formatCurrentDate();
-	}
-
-	protected String formatDateForDisplay() {
-		return Utilities.formatDateForDisplay();
-	}
-
 	// ==================== PARSING UTILITIES ====================
-	// Delegate to Utilities for implementation
+	// Only methods that need driver instance are kept here
 	
-	protected int parseProfileCountFromText(String countText) {
-		return Utilities.parseProfileCountFromText(countText);
-	}
-
 	protected int getRowIndex(WebElement rowElement) {
 		return Utilities.getRowIndex(driver, rowElement);
 	}
@@ -1420,14 +1395,6 @@ public class BasePageObject {
 			}
 		}
 		return violations;
-	}
-
-	protected boolean isNonAscii(String value) {
-		return Utilities.isNonAscii(value);
-	}
-
-	protected boolean shouldSkipInSortValidation(String value) {
-		return Utilities.shouldSkipInSortValidation(value);
 	}
 
 	// ==================== UI ELEMENT EXPANSION UTILITIES ====================

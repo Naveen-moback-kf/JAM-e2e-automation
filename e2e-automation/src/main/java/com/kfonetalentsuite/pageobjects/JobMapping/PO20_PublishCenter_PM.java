@@ -32,7 +32,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			scrollToTop();
 			waitForSpinners();
-			WebElement publishCenterBtn = waitForClickable(PUBLISH_CENTER_BTN);
+			WebElement publishCenterBtn = Utilities.waitForClickable(wait, PUBLISH_CENTER_BTN);
 			Assert.assertTrue(publishCenterBtn.isEnabled());
 			tryClickWithStrategies(publishCenterBtn);
 			LOGGER.info("Clicked on Publish Center button in My Organization's Job Profiles screen in PM");
@@ -46,7 +46,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 2);
-			WebElement screenTitle = waitForElement(JPH_SCREEN_TITLE);
+			WebElement screenTitle = Utilities.waitForVisible(wait, JPH_SCREEN_TITLE);
 			Assert.assertTrue(screenTitle.isDisplayed());
 			LOGGER.info("User navigated to " + screenTitle.getText() + " screen successfully....");
 		} catch (Exception e) {
@@ -70,7 +70,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 	public void verify_details_of_the_recently_downloaded_job_profiles_in_job_profile_history_screen() {
 		try {
-			String todayDate = formatDateForDisplay();
+			String todayDate = Utilities.formatDateForDisplay();
 			Assert.assertEquals(Integer.toString(PO18_HCMSyncProfilesTab_PM.profilesCount.get()),
 					getElementText(JPH_PROFILES_COUNT_ROW1));
 			LOGGER.info("No.of Profiles count in Publish Center matches with No.of Profiles selected for Download in HCM Sync Profiles screen in PM");
@@ -120,7 +120,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 2);
-			WebElement title = waitForElement(PROFILES_DOWNLOADED_TITLE);
+			WebElement title = Utilities.waitForVisible(wait, PROFILES_DOWNLOADED_TITLE);
 			Assert.assertTrue(title.isDisplayed());
 			LOGGER.info("User navigated to " + title.getText() + " screen successfully....");
 		} catch (Exception e) {
@@ -155,7 +155,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 	public void close_profiles_downloaded_screen() {
 		try {
-			WebElement closeBtn = waitForElement(CLOSE_BTN);
+			WebElement closeBtn = Utilities.waitForVisible(wait, CLOSE_BTN);
 			Assert.assertTrue(closeBtn.isDisplayed());
 			tryClickWithStrategies(closeBtn);
 			LOGGER.info("Profiles Downloaded screen closed succesfully....");
@@ -266,7 +266,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 	public void verify_details_of_the_recently_exported_job_profiles_in_job_profile_history_screen() {
 		try {
-			String todayDate = formatDateForDisplay();
+			String todayDate = Utilities.formatDateForDisplay();
 			String profilesCountText = getElementText(JPH_PROFILES_COUNT_ROW1);
 			
 			// Clean and validate the text before parsing
@@ -352,7 +352,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 2);
-			WebElement title = waitForElement(PROFILES_EXPORTED_TITLE);
+			WebElement title = Utilities.waitForVisible(wait, PROFILES_EXPORTED_TITLE);
 			Assert.assertTrue(title.isDisplayed());
 			LOGGER.info("User navigated to " + title.getText() + " screen successfully....");
 		} catch (Exception e) {
@@ -386,7 +386,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 	public void close_profiles_exported_screen() {
 		try {
-			WebElement closeBtn = waitForElement(CLOSE_BTN);
+			WebElement closeBtn = Utilities.waitForVisible(wait, CLOSE_BTN);
 			Assert.assertTrue(closeBtn.isDisplayed());
 			tryClickWithStrategies(closeBtn);
 			LOGGER.info("Profiles Exported screen closed succesfully....");
@@ -402,7 +402,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 	public void user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles_in_job_profile_history_screen() {
 		try {
-			WebElement resultsCount = waitForElement(SHOWING_RESULTS_COUNT);
+			WebElement resultsCount = Utilities.waitForVisible(wait, SHOWING_RESULTS_COUNT);
 			Assert.assertTrue(resultsCount.isDisplayed());
 
 			scrollToBottom();
@@ -540,7 +540,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 3);
 			LOGGER.info("Refreshed Job Profile History screen....");
-			waitForElement(JPH_PROFILES_COUNT_ROW1);
+			Utilities.waitForVisible(wait, JPH_PROFILES_COUNT_ROW1);
 			for (int i = 1; i <= 10; i++) {
 				WebElement jphProfilesCount = driver.findElement(By.xpath("//*/kf-page-content/div[2]/div[2]/div[" + i + "]/div[1]/span"));
 				String text = jphProfilesCount.getText();
@@ -590,7 +590,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 2);
-			waitForElement(JPH_PROFILES_COUNT_ROW1);
+			Utilities.waitForVisible(wait, JPH_PROFILES_COUNT_ROW1);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
 			LOGGER.info(
@@ -756,7 +756,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 2);
-			waitForElement(JPH_PROFILES_COUNT_ROW1);
+			Utilities.waitForVisible(wait, JPH_PROFILES_COUNT_ROW1);
 			
 			int rowsToValidate = getAvailableJPHRowCount();
 			LOGGER.info(

@@ -304,9 +304,9 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 	public void user_should_verify_recommended_tag_and_select_button_is_displaying_on_the_profile() {
 		try {
-			Assert.assertTrue(waitForElement(PROFILE_1_RECOMMENDED_TAG).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, PROFILE_1_RECOMMENDED_TAG).isDisplayed());
 			LOGGER.info("Recommended tag is displaying on Recommended Profile");
-			WebElement selectBtn = waitForElement(PROFILE_1_SELECT_BTN);
+			WebElement selectBtn = Utilities.waitForVisible(wait, PROFILE_1_SELECT_BTN);
 			Assert.assertTrue(selectBtn.isDisplayed());
 			Assert.assertEquals("true", selectBtn.getAttribute("aria-checked").toString());
 			LOGGER.info("Select button is displaying and in Selected status by default");
@@ -513,7 +513,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 	public void user_should_verify_profile_level_dropdown_is_available_and_validate_levels_present_inside_dropdown() {
 		try {
-			WebElement dropdown = waitForElement(PROFILE_LEVEL_DROPDOWN);
+			WebElement dropdown = Utilities.waitForVisible(wait, PROFILE_LEVEL_DROPDOWN);
 			if (dropdown.isEnabled()) {
 				dropdown.click();
 				Select select = new Select(dropdown);

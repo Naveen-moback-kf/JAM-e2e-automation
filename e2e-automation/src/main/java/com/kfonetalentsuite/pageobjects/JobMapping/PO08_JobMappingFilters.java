@@ -688,7 +688,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	public void user_should_verify_search_bar_is_available_in_functions_subfunctions_filters_dropdown() throws Exception {
 		try {
 			Utilities.waitForPageReady(driver, 2);
-			Assert.assertTrue(waitForElement(FUNCTIONS_SEARCH).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, FUNCTIONS_SEARCH).isDisplayed());
 			LOGGER.info("Search bar is available in Functions Subfunctions dropdown");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "user_should_verify_search_bar_is_available_in_functions_subfunctions_filters_dropdown", "Issue verifying search bar", e);
@@ -709,7 +709,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				}
 			}
 
-			WebElement searchBox = waitForElement(FUNCTIONS_SEARCH);
+			WebElement searchBox = Utilities.waitForVisible(wait, FUNCTIONS_SEARCH);
 			clickElement(searchBox);
 			searchBox.clear();
 			searchBox.sendKeys(FunctionsOption.get());
@@ -779,7 +779,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 	private boolean findAndSelectFunctionWithSubfunctions() {
 		try {
-			WebElement searchBox = waitForElement(FUNCTIONS_SEARCH);
+			WebElement searchBox = Utilities.waitForVisible(wait, FUNCTIONS_SEARCH);
 			searchBox.clear();
 			Thread.sleep(300);
 			Utilities.waitForPageReady(driver, 2);

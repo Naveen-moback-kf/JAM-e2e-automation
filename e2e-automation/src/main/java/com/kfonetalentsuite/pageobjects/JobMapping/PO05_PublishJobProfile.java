@@ -48,7 +48,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			waitForSpinners();
 			safeSleep(1000);
 			
-			WebElement jobNameElement = waitForElement(JOB_NAME_ROW_1, 10);
+			WebElement jobNameElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), JOB_NAME_ROW_1);
 			String job1NameText = jobNameElement.getText();
 			
 			if (job1NameText == null || job1NameText.trim().isEmpty()) {
@@ -78,7 +78,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			
 			LOGGER.info("Job name extracted and stored: '{}', Job code: '{}'", extractedJobName, extractedJobCode);
 			
-			Assert.assertTrue(waitForElement(JOB_1_PUBLISH_BTN).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, JOB_1_PUBLISH_BTN).isDisplayed());
 			LOGGER.info("Publish button on first job profile (Org: " + job1OrgName.get() + ", Code: " + job1OrgCode.get() + ") is displaying");
 		} catch (Exception e) {
 			ScreenshotHandler.handleTestFailure("verify_publish_btn_on_first_job_profile", e, "Issue in verifying Publish button on first job");
@@ -202,7 +202,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			scrollToTop();
 			safeSleep(500);
 			
-			WebElement searchBar = waitForElement(SEARCH_BAR, 10);
+			WebElement searchBar = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), SEARCH_BAR);
 			scrollToElement(searchBar);
 			
 			// Use new clearAndSearch helper
@@ -248,7 +248,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			
 			// PARALLEL EXECUTION FIX: Re-fetch element to avoid stale reference
 			waitForSpinners();
-			Assert.assertTrue(waitForElement(JOB_1_PUBLISHED_BTN, 10).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), JOB_1_PUBLISHED_BTN).isDisplayed());
 			LOGGER.info("Published Job (Org: " + job1OrgName.get() + ") is displayed in view published screen");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "user_should_verify_published_job_is_displayed_in_view_published_screen", "Issue verifying Published Job", e);
@@ -272,7 +272,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void user_should_verify_search_dropdown_is_displaying_in_hcm_sync_profiles_screen_in_pm() {
 		try {
 			Utilities.waitForPageReady(driver, 5);
-			Assert.assertTrue(waitForElement(SEARCH_DROPDOWN).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, SEARCH_DROPDOWN).isDisplayed());
 			LOGGER.info("Search Dropdown is displaying in HCM Sync Profiles screen in PM");
 		}catch(Exception e) {
 			Utilities.handleError(LOGGER, "user_should_verify_search_dropdown_is_displaying_in_hcm_sync_profiles_screen_in_pm", "Search Dropdown Missing in HCM Sync Profiles", e);
@@ -320,7 +320,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			waitForSpinners();
 			safeSleep(300);
 			
-			WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
+			WebElement searchBox = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), PROFILES_SEARCH);
 			scrollToElement(searchBox);
 			
 			// Use new clearAndSearch helper
@@ -349,7 +349,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			waitForSpinners();
 			safeSleep(300);
 			
-			WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
+			WebElement searchBox = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), PROFILES_SEARCH);
 			scrollToElement(searchBox);
 			
 			// Use new clearAndSearch helper
@@ -426,7 +426,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 
 	public void user_should_verify_date_on_published_job_matches_with_current_date() {
 		try {
-			String todayDate = formatDateForDisplay();
+			String todayDate = Utilities.formatDateForDisplay();
 			LOGGER.info("[Thread-{}] Verifying date '{}' on published job in HCM", Thread.currentThread().getId(), todayDate);
 			
 			// SIMPLE VALIDATION: Search already verified results, just confirm
@@ -452,7 +452,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			clickElement(HCM_JOB_ROW_1);
 			LOGGER.info("Clicked Published Job (Org: " + job1OrgName.get() + ") in HCM Sync Profiles");
 			Utilities.waitForPageReady(driver, 5);
-			Assert.assertTrue(waitForElement(SP_DETAILS_PAGE_TEXT).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, SP_DETAILS_PAGE_TEXT).isDisplayed());
 			LOGGER.info("SP details page opened on click of Published Job name");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "user_should_verify_sp_details_page_opens_on_click_of_published_job_name", "Issue navigating to SP details page", e);
@@ -615,7 +615,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			waitForSpinners();
 			safeSleep(300);
 			
-			WebElement searchBox = waitForElement(PROFILES_SEARCH, 10);
+			WebElement searchBox = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), PROFILES_SEARCH);
 			scrollToElement(searchBox);
 			
 			// Use clearAndSearch helper for reliable clearing and searching
@@ -664,7 +664,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 
 	public void user_should_verify__updated_date_on_published_job_matches_with_current_date_in_architect() {
 		try {
-			String todayDate = formatDateForDisplay();
+			String todayDate = Utilities.formatDateForDisplay();
 			String jobPublishedDate = getElementText(ARCHITECT_DATE_ROW_1);
 			Assert.assertEquals(jobPublishedDate, todayDate);
 			LOGGER.info("Updated date verified on Published Job: " + job1OrgName.get() + " in Architect");

@@ -46,7 +46,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	public void verify_count_of_total_un_published_profiles_before_publishing_selected_profiles() {
 		try {
 			String countText = getElementText(RESULTS_COUNT_TEXT);
-			int count = parseProfileCountFromText(countText);
+			int count = Utilities.parseProfileCountFromText(countText);
 			
 			if (count > 0) {
 				unpublishedProfilesCountBefore.set(count);
@@ -63,7 +63,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	public void verify_count_of_total_published_profiles_before_publishing_selected_profiles() {
 		try {
 			String countText = getElementText(RESULTS_COUNT_TEXT);
-			int count = parseProfileCountFromText(countText);
+			int count = Utilities.parseProfileCountFromText(countText);
 			
 			if (count > 0) {
 				publishedProfilesCountBefore.set(count);
@@ -140,7 +140,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			// Get total profile count from "Showing X of Y results" text
 			try {
 				String countText = getElementText(RESULTS_COUNT_TEXT);
-				selectedCount = parseProfileCountFromText(countText);
+				selectedCount = Utilities.parseProfileCountFromText(countText);
 				
 				if (selectedCount > 0) {
 					LOGGER.info("=== SELECTED PROFILES COUNT (from 'Showing X of Y results') ===");
@@ -229,7 +229,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			Utilities.waitForPageReady(driver, 2);
 
 			String countText = getElementText(RESULTS_COUNT_TEXT);
-			int count = parseProfileCountFromText(countText);
+			int count = Utilities.parseProfileCountFromText(countText);
 
 			if (count >= 0) {
 				unpublishedProfilesCountAfter.set(count);
@@ -288,7 +288,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			Utilities.waitForPageReady(driver, 2);
 
 			String countText = getElementText(RESULTS_COUNT_TEXT);
-			int count = parseProfileCountFromText(countText);
+			int count = Utilities.parseProfileCountFromText(countText);
 
 			if (count > 0) {
 				publishedProfilesCountAfter.set(count);
@@ -387,7 +387,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 				try {
 					WebElement freshResultsElement = driver.findElement(RESULTS_COUNT_TEXT);
 					String countText = freshResultsElement.getText().trim();
-					currentUnpublishedCount = parseProfileCountFromText(countText);
+					currentUnpublishedCount = Utilities.parseProfileCountFromText(countText);
 				} catch (Exception e) {
 					LOGGER.warn("Could not read count at check #{}: {}", checkNumber, e.getMessage());
 					// Continue with previous count if read fails
@@ -528,7 +528,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			try {
 				WebElement freshResultsElement = driver.findElement(RESULTS_COUNT_TEXT);
 				String countText = freshResultsElement.getText().trim();
-				finalUnpublishedCount = parseProfileCountFromText(countText);
+				finalUnpublishedCount = Utilities.parseProfileCountFromText(countText);
 			} catch (Exception e) {
 				LOGGER.warn("Could not read final unpublished count: {}", e.getMessage());
 			}

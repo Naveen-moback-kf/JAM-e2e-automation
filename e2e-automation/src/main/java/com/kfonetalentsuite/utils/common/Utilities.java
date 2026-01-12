@@ -92,7 +92,8 @@ public class Utilities {
 			"//div[@data-testid='loader']//img",
 			"//div[contains(@class, 'loader')]",
 			"//div[contains(@class, 'spinner')]",
-			"//div[contains(@class, 'loading')]"
+			"//div[contains(@class, 'loading')]",
+			"//div[contains(@class, 'blocking-loader')]"
 	};
 
 	// Basic wait methods

@@ -59,7 +59,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void user_should_verify_job_mapping_logo_is_displayed_on_screen() {
 		try {
-			Assert.assertTrue(waitForElement(JAM_LOGO).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, JAM_LOGO).isDisplayed());
 			LOGGER.info("Job Mapping logo is displayed on screen");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "user_should_verify_job_mapping_logo_is_displayed_on_screen", "Issue in displaying Job Mapping Logo", e);
@@ -80,7 +80,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 			for (int attempt = 1; attempt <= maxAttempts && !menuClicked; attempt++) {
 				try {
-					WebElement menuButton = waitForClickable(GLOBAL_NAV_MENU_BTN);
+					WebElement menuButton = Utilities.waitForClickable(wait, GLOBAL_NAV_MENU_BTN);
 					scrollToElement(menuButton);
 
 					if (!tryClickWithStrategies(menuButton)) {
@@ -131,7 +131,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void user_should_be_landed_on_job_mapping_page() {
 		try {
 			Utilities.waitForPageReady(driver, 5);
-			Assert.assertTrue(waitForElement(PAGE_CONTAINER).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, PAGE_CONTAINER).isDisplayed());
 			LOGGER.info("User landed on the JOB MAPPING page");
 			waitForBackgroundDataLoad();
 		} catch (Exception e) {
@@ -167,7 +167,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void verify_organization_jobs_search_bar_text_box_is_clickable() {
 		try {
-			WebElement searchBar = waitForElement(SEARCH_BAR);
+			WebElement searchBar = Utilities.waitForVisible(wait, SEARCH_BAR);
 			scrollToElement(searchBar);
 			clickElement(searchBar);
 			LOGGER.info("Organization Jobs Search bar text box is clickable");
@@ -344,7 +344,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void click_on_matched_profile_of_job_in_first_row() {
 		try {
 			waitForSpinners();
-			WebElement matchedProfile = waitForClickable(JOB_1_MATCHED_PROFILE);
+			WebElement matchedProfile = Utilities.waitForClickable(wait, JOB_1_MATCHED_PROFILE);
 			matchedSuccessPrflName.set(matchedProfile.getText());
 			scrollToElement(matchedProfile);
 			clickElement(matchedProfile);
@@ -358,7 +358,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void verify_profile_details_popup_is_displayed() {
 		try {
 			waitForSpinners();
-			Assert.assertTrue(waitForElement(PROFILE_DETAILS_POPUP_HEADER).isDisplayed());
+			Assert.assertTrue(Utilities.waitForVisible(wait, PROFILE_DETAILS_POPUP_HEADER).isDisplayed());
 			LOGGER.info("Profile details popup is displayed on screen");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "verify_profile_details_popup_is_displayed", "Issue displaying popup", e);
@@ -387,7 +387,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	}
 
 	public void verify_options_available_inside_filters_dropdown() {
-		Assert.assertTrue(waitForElement(FILTER_OPTIONS).isDisplayed());
+		Assert.assertTrue(Utilities.waitForVisible(wait, FILTER_OPTIONS).isDisplayed());
 		try {
 			Assert.assertEquals(getElementText(FILTER_OPTION_1), "Grades");
 			Assert.assertEquals(getElementText(FILTER_OPTION_2), "Departments");
@@ -401,7 +401,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 		try {
 			clickElement(FILTER_OPTION_3);
 			Utilities.waitForPageReady(driver, 5);
-			waitForElement(SEARCH_BAR_FILTER_OPTION_3);
+			Utilities.waitForVisible(wait, SEARCH_BAR_FILTER_OPTION_3);
 			clickElement(SEARCH_BAR_FILTER_OPTION_3);
 			LOGGER.info("Search bar inside Functions / Subfunctions filter option is available and clickable");
 		} catch (Exception e) {
@@ -433,7 +433,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			driver.manage().deleteAllCookies();
 			Utilities.waitForPageReady(driver, 5);
 
-			WebElement button = waitForClickable(ADD_MORE_JOBS_BTN);
+			WebElement button = Utilities.waitForClickable(wait, ADD_MORE_JOBS_BTN);
 			scrollToElement(button);
 			clickElement(button);
 
@@ -469,7 +469,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void user_should_verify_publish_selected_profiles_button_is_disabled() {
 		try {
-			Assert.assertTrue(!waitForElement(PUBLISH_SELECTED_BTN).isEnabled());
+			Assert.assertTrue(!Utilities.waitForVisible(wait, PUBLISH_SELECTED_BTN).isEnabled());
 			LOGGER.info("Publish Selected Profiles button is disabled");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "user_should_verify_publish_selected_profiles_button_is_disabled", "Issue verifying button disabled", e);
@@ -547,7 +547,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void click_on_checkbox_of_first_job_profile() {
 		try {
-			WebElement jobNameElement = waitForElement(JOB_NAME_PROFILE_1, 10);
+			WebElement jobNameElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), JOB_NAME_PROFILE_1);
 			String job1NameText = jobNameElement.getText();
 			
 			if (job1NameText == null || job1NameText.trim().isEmpty()) {
@@ -583,7 +583,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void click_on_checkbox_of_second_job_profile() {
 		try {
-			WebElement jobNameElement = waitForElement(JOB_NAME_PROFILE_2, 10);
+			WebElement jobNameElement = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(10)), JOB_NAME_PROFILE_2);
 			String job1NameText = jobNameElement.getText();
 			
 			if (job1NameText == null || job1NameText.trim().isEmpty()) {
@@ -714,7 +714,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	}
 
 	public void user_should_verify_view_published_toggle_button_is_displaying() {
-		Assert.assertTrue(waitForElement(VIEW_PUBLISHED_TOGGLE).isDisplayed());
+		Assert.assertTrue(Utilities.waitForVisible(wait, VIEW_PUBLISHED_TOGGLE).isDisplayed());
 		LOGGER.info("View published toggle button is displaying on screen");
 	}
 
@@ -730,14 +730,14 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void user_should_verify_published_jobs_are_displaying_in_the_listing_table() {
 		try {
-			waitForElement(PUBLISHED_BTN);
+			Utilities.waitForVisible(wait, PUBLISHED_BTN);
 			LOGGER.info("Published jobs are displaying in the profile table");
 
 			Assert.assertFalse(driver.findElement(PUBLISHED_BTN).isEnabled(), "Published button should be disabled");
 			LOGGER.info("Published button is disabled");
 		} catch (TimeoutException e) {
 			try {
-				waitForElement(NO_DATA_AVAILABLE);
+				Utilities.waitForVisible(wait, NO_DATA_AVAILABLE);
 				LOGGER.info("No Jobs were published yet");
 			} catch (Exception ex) {
 				Utilities.handleError(LOGGER, "user_should_verify_published_jobs_are_displaying_in_the_listing_table", "Issue verifying published jobs", ex);
@@ -760,7 +760,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void user_should_verify_unpublished_jobs_are_displaying_in_the_listing_table() {
 		try {
-			WebElement publishButton = waitForElement(PUBLISH_BTN);
+			WebElement publishButton = Utilities.waitForVisible(wait, PUBLISH_BTN);
 			Assert.assertTrue(publishButton.isDisplayed() && publishButton.isEnabled());
 			LOGGER.info("Unpublished jobs with enabled Publish button are displaying");
 		} catch (Exception e) {
