@@ -1,6 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.PublishCenterPage.*;
-
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.PublishCenter.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -402,7 +402,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 	public void user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles_in_job_profile_history_screen() {
 		try {
-			WebElement resultsCount = waitForElement(JobMappingPage.SHOWING_RESULTS_COUNT);
+			WebElement resultsCount = waitForElement(SHOWING_RESULTS_COUNT);
 			Assert.assertTrue(resultsCount.isDisplayed());
 
 			scrollToBottom();
@@ -413,7 +413,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 2);
 
-			String resultsCountText_updated = getElementText(JobMappingPage.SHOWING_RESULTS_COUNT);
+			String resultsCountText_updated = getElementText(SHOWING_RESULTS_COUNT);
 			LOGGER.info("Scrolled down till third page and now " + resultsCountText_updated
 					+ " of Job Profiles");
 

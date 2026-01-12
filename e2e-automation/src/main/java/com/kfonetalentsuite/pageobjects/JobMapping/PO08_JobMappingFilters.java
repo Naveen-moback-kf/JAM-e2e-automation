@@ -1,6 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 
 import java.util.HashSet;
 import java.util.List;
@@ -113,7 +113,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 				String resultsCountText = "";
 				try {
-					WebElement resultsElement = Utilities.waitForPresent(wait, JobMappingPage.SHOWING_RESULTS_COUNT);
+					WebElement resultsElement = Utilities.waitForPresent(wait, SHOWING_RESULTS_COUNT);
 					resultsCountText = resultsElement.getText();
 					consecutiveFailures = 0;
 				} catch (Exception e) {
@@ -378,7 +378,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		
 		// SECOND: Check if results show "0 of 0"
 		try {
-			String resultsText = driver.findElement(JobMappingPage.SHOWING_RESULTS_COUNT).getText();
+			String resultsText = driver.findElement(SHOWING_RESULTS_COUNT).getText();
 			if (resultsText.contains("0 of 0")) {
 				LOGGER.info("✅ Department filter applied successfully - No matching profiles (0 of 0 results)");
 				scrollToTop();
@@ -893,7 +893,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			
 			// Check for "Showing 0 of X results" text
 			try {
-				WebElement resultsElement = driver.findElement(JobMappingPage.SHOWING_RESULTS_COUNT);
+				WebElement resultsElement = driver.findElement(SHOWING_RESULTS_COUNT);
 				String resultsText = resultsElement.getText();
 				if (resultsText.contains("Showing 0 of")) {
 					LOGGER.info("✅ Combined filters applied successfully - " + resultsText + " (no profiles match all filter criteria)");

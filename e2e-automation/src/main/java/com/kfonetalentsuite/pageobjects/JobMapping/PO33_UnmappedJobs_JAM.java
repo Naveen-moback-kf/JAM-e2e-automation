@@ -1,6 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JAMScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JAMSelectionScreen.*;
 
 import java.util.List;
 
@@ -90,7 +90,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		try {
 			Utilities.waitForPageReady(driver, 2);
 
-			WebElement headerCheckbox = findElement(JAMScreen.HEADER_CHECKBOX);
+			WebElement headerCheckbox = findElement(HEADER_CHECKBOX);
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", headerCheckbox);
 			safeSleep(500);
 

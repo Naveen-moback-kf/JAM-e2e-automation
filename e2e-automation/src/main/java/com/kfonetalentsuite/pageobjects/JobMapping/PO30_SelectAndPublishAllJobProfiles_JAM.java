@@ -1,6 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JAMSelectionScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +16,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	private static final Logger LOGGER = LogManager.getLogger(PO30_SelectAndPublishAllJobProfiles_JAM.class);
 
 	// Local aliases for cleaner code
-	private static final By CHEVRON_BTN = JAMScreen.CHEVRON_BUTTON;
+	private static final By CHEVRON_BTN = CHEVRON_BUTTON;
 	private static final By SUCCESS_HEADER = Locators.Modals.SUCCESS_MODAL_HEADER;
 	private static final By SUCCESS_MSG = Locators.Modals.SUCCESS_MODAL_MESSAGE;
 	private static final By SUCCESS_CLOSE_BTN = Locators.Modals.SUCCESS_MODAL_CLOSE_BTN;

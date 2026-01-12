@@ -1,8 +1,8 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.HCMSyncProfilesPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.ProfileManagerPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileManagerScreen.*;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileManagerPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 
 
 import java.time.Duration;
@@ -243,7 +243,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					// Check if results were found
 					String resultsCountText = "";
 					try {
-						resultsCountText = findElement(SHOWING_RESULTS_COUNT).getText().trim();
+						resultsCountText = findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT).getText().trim();
 						LOGGER.debug("Search results: {}", resultsCountText);
 					} catch (Exception e) {
 						LOGGER.debug("No profiles found with '{}' - trying next", profileName);
@@ -495,7 +495,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			Utilities.waitForPageReady(driver, 5);
 			safeSleep(1000);
 			
-			WebElement resultsCountElement = waitForElement(SHOWING_RESULTS_COUNT, 15);
+			WebElement resultsCountElement = waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT, 15);
 			String resultsCountText = resultsCountElement.getText().trim();
 
 			if (resultsCountText.isEmpty()) {
@@ -535,7 +535,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			WebDriverWait countWait = new WebDriverWait(driver, Duration.ofSeconds(10));
 			String resultsCountText1 = countWait.until(driver -> {
 				try {
-					WebElement resultsElement = driver.findElement(SHOWING_RESULTS_COUNT);
+					WebElement resultsElement = driver.findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 					String currentText = resultsElement.getText().trim();
 					if (!currentText.isEmpty() && !currentText.equals(initialCount)) {
 						return currentText;
@@ -575,7 +575,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		// Check if dropdown is already open
 		boolean isDropdownOpen = false;
 		try {
-			List<WebElement> filterElements = driver.findElements(JobMappingPage.FILTER_OPTIONS);
+			List<WebElement> filterElements = driver.findElements(Locators.JobMappingScreen.FILTER_OPTIONS);
 			isDropdownOpen = !filterElements.isEmpty() && filterElements.get(0).isDisplayed();
 		} catch (Exception ex) {
 			isDropdownOpen = false;
@@ -590,7 +590,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			clickWithFallback(FILTERS_DROPDOWN_BTN);
 			LOGGER.info("Clicked on filters dropdown button in HCM Sync Profiles screen");
 
-			Utilities.waitForVisible(wait, JobMappingPage.FILTER_OPTIONS);
+			Utilities.waitForVisible(wait, Locators.JobMappingScreen.FILTER_OPTIONS);
 			LOGGER.debug("Filters dropdown opened");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "click_on_filters_dropdown_button_in_hcm_sync_profiles_tab",
@@ -601,7 +601,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab() {
 		try {
 			// Use locator-based wait to avoid stale element
-			Utilities.waitForVisible(wait, JobMappingPage.FILTER_OPTIONS);
+			Utilities.waitForVisible(wait, Locators.JobMappingScreen.FILTER_OPTIONS);
 			Utilities.waitForSpinnersToDisappear(driver, 5);
 			safeSleep(500);
 
@@ -644,7 +644,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 		// Close the dropdown after verification
 		try {
-			WebElement filterOptionsElement = driver.findElement(JobMappingPage.FILTER_OPTIONS);
+			WebElement filterOptionsElement = driver.findElement(Locators.JobMappingScreen.FILTER_OPTIONS);
 			if (filterOptionsElement.isDisplayed()) {
 				jsClick(findElement(FILTERS_DROPDOWN_BTN));
 				Utilities.waitForInvisible(wait, filterOptionsElement);
@@ -734,7 +734,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 						jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
 					}
 				}
-				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(JobMappingPage.FILTER_OPTIONS)));
+				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
 				LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -762,15 +762,15 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 							" NO RESULTS FOUND after applying KF Grade filter - This is acceptable, the selected filter value returned 0 results");
 					LOGGER.info(" NO RESULTS - The applied KF Grade filter returned 0 results. This is an expected scenario.");
 					try {
-						String countText = findElement(SHOWING_RESULTS_COUNT).getText();
+						String countText = findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT).getText();
 						LOGGER.info("Results count shows: " + countText);
 					} catch (Exception ex) {
 						LOGGER.info("No results count displayed - 0 profiles match the filter");
 					}
 				} else {
 					// There are results, verify count changed
-					Utilities.waitForVisible(wait, SHOWING_RESULTS_COUNT);
-					String resultsCountText2 = Utilities.waitForVisible(wait, findElement(SHOWING_RESULTS_COUNT))
+					Utilities.waitForVisible(wait, Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
+					String resultsCountText2 = Utilities.waitForVisible(wait, findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT))
 							.getText();
 					Assert.assertNotEquals(updatedResultsCount.get(), resultsCountText2);
 					if (!resultsCountText2.equals(updatedResultsCount.get())) {
@@ -911,7 +911,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 						jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
 					}
 				}
-				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(JobMappingPage.FILTER_OPTIONS)));
+				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
 				LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -939,7 +939,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 							" NO RESULTS FOUND after applying Levels filter - This is acceptable, the selected filter value returned 0 results");
 					LOGGER.info(" NO RESULTS - The applied Levels filter returned 0 results. This is an expected scenario.");
 					try {
-						String countText = findElement(SHOWING_RESULTS_COUNT).getText();
+						String countText = findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT).getText();
 						LOGGER.info("Results count shows: " + countText);
 					} catch (Exception ex) {
 						LOGGER.info("No results count displayed - 0 profiles match the filter");
@@ -1079,7 +1079,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			try {
 				js.executeScript("window.scrollTo(0, 0);");
 				Utilities.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
-				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(JobMappingPage.FILTER_OPTIONS)));
+				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
 				LOGGER.info("Filters dropdown closed after selecting different Levels option");
 			} catch (Exception e) {
 				LOGGER.warn("Issue closing filters dropdown: " + e.getMessage());
@@ -1278,15 +1278,15 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 							" NO RESULTS FOUND after applying Functions/Subfunctions filter - This is acceptable, the selected filter value returned 0 results");
 					LOGGER.info(" NO RESULTS - The applied Functions/Subfunctions filter returned 0 results. This is an expected scenario.");
 					try {
-						String countText = findElement(SHOWING_RESULTS_COUNT).getText();
+						String countText = findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT).getText();
 						LOGGER.info("Results count shows: " + countText);
 					} catch (Exception ex) {
 						LOGGER.info("No results count displayed - 0 profiles match the filter");
 					}
 				} else {
 					// There are results, verify count changed
-					Utilities.waitForVisible(wait, SHOWING_RESULTS_COUNT);
-					String resultsCountText2 = Utilities.waitForVisible(wait, findElement(SHOWING_RESULTS_COUNT))
+					Utilities.waitForVisible(wait, Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
+					String resultsCountText2 = Utilities.waitForVisible(wait, findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT))
 							.getText();
 					Assert.assertNotEquals(intialResultsCount.get(), resultsCountText2);
 					if (!resultsCountText2.equals(intialResultsCount.get())) {
@@ -1423,7 +1423,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 						jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
 					}
 				}
-				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(JobMappingPage.FILTER_OPTIONS)));
+				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
 				LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1451,15 +1451,15 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 							" NO RESULTS FOUND after applying Profile Status filter - This is acceptable, the selected filter value returned 0 results");
 					LOGGER.info(" NO RESULTS - The applied Profile Status filter returned 0 results. This is an expected scenario.");
 					try {
-						String countText = findElement(SHOWING_RESULTS_COUNT).getText();
+						String countText = findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT).getText();
 						LOGGER.info("Results count shows: " + countText);
 					} catch (Exception ex) {
 						LOGGER.info("No results count displayed - 0 profiles match the filter");
 					}
 				} else {
 					// There are results, verify count changed
-					Utilities.waitForVisible(wait, SHOWING_RESULTS_COUNT);
-					String resultsCountText2 = Utilities.waitForVisible(wait, findElement(SHOWING_RESULTS_COUNT))
+					Utilities.waitForVisible(wait, Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
+					String resultsCountText2 = Utilities.waitForVisible(wait, findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT))
 							.getText();
 					Assert.assertNotEquals(updatedResultsCount.get(), resultsCountText2);
 					if (!resultsCountText2.equals(updatedResultsCount.get())) {
@@ -1528,7 +1528,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			safeSleep(1000);
 			
 			// Step 1: Store count of profiles loaded BEFORE clicking header checkbox
-			WebElement resultsCountElement = waitForElement(SHOWING_RESULTS_COUNT, 15);
+			WebElement resultsCountElement = waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT, 15);
 			String resultsCountText = resultsCountElement.getText();
 			String[] resultsCountText_split = resultsCountText.split(" ");
 			loadedProfilesBeforeHeaderCheckboxClick.set(Integer.parseInt(resultsCountText_split[1]));

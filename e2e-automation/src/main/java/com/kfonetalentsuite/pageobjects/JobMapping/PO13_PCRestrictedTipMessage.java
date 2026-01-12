@@ -1,8 +1,8 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.KFONE.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.ProfileManagerPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.KFOneScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileManagerPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -638,7 +638,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 
 	public void click_on_done_button_on_create_profile_collection_page_and_verify_success_popup_appears() {
 		try {
-			WebElement element = waitForClickable(ProfileManagerPage.DONE_BTN);
+			WebElement element = waitForClickable(DONE_BTN);
 			scrollToElement(element);
 			Utilities.waitForUIStability(driver, 1);
 			clickElement(element);

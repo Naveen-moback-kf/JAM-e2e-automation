@@ -1,7 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.LoginPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.LoginScreen.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

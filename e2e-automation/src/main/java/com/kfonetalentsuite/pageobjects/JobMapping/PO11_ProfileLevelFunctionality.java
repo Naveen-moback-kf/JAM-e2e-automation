@@ -1,6 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ComparisonPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Comparison.*;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileDetails.*;
 
 import java.util.List;

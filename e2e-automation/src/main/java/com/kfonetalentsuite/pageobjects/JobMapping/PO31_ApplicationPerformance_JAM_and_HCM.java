@@ -1,10 +1,10 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.HCMSyncProfilesPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JAMScreen.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ComparisonPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileManagerScreen.*;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JAMSelectionScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Comparison.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +21,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	
 	// Local aliases for cleaner code
 	private static final By JOB_COMPARISON_HEADER = COMPARE_HEADER;
-	private static final By CHEVRON_BTN_IN_JAM = JAMScreen.CHEVRON_BUTTON;
+	private static final By CHEVRON_BTN_IN_JAM = CHEVRON_BUTTON;
 	private static final By HCM_SYNC_PROFILES_HEADER_TAB = HCM_SYNC_TAB;
 	
 	private static final long PAGE_LOAD_THRESHOLD_MS = 12000; // 12 seconds for page load (updated based on actual performance)
@@ -1979,7 +1979,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	public void user_verifies_all_hcm_profiles_are_loaded_correctly() {
 		try {
 			try {
-				WebElement hcmResultsCountElement = findElement(JobMappingPage.SHOWING_RESULTS_COUNT);
+				WebElement hcmResultsCountElement = findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 				String resultsText = hcmResultsCountElement.getText().trim();
 				hcmProfilesCount.set(extractResultsCount(resultsText));
 				LOGGER.info(String.format(" HCM Sync Profiles loaded successfully | %d profiles available",
@@ -2008,7 +2008,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 			// Get profiles count before selection
 			try {
-				WebElement hcmResultsCountElement = findElement(JobMappingPage.SHOWING_RESULTS_COUNT);
+				WebElement hcmResultsCountElement = findElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
 				String resultsText = hcmResultsCountElement.getText().trim();
 				selectedProfilesCountBeforeSync.set(extractResultsCount(resultsText));
 			} catch (Exception e) {

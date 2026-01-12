@@ -1,7 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.HCMSyncProfilesPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileManagerScreen.*;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.ProfileManagerPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileManagerPage.*;
 
 import java.util.List;
 
@@ -310,7 +310,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 			// Scroll to appropriate position
 			if (rowNumber.get() == 1) {
-				scrollToElement(waitForElement(JobMappingPage.SHOWING_RESULTS_COUNT));
+				scrollToElement(waitForElement(SHOWING_RESULTS_COUNT));
 			} else if (rowNumber.get() < 5) {
 				WebElement spJobName = waitForElement(By.xpath("//tbody//tr[1]//td[1]//*"));
 				scrollToElement(spJobName);
@@ -566,7 +566,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			waitForPageLoad();
-			clickElement(AddJobDataPage.DONE_BTN);
+			clickElement(DONE_BTN);
 			LOGGER.info("Clicked Done button of Success Profile Details section");
 			waitForSpinners();
 		} catch (Exception e) {

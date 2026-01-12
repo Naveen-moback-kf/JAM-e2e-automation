@@ -1,6 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +34,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 			Thread.sleep(300);
 			waitForSpinners();
 
-			String actualResultsCount = getElementText(JobMappingPage.SHOWING_RESULTS_COUNT);
+			String actualResultsCount = getElementText(SHOWING_RESULTS_COUNT);
 			waitForElement(CLEAR_FILTERS_BTN);
 
 			if (actualResultsCount.equals(PO04_JobMappingPageComponents.intialResultsCount.get())) {
@@ -45,7 +45,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		} catch (AssertionError e) {
 			String actualCount = "";
 			try {
-				actualCount = driver.findElement(JobMappingPage.SHOWING_RESULTS_COUNT).getText();
+				actualCount = driver.findElement(SHOWING_RESULTS_COUNT).getText();
 			} catch (Exception ex) {
 				actualCount = "Unable to read";
 			}
@@ -110,7 +110,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		}
 
 		try {
-			WebElement resultsElement = Utilities.waitForVisible(wait, JobMappingPage.SHOWING_RESULTS_COUNT);
+			WebElement resultsElement = Utilities.waitForVisible(wait, SHOWING_RESULTS_COUNT);
 			String currentCount = resultsElement.getText();
 
 			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
@@ -137,7 +137,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		}
 
 		try {
-			String currentCount = getElementText(JobMappingPage.SHOWING_RESULTS_COUNT);
+			String currentCount = getElementText(SHOWING_RESULTS_COUNT);
 			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
 				PO04_JobMappingPageComponents.initialFilteredResultsCount.set(currentCount);
 			}
@@ -164,7 +164,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 
 		// Capture the current filtered count if not already set
 		try {
-			String currentCount = getElementText(JobMappingPage.SHOWING_RESULTS_COUNT);
+			String currentCount = getElementText(SHOWING_RESULTS_COUNT);
 			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
 				if (PO04_JobMappingPageComponents.initialFilteredResultsCount.get() == null) {
 					PO04_JobMappingPageComponents.initialFilteredResultsCount.set(currentCount);
@@ -194,7 +194,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 
 		// Capture the current filtered count if not already set
 		try {
-			String currentCount = getElementText(JobMappingPage.SHOWING_RESULTS_COUNT);
+			String currentCount = getElementText(SHOWING_RESULTS_COUNT);
 			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
 				if (PO04_JobMappingPageComponents.initialFilteredResultsCount.get() == null) {
 					PO04_JobMappingPageComponents.initialFilteredResultsCount.set(currentCount);

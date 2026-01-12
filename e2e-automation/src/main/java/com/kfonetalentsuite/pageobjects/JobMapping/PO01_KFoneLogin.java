@@ -1,7 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.LoginScreen.*;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.LoginPage.*;
 
 import java.time.Duration;
 import java.util.List;

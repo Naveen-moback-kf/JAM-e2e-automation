@@ -1,6 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.AddJobDataPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.AddJobData.*;
 
 
 import java.io.File;
@@ -307,10 +307,9 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void click_on_done_button_in_kfone_add_job_data_page() {
 		try {
-			String buttonText = Utilities.retryOnStaleElement(LOGGER, () -> 
-				Utilities.waitForVisible(wait, AddJobDataPage.DONE_BTN).getText()
-			);
-			Utilities.waitForClickable(wait, AddJobDataPage.DONE_BTN).click();
+			WebElement doneBtn = Utilities.waitForClickable(wait, DONE_BTN);
+			String buttonText = doneBtn.getText();
+			doneBtn.click();
 			LOGGER.info(buttonText + " button clicked");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "click_on_done_button_in_kfone_add_job_data_page", "Issue in clicking Done Button", e);

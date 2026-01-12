@@ -1,7 +1,8 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.AddJobDataPage.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.AddJobData.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 
 import java.time.Duration;
 
@@ -254,7 +255,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 					while (retries < 15) {
 						safeSleep(500);
 						try {
-							resultsCountText = driver.findElement(JobMappingPage.SHOWING_RESULTS_COUNT).getText().trim();
+							resultsCountText = driver.findElement(SHOWING_RESULTS_COUNT).getText().trim();
 							LOGGER.debug("Search '{}' attempt {}: {}", substring, retries + 1, resultsCountText);
 							if (resultsCountText.contains("Showing") && !resultsCountText.startsWith("Showing 0")) {
 								break;
@@ -386,7 +387,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	}
 
 	public void verify_options_available_inside_filters_dropdown() {
-		Assert.assertTrue(waitForElement(JobMappingPage.FILTER_OPTIONS).isDisplayed());
+		Assert.assertTrue(waitForElement(FILTER_OPTIONS).isDisplayed());
 		try {
 			Assert.assertEquals(getElementText(FILTER_OPTION_1), "Grades");
 			Assert.assertEquals(getElementText(FILTER_OPTION_2), "Departments");
@@ -484,7 +485,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 			while (retryAttempts < 3) {
 				try {
-					resultsCountText = Utilities.waitForPresent(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
+					resultsCountText = Utilities.waitForPresent(wait, SHOWING_RESULTS_COUNT).getText();
 					break;
 				} catch (Exception e) {
 					retryAttempts++;
@@ -633,7 +634,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			String resultsCountText = "";
 			while (retryAttempts < 5) {
 				try {
-					resultsCountText = Utilities.waitForPresent(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
+					resultsCountText = Utilities.waitForPresent(wait, SHOWING_RESULTS_COUNT).getText();
 					break;
 				} catch (Exception e) {
 					retryAttempts++;
@@ -676,7 +677,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 			while (retryAttempts < 10) {
 				try {
-					String currentText = driver.findElement(JobMappingPage.SHOWING_RESULTS_COUNT).getText().trim();
+					String currentText = driver.findElement(SHOWING_RESULTS_COUNT).getText().trim();
 					if (!currentText.isEmpty() && !currentText.equals(intialResultsCount.get())) {
 						resultsCountText2 = currentText;
 						break;
@@ -690,7 +691,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			}
 
 			if (resultsCountText2.isEmpty()) {
-				resultsCountText2 = Utilities.waitForPresent(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
+				resultsCountText2 = Utilities.waitForPresent(wait, SHOWING_RESULTS_COUNT).getText();
 			}
 
 			updatedResultsCount.set(resultsCountText2);

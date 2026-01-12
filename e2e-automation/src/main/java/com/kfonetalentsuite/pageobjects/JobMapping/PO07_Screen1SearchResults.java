@@ -1,5 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
 
 import java.util.List;
 
@@ -38,11 +38,11 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 			int stableCount = 0;
 			
 			// Get initial count
-			String initialCountText = Utilities.waitForVisible(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
+			String initialCountText = Utilities.waitForVisible(wait, SHOWING_RESULTS_COUNT).getText();
 			LOGGER.info("Initial results count: {}", initialCountText);
 
 			while (scrollCount < maxScrollAttempts) {
-				String resultsCountText = Utilities.waitForVisible(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
+				String resultsCountText = Utilities.waitForVisible(wait, SHOWING_RESULTS_COUNT).getText();
 				String[] parts = resultsCountText.split(" ");
 				int currentShowing = Integer.parseInt(parts[1]);
 				int totalResults = Integer.parseInt(parts[3]);
@@ -91,7 +91,7 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 
 			if (scrollCount >= maxScrollAttempts) {
 				LOGGER.warn("⚠ Reached maximum scroll attempts ({}) - stopping scroll operation", maxScrollAttempts);
-				String finalCount = Utilities.waitForVisible(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
+				String finalCount = Utilities.waitForVisible(wait, SHOWING_RESULTS_COUNT).getText();
 				LOGGER.warn("Final loaded count: {}", finalCount);
 			}
 

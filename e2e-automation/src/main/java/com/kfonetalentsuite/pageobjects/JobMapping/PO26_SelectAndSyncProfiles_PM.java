@@ -1,6 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.PMScreen.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.PMSelectionScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -190,7 +191,7 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 
 			// Step 1: Get total profile count from "Showing X of Y Success Profiles" text
 			try {
-				WebElement countElement = findElement(JobMappingPage.SHOWING_RESULTS_COUNT);
+				WebElement countElement = findElement(SHOWING_RESULTS_COUNT);
 				String countText = countElement.getText().trim();
 
 				// Parse text like "Showing 50 of 2842 Success Profiles"
