@@ -1,4 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -7,7 +8,6 @@ import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
@@ -35,17 +35,6 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			throw new org.testng.SkipException("No Missing Data Tip Message found - Application has NO profiles with missing data");
 		}
 	}
-
-	private static final By MISSING_DATA_TIP_MESSAGE_CONTAINER = By.xpath("//div[@id='warning-message-container']//div[contains(@class, 'inline-flex') and contains(., 'jobs have missing data')]");
-	private static final By MISSING_DATA_COUNT_AND_TEXT = By.xpath("//p[contains(text(), 'jobs have missing data and can reduce match accuracy')]");
-	private static final By VIEW_REUPLOAD_JOBS_LINK = By.xpath("//a[contains(text(), 'View & Re-upload jobs') and contains(@href, 'aiauto')]");
-	private static final By CLOSE_TIP_MESSAGE_BUTTON = By.xpath("//p[contains(text(),'have missing data')]//..//button[@aria-label='Dismiss warning']");
-	private static final By CLOSE_REUPLOAD_JOBS_PAGE_BUTTON = By.xpath("//button[contains(@class, 'border-[#007BC7]') and contains(text(), 'Close')]");
-	private static final By REUPLOAD_BUTTON = By.xpath("//button[contains(text(), 'Re-upload')] | //button[contains(text(), 'upload')]");
-	private static final By PAGE_CONTAINER = By.xpath("//div[@id='page-container']");
-	private static final By JOB_TABLE_ROWS = By.xpath("//table//tr[contains(@class, 'border-b')]");
-	private static final By ALTERNATIVE_CLOSE_BUTTON = By.xpath("//button[contains(text(), 'Close')] | //button[@aria-label='Close'] | //*[text()='Close']");
-
 	private void waitForUIStabilityInMs(int milliseconds) {
 		try {
 			Utilities.waitForUIStability(driver, Math.max(1, milliseconds / 1000));
@@ -404,5 +393,4 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		}
 	}
 }
-
 

@@ -1,4 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,14 +40,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	public PO25_MissingDataFunctionality() {
 		super();
 	}
-	private static final By REUPLOAD_PAGE_TITLE_DESC = By.xpath("//div//p[contains(text(), 're-upload the jobs')]");
-	private static final By CLOSE_REUPLOAD_JOBS_PAGE_BUTTON = By.xpath("//button[contains(@class, 'border-[#007BC7]') and contains(text(), 'Close')]");
-	private static final By JOB_ROWS_IN_MISSING_DATA_SCREEN = By.xpath("//table//tr[contains(@class, 'border-b')]");
-	private static final By SEARCH_BOX = By.xpath("//input[@id='search-job-title-input-search-input']");
-	private static final By JOB_ROWS_IN_JOB_MAPPING_PAGE = By.xpath("//div[@id='org-job-container']//tbody//tr");
-	private static final By JOB_MAPPING_LOGO = By.xpath("//*[@data-testid='job-mapping-logo'] | //*[contains(@class, 'job-mapping')]//img | //h1[contains(text(), 'Review and Publish')]");
-	private static final By INFO_MESSAGE_ICON = By.xpath("//*[contains(@class, 'info-icon')] | //*[@data-testid='info-message'] | //button[contains(@class, 'text-[#C35500]')]");
-
 	// Column indices for different data types in Job Mapping page
 	private static final int GRADE_COLUMN_INDEX = 3;
 	private static final int DEPARTMENT_COLUMN_INDEX = 4;
@@ -165,9 +158,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 	}
 
 	// Sorting header locators (from PO17_ValidateSortingFunctionality_JAM)
-	private static final By ORG_JOB_GRADE_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div");
-	private static final By ORG_JOB_DEPARTMENT_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[4]/div");
-
 	// ═══════════════════════════════════════════════════════════════════════════
 	// SORTING METHODS
 	// ═══════════════════════════════════════════════════════════════════════════
@@ -1474,6 +1464,4 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		Utilities.waitForPageReady(driver, 2);
 	}
 }
-
-
 

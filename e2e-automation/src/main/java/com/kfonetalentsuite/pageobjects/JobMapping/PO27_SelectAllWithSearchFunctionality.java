@@ -1,4 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
 
 import java.time.Duration;
 import java.util.List;
@@ -34,7 +35,7 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 
 	private By getSelectAllButtonLocator(String screen) {
 		// Both PM and JAM use the same Select All button locator
-		return Locators.Table.SELECT_ALL_BTN;
+		return SELECT_ALL_BTN;
 	}
 
 	private String getSearchSubstring(String screen) {
@@ -925,6 +926,4 @@ public class PO27_SelectAllWithSearchFunctionality extends BasePageObject {
 	}
 
 }
-
-
 

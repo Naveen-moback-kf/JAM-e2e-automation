@@ -1,4 +1,10 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.HCMSyncProfilesPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JAMScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ComparisonPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,10 +15,15 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
-
 public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO31_ApplicationPerformance_JAM_and_HCM.class);
+	
+	// Local aliases for cleaner code
+	private static final By JOB_COMPARISON_HEADER = COMPARE_HEADER;
+	private static final By CHEVRON_BTN_IN_JAM = JAMScreen.CHEVRON_BUTTON;
+	private static final By HCM_SYNC_PROFILES_HEADER_TAB = HCM_SYNC_TAB;
+	
 	private static final long PAGE_LOAD_THRESHOLD_MS = 12000; // 12 seconds for page load (updated based on actual performance)
 	private static final long SEARCH_THRESHOLD_MS = 6000; // 6 seconds for search operation
 	private static final long CLEAR_SEARCH_THRESHOLD_MS = 9000; // 9 seconds for clear search operation
@@ -124,43 +135,15 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	private static ThreadLocal<String> jobNameForComparison = ThreadLocal.withInitial(() -> "");
 
 	// Locators (static final By for better performance and thread safety)
-	private static final By JAM_LOGO = By.xpath("//div[@id='header-logo']");
-	private static final By JOB_MAPPING_PAGE_CONTAINER = By.xpath("//div[@id='org-job-container']");
-	private static final By PAGE_TITLE_HEADER = By.xpath("//div[@id='page-heading']//h1");
-	private static final By PAGE_TITLE_DESC = By.xpath("//div[@id='page-title']//p[1]");
-	private static final By SEARCH_BAR = By.xpath("//input[contains(@id,'search-job-title')]");
-	private static final By FILTERS_DROPDOWN_BUTTON = By.xpath("//button[@id='filters-btn']");
-	
 	// Navigation XPaths (Job Comparison) - from Locators.ComparisonPage
-	private static final By JOB_COMPARISON_HEADER = Locators.ComparisonPage.COMPARE_HEADER;
-	
 	// Sort XPaths
-	private static final By ORG_JOB_NAME_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[2]/div");
-	private static final By ORG_JOB_GRADE_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div");
-	
 	// Select All XPaths (Job Mapping) - from Locators.JAMScreen
-	private static final By CHEVRON_BTN_IN_JAM = Locators.JAMScreen.CHEVRON_BUTTON;
-	// SELECT_ALL_BTN is available via Locators.Table.SELECT_ALL_BTN
+	// SELECT_ALL_BTN is available via SELECT_ALL_BTN
 	
 	// KFONE Global Menu XPaths - from Locators.Navigation
-	// KFONE_MENU is available via Locators.Navigation.GLOBAL_NAV_MENU_BTN
-	private static final By KFONE_MENU_PM_BTN = Locators.Navigation.KFONE_MENU_PM_BTN;
-	
+	// KFONE_MENU is available via GLOBAL_NAV_MENU_BTN
 	// HCM Navigation XPaths - from Locators.HCMSyncProfiles
-	private static final By PROFILE_MANAGER_HEADER = Locators.HCMSyncProfiles.PROFILE_MANAGER_HEADER;
-	private static final By HCM_SYNC_PROFILES_HEADER_TAB = Locators.HCMSyncProfiles.HCM_SYNC_TAB;
-	private static final By HCM_SYNC_PROFILES_TITLE = Locators.HCMSyncProfiles.SYNC_PROFILES_TITLE;
-	
-	private static final By SYNC_SUCCESS_POPUP_TEXT = By.xpath("//div[@class='p-toast-detail']");
-	private static final By SYNC_SUCCESS_POPUP_CLOSE_BTN = By.xpath("//button[contains(@class,'p-toast-icon-close')]");
-	
 	// Additional common locators
-	private static final By FIRST_PROFILE_ELEMENT = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
-	private static final By PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr//td[2]//div[contains(text(),'(')]");
-	private static final By ALL_CHECKBOXES = By.xpath("//div[@id='org-job-container']//tbody//tr//td[1]//input[@type='checkbox']");
-	private static final By HCM_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing')]");
-	private static final By HCM_PROFILE_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
-
 	public PO31_ApplicationPerformance_JAM_and_HCM() {
 		super();
 	}
@@ -178,7 +161,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			}
 
 			Utilities.waitForPageReady(driver, 3);
-			Utilities.waitForPresent(wait, JOB_MAPPING_PAGE_CONTAINER);
+			Utilities.waitForPresent(wait, PAGE_CONTAINER);
 			Utilities.waitForPresent(wait, JAM_LOGO);
 
 			// End measuring
@@ -203,7 +186,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			// Verify critical components using By locators
 			if (verifyComponentByLocator("Logo", JAM_LOGO))
 				loadedComponents++;
-			if (verifyComponentByLocator("Container", JOB_MAPPING_PAGE_CONTAINER))
+			if (verifyComponentByLocator("Container", PAGE_CONTAINER))
 				loadedComponents++;
 			if (verifyComponentByLocator("Title", PAGE_TITLE_HEADER))
 				loadedComponents++;
@@ -211,9 +194,9 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 				loadedComponents++;
 			if (verifyComponentByLocator("Search", SEARCH_BAR))
 				loadedComponents++;
-			if (verifyComponentByLocator("Results Count", Locators.JobMappingResults.SHOWING_JOB_RESULTS))
+			if (verifyComponentByLocator("Results Count", SHOWING_JOB_RESULTS))
 				loadedComponents++;
-			if (verifyComponentByLocator("Filters", FILTERS_DROPDOWN_BUTTON))
+			if (verifyComponentByLocator("Filters", FILTERS_BTN))
 				loadedComponents++;
 
 			// Summary
@@ -410,10 +393,10 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		try {
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			Utilities.waitForPageReady(driver, 2);
-			Utilities.waitForPresent(wait, JOB_MAPPING_PAGE_CONTAINER);
+			Utilities.waitForPresent(wait, PAGE_CONTAINER);
 			Utilities.waitForClickable(wait, SEARCH_BAR);
 
-			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			String resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			resultsCountBeforeSearch.set(extractResultsCount(resultsText));
 
 		} catch (Exception e) {
@@ -426,8 +409,8 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	public void user_measures_time_to_perform_search_with_dynamic_keyword() {
 		try {
 			// Extract dynamic search keyword
-			Utilities.waitForPresent(wait, FIRST_PROFILE_ELEMENT);
-			WebElement firstProfileElement = findElement(FIRST_PROFILE_ELEMENT);
+			Utilities.waitForPresent(wait, JOB_NAME_ROW_1);
+			WebElement firstProfileElement = findElement(JOB_NAME_ROW_1);
 			String fullJobName = firstProfileElement.getText().trim();
 
 			if (fullJobName.length() >= 3) {
@@ -467,7 +450,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			Utilities.waitForPageReady(driver, 1);
 
-			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			String resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			resultsCountAfterSearch.set(extractResultsCount(resultsText));
 
 			java.util.List<WebElement> visibleProfiles = findElements(PROFILE_ROWS);
@@ -569,7 +552,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			clearSearchEndTime.set(System.currentTimeMillis());
 			totalClearSearchTime.set(clearSearchEndTime.get() - clearSearchStartTime.get());
 
-			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			String resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			resultsCountAfterClear.set(extractResultsCount(resultsText));
 
 		} catch (Exception e) {
@@ -641,15 +624,15 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 	public void user_measures_time_to_open_filters_dropdown() {
 		try {
-			Utilities.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
-			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
+			String resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			resultsCountBeforeFilter.set(extractResultsCount(resultsText));
 
 			js.executeScript("window.scrollTo(0, 0);");
 			safeSleep(300);
 
 			filterDropdownOpenStartTime.set(System.currentTimeMillis());
-			Utilities.waitForClickable(wait, FILTERS_DROPDOWN_BUTTON).click();
+			Utilities.waitForClickable(wait, FILTERS_BTN).click();
 			wait.until(ExpectedConditions
 					.presenceOfElementLocated(By.xpath("//div[starts-with(@data-testid,'dropdown-')]")));
 			filterDropdownOpenEndTime.set(System.currentTimeMillis());
@@ -779,7 +762,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			// Close the filters dropdown after applying filter
 			try {
 				LOGGER.debug("Closing filters dropdown after applying filter");
-				Utilities.waitForClickable(wait, FILTERS_DROPDOWN_BUTTON).click();
+				Utilities.waitForClickable(wait, FILTERS_BTN).click();
 				safeSleep(500);
 				LOGGER.debug(" Filters dropdown closed");
 			} catch (Exception e) {
@@ -791,8 +774,8 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			totalSingleFilterTime.set(singleFilterEndTime.get() - singleFilterStartTime.get());
 
 			// Get results count after filtering using helper method
-			Utilities.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
-			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
+			String resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			resultsCountAfterFilter.set(extractResultsCount(resultsText));
 
 		} catch (Exception e) {
@@ -861,8 +844,8 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 	public void user_measures_time_to_apply_multiple_filters_dynamically_from_available_options() {
 		try {
-			Utilities.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
-			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
+			String resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			resultsCountBeforeFilter.set(extractResultsCount(resultsText));
 
 			js.executeScript("window.scrollTo(0, 0);");
@@ -872,7 +855,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 					.findElements(By.xpath("//div[starts-with(@data-testid,'dropdown-')]"));
 
 			if (existingDropdowns.isEmpty()) {
-				Utilities.waitForClickable(wait, FILTERS_DROPDOWN_BUTTON).click();
+				Utilities.waitForClickable(wait, FILTERS_BTN).click();
 				wait.until(ExpectedConditions.presenceOfElementLocated(
 						By.xpath("//div[starts-with(@data-testid,'dropdown-')]")));
 				safeSleep(500);
@@ -966,7 +949,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			}
 
 			try {
-				Utilities.waitForClickable(wait, FILTERS_DROPDOWN_BUTTON).click();
+				Utilities.waitForClickable(wait, FILTERS_BTN).click();
 				safeSleep(500);
 			} catch (Exception e) {
 				// Continue if dropdown close fails
@@ -975,8 +958,8 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			multipleFiltersEndTime.set(System.currentTimeMillis());
 			totalMultipleFiltersTime.set(multipleFiltersEndTime.get() - multipleFiltersStartTime.get());
 
-			Utilities.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
-			resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
+			resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			resultsCountAfterFilter.set(extractResultsCount(resultsText));
 
 			String performanceLog = String.format(
@@ -1015,7 +998,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 				// Clear Filters button check failed
 			}
 
-			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			String resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			boolean resultsCountDisplayed = !resultsText.isEmpty();
 
 			String validationMsg = String.format(
@@ -1079,7 +1062,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 				// No existing filters
 			}
 
-			Utilities.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
+			Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
 			safeSleep(1000);
 
 			int maxRetries = 10;
@@ -1087,7 +1070,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			String resultsText = "";
 
 			while (retryCount < maxRetries) {
-				resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+				resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 				resultsCountBeforeFilter.set(extractResultsCount(resultsText));
 
 				if (resultsCountBeforeFilter.get() > 0) {
@@ -1114,7 +1097,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 					.findElements(By.xpath("//div[starts-with(@data-testid,'dropdown-')]"));
 
 			if (existingDropdowns.isEmpty()) {
-				Utilities.waitForClickable(wait, FILTERS_DROPDOWN_BUTTON).click();
+				Utilities.waitForClickable(wait, FILTERS_BTN).click();
 				wait.until(ExpectedConditions.presenceOfElementLocated(
 						By.xpath("//div[starts-with(@data-testid,'dropdown-')]")));
 				safeSleep(500);
@@ -1203,14 +1186,14 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			}
 
 			try {
-				Utilities.waitForClickable(wait, FILTERS_DROPDOWN_BUTTON).click();
+				Utilities.waitForClickable(wait, FILTERS_BTN).click();
 				safeSleep(500);
 			} catch (Exception e) {
 				// Continue if dropdown close fails
 			}
 
-			Utilities.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
-			resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
+			resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			resultsCountAfterFilter.set(extractResultsCount(resultsText));
 
 			String setupMsg = String.format(" Filter applied: %s = %s | %d  %d profiles", appliedFilterType.get(),
@@ -1255,7 +1238,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			totalClearFiltersTime.set(clearFiltersEndTime.get() - clearFiltersStartTime.get());
 
 			WebElement resultsCountElement = wait
-					.until(ExpectedConditions.visibilityOfElementLocated(Locators.JobMappingResults.SHOWING_JOB_RESULTS));
+					.until(ExpectedConditions.visibilityOfElementLocated(SHOWING_JOB_RESULTS));
 			String resultsText = resultsCountElement.getText().trim();
 			resultsCountAfterClearFilters.set(extractResultsCount(resultsText));
 
@@ -1329,8 +1312,8 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 	public void user_measures_time_to_scroll_through_all_profiles() {
 		try {
-			Utilities.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
-			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
+			String resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			initialProfileCount.set(extractResultsCount(resultsText));
 
 			java.util.List<WebElement> initialProfiles = findElements(PROFILE_ROWS);
@@ -1581,7 +1564,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			driver.navigate().back();
 
 			Utilities.waitForSpinnersToDisappear(driver, 10);
-			Utilities.waitForPresent(wait, JOB_MAPPING_PAGE_CONTAINER);
+			Utilities.waitForPresent(wait, PAGE_CONTAINER);
 			Utilities.waitForPageReady(driver, 2);
 
 			navigationBackToMappingEndTime.set(System.currentTimeMillis());
@@ -1601,9 +1584,9 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 	public void user_verifies_job_mapping_screen_loads_correctly_after_navigation() {
 		try {
-			Utilities.waitForPresent(wait, JOB_MAPPING_PAGE_CONTAINER);
+			Utilities.waitForPresent(wait, PAGE_CONTAINER);
 
-			WebElement resultsCountElement = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS);
+			WebElement resultsCountElement = findElement(SHOWING_JOB_RESULTS);
 			Utilities.waitForVisible(wait, resultsCountElement);
 			String resultsText = resultsCountElement.getText().trim();
 			int profileCount = extractResultsCount(resultsText);
@@ -1623,7 +1606,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			Utilities.waitForPageReady(driver, 2);
 
-			String resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			String resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			int currentCount = extractResultsCount(resultsText);
 
 			int scrollAttempts = 10;
@@ -1638,7 +1621,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			js.executeScript("window.scrollTo(0, 0);");
 			safeSleep(500);
 
-			resultsText = findElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).getText().trim();
+			resultsText = findElement(SHOWING_JOB_RESULTS).getText().trim();
 			int finalCount = extractResultsCount(resultsText);
 
 			LOGGER.info(String.format(" Maximum profiles loaded: %d profiles (%d initial  %d final)", finalCount,
@@ -1808,7 +1791,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		try {
 			selectAllClickStartTime.set(System.currentTimeMillis());
 
-			WebElement selectAllButton = findElement(Locators.Table.SELECT_ALL_BTN);
+			WebElement selectAllButton = findElement(SELECT_ALL_BTN);
 			try {
 				Utilities.waitForClickable(wait, selectAllButton).click();
 			} catch (Exception e) {
@@ -1917,7 +1900,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			Utilities.waitForPageReady(driver, 1);
 
 			// Click on KFONE Global Menu button
-			WebElement kfoneMenuBtn = findElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
+			WebElement kfoneMenuBtn = findElement(GLOBAL_NAV_MENU_BTN);
 			try {
 				Utilities.waitForClickable(wait, kfoneMenuBtn).click();
 			} catch (Exception e) {
@@ -1996,7 +1979,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	public void user_verifies_all_hcm_profiles_are_loaded_correctly() {
 		try {
 			try {
-				WebElement hcmResultsCountElement = findElement(HCM_RESULTS_COUNT);
+				WebElement hcmResultsCountElement = findElement(JobMappingPage.SHOWING_RESULTS_COUNT);
 				String resultsText = hcmResultsCountElement.getText().trim();
 				hcmProfilesCount.set(extractResultsCount(resultsText));
 				LOGGER.info(String.format(" HCM Sync Profiles loaded successfully | %d profiles available",
@@ -2025,7 +2008,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
 			// Get profiles count before selection
 			try {
-				WebElement hcmResultsCountElement = findElement(HCM_RESULTS_COUNT);
+				WebElement hcmResultsCountElement = findElement(JobMappingPage.SHOWING_RESULTS_COUNT);
 				String resultsText = hcmResultsCountElement.getText().trim();
 				selectedProfilesCountBeforeSync.set(extractResultsCount(resultsText));
 			} catch (Exception e) {
@@ -2035,7 +2018,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			}
 
 			// Click header checkbox to select all loaded profiles
-			WebElement hcmHeaderCheckbox = findElement(Locators.HCMSyncProfiles.TABLE_HEADER_CHECKBOX);
+			WebElement hcmHeaderCheckbox = findElement(TABLE_HEADER_CHECKBOX);
 			try {
 				Utilities.waitForClickable(wait, hcmHeaderCheckbox).click();
 			} catch (Exception e) {
@@ -2054,7 +2037,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 			LOGGER.info(String.format(" %d profiles selected for sync test", selectedProfilesCountBeforeSync.get()));
 
 			// Verify Sync button is enabled
-			WebElement syncBtn = Utilities.waitForVisible(wait, Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN);
+			WebElement syncBtn = Utilities.waitForVisible(wait, SYNC_WITH_HCM_BTN);
 			if (!syncBtn.isEnabled()) {
 				LOGGER.warn(" Sync with HCM button is not enabled, profiles may not be selected");
 			}
@@ -2070,7 +2053,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		try {
 			syncClickStartTime.set(System.currentTimeMillis());
 
-			WebElement syncBtn = findElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN);
+			WebElement syncBtn = findElement(SYNC_WITH_HCM_BTN);
 			try {
 				Utilities.waitForClickable(wait, syncBtn).click();
 			} catch (Exception e) {
@@ -2095,7 +2078,7 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		try {
 			syncProcessStartTime.set(System.currentTimeMillis());
 
-			Utilities.waitForVisible(wait, SYNC_SUCCESS_POPUP_TEXT);
+			Utilities.waitForVisible(wait, SYNC_WITH_HCM_SUCCESS_POPUP_TEXT);
 
 			syncProcessEndTime.set(System.currentTimeMillis());
 			totalSyncProcessTime.set(syncProcessEndTime.get() - syncProcessStartTime.get());
@@ -2127,12 +2110,12 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 	public void user_validates_sync_status_updates_appear_promptly() {
 		try {
 			// PARALLEL EXECUTION FIX: Use wait with locator instead of direct findElement
-			WebElement successPopup = Utilities.waitForVisible(wait, SYNC_SUCCESS_POPUP_TEXT);
+			WebElement successPopup = Utilities.waitForVisible(wait, SYNC_WITH_HCM_SUCCESS_POPUP_TEXT);
 			String successMsg = successPopup.getText().trim();
 			LOGGER.info("Sync success message displayed: " + successMsg);
 
 			// PARALLEL EXECUTION FIX: Use elementToBeClickable for close button
-			WebElement closeBtn = Utilities.waitForClickable(wait, SYNC_SUCCESS_POPUP_CLOSE_BTN);
+			WebElement closeBtn = Utilities.waitForClickable(wait, SYNC_WITH_HCM_SUCCESS_POPUP_CLOSE_BTN);
 			closeBtn.click();
 			safeSleep(500);
 
@@ -2147,5 +2130,4 @@ public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 		}
 	}
 }
-
 

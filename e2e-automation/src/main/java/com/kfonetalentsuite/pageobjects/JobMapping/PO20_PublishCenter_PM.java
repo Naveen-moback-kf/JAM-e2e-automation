@@ -1,4 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.PublishCenterPage.*;
+
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,7 +13,6 @@ import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
-
 public class PO20_PublishCenter_PM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO20_PublishCenter_PM.class);
@@ -23,27 +24,6 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	public PO20_PublishCenter_PM() {
 		super();
 	}
-
-	private static final By PUBLISH_CENTER_BTN = By.xpath("//button[contains(@class,'publish-center')]");
-	private static final By JPH_SCREEN_TITLE = By.xpath("//*[contains(text(),'Job Profile History')]");
-	private static final By JPH_PROFILES_COUNT_ROW1 = By.xpath("//*/kf-page-content/div[2]/div[2]/div[1]/div[1]/span");
-	private static final By JPH_ACCESSED_BY_ROW1 = By.xpath("//*/kf-page-content/div[2]/div[2]/div[1]/div[2]/span");
-	private static final By JPH_ACCESSED_DATE_ROW1 = By.xpath("//*/kf-page-content/div[2]/div[2]/div[1]/div[3]/span");
-	private static final By JPH_ACTION_TAKEN_ROW1 = By.xpath("//*/kf-page-content/div[2]/div[2]/div[1]/div[4]/span");
-	private static final By JPH_STATUS_ROW1 = By.xpath("//*/kf-page-content/div[2]/div[2]/div[1]/div[5]/span");
-	private static final By JPH_HEADER1 = By.xpath("//*/div/kf-page-content/div[2]/div[1]/div[1]");
-	private static final By JPH_HEADER2 = By.xpath("//*/div/kf-page-content/div[2]/div[1]/div[2]");
-	private static final By JPH_HEADER3 = By.xpath("//*/div/kf-page-content/div[2]/div[1]/div[3]");
-	private static final By JPH_HEADER4 = By.xpath("//*/div/kf-page-content/div[2]/div[1]/div[4]");
-	private static final By JPH_HEADER5 = By.xpath("//*/div/kf-page-content/div[2]/div[1]/div[5]");
-	private static final By PROFILES_DOWNLOADED_TITLE = By.xpath("//*[contains(text(),'Profiles Downloaded')]");
-	private static final By PROFILES_DOWNLOADED_HEADER = By.xpath("//*[contains(@class,'header-details')]");
-	private static final By CLOSE_BTN = By.xpath("//*[contains(text(),'Close')]//..");
-	private static final By PD_HEADER1 = By.xpath("//*/div[2]/div/div[2]/div[1]/div[1]");
-	private static final By PD_HEADER2 = By.xpath("//*/div[2]/div/div[2]/div[1]/div[2]");
-	private static final By PD_HEADER3 = By.xpath("//*/div[2]/div/div[2]/div[1]/div[3]");
-	private static final By PD_HEADER4 = By.xpath("//*/div[2]/div/div[2]/div[1]/div[4]");
-	private static final By PROFILES_EXPORTED_TITLE = By.xpath("//*[contains(text(),'Profiles Exported')]");
 	public void user_is_in_hcm_sync_profiles_screen_after_syncing_profiles() {
 		LOGGER.info("User is in HCM Sync Profiles screen after syncing profiles");
 	}
@@ -422,7 +402,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 
 	public void user_should_scroll_page_down_two_times_to_view_first_thirty_job_profiles_in_job_profile_history_screen() {
 		try {
-			WebElement resultsCount = waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
+			WebElement resultsCount = waitForElement(JobMappingPage.SHOWING_RESULTS_COUNT);
 			Assert.assertTrue(resultsCount.isDisplayed());
 
 			scrollToBottom();
@@ -433,7 +413,7 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 2);
 
-			String resultsCountText_updated = getElementText(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
+			String resultsCountText_updated = getElementText(JobMappingPage.SHOWING_RESULTS_COUNT);
 			LOGGER.info("Scrolled down till third page and now " + resultsCountText_updated
 					+ " of Job Profiles");
 
@@ -846,5 +826,4 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 	}
 
 }
-
 

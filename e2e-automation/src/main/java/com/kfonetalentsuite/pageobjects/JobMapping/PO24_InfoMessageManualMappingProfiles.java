@@ -16,7 +16,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
-
 public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO24_InfoMessageManualMappingProfiles.class);
@@ -2067,5 +2066,4 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 		}
 	}
 }
-
 

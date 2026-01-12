@@ -1,4 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -16,7 +18,6 @@ import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
-
 public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO35_ReuploadMissingDataProfiles.class);
@@ -37,16 +38,6 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 	public static ThreadLocal<Integer> searchResultsFoundCount = ThreadLocal.withInitial(() -> 0);
 	private static final String CSV_HEADER = "Client Job Code,Client Job Title,Department,Job Family,Job Sub Family,Job Grade,Is Executive";
 	private static final String DEFAULT_CSV_FILENAME = "MissingDataProfiles_ToFix.csv";
-	private static final By REUPLOAD_BUTTON = By.xpath("//button[contains(text(), 'Re-upload')] | //button[contains(text(), 'upload')]");
-	private static final By CLOSE_BUTTON = By.xpath("//button[contains(@class, 'border-[#007BC7]') and contains(text(), 'Close')]");
-	private static final By JOB_ROWS_MISSING_DATA = By.xpath("//table//tbody//tr[td]");
-	private static final By SEARCH_INPUT_MISSING_DATA = By.xpath("//input[@placeholder='Search'] | //input[contains(@id, 'search')]");
-	private static final By JOB_SEARCH_INPUT = By.xpath("//input[@id='search-job-title-input-search-input']");
-	private static final By MISSING_DATA_SCREEN_TITLE = By.xpath("//h1[contains(text(), 'Jobs With Missing Data')] | //h1[contains(text(), 'Missing Data')] | //*[contains(text(), 'Organization Jobs With Missing Data')]");
-	private static final By TIP_MESSAGE = By.xpath("//p[contains(text(), 'jobs have missing data')]");
-	private static final By SEARCH_RESULTS_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]");
-	private static final By SHOWING_JOB_RESULTS = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
-	
 	// Column indices for Job Mapping table (same as PO25)
 	// Column 1 = Checkbox, Column 2 = Job Name/Code, Column 3 = Grade, Column 4 = Department
 	private static final int GRADE_COLUMN_INDEX = 3;
@@ -579,9 +570,9 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			
 			// Step 2: Click "Clear Filters" button to remove any filter panel selections
 			try {
-				WebElement clearFiltersBtn = driver.findElement(Locators.JAMScreen.CLEAR_FILTERS_BTN);
+				WebElement clearFiltersBtn = driver.findElement(CLEAR_FILTERS_BTN);
 				if (clearFiltersBtn.isDisplayed()) {
-					clickElement(Locators.JAMScreen.CLEAR_FILTERS_BTN);
+					clickElement(CLEAR_FILTERS_BTN);
 					LOGGER.info("✓ Clicked 'Clear Filters' button");
 					safeSleep(3000);
 					Utilities.waitForSpinnersToDisappear(driver, 10);
@@ -1443,8 +1434,8 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 	public void click_on_close_button_to_return_to_job_mapping_page() {
 		try {
 			Utilities.waitForPageReady(driver, 2);
-			Utilities.waitForClickable(wait, CLOSE_BUTTON);
-			jsClick(findElement(CLOSE_BUTTON));
+			Utilities.waitForClickable(wait, CLOSE_REUPLOAD_JOBS_PAGE_BUTTON);
+			jsClick(findElement(CLOSE_REUPLOAD_JOBS_PAGE_BUTTON));
 			Utilities.waitForPageReady(driver, 3);
 			LOGGER.info("Clicked Close button to return to Job Mapping page");
 
@@ -1739,5 +1730,4 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 }
-
 

@@ -1,4 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.AddJobDataPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
 
 import java.time.Duration;
 
@@ -42,67 +45,13 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	// LOCATORS - Using centralized Locators from BasePageObject where available
 	
 	// Page header - from Locators.JobMapping
-	private static final By PAGE_TITLE_HEADER = Locators.JobMapping.PAGE_TITLE_HEADER;
-	private static final By PAGE_TITLE_DESC = By.xpath("//div[@id='page-title']//p[1]");
-	
 	// Job profile rows - from Locators.JobMappingResults
-	private static final By JOB_NAME_PROFILE_1 = Locators.JobMappingResults.JOB_NAME_ROW_1;
-	private static final By JOB_GRADE_PROFILE_1 = By.xpath("//tbody//tr[1]//td[3]//div[1]");
-	private static final By JOB_FUNCTION_PROFILE_1 = By.xpath("//tbody//tr[2]//div//span[2]");
-	private static final By JOB_DEPARTMENT_PROFILE_1 = By.xpath("//tbody//tr[1]//td[4]//div");
-	private static final By JOB_NAME_PROFILE_2 = By.xpath("//tbody//tr[4]//td[2]//div[contains(text(),'(')]");
-	private static final By JOB_1_MATCHED_PROFILE = Locators.JobMappingResults.FIRST_ROW_JOB_TITLE;
-	
 	// Filters - from Locators.SearchAndFilters
-	private static final By FILTER_OPTIONS = Locators.SearchAndFilters.FILTER_OPTIONS_PANEL;
-	private static final By FILTER_OPTION_1 = By.xpath("//div[@id='filters-search-btns']//div[2]//div//div/h3");
-	private static final By FILTER_OPTION_2 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[2]//div/h3");
-	private static final By FILTER_OPTION_3 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[3]//div/h3");
-	private static final By FILTER_OPTION_4 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[4]//div/h3");
-	private static final By SEARCH_BAR_FILTER_OPTION_3 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[3]//input[contains(@placeholder,'Search')]");
-	
 	// Add More Jobs
-	private static final By ADD_MORE_JOBS_BTN = By.xpath("//span[contains(text(),'Add more jobs')] | //button[@id='add-more-jobs-btn']");
-	private static final By ADD_MORE_JOBS_PAGE_HEADER = By.xpath("//div[contains(text(),'Add Job Data')]");
-	private static final By ADD_MORE_JOBS_CLOSE_BTN = By.xpath("//*[@aria-label='Close']//*");
-	
 	// Actions - from Locators.Actions and Locators.Table
-	private static final By PUBLISH_SELECTED_BTN = Locators.Actions.PUBLISH_BTN;
-	private static final By HEADER_CHECKBOX = Locators.JAMScreen.HEADER_CHECKBOX;
-	private static final By PROFILE_1_CHECKBOX = By.xpath("//tbody//tr[1]//td[1][contains(@class,'whitespace')]//input");
-	private static final By PROFILE_2_CHECKBOX = By.xpath("//tbody//tr[4]//td[1][contains(@class,'whitespace')]//input");
-	private static final By SHOWING_RESULTS_COUNT = Locators.JAMScreen.SHOWING_RESULTS_COUNT;
-	private static final By VIEW_PUBLISHED_TOGGLE = By.xpath("//div[contains(@id,'results-toggle')]//label//div[2]");
-	private static final By PUBLISHED_BTN = By.xpath("//button[text()='Published']");
-	private static final By NO_DATA_AVAILABLE = By.xpath("//td[@id='no-data-container']");
-	private static final By PUBLISH_BTN = By.xpath("//button[@id='publish-btn']");
-	
-	private static final By TABLE_1_TITLE = By.xpath("//*[contains(text(),'Organization jobs')]");
-	private static final By TABLE_1_HEADER_1 = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[2]/div | //*[@id='table-container']/div[1]/div/div[1]/div/span[1]");
-	private static final By TABLE_1_HEADER_2 = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div | //*[@id='table-container']/div[1]/div/div[1]/div/span[2]");
-	private static final By TABLE_1_HEADER_3 = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[4]/div | //*[@id='table-container']/div[1]/div/div[1]/div/span[3]");
-	private static final By TABLE_2_TITLE = By.xpath("//*[contains(text(),'Matched success profiles')]");
-	private static final By TABLE_2_HEADER_1 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[1]/div");
-	private static final By TABLE_2_HEADER_2 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[2]/div");
-	private static final By TABLE_2_HEADER_3 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[3]/div");
-	private static final By TABLE_2_HEADER_4 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[4]/div");
-	private static final By TABLE_2_HEADER_5 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[5]/div");
-	
 	// View Other Matches & Comparison - from Locators.ComparisonPage
-	private static final By JOB_1_VIEW_OTHER_MATCHES = By.xpath("//tbody//tr[2]//button[@id='view-matches']");
-	private static final By COMPARE_SELECT_HEADER = Locators.ComparisonPage.COMPARE_HEADER;
-	private static final By JOB_1_PUBLISH_BTN = Locators.JobMappingResults.JOB_1_PUBLISH_BTN;
-	
 	// Success Modal - from Locators.Modals
-	private static final By PUBLISHED_SUCCESS_HEADER = Locators.Modals.SUCCESS_MODAL_HEADER;
-	private static final By PUBLISHED_SUCCESS_MSG = Locators.Modals.PUBLISHED_SUCCESS_MSG;
-	private static final By PUBLISHED_SUCCESS_CLOSE_BTN = Locators.Modals.PUBLISHED_SUCCESS_CLOSE_BTN;
-	
 	// JAM Logo and navigation
-	private static final By JAM_LOGO = By.xpath("//div[@id='header-logo']");
-	private static final By BROWSE_RESOURCES_JAM = By.xpath("//*[contains(text(),'Browse resources')]/following::*[contains(text(),'Job Mapping')]");
-	private static final By ROW_CHECKBOXES = Locators.Table.ROW_CHECKBOXES;
-
 	public PO04_JobMappingPageComponents() {
 		super();
 	}
@@ -130,7 +79,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 			for (int attempt = 1; attempt <= maxAttempts && !menuClicked; attempt++) {
 				try {
-					WebElement menuButton = waitForClickable(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
+					WebElement menuButton = waitForClickable(GLOBAL_NAV_MENU_BTN);
 					scrollToElement(menuButton);
 
 					if (!tryClickWithStrategies(menuButton)) {
@@ -181,7 +130,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void user_should_be_landed_on_job_mapping_page() {
 		try {
 			Utilities.waitForPageReady(driver, 5);
-			Assert.assertTrue(waitForElement(Locators.JobMapping.PAGE_CONTAINER).isDisplayed());
+			Assert.assertTrue(waitForElement(PAGE_CONTAINER).isDisplayed());
 			LOGGER.info("User landed on the JOB MAPPING page");
 			waitForBackgroundDataLoad();
 		} catch (Exception e) {
@@ -217,7 +166,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void verify_organization_jobs_search_bar_text_box_is_clickable() {
 		try {
-			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR);
+			WebElement searchBar = waitForElement(SEARCH_BAR);
 			scrollToElement(searchBar);
 			clickElement(searchBar);
 			LOGGER.info("Organization Jobs Search bar text box is clickable");
@@ -228,7 +177,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void verify_organization_jobs_search_bar_placeholder_text() {
 		try {
-			String placeholderText = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR).getText();
+			String placeholderText = driver.findElement(SEARCH_BAR).getText();
 			LOGGER.info("Placeholder text inside Organization Jobs search bar is " + placeholderText);
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "verify_organization_jobs_search_bar_placeholder_text", "Issue in verifying search bar placeholder", e);
@@ -305,7 +254,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 					while (retries < 15) {
 						safeSleep(500);
 						try {
-							resultsCountText = driver.findElement(SHOWING_RESULTS_COUNT).getText().trim();
+							resultsCountText = driver.findElement(JobMappingPage.SHOWING_RESULTS_COUNT).getText().trim();
 							LOGGER.debug("Search '{}' attempt {}: {}", substring, retries + 1, resultsCountText);
 							if (resultsCountText.contains("Showing") && !resultsCountText.startsWith("Showing 0")) {
 								break;
@@ -408,7 +357,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void verify_profile_details_popup_is_displayed() {
 		try {
 			waitForSpinners();
-			Assert.assertTrue(waitForElement(Locators.Modals.PROFILE_DETAILS_POPUP_HEADER).isDisplayed());
+			Assert.assertTrue(waitForElement(PROFILE_DETAILS_POPUP_HEADER).isDisplayed());
 			LOGGER.info("Profile details popup is displayed on screen");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "verify_profile_details_popup_is_displayed", "Issue displaying popup", e);
@@ -417,7 +366,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void click_on_close_button_in_profile_details_popup() {
 		try {
-			clickElement(Locators.Modals.PROFILE_DETAILS_CLOSE_BTN);
+			clickElement(PROFILE_DETAILS_CLOSE_BTN);
 			LOGGER.info("Clicked on close button in Profile details popup");
 			waitForSpinners();
 		} catch (Exception e) {
@@ -428,7 +377,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	public void click_on_filters_dropdown_button() {
 		try {
 			scrollToTop();
-			clickElement(Locators.SearchAndFilters.FILTERS_BTN);
+			clickElement(FILTERS_BTN);
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 2);
 		} catch (Exception e) {
@@ -437,7 +386,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 	}
 
 	public void verify_options_available_inside_filters_dropdown() {
-		Assert.assertTrue(waitForElement(FILTER_OPTIONS).isDisplayed());
+		Assert.assertTrue(waitForElement(JobMappingPage.FILTER_OPTIONS).isDisplayed());
 		try {
 			Assert.assertEquals(getElementText(FILTER_OPTION_1), "Grades");
 			Assert.assertEquals(getElementText(FILTER_OPTION_2), "Departments");
@@ -461,7 +410,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 	public void close_the_filters_dropdown() {
 		try {
-			clickElement(Locators.SearchAndFilters.FILTERS_BTN);
+			clickElement(FILTERS_BTN);
 			Thread.sleep(500);
 			LOGGER.info("Closed Filters dropdown");
 		} catch (Exception e) {
@@ -535,7 +484,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 			while (retryAttempts < 3) {
 				try {
-					resultsCountText = Utilities.waitForPresent(wait, SHOWING_RESULTS_COUNT).getText();
+					resultsCountText = Utilities.waitForPresent(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
 					break;
 				} catch (Exception e) {
 					retryAttempts++;
@@ -684,7 +633,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			String resultsCountText = "";
 			while (retryAttempts < 5) {
 				try {
-					resultsCountText = Utilities.waitForPresent(wait, SHOWING_RESULTS_COUNT).getText();
+					resultsCountText = Utilities.waitForPresent(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
 					break;
 				} catch (Exception e) {
 					retryAttempts++;
@@ -727,7 +676,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 
 			while (retryAttempts < 10) {
 				try {
-					String currentText = driver.findElement(SHOWING_RESULTS_COUNT).getText().trim();
+					String currentText = driver.findElement(JobMappingPage.SHOWING_RESULTS_COUNT).getText().trim();
 					if (!currentText.isEmpty() && !currentText.equals(intialResultsCount.get())) {
 						resultsCountText2 = currentText;
 						break;
@@ -741,7 +690,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			}
 
 			if (resultsCountText2.isEmpty()) {
-				resultsCountText2 = Utilities.waitForPresent(wait, SHOWING_RESULTS_COUNT).getText();
+				resultsCountText2 = Utilities.waitForPresent(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
 			}
 
 			updatedResultsCount.set(resultsCountText2);
@@ -920,7 +869,7 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 				
 				// Strategy 2: BasePageObject locator
 				try {
-					headerElement = Utilities.waitForVisible(wait, Locators.Modals.SUCCESS_MODAL_HEADER);
+					headerElement = Utilities.waitForVisible(wait, SUCCESS_MODAL_HEADER);
 					successHeaderText = headerElement.getText().trim();
 					LOGGER.debug("Found popup with Locators.Modals locator");
 				} catch (Exception e2) {
@@ -985,11 +934,11 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 			// Modal may not be present, continue
 		}
 		
-		WebElement searchBar = driver.findElement(Locators.SearchAndFilters.SEARCH_BAR);
+		WebElement searchBar = driver.findElement(SEARCH_BAR);
 		scrollToElement(searchBar);
 		
 		// Use clearSearchBar helper (handles all edge cases)
-		clearSearchBar(Locators.SearchAndFilters.SEARCH_BAR);
+		clearSearchBar(SEARCH_BAR);
 		Utilities.waitForPageReady(driver, 2);
 		
 		LOGGER.info("Search bar successfully cleared in Job Mapping page");
@@ -998,5 +947,4 @@ public class PO04_JobMappingPageComponents extends BasePageObject {
 		}
 	}
 }
-
 

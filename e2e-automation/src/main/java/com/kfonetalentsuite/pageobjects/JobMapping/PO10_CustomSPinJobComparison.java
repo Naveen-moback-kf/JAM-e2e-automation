@@ -1,10 +1,10 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
 
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
@@ -17,31 +17,6 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 
 	public static ThreadLocal<String> customSPSearchString = ThreadLocal.withInitial(() -> "Engineer");
 	public static ThreadLocal<String> customSPNameinSearchResults = ThreadLocal.withInitial(() -> "NOT_SET");
-
-	private static final By SEARCH_BAR_JC = By.xpath("//input[contains(@id,'jobcompare-search')]");
-	private static final By SEARCH_BAR_CANCEL_BTN = By.xpath("//*[contains(@id,'cancel-icon')]//..");
-	private static final By FIRST_SEARCH_RESULT_BTN = By.xpath("//ul//li[1]//button");
-	private static final By THIRD_SEARCH_RESULT_BTN = By.xpath("//ul//li[3]//button");
-	private static final By FIRST_SEARCH_RESULT_TEXT = By.xpath("//ul//li[1]//button//div");
-	private static final By THIRD_SEARCH_RESULT_TEXT = By.xpath("//ul//li[3]//button//div");
-	private static final By CUSTOM_SP_CLOSE_BTN = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')]//button");
-	private static final By PROFILE_1_TITLE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-title')]");
-	private static final By PROFILE_1_SELECT_BTN = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span");
-	private static final By PROFILE_1_GRADE = By.xpath("//div[@class='shadow']//div[contains(@id,'grade')]");
-	private static final By PROFILE_1_LEVEL = By.xpath("//div[@class='shadow']//div[contains(@id,'level-sublevels')]");
-	private static final By PROFILE_1_FUNCTION = By.xpath("//div[@class='shadow']//div[contains(@id,'function-subfunction')]");
-	private static final By PROFILE_1_SENIORITY = By.xpath("//div[@class='shadow']//div[contains(@id,'seniority-level')]");
-	private static final By PROFILE_1_MANAGERIAL = By.xpath("//div[@class='shadow']//div[contains(@id,'managerial-experience')]");
-	private static final By PROFILE_1_EDUCATION = By.xpath("//div[@class='shadow']//div[contains(@id,'education')]");
-	private static final By PROFILE_1_GENERAL_EXP = By.xpath("//div[@class='shadow']//div[contains(@id,'general-experience')]");
-	private static final By PROFILE_1_ROLE_SUMMARY = By.xpath("//div[@class='shadow']//div[contains(@id,'role-summary')]");
-	private static final By PROFILE_1_RESPONSIBILITIES = By.xpath("//div[@class='shadow']//div[contains(@id,'responsibilities')]");
-	private static final By VIEW_MORE_RESPONSIBILITIES = By.xpath("//div[contains(@id,'responsibilities')]//button[@data-testid='view-more-responsibilities']");
-	private static final By PROFILE_1_COMPETENCIES = By.xpath("//div[@class='shadow']//div[contains(@id,'behavioural-competencies')]");
-	private static final By VIEW_MORE_COMPETENCIES = By.xpath("//div[contains(@id,'behavioural-competencies')]//button[@data-testid='view-more-competencies']");
-	private static final By PROFILE_1_SKILLS = By.xpath("//div[@class='shadow']//div[contains(@id,'skills')]");
-	private static final By VIEW_MORE_SKILLS = By.xpath("//div[contains(@id,'skills')]//button[@data-testid='view-more-skills']");
-
 	public PO10_CustomSPinJobComparison() {
 		super();
 	}
@@ -326,5 +301,4 @@ public class PO10_CustomSPinJobComparison extends BasePageObject {
 		}
 	}
 }
-
 

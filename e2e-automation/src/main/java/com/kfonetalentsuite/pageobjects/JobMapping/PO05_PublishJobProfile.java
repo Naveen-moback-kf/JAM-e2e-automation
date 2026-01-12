@@ -1,5 +1,10 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
-
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.ProfileManagerPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ComparisonPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileDetails.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
 import java.time.Duration;
 import java.util.List;
 
@@ -26,45 +31,13 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	// LOCATORS - Using centralized Locators from BasePageObject where available
 	
 	// JAM Table Rows - from Locators.JobMappingResults
-	private static final By JOB_NAME_ROW_1 = Locators.JobMappingResults.JOB_NAME_ROW_1;
-	private static final By JOB_1_PUBLISH_BTN = Locators.JobMappingResults.JOB_1_PUBLISH_BTN;
-	private static final By JOB_1_PUBLISHED_BTN = Locators.JobMappingResults.JOB_1_PUBLISHED_BTN;
-	
 	// Publish Success Messages - from Locators.Modals
-	private static final By PUBLISH_SUCCESS_MSG = Locators.Modals.PUBLISH_SUCCESS_MSG;
-	private static final By PUBLISH_SUCCESS_MSG_DIRECT = Locators.Modals.PUBLISH_SUCCESS_MSG_DIRECT;
-	private static final By PUBLISH_SUCCESS_MSG_FLEXIBLE = Locators.Modals.PUBLISH_SUCCESS_MSG_FLEXIBLE;
-	
 	// HCM Sync Profiles - from Locators.HCMSyncProfiles
-	private static final By HCM_SYNC_TAB = Locators.HCMSyncProfiles.HCM_SYNC_TAB;
-	private static final By HCM_SYNC_HEADER = Locators.HCMSyncProfiles.SYNC_PROFILES_TITLE;
-	private static final By PM_HEADER = Locators.HCMSyncProfiles.PROFILE_MANAGER_HEADER;
-	
 	// HCM/Architect Row Locators - from Locators.JobMappingResults
-	private static final By HCM_JOB_ROW_1 = Locators.JobMappingResults.HCM_JOB_ROW_1;
-	private static final By HCM_JOBCODE_ROW_1 = Locators.JobMappingResults.HCM_JOBCODE_ROW_1;
-	private static final By HCM_DATE_ROW_1 = Locators.JobMappingResults.HCM_DATE_ROW_1;
-	private static final By ARCHITECT_JOB_ROW_1 = Locators.JobMappingResults.ARCHITECT_JOB_ROW_1;
-	private static final By ARCHITECT_DATE_ROW_1 = Locators.JobMappingResults.ARCHITECT_DATE_ROW_1;
-	
 	// Navigation - from Locators.Navigation
-	private static final By KFONE_MENU_PM_BTN = Locators.Navigation.KFONE_MENU_PM_BTN;
-	private static final By KFONE_MENU_ARCHITECT_BTN = Locators.Navigation.KFONE_MENU_ARCHITECT_BTN;
-	
 	// Search - from Locators.PMScreen (HCM uses different search bar)
-	private static final By PROFILES_SEARCH = Locators.PMScreen.SEARCH_BAR;
-	
-	private static final By JOBS_LINK = By.xpath("//span[text()='Jobs']");
-	
 	// Comparison Screen locators - from Locators.ComparisonPage
-	private static final By COMPARE_SELECT_HEADER = Locators.ComparisonPage.COMPARE_HEADER;
-	private static final By JC_ORG_JOB_TITLE = By.xpath("//div[contains(@class, 'text-[24px] font-semibold')] | //h2[contains(@class, 'job-title')]");
-	private static final By JC_PUBLISH_SELECT_BTN = By.xpath("//button[@id='publish-select-btn']");
-	private static final By SELECT_BTNS_IN_JC = Locators.ComparisonPage.CARD_HEADER;
-	
 	// Profile Details Popup - from Locators.ProfileDetails
-	private static final By POPUP_PUBLISH_PROFILE_BTN = Locators.ProfileDetails.PUBLISH_PROFILE_BTN;
-
 	public PO05_PublishJobProfile() {
 		super();
 	}
@@ -193,11 +166,11 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void click_on_view_published_toggle_button_to_turn_on() {
 		try {
 			Utilities.waitForPageReady(driver, 3);
-			WebElement toggle = driver.findElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
+			WebElement toggle = driver.findElement(VIEW_PUBLISHED_TOGGLE);
 			if ("true".equals(toggle.getAttribute("aria-checked")) || toggle.isSelected()) {
 				LOGGER.info("View published toggle button is already ON");
 			} else {
-				clickElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
+				clickElement(VIEW_PUBLISHED_TOGGLE);
 				Utilities.waitForPageReady(driver, 3);
 				LOGGER.info("View published toggle button is turned ON");
 				waitForBackgroundDataLoad();
@@ -229,11 +202,11 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			scrollToTop();
 			safeSleep(500);
 			
-			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
+			WebElement searchBar = waitForElement(SEARCH_BAR, 10);
 			scrollToElement(searchBar);
 			
 			// Use new clearAndSearch helper
-			clearAndSearch(Locators.SearchAndFilters.SEARCH_BAR, jobName);
+			clearAndSearch(SEARCH_BAR, jobName);
 			safeSleep(1500); // Extra wait for results stability
 			
 			LOGGER.info("Search completed for job: '{}'", jobName);
@@ -299,7 +272,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void user_should_verify_search_dropdown_is_displaying_in_hcm_sync_profiles_screen_in_pm() {
 		try {
 			Utilities.waitForPageReady(driver, 5);
-			Assert.assertTrue(waitForElement(Locators.HCMSyncProfiles.SEARCH_DROPDOWN).isDisplayed());
+			Assert.assertTrue(waitForElement(SEARCH_DROPDOWN).isDisplayed());
 			LOGGER.info("Search Dropdown is displaying in HCM Sync Profiles screen in PM");
 		}catch(Exception e) {
 			Utilities.handleError(LOGGER, "user_should_verify_search_dropdown_is_displaying_in_hcm_sync_profiles_screen_in_pm", "Search Dropdown Missing in HCM Sync Profiles", e);
@@ -308,10 +281,10 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	
 	public void change_search_type_to_search_by_job_code_in_hcm_sync_profiles_screen_in_pm() {
 		try {
-			clickElement(Locators.HCMSyncProfiles.SEARCH_DROPDOWN);
+			clickElement(SEARCH_DROPDOWN);
 			LOGGER.info("Clicked on search dropdown button in HCM Sync Profiles screen");
 			safeSleep(1000);
-			clickElement(Locators.HCMSyncProfiles.SEARCH_BY_JOBCODE);
+			clickElement(SEARCH_BY_JOBCODE);
 			safeSleep(2000); // Wait for search type to fully change before proceeding
 			LOGGER.info("Search type successfully changed to Job Code");
 		} catch(Exception e) {
@@ -321,10 +294,10 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	
 	public void change_search_type_to_search_by_job_profile_in_hcm_sync_profiles_screen_in_pm() {
 		try {
-			clickElement(Locators.HCMSyncProfiles.SEARCH_DROPDOWN);
+			clickElement(SEARCH_DROPDOWN);
 			LOGGER.info("Clicked on search dropdown button in HCM Sync Profiles screen");
 			safeSleep(1000);
-			clickElement(Locators.HCMSyncProfiles.SEARCH_BY_JOBPROFILE);
+			clickElement(SEARCH_BY_JOBPROFILE);
 			safeSleep(2000); // Wait for search type to fully change before proceeding
 			LOGGER.info("Search type successfully changed to Job Profile");
 		} catch(Exception e) {
@@ -479,7 +452,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			clickElement(HCM_JOB_ROW_1);
 			LOGGER.info("Clicked Published Job (Org: " + job1OrgName.get() + ") in HCM Sync Profiles");
 			Utilities.waitForPageReady(driver, 5);
-			Assert.assertTrue(waitForElement(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT).isDisplayed());
+			Assert.assertTrue(waitForElement(SP_DETAILS_PAGE_TEXT).isDisplayed());
 			LOGGER.info("SP details page opened on click of Published Job name");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "user_should_verify_sp_details_page_opens_on_click_of_published_job_name", "Issue navigating to SP details page", e);
@@ -490,7 +463,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 		try {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 5);
-			clickElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
+			clickElement(GLOBAL_NAV_MENU_BTN);
 			LOGGER.info("Clicked KFONE Global Menu in Job Mapping UI");
 			Utilities.waitForPageReady(driver, 2);
 		} catch (Exception e) {
@@ -857,6 +830,4 @@ public class PO05_PublishJobProfile extends BasePageObject {
 		}
 	}
 }
-
-
 

@@ -1,8 +1,8 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
@@ -13,18 +13,8 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 	// LOCATORS
 	
 	// Delete Button in Job Mapping screen
-	private static final By DELETE_BUTTON = By.id("delete-selected-mappings-btn");
-	
 	// Delete Confirmation Popup
-	private static final By DELETE_POPUP_TITLE = By.xpath("//h2[@id='delete-modal-title']");
-	private static final By DELETE_POPUP_MESSAGE = By.xpath("//div[@role='document']//p[contains(text(),'Are you sure you want to delete')]");
-	private static final By DELETE_POPUP_CANCEL_BTN = By.xpath("//div[@role='document']//button[text()='Cancel']");
-	private static final By DELETE_POPUP_CONFIRM_BTN = By.xpath("//div[@role='document']//button[text()='Delete']");
-	
 	// Delete Success Message
-	private static final By DELETE_SUCCESS_TITLE = By.xpath("//p[text()='Job Profiles Deleted Successfully']");
-	private static final By DELETE_SUCCESS_MSG = By.xpath("//p[contains(text(),'Successfully deleted')]");
-
 	public PO36_DeleteJobProfiles() {
 		super();
 	}
@@ -168,5 +158,4 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 	}
 
 }
-
 

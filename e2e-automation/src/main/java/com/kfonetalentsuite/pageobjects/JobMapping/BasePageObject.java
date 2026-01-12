@@ -87,15 +87,15 @@ public class BasePageObject {
 	// ==================== CENTRALIZED LOCATORS ====================
 	public static class Locators {
 		
-		// SPINNERS & LOADERS (Used in 20+ page objects)
-		public static class Spinners {
+		// ==================== SHARED LOCATORS (Universal - Used across all pages) ====================
+		public static class SharedLocators {
+			
+			// SPINNERS & LOADERS (Used in 20+ page objects)
 			public static final By PAGE_LOAD_SPINNER = By.xpath("//*[@class='blocking-loader']//img");
 			public static final By DATA_LOADER = By.xpath("//div[@data-testid='loader']//img");
 			public static final By KF_LOADER = By.xpath("//div[@id='kf-loader']//*");
-		}
-		
-		// GLOBAL NAVIGATION (Header components)
-		public static class Navigation {
+			
+			// GLOBAL NAVIGATION (Header components)
 			public static final By KF_TALENT_SUITE_LOGO = By.xpath("//div[contains(@class,'global-nav-title-icon-container')]");
 			public static final By GLOBAL_NAV_MENU_BTN = By.xpath("//button[@id='global-nav-menu-btn']");
 			public static final By WAFFLE_MENU = By.xpath("//div[@data-testid='menu-icon']");
@@ -103,46 +103,42 @@ public class BasePageObject {
 			public static final By JOB_MAPPING_BTN = By.xpath("//button[@aria-label='Job Mapping']");
 			public static final By KFONE_MENU_PM_BTN = By.xpath("//span[@aria-label='Profile Manager']");
 			public static final By KFONE_MENU_ARCHITECT_BTN = By.xpath("//span[@aria-label='Architect']");
-		}
-		
-		// USER PROFILE (Profile dropdown)
-		public static class UserProfile {
+			
+			// USER PROFILE (Profile dropdown)
 			public static final By PROFILE_AVATAR = By.xpath("//*[@data-testid='global-nav-user-avatar-avatar-0']");
 			public static final By PROFILE_BTN = By.xpath("//button[@id='global-nav-user-dropdown-btn']");
 			public static final By PROFILE_USER_NAME = By.xpath("//div[@class='nav-profile-user-name']");
 			public static final By PROFILE_EMAIL = By.xpath("//div[@class='nav-profile-email']");
 			public static final By SIGN_OUT_BTN = By.xpath("//span[text()='Sign Out']");
 			public static final By MY_PROFILE_BTN = By.xpath("//button[text()='My Profile']");
-		}
-		
-		// SEARCH & FILTERS (Common across JAM/PM screens)
-		public static class SearchAndFilters {
-			public static final By SEARCH_BAR = By.xpath("//input[contains(@id,'search-job-title')]");
+			
+			// SEARCH & FILTERS (Universal across all screens)
+			public static final By SEARCH_BAR = By.xpath("//input[contains(@id,'search-job-title')] | //input[@type='search']");
 			public static final By FILTERS_BTN = By.xpath("//button[@id='filters-btn']");
-			public static final By CLEAR_FILTERS_BTN = By.xpath("//button[text()='Clear']");
+			public static final By CLEAR_FILTERS_BTN = By.xpath("//button[text()='Clear'] | //button[@data-testid='Clear Filters'] | //a[contains(text(),'Clear All')]");
 			public static final By APPLY_FILTERS_BTN = By.xpath("//button[text()='Apply']");
 			public static final By FILTER_OPTIONS_PANEL = By.xpath("//div[@id='filters-search-btns']//div[2]//div");
-		}
-		
-		// TABLE & GRID (Common table elements)
-		public static class Table {
-			public static final By HEADER_CHECKBOX = By.xpath("//th[@scope='col']//input[@type='checkbox']");
-			public static final By HEADER_CHEVRON_BTN = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]");
-			public static final By ROW_CHECKBOXES = By.xpath("//tbody//tr//td[1]//input[@type='checkbox']");
+			public static final By CLOSE_APPLIED_FILTER = By.xpath("//div[contains(@class,'applied-filters')]//span//kf-icon");
+			
+			// TABLE & GRID (Universal - Works for both PM and JAM)
+			public static final By HEADER_CHECKBOX = By.xpath("//thead//input[@type='checkbox'] | //thead//tr//th[1]//div[1]//kf-checkbox//div");
+			public static final By ROW_CHECKBOXES = By.xpath("//tbody//tr//td[1]//input[@type='checkbox'] | //tbody//tr//td[1]//kf-checkbox");
+			public static final By ALL_ROW_CHECKBOXES = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input | //tbody//tr//td[1]//kf-checkbox");
+			public static final By HEADER_CHEVRON_BTN = By.xpath("//thead//th//kf-icon[contains(@class,'arrow-down') or @icon='arrow-down'] | //th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]");
 			public static final By SELECT_ALL_BTN = By.xpath("//*[contains(text(),'Select All')]");
 			public static final By SELECT_NONE_BTN = By.xpath("//*[contains(text(),'None')]");
-			public static final By RESULTS_COUNT_TEXT = By.xpath("//div[@id='results-toggle-container']//p//span");
-		}
-		
-		// TOGGLES & BUTTONS (Common action buttons)
-		public static class Actions {
-			public static final By VIEW_PUBLISHED_TOGGLE = By.xpath("//input[@id='toggleSwitch']");
-			public static final By PUBLISH_BTN = By.xpath("//button[@id='publish-approved-mappings-btn']");
+			public static final By RESULTS_COUNT_TEXT = By.xpath("//div[@id='results-toggle-container']//p//span | //div[contains(text(),'Showing')] | //*[contains(text(),'Showing')]");
+			public static final By ALL_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-checkbox] | //div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]");
+			public static final By SELECTED_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]] | //div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox' and @checked]]");
+			
+			// ACTIONS & BUTTONS (Common action buttons)
+			public static final By PC_VIEW_PUBLISHED_TOGGLE = By.xpath("//input[@id='toggleSwitch']");
+			public static final By PC_PUBLISH_BTN = By.xpath("//button[@id='publish-approved-mappings-btn'] | //button[contains(@id,'publish-approved-mappings-btn')] | //button[contains(text(),'Publish Selected')]");
 			public static final By ACCEPT_COOKIES_BTN = By.xpath("//button[@id='ensAcceptAll']");
-		}
-		
-		// MODALS & POPUPS (Common modal elements)
-		public static class Modals {
+			public static final By SYNC_BUTTON = By.xpath("//button[contains(@class,'custom-export')] | //button[contains(text(),'Sync with HCM')]");
+			public static final By ACTION_BUTTON = By.xpath("//button[contains(@class,'custom-export')] | //button[contains(text(),'Sync with HCM')] | //button[contains(@id,'publish-approved-mappings-btn')] | //button[contains(text(),'Publish Selected')]");
+			
+			// MODALS & POPUPS (Common modal elements)
 			public static final By SUCCESS_MODAL_HEADER = By.xpath("//h2[@id='modal-header']");
 			public static final By SUCCESS_MODAL_MESSAGE = By.xpath("//*[@id='modal-description']");
 			public static final By SUCCESS_MODAL_CLOSE_BTN = By.xpath("//button[@id='close-success-modal-btn']");
@@ -155,20 +151,36 @@ public class BasePageObject {
 			public static final By PUBLISHED_SUCCESS_CLOSE_BTN = By.xpath("//button[@aria-label='Close']");
 		}
 		
-		// JOB MAPPING SPECIFIC (JAM screen elements)
-		public static class JobMapping {
-			public static final By PAGE_CONTAINER = By.xpath("//div[@id='org-job-container']");
-			public static final By MAIN_HEADER = By.xpath("//h2[contains(text(),'JOB MAPPING')]");
-			public static final By PAGE_TITLE_HEADER = By.xpath("//div[@id='page-heading']//h1");
-			public static final By ASYNC_MESSAGE = By.xpath("//*[contains(text(),'Publish process') or contains(text(),'Please check')]");
-		}
-		
-		// KFONE / LOGIN (KFONE portal elements)
-		public static class KFONE {
+		// ==================== LOGIN PAGE LOCATORS ====================
+		public static class LoginPage {
+			// KFONE Portal Elements
 			public static final By LANDING_PAGE_TITLE = By.xpath("//*[@id='title-svg-icon']");
 			public static final By CLIENTS_PAGE_HEADER = By.xpath("//*[@data-testid='clients']//h2");
 			public static final By CLIENTS_PAGE_TITLE = By.xpath("//h2[text()='Clients']");
 			public static final By LOGIN_PAGE_TEXT = By.xpath("//*[text()='Sign in to your account']");
+			
+			// Authentication
+			public static final By USERNAME_INPUT = By.xpath("//input[@type='email']");
+			public static final By PASSWORD_INPUT = By.xpath("//input[@type='password']");
+			public static final By KFONE_SIGNIN_BTN = By.xpath("//button[@id='submit-button']");
+			public static final By PROCEED_BTN = By.xpath("//*[text()='Proceed']");
+			public static final By MICROSOFT_SUBMIT_BTN = By.xpath("//input[@type='submit']");
+			public static final By MICROSOFT_PASSWORD_HEADER = By.xpath("//div[text()='Enter password']");
+			
+			// KFONE Home
+			public static final By KFONE_HOME_HEADER = By.xpath("//h1[contains(text(),'Hi,')]");
+			public static final By YOUR_PRODUCTS_SECTION = By.xpath("//h2[contains(text(),'Your products')]");
+			public static final By PM_IN_PRODUCTS_SECTION = By.xpath("//div[@data-testid='Profile Manager']");
+			
+			// Client Selection
+			public static final By CLIENTS_TABLE = By.xpath("//table[@id='iam-clients-list-table-content']");
+			public static final By CLIENTS_TABLE_BODY = By.xpath("//tbody[@class='table-body']");
+			public static final By CLIENT_SEARCH_BAR = By.xpath("//input[@id='search-client-input-search']");
+			public static final By CLIENT_ROWS = By.xpath("//tbody//tr[@class='table-row']");
+			public static final By CLIENT_NAME_LINK = By.xpath(".//a[contains(@data-testid,'client-')]");
+			public static final By CLIENT_NAME_DIV = By.xpath(".//div[contains(@class,'data-content-container')]//div[contains(@title, '')]");
+			public static final By CLIENT_PAMS_ID_CELL = By.xpath(".//td[contains(@data-testid,'iam-clients-list-pams_id-table-data-cell-')]");
+			public static final By CLIENT_PRODUCTS_CELL = By.xpath(".//td[contains(@data-testid,'iam-clients-list-clientProducts-table-data-cell-')]");
 		}
 		
 		// COMPARISON PAGE (Used in PO04,PO07,PO15,PO27)
@@ -176,12 +188,14 @@ public class BasePageObject {
 			public static final By COMPARE_HEADER = By.xpath("//h1[@id='compare-desc']");
 			public static final By CARD_HEADER = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span");
 			public static final By CARD_TITLE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-title')]");
+			public static final By SELECT_BTNS_IN_JC = By.xpath("//button[contains(@id,'select-btn') or contains(text(),'Select')]");
 		}
 		
 		// PROFILE DETAILS POPUP (Used in PO05,PO14,PO21)
 		public static class ProfileDetails {
 			public static final By PROFILE_LEVEL_DROPDOWN = By.xpath("//select[contains(@id,'profileLevel') or @id='profile-level']");
 			public static final By PUBLISH_PROFILE_BTN = By.xpath("//button[@id='publish-job-profile']");
+			public static final By POPUP_PUBLISH_PROFILE_BTN = By.xpath("//button[@id='publish-job-profile']");
 			public static final By PROFILE_HEADER_TEXT = By.xpath("//h2[@id='summary-modal']//p");
 			public static final By ROLE_SUMMARY = By.xpath("//div[@id='role-summary-container']//p");
 			public static final By DETAILS_CONTAINER = By.xpath("//div[@id='details-container']//div[contains(@class,'mt-2')]");
@@ -190,13 +204,16 @@ public class BasePageObject {
 			public static final By SKILLS_DATA = By.xpath("//div[@id='skills-panel']//div[@id='item-container']");
 			public static final By SKILLS_TAB = By.xpath("//button[text()='SKILLS']");
 			public static final By BEHAVIOUR_TAB = By.xpath("//button[contains(text(),'BEHAVIOUR')]");
+			public static final By VIEW_MORE_BEHAVIOUR = By.xpath("//div[@id='behavioural-panel']//button[contains(text(),'View')]");
 		}
 		
 		// HCM SYNC PROFILES (Used in PO18,PO19,PO21,PO22,PO23,PO25,PO31)
 		public static class HCMSyncProfiles {
 			public static final By HCM_SYNC_TAB = By.xpath("//span[contains(text(),'HCM Sync')]");
+			public static final By HCM_SYNC_HEADER = By.xpath("//h1[contains(text(),'HCM Sync Profiles')]");
 			public static final By SYNC_PROFILES_TITLE = By.xpath("//h1[contains(text(),'Sync Profiles')]");
 			public static final By PROFILE_MANAGER_HEADER = By.xpath("//h1[contains(text(),'Profile Manager')]");
+			public static final By PROFILES_SEARCH = By.xpath("//input[@type='search' or contains(@placeholder,'Search job profiles')]");
 			public static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing')]");
 			public static final By TABLE_HEADER_NAME = By.xpath("//thead//tr//div[@kf-sort-header='name']//div");
 			public static final By TABLE_HEADER_STATUS = By.xpath("//thead//tr//div//div[text()=' Status ']");
@@ -215,44 +232,508 @@ public class BasePageObject {
 			public static final By SEARCH_BY_JOBCODE = By.xpath("//div[contains(@class,'search-type-item') and contains(text(),'Job Code')]");
 		}
 		
-		// PM SCREEN LOCATORS (HCM Sync Profiles - Used in PO35, PO36, PO42)
-		public static class PMScreen {
-			public static final By ALL_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-checkbox]");
-			public static final By SELECTED_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]");
-			public static final By CHEVRON_BUTTON = By.xpath("//thead//th//kf-icon[contains(@class,'arrow-down') or @icon='arrow-down'] | //thead//th//*[contains(@class,'chevron')]");
-			public static final By HEADER_CHECKBOX = By.xpath("//thead//tr//th[1]//div[1]//kf-checkbox//div");
-			public static final By SYNC_BUTTON = By.xpath("//button[contains(@class,'custom-export')] | //button[contains(text(),'Sync with HCM')]");
-			public static final By SEARCH_BAR = By.xpath("//input[@type='search']");
-			public static final By CLEAR_ALL_FILTERS_BTN = By.xpath("//a[contains(text(),'Clear All')]");
+		// PUBLISH CENTER PAGE (Used in PO20)
+		public static class PublishCenterPage {
+			public static final By PUBLISH_CENTER_BTN = By.xpath("//button[contains(@class,'publish-center')]");
+			public static final By JPH_SCREEN_TITLE = By.xpath("//*[contains(text(),'Job Profile History')]");
+			public static final By JPH_PROFILES_COUNT_ROW1 = By.xpath("//*/kf-page-content/div[2]/div[2]/div[1]/div[1]/span");
+			public static final By JPH_ACCESSED_BY_ROW1 = By.xpath("//*/kf-page-content/div[2]/div[2]/div[1]/div[2]/span");
+			public static final By JPH_ACCESSED_DATE_ROW1 = By.xpath("//*/kf-page-content/div[2]/div[2]/div[1]/div[3]/span");
+			public static final By JPH_ACTION_TAKEN_ROW1 = By.xpath("//*/kf-page-content/div[2]/div[2]/div[1]/div[4]/span");
+			public static final By JPH_STATUS_ROW1 = By.xpath("//*/kf-page-content/div[2]/div[2]/div[1]/div[5]/span");
+			public static final By JPH_HEADER1 = By.xpath("//*/div/kf-page-content/div[2]/div[1]/div[1]");
+			public static final By JPH_HEADER2 = By.xpath("//*/div/kf-page-content/div[2]/div[1]/div[2]");
+			public static final By JPH_HEADER3 = By.xpath("//*/div/kf-page-content/div[2]/div[1]/div[3]");
+			public static final By JPH_HEADER4 = By.xpath("//*/div/kf-page-content/div[2]/div[1]/div[4]");
+			public static final By JPH_HEADER5 = By.xpath("//*/div/kf-page-content/div[2]/div[1]/div[5]");
+			public static final By PROFILES_DOWNLOADED_TITLE = By.xpath("//*[contains(text(),'Profiles Downloaded')]");
+			public static final By PROFILES_DOWNLOADED_HEADER = By.xpath("//*[contains(@class,'header-details')]");
+			public static final By CLOSE_BTN = By.xpath("//*[contains(text(),'Close')]//..");
+			public static final By PD_HEADER1 = By.xpath("//*/div[2]/div/div[2]/div[1]/div[1]");
+			public static final By PD_HEADER2 = By.xpath("//*/div[2]/div/div[2]/div[1]/div[2]");
+			public static final By PD_HEADER3 = By.xpath("//*/div[2]/div/div[2]/div[1]/div[3]");
+			public static final By PD_HEADER4 = By.xpath("//*/div[2]/div/div[2]/div[1]/div[4]");
+			public static final By PROFILES_EXPORTED_TITLE = By.xpath("//*[contains(text(),'Profiles Exported')]");
 		}
 		
-		// JAM SCREEN LOCATORS (Job Mapping - Used in PO35, PO36, PO42)
-		public static class JAMScreen {
-			public static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
-			public static final By ALL_PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]");
-			public static final By SELECTED_PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox' and @checked]]");
-			public static final By CHEVRON_BUTTON = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]");
-			public static final By HEADER_CHECKBOX = By.xpath("//thead//input[@type='checkbox']");
-			public static final By PUBLISH_BUTTON = By.xpath("//button[contains(@id,'publish-approved-mappings-btn')] | //button[contains(text(),'Publish Selected')]");
-			public static final By SEARCH_BAR = By.xpath("//input[@id='search-job-title-input-search-input']");
-			public static final By CLEAR_FILTERS_BTN = By.xpath("//button[@data-testid='Clear Filters']");
+		// MODALS (Used in PO30, PO36, and other page objects)
+		public static class Modals {
+			public static final By SUCCESS_MODAL_HEADER = By.xpath("//h2[@id='modal-header']");
+			public static final By SUCCESS_MODAL_MESSAGE = By.xpath("//*[@id='modal-description']");
+			public static final By SUCCESS_MODAL_CLOSE_BTN = By.xpath("//button[@id='close-success-modal-btn']");
+			public static final By PROFILE_DETAILS_POPUP_HEADER = By.xpath("//h2[@id='summary-modal']");
+			public static final By PROFILE_DETAILS_CLOSE_BTN = By.xpath("//button[@id='close-profile-summary']");
+			// Publish Success Messages
+			public static final By PUBLISH_SUCCESS_MSG = By.xpath("//p[contains(text(),'Success profile published')]/..");
+			public static final By PUBLISH_SUCCESS_MSG_DIRECT = By.xpath("//p[contains(text(),'Success profile published')]");
+			public static final By PUBLISH_SUCCESS_MSG_FLEXIBLE = By.xpath("//*[contains(text(),'profile published') or contains(text(),'successfully published')]");
+			public static final By PUBLISHED_SUCCESS_MSG = By.xpath("//p[@id='modal-message']");
 		}
+	}
+
+	// ==================== TOP-LEVEL PAGE CLASSES ====================
+	// These are static classes inside BasePageObject but NOT inside Locators
+	
+	public static class JobMappingPage {
+		// Page Container & Headers
+		public static final By PAGE_CONTAINER = By.xpath("//div[@id='org-job-container']");
+		public static final By MAIN_HEADER = By.xpath("//h2[contains(text(),'JOB MAPPING')]");
+		public static final By PAGE_TITLE_HEADER = By.xpath("//div[@id='page-heading']//h1");
+		public static final By ASYNC_MESSAGE = By.xpath("//*[contains(text(),'Publish process') or contains(text(),'Please check')]");
 		
-		// JOB MAPPING RESULTS (Used in 7+ files)
-		public static class JobMappingResults {
-			public static final By SHOWING_JOB_RESULTS = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
-			public static final By FIRST_ROW_PROFILE_MATCH = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
-			public static final By FIRST_ROW_JOB_TITLE = By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr[1]//td[1]//div");
-			public static final By SEARCH_INPUT = By.xpath("//input[@type='search']");
-			public static final By JOB_NAME_ROW_1 = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
-			public static final By JOB_1_PUBLISH_BTN = By.xpath("//tbody//tr[2]//button[@id='publish-btn'][1]");
-			public static final By JOB_1_PUBLISHED_BTN = By.xpath("//tbody//tr[2]//button[text()='Published'][1]");
-			public static final By HCM_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//span[1]//a");
-			public static final By HCM_JOBCODE_ROW_1 = By.xpath("//tbody//tr[1]//td[3]//span");
-			public static final By HCM_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[8]//span");
-			public static final By ARCHITECT_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//div//a");
-			public static final By ARCHITECT_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[9]");
-		}
+		// Table Headers (PO14 - Sorting)
+		public static final By ORG_JOB_NAME_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[2]/div");
+		public static final By ORG_JOB_GRADE_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div");
+		public static final By MATCHED_SP_NAME_HEADER = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[1]/div");
+		public static final By MATCHED_SP_GRADE_HEADER = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[2]");
+		
+		// Results (from JobMappingResults class)
+		public static final By SHOWING_JOB_RESULTS = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
+		public static final By FIRST_ROW_PROFILE_MATCH = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
+		public static final By FIRST_ROW_JOB_TITLE = By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr[1]//td[1]//div");
+		public static final By SEARCH_INPUT = By.xpath("//input[@type='search']");
+		public static final By JOB_NAME_ROW_1 = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");
+		public static final By JOB_1_PUBLISH_BTN = By.xpath("//tbody//tr[2]//button[@id='publish-btn'][1]");
+		public static final By JOB_1_PUBLISHED_BTN = By.xpath("//tbody//tr[2]//button[text()='Published'][1]");
+		public static final By HCM_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//span[1]//a");
+		public static final By HCM_JOBCODE_ROW_1 = By.xpath("//tbody//tr[1]//td[3]//span");
+		public static final By HCM_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[8]//span");
+		public static final By ARCHITECT_JOB_ROW_1 = By.xpath("//tbody//tr[1]//td//div//div//a");
+		public static final By ARCHITECT_DATE_ROW_1 = By.xpath("//tbody//tr[1]//td[9]");
+		
+		// Page Components (PO04-specific)
+		public static final By PAGE_TITLE_DESC = By.xpath("//div[@id='page-title']//p[1]");
+		public static final By JOB_GRADE_PROFILE_1 = By.xpath("//tbody//tr[1]//td[3]//div[1]");
+		public static final By JOB_FUNCTION_PROFILE_1 = By.xpath("//tbody//tr[2]//div//span[2]");
+		public static final By JOB_DEPARTMENT_PROFILE_1 = By.xpath("//tbody//tr[1]//td[4]//div");
+		public static final By JOB_NAME_PROFILE_2 = By.xpath("//tbody//tr[4]//td[2]//div[contains(text(),'(')]");
+		public static final By FILTER_OPTION_1 = By.xpath("//div[@id='filters-search-btns']//div[2]//div//div/h3");
+		public static final By FILTER_OPTION_2 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[2]//div/h3");
+		public static final By FILTER_OPTION_3 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[3]//div/h3");
+		public static final By FILTER_OPTION_4 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[4]//div/h3");
+		public static final By SEARCH_BAR_FILTER_OPTION_3 = By.xpath("//div[@id='filters-search-btns']//div[2]//div[3]//input[contains(@placeholder,'Search')]");
+		public static final By ADD_MORE_JOBS_BTN = By.xpath("//span[contains(text(),'Add more jobs')] | //button[@id='add-more-jobs-btn']");
+		public static final By PROFILE_1_CHECKBOX = By.xpath("//tbody//tr[1]//td[1][contains(@class,'whitespace')]//input");
+		public static final By PROFILE_2_CHECKBOX = By.xpath("//tbody//tr[4]//td[1][contains(@class,'whitespace')]//input");
+		public static final By NO_DATA_AVAILABLE = By.xpath("//td[@id='no-data-container']");
+		public static final By TABLE_1_TITLE = By.xpath("//*[contains(text(),'Organization jobs')]");
+		public static final By TABLE_1_HEADER_1 = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[2]/div | //*[@id='table-container']/div[1]/div/div[1]/div/span[1]");
+		public static final By TABLE_1_HEADER_2 = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div | //*[@id='table-container']/div[1]/div/div[1]/div/span[2]");
+		public static final By TABLE_1_HEADER_3 = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[4]/div | //*[@id='table-container']/div[1]/div/div[1]/div/span[3]");
+		public static final By TABLE_2_TITLE = By.xpath("//*[contains(text(),'Matched success profiles')]");
+		public static final By TABLE_2_HEADER_1 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[1]/div");
+		public static final By TABLE_2_HEADER_2 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[2]/div");
+		public static final By TABLE_2_HEADER_3 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[3]/div");
+		public static final By TABLE_2_HEADER_4 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[4]/div");
+		public static final By TABLE_2_HEADER_5 = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[5]/div");
+		public static final By JOB_1_VIEW_OTHER_MATCHES = By.xpath("//tbody//tr[2]//button[@id='view-matches']");
+		public static final By JAM_LOGO = By.xpath("//div[@id='header-logo']");
+		public static final By BROWSE_RESOURCES_JAM = By.xpath("//*[contains(text(),'Browse resources')]/following::*[contains(text(),'Job Mapping')]");
+		
+		// PO05 - Publish Job Profile
+		public static final By JOBS_LINK = By.xpath("//span[text()='Jobs']");
+		public static final By JC_ORG_JOB_TITLE = By.xpath("//div[contains(@class, 'text-[24px] font-semibold')]");
+		public static final By JC_PUBLISH_SELECT_BTN = By.xpath("//button[@id='publish-select-btn']");
+		
+		// PO06 - Publish Selected Profiles
+		public static final By HCM_DATE_ROW_2 = By.xpath("//tbody//tr[2]//td[8]//span");
+		
+		// PO07 - Screen1 Search Results
+		public static final By JOB_NAMES_IN_RESULTS = By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]");
+		
+		// PO08 - Job Mapping Filters
+		public static final By CLEAR_FILTERS_X_BTN = By.xpath("//button[@data-testid='clear-filters-button']");
+		public static final By GRADES_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Grades']");
+		public static final By GRADES_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']");
+		public static final By GRADES_VALUES = By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']//..//span[2]");
+		public static final By LEVELS_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Levels']");
+		public static final By LEVELS_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Levels']//..//input[@type='checkbox']");
+		public static final By LEVELS_VALUES = By.xpath("//div[@data-testid='dropdown-Levels']//..//input[@type='checkbox']//..//span[2]");
+		public static final By FUNCTIONS_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Functions']");
+		public static final By FUNCTIONS_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Functions']//..//input[@type='checkbox']");
+		public static final By FUNCTIONS_VALUES = By.xpath("//div[@data-testid='dropdown-Functions']//..//input[@type='checkbox']//..//span[2]");
+		public static final By SUBFUNCTIONS_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Subfunctions']");
+		public static final By SUBFUNCTIONS_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Subfunctions']//..//input[@type='checkbox']");
+		public static final By SUBFUNCTIONS_VALUES = By.xpath("//div[@data-testid='dropdown-Subfunctions']//..//input[@type='checkbox']//..//span[2]");
+		public static final By NO_DATA_CONTAINER = By.xpath("//*[@id='no-data-container']");
+		public static final By FILTER_TYPE_DROPDOWN_SEARCH_INPUT = By.xpath("//div[@data-testid='dropdown-filter-type']//input[@placeholder='Search']");
+		public static final By FILTER_SECTIONS_TITLES = By.xpath("//div[@id='filters-search-btns']//h3");
+		public static final By FILTER_SECTIONS_DIVS = By.xpath("//div[@id='filters-search-btns']//div[contains(@class,'dropdown-component')]");
+		public static final By GRADE_FILTER_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']");
+		public static final By LEVEL_FILTER_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Levels']//..//input[@type='checkbox']");
+		public static final By FUNCTION_FILTER_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Functions']//..//input[@type='checkbox']");
+		public static final By SUBFUNCTION_FILTER_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Subfunctions']//..//input[@type='checkbox']");
+		public static final By FILTER_CHECKBOXES = By.xpath("//div[@id='filters-search-btns']//input[@type='checkbox']");
+		// Additional PO08 locators
+		public static final By DEPARTMENTS_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Departments']");
+		public static final By DEPARTMENTS_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']");
+		public static final By DEPARTMENTS_VALUES = By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']//..//label");
+		public static final By FUNCTIONS_SEARCH = By.xpath("//div[@data-testid='dropdown-Functions_SubFunctions']//..//div[2]//input[@placeholder='Search']");
+		public static final By TOGGLE_SUBOPTIONS = By.xpath("//button[contains(@data-testid,'toggle-suboptions')]");
+		public static final By MAPPING_STATUS_DROPDOWN = By.xpath("//*[@data-testid='dropdown-MappingStatus']");
+		public static final By MAPPING_STATUS_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-MappingStatus']//..//input[@type='checkbox']");
+		public static final By MAPPING_STATUS_VALUES = By.xpath("//div[@data-testid='dropdown-MappingStatus']//..//input[@type='checkbox']//..//label");
+		public static final By ALL_GRADES_COLUMN = By.xpath("//*[text()='Organization jobs']//..//tbody//tr//td[3]//div | //*[@id='table-container']/div[1]/div/div[2]/div/div/div[1]/span[2]/span");
+		public static final By ALL_DEPARTMENTS_COLUMN = By.xpath("//*[text()='Organization jobs']//..//tbody//tr//td[4]//div | //*[@id='table-container']/div[1]/div/div[2]/div/div/div[1]/span[3]");
+		public static final By ALL_FUNCTIONS_COLUMN = By.xpath("//*[text()='Organization jobs']//..//tbody//tr//td[@colspan='7']//span[2] | //*[@id='table-container']/div[1]/div/div[2]/div/div/div[2]/span/div/span/span[2]");
+		public static final By VISIBLE_ROWS = By.xpath("//tbody//tr[contains(@class,'cursor-pointer')]");
+		
+		// PO09 - Filter Persistence
+		public static final By ORG_JOB_GRADE_SORT_ICON = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div/kf-icon");
+		public static final By MATCHED_SP_GRADE_SORT_ICON = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[3]/div/kf-icon");
+		
+		// PO10/PO12 - Shared profile details
+		public static final By PROFILE_1_GRADE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-grade')]");
+		public static final By PROFILE_1_LEVEL = By.xpath("//div[@class='shadow']//div[contains(@id,'card-level')]");
+		public static final By PROFILE_1_FUNCTION = By.xpath("//div[@class='shadow']//div[contains(@id,'card-function')]");
+		public static final By PROFILE_1_SENIORITY = By.xpath("//div[@class='shadow']//div[contains(@id,'card-seniority')]");
+		public static final By PROFILE_2_GRADE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-grade')][2]");
+		public static final By PROFILE_2_LEVEL = By.xpath("//div[@class='shadow']//div[contains(@id,'card-level')][2]");
+		public static final By PROFILE_2_FUNCTION = By.xpath("//div[@class='shadow']//div[contains(@id,'card-function')][2]");
+		public static final By PROFILE_2_SENIORITY = By.xpath("//div[@class='shadow']//div[contains(@id,'card-seniority')][2]");
+		public static final By PROFILE_3_GRADE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-grade')][3]");
+		public static final By PROFILE_3_LEVEL = By.xpath("//div[@class='shadow']//div[contains(@id,'card-level')][3]");
+		public static final By PROFILE_3_FUNCTION = By.xpath("//div[@class='shadow']//div[contains(@id,'card-function')][3]");
+		public static final By PROFILE_3_SENIORITY = By.xpath("//div[@class='shadow']//div[contains(@id,'card-seniority')][3]");
+		// Additional profile details (PO10, PO12)
+		public static final By PROFILE_1_TITLE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-title')]");
+		public static final By PROFILE_1_SELECT_BTN = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span");
+		public static final By PROFILE_1_RECOMMENDED_TAG = By.xpath("//div[@class='shadow']//div[contains(@id,'recommended-title')]");
+		public static final By PROFILE_1_MANAGERIAL = By.xpath("//div[@class='shadow']//div[contains(@id,'managerial-experience')]");
+		public static final By PROFILE_1_EDUCATION = By.xpath("//div[@class='shadow']//div[contains(@id,'education')]");
+		public static final By PROFILE_1_GENERAL_EXP = By.xpath("//div[@class='shadow']//div[contains(@id,'general-experience')]");
+		public static final By PROFILE_1_ROLE_SUMMARY = By.xpath("//div[@class='shadow']//div[contains(@id,'role-summary')]");
+		public static final By PROFILE_1_RESPONSIBILITIES = By.xpath("//div[@class='shadow']//div[contains(@id,'responsibilities')]");
+		public static final By VIEW_MORE_RESPONSIBILITIES = By.xpath("//div[contains(@id,'responsibilities')]//button[@data-testid='view-more-responsibilities']");
+		public static final By PROFILE_1_COMPETENCIES = By.xpath("//div[@class='shadow']//div[contains(@id,'behavioural-competencies')]");
+		public static final By VIEW_MORE_COMPETENCIES = By.xpath("//div[contains(@id,'behavioural-competencies')]//button[@data-testid='view-more-competencies']");
+		public static final By PROFILE_1_SKILLS = By.xpath("//div[@class='shadow']//div[contains(@id,'skills')]");
+		public static final By VIEW_MORE_SKILLS = By.xpath("//div[contains(@id,'skills')]//button[@data-testid='view-more-skills']");
+		
+		// PO10 - Custom SP in Job Comparison
+		public static final By SEARCH_BAR_JC = By.xpath("//input[contains(@id,'jobcompare-search')]");
+		public static final By SEARCH_BAR_CANCEL_BTN = By.xpath("//*[contains(@id,'cancel-icon')]//..");
+		public static final By FIRST_SEARCH_RESULT_TEXT = By.xpath("//ul//li[1]//button//div");
+		public static final By FIRST_SEARCH_RESULT_BTN = By.xpath("//ul//li[1]//button");
+		public static final By THIRD_SEARCH_RESULT_BTN = By.xpath("//ul//li[3]//button");
+		public static final By THIRD_SEARCH_RESULT_TEXT = By.xpath("//ul//li[3]//button//div");
+		public static final By CUSTOM_SP_CLOSE_BTN = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')]//button");
+		
+		// PO12 - Recommended Profile Details
+		public static final By ORG_JOB_TITLE_HEADER = By.xpath("//div[contains(@class,'leading')]//div[1]//div[1]");
+		public static final By ORG_JOB_GRADE_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Grade')]//span");
+		public static final By ORG_JOB_DEPARTMENT_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Department')]//span");
+		public static final By ORG_JOB_FUNCTION_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Function')]//span");
+		public static final By POPUP_CONTAINER = By.xpath("//div[contains(@class, 'modal-body') or contains(@class,'popup-container')]");
+		public static final By POPUP_VIEW_MORE_RESPONSIBILITIES = By.xpath("//div[@id='responsibilities-panel']//button[contains(text(),'View')]");
+		public static final By POPUP_VIEW_MORE_BEHAVIOUR = By.xpath("//div[@id='behavioural-panel']//button[contains(text(),'View')]");
+		public static final By POPUP_VIEW_MORE_SKILLS = By.xpath("//div[@id='skills-panel']//button[contains(text(),'View')]");
+		public static final By SECOND_SEARCH_RESULT_TEXT = By.xpath("//ul//li[2]//button//div");
+		public static final By SECOND_SEARCH_RESULT_BTN = By.xpath("//ul//li[2]//button");
+		public static final By CUSTOM_PROFILE_LABEL = By.xpath("//*[contains(text(),'Custom Profile')]");
+		public static final By PROFILE_1_CUSTOM_LABEL = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//..//*[contains(text(),'Custom')]");
+		public static final By PROFILE_HEADER = By.xpath("//h2[@id='summary-modal']//p");
+		public static final By PROFILE_DETAILS = By.xpath("//div[@id='details-container']//div[contains(@class,'mt-2')]");
+		public static final By POPUP_RESPONSIBILITIES_DATA = By.xpath("//div[@id='responsibilities-panel']//div[@id='item-container']");
+		public static final By BEHAVIOUR_TAB_BTN = By.xpath("//button[contains(text(),'BEHAVIOUR')]");
+		public static final By POPUP_BEHAVIOUR_DATA = By.xpath("//div[@id='behavioural-panel']//div[@id='item-container']");
+		public static final By SKILLS_TAB_BTN = By.xpath("//button[text()='SKILLS']");
+		public static final By POPUP_SKILLS_DATA = By.xpath("//div[@id='skills-panel']//div[@id='item-container']");
+		public static final By COMPARE_AND_SELECT_HEADER = By.xpath("//h1[@id='compare-desc']");
+		
+		// PO17 - Manual Mapping / Map Different SP to Profile
+		public static final By MANUAL_MAPPING_ORG_JOB_TITLE = By.xpath("//div[contains(@class,'leading')]//div[1]//div[1]");
+		public static final By MANUAL_MAPPING_ORG_JOB_GRADE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Grade')]//span");
+		public static final By MANUAL_MAPPING_ORG_JOB_DEPARTMENT = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Department')]//span");
+		public static final By MANUAL_MAPPING_ORG_JOB_FUNCTION = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Function')]//span");
+		public static final By LAST_SAVED_PROFILE = By.xpath("//*[contains(text(),'Last')]//..");
+		public static final By LAST_SAVED_PROFILE_NAME_BTN = By.xpath("//*[contains(text(),'Last')]//..//span[2]");
+		public static final By MANUAL_MAPPING_PROFILE_TITLE = By.xpath("//*[@id='summary-title']//p");
+		public static final By MANUAL_MAPPING_ROLE_SUMMARY = By.xpath("//div[contains(@id,'role-summary')]//p");
+		public static final By MANUAL_MAPPING_PROFILE_DETAILS = By.xpath("//span[contains(text(),'Grade')]//..");
+		public static final By MANUAL_MAPPING_RESPONSIBILITIES_TAB = By.xpath("//button[contains(text(),'RESPONSIBILITIES')]");
+		public static final By MANUAL_MAPPING_VIEW_MORE_RESPONSIBILITIES = By.xpath("//div[contains(@id,'responsibilities')]//button[contains(text(),'more...')]");
+		public static final By MANUAL_MAPPING_RESPONSIBILITIES_DATA = By.xpath("//div[contains(@id,'responsibilities')]");
+		public static final By MANUAL_MAPPING_BEHAVIOUR_TAB = By.xpath("//button[contains(text(),'BEHAVIOURAL COMPETENCIES')]");
+		public static final By MANUAL_MAPPING_VIEW_MORE_BEHAVIOUR = By.xpath("//div[contains(@id,'behavioural-panel')]//button[contains(text(),'more...')]");
+		public static final By MANUAL_MAPPING_BEHAVIOUR_DATA = By.xpath("//div[contains(@id,'behavioural-panel')]");
+		public static final By MANUAL_MAPPING_SKILLS_TAB = By.xpath("//button[contains(text(),'SKILLS')]");
+		public static final By MANUAL_MAPPING_VIEW_MORE_SKILLS = By.xpath("//div[contains(@id,'skills')]//button[contains(text(),'more...')]");
+		public static final By MANUAL_MAPPING_SKILLS_DATA = By.xpath("//div[contains(@id,'skills')]");
+		public static final By KF_SP_SEARCH_BAR = By.xpath("//input[contains(@placeholder,'Search Korn Ferry')]");
+		public static final By SAVE_SELECTION_BTN = By.xpath("//button[contains(text(),'Save selection')]");
+		
+		// PO16 - Manual Mapping buttons
+		public static final By FIND_MATCH_BTN = By.xpath("//tbody//tr[1]//button[contains(text(),'Find')]");
+		public static final By SEARCH_DIFFERENT_SP_BTN = By.xpath("//tbody//tr[2]//button[contains(text(),'different profile')]");
+		
+		// PO22/PO25 - Missing Data Functionality
+		public static final By MISSING_DATA_TIP_MESSAGE_CONTAINER = By.xpath("//div[@id='warning-message-container']//div[contains(@class, 'inline-flex') and contains(., 'jobs have missing data')]");
+		public static final By MISSING_DATA_COUNT_AND_TEXT = By.xpath("//p[contains(text(), 'jobs have missing data and can reduce match accuracy')]");
+		public static final By VIEW_REUPLOAD_JOBS_LINK = By.xpath("//a[contains(text(), 'View & Re-upload jobs') and contains(@href, 'aiauto')]");
+		public static final By CLOSE_TIP_MESSAGE_BUTTON = By.xpath("//p[contains(text(),'have missing data')]//..//button[@aria-label='Dismiss warning']");
+		public static final By CLOSE_REUPLOAD_JOBS_PAGE_BUTTON = By.xpath("//button[contains(@class, 'border-[#007BC7]') and contains(text(), 'Close')]");
+		public static final By REUPLOAD_BUTTON = By.xpath("//button[contains(text(), 'Re-upload')] | //button[contains(text(), 'upload')]");
+		public static final By JOB_TABLE_ROWS = By.xpath("//table//tr[contains(@class, 'border-b')]");
+		public static final By ALTERNATIVE_CLOSE_BUTTON = By.xpath("//button[contains(text(), 'Close')] | //button[@aria-label='Close'] | //*[text()='Close']");
+		public static final By REUPLOAD_PAGE_TITLE_DESC = By.xpath("//div//p[contains(text(), 're-upload the jobs')]");
+		public static final By JOB_ROWS_IN_MISSING_DATA_SCREEN = By.xpath("//table//tr[contains(@class, 'border-b')]");
+		public static final By SEARCH_BOX = By.xpath("//input[@id='search-job-title-input-search-input']");
+		public static final By JOB_ROWS_IN_JOB_MAPPING_PAGE = By.xpath("//div[@id='org-job-container']//tbody//tr");
+		public static final By JOB_MAPPING_LOGO = By.xpath("//*[@data-testid='job-mapping-logo'] | //*[contains(@class, 'job-mapping')]//img | //h1[contains(text(), 'Review and Publish')]");
+		public static final By INFO_MESSAGE_ICON = By.xpath("//*[contains(@class, 'info-icon')] | //*[@data-testid='info-message'] | //button[contains(@class, 'text-[#C35500]')]");
+		public static final By ORG_JOB_DEPARTMENT_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[4]/div");
+		
+		// PO23 - Info Message Missing Data Profiles
+		public static final By INFO_MESSAGE_CONTAINERS = By.xpath("//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']");
+		public static final By INFO_MESSAGE_TEXTS = By.xpath("//div[@role='button' and @aria-label='Reduced match accuracy due to missing data']//div[contains(text(), 'Reduced match accuracy due to missing data')]");
+		public static final By ORG_JOB_TABLE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr");
+		public static final By KF_JOB_TABLE_ROWS = By.xpath("//div[@id='kf-job-container']//tbody//tr");
+		public static final By LOADER_ELEMENTS = By.xpath("//div[@data-testid='loader'] | //div[contains(@class, 'loader')] | //div[contains(@class, 'loading')]");
+		
+		// PO35 - Reupload Missing Data Profiles
+		public static final By MISSING_DATA_SCREEN_TITLE = By.xpath("//h1[contains(text(), 'Jobs With Missing Data')] | //h1[contains(text(), 'Missing Data')] | //*[contains(text(), 'Organization Jobs With Missing Data')]");
+		public static final By JOB_ROWS_MISSING_DATA = By.xpath("//table//tbody//tr[td]");
+		public static final By SEARCH_INPUT_MISSING_DATA = By.xpath("//input[@placeholder='Search'] | //input[contains(@id, 'search')]");
+		public static final By JOB_SEARCH_INPUT = By.xpath("//input[@id='search-job-title-input-search-input']");
+		public static final By TIP_MESSAGE = By.xpath("//p[contains(text(), 'jobs have missing data')]");
+		public static final By SEARCH_RESULTS_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]");
+		
+		// PO36 - Delete Job Profiles
+		public static final By DELETE_BUTTON = By.id("delete-selected-mappings-btn");
+		public static final By DELETE_POPUP_TITLE = By.xpath("//h2[@id='delete-modal-title']");
+		public static final By DELETE_POPUP_MESSAGE = By.xpath("//div[@role='document']//p[contains(text(),'Are you sure you want to delete')]");
+		public static final By DELETE_POPUP_CANCEL_BTN = By.xpath("//div[@role='document']//button[text()='Cancel']");
+		public static final By DELETE_POPUP_CONFIRM_BTN = By.xpath("//div[@role='document']//button[text()='Delete']");
+		public static final By DELETE_SUCCESS_TITLE = By.xpath("//p[text()='Job Profiles Deleted Successfully']");
+		public static final By DELETE_SUCCESS_MSG = By.xpath("//p[contains(text(),'Successfully deleted')]");
+		
+		// PO04 - Additional Job Mapping Components
+		public static final By JOB_NAME_PROFILE_1 = By.xpath("//tbody//tr[1]//td[2]//div[contains(text(),'(')]");  // Alias for JOB_NAME_ROW_1
+		public static final By JOB_1_MATCHED_PROFILE = By.xpath("//div[@id='kf-job-container']//div//table//tbody//tr[1]//td[1]//div");  // Alias for FIRST_ROW_JOB_TITLE
+		public static final By PUBLISH_SELECTED_BTN = By.xpath("//button[contains(@id,'publish-approved-mappings-btn')] | //button[@id='publish-select-btn']");
+		public static final By COMPARE_SELECT_HEADER = By.xpath("//h1[@id='compare-desc']");  // Alias for Compare Page header
+		public static final By PUBLISHED_SUCCESS_HEADER = By.xpath("//h2[@id='modal-header']");
+		public static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");  // Alias for SHOWING_JOB_RESULTS
+		public static final By FILTER_OPTIONS = By.xpath("//div[@id='filters-search-btns']//div[2]//div");  // Alias for FILTER_OPTIONS_PANEL
+		public static final By VIEW_PUBLISHED_TOGGLE = By.xpath("//div[contains(@id,'results-toggle')]//label//div[2]");
+		public static final By PUBLISH_BTN = By.xpath("//button[@id='publish-btn']");
+		public static final By PUBLISHED_BTN = By.xpath("//button[text()='Published']");
+	}
+	
+	public static class AddJobDataPage {
+		// Page Headers
+		public static final By ADD_MORE_JOBS_PAGE_HEADER = By.xpath("//*[contains(text(),'Add Job Data')]");
+		
+		// Upload Controls
+		public static final By MANUAL_UPLOAD_BTN = By.xpath("//button[@data-testid='manual-upload-btn']");
+		public static final By BROWSE_FILES_BTN = By.xpath("//*[@aria-label='Browse Files']");
+		public static final By ATTACHED_FILE_NAME = By.xpath("//div[contains(@class,'text-ods-font-styles-body-regular-small')]");
+		public static final By FILE_CLOSE_BTN = By.xpath("//*[@aria-label='fileclose']//*[@stroke-linejoin='round']");
+		
+		// Action Buttons
+		public static final By CONTINUE_BTN = By.xpath("//button[@id='btnContinue']");
+		public static final By DONE_BTN = By.xpath("//button[@id='btnDone']");
+		public static final By ADD_MORE_JOBS_CLOSE_BTN = By.xpath("//*[@data-testid='x-mark-icon']//*");
+		public static final By ADD_MORE_JOBS_CLOSE_BTN_ALT = By.xpath("//*[@aria-label='Close']//*");
+		public static final By CLICK_HERE_BTN = By.xpath("//a[@id='clickHere']");
+		
+		// Status & Info
+		public static final By KFONE_JOBS_COUNT = By.xpath("//span[contains(@class,'regular-small')]");
+		public static final By LAST_SYNCED_INFO = By.xpath("//div[contains(text(),'Last Synced')]");
+		public static final By UPLOAD_PROGRESS_TEXT = By.xpath("//p[contains(text(),'Upload in progress')]");
+		public static final By UPLOAD_SUCCESS_MESSAGE = By.xpath("//p[text()='Upload complete!']");
+		public static final By NOTHING_TO_SEE_MESSAGE = By.xpath("//span[contains(@class,'font-proxima') and contains(@class,'text-[24px]') and contains(@class,'font-semibold') and contains(text(),'Nothing to see here... yet!')]");
+	}
+	
+	public static class HCMSyncProfilesPage {
+		// Navigation
+		public static final By MENU_BTN = By.xpath("//span[contains(text(),'Hi')]//following::img[1]");
+		public static final By HOME_MENU_BTN = By.xpath("//*[*[contains(text(),'Hi, ')]]/div[2]/img");
+		public static final By PM_BTN = By.xpath("//a[contains(text(),'Profile Manager')]");
+		
+		// Page Headers
+		public static final By HCM_SYNC_PROFILES_HEADER = By.xpath("//h1[contains(text(),'HCM Sync Profiles')] | //div[contains(@class,'header') and contains(text(),'HCM Sync')]");
+		public static final By HCM_SYNC_PROFILES_TITLE = By.xpath("//h1[contains(text(),'HCM Sync Profiles')]");
+		public static final By HCM_SYNC_PROFILES_TITLE_DESC = By.xpath("//p[contains(text(),'Select a job profile')]");
+		public static final By NO_SP_MSG = By.xpath("//div[contains(text(),'no Success Profiles')]");
+		public static final By NO_RESULTS_MESSAGE = By.xpath("//*[contains(text(),'no results available') or contains(text(),'There are no results')]");
+		
+		// Job Rows
+		public static final By HCM_SYNC_PROFILES_JOB_ROW1 = By.xpath("//tbody//tr[1]//td//div//span[1]//a");
+		public static final By HCM_SYNC_PROFILES_JOB_ROW2 = By.xpath("//tbody//tr[2]//td//div//span[1]//a");
+		public static final By HCM_SYNC_PROFILES_JOB_ROW3 = By.xpath("//tbody//tr[3]//td//div//span[1]//a");
+		
+		// Profile Checkboxes
+		public static final By PROFILE1_CHECKBOX = By.xpath("//tbody//tr[1]//div[1]//kf-checkbox");
+		public static final By PROFILE2_CHECKBOX = By.xpath("//tbody//tr[2]//div[1]//kf-checkbox");
+		public static final By PROFILE3_CHECKBOX = By.xpath("//tbody//tr[3]//div[1]//kf-checkbox");
+		
+		// Filters
+		public static final By FILTERS_DROPDOWN_BTN = By.xpath("//span[text()='Filters']");
+		public static final By FILTER_OPTIONS = By.xpath("//*[@class='accordion']");
+		
+		// KF Grade Filters
+		public static final By KF_GRADE_FILTERS_DROPDOWN = By.xpath("//thcl-expansion-panel-header//div[text()=' KF Grade ']");
+		public static final By KF_GRADE_ALL_CHECKBOXES = By.xpath("//thcl-expansion-panel[contains(@class,'sp-search-filter-expansion-panel')][1]//kf-checkbox");
+		public static final By KF_GRADE_ALL_LABELS = By.xpath("//thcl-expansion-panel[contains(@class,'sp-search-filter-expansion-panel')][1]//div[contains(@class,'body-text')]");
+		
+		// Levels Filters
+		public static final By LEVELS_FILTERS_DROPDOWN = By.xpath("//thcl-expansion-panel-header//div[text()=' Levels ']");
+		public static final By LEVELS_ALL_CHECKBOXES = By.xpath("//thcl-expansion-panel[contains(@class,'sp-search-filter-expansion-panel')][2]//kf-checkbox");
+		public static final By LEVELS_ALL_LABELS = By.xpath("//thcl-expansion-panel[contains(@class,'sp-search-filter-expansion-panel')][2]//div[contains(@class,'body-text')]");
+		
+		// Functions/Subfunctions Filters
+		public static final By FUNCTIONS_SUBFUNCTIONS_FILTERS_DROPDOWN = By.xpath("//thcl-expansion-panel-header//div[text()=' Functions / Subfunctions ']");
+		public static final By FUNCTIONS_SUBFUNCTIONS_ALL_CHECKBOXES = By.xpath("//thcl-expansion-panel[contains(@class,'sp-search-filter-expansion-panel')][3]//thcl-expansion-panel-header//kf-checkbox");
+		public static final By FUNCTIONS_SUBFUNCTIONS_ALL_LABELS = By.xpath("//thcl-expansion-panel[contains(@class,'sp-search-filter-expansion-panel')][3]//thcl-expansion-panel-header//span[contains(@class,'text-break')]");
+		
+		// Profile Status Filters
+		public static final By PROFILE_STATUS_FILTERS_DROPDOWN = By.xpath("//thcl-expansion-panel-header//div[text()=' Profile Status ']");
+		public static final By PROFILE_STATUS_ALL_CHECKBOXES = By.xpath("//thcl-expansion-panel-header//div[text()=' Profile Status ']/ancestor::thcl-expansion-panel//kf-checkbox");
+		public static final By PROFILE_STATUS_ALL_LABELS = By.xpath("//thcl-expansion-panel-header//div[text()=' Profile Status ']/ancestor::thcl-expansion-panel//span[contains(@class,'wrapped') or contains(@class,'body-text')]");
+		
+		// Sync Messages
+		public static final By SYNC_WITH_HCM_SUCCESS_POPUP_TEXT = By.xpath("//div[@class='p-toast-detail']");
+		public static final By SYNC_WITH_HCM_SUCCESS_POPUP_CLOSE_BTN = By.xpath("//button[contains(@class,'p-toast-icon-close')]");
+		public static final By SYNC_WITH_HCM_WARNING_MSG = By.xpath("//span[contains(@class,'message')]");
+		public static final By SYNC_WITH_HCM_WARNING_MSG_CLOSE_BTN = By.xpath("//button[contains(@class,'close-btn')]");
+		
+		// PO19 - Profiles with No Job Code
+		public static final By NO_JOB_CODE_TOOLTIP = By.xpath("//div[@class='p-tooltip-text']");
+		
+		// PO21 - Export Status / Edit Success Profile
+		public static final By THREE_DOTS_SP_DETAILS = By.xpath("//kf-icon[contains(@class,'dots-three')]");
+		public static final By EDIT_SP_BUTTON = By.xpath("//*[contains(text(),'Edit Success')]");
+		public static final By EDIT_DETAILS_BTN = By.xpath("//*[contains(@class,'editDetails')]");
+		public static final By FUNCTION_DROPDOWN = By.xpath("//label[contains(text(),'Function')]//..//..//button");
+		public static final By SUBFUNCTION_DROPDOWN = By.xpath("//label[contains(text(),'Subfunction')]//..//..//button");
+		public static final By DROPDOWN_OPTIONS = By.xpath("//kf-dropdown-item//div//span");
+		
+		// PO28 - Select All With Filters (PM Screen)
+		public static final By PM_KF_GRADE_HEADER = By.xpath("//thcl-expansion-panel-header[@id='expansion-panel-header-0']");
+		public static final By PM_LEVELS_HEADER = By.xpath("//thcl-expansion-panel-header[@id='expansion-panel-header-1']");
+		
+		// PO34 - Sorting Functionality in HCM Screen
+		public static final By PROFILE_NAME_ELEMENTS = By.xpath("//tbody//tr//td//div//span[1]//a");
+		public static final By LEVEL_ELEMENTS = By.xpath("//tbody//tr//td[4]//div//span[1]");
+		public static final By JOB_STATUS_ELEMENTS = By.xpath("//tbody//tr//td[2]//div//span[1]");
+		public static final By JOB_CODE_ELEMENTS = By.xpath("//tbody//tr//td[3]//div//span[1]");
+		public static final By FUNCTION_ELEMENTS = By.xpath("//tbody//tr//td[5]//div//span[1]");
+		public static final By EXPORT_STATUS_ELEMENTS = By.xpath("//tbody//tr//td[8]//div//span[1]");
+	}
+	
+	public static class KFONE {
+		// UAM & Navigation
+		public static final By UAM_BUTTON = By.xpath("//*[contains(text(),'User Admin')]");
+		public static final By CLIENT_NAME_TEXT = By.xpath("//*[contains(@class,'kfcon-header')]");
+		public static final By USER_ACCESS_BTN = By.xpath("//button[@aria-label='User Access']");
+		
+		// Teams Management
+		public static final By TEAMS_SECTION = By.xpath("//*[contains(@icon,'usergroups')]");
+		public static final By TEAMS_PAGE_HEADER = By.xpath("//*[contains(@class,'teams-header')]");
+		public static final By TEAMS_PAGE_DESC = By.xpath("//*[contains(text(),'A Team is a group')]");
+		public static final By TEAMS_PAGE_SEARCHBAR = By.xpath("//*[contains(@placeholder,'Search Teams')]");
+		public static final By CREATE_TEAMS_BTN = By.xpath("//*[contains(text(),'CREATE TEAMS')]");
+		public static final By CREATE_TEAMS_STEP1_HEADER = By.xpath("//*[contains(text(),'Step 1 of 2')]");
+		public static final By CREATE_TEAMS_STEP2_HEADER = By.xpath("//*[contains(text(),'Step 2 of 2')]");
+		public static final By CREATE_TEAMS_STEP2_SEARCHBAR = By.xpath("//*[contains(@placeholder,'User Search')]");
+		public static final By TEAM_NAME_TEXTBOX = By.xpath("//input[contains(@class,'primary')]");
+		public static final By TEAM_DESC_TEXTBOX = By.xpath("//textarea[contains(@class,'primary')]");
+		public static final By TEAM_MEMBERS_HEADER = By.xpath("//*[contains(text(),'Team Members (')]");
+		public static final By USER_COUNT = By.xpath("//*[contains(text(),'Showing 1')]");
+		public static final By TEAM_NAME_IN_TOP_ROW = By.xpath("//td//div//span//a[not(contains(text(),'CREATE'))]");
+		public static final By NEXT_BTN = By.xpath("//span[contains(text(),'Next')]");
+	}
+	
+	public static class ProfileManagerPage {
+		// Dashboard
+		public static final By CLIENT_DASHBOARD = By.xpath("//h1[contains(text(),'Dashboard')]");
+		public static final By PM_HEADER = By.xpath("//h1[contains(text(),'Profile Manager')]");
+		
+		// Profile Collections
+		public static final By PC_SECTION = By.xpath("//*[contains(@class,'kf-icon-profilecollection')]");
+		public static final By PC_PAGE_HEADER = By.xpath("//*[contains(@class,'profile-collection-header')]");
+		public static final By PC_PAGE_DESC = By.xpath("//*[contains(text(),'create a Profile Collection')]");
+		public static final By CREATE_PC_BTN = By.xpath("//*[contains(text(),'CREATE PROFILE')]");
+		public static final By CREATE_PC_STEP1_HEADER = By.xpath("//*[contains(text(),'Step 1 of 3')]");
+		public static final By CREATE_PC_STEP2_HEADER = By.xpath("//*[contains(text(),'Step 2 of 3')]");
+		public static final By CREATE_PC_STEP3_HEADER = By.xpath("//*[contains(text(),'Step 3 of 3')]");
+		public static final By PC_NAME_TEXTBOX = By.xpath("//input[contains(@class,'primary')]");
+		public static final By PC_DESC_TEXTBOX = By.xpath("//textarea[contains(@class,'primary')]");
+		public static final By PC_SEARCHBAR = By.xpath("//*[contains(@placeholder,'Profile Collection')]");
+		public static final By PC_COUNT = By.xpath("//*[contains(text(),'Showing ')]");
+		public static final By PC_SUCCESS_POPUP = By.xpath("//*[contains(text(),'been saved')]");
+		public static final By SAVE_BTN = By.xpath("//span[contains(text(),'Save')]");
+		public static final By DONE_BTN = By.xpath("//*[contains(text(),'Done')]");
+		public static final By DELETE_CONFIRM_BTN = By.xpath("//footer//*[contains(text(),'Delete')]");
+		public static final By DELETION_SUCCESS_POPUP = By.xpath("//*[contains(text(),'deleted')]");
+		
+		// Teams in Profile Collections
+		public static final By ALL_TEAMS_HEADER = By.xpath("//*[contains(text(),' ALL TEAMS (')]");
+		public static final By SELECTED_TEAMS_HEADER = By.xpath("//*[contains(text(),' SELECTED TEAMS (')]");
+		public static final By TEAM_COUNT = By.xpath("//*[contains(text(),'Page 1')]");
+		public static final By TOP_ROW_THREE_DOTS = By.xpath("//*[contains(@icon,'dots-three')]");
+		
+		// Success Profiles in Profile Collections
+		public static final By ADD_ADDITIONAL_SP_HEADER = By.xpath("//*[contains(text(),' ADD ADDITIONAL SUCCESS PROFILES (')]");
+		public static final By SP_HEADER_IN_PC = By.xpath("//*[contains(text(),' SUCCESS PROFILES (')]");
+		public static final By PC_STEP3_SEARCHBAR = By.xpath("//*[contains(@placeholder,'Search success profiles')]");
+		public static final By SELECT_ALL_CHECKBOX = By.xpath("//*/kf-page-content/kfconf-profile-collection-addedit/div/div[3]/div/div[4]/kf-checkbox/div");
+		
+		// Success Messages
+		public static final By CREATE_TEAMS_SUCCESS_POPUP = By.xpath("//*[contains(text(),'successfully')]");
+		public static final By CREATE_TEAMS_FAILURE_POPUP = By.xpath("//*[contains(text(),'Team already exists')]");
+		
+		// Tip Messages
+		public static final By TIP_MSG2_TEXT = By.xpath("//*[contains(text(), 'permissioning restrictions ')]");
+		public static final By TIP_MSG2_CLOSE_BTN = By.xpath("//*[contains(text(), 'permissioning restrictions ')]//..//button");
+	}
+	
+	// ==================== PM SCREEN LOCATORS (Profile Manager) ====================
+	// Used in PO26 and other PM-related page objects
+	public static class PMScreen {
+		public static final By ALL_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-checkbox]");
+		public static final By SELECTED_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]");
+		// FIXED: More specific locator to target chevron beside table header checkbox, not search dropdown
+		public static final By CHEVRON_BUTTON = By.xpath("//thead//th//kf-icon[contains(@class,'arrow-down') or @icon='arrow-down'] | //thead//th//*[contains(@class,'chevron')]");
+		public static final By HEADER_CHECKBOX = By.xpath("//thead//tr//th[1]//div[1]//kf-checkbox//div");
+		public static final By SYNC_BUTTON = By.xpath("//button[contains(@class,'custom-export')] | //button[contains(text(),'Sync with HCM')]");
+		public static final By SEARCH_BAR = By.xpath("//input[@type='search']");
+		public static final By CLEAR_ALL_FILTERS_BTN = By.xpath("//a[contains(text(),'Clear All')]");
+		
+		// PO26 - Select and Sync Profiles
+		public static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
+		public static final By ALL_ROWS = By.xpath("//tbody//tr");
+		
+		// PO32 - Clear Profile Selection (PM specific)
+		public static final By PM_ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
+		public static final By PM_NONE_BTN = By.xpath("//*[contains(text(),'None')]");
+	}
+	
+	// ==================== JAM SCREEN LOCATORS (Job Mapping) ====================
+	// Used in PO29, PO30, PO31, PO33, PO35, PO36 and other JAM-related page objects
+	public static class JAMScreen {
+		public static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(@id,'results-toggle')]//*[contains(text(),'Showing')]");
+		public static final By ALL_PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox']]");
+		public static final By SELECTED_PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr[.//td[1]//input[@type='checkbox' and @checked]]");
+		public static final By CHEVRON_BUTTON = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*[contains(@class,'cursor-pointer')]");
+		public static final By HEADER_CHECKBOX = By.xpath("//thead//input[@type='checkbox']");
+		public static final By PUBLISH_BUTTON = By.xpath("//button[contains(@id,'publish-approved-mappings-btn')] | //button[contains(text(),'Publish Selected')]");
+		
+		// PO29, PO31, PO32, PO33 - JAM specific checkboxes
+		public static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input");
+		public static final By JAM_ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input");
+		public static final By JAM_NONE_BTN = By.xpath("//*[contains(text(),'None')]");
+		
+		// PO31 - Application Performance
+		public static final By PROFILE_ROWS = By.xpath("//div[@id='org-job-container']//tbody//tr//td[2]//div[contains(text(),'(')]");
+		public static final By HCM_PROFILE_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
+		
+		// PO33 - Unmapped Jobs
+		public static final By DISABLED_CHEVRONS = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//*[contains(@class,'cursor-not-allowed opacity-30')]");
+		public static final By ANY_CHEVRONS = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*");
+		public static final By TOOLTIP_CONTAINERS = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//div[@data-testid='tooltip-container']");
 	}
 
 	// ==================== WAIT UTILITIES ====================
@@ -391,7 +872,7 @@ public class BasePageObject {
 	protected void handleCookiesBanner() {
 		try {
 			WebDriverWait quickWait = new WebDriverWait(driver, Duration.ofSeconds(2));
-			WebElement cookiesBtn = Utilities.waitForClickable(quickWait, Locators.Actions.ACCEPT_COOKIES_BTN);
+			WebElement cookiesBtn = Utilities.waitForClickable(quickWait, Locators.SharedLocators.ACCEPT_COOKIES_BTN);
 			tryClickWithStrategies(cookiesBtn);
 			LOGGER.debug("Accepted cookies banner");
 		} catch (Exception e) {
@@ -491,30 +972,30 @@ public class BasePageObject {
 	// ==================== NAVIGATION HELPERS ====================
 	
 	protected void clickLogo() {
-		clickElement(Locators.Navigation.KF_TALENT_SUITE_LOGO);
+		clickElement(Locators.SharedLocators.KF_TALENT_SUITE_LOGO);
 		LOGGER.info("Clicked on KF Talent Suite Logo");
 	}
 
 	protected void openGlobalNavMenu() {
-		clickElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
+		clickElement(Locators.SharedLocators.GLOBAL_NAV_MENU_BTN);
 		Utilities.waitForUIStability(driver, 1);
 	}
 
 	protected void navigateToJobMapping() {
 		openGlobalNavMenu();
-		clickElement(Locators.Navigation.JOB_MAPPING_BTN);
+		clickElement(Locators.SharedLocators.JOB_MAPPING_BTN);
 		waitForPageLoad();
 		LOGGER.info("Navigated to Job Mapping screen");
 	}
 
 	protected void openUserProfile() {
-		clickElement(Locators.UserProfile.PROFILE_BTN);
+		clickElement(Locators.SharedLocators.PROFILE_BTN);
 		Utilities.waitForUIStability(driver, 1);
 	}
 
 	protected void signOut() {
 		openUserProfile();
-		clickElement(Locators.UserProfile.SIGN_OUT_BTN);
+		clickElement(Locators.SharedLocators.SIGN_OUT_BTN);
 		waitForPageLoad();
 		LOGGER.info("Signed out from application");
 	}
@@ -522,7 +1003,7 @@ public class BasePageObject {
 	// ==================== SEARCH UTILITIES ====================
 	
 	protected void searchFor(String searchText) {
-		WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR);
+		WebElement searchBar = waitForElement(Locators.SharedLocators.SEARCH_BAR);
 		searchBar.clear();
 		searchBar.sendKeys(searchText);
 		waitForSpinners();
@@ -597,20 +1078,20 @@ public class BasePageObject {
 	// ==================== FILTER HELPERS ====================
 	
 	protected void openFilters() {
-		clickElement(Locators.SearchAndFilters.FILTERS_BTN);
+		clickElement(Locators.SharedLocators.FILTERS_BTN);
 		Utilities.waitForUIStability(driver, 1);
 	}
 
 	protected void clearFilters() {
 		openFilters();
-		clickElement(Locators.SearchAndFilters.CLEAR_FILTERS_BTN);
+		clickElement(Locators.SharedLocators.CLEAR_FILTERS_BTN);
 		waitForSpinners();
 		LOGGER.info("Cleared all filters");
 	}
 
 	protected void closeFilters() {
 		try {
-			clickElement(Locators.SearchAndFilters.FILTERS_BTN);
+			clickElement(Locators.SharedLocators.FILTERS_BTN);
 			Utilities.waitForUIStability(driver, 1);
 			LOGGER.info("Closed filters panel");
 		} catch (Exception e) {
@@ -633,22 +1114,22 @@ public class BasePageObject {
 	// ==================== TABLE HELPERS ====================
 	
 	protected int getResultsCount() {
-		String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
+		String countText = getElementText(Locators.SharedLocators.RESULTS_COUNT_TEXT);
 		return parseProfileCountFromText(countText);
 	}
 
 	protected void selectAllProfiles() {
-		clickElement(Locators.Table.HEADER_CHEVRON_BTN);
+		clickElement(Locators.SharedLocators.HEADER_CHEVRON_BTN);
 		Utilities.waitForPageReady(driver, 1);
-		clickElement(Locators.Table.SELECT_ALL_BTN);
+		clickElement(Locators.SharedLocators.SELECT_ALL_BTN);
 		waitForSpinners();
 		LOGGER.info("Selected all profiles");
 	}
 
 	protected void deselectAllProfiles() {
-		clickElement(Locators.Table.HEADER_CHEVRON_BTN);
+		clickElement(Locators.SharedLocators.HEADER_CHEVRON_BTN);
 		Utilities.waitForPageReady(driver, 1);
-		clickElement(Locators.Table.SELECT_NONE_BTN);
+		clickElement(Locators.SharedLocators.SELECT_NONE_BTN);
 		waitForSpinners();
 		LOGGER.info("Deselected all profiles");
 	}
@@ -751,41 +1232,42 @@ public class BasePageObject {
 	}
 
 	// ==================== SCREEN-SPECIFIC LOCATOR HELPERS ====================
+	// These helpers now use universal SharedLocators - no more screen-specific differences!
 	
 	protected String getScreenName(String screen) {
 		return "PM".equalsIgnoreCase(screen) ? "HCM Sync Profiles" : "Job Mapping";
 	}
 
 	protected By getShowingResultsCountLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT : Locators.JAMScreen.SHOWING_RESULTS_COUNT;
+		return Locators.SharedLocators.RESULTS_COUNT_TEXT;
 	}
 
 	protected By getAllProfileRowsLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.ALL_PROFILE_ROWS : Locators.JAMScreen.ALL_PROFILE_ROWS;
+		return Locators.SharedLocators.ALL_PROFILE_ROWS;
 	}
 
 	protected By getSelectedProfileRowsLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SELECTED_PROFILE_ROWS : Locators.JAMScreen.SELECTED_PROFILE_ROWS;
+		return Locators.SharedLocators.SELECTED_PROFILE_ROWS;
 	}
 
 	protected By getChevronButtonLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.CHEVRON_BUTTON : Locators.JAMScreen.CHEVRON_BUTTON;
+		return Locators.SharedLocators.HEADER_CHEVRON_BTN;
 	}
 
 	protected By getHeaderCheckboxLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.HEADER_CHECKBOX : Locators.JAMScreen.HEADER_CHECKBOX;
+		return Locators.SharedLocators.HEADER_CHECKBOX;
 	}
 
 	protected By getActionButtonLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SYNC_BUTTON : Locators.JAMScreen.PUBLISH_BUTTON;
+		return Locators.SharedLocators.ACTION_BUTTON;
 	}
 
 	protected By getSearchBarLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.SEARCH_BAR : Locators.JAMScreen.SEARCH_BAR;
+		return Locators.SharedLocators.SEARCH_BAR;
 	}
 
 	protected By getClearFiltersButtonLocator(String screen) {
-		return "PM".equalsIgnoreCase(screen) ? Locators.PMScreen.CLEAR_ALL_FILTERS_BTN : Locators.JAMScreen.CLEAR_FILTERS_BTN;
+		return Locators.SharedLocators.CLEAR_FILTERS_BTN;
 	}
 
 	protected int countSelectedProfilesJS(String screen) {
@@ -802,7 +1284,7 @@ public class BasePageObject {
 				result = js.executeScript(jsScript);
 				int count = result != null ? ((Long) result).intValue() : 0;
 				if (count == 0) {
-					count = findElements(Locators.PMScreen.SELECTED_PROFILE_ROWS).size();
+					count = findElements(Locators.SharedLocators.SELECTED_PROFILE_ROWS).size();
 				}
 				return count;
 			} else {

@@ -1,10 +1,12 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.AddJobDataPage.*;
+
 
 import java.io.File;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
@@ -17,21 +19,6 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 	public static ThreadLocal<String> ResultsCountBeforeAddingMoreJobs = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> KFONEjobsCountBeforeAddingMoreJobs = ThreadLocal.withInitial(() -> "NOT_SET");
 
-	private static final By ADD_MORE_JOBS_PAGE_HEADER = By.xpath("//*[contains(text(),'Add Job Data')]");
-	private static final By MANUAL_UPLOAD_BTN = By.xpath("//button[@data-testid='manual-upload-btn']");
-	private static final By KFONE_JOBS_COUNT = By.xpath("//span[contains(@class,'regular-small')]");
-	private static final By BROWSE_FILES_BTN = By.xpath("//*[@aria-label='Browse Files']");
-	private static final By ATTACHED_FILE_NAME = By.xpath("//div[contains(@class,'text-ods-font-styles-body-regular-small')]");
-	private static final By FILE_CLOSE_BTN = By.xpath("//*[@aria-label='fileclose']//*[@stroke-linejoin='round']");
-	private static final By CONTINUE_BTN = By.xpath("//button[@id='btnContinue']");
-	private static final By UPLOAD_PROGRESS_TEXT = By.xpath("//p[contains(text(),'Upload in progress')]");
-	private static final By CLICK_HERE_BTN = By.xpath("//a[@id='clickHere']");
-	private static final By LAST_SYNCED_INFO = By.xpath("//div[contains(text(),'Last Synced')]");
-	private static final By UPLOAD_SUCCESS_MESSAGE = By.xpath("//p[text()='Upload complete!']");
-	private static final By ADD_MORE_JOBS_CLOSE_BTN = By.xpath("//*[@data-testid='x-mark-icon']//*");
-	private static final By DONE_BTN = By.xpath("//button[@id='btnDone']");
-	private static final By NOTHING_TO_SEE_MESSAGE = By.xpath("//span[contains(@class,'font-proxima') and contains(@class,'text-[24px]') and contains(@class,'font-semibold') and contains(text(),'Nothing to see here... yet!')]");
-
 	public PO02_AddMoreJobsFunctionality() {
 		super();
 	}
@@ -40,7 +27,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 		try {
 			Utilities.waitForPageReady(driver, 5);
 			try {
-				WebElement resultsCount = Utilities.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
+				WebElement resultsCount = Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
 				ResultsCountBeforeAddingMoreJobs.set(resultsCount.getText().split(" ")[3]);
 				LOGGER.info("Unpublished Job Profiles Count before Adding More Jobs: " + ResultsCountBeforeAddingMoreJobs.get());
 			} catch (Exception e) {
@@ -287,7 +274,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 			refreshPage();
 			LOGGER.info("Refreshed Job Mapping page");
 			safeSleep(2000);
-			WebElement resultsCount = Utilities.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
+			WebElement resultsCount = Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
 			String countAfter = resultsCount.getText().split(" ")[3];
 			LOGGER.info("Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
 
@@ -303,7 +290,7 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 				refreshPage();
 				LOGGER.info("Refreshed Job Mapping page");
 				safeSleep(2000);
-				WebElement resultsCount = Utilities.waitForVisible(wait, Locators.JobMappingResults.SHOWING_JOB_RESULTS);
+				WebElement resultsCount = Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
 				String countAfter = resultsCount.getText().split(" ")[3];
 				LOGGER.info("Unpublished Job Profiles Count after Adding More Jobs: " + countAfter);
 
@@ -320,10 +307,10 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 
 	public void click_on_done_button_in_kfone_add_job_data_page() {
 		try {
-			String buttonText = Utilities.retryOnStaleElement(LOGGER, () -> {
-				return Utilities.waitForVisible(wait, DONE_BTN).getText();
-			});
-			Utilities.waitForClickable(wait, DONE_BTN).click();
+			String buttonText = Utilities.retryOnStaleElement(LOGGER, () -> 
+				Utilities.waitForVisible(wait, AddJobDataPage.DONE_BTN).getText()
+			);
+			Utilities.waitForClickable(wait, AddJobDataPage.DONE_BTN).click();
 			LOGGER.info(buttonText + " button clicked");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "click_on_done_button_in_kfone_add_job_data_page", "Issue in clicking Done Button", e);
@@ -395,5 +382,4 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 		}
 	}
 }
-
 

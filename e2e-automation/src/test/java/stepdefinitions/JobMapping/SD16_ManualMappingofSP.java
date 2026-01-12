@@ -4,17 +4,11 @@ import java.io.IOException;
 
 import com.kfonetalentsuite.manager.PageObjectManager;
 
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 
 public class SD16_ManualMappingofSP {	
 	public SD16_ManualMappingofSP() {
 		super();		
-	}
-	
-	@Given("Skip scenario if all profiles are already mapped")
-	public void skip_scenario_if_all_profiles_are_already_mapped() throws IOException {
-		PageObjectManager.getInstance().getMapDifferentSPtoProfile().skipScenarioIfAllProfilesAlreadyMapped();
 	}
 	
 	@Then("Verify Profile with No BIC Mapping is displaying on Top after sorting")

@@ -1,4 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.HCMSyncProfilesPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,9 +18,6 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 	public static ThreadLocal<Integer> rowNumber = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<String> SPJobName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<Boolean> noJobCode = ThreadLocal.withInitial(() -> false);
-
-	private static final By NO_JOB_CODE_TOOLTIP = By.xpath("//div[@class='p-tooltip-text']");
-
 	public PO19_ProfileswithNoJobCode_PM() {
 		super();
 	}
@@ -27,7 +26,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 2);
-			String resultsCountText = getElementText(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT);
+			String resultsCountText = getElementText(SHOWING_RESULTS_COUNT);
 			String[] resultsCountText_split = resultsCountText.split(" ");
 			int totalProfiles = Integer.parseInt(resultsCountText_split[3]);
 
@@ -75,7 +74,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 				if (rowNumber.get() == 1) {
 					// Try to scroll to download button, but don't fail if it's not there
 					try {
-						WebElement SyncBtn = waitForElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN, 5);
+						WebElement SyncBtn = waitForElement(SYNC_WITH_HCM_BTN, 5);
 						scrollToElement(SyncBtn);
 					} catch (Exception e) {
 						LOGGER.debug("Download button not found, scrolling to top instead");
@@ -134,7 +133,7 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 					WebElement SP_JobName = driver.findElement(By.xpath("//tbody//tr[" + (rowNumber.get() - 2) + "]//td[1]//*"));
 					scrollToElement(SP_JobName);
 				} else if (rowNumber.get() == 1) {
-					scrollToElement(driver.findElement(Locators.HCMSyncProfiles.SYNC_WITH_HCM_BTN));
+					scrollToElement(driver.findElement(SYNC_WITH_HCM_BTN));
 				}
 
 				Utilities.waitForPageReady(driver, 1);
@@ -153,15 +152,15 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 				WebElement SP_ExportStatus = driver.findElement(By.xpath("//tbody//tr[" + rowNumber.get() + "]//td[9]//*"));
 
 			LOGGER.info("Below are the details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM (Row " + rowNumber.get() + "): \n "
-					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_NAME).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobName.getText() + "   "
-					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_STATUS).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Status.getText() + "   "
-					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_KF_GRADE).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobCode.getText() + "   "
-					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_JOB_CODE).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_KFGrade.getText() + "   "
-					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_LEVEL).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Level.getText() + "   "
-					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_FUNCTION).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Function.getText() + "   "
-					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_CREATED_BY).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_CreatedBy.getText() + "   "
-					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_LAST_MODIFIED).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_LastModified.getText() + "   "
-					+ getElementText(Locators.HCMSyncProfiles.TABLE_HEADER_EXPORT_STATUS).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_ExportStatus.getText());
+					+ getElementText(TABLE_HEADER_NAME).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobName.getText() + "   "
+					+ getElementText(TABLE_HEADER_STATUS).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Status.getText() + "   "
+					+ getElementText(TABLE_HEADER_KF_GRADE).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_JobCode.getText() + "   "
+					+ getElementText(TABLE_HEADER_JOB_CODE).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_KFGrade.getText() + "   "
+					+ getElementText(TABLE_HEADER_LEVEL).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Level.getText() + "   "
+					+ getElementText(TABLE_HEADER_FUNCTION).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_Function.getText() + "   "
+					+ getElementText(TABLE_HEADER_CREATED_BY).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_CreatedBy.getText() + "   "
+					+ getElementText(TABLE_HEADER_LAST_MODIFIED).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_LastModified.getText() + "   "
+					+ getElementText(TABLE_HEADER_EXPORT_STATUS).replaceAll("\\s+[^\\w\\s]+$", "") + " : " + SP_ExportStatus.getText());
 
 			} catch (Exception e) {
 				Utilities.handleError(LOGGER, "verify_details_of_the_success_profile_with_no_job_code_assigned_in_hcm_sync_profiles_tab", "Issue in Verifying details of the Success Profile with No Job Code assigned in HCM Sync Profiles screen in PM", e);
@@ -171,5 +170,4 @@ public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {
 		}
 	}
 }
-
 

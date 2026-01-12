@@ -1,4 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.HCMSyncProfilesPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.ProfileManagerPage.*;
 
 import java.util.List;
 
@@ -10,7 +13,6 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
-
 public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO21_ExportStatusFunctionality_PM.class);
@@ -21,16 +23,6 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	public PO21_ExportStatusFunctionality_PM() {
 		super();
 	}
-
-	private static final By THREE_DOTS_SP_DETAILS = By.xpath("//kf-icon[contains(@class,'dots-three')]");
-	private static final By EDIT_SP_BUTTON = By.xpath("//*[contains(text(),'Edit Success')]");
-	private static final By EDIT_DETAILS_BTN = By.xpath("//*[contains(@class,'editDetails')]");
-	private static final By FUNCTION_DROPDOWN = By.xpath("//label[contains(text(),'Function')]//..//..//button");
-	private static final By SUBFUNCTION_DROPDOWN = By.xpath("//label[contains(text(),'Subfunction')]//..//..//button");
-	private static final By DONE_BTN = By.xpath("//*[contains(text(),'Done')]");
-	private static final By SAVE_BTN = By.xpath("//button[text()='Save']");
-	private static final By DROPDOWN_OPTIONS = By.xpath("//kf-dropdown-item//div//span");
-
 	private WebElement findTableElement(int rowNum, int colNum) {
 		String xpath = String.format("//tbody//tr[%d]//td[%d]//*", rowNum, colNum);
 		try {
@@ -124,15 +116,15 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	private StringBuilder buildProfileDetailsString() {
 		StringBuilder details = new StringBuilder();
 		By[] headers = { 
-				Locators.HCMSyncProfiles.TABLE_HEADER_NAME, 
-				Locators.HCMSyncProfiles.TABLE_HEADER_STATUS, 
-				Locators.HCMSyncProfiles.TABLE_HEADER_JOB_CODE, 
-				Locators.HCMSyncProfiles.TABLE_HEADER_KF_GRADE, 
-				Locators.HCMSyncProfiles.TABLE_HEADER_LEVEL, 
-				Locators.HCMSyncProfiles.TABLE_HEADER_FUNCTION,
-				Locators.HCMSyncProfiles.TABLE_HEADER_CREATED_BY, 
-				Locators.HCMSyncProfiles.TABLE_HEADER_LAST_MODIFIED, 
-				Locators.HCMSyncProfiles.TABLE_HEADER_EXPORT_STATUS 
+				TABLE_HEADER_NAME, 
+				TABLE_HEADER_STATUS, 
+				TABLE_HEADER_JOB_CODE, 
+				TABLE_HEADER_KF_GRADE, 
+				TABLE_HEADER_LEVEL, 
+				TABLE_HEADER_FUNCTION,
+				TABLE_HEADER_CREATED_BY, 
+				TABLE_HEADER_LAST_MODIFIED, 
+				TABLE_HEADER_EXPORT_STATUS 
 		};
 
 		for (int col = 1; col <= 8; col++) {
@@ -318,7 +310,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 			// Scroll to appropriate position
 			if (rowNumber.get() == 1) {
-				scrollToElement(waitForElement(Locators.HCMSyncProfiles.SHOWING_RESULTS_COUNT));
+				scrollToElement(waitForElement(JobMappingPage.SHOWING_RESULTS_COUNT));
 			} else if (rowNumber.get() < 5) {
 				WebElement spJobName = waitForElement(By.xpath("//tbody//tr[1]//td[1]//*"));
 				scrollToElement(spJobName);
@@ -445,7 +437,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 			waitForSpinners();
 
 			try {
-				WebElement pageText = waitForElement(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT);
+				WebElement pageText = waitForElement(SP_DETAILS_PAGE_TEXT);
 				Assert.assertTrue(pageText.isDisplayed());
 			} catch (Exception e) {
 				String currentUrl = driver.getCurrentUrl();
@@ -574,7 +566,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 		try {
 			waitForSpinners();
 			waitForPageLoad();
-			clickElement(DONE_BTN);
+			clickElement(AddJobDataPage.DONE_BTN);
 			LOGGER.info("Clicked Done button of Success Profile Details section");
 			waitForSpinners();
 		} catch (Exception e) {
@@ -596,7 +588,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	public void user_should_be_navigated_to_sp_details_page_after_saving_sp_details() {
 		try {
 			waitForSpinners();
-			WebElement pageText = waitForElement(Locators.HCMSyncProfiles.SP_DETAILS_PAGE_TEXT);
+			WebElement pageText = waitForElement(SP_DETAILS_PAGE_TEXT);
 			Assert.assertTrue(pageText.isDisplayed());
 			LOGGER.info("Navigated to SP details page as expected after Saving SP details....");
 		} catch (AssertionError e) {
@@ -649,5 +641,4 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 	}
 
 }
-
 

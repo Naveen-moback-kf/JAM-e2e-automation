@@ -1,4 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,31 +28,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	public static ThreadLocal<String> FunctionsOption = ThreadLocal.withInitial(() -> "");
 	public static ThreadLocal<String> FunctionsOption1 = ThreadLocal.withInitial(() -> "");
 	public static ThreadLocal<String> FunctionsOption2 = ThreadLocal.withInitial(() -> "");
-
-	private static final By GRADES_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Grades']");
-	private static final By GRADES_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']");
-	private static final By GRADES_VALUES = By.xpath("//div[@data-testid='dropdown-Grades']//..//input[@type='checkbox']//..//label");
-	private static final By NO_DATA_CONTAINER = By.xpath("//*[@id='no-data-container']");
-	private static final By CLEAR_FILTERS_BTN = By.xpath("//button[@data-testid='Clear Filters']");
-	private static final By CLEAR_FILTERS_X_BTN = By.xpath("//button[@data-testid='clear-filters-button']");
-	private static final By DEPARTMENTS_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Departments']");
-	private static final By DEPARTMENTS_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']");
-	private static final By DEPARTMENTS_VALUES = By.xpath("//div[@data-testid='dropdown-Departments']//..//input[@type='checkbox']//..//label");
-	private static final By FUNCTIONS_DROPDOWN = By.xpath("//div[@data-testid='dropdown-Functions_SubFunctions']");
-	private static final By FUNCTIONS_SEARCH = By.xpath("//div[@data-testid='dropdown-Functions_SubFunctions']//..//div[2]//input[@placeholder='Search']");
-	private static final By FUNCTIONS_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-Functions_SubFunctions']//..//input[@type='checkbox']");
-	private static final By FUNCTIONS_VALUES = By.xpath("//div[@data-testid='dropdown-Functions_SubFunctions']//..//input[@type='checkbox']//..//label");
-	private static final By TOGGLE_SUBOPTIONS = By.xpath("//button[contains(@data-testid,'toggle-suboptions')]");
-	private static final By MAPPING_STATUS_DROPDOWN = By.xpath("//*[@data-testid='dropdown-MappingStatus']");
-	private static final By MAPPING_STATUS_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-MappingStatus']//..//input[@type='checkbox']");
-	private static final By MAPPING_STATUS_VALUES = By.xpath("//div[@data-testid='dropdown-MappingStatus']//..//input[@type='checkbox']//..//label");
-	private static final By SUBFUNCTIONS_CHECKBOXES = By.xpath("//button[contains(@data-testid,'suboption')]//..//..//div[2]//input");
-	private static final By SUBFUNCTIONS_VALUES = By.xpath("//button[contains(@data-testid,'suboption')]//..//..//div[2]//label");
-	private static final By ALL_GRADES_COLUMN = By.xpath("//*[text()='Organization jobs']//..//tbody//tr//td[3]//div | //*[@id='table-container']/div[1]/div/div[2]/div/div/div[1]/span[2]/span");
-	private static final By ALL_DEPARTMENTS_COLUMN = By.xpath("//*[text()='Organization jobs']//..//tbody//tr//td[4]//div | //*[@id=\"table-container\"]/div[1]/div/div[2]/div/div/div[1]/span[3]");
-	private static final By ALL_FUNCTIONS_COLUMN = By.xpath("//*[text()='Organization jobs']//..//tbody//tr//td[@colspan='7']//span[2] | //*[@id='table-container']/div[1]/div/div[2]/div/div/div[2]/span/div/span/span[2]");
-	private static final By VISIBLE_ROWS = By.xpath("//tbody//tr[contains(@class,'cursor-pointer')]");
-
 	public PO08_JobMappingFilters() {
 		super();
 	}
@@ -136,7 +113,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 
 				String resultsCountText = "";
 				try {
-					WebElement resultsElement = Utilities.waitForPresent(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT);
+					WebElement resultsElement = Utilities.waitForPresent(wait, JobMappingPage.SHOWING_RESULTS_COUNT);
 					resultsCountText = resultsElement.getText();
 					consecutiveFailures = 0;
 				} catch (Exception e) {
@@ -401,7 +378,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		
 		// SECOND: Check if results show "0 of 0"
 		try {
-			String resultsText = driver.findElement(Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
+			String resultsText = driver.findElement(JobMappingPage.SHOWING_RESULTS_COUNT).getText();
 			if (resultsText.contains("0 of 0")) {
 				LOGGER.info("✅ Department filter applied successfully - No matching profiles (0 of 0 results)");
 				scrollToTop();
@@ -485,7 +462,6 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			throw e;
 		}
 	}
-
 
 	public void select_a_function_and_verify_all_subfunctions_inside_function_are_selected_automatically() throws Exception {
 		Utilities.waitForPageReady(driver, 3);
@@ -917,7 +893,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			
 			// Check for "Showing 0 of X results" text
 			try {
-				WebElement resultsElement = driver.findElement(Locators.JAMScreen.SHOWING_RESULTS_COUNT);
+				WebElement resultsElement = driver.findElement(JobMappingPage.SHOWING_RESULTS_COUNT);
 				String resultsText = resultsElement.getText();
 				if (resultsText.contains("Showing 0 of")) {
 					LOGGER.info("✅ Combined filters applied successfully - " + resultsText + " (no profiles match all filter criteria)");
@@ -1171,5 +1147,4 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		}
 	}
 }
-
 

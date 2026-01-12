@@ -1,25 +1,21 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ComparisonPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileDetails.*;
+
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
-
 public class PO11_ProfileLevelFunctionality extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO11_ProfileLevelFunctionality.class);
 
 	public static ThreadLocal<String> changedlevelvalue = ThreadLocal.withInitial(() -> "NOT_SET");
-
-	private static final By PROFILE_LEVEL_DROPDOWN = By.xpath("//select[contains(@id,'profileLevel') or @id='profile-level']");
-	private static final By PROFILE_HEADER = By.xpath("//h2[@id='summary-modal']//p");
-	private static final By PROFILE_1_TITLE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-title')]");
-
 	public PO11_ProfileLevelFunctionality() {
 		super();
 	}
@@ -79,7 +75,7 @@ public class PO11_ProfileLevelFunctionality extends BasePageObject {
 		try {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 2);
-			String profileHeaderName = getElementText(PROFILE_HEADER);
+			String profileHeaderName = getElementText(PROFILE_HEADER_TEXT);
 			Assert.assertEquals(profileHeaderName, changedlevelvalue.get());
 			LOGGER.info("Profile header on details popup: " + profileHeaderName + " matches with changed profile level: " + changedlevelvalue.get());
 		} catch (Exception e) {
@@ -91,7 +87,7 @@ public class PO11_ProfileLevelFunctionality extends BasePageObject {
 		try {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 2);
-			String profileTitle = getElementText(PROFILE_1_TITLE);
+			String profileTitle = getElementText(CARD_TITLE);
 			Assert.assertEquals(profileTitle, changedlevelvalue.get());
 			LOGGER.info("Recommended Profile Name in Job Compare page matches with Changed Profile Level: " + changedlevelvalue.get());
 		} catch (Exception e) {
@@ -104,5 +100,4 @@ public class PO11_ProfileLevelFunctionality extends BasePageObject {
 		LOGGER.info("User is in Job Comparison Page after changing profile level");
 	}
 }
-
 

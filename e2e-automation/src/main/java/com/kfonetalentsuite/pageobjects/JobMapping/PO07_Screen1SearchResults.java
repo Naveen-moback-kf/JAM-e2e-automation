@@ -1,10 +1,10 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
 
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
@@ -15,9 +15,6 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 
 	public static String[] jobNamesTextInSearchResults;
 	private static boolean hasSearchResults = true;
-
-	private static final By JOB_NAMES_IN_RESULTS = By.xpath("//tbody//tr//td[2]//div[contains(text(),'(')]");
-
 	public PO07_Screen1SearchResults() {
 		super();
 	}
@@ -41,11 +38,11 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 			int stableCount = 0;
 			
 			// Get initial count
-			String initialCountText = Utilities.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
+			String initialCountText = Utilities.waitForVisible(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
 			LOGGER.info("Initial results count: {}", initialCountText);
 
 			while (scrollCount < maxScrollAttempts) {
-				String resultsCountText = Utilities.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
+				String resultsCountText = Utilities.waitForVisible(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
 				String[] parts = resultsCountText.split(" ");
 				int currentShowing = Integer.parseInt(parts[1]);
 				int totalResults = Integer.parseInt(parts[3]);
@@ -94,7 +91,7 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 
 			if (scrollCount >= maxScrollAttempts) {
 				LOGGER.warn("⚠ Reached maximum scroll attempts ({}) - stopping scroll operation", maxScrollAttempts);
-				String finalCount = Utilities.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
+				String finalCount = Utilities.waitForVisible(wait, JobMappingPage.SHOWING_RESULTS_COUNT).getText();
 				LOGGER.warn("Final loaded count: {}", finalCount);
 			}
 
@@ -137,5 +134,4 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 		}
 	}
 }
-
 

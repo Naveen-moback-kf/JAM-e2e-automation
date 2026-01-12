@@ -1,4 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.HCMSyncProfilesPage.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +23,6 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 	}
 	// Common locators are inherited from BasePageObject.Locators.PMScreen and JAMScreen
 	// Only filter-specific locators remain here
-	private static final By PM_KF_GRADE_HEADER = By.xpath("//thcl-expansion-panel-header[@id='expansion-panel-header-0']");
-	private static final By PM_LEVELS_HEADER = By.xpath("//thcl-expansion-panel-header[@id='expansion-panel-header-1']");
 	public static ThreadLocal<Integer> filterResultsCount = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<String> firstFilterType = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> firstFilterValue = ThreadLocal.withInitial(() -> "NOT_SET");
@@ -590,5 +589,4 @@ public class PO28_SelectAllWithFiltersFunctionality extends BasePageObject {
 		}
 	}
 }
-
 

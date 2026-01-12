@@ -1,4 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileDetails.*;
 
 import java.util.List;
 
@@ -14,7 +17,6 @@ import org.testng.Assert;
 import org.testng.SkipException;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
-
 public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO17_MapDifferentSPtoProfile.class);
@@ -48,47 +50,6 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public PO17_MapDifferentSPtoProfile() {
 		super();
 	}
-
-	private static final By PROFILE_DETAILS_POPUP_HEADER = By.xpath("//h2[@id='summary-modal']");
-	private static final By PROFILE_HEADER = By.xpath("//h2[@id='summary-modal']//p");
-	private static final By PROFILE_DETAILS = By.xpath("//div[@id='details-container']//div[contains(@class,'mt-2')]");
-	private static final By PROFILE_LEVEL_DROPDOWN = By.xpath("//select[contains(@id,'profileLevel') or @id='profile-level']");
-	private static final By ROLE_SUMMARY = By.xpath("//div[@id='role-summary-container']//p");
-	private static final By VIEW_MORE_RESPONSIBILITIES = By.xpath("//div[@id='responsibilities-panel']//button[contains(text(),'View')]");
-	private static final By RESPONSIBILITIES_DATA = By.xpath("//div[@id='responsibilities-panel']//div[@id='item-container']");
-	private static final By BEHAVIOUR_COMPETENCIES_TAB = By.xpath("//button[contains(text(),'BEHAVIOUR')]");
-	private static final By VIEW_MORE_BEHAVIOUR = By.xpath("//div[@id='behavioural-panel']//button[contains(text(),'View')]");
-	private static final By BEHAVIOUR_DATA = By.xpath("//div[@id='behavioural-panel']//div[@id='item-container']");
-	private static final By SKILLS_TAB = By.xpath("//button[text()='SKILLS']");
-	private static final By VIEW_MORE_SKILLS = By.xpath("//div[@id='skills-panel']//button[contains(text(),'View')]");
-	private static final By SKILLS_DATA = By.xpath("//div[@id='skills-panel']//div[@id='item-container']");
-	private static final By PUBLISH_PROFILE_BTN = By.xpath("//button[@id='publish-job-profile']");
-	private static final By PROFILE_DETAILS_POPUP_CLOSE_BTN = By.xpath("//button[@id='close-profile-summary']");
-	private static final By MANUAL_MAPPING_ORG_JOB_TITLE = By.xpath("//div[contains(@class,'leading')]//div[1]//div[1]");
-	private static final By MANUAL_MAPPING_ORG_JOB_GRADE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Grade')]//span");
-	private static final By MANUAL_MAPPING_ORG_JOB_DEPARTMENT = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Department')]//span");
-	private static final By MANUAL_MAPPING_ORG_JOB_FUNCTION = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Function')]//span");
-	private static final By LAST_SAVED_PROFILE = By.xpath("//*[contains(text(),'Last')]//..");
-	private static final By LAST_SAVED_PROFILE_NAME_BTN = By.xpath("//*[contains(text(),'Last')]//..//span[2]");
-	private static final By MANUAL_MAPPING_PROFILE_TITLE = By.xpath("//*[@id='summary-title']//p");
-	private static final By MANUAL_MAPPING_ROLE_SUMMARY = By.xpath("//div[contains(@id,'role-summary')]//p");
-	private static final By MANUAL_MAPPING_PROFILE_DETAILS = By.xpath("//span[contains(text(),'Grade')]//..");
-	private static final By MANUAL_MAPPING_RESPONSIBILITIES_TAB = By.xpath("//button[contains(text(),'RESPONSIBILITIES')]");
-	private static final By MANUAL_MAPPING_VIEW_MORE_RESPONSIBILITIES = By.xpath("//div[contains(@id,'responsibilities')]//button[contains(text(),'more...')]");
-	private static final By MANUAL_MAPPING_RESPONSIBILITIES_DATA = By.xpath("//div[contains(@id,'responsibilities')]");
-	private static final By MANUAL_MAPPING_BEHAVIOUR_TAB = By.xpath("//button[contains(text(),'BEHAVIOURAL COMPETENCIES')]");
-	private static final By MANUAL_MAPPING_VIEW_MORE_BEHAVIOUR = By.xpath("//div[contains(@id,'behavioural-panel')]//button[contains(text(),'more...')]");
-	private static final By MANUAL_MAPPING_BEHAVIOUR_DATA = By.xpath("//div[contains(@id,'behavioural-panel')]");
-	private static final By MANUAL_MAPPING_SKILLS_TAB = By.xpath("//button[contains(text(),'SKILLS')]");
-	private static final By MANUAL_MAPPING_VIEW_MORE_SKILLS = By.xpath("//div[contains(@id,'skills')]//button[contains(text(),'more...')]");
-	private static final By MANUAL_MAPPING_SKILLS_DATA = By.xpath("//div[contains(@id,'skills')]");
-	private static final By KF_SP_SEARCH_BAR = By.xpath("//input[contains(@placeholder,'Search Korn Ferry')]");
-	private static final By FIRST_SEARCH_RESULT_BTN = By.xpath("//ul//li[1]//button");
-	private static final By FIRST_SEARCH_RESULT_TEXT = By.xpath("//ul//li[1]//button//div");
-	private static final By SAVE_SELECTION_BTN = By.xpath("//button[contains(text(),'Save selection')]");
-	private static final By JOB_MAPPING_PAGE_CONTAINER = By.xpath("//div[@id='org-job-container']");
-	private static final By SEARCH_BAR = By.xpath("//input[contains(@id,'search-job-title')]");
-
 	/**
 	 * Universal method to check if profiles are available for manual mapping.
 	 * Throws SkipException if all profiles are already mapped - used across Features 16 and 17.
@@ -399,7 +360,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public void verify_profile_header_matches_with_mapped_profile_name() {
 		if (mapSP.get() | manualMapping.get()) {
 			try {
-				String profileHeaderName = getElementText(PROFILE_HEADER);
+				String profileHeaderName = getElementText(PROFILE_HEADER_TEXT);
 				Assert.assertEquals(mappedSuccessPrflName.get(), profileHeaderName);
 				LOGGER.info("Profile header on the details popup : " + profileHeaderName);
 			} catch (Exception e) {
@@ -412,7 +373,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public void verify_mapped_profile_details_displaying_on_the_popup() {
 		if (mapSP.get() | manualMapping.get()) {
 			try {
-				String profileDeatilsText = getElementText(PROFILE_DETAILS);
+				String profileDeatilsText = getElementText(DETAILS_CONTAINER);
 				ProfileDetails.set(profileDeatilsText);
 				LOGGER.info("Profile Details displaying on the popup screen: " + profileDeatilsText);
 			} catch (Exception e) {
@@ -522,7 +483,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				scrollToElement(findElement(ROLE_SUMMARY));
 				// PERFORMANCE: Replaced Thread.sleep(3000) with smart element wait
 				Utilities.waitForUIStability(driver, 2);
-				Utilities.waitForClickable(wait, findElement(BEHAVIOUR_COMPETENCIES_TAB)).click();
+				Utilities.waitForClickable(wait, findElement(BEHAVIOUR_TAB)).click();
 				LOGGER.info("Clicked on Behaviour Competencies screen");
 				while (true) {
 					try {
@@ -673,7 +634,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		if (mapSP.get() | manualMapping.get()) {
 			try {
 				// Scroll element into view before clicking
-				WebElement element = Utilities.waitForClickable(wait, findElement(PROFILE_DETAILS_POPUP_CLOSE_BTN));
+				WebElement element = Utilities.waitForClickable(wait, findElement(PROFILE_DETAILS_CLOSE_BTN));
 				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
 				try {
 					Thread.sleep(500);
@@ -683,9 +644,9 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 					element.click();
 				} catch (Exception e) {
 					try {
-						js.executeScript("arguments[0].click();", findElement(PROFILE_DETAILS_POPUP_CLOSE_BTN));
+						js.executeScript("arguments[0].click();", findElement(PROFILE_DETAILS_CLOSE_BTN));
 					} catch (Exception s) {
-						jsClick(findElement(PROFILE_DETAILS_POPUP_CLOSE_BTN));
+						jsClick(findElement(PROFILE_DETAILS_CLOSE_BTN));
 					}
 				}
 				LOGGER.info("Clicked on close button in Profile details popup");
@@ -1574,8 +1535,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				waitForSpinners();
 				// FIXED: Use more reliable org-job-container for page detection, then verify
 				// header
-				Utilities.waitForVisible(wait, findElement(JOB_MAPPING_PAGE_CONTAINER));
-				Assert.assertTrue(Utilities.waitForVisible(wait, findElement(JOB_MAPPING_PAGE_CONTAINER)).isDisplayed());
+				Utilities.waitForVisible(wait, findElement(PAGE_CONTAINER));
+				Assert.assertTrue(Utilities.waitForVisible(wait, findElement(PAGE_CONTAINER)).isDisplayed());
 				LOGGER.info("User navigated to JOB MAPPING page");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1669,8 +1630,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 	public void validate_profile_details_in_details_popup_matches_with_mapped_success_profile_details() {
 		if (manualMapping.get()) {
 			try {
-				js.executeScript("arguments[0].scrollIntoView(true);", findElement(PROFILE_DETAILS));
-				String mappedProfileDetailsText = Utilities.waitForVisible(wait, findElement(PROFILE_DETAILS)).getText();
+				js.executeScript("arguments[0].scrollIntoView(true);", findElement(DETAILS_CONTAINER));
+				String mappedProfileDetailsText = Utilities.waitForVisible(wait, findElement(DETAILS_CONTAINER)).getText();
 				Assert.assertEquals(mappedProfileDetailsText, manualMappingProfileDetails.get());
 				LOGGER.info("Profile Details in Details Popup matches with Mapped Success Profile Details");
 			} catch (Exception e) {
@@ -1754,7 +1715,7 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 
 				// Scroll element into view before clicking
 				WebElement element = wait
-						.until(ExpectedConditions.elementToBeClickable(findElement(BEHAVIOUR_COMPETENCIES_TAB)));
+						.until(ExpectedConditions.elementToBeClickable(findElement(BEHAVIOUR_TAB)));
 				js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
 				try {
 					Thread.sleep(500);
@@ -1762,15 +1723,15 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 				}
 
 				// Wait for element to be clickable without any overlay
-				Utilities.waitForClickable(wait, findElement(BEHAVIOUR_COMPETENCIES_TAB));
+				Utilities.waitForClickable(wait, findElement(BEHAVIOUR_TAB));
 
 				try {
 					element.click();
 				} catch (Exception e) {
 					try {
-						js.executeScript("arguments[0].click();", findElement(BEHAVIOUR_COMPETENCIES_TAB));
+						js.executeScript("arguments[0].click();", findElement(BEHAVIOUR_TAB));
 					} catch (Exception s) {
-						jsClick(findElement(BEHAVIOUR_COMPETENCIES_TAB));
+						jsClick(findElement(BEHAVIOUR_TAB));
 					}
 				}
 			LOGGER.info("Clicked on BEHAVIOURAL COMPETENCIES screen in Profiles Details Popup");
@@ -1909,5 +1870,4 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		}
 	}
 }
-
 

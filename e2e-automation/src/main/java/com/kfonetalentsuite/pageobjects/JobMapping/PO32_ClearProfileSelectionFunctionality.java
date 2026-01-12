@@ -1,4 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.PMScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JAMScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
 
 import java.util.List;
 
@@ -10,7 +13,6 @@ import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
-
 public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO32_ClearProfileSelectionFunctionality.class);
@@ -22,11 +24,6 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	// ═══════════════════════════════════════════════════════════════════════════
 	// LOCATORS (Header checkbox locators now inherited from BasePageObject)
 	// ═══════════════════════════════════════════════════════════════════════════
-	private static final By PM_ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
-	private static final By PM_NONE_BTN = By.xpath("//*[contains(text(),'None')]");
-	private static final By JAM_ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input");
-	private static final By JAM_NONE_BTN = By.xpath("//*[contains(text(),'None')]");
-
 	public PO32_ClearProfileSelectionFunctionality() {
 		super();
 	}
@@ -36,7 +33,7 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 	}
 
 	private By getNoneButtonLocator(String screen) {
-		return screen.equalsIgnoreCase("PM") ? PM_NONE_BTN : JAM_NONE_BTN;
+		return screen.equalsIgnoreCase("PM") ? SELECT_NONE_BTN : SELECT_NONE_BTN;
 	}
 
 	private boolean isCheckboxSelected(WebElement checkbox, String screen) {
@@ -481,6 +478,4 @@ public class PO32_ClearProfileSelectionFunctionality extends BasePageObject {
 		}
 	}
 }
-
-
 

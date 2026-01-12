@@ -1,11 +1,13 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.HCMSyncProfilesPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
@@ -19,17 +21,9 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 	public PO34_SortingFunctionalityInHCMScreen_PM() {
 		super();
 	}
-
-	private static final By PROFILE_NAME_ELEMENTS = By.xpath("//tbody//tr//td//div//span[1]//a");
-	private static final By LEVEL_ELEMENTS = By.xpath("//tbody//tr//td[4]//div//span[1]");
-	private static final By JOB_STATUS_ELEMENTS = By.xpath("//tbody//tr//td[2]//div//span[1]");
-	private static final By JOB_CODE_ELEMENTS = By.xpath("//tbody//tr//td[3]//div//span[1]");
-	private static final By FUNCTION_ELEMENTS = By.xpath("//tbody//tr//td[5]//div//span[1]");
-	private static final By EXPORT_STATUS_ELEMENTS = By.xpath("//tbody//tr//td[8]//div//span[1]");
-
 	public void sort_profiles_by_name_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
-			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_NAME);
+			clickElement(TABLE_HEADER_NAME);
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			Utilities.waitForPageReady(driver);
 			Utilities.waitForSpinnersToDisappear(driver, 10);
@@ -102,12 +96,12 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 	public void sort_profiles_by_level_in_descending_order_in_hcm_sync_profiles_screen() {
 		try {
-			WebElement levelHeader = findElement(Locators.HCMSyncProfiles.TABLE_HEADER_LEVEL);
+			WebElement levelHeader = findElement(TABLE_HEADER_LEVEL);
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", levelHeader);
 			safeSleep(500);
 
 			// First click - ascending
-			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_LEVEL);
+			clickElement(TABLE_HEADER_LEVEL);
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			safeSleep(3000);
 			Utilities.waitForPageReady(driver);
@@ -116,7 +110,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			// Second click - descending
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", levelHeader);
 			safeSleep(500);
-			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_LEVEL);
+			clickElement(TABLE_HEADER_LEVEL);
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			safeSleep(3000);
 			Utilities.waitForPageReady(driver);
@@ -133,7 +127,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 	public void user_should_verify_first_hundred_job_profiles_are_correctly_sorted_by_level_in_descending_order() {
 		try {
 			// Loader may not always appear - wait gracefully
-			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
 			Utilities.waitForPageReady(driver);
 
 			List<WebElement> profileNameElements = findElements(PROFILE_NAME_ELEMENTS);
@@ -193,7 +187,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 	public void sort_profiles_by_job_status_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
-			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_STATUS);
+			clickElement(TABLE_HEADER_STATUS);
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			Utilities.waitForPageReady(driver);
 			Utilities.waitForSpinnersToDisappear(driver, 10);
@@ -208,7 +202,7 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 	public void sort_profiles_by_job_code_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
-			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_JOB_CODE);
+			clickElement(TABLE_HEADER_JOB_CODE);
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			Utilities.waitForPageReady(driver);
 			Utilities.waitForSpinnersToDisappear(driver, 10);
@@ -283,14 +277,14 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 	public void sort_profiles_by_export_status_in_descending_order_in_hcm_sync_profiles_screen() {
 		try {
-			WebElement exportStatusHeader = findElement(Locators.HCMSyncProfiles.TABLE_HEADER_EXPORT_STATUS);
+			WebElement exportStatusHeader = findElement(TABLE_HEADER_EXPORT_STATUS);
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", exportStatusHeader);
 			safeSleep(500);
 
 			// First click - ascending
-			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_EXPORT_STATUS);
+			clickElement(TABLE_HEADER_EXPORT_STATUS);
 			// Loader may not always appear - wait gracefully
-			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
 			safeSleep(3000);
 			Utilities.waitForPageReady(driver);
 			safeSleep(1500);
@@ -298,8 +292,8 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 			// Second click - descending
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", exportStatusHeader);
 			safeSleep(500);
-			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_EXPORT_STATUS);
-			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			clickElement(TABLE_HEADER_EXPORT_STATUS);
+			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
 			safeSleep(3000);
 			Utilities.waitForPageReady(driver);
 
@@ -315,13 +309,13 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 
 	public void sort_profiles_by_function_in_ascending_order_in_hcm_sync_profiles_screen() {
 		try {
-			WebElement functionHeader = findElement(Locators.HCMSyncProfiles.TABLE_HEADER_FUNCTION);
+			WebElement functionHeader = findElement(TABLE_HEADER_FUNCTION);
 			js.executeScript("arguments[0].scrollIntoView({block: 'center'});", functionHeader);
 			safeSleep(500);
 
-			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_FUNCTION);
+			clickElement(TABLE_HEADER_FUNCTION);
 			// Loader may not always appear - wait gracefully
-			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
 			Utilities.waitForPageReady(driver);
 			LOGGER.info("Clicked on Function header to Sort in ascending order");
 
@@ -336,16 +330,16 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 	public void sort_profiles_by_function_in_descending_order_in_hcm_sync_profiles_screen() {
 		try {
 			// First click - ascending
-			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_FUNCTION);
+			clickElement(TABLE_HEADER_FUNCTION);
 			// Loader may not always appear - wait gracefully
-			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
 			safeSleep(2000);
 			Utilities.waitForPageReady(driver);
 			safeSleep(1000);
 
 			// Second click - descending
-			clickElement(Locators.HCMSyncProfiles.TABLE_HEADER_FUNCTION);
-			try { waitForElement(Locators.Spinners.PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
+			clickElement(TABLE_HEADER_FUNCTION);
+			try { waitForElement(PAGE_LOAD_SPINNER, 2); } catch (Exception ignored) {}
 			safeSleep(2000);
 			Utilities.waitForPageReady(driver);
 
@@ -537,5 +531,4 @@ public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 		}
 	}
 }
-
 

@@ -1,4 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +14,12 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO30_SelectAndPublishAllJobProfiles_JAM.class);
 
+	// Local aliases for cleaner code
+	private static final By CHEVRON_BTN = JAMScreen.CHEVRON_BUTTON;
+	private static final By SUCCESS_HEADER = Locators.Modals.SUCCESS_MODAL_HEADER;
+	private static final By SUCCESS_MSG = Locators.Modals.SUCCESS_MODAL_MESSAGE;
+	private static final By SUCCESS_CLOSE_BTN = Locators.Modals.SUCCESS_MODAL_CLOSE_BTN;
+
 	public PO30_SelectAndPublishAllJobProfiles_JAM() {
 		super();
 	}
@@ -22,14 +30,9 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 	public static final int MIN_CHECKS_TO_CONFIRM_PROGRESS = 2; // Minimum checks showing progress to confirm publishing is working
 	public static final int INITIAL_WAIT_SECONDS = 60; // Initial wait before first check (for backend to start processing)
 	// Using centralized Locators from BasePageObject
-	private static final By CHEVRON_BTN = Locators.JAMScreen.CHEVRON_BUTTON;
-	// SELECT_ALL_BTN is available via Locators.Table.SELECT_ALL_BTN
-	// RESULTS_COUNT_TEXT is available via Locators.Table.RESULTS_COUNT_TEXT
-	// VIEW_PUBLISHED_TOGGLE is available via Locators.Actions.VIEW_PUBLISHED_TOGGLE
-	private static final By ASYNC_MESSAGE = Locators.JobMapping.ASYNC_MESSAGE;
-	private static final By SUCCESS_HEADER = Locators.Modals.SUCCESS_MODAL_HEADER;
-	private static final By SUCCESS_MSG = Locators.Modals.SUCCESS_MODAL_MESSAGE;
-	private static final By SUCCESS_CLOSE_BTN = Locators.Modals.SUCCESS_MODAL_CLOSE_BTN;
+	// SELECT_ALL_BTN is available via SELECT_ALL_BTN
+	// RESULTS_COUNT_TEXT is available via RESULTS_COUNT_TEXT
+	// VIEW_PUBLISHED_TOGGLE is available via VIEW_PUBLISHED_TOGGLE
 	public static ThreadLocal<Integer> unpublishedProfilesCountBefore = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> publishedProfilesCountBefore = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> unpublishedProfilesCountAfter = ThreadLocal.withInitial(() -> 0);
@@ -41,7 +44,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void verify_count_of_total_un_published_profiles_before_publishing_selected_profiles() {
 		try {
-			String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
+			String countText = getElementText(RESULTS_COUNT_TEXT);
 			int count = parseProfileCountFromText(countText);
 			
 			if (count > 0) {
@@ -58,7 +61,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void verify_count_of_total_published_profiles_before_publishing_selected_profiles() {
 		try {
-			String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
+			String countText = getElementText(RESULTS_COUNT_TEXT);
 			int count = parseProfileCountFromText(countText);
 			
 			if (count > 0) {
@@ -77,9 +80,9 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		try {
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 
-			WebElement toggle = findElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
+			WebElement toggle = findElement(VIEW_PUBLISHED_TOGGLE);
 			if (toggle.isSelected() || "true".equals(toggle.getAttribute("aria-checked"))) {
-				clickElement(Locators.Actions.VIEW_PUBLISHED_TOGGLE);
+				clickElement(VIEW_PUBLISHED_TOGGLE);
 				LOGGER.info("Clicked View Published toggle to turn OFF");
 				Utilities.waitForSpinnersToDisappear(driver, 10);
 				Utilities.waitForPageReady(driver, 2);
@@ -116,7 +119,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 	public void click_on_select_all_button_in_job_mapping_screen() {
 		try {
-			clickElement(Locators.Table.SELECT_ALL_BTN);
+			clickElement(SELECT_ALL_BTN);
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			Utilities.waitForPageReady(driver, 2);
 
@@ -135,7 +138,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 			// Get total profile count from "Showing X of Y results" text
 			try {
-				String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
+				String countText = getElementText(RESULTS_COUNT_TEXT);
 				selectedCount = parseProfileCountFromText(countText);
 				
 				if (selectedCount > 0) {
@@ -224,7 +227,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			Utilities.waitForPageReady(driver, 2);
 
-			String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
+			String countText = getElementText(RESULTS_COUNT_TEXT);
 			int count = parseProfileCountFromText(countText);
 
 			if (count >= 0) {
@@ -283,7 +286,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			Utilities.waitForPageReady(driver, 2);
 
-			String countText = getElementText(Locators.Table.RESULTS_COUNT_TEXT);
+			String countText = getElementText(RESULTS_COUNT_TEXT);
 			int count = parseProfileCountFromText(countText);
 
 			if (count > 0) {
@@ -381,7 +384,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 
 				// Get current unpublished count from results text
 				try {
-					WebElement freshResultsElement = driver.findElement(Locators.Table.RESULTS_COUNT_TEXT);
+					WebElement freshResultsElement = driver.findElement(RESULTS_COUNT_TEXT);
 					String countText = freshResultsElement.getText().trim();
 					currentUnpublishedCount = parseProfileCountFromText(countText);
 				} catch (Exception e) {
@@ -522,7 +525,7 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 			int finalUnpublishedCount = 0;
 
 			try {
-				WebElement freshResultsElement = driver.findElement(Locators.Table.RESULTS_COUNT_TEXT);
+				WebElement freshResultsElement = driver.findElement(RESULTS_COUNT_TEXT);
 				String countText = freshResultsElement.getText().trim();
 				finalUnpublishedCount = parseProfileCountFromText(countText);
 			} catch (Exception e) {
@@ -591,5 +594,4 @@ public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 		}
 	}
 }
-
 

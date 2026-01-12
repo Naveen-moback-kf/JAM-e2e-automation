@@ -1,8 +1,10 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
@@ -16,13 +18,6 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 	// formatDateForDisplay() is inherited from BasePageObject
 	
 	// Using centralized Locators from BasePageObject
-	private static final By JOB_NAME_ROW_1 = Locators.JobMappingResults.JOB_NAME_ROW_1;
-	private static final By JOB_1_PUBLISHED_BTN = Locators.JobMappingResults.JOB_1_PUBLISHED_BTN;
-	private static final By HCM_PROFILES_SEARCH = Locators.PMScreen.SEARCH_BAR;
-	private static final By HCM_JOB_ROW_1 = Locators.JobMappingResults.HCM_JOB_ROW_1;
-	private static final By HCM_DATE_ROW_1 = Locators.JobMappingResults.HCM_DATE_ROW_1;
-	private static final By HCM_DATE_ROW_2 = By.xpath("//tbody//tr[2]//td[8]//span");
-
 	public PO06_PublishSelectedProfiles() {
 		super();
 	}
@@ -39,11 +34,11 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			waitForSpinners();
 			safeSleep(500);
 			
-			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
+			WebElement searchBar = waitForElement(SEARCH_BAR, 10);
 			scrollToElement(searchBar);
 			
 			// Use new clearAndSearch helper
-			clearAndSearch(Locators.SearchAndFilters.SEARCH_BAR, jobName);
+			clearAndSearch(SEARCH_BAR, jobName);
 			safeSleep(1500); // Extra wait for results stability
 			
 			LOGGER.info("Searched for job: " + jobName + " in View Published screen");
@@ -144,11 +139,11 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			waitForSpinners();
 			safeSleep(500);
 			
-			WebElement searchBar = waitForElement(Locators.SearchAndFilters.SEARCH_BAR, 10);
+			WebElement searchBar = waitForElement(SEARCH_BAR, 10);
 			scrollToElement(searchBar);
 			
 			// Use new clearAndSearch helper
-			clearAndSearch(Locators.SearchAndFilters.SEARCH_BAR, jobName);
+			clearAndSearch(SEARCH_BAR, jobName);
 			safeSleep(1500); // Extra wait for results stability
 			
 			LOGGER.info("Searched for job: " + jobName + " in View Published screen");
@@ -274,11 +269,11 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			waitForSpinners();
 			safeSleep(500);
 			
-			WebElement searchBar = waitForElement(HCM_PROFILES_SEARCH, 10);
+			WebElement searchBar = waitForElement(PROFILES_SEARCH, 10);
 			scrollToElement(searchBar);
 			
 			// Use new clearAndSearch helper (includes all waits and retry logic)
-			clearAndSearch(HCM_PROFILES_SEARCH, jobName);
+			clearAndSearch(PROFILES_SEARCH, jobName);
 			
 			// Additional wait for HCM sync profile filtering
 			safeSleep(1000);
@@ -306,11 +301,11 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 			waitForSpinners();
 			safeSleep(500);
 			
-			WebElement searchBar = waitForElement(HCM_PROFILES_SEARCH, 10);
+			WebElement searchBar = waitForElement(PROFILES_SEARCH, 10);
 			scrollToElement(searchBar);
 			
 			// Use new clearAndSearch helper (includes all waits and retry logic)
-			clearAndSearch(HCM_PROFILES_SEARCH, jobCode);
+			clearAndSearch(PROFILES_SEARCH, jobCode);
 			
 			// Additional wait for HCM sync profile filtering
 			safeSleep(1000);
@@ -432,5 +427,4 @@ public class PO06_PublishSelectedProfiles extends BasePageObject {
 
 	// formatDateForDisplay() removed - now using inherited method from BasePageObject
 }
-
 

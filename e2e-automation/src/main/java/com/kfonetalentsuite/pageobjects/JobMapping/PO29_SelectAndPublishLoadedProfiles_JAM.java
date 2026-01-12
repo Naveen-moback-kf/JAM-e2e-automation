@@ -1,4 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JAMScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
 
 import java.util.List;
 
@@ -16,8 +18,6 @@ public class PO29_SelectAndPublishLoadedProfiles_JAM extends BasePageObject {
 	private static final Logger LOGGER = LogManager.getLogger(PO29_SelectAndPublishLoadedProfiles_JAM.class);
 
 	// Locators
-	private static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input");
-
 	public PO29_SelectAndPublishLoadedProfiles_JAM() {
 		super();
 	}
@@ -32,7 +32,7 @@ public class PO29_SelectAndPublishLoadedProfiles_JAM extends BasePageObject {
 		int disabledInNewlyLoadedProfiles = 0;
 
 		try {
-			wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.DATA_LOADER));
+			wait.until(ExpectedConditions.invisibilityOfElementLocated(DATA_LOADER));
 			Utilities.waitForPageReady(driver, 2);
 
 			// Step 1: Count TOTAL profiles currently in DOM (includes newly loaded after scrolling)
@@ -135,5 +135,4 @@ public class PO29_SelectAndPublishLoadedProfiles_JAM extends BasePageObject {
 		}
 	}
 }
-
 

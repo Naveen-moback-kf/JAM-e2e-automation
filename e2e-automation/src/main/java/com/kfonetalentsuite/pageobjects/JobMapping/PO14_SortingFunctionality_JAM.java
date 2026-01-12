@@ -1,4 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -20,12 +22,6 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	private static final Logger LOGGER = LogManager.getLogger(PO14_SortingFunctionality_JAM.class);
 
 	public static ThreadLocal<ArrayList<String>> jobNamesTextInDefaultOrder = ThreadLocal.withInitial(ArrayList::new);
-
-	private static final By ORG_JOB_NAME_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[2]/div");
-	private static final By MATCHED_SP_GRADE_HEADER = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[2]");
-	private static final By MATCHED_SP_NAME_HEADER = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[1]/div");
-	private static final By ORG_JOB_GRADE_HEADER = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div");
-
 	public PO14_SortingFunctionality_JAM() {
 		super();
 	}
@@ -33,14 +29,14 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	private void waitForLoaderToDisappear() {
 		try {
 			try {
-				Utilities.waitForVisible(wait, Locators.Spinners.DATA_LOADER);
+				Utilities.waitForVisible(wait, DATA_LOADER);
 				LOGGER.debug("Loader appeared - sort operation started");
 			} catch (Exception e) {
 				LOGGER.debug("Loader not caught appearing (too fast) - continuing");
 			}
 
 			try {
-				wait.until(ExpectedConditions.invisibilityOfElementLocated(Locators.Spinners.DATA_LOADER));
+				wait.until(ExpectedConditions.invisibilityOfElementLocated(DATA_LOADER));
 				LOGGER.debug("Loader disappeared - sort operation completed");
 			} catch (Exception e) {
 				LOGGER.warn("Loader invisibility timeout - continuing anyway");
@@ -58,7 +54,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 3);
 			safeSleep(2000);
-			Assert.assertTrue(waitForElement(Locators.JobMappingResults.SHOWING_JOB_RESULTS).isDisplayed());
+			Assert.assertTrue(waitForElement(SHOWING_JOB_RESULTS).isDisplayed());
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 3);
 			safeSleep(2000);
@@ -77,7 +73,7 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 			waitForSpinners();
 			Utilities.waitForPageReady(driver, 3);
 			safeSleep(3000);
-			String resultsCountText_updated = getElementText(Locators.JobMappingResults.SHOWING_JOB_RESULTS);
+			String resultsCountText_updated = getElementText(SHOWING_JOB_RESULTS);
 			LOGGER.info("Scrolled down till third page and now " + resultsCountText_updated + " of Job Profiles");
 
 			scrollToTop();
@@ -1214,5 +1210,4 @@ public class PO14_SortingFunctionality_JAM extends BasePageObject {
 	}
 
 }
-
 

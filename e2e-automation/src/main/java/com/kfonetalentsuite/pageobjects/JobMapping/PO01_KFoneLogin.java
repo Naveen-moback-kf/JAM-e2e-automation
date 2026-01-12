@@ -1,12 +1,14 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.LoginPage.*;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -24,25 +26,6 @@ public class PO01_KFoneLogin extends BasePageObject {
 
 	public static ThreadLocal<String> username = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> clientName = ThreadLocal.withInitial(() -> "");
-
-	private static final By USERNAME_INPUT = By.xpath("//input[@type='email']");
-	private static final By PASSWORD_INPUT = By.xpath("//input[@type='password']");
-	private static final By KFONE_SIGNIN_BTN = By.xpath("//button[@id='submit-button']");
-	private static final By PROCEED_BTN = By.xpath("//*[text()='Proceed']");
-	private static final By MICROSOFT_SUBMIT_BTN = By.xpath("//input[@type='submit']");
-	private static final By MICROSOFT_PASSWORD_HEADER = By.xpath("//div[text()='Enter password']");
-	private static final By PM_HEADER = Locators.HCMSyncProfiles.PROFILE_MANAGER_HEADER;
-	private static final By CLIENTS_TABLE = By.xpath("//table[@id='iam-clients-list-table-content']");
-	private static final By CLIENTS_TABLE_BODY = By.xpath("//tbody[@class='table-body']");
-	private static final By CLIENT_SEARCH_BAR = By.xpath("//input[@id='search-client-input-search']");
-	private static final By KFONE_HOME_HEADER = By.xpath("//h1[contains(text(),'Hi,')]");
-	private static final By YOUR_PRODUCTS_SECTION = By.xpath("//h2[contains(text(),'Your products')]");
-	private static final By PM_IN_PRODUCTS_SECTION = By.xpath("//div[@data-testid='Profile Manager']");
-	private static final By CLIENT_ROWS = By.xpath("//tbody//tr[@class='table-row']");
-	private static final By CLIENT_NAME_LINK = By.xpath(".//a[contains(@data-testid,'client-')]");
-	private static final By CLIENT_NAME_DIV = By.xpath(".//div[contains(@class,'data-content-container')]//div[contains(@title, '')]");
-	private static final By CLIENT_PAMS_ID_CELL = By.xpath(".//td[contains(@data-testid,'iam-clients-list-pams_id-table-data-cell-')]");
-	private static final By CLIENT_PRODUCTS_CELL = By.xpath(".//td[contains(@data-testid,'iam-clients-list-clientProducts-table-data-cell-')]");
 
 	public PO01_KFoneLogin() {
 		super();
@@ -173,7 +156,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 			}
 
 			Utilities.waitForPageReady(driver, 10);
-			WebElement clientsHeader = waitForElement(Locators.KFONE.CLIENTS_PAGE_HEADER);
+			WebElement clientsHeader = waitForElement(CLIENTS_PAGE_HEADER);
 			Assert.assertEquals("Clients", clientsHeader.getText(), "Expected 'Clients' header on KFONE landing page");
 			LOGGER.info("Landed on KFONE Clients Page");
 			SessionManager.markAuthenticated();
@@ -194,7 +177,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 				Utilities.waitForSpinnersToDisappear(driver, 15);
 				Utilities.waitForUIStability(driver, 2);
 
-					WebElement pmHeader = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(PM_HEADER));
+					WebElement pmHeader = extendedWait.until(ExpectedConditions.visibilityOfElementLocated(PROFILE_MANAGER_HEADER));
 					if (pmHeader.isDisplayed()) {
 						pmHeaderFound = true;
 						LOGGER.info("User Successfully landed on the " + pmHeader.getText() + " Dashboard Page");
@@ -366,7 +349,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 	public void verify_user_navigated_to_kfone_home_page() {
 		try {
 			waitForPageLoad();
-			waitForElement(Locators.KFONE.LANDING_PAGE_TITLE);
+			waitForElement(LANDING_PAGE_TITLE);
 			WebElement homeHeader = Utilities.waitForVisible(wait, KFONE_HOME_HEADER);
 			LOGGER.info(homeHeader.getText() + " is displaying on KFONE Home Page");
 			WebElement productsSection = Utilities.waitForVisible(wait, YOUR_PRODUCTS_SECTION);
@@ -433,5 +416,4 @@ public class PO01_KFoneLogin extends BasePageObject {
 		}
 	}
 }
-
 

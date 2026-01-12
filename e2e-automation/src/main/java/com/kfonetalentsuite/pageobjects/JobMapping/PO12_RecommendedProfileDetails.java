@@ -1,4 +1,7 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.ProfileDetails.*;
 
 import java.time.Duration;
 import java.util.List;
@@ -31,45 +34,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 	public static ThreadLocal<String> ProfileBehaviouralCompetencies = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> ProfileSkills = ThreadLocal.withInitial(() -> "NOT_SET");
 	// Locators moved from PO05_ValidateJobProfileDetailsPopup (Profile Details Popup)
-	private static final By PROFILE_HEADER = By.xpath("//h2[@id='summary-modal']//p");
-	private static final By PROFILE_DETAILS = By.xpath("//div[@id='details-container']//div[contains(@class,'mt-2')]");
-	private static final By PROFILE_LEVEL_DROPDOWN = By.xpath("//select[contains(@id,'profileLevel') or @id='profile-level']");
-	private static final By ROLE_SUMMARY = By.xpath("//div[@id='role-summary-container']//p");
-	private static final By POPUP_VIEW_MORE_RESPONSIBILITIES = By.xpath("//div[@id='responsibilities-panel']//button[contains(text(),'View')]");
-	private static final By POPUP_RESPONSIBILITIES_DATA = By.xpath("//div[@id='responsibilities-panel']//div[@id='item-container']");
-	private static final By BEHAVIOUR_TAB_BTN = By.xpath("//button[contains(text(),'BEHAVIOUR')]");
-	private static final By POPUP_VIEW_MORE_BEHAVIOUR = By.xpath("//div[@id='behavioural-panel']//button[contains(text(),'View')]");
-	private static final By POPUP_BEHAVIOUR_DATA = By.xpath("//div[@id='behavioural-panel']//div[@id='item-container']");
-	private static final By SKILLS_TAB_BTN = By.xpath("//button[text()='SKILLS']");
-	private static final By POPUP_VIEW_MORE_SKILLS = By.xpath("//div[@id='skills-panel']//button[contains(text(),'View')]");
-	private static final By POPUP_SKILLS_DATA = By.xpath("//div[@id='skills-panel']//div[@id='item-container']");
-	private static final By PUBLISH_PROFILE_BTN = By.xpath("//button[@id='publish-job-profile']");
-	private static final By POPUP_CONTAINER = By.xpath("//div[contains(@class, 'modal-body') or contains(@class, 'popup-content') or contains(@class, 'dialog-content')]");
-
 	// Job Comparison Page Locators - from Locators.ComparisonPage
-	private static final By COMPARE_AND_SELECT_HEADER = Locators.ComparisonPage.COMPARE_HEADER;
-	private static final By ORG_JOB_TITLE_HEADER = By.xpath("//div[contains(@class,'leading')]//div[1]//div[1]");
-	private static final By ORG_JOB_GRADE_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Grade')]//span");
-	private static final By ORG_JOB_DEPARTMENT_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Department')]//span");
-	private static final By ORG_JOB_FUNCTION_VALUE = By.xpath("//div[contains(@class,'leading')]//div[contains(text(),'Function')]//span");
-	private static final By PROFILE_1_TITLE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-title')]");
-	private static final By PROFILE_1_SELECT_BTN = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span");
-	private static final By PROFILE_1_RECOMMENDED_TAG = By.xpath("//div[@class='shadow']//div[contains(@id,'recommended-title')]");
-	private static final By PROFILE_1_GRADE = By.xpath("//div[@class='shadow']//div[contains(@id,'grade')]");
-	private static final By PROFILE_1_LEVEL = By.xpath("//div[@class='shadow']//div[contains(@id,'level-sublevels')]");
-	private static final By PROFILE_1_FUNCTION = By.xpath("//div[@class='shadow']//div[contains(@id,'function-subfunction')]");
-	private static final By PROFILE_1_SENIORITY = By.xpath("//div[@class='shadow']//div[contains(@id,'seniority-level')]");
-	private static final By PROFILE_1_MANAGERIAL = By.xpath("//div[@class='shadow']//div[contains(@id,'managerial-experience')]");
-	private static final By PROFILE_1_EDUCATION = By.xpath("//div[@class='shadow']//div[contains(@id,'education')]");
-	private static final By PROFILE_1_GENERAL_EXP = By.xpath("//div[@class='shadow']//div[contains(@id,'general-experience')]");
-	private static final By PROFILE_1_ROLE_SUMMARY = By.xpath("//div[@class='shadow']//div[contains(@id,'role-summary')]");
-	private static final By PROFILE_1_RESPONSIBILITIES = By.xpath("//div[@class='shadow']//div[contains(@id,'responsibilities')]");
-	private static final By VIEW_MORE_RESPONSIBILITIES = By.xpath("//div[contains(@id,'responsibilities')]//button[@data-testid='view-more-responsibilities']");
-	private static final By PROFILE_1_COMPETENCIES = By.xpath("//div[@class='shadow']//div[contains(@id,'behavioural-competencies')]");
-	private static final By VIEW_MORE_COMPETENCIES = By.xpath("//div[contains(@id,'behavioural-competencies')]//button[@data-testid='view-more-competencies']");
-	private static final By PROFILE_1_SKILLS = By.xpath("//div[@class='shadow']//div[contains(@id,'skills')]");
-	private static final By VIEW_MORE_SKILLS = By.xpath("//div[contains(@id,'skills')]//button[@data-testid='view-more-skills']");
-
 	public PO12_RecommendedProfileDetails() {
 		super();
 	}
@@ -218,7 +183,7 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 
 			try {
 				try {
-					List<WebElement> spinners = driver.findElements(Locators.Spinners.PAGE_LOAD_SPINNER);
+					List<WebElement> spinners = driver.findElements(PAGE_LOAD_SPINNER);
 					if (!spinners.isEmpty() && spinners.get(0).isDisplayed()) {
 						WebDriverWait spinnerWait = new WebDriverWait(driver, Duration.ofSeconds(5));
 						spinnerWait.until(ExpectedConditions.invisibilityOfAllElements(spinners));
@@ -651,5 +616,4 @@ public class PO12_RecommendedProfileDetails extends BasePageObject {
 		}
 	}
 }
-
 

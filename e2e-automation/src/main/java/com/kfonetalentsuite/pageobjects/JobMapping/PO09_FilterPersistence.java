@@ -1,20 +1,15 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
 
 public class PO09_FilterPersistence extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO09_FilterPersistence.class);
-
-	private static final By CLEAR_FILTERS_BTN = By.xpath("//button[@data-testid='Clear Filters']");
-	private static final By VIEW_PUBLISHED_TOGGLE = By.xpath("//div[contains(@id,'results-toggle')]//label//div//div[2]");
-	private static final By ORG_JOB_GRADE_SORT_ICON = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div//span//*[@class='text-blue-600']");
-	private static final By MATCHED_SP_GRADE_SORT_ICON = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[2]/div//span//*[@class='text-blue-600']");
-
 	public PO09_FilterPersistence() {
 		super();
 	}
@@ -39,7 +34,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 			Thread.sleep(300);
 			waitForSpinners();
 
-			String actualResultsCount = getElementText(Locators.JAMScreen.SHOWING_RESULTS_COUNT);
+			String actualResultsCount = getElementText(JobMappingPage.SHOWING_RESULTS_COUNT);
 			waitForElement(CLEAR_FILTERS_BTN);
 
 			if (actualResultsCount.equals(PO04_JobMappingPageComponents.intialResultsCount.get())) {
@@ -50,7 +45,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		} catch (AssertionError e) {
 			String actualCount = "";
 			try {
-				actualCount = driver.findElement(Locators.JAMScreen.SHOWING_RESULTS_COUNT).getText();
+				actualCount = driver.findElement(JobMappingPage.SHOWING_RESULTS_COUNT).getText();
 			} catch (Exception ex) {
 				actualCount = "Unable to read";
 			}
@@ -115,7 +110,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		}
 
 		try {
-			WebElement resultsElement = Utilities.waitForVisible(wait, Locators.JAMScreen.SHOWING_RESULTS_COUNT);
+			WebElement resultsElement = Utilities.waitForVisible(wait, JobMappingPage.SHOWING_RESULTS_COUNT);
 			String currentCount = resultsElement.getText();
 
 			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
@@ -142,7 +137,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 		}
 
 		try {
-			String currentCount = getElementText(Locators.JAMScreen.SHOWING_RESULTS_COUNT);
+			String currentCount = getElementText(JobMappingPage.SHOWING_RESULTS_COUNT);
 			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
 				PO04_JobMappingPageComponents.initialFilteredResultsCount.set(currentCount);
 			}
@@ -169,7 +164,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 
 		// Capture the current filtered count if not already set
 		try {
-			String currentCount = getElementText(Locators.JAMScreen.SHOWING_RESULTS_COUNT);
+			String currentCount = getElementText(JobMappingPage.SHOWING_RESULTS_COUNT);
 			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
 				if (PO04_JobMappingPageComponents.initialFilteredResultsCount.get() == null) {
 					PO04_JobMappingPageComponents.initialFilteredResultsCount.set(currentCount);
@@ -199,7 +194,7 @@ public class PO09_FilterPersistence extends BasePageObject {
 
 		// Capture the current filtered count if not already set
 		try {
-			String currentCount = getElementText(Locators.JAMScreen.SHOWING_RESULTS_COUNT);
+			String currentCount = getElementText(JobMappingPage.SHOWING_RESULTS_COUNT);
 			if (currentCount != null && !currentCount.isEmpty() && currentCount.contains("Showing")) {
 				if (PO04_JobMappingPageComponents.initialFilteredResultsCount.get() == null) {
 					PO04_JobMappingPageComponents.initialFilteredResultsCount.set(currentCount);
@@ -228,5 +223,4 @@ public class PO09_FilterPersistence extends BasePageObject {
 		LOGGER.info("User is in View Published screen with sorting applied");
 	}
 }
-
 

@@ -1,4 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JAMScreen.*;
 
 import java.util.List;
 
@@ -18,14 +20,6 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 	public static ThreadLocal<Boolean> skipScenario = ThreadLocal.withInitial(() -> false);
 
 	// Locators
-	private static final By HEADER_CHECKBOX = By.xpath("//thead//input[@type='checkbox']");
-	private static final By MAPPING_STATUS_CHECKBOXES = By.xpath("//div[@data-testid='dropdown-MappingStatus']//..//input[@type='checkbox']");
-	private static final By MAPPING_STATUS_VALUES = By.xpath("//div[@data-testid='dropdown-MappingStatus']//..//input[@type='checkbox']//..//label");
-	private static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//input");
-	private static final By DISABLED_CHEVRONS = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//*[contains(@class,'cursor-not-allowed opacity-30')]");
-	private static final By ANY_CHEVRONS = By.xpath("//th[@scope='col']//div[@class='relative inline-block']//div//*");
-	private static final By TOOLTIP_CONTAINERS = By.xpath("//tbody//tr//td[1][contains(@class,'whitespace')]//div[@data-testid='tooltip-container']");
-
 	public PO33_UnmappedJobs_JAM() {
 		super();
 	}
@@ -96,7 +90,7 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		try {
 			Utilities.waitForPageReady(driver, 2);
 
-			WebElement headerCheckbox = findElement(HEADER_CHECKBOX);
+			WebElement headerCheckbox = findElement(JAMScreen.HEADER_CHECKBOX);
 			js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", headerCheckbox);
 			safeSleep(500);
 
@@ -261,5 +255,4 @@ public class PO33_UnmappedJobs_JAM extends BasePageObject {
 		}
 	}
 }
-
 

@@ -1,5 +1,9 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.KFONE.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.ProfileManagerPage.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.SharedLocators.*;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -8,7 +12,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.JobMapping.Utilities;
-
 public class PO13_PCRestrictedTipMessage extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO13_PCRestrictedTipMessage.class);
@@ -18,55 +21,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 	public static ThreadLocal<String> teamName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> pcName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> spNameString = ThreadLocal.withInitial(() -> "Account Manager");
-
-	private static final By UAM_BUTTON = By.xpath("//*[contains(text(),'User Admin')]");
-	private static final By CLIENT_NAME_TEXT = By.xpath("//*[contains(@class,'kfcon-header')]");
-	private static final By CLIENT_DASHBOARD = By.xpath("//h1[contains(text(),'Dashboard')]");
-	private static final By TEAMS_SECTION = By.xpath("//*[contains(@icon,'usergroups')]");
-	private static final By TEAMS_PAGE_HEADER = By.xpath("//*[contains(@class,'teams-header')]");
-	private static final By TEAMS_PAGE_DESC = By.xpath("//*[contains(text(),'A Team is a group')]");
-	private static final By TEAMS_PAGE_SEARCHBAR = By.xpath("//*[contains(@placeholder,'Search Teams')]");
-	private static final By CREATE_TEAMS_BTN = By.xpath("//*[contains(text(),'CREATE TEAMS')]");
-	private static final By CREATE_TEAMS_STEP1_HEADER = By.xpath("//*[contains(text(),'Step 1 of 2')]");
-	private static final By TEAM_NAME_TEXTBOX = By.xpath("//input[contains(@class,'primary')]");
-	private static final By TEAM_DESC_TEXTBOX = By.xpath("//textarea[contains(@class,'primary')]");
-	private static final By NEXT_BTN = By.xpath("//span[contains(text(),'Next')]");
-	private static final By CREATE_TEAMS_STEP2_HEADER = By.xpath("//*[contains(text(),'Step 2 of 2')]");
-	private static final By CREATE_TEAMS_STEP2_SEARCHBAR = By.xpath("//*[contains(@placeholder,'User Search')]");
-	private static final By TEAM_MEMBERS_HEADER = By.xpath("//*[contains(text(),'Team Members (')]");
-	private static final By USER_COUNT = By.xpath("//*[contains(text(),'Showing 1')]");
-	private static final By SAVE_BTN = By.xpath("//span[contains(text(),'Save')]");
-	private static final By CREATE_TEAMS_SUCCESS_POPUP = By.xpath("//*[contains(text(),'successfully')]");
-	private static final By CREATE_TEAMS_FAILURE_POPUP = By.xpath("//*[contains(text(),'Team already exists')]");
-	private static final By TEAM_NAME_IN_TOP_ROW = By.xpath("//td//div//span//a[not(contains(text(),'CREATE'))]");
-	private static final By TOP_ROW_THREE_DOTS = By.xpath("//*[contains(@icon,'dots-three')]");
-	private static final By PC_SECTION = By.xpath("//*[contains(@class,'kf-icon-profilecollection')]");
-	private static final By PC_PAGE_HEADER = By.xpath("//*[contains(@class,'profile-collection-header')]");
-	private static final By PC_PAGE_DESC = By.xpath("//*[contains(text(),'create a Profile Collection')]");
-	private static final By CREATE_PC_BTN = By.xpath("//*[contains(text(),'CREATE PROFILE')]");
-	private static final By CREATE_PC_STEP1_HEADER = By.xpath("//*[contains(text(),'Step 1 of 3')]");
-	private static final By CREATE_PC_STEP2_HEADER = By.xpath("//*[contains(text(),'Step 2 of 3')]");
-	private static final By CREATE_PC_STEP3_HEADER = By.xpath("//*[contains(text(),'Step 3 of 3')]");
-	private static final By PC_NAME_TEXTBOX = By.xpath("//input[contains(@class,'primary')]");
-	private static final By PC_DESC_TEXTBOX = By.xpath("//textarea[contains(@class,'primary')]");
-	private static final By ALL_TEAMS_HEADER = By.xpath("//*[contains(text(),' ALL TEAMS (')]");
-	private static final By SELECTED_TEAMS_HEADER = By.xpath("//*[contains(text(),' SELECTED TEAMS (')]");
-	private static final By TEAM_COUNT = By.xpath("//*[contains(text(),'Page 1')]");
-	private static final By ADD_ADDITIONAL_SP_HEADER = By.xpath("//*[contains(text(),' ADD ADDITIONAL SUCCESS PROFILES (')]");
-	private static final By SP_HEADER_IN_PC = By.xpath("//*[contains(text(),' SUCCESS PROFILES (')]");
-	private static final By PC_STEP3_SEARCHBAR = By.xpath("//*[contains(@placeholder,'Search success profiles')]");
-	private static final By SELECT_ALL_CHECKBOX = By.xpath("//*/kf-page-content/kfconf-profile-collection-addedit/div/div[3]/div/div[4]/kf-checkbox/div");
-	private static final By PC_COUNT = By.xpath("//*[contains(text(),'Showing ')]");
-	private static final By DONE_BTN = By.xpath("//*[contains(text(),'Done')]");
-	private static final By PC_SUCCESS_POPUP = By.xpath("//*[contains(text(),'been saved')]");
-	private static final By PC_SEARCHBAR = By.xpath("//*[contains(@placeholder,'Profile Collection')]");
-	private static final By DELETE_CONFIRM_BTN = By.xpath("//footer//*[contains(text(),'Delete')]");
-	private static final By DELETION_SUCCESS_POPUP = By.xpath("//*[contains(text(),'deleted')]");
-	private static final By TIP_MSG2_TEXT = By.xpath("//*[contains(text(), 'permissioning restrictions ')]");
-	private static final By TIP_MSG2_CLOSE_BTN = By.xpath("//*[contains(text(), 'permissioning restrictions ')]//..//button");
-	// KFONE_MENU is available via Locators.Navigation.GLOBAL_NAV_MENU_BTN
-	private static final By USER_ACCESS_BTN = By.xpath("//button[@aria-label='User Access']");
-
+	// KFONE_MENU is available via GLOBAL_NAV_MENU_BTN
 	public PO13_PCRestrictedTipMessage() {
 		super();
 	}
@@ -83,7 +38,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 					Utilities.waitForPageReady(driver, 2);
 
 					LOGGER.info("Clicking KFONE Global Menu...");
-					clickElement(Locators.Navigation.GLOBAL_NAV_MENU_BTN);
+					clickElement(GLOBAL_NAV_MENU_BTN);
 					LOGGER.info("Successfully clicked KFONE Global Menu");
 
 					Utilities.waitForUIStability(driver, 1);
@@ -211,10 +166,10 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 		try {
 			String todayDate = formatDateForDisplay();
 			teamName.set("Team_" + todayDate);
-			waitForElement(TEAM_NAME_TEXTBOX).sendKeys(teamName.get());
+			waitForElement(PC_NAME_TEXTBOX).sendKeys(teamName.get());
 			LOGGER.info("Entered Team Name : " + teamName.get());
-			scrollToElement(driver.findElement(TEAM_DESC_TEXTBOX));
-			waitForElement(TEAM_DESC_TEXTBOX).sendKeys("Creating a Team through Automation on " + todayDate);
+			scrollToElement(driver.findElement(PC_DESC_TEXTBOX));
+			waitForElement(PC_DESC_TEXTBOX).sendKeys("Creating a Team through Automation on " + todayDate);
 			LOGGER.info("Entered Team Description : Creating a Team through Automation on " + todayDate);
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "user_should_enter_team_name_and_team_description", "Issue in entering Team name and Team Description in the first step of creating a team", e);
@@ -683,7 +638,7 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 
 	public void click_on_done_button_on_create_profile_collection_page_and_verify_success_popup_appears() {
 		try {
-			WebElement element = waitForClickable(DONE_BTN);
+			WebElement element = waitForClickable(ProfileManagerPage.DONE_BTN);
 			scrollToElement(element);
 			Utilities.waitForUIStability(driver, 1);
 			clickElement(element);
@@ -809,5 +764,4 @@ public class PO13_PCRestrictedTipMessage extends BasePageObject {
 
 	// formatDateForDisplay() removed - now using inherited method from BasePageObject
 }
-
 

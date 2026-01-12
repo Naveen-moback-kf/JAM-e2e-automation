@@ -1,4 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.JobMappingPage.*;
 
 import java.util.NoSuchElementException;
 
@@ -17,10 +18,6 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 	public static ThreadLocal<Integer> row = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<String> orgJobName = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> orgJobCode = ThreadLocal.withInitial(() -> "NOT_SET");
-
-	private static final By FIND_MATCH_BTN = By.xpath("//tbody//tr[1]//button[contains(text(),'Find')]");
-	private static final By SEARCH_DIFFERENT_SP_BTN = By.xpath("//tbody//tr[2]//button[contains(text(),'different profile')]");
-
 	public PO16_ManualMappingofSP() {
 		super();
 	}
@@ -114,5 +111,4 @@ public class PO16_ManualMappingofSP extends BasePageObject {
 		}
 	}
 }
-
 
