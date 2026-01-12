@@ -9,7 +9,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 
 public class PO30_SelectAndPublishAllJobProfiles_JAM extends BasePageObject {
 

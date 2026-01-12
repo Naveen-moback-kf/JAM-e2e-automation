@@ -1,4 +1,4 @@
-package com.kfonetalentsuite.utils.JobMapping;
+package com.kfonetalentsuite.utils.common;
 
 import java.awt.Robot;
 import java.awt.Toolkit;
@@ -12,8 +12,6 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import com.kfonetalentsuite.utils.common.CommonVariableManager;
-import com.kfonetalentsuite.utils.common.ScreenshotHandler;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

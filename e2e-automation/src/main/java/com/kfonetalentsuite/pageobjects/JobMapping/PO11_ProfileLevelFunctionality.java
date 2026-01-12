@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 public class PO11_ProfileLevelFunctionality extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO11_ProfileLevelFunctionality.class);

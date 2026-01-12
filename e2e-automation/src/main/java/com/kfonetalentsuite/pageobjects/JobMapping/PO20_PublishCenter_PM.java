@@ -12,7 +12,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 public class PO20_PublishCenter_PM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO20_PublishCenter_PM.class);

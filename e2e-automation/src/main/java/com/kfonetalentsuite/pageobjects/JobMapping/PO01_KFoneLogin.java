@@ -16,7 +16,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.common.SessionManager;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 

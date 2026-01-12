@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
 
 public class PO06_PublishSelectedProfiles extends BasePageObject {

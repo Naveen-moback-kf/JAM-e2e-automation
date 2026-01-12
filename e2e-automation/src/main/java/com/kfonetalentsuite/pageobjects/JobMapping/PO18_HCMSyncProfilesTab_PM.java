@@ -19,7 +19,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO18_HCMSyncProfilesTab_PM.class);

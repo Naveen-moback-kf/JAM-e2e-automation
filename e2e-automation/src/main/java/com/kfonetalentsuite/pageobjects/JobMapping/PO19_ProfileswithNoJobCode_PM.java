@@ -8,7 +8,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
 
 public class PO19_ProfileswithNoJobCode_PM extends BasePageObject {

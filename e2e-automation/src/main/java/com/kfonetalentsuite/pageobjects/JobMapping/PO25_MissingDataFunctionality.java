@@ -16,7 +16,7 @@ import org.testng.Assert;
 
 import java.time.Duration;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 
 public class PO25_MissingDataFunctionality extends BasePageObject {
 

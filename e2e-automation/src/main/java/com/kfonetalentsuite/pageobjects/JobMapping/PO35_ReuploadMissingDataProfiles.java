@@ -17,7 +17,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO35_ReuploadMissingDataProfiles.class);

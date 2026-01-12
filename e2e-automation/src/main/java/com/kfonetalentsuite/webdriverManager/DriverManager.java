@@ -20,7 +20,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 
 import com.kfonetalentsuite.utils.common.CommonVariableManager;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 

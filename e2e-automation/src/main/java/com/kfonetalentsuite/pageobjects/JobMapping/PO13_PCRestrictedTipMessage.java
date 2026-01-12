@@ -11,7 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 public class PO13_PCRestrictedTipMessage extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO13_PCRestrictedTipMessage.class);

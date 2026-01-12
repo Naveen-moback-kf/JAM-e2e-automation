@@ -12,7 +12,7 @@ import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 
 public class PO34_SortingFunctionalityInHCMScreen_PM extends BasePageObject {
 

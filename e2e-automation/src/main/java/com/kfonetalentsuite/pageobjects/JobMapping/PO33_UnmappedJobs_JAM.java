@@ -11,7 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.SkipException;
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 
 public class PO33_UnmappedJobs_JAM extends BasePageObject {
 

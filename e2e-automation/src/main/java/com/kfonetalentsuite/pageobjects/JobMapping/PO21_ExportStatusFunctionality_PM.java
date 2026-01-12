@@ -12,7 +12,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.testng.Assert;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO21_ExportStatusFunctionality_PM.class);

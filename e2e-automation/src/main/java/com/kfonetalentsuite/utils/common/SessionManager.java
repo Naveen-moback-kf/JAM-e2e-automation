@@ -7,7 +7,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 
 import com.kfonetalentsuite.pageobjects.JobMapping.PO01_KFoneLogin;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
 import java.time.Duration;

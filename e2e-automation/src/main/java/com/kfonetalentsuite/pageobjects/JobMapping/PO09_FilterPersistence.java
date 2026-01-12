@@ -5,7 +5,7 @@ import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locator
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebElement;
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 
 public class PO09_FilterPersistence extends BasePageObject {
 

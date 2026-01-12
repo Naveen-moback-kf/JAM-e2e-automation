@@ -13,7 +13,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
-import com.kfonetalentsuite.utils.JobMapping.Utilities;
+import com.kfonetalentsuite.utils.common.Utilities;
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
 public class PO31_ApplicationPerformance_JAM_and_HCM extends BasePageObject {
 
