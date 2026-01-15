@@ -14,6 +14,7 @@ e2e-automation/Report/
 e2e-automation/AllureReports/
 
 # Excel Reports and Backups
+e2e-automation/ExcelReports/*.xlsx
 e2e-automation/ExcelReports/Backup/*.xlsx
 e2e-automation/ExcelReports/Backup/Archive_*.zip
 
