@@ -534,6 +534,33 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			}
 
 			LOGGER.info("Verified all required fields are filled in CSV");
+			
+			// CRITICAL: Capture actual values from first profile for validation
+			// This ensures we have the correct expected values even if first profile wasn't filled
+			if (!profiles.isEmpty()) {
+				String[] firstProfile = profiles.get(0);
+				
+				// CSV Format: Client Job Code, Client Job Title, Department, Job Family, Job Sub Family, Job Grade, Is Executive
+				// Indices:    0                 1                 2           3           4               5          6
+				
+				if (firstProfile.length > 5) {
+					String grade = (firstProfile[5] != null && !firstProfile[5].trim().isEmpty()) ? firstProfile[5] : "NOT_SET";
+					String dept = (firstProfile[2] != null && !firstProfile[2].trim().isEmpty()) ? firstProfile[2] : "NOT_SET";
+					String family = (firstProfile[3] != null && !firstProfile[3].trim().isEmpty()) ? firstProfile[3] : "NOT_SET";
+					String subFamily = (firstProfile[4] != null && !firstProfile[4].trim().isEmpty()) ? firstProfile[4] : "NOT_SET";
+					
+					firstProfileExpectedGrade.set(grade);
+					firstProfileExpectedDepartment.set(dept);
+					firstProfileExpectedJobFamily.set(family);
+					firstProfileExpectedJobSubFamily.set(subFamily);
+					
+					LOGGER.info("Captured first profile expected values from CSV:");
+					LOGGER.info("  Grade: '{}'", grade);
+					LOGGER.info("  Department: '{}'", dept);
+					LOGGER.info("  Job Family: '{}'", family);
+					LOGGER.info("  Job Sub Family: '{}'", subFamily);
+				}
+			}
 
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "verify_no_empty_required_fields", "Found empty required fields in CSV", e);

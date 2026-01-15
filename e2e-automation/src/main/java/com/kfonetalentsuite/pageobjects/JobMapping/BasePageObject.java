@@ -471,10 +471,16 @@ public class BasePageObject {
 			public static final By FIND_MATCH_BTN = By.xpath("//tbody//tr[1]//button[contains(text(),'Find')]");
 			public static final By SEARCH_DIFFERENT_SP_BTN = By.xpath("//tbody//tr[2]//button[contains(text(),'different profile')]");
 		
-			// PO22/PO25 - Missing Data Functionality
-			public static final By MISSING_DATA_TIP_MESSAGE_CONTAINER = By.xpath("//div[@id='warning-message-container']//div[contains(@class, 'inline-flex') and contains(., 'jobs have missing data')]");
-			public static final By MISSING_DATA_COUNT_AND_TEXT = By.xpath("//p[contains(text(), 'jobs have missing data and can reduce match accuracy')]");
-			public static final By VIEW_REUPLOAD_JOBS_LINK = By.xpath("//a[contains(text(), 'View & Re-upload jobs') and contains(@href, 'aiauto')]");
+		// PO22/PO25 - Missing Data Functionality
+		// Multiple fallback XPaths to handle different DOM structures
+		public static final By MISSING_DATA_TIP_MESSAGE_CONTAINER = By.xpath(
+			"//div[@id='warning-message-container'] | " +
+			"//*[contains(text(), 'jobs have missing data')] | " +
+			"//p[contains(text(), 'jobs have missing data and can reduce match accuracy')]/.. | " +
+			"//div[contains(@class, 'inline-flex') and contains(., 'jobs have missing data')]"
+		);
+		public static final By MISSING_DATA_COUNT_AND_TEXT = By.xpath("//p[contains(text(), 'jobs have missing data and can reduce match accuracy')]");
+		public static final By VIEW_REUPLOAD_JOBS_LINK = By.xpath("//a[contains(text(), 'View & Re-upload jobs') and contains(@href, 'aiauto')]");
 			public static final By CLOSE_TIP_MESSAGE_BUTTON = By.xpath("//p[contains(text(),'have missing data')]//..//button[@aria-label='Dismiss warning']");
 			public static final By CLOSE_REUPLOAD_JOBS_PAGE_BUTTON = By.xpath("//button[contains(@class, 'border-[#007BC7]') and contains(text(), 'Close')]");
 			public static final By REUPLOAD_BUTTON = By.xpath("//button[contains(text(), 'Re-upload')] | //button[contains(text(), 'upload')]");
