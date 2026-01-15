@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Listeners;
+import hooks.JobMapping.Hooks;
 
 import com.kfonetalentsuite.listeners.ExcelReportListener;
 import com.kfonetalentsuite.utils.common.DynamicTagResolver;
@@ -15,7 +16,8 @@ import io.qameta.allure.testng.AllureTestNg;
 
 @Listeners({
 	ExcelReportListener.class,
-	AllureTestNg.class
+	AllureTestNg.class,
+	Hooks.class
 })
 
 @CucumberOptions(

@@ -16,6 +16,7 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
   @Navigate_To_Missing_Data_Screen
   Scenario: Navigate to Jobs Missing Data screen from Job Mapping page
     When User is in Job Mapping page
+    Given Skip scenario if Missing Data Tip Message is not displayed
     Then Verify Missing Data Tip Message is displaying on Job Mapping page
     And Verify Missing Data Tip Message contains correct count of jobs with missing data
     When Click on "View & Re-upload jobs" link in Missing Data Tip Message
@@ -141,8 +142,7 @@ Feature: Validate Re-uploading Jobs with Missing Data by Filling Details in Exce
   Scenario: Verify Total Results count remains unchanged after re-upload (updating existing profiles, not adding new)
     Given Skip scenario if Missing Data Tip Message is not displayed
     When User is in Job Mapping page
-    Then Click on View Published toggle button to turn on
-    Then Click on View Published toggle button to turn off
+    Then Clear Search bar in Job Mapping page
     Then Capture Total Results count after re-upload
     And Verify Total Results count remains unchanged after re-upload
 

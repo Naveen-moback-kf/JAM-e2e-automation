@@ -3,6 +3,7 @@ package testrunners.JobMapping.crossbrowser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.testng.annotations.Listeners;
+import hooks.JobMapping.Hooks;
 
 import com.kfonetalentsuite.listeners.ExcelReportListener;
 import io.qameta.allure.testng.AllureTestNg;
@@ -12,8 +13,9 @@ import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 import io.cucumber.testng.CucumberOptions;
 
 @Listeners({
-    ExcelReportListener.class,
-    AllureTestNg.class
+	ExcelReportListener.class,
+	AllureTestNg.class,
+	Hooks.class
 })
 @CucumberOptions(
     features = "src/test/resources/features/01KFoneLogin.feature",

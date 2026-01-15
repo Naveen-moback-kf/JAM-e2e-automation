@@ -10,12 +10,14 @@ import io.qameta.allure.testng.AllureTestNg;
 import com.kfonetalentsuite.utils.common.DynamicTagResolver;
 import com.kfonetalentsuite.webdriverManager.CustomizeTestNGCucumberRunner;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
+import hooks.JobMapping.Hooks;
 
 import io.cucumber.testng.CucumberOptions;
 
 @Listeners({
 	ExcelReportListener.class,
-	AllureTestNg.class
+	AllureTestNg.class,
+	Hooks.class
 })
 
 @CucumberOptions(

@@ -475,7 +475,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 
 		String className = testResult.getTestClass().getName();
 		// Count total methods per class
-		totalMethodsPerClass.merge(className, 1, Integer::sum);
+		totalMethodsPerClass.merge(className, 1, (oldValue, value) -> oldValue + value);
 	}
 
 	@Override
@@ -487,7 +487,7 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 		String className = testResult.getTestClass().getName();
 
 		// Count completed methods per class
-		int completedMethods = completedMethodsPerClass.merge(className, 1, Integer::sum);
+		int completedMethods = completedMethodsPerClass.merge(className, 1, (oldValue, value) -> oldValue + value);
 		int totalMethods = totalMethodsPerClass.getOrDefault(className, 0);
 
 		// Check if this class (runner) has completed all its methods

@@ -13,13 +13,15 @@ import com.kfonetalentsuite.utils.JobMapping.JobCatalogRefresher;
 import com.kfonetalentsuite.utils.common.DynamicTagResolver;
 import com.kfonetalentsuite.webdriverManager.CustomizeTestNGCucumberRunner;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
+import hooks.JobMapping.Hooks;
 
 import io.cucumber.testng.CucumberOptions;
 
 @Listeners({
 	ExcelReportListener.class,
 	AllureTestNg.class,
-	AllureReportingManager.class
+	AllureReportingManager.class,
+	Hooks.class
 })
 
 @CucumberOptions(

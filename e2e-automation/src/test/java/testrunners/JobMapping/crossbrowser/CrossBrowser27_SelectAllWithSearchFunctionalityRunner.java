@@ -1,6 +1,7 @@
 package testrunners.JobMapping.crossbrowser;
 
 import org.testng.annotations.Listeners;
+import hooks.JobMapping.Hooks;
 
 import com.kfonetalentsuite.listeners.ExcelReportListener;
 import io.qameta.allure.testng.AllureTestNg;
@@ -10,8 +11,9 @@ import com.kfonetalentsuite.webdriverManager.CrossBrowserCucumberRunner;
 import io.cucumber.testng.CucumberOptions;
 
 @Listeners({
-    ExcelReportListener.class,
-    AllureTestNg.class
+	ExcelReportListener.class,
+	AllureTestNg.class,
+	Hooks.class
 })
 
 @CucumberOptions(
