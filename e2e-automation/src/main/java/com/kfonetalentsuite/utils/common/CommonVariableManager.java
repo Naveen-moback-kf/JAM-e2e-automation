@@ -92,13 +92,13 @@ public class CommonVariableManager {
 			loadProperties();
 		} catch (Exception e) {
 			// Set default values if properties loading fails
-			ENVIRONMENT = "Test";
-			BROWSER = "chrome";
-			HEADLESS_MODE = "true";
-			EXCEL_REPORTING_ENABLED = "true";
-			ALLURE_REPORTING_ENABLED = "true";
-			System.err.println("Failed to load properties, using defaults: " + e.getMessage());
-			e.printStackTrace();
+		ENVIRONMENT = "Test";
+		BROWSER = "chrome";
+		HEADLESS_MODE = "true";
+		EXCEL_REPORTING_ENABLED = "true";
+		ALLURE_REPORTING_ENABLED = "true";
+		LOGGER.error("Failed to load properties, using defaults: {}", e.getMessage());
+		LOGGER.debug("Stack trace:", e);
 		}
 	}
 

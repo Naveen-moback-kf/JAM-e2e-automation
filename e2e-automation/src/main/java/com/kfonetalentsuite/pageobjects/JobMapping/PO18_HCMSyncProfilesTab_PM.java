@@ -292,12 +292,12 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 			LOGGER.info("Final selected profile name: '{}'", jobProfileName.get());
 
-		} catch (Exception e) {
-			LOGGER.error("Issue entering job profile name in search bar", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in entering Job Profile Name in Search bar in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
-			LOGGER.info("Issue in entering Job Profile Name in Search bar in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
+	} catch (Exception e) {
+		LOGGER.error("Issue entering job profile name in search bar", e);
+		LOGGER.debug("Stack trace:", e);
+		Assert.fail(
+				"Issue in entering Job Profile Name in Search bar in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
+		LOGGER.info("Issue in entering Job Profile Name in Search bar in HCM Sync Profiles screen in Profile Manager...Please Investigate!!!");
 		}
 	}
 
@@ -362,12 +362,12 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 							"Failed to verify profile name matching. " + "Searched for: '%s', "
 									+ "Neither matching profile nor 'No Success Profile' message was found. "
 									+ "Error type: %s, Error message: %s",
-							searchedProfileName, d.getClass().getSimpleName(), d.getMessage());
+						searchedProfileName, d.getClass().getSimpleName(), d.getMessage());
 
-					LOGGER.error(errorMsg, d);
-					d.printStackTrace();
-					Assert.fail(errorMsg);
-					LOGGER.info("FAILURE: " + errorMsg);
+				LOGGER.error(errorMsg, d);
+				LOGGER.debug("Stack trace:", d);
+				Assert.fail(errorMsg);
+				LOGGER.info("FAILURE: " + errorMsg);
 				}
 			}
 		} catch (Exception outerException) {
@@ -383,12 +383,12 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			String errorDetails = String.format(
 					"Unexpected error while verifying profile name matching. "
 							+ "Searched for: '%s', Error type: %s, Error message: %s",
-					profileNameForError, outerException.getClass().getSimpleName(), outerException.getMessage());
+				profileNameForError, outerException.getClass().getSimpleName(), outerException.getMessage());
 
-			LOGGER.error(errorDetails, outerException);
-			outerException.printStackTrace();
-			Assert.fail(errorDetails);
-			LOGGER.info("FAILURE: " + errorDetails);
+		LOGGER.error(errorDetails, outerException);
+		LOGGER.debug("Stack trace:", outerException);
+		Assert.fail(errorDetails);
+		LOGGER.info("FAILURE: " + errorDetails);
 		}
 	}
 
@@ -400,26 +400,26 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					+ " in Row1 in HCM Sync Profiles screen in PM");
 			LOGGER.info("Clicked on profile with name : "
 					+ job1NameText.split("-", 2)[0].trim() + " in Row1 in HCM Sync Profiles screen in PM");
-			waitForSpinners();
-		} catch (Exception e) {
-			LOGGER.error("Issue clicking on name matching profile", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in Clicking on Searched name Matching profile in Row1 in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			LOGGER.info("Issue in Clicking on Searched name Matching profile in Row1 in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		waitForSpinners();
+	} catch (Exception e) {
+		LOGGER.error("Issue clicking on name matching profile", e);
+		LOGGER.debug("Stack trace:", e);
+		Assert.fail(
+				"Issue in Clicking on Searched name Matching profile in Row1 in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Issue in Clicking on Searched name Matching profile in Row1 in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}
 	}
 
 	public void user_should_be_navigated_to_sp_details_page_on_click_of_matching_profile() {
 		try {
 			Assert.assertTrue(Utilities.waitForVisible(wait, findElement(SP_DETAILS_PAGE_TEXT)).isDisplayed());
-						LOGGER.info("User navigated to SP details page as expected on click of Matching Profile Job name in HCM Sync Profiles screen in PM....");
-		} catch (Exception e) {
-			LOGGER.error("Issue navigating to SP details page", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in Navigating to SP details Page on click of Matching Profile Job name in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			LOGGER.info("Issue in Navigating to SP details Page on click of Matching Profile Job name in HCM Sync Profiles screen in PM...Please Investigate!!!");
+					LOGGER.info("User navigated to SP details page as expected on click of Matching Profile Job name in HCM Sync Profiles screen in PM....");
+	} catch (Exception e) {
+		LOGGER.error("Issue navigating to SP details page", e);
+		LOGGER.debug("Stack trace:", e);
+		Assert.fail(
+				"Issue in Navigating to SP details Page on click of Matching Profile Job name in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Issue in Navigating to SP details Page on click of Matching Profile Job name in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}
 	}
 
@@ -480,12 +480,12 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 			Utilities.waitForPageReady(driver, 5);
 
-			LOGGER.info("Cleared Search bar in HCM Sync Profiles screen in PM");
-		} catch (Exception e) {
-			LOGGER.error("Issue clearing search bar", e);
-			e.printStackTrace();
-			Assert.fail("Issue in clearing search bar in HCM Sync Profiles screen in PM");
-			LOGGER.info("Issue in clearing search bar in HCM Sync Profiles screen in PM");
+		LOGGER.info("Cleared Search bar in HCM Sync Profiles screen in PM");
+	} catch (Exception e) {
+		LOGGER.error("Issue clearing search bar", e);
+		LOGGER.debug("Stack trace:", e);
+		Assert.fail("Issue in clearing search bar in HCM Sync Profiles screen in PM");
+		LOGGER.info("Issue in clearing search bar in HCM Sync Profiles screen in PM");
 		}
 	}
 
@@ -714,33 +714,33 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 				Assert.assertTrue(Utilities.waitForVisible(wait, findElement(CLOSE_APPLIED_FILTER)).isDisplayed());
 								LOGGER.info("Selected KF Grade Value : " + kfGradeValue
-						+ " from Filters dropdown in HCM Sync Profiles screen in PM....");
-			} catch (Exception e) {
-				LOGGER.error("Issue selecting KF Grade option", e);
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in selecting a option from KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in selecting a option from KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			}
+					+ " from Filters dropdown in HCM Sync Profiles screen in PM....");
+		} catch (Exception e) {
+			LOGGER.error("Issue selecting KF Grade option", e);
+			LOGGER.debug("Stack trace:", e);
+			Assert.fail(
+				"Issue in selecting a option from KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Issue in selecting a option from KF Grade dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		}
 
+		try {
+			js.executeScript("window.scrollTo(0, 0);");
 			try {
-				js.executeScript("window.scrollTo(0, 0);");
-				try {
-					Utilities.waitForClickable(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
-				} catch (Exception e) {
-					try {
-						js.executeScript("arguments[0].click();", findElement(HCM_SYNC_PROFILES_HEADER));
-					} catch (Exception s) {
-						jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
-					}
-				}
-				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
-				LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
+				Utilities.waitForClickable(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
 			} catch (Exception e) {
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
+				try {
+					js.executeScript("arguments[0].click();", findElement(HCM_SYNC_PROFILES_HEADER));
+				} catch (Exception s) {
+					jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
+				}
+			}
+			Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
+			LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
+		} catch (Exception e) {
+			LOGGER.debug("Stack trace:", e);
+			Assert.fail(
+					"Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.info("Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			}
 
 			try {
@@ -785,20 +785,20 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 								+ resultsCountText2
 								+ " after applying KF Grade Filters in HCM Sync Profiles screen in PM....Please Investiagte!!!");
 					}
-				}
-			} catch (Exception e) {
-				LOGGER.error("Issue verifying profiles count after KF Grade filter", e);
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			}
 		} catch (Exception e) {
-			LOGGER.error("Issue applying KF Grade filter", e);
-			e.printStackTrace();
+			LOGGER.error("Issue verifying profiles count after KF Grade filter", e);
+			LOGGER.debug("Stack trace:", e);
 			Assert.fail(
-					"Issue in verifying KF Grade Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			LOGGER.info("Issue in verifying KF Grade Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
+					"Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.info("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		}
+	} catch (Exception e) {
+		LOGGER.error("Issue applying KF Grade filter", e);
+		LOGGER.debug("Stack trace:", e);
+		Assert.fail(
+				"Issue in verifying KF Grade Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Issue in verifying KF Grade Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}
 	}
 
@@ -809,13 +809,13 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			safeSleep(500);
 			waitForSpinners(15);
 			Utilities.waitForPageReady(driver, 3);
-			LOGGER.info("Cleared Applied KF Grade Filter in HCM Sync Profiles screen in PM");
-		} catch (Exception e) {
-			LOGGER.error("Issue clearing KF Grade filter", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in Clearing Applied KF Grade Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			LOGGER.info("Issue in Clearing Applied KF Grade Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Cleared Applied KF Grade Filter in HCM Sync Profiles screen in PM");
+	} catch (Exception e) {
+		LOGGER.error("Issue clearing KF Grade filter", e);
+		LOGGER.debug("Stack trace:", e);
+		Assert.fail(
+				"Issue in Clearing Applied KF Grade Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Issue in Clearing Applied KF Grade Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}
 	}
 
@@ -825,13 +825,13 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				Utilities.waitForVisible(wait, LEVELS_FILTERS_DROPDOWN);
 				Utilities.waitForVisible(wait, findElement(LEVELS_FILTERS_DROPDOWN)).isDisplayed();
 				jsClick(findElement(LEVELS_FILTERS_DROPDOWN));
-				LOGGER.info("Clicked on Levels dropdown in Filters in HCM Sync Profiles screen in PM");
-			} catch (Exception e) {
-				LOGGER.error("Issue clicking Levels dropdown", e);
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in clicking Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in clicking Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.info("Clicked on Levels dropdown in Filters in HCM Sync Profiles screen in PM");
+		} catch (Exception e) {
+			LOGGER.error("Issue clicking Levels dropdown", e);
+			LOGGER.debug("Stack trace:", e);
+			Assert.fail(
+					"Issue in clicking Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.info("Issue in clicking Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			}
 
 			try {
@@ -891,33 +891,33 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 								LOGGER.info("Selected Levels Value : " + levelsValue
 						+ " from Filters dropdown in HCM Sync Profiles screen in PM....");
 			} catch (Exception e) {
-				LOGGER.error(
-						" Issue selecting Levels option - Method: apply_levels_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
-						e);
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in selecting a option from Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in selecting a option from Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			}
+			LOGGER.error(
+					" Issue selecting Levels option - Method: apply_levels_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
+					e);
+			LOGGER.debug("Stack trace:", e);
+			Assert.fail(
+				"Issue in selecting a option from Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Issue in selecting a option from Levels dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		}
 
+		try {
+			js.executeScript("window.scrollTo(0, 0);");
 			try {
-				js.executeScript("window.scrollTo(0, 0);");
-				try {
-					Utilities.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
-				} catch (Exception e) {
-					try {
-						js.executeScript("arguments[0].click();", findElement(HCM_SYNC_PROFILES_HEADER));
-					} catch (Exception s) {
-						jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
-					}
-				}
-				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
-				LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
+				Utilities.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
 			} catch (Exception e) {
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
+				try {
+					js.executeScript("arguments[0].click();", findElement(HCM_SYNC_PROFILES_HEADER));
+				} catch (Exception s) {
+					jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
+				}
+			}
+			Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
+			LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
+		} catch (Exception e) {
+			LOGGER.debug("Stack trace:", e);
+			Assert.fail(
+					"Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.info("Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			}
 
 			try {
@@ -999,13 +999,13 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			WebElement closeFilterElement = Utilities.waitForVisible(wait, findElement(CLOSE_APPLIED_FILTER));
 			closeFilterElement.click();
 			waitForSpinners();
-			LOGGER.info("Cleared Applied Levels Filter in HCM Sync Profiles screen in PM");
-		} catch (Exception e) {
-			LOGGER.error(" Issue clearing Levels filter - Method: clear_levels_filter_in_hcm_sync_profiles_tab", e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in Clearing Applied Levels Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			LOGGER.info("Issue in Clearing Applied Levels Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Cleared Applied Levels Filter in HCM Sync Profiles screen in PM");
+	} catch (Exception e) {
+		LOGGER.error(" Issue clearing Levels filter - Method: clear_levels_filter_in_hcm_sync_profiles_tab", e);
+		LOGGER.debug("Stack trace:", e);
+		Assert.fail(
+				"Issue in Clearing Applied Levels Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Issue in Clearing Applied Levels Filter in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}
 	}
 
@@ -1102,13 +1102,13 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				jsClick(findElement(FUNCTIONS_SUBFUNCTIONS_FILTERS_DROPDOWN));
 								LOGGER.info("Clicked on Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...");
 			} catch (Exception e) {
-				LOGGER.error(
-						" Issue clicking Functions/Subfunctions dropdown - Method: apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
-						e);
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in clicking Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in clicking Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.error(
+					" Issue clicking Functions/Subfunctions dropdown - Method: apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
+					e);
+			LOGGER.debug("Stack trace:", e);
+			Assert.fail(
+					"Issue in clicking Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.info("Issue in clicking Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			}
 
 			try {
@@ -1213,13 +1213,13 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 								LOGGER.info("Selected Function Value : " + functionsValue
 						+ " from Filters dropdown in HCM Sync Profiles screen in PM....");
 			} catch (Exception e) {
-				LOGGER.error(
-						" Issue selecting Functions/Subfunctions option - Method: apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
-						e);
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in selecting a option from Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in selecting a option from Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.error(
+					" Issue selecting Functions/Subfunctions option - Method: apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
+					e);
+			LOGGER.debug("Stack trace:", e);
+			Assert.fail(
+					"Issue in selecting a option from Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.info("Issue in selecting a option from Functions / Subfunctions dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			}
 
 			try {
@@ -1250,13 +1250,13 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				
 				LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 			} catch (Exception e) {
-				LOGGER.error(
-						" Issue closing filters dropdown - Method: apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
-						e);
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.error(
+					" Issue closing filters dropdown - Method: apply_functions_or_subfunctions_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
+					e);
+			LOGGER.debug("Stack trace:", e);
+			Assert.fail(
+					"Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.info("Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			}
 
 			try {
@@ -1343,13 +1343,13 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			LOGGER.info("Clicked on Clear All Filters button in HCM Sync Profiles screen in PM");
 			waitForSpinners();
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue clicking Clear All Filters button - Method: click_on_clear_all_filters_button_in_hcm_sync_profiles_tab",
-					e);
-			e.printStackTrace();
-			Assert.fail(
-					"Issue in clicking on Clear All Filters button in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			LOGGER.info("Issue in clicking on Clear All Filters button in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.error(
+				" Issue clicking Clear All Filters button - Method: click_on_clear_all_filters_button_in_hcm_sync_profiles_tab",
+				e);
+		LOGGER.debug("Stack trace:", e);
+		Assert.fail(
+				"Issue in clicking on Clear All Filters button in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Issue in clicking on Clear All Filters button in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}
 	}
 
@@ -1361,13 +1361,13 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 				jsClick(findElement(PROFILE_STATUS_FILTERS_DROPDOWN));
 				LOGGER.info("Clicked on Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...");
 			} catch (Exception e) {
-				LOGGER.error(
-						" Issue clicking Profile Status dropdown - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
-						e);
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in clicking on Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in clicking on Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.error(
+					" Issue clicking Profile Status dropdown - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
+					e);
+			LOGGER.debug("Stack trace:", e);
+			Assert.fail(
+					"Issue in clicking on Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.info("Issue in clicking on Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			}
 
 			try {
@@ -1403,33 +1403,33 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 								LOGGER.info("Selected Profile Status Value : " + profileStatusValue
 						+ " from Filters dropdown in HCM Sync Profiles screen in PM....");
 			} catch (Exception e) {
-				LOGGER.error(
-						" Issue selecting Profile Status option - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
-						e);
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in selecting a option from Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in selecting a option from Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			}
+			LOGGER.error(
+					" Issue selecting Profile Status option - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
+					e);
+			LOGGER.debug("Stack trace:", e);
+			Assert.fail(
+				"Issue in selecting a option from Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Issue in selecting a option from Profile Status dropdown in Filters in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		}
 
+		try {
+			js.executeScript("window.scrollTo(0, 0);");
 			try {
-				js.executeScript("window.scrollTo(0, 0);");
-				try {
-					Utilities.waitForClickable(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
-				} catch (Exception e) {
-					try {
-						js.executeScript("arguments[0].click();", findElement(HCM_SYNC_PROFILES_HEADER));
-					} catch (Exception s) {
-						jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
-					}
-				}
-				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
-				LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
+				Utilities.waitForClickable(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
 			} catch (Exception e) {
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
+				try {
+					js.executeScript("arguments[0].click();", findElement(HCM_SYNC_PROFILES_HEADER));
+				} catch (Exception s) {
+					jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
+				}
+			}
+			Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
+			LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
+		} catch (Exception e) {
+			LOGGER.debug("Stack trace:", e);
+			Assert.fail(
+					"Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.info("Issue in closing filters dropdown in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			}
 
 			try {
@@ -1476,22 +1476,22 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					}
 				}
 			} catch (Exception e) {
-				LOGGER.error(
-						" Issue verifying profiles count after Profile Status filter - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
-						e);
-				e.printStackTrace();
-				Assert.fail(
-						"Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!!");
-				LOGGER.info("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			}
-		} catch (Exception e) {
 			LOGGER.error(
-					" Issue applying Profile Status filter - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
+					" Issue verifying profiles count after Profile Status filter - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
 					e);
-			e.printStackTrace();
+			LOGGER.debug("Stack trace:", e);
 			Assert.fail(
-					"Issue in verifying Profile Status Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
-			LOGGER.info("Issue in verifying Profile Status Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
+					"Issue in verifying success profiles results count after scrolling page down in HCM Sync Profiles screen in PM...Please Investigate!!!");
+			LOGGER.info("Issue in verifying success profiles results count after scrolling page down in in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		}
+	} catch (Exception e) {
+		LOGGER.error(
+				" Issue applying Profile Status filter - Method: apply_profile_status_filter_and_verify_profiles_count_is_correctly_displaying_in_hcm_sync_profiles_tab",
+				e);
+		LOGGER.debug("Stack trace:", e);
+		Assert.fail(
+				"Issue in verifying Profile Status Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
+		LOGGER.info("Issue in verifying Profile Status Filter and Verifing Profiles count is correctly displaying in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}
 	}
 
@@ -1594,11 +1594,11 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 							+ " job profiles in HCM Sync Profiles screen in PM. Loaded: " 
 							+ loadedProfilesBeforeHeaderCheckboxClick.get());
 		} catch (Exception e) {
-			LOGGER.error(
-					" Issue clicking header checkbox to select loaded profiles - Method: click_on_header_checkbox_to_select_loaded_profiles_in_hcm_sync_profiles_tab",
-					e);
-			e.printStackTrace();
-			Assert.fail(
+		LOGGER.error(
+				" Issue clicking header checkbox to select loaded profiles - Method: click_on_header_checkbox_to_select_loaded_profiles_in_hcm_sync_profiles_tab",
+				e);
+		LOGGER.debug("Stack trace:", e);
+		Assert.fail(
 					"Issue in clicking on header checkbox to select loaded job profiles in HCM Sync Profiles screen in PM...Please Investigate!!!");
 			LOGGER.info("Issue in clicking on header checkbox to select loaded job profiles in in HCM Sync Profiles screen in PM...Please Investigate!!!");
 		}

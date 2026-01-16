@@ -47,12 +47,12 @@ public class PO07_Screen1SearchResults extends BasePageObject {
 				int currentShowing = Integer.parseInt(parts[1]);
 				int totalResults = Integer.parseInt(parts[3]);
 				
-				int remainingToLoad = totalResults - currentShowing;
-				double progressPercent = (currentShowing * 100.0) / totalResults;
+			int remainingToLoad = totalResults - currentShowing;
+			double progressPercent = (currentShowing * 100.0) / totalResults;
 
-				LOGGER.info("Scroll #{}: Loaded {} of {} results ({}/{}% complete, {} remaining)", 
-					scrollCount + 1, currentShowing, totalResults, 
-					String.format("%.1f", progressPercent), remainingToLoad);
+			LOGGER.info("Scroll #{}: Loaded {} of {} results ({}% complete, {} remaining)", 
+				scrollCount + 1, currentShowing, totalResults, 
+				String.format("%.1f", progressPercent), remainingToLoad);
 
 				if (currentShowing == totalResults) {
 					LOGGER.info("✓ SUCCESS: All {} results loaded after {} scroll attempts", totalResults, scrollCount + 1);
