@@ -51,7 +51,6 @@ public class Hooks implements ISuiteListener {
 	@After
 	public void afterScenario(Scenario scenario) {
 		String scenarioName = scenario.getName();
-		String status = scenario.getStatus().toString();
 		
 		if (scenario.isFailed()) {
 			LOGGER.error("✗ FAILED: {}", scenarioName);
@@ -66,20 +65,40 @@ public class Hooks implements ISuiteListener {
 
 	@Override
 	public void onStart(ISuite suite) {
-		LOGGER.info("═══════════════════════════════════════════════════════════");
-		LOGGER.info("TEST SUITE: {}", suite.getName());
-		LOGGER.info("═══════════════════════════════════════════════════════════");
+		String suiteName = suite.getName();
+		boolean isDefaultSuite = "Default suite".equals(suiteName);
+		
+		if (isDefaultSuite) {
+			// Running individual runner, not a test suite
+			LOGGER.info("═══════════════════════════════════════════════════════════");
+			LOGGER.info("EXECUTION: Individual Test Runner");
+			LOGGER.info("═══════════════════════════════════════════════════════════");
+		} else {
+			// Running actual test suite
+			LOGGER.info("═══════════════════════════════════════════════════════════");
+			LOGGER.info("TEST SUITE: {}", suiteName);
+			LOGGER.info("═══════════════════════════════════════════════════════════");
+		}
+		
 		AllureReportingManager.checkAndPerformDailyReset();
 		AllureReportingManager.generateEnvironmentInfo();
 	}
 
 	@Override
 	public void onFinish(ISuite suite) {
+		String suiteName = suite.getName();
+		boolean isDefaultSuite = "Default suite".equals(suiteName);
+		
 		LOGGER.info("═══════════════════════════════════════════════════════════");
-		LOGGER.info("CLEANUP: Finalizing test suite...");
+		LOGGER.info("CLEANUP: Finalizing execution...");
 		cleanupAllThreadLocals();
 		DriverManager.forceKillChromeProcesses();
-		LOGGER.info("TEST SUITE COMPLETED: {}", suite.getName());
+		
+		if (isDefaultSuite) {
+			LOGGER.info("EXECUTION COMPLETED");
+		} else {
+			LOGGER.info("TEST SUITE COMPLETED: {}", suiteName);
+		}
 		LOGGER.info("═══════════════════════════════════════════════════════════");
 	}
 
