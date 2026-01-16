@@ -35,8 +35,6 @@ public class ScreenshotHandler {
 		}
 
 		SCREENSHOTS_BASE_DIR = projectRoot + File.separator + "Screenshots";
-
-		LOGGER.info("ScreenshotHandler initialized - Screenshots directory: {}", SCREENSHOTS_BASE_DIR);
 	}
 
 	private static final long SCREENSHOT_THROTTLE_MS = 2000;

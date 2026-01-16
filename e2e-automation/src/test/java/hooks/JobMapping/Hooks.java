@@ -70,14 +70,10 @@ public class Hooks implements ISuiteListener {
 		
 		if (isDefaultSuite) {
 			// Running individual runner, not a test suite
-			LOGGER.info("═══════════════════════════════════════════════════════════");
 			LOGGER.info("EXECUTION: Individual Test Runner");
-			LOGGER.info("═══════════════════════════════════════════════════════════");
 		} else {
 			// Running actual test suite
-			LOGGER.info("═══════════════════════════════════════════════════════════");
 			LOGGER.info("TEST SUITE: {}", suiteName);
-			LOGGER.info("═══════════════════════════════════════════════════════════");
 		}
 		
 		AllureReportingManager.checkAndPerformDailyReset();
@@ -88,8 +84,6 @@ public class Hooks implements ISuiteListener {
 	public void onFinish(ISuite suite) {
 		String suiteName = suite.getName();
 		boolean isDefaultSuite = "Default suite".equals(suiteName);
-		
-		LOGGER.info("═══════════════════════════════════════════════════════════");
 		LOGGER.info("CLEANUP: Finalizing execution...");
 		cleanupAllThreadLocals();
 		DriverManager.forceKillChromeProcesses();
@@ -99,7 +93,6 @@ public class Hooks implements ISuiteListener {
 		} else {
 			LOGGER.info("TEST SUITE COMPLETED: {}", suiteName);
 		}
-		LOGGER.info("═══════════════════════════════════════════════════════════");
 	}
 
 	private void cleanupAllThreadLocals() {

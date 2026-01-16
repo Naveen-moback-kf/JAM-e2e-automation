@@ -1017,7 +1017,8 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 	// ========================================
 
 	private static synchronized void initializeProgress(int totalCount) {
-		if (!PROGRESS_BAR_ENABLED || totalCount <= 0) {
+		// Only show progress bar for test suites (more than 1 runner)
+		if (!PROGRESS_BAR_ENABLED || totalCount <= 1) {
 			return;
 		}
 
