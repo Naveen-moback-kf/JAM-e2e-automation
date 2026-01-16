@@ -8,17 +8,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/**
- * CommonVariableManager - Central configuration and variable management
- * 
- * This class handles loading properties from config files and environment-specific
- * configurations, then populates static fields for use throughout the framework.
- * 
- * Configuration Priority:
- * 1. System properties (-Dproperty=value)
- * 2. Environment-specific config (/environments/{env}.properties)
- * 3. Common config.properties
- */
 public class CommonVariableManager {
 
 	private static final Logger LOGGER = LogManager.getLogger(CommonVariableManager.class);
@@ -114,13 +103,7 @@ public class CommonVariableManager {
 	}
 
 	// ==================== PROPERTY LOADING METHODS ====================
-	
-	/**
-	 * Load properties from config files.
-	 * This method is thread-safe and will only load once.
-	 * 
-	 * @return true if properties were loaded successfully, false otherwise
-	 */
+
 	public static boolean loadProperties() {
 		if (isInitialized) {
 			return true;
@@ -172,7 +155,6 @@ public class CommonVariableManager {
 		try (InputStream is = CommonVariableManager.class.getResourceAsStream(envFile)) {
 			if (is != null) {
 				envConfig.load(is);
-				LOGGER.info("🌍 Environment configuration loaded: {}", env);
 			} else {
 				LOGGER.warn("⚠️ Environment file not found: {} - using config.properties fallback", envFile);
 				LOGGER.info("   Available environments: dev, qa, stage, prod-us, prod-eu");
@@ -182,16 +164,6 @@ public class CommonVariableManager {
 		}
 	}
 	
-	/**
-	 * Get property with priority order:
-	 * 1. System property
-	 * 2. Environment-specific config
-	 * 3. Common config.properties
-	 * 
-	 * @param envKey Key name in environment config
-	 * @param configKey Key name in config.properties
-	 * @return Property value or null if not found
-	 */
 	private static String getProperty(String envKey, String configKey) {
 		// Priority 1: System property
 		String value = System.getProperty(envKey);
@@ -211,13 +183,8 @@ public class CommonVariableManager {
 		return config.getProperty(configKey);
 	}
 
-	/**
-	 * Populate all static fields from loaded properties.
-	 */
 	private static void populateFields() {
-		// ========================================
-		// Environment-Specific Values
-		// ========================================
+
 		ENVIRONMENT = getProperty("environment", "Environment");
 		LOGIN_TYPE = getProperty("login.type", "login.type");
 		TARGET_PAMS_ID = getProperty("pams.id", "target.pams.id");
@@ -225,10 +192,7 @@ public class CommonVariableManager {
 		SSO_PASSWORD = getProperty("sso.password", "SSO_Login_Password");
 		NON_SSO_USERNAME = getProperty("nonsso.username", "NON_SSO_Login_Username");
 		NON_SSO_PASSWORD = getProperty("nonsso.password", "NON_SSO_Login_Password");
-		
-		// ========================================
-		// Common Settings (from config.properties)
-		// ========================================
+
 		String browserOverride = System.getProperty("browser");
 		BROWSER = (browserOverride != null && !browserOverride.isEmpty()) 
 				? browserOverride 
@@ -245,16 +209,10 @@ public class CommonVariableManager {
 		// Configure Allure system properties based on allure.reporting setting
 		if (ALLURE_REPORTING_ENABLED != null 
 				&& ALLURE_REPORTING_ENABLED.equalsIgnoreCase("false")) {
-			// Skip Maven Allure plugin
-			System.setProperty("skipAllure", "true");
-			
 			// Redirect to target directory (cleaned by Maven, won't persist)
 			System.setProperty("allure.results.directory", "target/allure-results");
 			LOGGER.info("⚠️ ALLURE REPORTING DISABLED");
 		} else {
-			// Enable Maven Allure plugin
-			System.setProperty("skipAllure", "false");
-			
 			// Use AllureReports folder at project root (persistent)
 			System.setProperty("allure.results.directory", "AllureReports/allure-results");
 			
@@ -269,46 +227,6 @@ public class CommonVariableManager {
 		KFONE_STAGEURL = config.getProperty("KFONE_StageUrl");
 		KFONE_PRODEUURL = config.getProperty("KFONE_ProdEUUrl");
 		KFONE_PRODUSURL = config.getProperty("KFONE_ProdUSUrl");
-		
-		// ========================================
-		// Legacy Fields (backward compatibility)
-		// ========================================
-		Super_USERNAME = config.getProperty("super_Username");
-		Super_PASSWORD = config.getProperty("super_Password");
-		USERNAME = config.getProperty("username");
-		PASSWORD = config.getProperty("password");
-		TESTURL = config.getProperty("TestUrl");
-		STAGEURL = config.getProperty("StageUrl");
-		PRODEUURL = config.getProperty("ProdEUUrl");
-		PRODUSURL = config.getProperty("ProdUSUrl");
-		PRODCNURL = config.getProperty("ProdCNUrl");
-		BENCHMARKING_TXT = config.getProperty("rewardBenchMarkingTxt");
-		REGRESSION_TXT = config.getProperty("regressionLineTxt");
-		OVERVIEWHC_TXT = config.getProperty("overviewHCTxt");
-		EMPLOYEEALLOCATION_TXT = config.getProperty("employeeallocationTxt");
-		PAYINTEQTY_TXT = config.getProperty("payinternalequityTxt");
-		PAYINTEQTYDD_TXT = config.getProperty("payinternalequityddTxt");
-		CROSSFNANALYSIS_TXT = config.getProperty("crossfnanalysisTxt");
-		MIXOFPAY_TXT = config.getProperty("mixofpayTxt");
-		PayPerformance_TXT = config.getProperty("payperfomanceTxt");
-		PayPerformanceOT_TXT = config.getProperty("payperfomanceOTTxt");
-		CompOverview_TXT = config.getProperty("compoverviewTxt");
-		CompDrilldown_TXT = config.getProperty("compDrilldownTxt");
-		GENDERANALYSIS_TXT = config.getProperty("genderAnalysisTxt");
-		SHORTTERM_TXT = config.getProperty("shortTermInceTxt");
-		LONGTERM_TXT = config.getProperty("longTermInceTxt");
-		CARSELGI_TXT = config.getProperty("carsElgiTxt");
-		COMPARE2MRKT_TXT = config.getProperty("compare2mrktTxt");
-		ICENVIRONMENT = config.getProperty("ICEnvironment");
-		ICUrl = config.getProperty("ICUrl");
-		ICusername = config.getProperty("ICusername");
-		ICpassword = config.getProperty("ICpassword");
-		DemoUsername = config.getProperty("demoUsername");
-		DemoPassword = config.getProperty("demoPassword");
-		IC_THusername = config.getProperty("IC_THusername");
-		IC_THpassword = config.getProperty("IC_THpassword");
-		SAML_USERNAME = config.getProperty("AI_AUTO_SAML_Username");
-		SAML_PASSWORD = config.getProperty("AI_AUTO_SAML_Password");
 		
 		// Log configuration
 		LOGGER.info("╔═══════════════════════════════════════════════════════════╗");
@@ -330,20 +248,9 @@ public class CommonVariableManager {
 
 	// ==================== UTILITY METHODS ====================
 	
-	/**
-	 * Check if properties have been initialized.
-	 * 
-	 * @return true if properties are loaded
-	 */
 	public static boolean isInitialized() {
 		return isInitialized;
 	}
-
-	/**
-	 * Get the loaded Properties object for advanced usage.
-	 * 
-	 * @return Properties object or null if not loaded
-	 */
 	public static Properties getConfig() {
 		return config;
 	}

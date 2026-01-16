@@ -28,27 +28,15 @@ import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 
-/**
- * Unified Hooks for Test Suite and Scenario Lifecycle Management
- * Combines TestNG suite-level hooks and Cucumber scenario-level hooks
- */
 public class Hooks implements ISuiteListener {
 
 	protected static final Logger LOGGER = LogManager.getLogger(Hooks.class);
 	private static final ThreadLocal<Scenario> currentScenario = new ThreadLocal<>();
 
-	// ==================== SCENARIO LIFECYCLE (Cucumber Hooks) ====================
-
-	/**
-	 * Returns the current Cucumber scenario for the executing thread
-	 */
 	public static Scenario getCurrentScenario() {
 		return currentScenario.get();
 	}
-
-	/**
-	 * Executed before each Cucumber scenario
-	 */
+	
 	@Before
 	public void beforeScenario(Scenario scenario) {
 		currentScenario.set(scenario);
@@ -57,79 +45,46 @@ public class Hooks implements ISuiteListener {
 		String featureFileName = featureName.substring(featureName.lastIndexOf("/") + 1);
 		String threadId = Thread.currentThread().getName();
 		ExcelReportListener.setCurrentScenario(threadId, scenarioName);
-
-		LOGGER.info("==================================================");
-		LOGGER.info("SCENARIO STARTED: {} | Feature: {}", scenarioName, featureFileName);
-		LOGGER.info("Scenario Tags: {}", scenario.getSourceTagNames());
-		LOGGER.info("==================================================");
+		LOGGER.info("▶ START: {} [{}]", scenarioName, featureFileName);
 	}
 
-	/**
-	 * Executed after each Cucumber scenario
-	 */
 	@After
 	public void afterScenario(Scenario scenario) {
 		String scenarioName = scenario.getName();
 		String status = scenario.getStatus().toString();
-
-		LOGGER.info("==================================================");
-		LOGGER.info("SCENARIO FINISHED: {} | Status: {}", scenarioName, status);
-
+		
 		if (scenario.isFailed()) {
-			LOGGER.error("SCENARIO FAILED: {} - Check test execution details", scenarioName);
+			LOGGER.error("✗ FAILED: {}", scenarioName);
 		} else {
-			LOGGER.info("SCENARIO PASSED: {} - Executed successfully", scenarioName);
+			LOGGER.info("✓ PASSED: {}", scenarioName);
 		}
-		LOGGER.info("==================================================");
-
-		// Cleanup scenario-level resources
+		
 		PageObjectManager.reset();
-		LOGGER.debug("PageObjectManager reset completed for thread: {}", Thread.currentThread().getName());
 		ScreenshotHandler.resetCounters();
 		currentScenario.remove();
 	}
 
-	// ==================== SUITE LIFECYCLE (TestNG Listener) ====================
-
-	/**
-	 * Executed before the entire test suite starts
-	 */
 	@Override
 	public void onStart(ISuite suite) {
-		LOGGER.info("==================================================");
-		LOGGER.info("TEST SUITE STARTED: {}", suite.getName());
-		LOGGER.info("==================================================");
-
+		LOGGER.info("═══════════════════════════════════════════════════════════");
+		LOGGER.info("TEST SUITE: {}", suite.getName());
+		LOGGER.info("═══════════════════════════════════════════════════════════");
 		AllureReportingManager.checkAndPerformDailyReset();
 		AllureReportingManager.generateEnvironmentInfo();
 	}
 
-	/**
-	 * Executed after the entire test suite completes
-	 */
 	@Override
 	public void onFinish(ISuite suite) {
-		LOGGER.info("==================================================");
-		LOGGER.info("TEST SUITE COMPLETED: {}", suite.getName());
-		LOGGER.info("Performing cleanup operations...");
-		LOGGER.info("==================================================");
-
+		LOGGER.info("═══════════════════════════════════════════════════════════");
+		LOGGER.info("CLEANUP: Finalizing test suite...");
 		cleanupAllThreadLocals();
 		DriverManager.forceKillChromeProcesses();
-
-		LOGGER.info("==================================================");
-		LOGGER.info("CLEANUP COMPLETED - Ready for next execution");
-		LOGGER.info("==================================================");
+		LOGGER.info("TEST SUITE COMPLETED: {}", suite.getName());
+		LOGGER.info("═══════════════════════════════════════════════════════════");
 	}
 
-	// ==================== THREADLOCAL CLEANUP ====================
-
-	/**
-	 * Cleans up all ThreadLocal variables to prevent memory leaks
-	 */
 	private void cleanupAllThreadLocals() {
 		try {
-			LOGGER.info("Cleaning up ThreadLocal variables...");
 			int cleanedCount = 0;
 
 			// Core Framework
@@ -210,10 +165,10 @@ public class Hooks implements ISuiteListener {
 			PO22_MissingDataTipMessage.initialJobCount.remove();
 			cleanedCount++;
 
-			LOGGER.info("✅ ThreadLocal cleanup completed - {} variables cleaned", cleanedCount);
+			LOGGER.info("ThreadLocal cleanup: {} variables cleared", cleanedCount);
 
 		} catch (Exception e) {
-			LOGGER.warn("ThreadLocal cleanup encountered an issue: {}", e.getMessage());
+			LOGGER.warn("ThreadLocal cleanup failed: {}", e.getMessage());
 		}
 	}
 }

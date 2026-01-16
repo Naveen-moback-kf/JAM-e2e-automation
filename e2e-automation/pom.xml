@@ -22,10 +22,6 @@
 		<!-- Default test suite - can be overridden via -DsuiteXmlFile=<suite>.xml -->
 		<suiteXmlFile>JAM_SanityTestSuite.xml</suiteXmlFile>
 		
-		<!-- Allure reporting control: Set to true to skip, false to enable -->
-		<!-- Can be overridden via: mvn test -DskipAllure=true -->
-		<skipAllure>false</skipAllure>
-		
 		<!-- Cross-browser testing now handled by individual runners like AutoRun_CrossBrowser_LoginPageRunner01 -->
 	</properties>
 
