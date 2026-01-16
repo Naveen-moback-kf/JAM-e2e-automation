@@ -167,11 +167,11 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 			throw new org.testng.SkipException("No Missing Data Tip Message found - Application has NO profiles with missing data");
 		}
 	}
-	private void waitForUIStabilityInMs(int milliseconds) {
+	private void waitForUIStabilityInMs(int milliseconds) throws InterruptedException {
 		try {
 			Utilities.waitForUIStability(driver, Math.max(1, milliseconds / 1000));
 		} catch (Exception e) {
-			Thread.currentThread().interrupt();
+			LOGGER.debug("UI stability wait failed: {}", e.getMessage());
 		}
 	}
 

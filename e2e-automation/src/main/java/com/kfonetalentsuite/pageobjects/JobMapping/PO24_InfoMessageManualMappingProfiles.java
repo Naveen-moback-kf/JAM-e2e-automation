@@ -197,16 +197,16 @@ public class PO24_InfoMessageManualMappingProfiles extends BasePageObject {
 								candidateJobName = candidateJobNameCodeText.substring(0, dashIndex).trim();
 								candidateJobCode = candidateJobNameCodeText.substring(dashIndex + 4).replace(")", "")
 										.trim();
-							}
+						}
 
-							// FINAL CHECK: Compare with global first profile job details
-							if (candidateJobName.equals(globalFirstManualJobNameWithInfoMessage)
-									&& candidateJobCode.equals(globalFirstManualJobCodeWithInfoMessage)) {
-								LOGGER.info(
-										" CONTENT DUPLICATE DETECTED: Skipping Profile {} - Same job content as GLOBAL first (Name: '{}', Code: '{}')",
-										candidateProfileNumber, candidateJobName, candidateJobCode);
-								continue;
-							}
+						// FINAL CHECK: Compare with global first profile job details
+						if (candidateJobName.equals(globalFirstManualJobNameWithInfoMessage.get())
+								&& candidateJobCode.equals(globalFirstManualJobCodeWithInfoMessage.get())) {
+							LOGGER.info(
+									" CONTENT DUPLICATE DETECTED: Skipping Profile {} - Same job content as GLOBAL first (Name: '{}', Code: '{}')",
+									candidateProfileNumber, candidateJobName, candidateJobCode);
+							continue;
+						}
 
 						} catch (Exception e) {
 							LOGGER.debug("Could not extract job details for comparison: {}", e.getMessage());

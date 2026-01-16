@@ -823,7 +823,7 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			WebElement functionCheckbox = Utilities.waitForPresent(wait, By.xpath(xpath));
 			Utilities.waitForVisible(wait, functionCheckbox);
 
-			boolean isSelected = wait.until(driver -> functionCheckbox.isSelected());
+			boolean isSelected = wait.until(_ -> functionCheckbox.isSelected());
 
 			if (isSelected) {
 				LOGGER.info(FunctionsOption.get() + " Function checkbox is automatically selected");

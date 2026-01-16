@@ -1757,16 +1757,16 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void user_should_verify_sync_with_hcm_button_is_disabled_in_hcm_sync_profiles_tab() {
 		try {
-			Utilities.waitForPageReady(driver, 5);
+		Utilities.waitForPageReady(driver, 5);
 
-			// Wait for button state to update with retry logic
-			WebDriverWait buttonWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
-			boolean isDisabled = buttonWait.until(driver -> {
-				try {
-					WebElement syncButton = Utilities.waitForVisible(wait, findElement(SYNC_WITH_HCM_BTN));
+		// Wait for button state to update with retry logic
+		WebDriverWait buttonWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
+		boolean isDisabled = buttonWait.until(_ -> {
+			try {
+				WebElement syncButton = Utilities.waitForVisible(wait, findElement(SYNC_WITH_HCM_BTN));
 
-					// Check 1: Check for 'text-disabled' class (Angular Material disabled state)
-					String classAttribute = syncButton.getAttribute("class");
+				// Check 1: Check for 'text-disabled' class (Angular Material disabled state)
+				String classAttribute = syncButton.getAttribute("class");
 					if (classAttribute != null && classAttribute.contains("text-disabled")) {
 						LOGGER.debug("Button has 'text-disabled' class - Button is disabled");
 						return true;
@@ -1815,16 +1815,16 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 	public void user_should_verify_sync_with_hcm_button_is_enabled_in_hcm_sync_profiles_tab() {
 		try {
-			Utilities.waitForPageReady(driver, 5);
+		Utilities.waitForPageReady(driver, 5);
 
-			// Wait for button state to update with retry logic
-			WebDriverWait buttonWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
-			boolean isEnabled = buttonWait.until(driver -> {
-				try {
-					WebElement syncButton = Utilities.waitForVisible(wait, findElement(SYNC_WITH_HCM_BTN));
+		// Wait for button state to update with retry logic
+		WebDriverWait buttonWait = new WebDriverWait(driver, java.time.Duration.ofSeconds(10));
+		boolean isEnabled = buttonWait.until(_ -> {
+			try {
+				WebElement syncButton = Utilities.waitForVisible(wait, findElement(SYNC_WITH_HCM_BTN));
 
-					// Check 1: Verify 'text-disabled' class is NOT present
-					String classAttribute = syncButton.getAttribute("class");
+				// Check 1: Verify 'text-disabled' class is NOT present
+				String classAttribute = syncButton.getAttribute("class");
 					if (classAttribute != null && classAttribute.contains("text-disabled")) {
 						LOGGER.debug("Button has 'text-disabled' class - Button still disabled, retrying...");
 						return false;
@@ -1833,7 +1833,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					// Check 2: Verify 'disabled' attribute is NOT present
 					String disabledAttribute = syncButton.getAttribute("disabled");
 					if (disabledAttribute != null) {
-//						LOGGER.debug("Button has 'disabled' attribute - Button still disabled, retrying...");
+						LOGGER.debug("Button has 'disabled' attribute - Button still disabled, retrying...");
 						return false;
 					}
 
@@ -1912,7 +1912,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	}
 
 	public void user_should_verify_sync_with_hcm_success_popup_appears_on_screen_in_hcm_sync_profiles_tab() {
-		long threadId = Thread.currentThread().getId();
+		long threadId = Thread.currentThread().threadId();
 		boolean popupFound = false;
 		String syncMessage = null;
 		

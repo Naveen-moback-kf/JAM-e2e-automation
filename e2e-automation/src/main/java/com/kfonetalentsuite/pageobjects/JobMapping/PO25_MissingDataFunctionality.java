@@ -1043,7 +1043,6 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		}
 	}
 
-	@SuppressWarnings("null") // False positive - skipIf throws exception if jobRow is null
 	public void extract_job_details_from_found_profile_in_jobs_missing_data_screen(String dataType) throws org.testng.SkipException {
 		try {
 			LOGGER.info("Extracting " + dataType + " job details from found profile in Missing Data screen");

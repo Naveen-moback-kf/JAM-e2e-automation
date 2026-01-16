@@ -1,7 +1,7 @@
 package com.kfonetalentsuite.utils.common;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
@@ -13,7 +13,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 public class SessionManager {
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
+	protected static final Logger LOGGER = LogManager.getLogger(SessionManager.class);
 
 	// THREAD-SAFE: Each thread tracks its own session state
 	private static ThreadLocal<Instant> lastSessionCheck = ThreadLocal.withInitial(() -> Instant.now());

@@ -6,7 +6,7 @@ import java.util.Properties;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 
 /**
  * CommonVariableManager - Central configuration and variable management
@@ -21,7 +21,7 @@ import org.apache.logging.log4j.core.Logger;
  */
 public class CommonVariableManager {
 
-	private static final Logger LOGGER = (Logger) LogManager.getLogger(CommonVariableManager.class);
+	private static final Logger LOGGER = LogManager.getLogger(CommonVariableManager.class);
 	private static final ReentrantLock lock = new ReentrantLock();
 	private static volatile Properties config;
 	private static volatile Properties envConfig;

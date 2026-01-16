@@ -223,7 +223,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 				throw new Exception("Expected job name is not set");
 			}
 			
-			LOGGER.info("[Thread-{}] Verifying job '{}' in View Published screen", Thread.currentThread().getId(), expectedJobName);
+			LOGGER.info("[Thread-{}] Verifying job '{}' in View Published screen", Thread.currentThread().threadId(), expectedJobName);
 			
 			// Wait for search results to filter
 			Utilities.waitForPageReady(driver, 3);
@@ -234,11 +234,11 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			String job1NameText = getElementText(JOB_NAME_ROW_1);
 			String actualJobName = job1NameText.split("-", 2)[0].trim();
 			
-			LOGGER.info("[Thread-{}] Expected: '{}', Found: '{}'", Thread.currentThread().getId(), expectedJobName, actualJobName);
+			LOGGER.info("[Thread-{}] Expected: '{}', Found: '{}'", Thread.currentThread().threadId(), expectedJobName, actualJobName);
 			
 			if (!expectedJobName.equals(actualJobName)) {
 				String errorMsg = String.format("[Thread-%d] Expected job '%s' but found '%s'. Search may not have filtered correctly.", 
-					Thread.currentThread().getId(), expectedJobName, actualJobName);
+					Thread.currentThread().threadId(), expectedJobName, actualJobName);
 				ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_view_published_screen", 
 					new Exception(errorMsg));
 				Assert.fail(errorMsg);
@@ -309,7 +309,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 		try {
 			String jobName = getJobNameToSearch();
 			String searchTerm = jobName.split("-", 2)[0].trim();
-			LOGGER.info("[Thread-{}] Searching HCM Sync by job name: '{}'", Thread.currentThread().getId(), searchTerm);
+			LOGGER.info("[Thread-{}] Searching HCM Sync by job name: '{}'", Thread.currentThread().threadId(), searchTerm);
 			
 			if (jobName == null || jobName.isEmpty()) {
 				throw new Exception("Job name to search is null or empty");
@@ -338,7 +338,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void search_for_published_job_code_in_hcm_sync_profiles_tab_in_pm() {
 		try {
 			String jobCode = getJobCodeForValidation();
-			LOGGER.info("[Thread-{}] Searching HCM Sync by job code: '{}'", Thread.currentThread().getId(), jobCode);
+			LOGGER.info("[Thread-{}] Searching HCM Sync by job code: '{}'", Thread.currentThread().threadId(), jobCode);
 			
 			if (jobCode == null || jobCode.isEmpty() || jobCode.equals("NOT_SET")) {
 				throw new Exception("Job code is null, empty, or NOT_SET - cannot perform search");
@@ -370,7 +370,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			Utilities.waitForPageReady(driver, 3);
 			
 			String expectedJobName = getJobNameToSearch();
-			LOGGER.info("[Thread-{}] Verifying job '{}' in HCM Sync Profiles", Thread.currentThread().getId(), expectedJobName);
+			LOGGER.info("[Thread-{}] Verifying job '{}' in HCM Sync Profiles", Thread.currentThread().threadId(), expectedJobName);
 			
 			if (expectedJobName == null || expectedJobName.isEmpty()) {
 				throw new Exception("Expected job name is null or empty");
@@ -383,12 +383,12 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			String job1NameText = getElementText(HCM_JOB_ROW_1);
 			String actualJobName = job1NameText.split("-", 2)[0].trim();
 			
-			LOGGER.info("[Thread-{}] Expected: '{}', Found: '{}'", Thread.currentThread().getId(), expectedJobName, actualJobName);
+			LOGGER.info("[Thread-{}] Expected: '{}', Found: '{}'", Thread.currentThread().threadId(), expectedJobName, actualJobName);
 			
 			// Simple assertion - search already verified this will pass
 			if (!expectedJobName.equals(actualJobName)) {
 				String errorMsg = String.format("[Thread-%d] Job name mismatch. Expected: '%s', Found: '%s'", 
-					Thread.currentThread().getId(), expectedJobName, actualJobName);
+					Thread.currentThread().threadId(), expectedJobName, actualJobName);
 				ScreenshotHandler.captureFailureScreenshot("hcm_validation_mismatch", new Exception(errorMsg));
 				Assert.fail(errorMsg);
 			}
@@ -404,7 +404,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void user_should_verify_published_job_code_in_hcm_sync_profiles_tab_in_pm() {
 		try {
 			String publishedJobCode = getJobCodeForValidation();
-			LOGGER.info("[Thread-{}] Verifying job code '{}' in HCM Sync Profiles", Thread.currentThread().getId(), publishedJobCode);
+			LOGGER.info("[Thread-{}] Verifying job code '{}' in HCM Sync Profiles", Thread.currentThread().threadId(), publishedJobCode);
 			
 			// SIMPLE VALIDATION: Search already verified results, just confirm
 			safeSleep(300);
@@ -427,7 +427,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void user_should_verify_date_on_published_job_matches_with_current_date() {
 		try {
 			String todayDate = Utilities.formatDateForDisplay();
-			LOGGER.info("[Thread-{}] Verifying date '{}' on published job in HCM", Thread.currentThread().getId(), todayDate);
+			LOGGER.info("[Thread-{}] Verifying date '{}' on published job in HCM", Thread.currentThread().threadId(), todayDate);
 			
 			// SIMPLE VALIDATION: Search already verified results, just confirm
 			safeSleep(300);
@@ -608,7 +608,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			}
 
 			String searchTerm = jobName.split("-", 2)[0].trim();
-			LOGGER.info("[Thread-{}] Searching for job '{}' in Architect", Thread.currentThread().getId(), searchTerm);
+			LOGGER.info("[Thread-{}] Searching for job '{}' in Architect", Thread.currentThread().threadId(), searchTerm);
 			
 			// PARALLEL EXECUTION FIX: Use clearAndSearch helper for reliable search in parallel execution
 			Utilities.waitForPageReady(driver, 2);
@@ -635,7 +635,7 @@ public class PO05_PublishJobProfile extends BasePageObject {
 				throw new Exception("Expected job name is null or empty");
 			}
 			
-			LOGGER.info("[Thread-{}] Verifying job '{}' in Architect", Thread.currentThread().getId(), expectedJobName);
+			LOGGER.info("[Thread-{}] Verifying job '{}' in Architect", Thread.currentThread().threadId(), expectedJobName);
 			
 			// Wait for search results to filter
 			Utilities.waitForPageReady(driver, 3);
@@ -646,11 +646,11 @@ public class PO05_PublishJobProfile extends BasePageObject {
 			String job1NameText = getElementText(ARCHITECT_JOB_ROW_1);
 			String actualJobName = job1NameText.split("-", 2)[0].trim();
 			
-			LOGGER.info("[Thread-{}] Expected: '{}', Found: '{}'", Thread.currentThread().getId(), expectedJobName, actualJobName);
+			LOGGER.info("[Thread-{}] Expected: '{}', Found: '{}'", Thread.currentThread().threadId(), expectedJobName, actualJobName);
 			
 			if (!expectedJobName.equals(actualJobName)) {
 				String errorMsg = String.format("[Thread-%d] Expected job '%s' but found '%s' in Architect.", 
-					Thread.currentThread().getId(), expectedJobName, actualJobName);
+					Thread.currentThread().threadId(), expectedJobName, actualJobName);
 				ScreenshotHandler.captureFailureScreenshot("user_should_verify_published_job_is_displayed_in_jobs_page_in_architect", 
 					new Exception(errorMsg));
 				Assert.fail(errorMsg);

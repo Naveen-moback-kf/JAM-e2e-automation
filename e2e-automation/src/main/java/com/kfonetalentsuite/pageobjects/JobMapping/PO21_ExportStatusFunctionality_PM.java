@@ -445,7 +445,7 @@ public class PO21_ExportStatusFunctionality_PM extends BasePageObject {
 				String currentUrl = driver.getCurrentUrl();
 				String urlPath = "";
 				try {
-					java.net.URL url = new java.net.URL(currentUrl);
+					java.net.URL url = java.net.URI.create(currentUrl).toURL();
 					urlPath = url.getPath() + (url.getRef() != null ? "#" + url.getRef() : "");
 				} catch (Exception urlEx) {
 					urlPath = currentUrl;

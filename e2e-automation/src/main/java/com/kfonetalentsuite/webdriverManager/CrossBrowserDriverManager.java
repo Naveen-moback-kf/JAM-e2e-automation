@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -26,7 +26,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class CrossBrowserDriverManager {
 
-	private static final Logger LOGGER = (Logger) LogManager.getLogger();
+	private static final Logger LOGGER = LogManager.getLogger(CrossBrowserDriverManager.class);
 	private static ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
 	private static ThreadLocal<WebDriverWait> waitThreadLocal = new ThreadLocal<>();
 	private static ThreadLocal<String> browserNameThreadLocal = new ThreadLocal<>();
@@ -370,8 +370,8 @@ public class CrossBrowserDriverManager {
 			java.net.InetAddress.getByName("msedgedriver.azureedge.net");
 
 			// Test HTTP connection
-			java.net.HttpURLConnection connection = (java.net.HttpURLConnection) new java.net.URL(
-					"https://msedgedriver.azureedge.net").openConnection();
+			java.net.HttpURLConnection connection = (java.net.HttpURLConnection) java.net.URI.create(
+					"https://msedgedriver.azureedge.net").toURL().openConnection();
 			connection.setConnectTimeout(5000); // 5 seconds timeout
 			connection.setReadTimeout(5000);
 

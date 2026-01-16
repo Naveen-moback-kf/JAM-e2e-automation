@@ -491,14 +491,14 @@ public class ScreenshotHandler {
 			File dateDir = new File(
 					SCREENSHOTS_BASE_DIR + File.separator + FAILURE_SCREENSHOTS_DIR + File.separator + date);
 
-			if (!dateDir.exists() || !dateDir.isDirectory()) {
-				return new java.util.ArrayList<>();
-			}
+		if (!dateDir.exists() || !dateDir.isDirectory()) {
+			return new java.util.ArrayList<>();
+		}
 
-			File[] files = dateDir.listFiles((dir, name) -> name.endsWith(".png"));
-			if (files == null || files.length == 0) {
-				return new java.util.ArrayList<>();
-			}
+		File[] files = dateDir.listFiles((_, name) -> name.endsWith(".png"));
+		if (files == null || files.length == 0) {
+			return new java.util.ArrayList<>();
+		}
 
 			java.util.Arrays.sort(files, java.util.Comparator.comparing(File::getName));
 

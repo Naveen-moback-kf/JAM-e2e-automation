@@ -255,16 +255,16 @@ public class DailyExcelTracker {
 	private static void collectCucumberResults(TestResultsSummary summary) {
 		try {
 			File cucumberReports = new File("target/cucumber-reports");
-			if (!cucumberReports.exists()) {
-				return;
-			}
+		if (!cucumberReports.exists()) {
+			return;
+		}
 
-			File[] jsonFiles = cucumberReports.listFiles((dir, name) -> name.endsWith(".json"));
-			if (jsonFiles != null && jsonFiles.length > 0) {
-				for (File jsonFile : jsonFiles) {
-					parseCucumberJSON(jsonFile, summary);
-				}
+		File[] jsonFiles = cucumberReports.listFiles((_, name) -> name.endsWith(".json"));
+		if (jsonFiles != null && jsonFiles.length > 0) {
+			for (File jsonFile : jsonFiles) {
+				parseCucumberJSON(jsonFile, summary);
 			}
+		}
 
 		} catch (Exception e) {
 		}
@@ -822,15 +822,15 @@ public class DailyExcelTracker {
 			return null;
 
 		try {
-			File featuresDir = new File("src/test/resources/features");
-			if (featuresDir.exists() && featuresDir.isDirectory()) {
+		File featuresDir = new File("src/test/resources/features");
+		if (featuresDir.exists() && featuresDir.isDirectory()) {
 
-				// FIXED: For alphanumeric runner numbers (like "11c"), prefer exact match
-				File[] rootFeatureFiles = featuresDir.listFiles((dir, name) -> {
-					if (!name.endsWith(".feature")) return false;
-					if (name.startsWith(runnerNumber + "Validate")) return true;
-					return name.startsWith(runnerNumber);
-				});
+			// FIXED: For alphanumeric runner numbers (like "11c"), prefer exact match
+			File[] rootFeatureFiles = featuresDir.listFiles((_, name) -> {
+				if (!name.endsWith(".feature")) return false;
+				if (name.startsWith(runnerNumber + "Validate")) return true;
+				return name.startsWith(runnerNumber);
+			});
 
 				if (rootFeatureFiles != null && rootFeatureFiles.length > 0) {
 					for (File file : rootFeatureFiles) {
@@ -842,14 +842,14 @@ public class DailyExcelTracker {
 					return featureFilePath;
 				}
 
-				File[] subdirectories = featuresDir.listFiles(File::isDirectory);
-				if (subdirectories != null) {
-					for (File subdir : subdirectories) {
-						File[] subFeatureFiles = subdir.listFiles((dir, name) -> {
-							if (!name.endsWith(".feature")) return false;
-							if (name.startsWith(runnerNumber + "Validate")) return true;
-							return name.startsWith(runnerNumber);
-						});
+			File[] subdirectories = featuresDir.listFiles(File::isDirectory);
+			if (subdirectories != null) {
+				for (File subdir : subdirectories) {
+					File[] subFeatureFiles = subdir.listFiles((_, name) -> {
+						if (!name.endsWith(".feature")) return false;
+						if (name.startsWith(runnerNumber + "Validate")) return true;
+						return name.startsWith(runnerNumber);
+					});
 
 						if (subFeatureFiles != null && subFeatureFiles.length > 0) {
 							for (File file : subFeatureFiles) {
@@ -2717,16 +2717,16 @@ public class DailyExcelTracker {
 		try {
 			File backupDir = new File(EXCEL_REPORTS_DIR, "Backup");
 
-			String todayDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-			String backupPattern = "TestResults_Backup_" + todayDate;
+		String todayDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+		String backupPattern = "TestResults_Backup_" + todayDate;
 
-			File[] existingBackups = backupDir
-					.listFiles((dir, name) -> name.startsWith(backupPattern) && name.endsWith(".xlsx"));
+		File[] existingBackups = backupDir
+				.listFiles((_, name) -> name.startsWith(backupPattern) && name.endsWith(".xlsx"));
 
-			if (existingBackups != null && existingBackups.length > 0) {
-				LOGGER.debug("Backup already exists for today: {}", existingBackups[0].getName());
-				LOGGER.debug("Skipping backup creation to avoid duplicates");
-				return;
+		if (existingBackups != null && existingBackups.length > 0) {
+			LOGGER.debug("Backup already exists for today: {}", existingBackups[0].getName());
+			LOGGER.debug("Skipping backup creation to avoid duplicates");
+			return;
 			}
 
 			String backupFileName = String.format("TestResults_Backup_%s.xlsx",

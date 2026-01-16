@@ -1,7 +1,7 @@
 package com.kfonetalentsuite.webdriverManager;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
@@ -23,7 +23,7 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager {
 	// This prevents scenario mixing between parallel test executions
 	private TestNGCucumberRunner testNGCucumberRunner;
 
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger(CustomizeTestNGCucumberRunner.class);
+	protected static final Logger LOGGER = LogManager.getLogger(CustomizeTestNGCucumberRunner.class);
 
 	protected abstract String getTagExpressionTemplate();
 
@@ -71,7 +71,6 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager {
 		testNGCucumberRunner = new TestNGCucumberRunner(this.getClass());
 	}
 
-	@SuppressWarnings("unused")
 	@Test(groups = "cucumber", description = "Runs Cucumber Scenarios", dataProvider = "scenarios")
 	public void runScenario(PickleWrapper pickleWrapper, FeatureWrapper featureWrapper) {
 		testNGCucumberRunner.runScenario(pickleWrapper.getPickle());

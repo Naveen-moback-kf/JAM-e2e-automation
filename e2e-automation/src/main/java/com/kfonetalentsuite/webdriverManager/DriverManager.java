@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -28,7 +28,7 @@ public class DriverManager {
 	// THREAD-SAFE: Each thread gets its own WebDriver instance for parallel
 	// execution
 	private static ThreadLocal<WebDriver> driver = ThreadLocal.withInitial(() -> null);
-	protected static final Logger LOGGER = (Logger) LogManager.getLogger();
+	protected static final Logger LOGGER = LogManager.getLogger(DriverManager.class);
 
 	// THREAD-SAFE: Each thread gets its own WebDriverWait instance
 	private static ThreadLocal<WebDriverWait> wait = ThreadLocal.withInitial(() -> null);
@@ -75,7 +75,7 @@ public class DriverManager {
 				try {
 					if (attempt > 1) {
 						LOGGER.debug("Browser launch attempt {}/{} - Thread: {}", attempt, maxRetries,
-								Thread.currentThread().getId());
+								Thread.currentThread().threadId());
 					}
 
 					switch (CommonVariableManager.BROWSER) {
@@ -505,7 +505,7 @@ public class DriverManager {
 
 	private static void cleanupChromeProfile() {
 		try {
-			long threadId = Thread.currentThread().getId();
+			long threadId = Thread.currentThread().threadId();
 			String userDataDir = System.getProperty("user.dir") + File.separator + "chrome-profile-" + threadId;
 			File profileDir = new File(userDataDir);
 
@@ -533,10 +533,10 @@ public class DriverManager {
 
 	public static void forceKillChromeProcesses() {
 		try {
-			Process killChrome = Runtime.getRuntime().exec("taskkill /F /IM chrome.exe /T");
+			Process killChrome = Runtime.getRuntime().exec(new String[]{"taskkill", "/F", "/IM", "chrome.exe", "/T"});
 			killChrome.waitFor(2, java.util.concurrent.TimeUnit.SECONDS);
 
-			Process killChromeDriver = Runtime.getRuntime().exec("taskkill /F /IM chromedriver.exe /T");
+			Process killChromeDriver = Runtime.getRuntime().exec(new String[]{"taskkill", "/F", "/IM", "chromedriver.exe", "/T"});
 			killChromeDriver.waitFor(2, java.util.concurrent.TimeUnit.SECONDS);
 
 			Thread.sleep(500);

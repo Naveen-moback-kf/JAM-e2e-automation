@@ -41,37 +41,30 @@ public class AllureReportingManager implements ITestListener {
 
 	public static void checkAndPerformDailyReset() {
 		if (!isAllureReportingEnabled()) {
-			LOGGER.info("Allure reporting is disabled in config.properties (allure.reporting=false) - Skipping Allure daily reset");
+			LOGGER.info("Allure Reporting: Disabled");
 			return;
 		}
 		
+		LOGGER.info("Allure Reporting: Enabled");
+		
 		try {
-			LOGGER.info("=== ALLURE DAILY RESET CHECK ===");
 			createBackupDirectories();
 			boolean isNewDay = isNewDayDetected();
 			
 			if (isNewDay) {
-				LOGGER.info("🔄 New day detected - Performing Allure report daily reset");
 				performDailyReset();
-			} else {
-				LOGGER.debug("Same day detected - Continuing with existing Allure results");
 			}
-			
-			LOGGER.info("=== ALLURE DAILY RESET CHECK COMPLETE ===");
 		} catch (Exception e) {
-			LOGGER.warn("Allure daily reset check encountered an issue: {}", e.getMessage());
-			LOGGER.debug("Stack trace:", e);
+			LOGGER.warn("Allure daily reset failed: {}", e.getMessage());
 		}
 	}
 
 	public static void generateEnvironmentInfo() {
 		if (!isAllureReportingEnabled()) {
-			LOGGER.info("Allure reporting is disabled in config.properties (allure.reporting=false) - Skipping Allure environment info generation");
 			return;
 		}
 		
 		try {
-			LOGGER.info("Generating Allure environment information...");
 			File envFile = new File(ENV_PROPERTIES_FILE);
 			envFile.getParentFile().mkdirs();
 			
@@ -89,24 +82,18 @@ public class AllureReportingManager implements ITestListener {
 				
 				writer.flush();
 			}
-			
-			LOGGER.info("✅ Allure environment information generated: {}", ENV_PROPERTIES_FILE);
-			
 		} catch (Exception e) {
-			LOGGER.warn("Failed to generate Allure environment information: {}", e.getMessage());
-			LOGGER.debug("Stack trace:", e);
+			LOGGER.warn("Allure environment generation failed: {}", e.getMessage());
 		}
 	}
 
 	@Override
 	public void onTestFailure(ITestResult result) {
 		if (!isAllureReportingEnabled()) {
-			LOGGER.debug("Allure reporting is disabled - Skipping screenshot attachment");
 			return;
 		}
 		
 		try {
-			LOGGER.debug("Test failure detected - Attaching screenshot to Allure report");
 			String methodName = result.getMethod().getMethodName();
 			Throwable throwable = result.getThrowable();
 			String errorMessage = throwable != null ? throwable.getMessage() : "Test failed";
@@ -115,12 +102,8 @@ public class AllureReportingManager implements ITestListener {
 			if (screenshotPath != null) {
 				File screenshotFile = new File(screenshotPath);
 				
-				// ADDITIONAL SAFEGUARD: If file doesn't exist immediately, wait briefly for async write
-				// This handles edge cases where async write might still be in progress
 				if (!screenshotFile.exists()) {
-					LOGGER.debug("Screenshot file not immediately available, waiting briefly...");
 					try {
-						// Wait up to 2 seconds for file to appear (checking every 500ms)
 						int maxRetries = 4;
 						for (int i = 0; i < maxRetries && !screenshotFile.exists(); i++) {
 							Thread.sleep(500);
@@ -132,16 +115,10 @@ public class AllureReportingManager implements ITestListener {
 				
 				if (screenshotFile.exists()) {
 					attachScreenshotToAllure(screenshotPath, "Test Failure Screenshot");
-					LOGGER.info("✅ Screenshot attached to Allure report: {}", screenshotPath);
-				} else {
-					LOGGER.warn("Screenshot not captured or file not found after wait - skipping Allure attachment");
 				}
-			} else {
-				LOGGER.warn("Screenshot path is null - skipping Allure attachment");
 			}
-			
 		} catch (Exception e) {
-			LOGGER.error("Error attaching screenshot to Allure report: {}", e.getMessage(), e);
+			LOGGER.warn("Screenshot attachment failed: {}", e.getMessage());
 		}
 	}
 
@@ -150,7 +127,6 @@ public class AllureReportingManager implements ITestListener {
 			File screenshotFile = new File(screenshotPath);
 			
 			if (!screenshotFile.exists()) {
-				LOGGER.warn("Screenshot file does not exist: {}", screenshotPath);
 				return;
 			}
 			
@@ -160,18 +136,14 @@ public class AllureReportingManager implements ITestListener {
 				Files.newInputStream(screenshotFile.toPath()),
 				"png"
 			);
-			
-			LOGGER.debug("Screenshot attached to Allure: {} ({})", attachmentName, screenshotPath);
-			
 		} catch (IOException e) {
-			LOGGER.error("Failed to attach screenshot to Allure: {}", e.getMessage(), e);
+			LOGGER.warn("Screenshot attachment failed: {}", e.getMessage());
 		}
 	}
 
 	public static void attachScreenshotBytesToAllure(byte[] screenshotBytes, String attachmentName) {
 		try {
 			if (screenshotBytes == null || screenshotBytes.length == 0) {
-				LOGGER.warn("Screenshot bytes are empty - skipping Allure attachment");
 				return;
 			}
 			
@@ -181,11 +153,8 @@ public class AllureReportingManager implements ITestListener {
 				new java.io.ByteArrayInputStream(screenshotBytes),
 				"png"
 			);
-			
-			LOGGER.debug("Screenshot bytes attached to Allure: {}", attachmentName);
-			
 		} catch (Exception e) {
-			LOGGER.error("Failed to attach screenshot bytes to Allure: {}", e.getMessage(), e);
+			LOGGER.warn("Screenshot attachment failed: {}", e.getMessage());
 		}
 	}
 
@@ -194,19 +163,14 @@ public class AllureReportingManager implements ITestListener {
 			WebDriver driver = DriverManager.getDriver();
 			
 			if (driver == null) {
-				LOGGER.warn("WebDriver is null - cannot capture screenshot");
 				return false;
 			}
 			
 			TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
 			byte[] screenshotBytes = takesScreenshot.getScreenshotAs(OutputType.BYTES);
 			attachScreenshotBytesToAllure(screenshotBytes, attachmentName);
-			
-			LOGGER.debug("Screenshot captured and attached to Allure: {}", attachmentName);
 			return true;
-			
 		} catch (Exception e) {
-			LOGGER.error("Failed to capture and attach screenshot: {}", e.getMessage(), e);
 			return false;
 		}
 	}
@@ -217,86 +181,50 @@ public class AllureReportingManager implements ITestListener {
 			File markerFile = new File(LAST_RESET_MARKER);
 
 			if (!markerFile.exists()) {
-				LOGGER.info("No reset marker found - First execution detected");
 				return true;
 			}
 
 			String lastResetDate = new String(Files.readAllBytes(Paths.get(LAST_RESET_MARKER))).trim();
-			boolean isNewDay = !lastResetDate.equals(currentDate);
-			
-			if (isNewDay) {
-				LOGGER.info("Date change detected: Last reset '{}' vs Current '{}'", lastResetDate, currentDate);
-			} else {
-				LOGGER.debug("Same day: Last reset '{}' == Current '{}'", lastResetDate, currentDate);
-			}
-
-			return isNewDay;
+			return !lastResetDate.equals(currentDate);
 		} catch (Exception e) {
-			LOGGER.warn("Error checking for new day: {}", e.getMessage());
 			return true;
 		}
 	}
 
 	private static void performDailyReset() {
 		try {
-			LOGGER.info("Starting Allure daily reset process...");
 			createBackupDirectories();
 
 			File resultsDir = new File(ALLURE_RESULTS_DIR);
 			if (resultsDir.exists() && resultsDir.listFiles() != null && resultsDir.listFiles().length > 0) {
 				backupAllureResults(resultsDir);
-			} else {
-				LOGGER.debug("No existing Allure results found - skipping backup");
 			}
 
 			File reportDir = new File(ALLURE_REPORT_DIR);
 			if (reportDir.exists() && reportDir.listFiles() != null && reportDir.listFiles().length > 0) {
 				backupAllureReport(reportDir);
-			} else {
-				LOGGER.debug("No existing Allure report found - skipping backup");
 			}
 
 			cleanAllureDirectories();
 			updateResetMarker();
-
-			LOGGER.info("✅ Allure daily reset completed successfully");
 		} catch (Exception e) {
-			LOGGER.error("Error during Allure daily reset: {}", e.getMessage(), e);
+			LOGGER.warn("Allure daily reset failed: {}", e.getMessage());
 		}
 	}
 
 	private static void createBackupDirectories() {
 		try {
-			File allureReportsDir = new File(ALLURE_REPORTS_DIR);
-			if (!allureReportsDir.exists()) {
-				allureReportsDir.mkdirs();
-				LOGGER.debug("Created AllureReports directory: {}", allureReportsDir.getAbsolutePath());
-			}
-
-			File backupDir = new File(ALLURE_BACKUP_DIR);
-			if (!backupDir.exists()) {
-				backupDir.mkdirs();
-				LOGGER.debug("Created backup directory: {}", backupDir.getAbsolutePath());
-			}
-
-			File resultsDir = new File(ALLURE_RESULTS_DIR);
-			if (!resultsDir.exists()) {
-				resultsDir.mkdirs();
-				LOGGER.debug("Created results directory: {}", resultsDir.getAbsolutePath());
-			}
-
-			File reportDir = new File(ALLURE_REPORT_DIR);
-			if (!reportDir.exists()) {
-				reportDir.mkdirs();
-				LOGGER.debug("Created report directory: {}", reportDir.getAbsolutePath());
-			}
-
+			new File(ALLURE_REPORTS_DIR).mkdirs();
+			new File(ALLURE_BACKUP_DIR).mkdirs();
+			new File(ALLURE_RESULTS_DIR).mkdirs();
+			new File(ALLURE_REPORT_DIR).mkdirs();
+			
 			File markerParent = new File(LAST_RESET_MARKER).getParentFile();
-			if (markerParent != null && !markerParent.exists()) {
+			if (markerParent != null) {
 				markerParent.mkdirs();
 			}
 		} catch (Exception e) {
-			LOGGER.warn("Error creating AllureReports directories: {}", e.getMessage());
+			LOGGER.warn("Directory creation failed: {}", e.getMessage());
 		}
 	}
 
@@ -306,13 +234,11 @@ public class AllureReportingManager implements ITestListener {
 			String backupPattern = "allure-results_" + todayDate;
 
 			File backupDir = new File(ALLURE_BACKUP_DIR);
-			File[] existingBackups = backupDir.listFiles((dir, name) -> 
-				name.startsWith(backupPattern) && new File(dir, name).isDirectory()
+			File[] existingBackups = backupDir.listFiles((_, name) -> 
+				name.startsWith(backupPattern) && new File(backupDir, name).isDirectory()
 			);
 
 			if (existingBackups != null && existingBackups.length > 0) {
-				LOGGER.debug("Backup already exists for today: {}", existingBackups[0].getName());
-				LOGGER.debug("Skipping backup creation to avoid duplicates");
 				return;
 			}
 
@@ -322,10 +248,8 @@ public class AllureReportingManager implements ITestListener {
 			File backupLocation = new File(ALLURE_BACKUP_DIR, backupName);
 
 			copyDirectory(resultsDir, backupLocation);
-
-			LOGGER.info("✅ Allure results backed up: {}", backupName);
 		} catch (Exception e) {
-			LOGGER.warn("Error backing up Allure results: {}", e.getMessage());
+			LOGGER.warn("Backup failed: {}", e.getMessage());
 		}
 	}
 
@@ -335,13 +259,11 @@ public class AllureReportingManager implements ITestListener {
 			String backupPattern = "allure-report_" + todayDate;
 
 			File backupDir = new File(ALLURE_BACKUP_DIR);
-			File[] existingBackups = backupDir.listFiles((dir, name) -> 
-				name.startsWith(backupPattern) && new File(dir, name).isDirectory()
+			File[] existingBackups = backupDir.listFiles((_, name) -> 
+				name.startsWith(backupPattern) && new File(backupDir, name).isDirectory()
 			);
 
 			if (existingBackups != null && existingBackups.length > 0) {
-				LOGGER.debug("Report backup already exists for today: {}", existingBackups[0].getName());
-				LOGGER.debug("Skipping backup creation to avoid duplicates");
 				return;
 			}
 
@@ -351,10 +273,8 @@ public class AllureReportingManager implements ITestListener {
 			File backupLocation = new File(ALLURE_BACKUP_DIR, backupName);
 
 			copyDirectory(reportDir, backupLocation);
-
-			LOGGER.info("✅ Allure report backed up: {}", backupName);
 		} catch (Exception e) {
-			LOGGER.warn("Error backing up Allure report: {}", e.getMessage());
+			LOGGER.warn("Backup failed: {}", e.getMessage());
 		}
 	}
 
@@ -390,16 +310,14 @@ public class AllureReportingManager implements ITestListener {
 			File resultsDir = new File(ALLURE_RESULTS_DIR);
 			if (resultsDir.exists()) {
 				deleteDirectoryContents(resultsDir);
-				LOGGER.debug("Cleaned Allure results directory");
 			}
 
 			File reportDir = new File(ALLURE_REPORT_DIR);
 			if (reportDir.exists()) {
 				deleteDirectoryContents(reportDir);
-				LOGGER.debug("Cleaned Allure report directory");
 			}
 		} catch (Exception e) {
-			LOGGER.warn("Error cleaning Allure directories: {}", e.getMessage());
+			LOGGER.warn("Cleanup failed: {}", e.getMessage());
 		}
 	}
 
@@ -445,10 +363,8 @@ public class AllureReportingManager implements ITestListener {
 			try (FileOutputStream fos = new FileOutputStream(markerFile)) {
 				fos.write(currentDate.getBytes());
 			}
-
-			LOGGER.debug("Reset marker updated: {}", currentDate);
 		} catch (Exception e) {
-			LOGGER.warn("Error updating reset marker: {}", e.getMessage());
+			LOGGER.warn("Marker update failed: {}", e.getMessage());
 		}
 	}
 

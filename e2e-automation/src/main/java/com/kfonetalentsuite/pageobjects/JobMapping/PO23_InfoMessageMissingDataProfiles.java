@@ -27,7 +27,6 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 		super();
 	}
 
-	@SuppressWarnings("unused")
 	private static ThreadLocal<List<WebElement>> profilesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);
 	private static ThreadLocal<List<Integer>> rowIndicesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);
 	private static ThreadLocal<Integer> currentRowIndex = ThreadLocal.withInitial(() -> -1);

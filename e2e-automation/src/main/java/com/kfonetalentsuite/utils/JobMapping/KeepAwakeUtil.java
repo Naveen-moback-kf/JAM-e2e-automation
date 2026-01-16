@@ -1,7 +1,7 @@
 package com.kfonetalentsuite.utils.JobMapping;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.kfonetalentsuite.utils.common.CommonVariableManager;
 
@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public class KeepAwakeUtil {
 
-	private static final Logger LOGGER = (Logger) LogManager.getLogger();
+	private static final Logger LOGGER = LogManager.getLogger(KeepAwakeUtil.class);
 	private static boolean isInitialized = false;
 	private static final Object lock = new Object();
 	private static final String BACKUP_FILE = "system_power_settings_backup.properties";
