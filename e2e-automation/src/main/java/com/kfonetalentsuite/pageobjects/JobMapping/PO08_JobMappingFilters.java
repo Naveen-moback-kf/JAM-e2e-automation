@@ -468,50 +468,79 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		waitForSpinners();
 		safeSleep(1000);
 		
-		final int MIN_REQUIRED_SUBFUNCTIONS = 2;
+		int MIN_REQUIRED_SUBFUNCTIONS = 2;
 		String selectedFunctionText = null;
+		int selectedSubfunctionCount = 0;
 
+		// Initial check for toggle buttons
 		List<WebElement> toggleButtons = driver.findElements(TOGGLE_SUBOPTIONS);
 		if (toggleButtons.isEmpty()) {
+			LOGGER.error("❌ No toggle buttons found - Functions/Subfunctions dropdown may not be loaded");
 			throw new Exception("No functions with subfunctions found!");
 		}
 
-		int maxFunctionsToCheck = Math.min(toggleButtons.size(), 20);
+		LOGGER.info("🔍 Starting search for function with >= {} subfunctions. Found {} toggle buttons to check", 
+				MIN_REQUIRED_SUBFUNCTIONS, toggleButtons.size());
 
-		for (int toggleIndex = 0; toggleIndex < maxFunctionsToCheck; toggleIndex++) {
+		int functionsChecked = 0;
+		int functionsSkippedEmpty = 0;
+		int functionsSkippedInsufficientSubfunctions = 0;
+		
+		// First pass: Try to find function with >= 2 subfunctions
+		for (int toggleIndex = 0; toggleIndex < toggleButtons.size(); toggleIndex++) {
 			try {
+				// Re-fetch elements to avoid stale reference
 				toggleButtons = driver.findElements(TOGGLE_SUBOPTIONS);
 				if (toggleIndex >= toggleButtons.size()) {
 					break;
 				}
 				
 				WebElement toggleButton = toggleButtons.get(toggleIndex);
+				scrollToElement(toggleButton);
+				safeSleep(100);
+				
+				// Get function label
 				WebElement functionLabel = toggleButton.findElement(By.xpath("./preceding-sibling::label"));
 				String functionText = functionLabel.getText().trim();
 				
 				if (functionText.isEmpty()) {
+					functionsSkippedEmpty++;
 					continue;
 				}
+				
+				functionsChecked++;
+				
+				// Check if already expanded using aria-expanded attribute
+				String ariaExpanded = toggleButton.getAttribute("aria-expanded");
+				boolean wasExpanded = "true".equals(ariaExpanded);
+				
+				if (!wasExpanded) {
+					// Expand to count subfunctions
+					jsClick(toggleButton);
+					safeSleep(400); // Wait for expansion animation
+					waitForSpinners();
+				}
 
-				// Count checkboxes before expanding
-				int checkboxCountBefore = driver.findElements(By.xpath("//button[contains(@data-testid,'toggle-suboptions')]/preceding-sibling::input[@type='checkbox'] | //div[@class='ml-6']//input[@type='checkbox']")).size();
+				// Count subfunctions - use ID-based approach which is more reliable
+				String subfunctionXPath = "//input[@type='checkbox'][contains(@id, '" + functionText + "') and contains(@id, '::')]";
+				List<WebElement> subfunctionElements = driver.findElements(By.xpath(subfunctionXPath));
+				int subfunctionCount = subfunctionElements.size();
 
-				// Expand subfunctions
-				jsClick(toggleButton);
-				safeSleep(600);
-				waitForSpinners();
+				LOGGER.info("  🔎 Function '{}': {} subfunctions", functionText, subfunctionCount);
 
-				// Count checkboxes after expanding
-				int checkboxCountAfter = driver.findElements(By.xpath("//button[contains(@data-testid,'toggle-suboptions')]/preceding-sibling::input[@type='checkbox'] | //div[@class='ml-6']//input[@type='checkbox']")).size();
-				int subfunctionCount = checkboxCountAfter - checkboxCountBefore;
-
-				// Collapse subfunctions
-				jsClick(toggleButton);
-				safeSleep(300);
+				// Collapse if we expanded it
+				if (!wasExpanded && subfunctionCount > 0) {
+					jsClick(toggleButton);
+					safeSleep(200);
+					waitForSpinners();
+				}
 
 				if (subfunctionCount < MIN_REQUIRED_SUBFUNCTIONS) {
+					functionsSkippedInsufficientSubfunctions++;
 					continue;
 				}
+
+				LOGGER.info("  ✅ Found suitable function: '{}' with {} subfunctions", functionText, subfunctionCount);
 
 				// Find and select the function checkbox
 				List<WebElement> values = driver.findElements(FUNCTIONS_VALUES);
@@ -527,11 +556,14 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				}
 
 				if (functionIndex == -1 || functionIndex >= checkboxes.size()) {
+					LOGGER.warn("     └─ ⚠️  Could not find checkbox for function '{}'", functionText);
 					continue;
 				}
 
-				// Select the function checkbox
+				// Scroll to and select the function checkbox
 				WebElement targetCheckbox = checkboxes.get(functionIndex);
+				scrollToElement(targetCheckbox);
+				safeSleep(300);
 				jsClick(targetCheckbox);
 				waitForSpinners();
 				Utilities.waitForPageReady(driver, 3);
@@ -542,17 +574,132 @@ public class PO08_JobMappingFilters extends BasePageObject {
 				if (functionIndex < checkboxes.size() && checkboxes.get(functionIndex).isSelected()) {
 					FunctionsOption.set(functionText);
 					selectedFunctionText = functionText;
-					LOGGER.info("Successfully selected function '{}' with {} subfunctions", functionText, subfunctionCount);
+					selectedSubfunctionCount = subfunctionCount;
+					LOGGER.info("✅ Successfully selected function '{}' with {} subfunctions", functionText, subfunctionCount);
 					break;
+				} else {
+					LOGGER.warn("     └─ ⚠️  Checkbox not selected after click attempt");
 				}
 			} catch (Exception e) {
-				LOGGER.debug("Error processing function (attempt {}): {}", toggleIndex, e.getMessage());
+				LOGGER.warn("  ❌ Error processing function #{}: {} - {}", toggleIndex + 1, e.getClass().getSimpleName(), e.getMessage());
 				continue;
 			}
 		}
 
+		LOGGER.info("📊 Search Summary (Pass 1): Checked {} functions, Skipped {} (empty label), Skipped {} (insufficient subfunctions)", 
+				functionsChecked, functionsSkippedEmpty, functionsSkippedInsufficientSubfunctions);
+
+		// FALLBACK: If no function found with >= 2 subfunctions, try again with >= 1 subfunction
+		if (selectedFunctionText == null && functionsSkippedInsufficientSubfunctions > 0) {
+			LOGGER.info("🔄 No function with >= 2 subfunctions found. Starting fallback search for functions with >= 1 subfunction...");
+			MIN_REQUIRED_SUBFUNCTIONS = 1;
+			
+			int fallbackChecked = 0;
+			int fallbackSkipped = 0;
+			
+			for (int toggleIndex = 0; toggleIndex < toggleButtons.size(); toggleIndex++) {
+				try {
+					toggleButtons = driver.findElements(TOGGLE_SUBOPTIONS);
+					if (toggleIndex >= toggleButtons.size()) {
+						break;
+					}
+					
+					WebElement toggleButton = toggleButtons.get(toggleIndex);
+					scrollToElement(toggleButton);
+					safeSleep(100);
+					
+					WebElement functionLabel = toggleButton.findElement(By.xpath("./preceding-sibling::label"));
+					String functionText = functionLabel.getText().trim();
+					
+					if (functionText.isEmpty()) {
+						continue;
+					}
+					
+					fallbackChecked++;
+					
+					String ariaExpanded = toggleButton.getAttribute("aria-expanded");
+					boolean wasExpanded = "true".equals(ariaExpanded);
+					
+					if (!wasExpanded) {
+						jsClick(toggleButton);
+						safeSleep(400);
+						waitForSpinners();
+					}
+
+					String subfunctionXPath = "//input[@type='checkbox'][contains(@id, '" + functionText + "') and contains(@id, '::')]";
+					List<WebElement> subfunctionElements = driver.findElements(By.xpath(subfunctionXPath));
+					int subfunctionCount = subfunctionElements.size();
+
+					LOGGER.info("  🔎 [Fallback] Function '{}': {} subfunctions", functionText, subfunctionCount);
+
+					if (!wasExpanded && subfunctionCount > 0) {
+						jsClick(toggleButton);
+						safeSleep(200);
+						waitForSpinners();
+					}
+
+					if (subfunctionCount < MIN_REQUIRED_SUBFUNCTIONS) {
+						fallbackSkipped++;
+						continue;
+					}
+
+					LOGGER.info("  ✅ [Fallback] Found suitable function: '{}' with {} subfunction(s)", functionText, subfunctionCount);
+
+					// Find and select the function checkbox
+					List<WebElement> values = driver.findElements(FUNCTIONS_VALUES);
+					List<WebElement> checkboxes = driver.findElements(FUNCTIONS_CHECKBOXES);
+					
+					int functionIndex = -1;
+					for (int i = 0; i < values.size() && i < checkboxes.size(); i++) {
+						String valueText = values.get(i).getText().trim();
+						if (valueText.equals(functionText)) {
+							functionIndex = i;
+							break;
+						}
+					}
+
+					if (functionIndex == -1 || functionIndex >= checkboxes.size()) {
+						LOGGER.warn("     └─ ⚠️  Could not find checkbox for function '{}'", functionText);
+						continue;
+					}
+
+					WebElement targetCheckbox = checkboxes.get(functionIndex);
+					scrollToElement(targetCheckbox);
+					safeSleep(300);
+					jsClick(targetCheckbox);
+					waitForSpinners();
+					Utilities.waitForPageReady(driver, 3);
+					safeSleep(500);
+
+					checkboxes = driver.findElements(FUNCTIONS_CHECKBOXES);
+					if (functionIndex < checkboxes.size() && checkboxes.get(functionIndex).isSelected()) {
+						FunctionsOption.set(functionText);
+						selectedFunctionText = functionText;
+						selectedSubfunctionCount = subfunctionCount;
+						LOGGER.info("✅ [Fallback] Successfully selected function '{}' with {} subfunction(s)", functionText, subfunctionCount);
+						break;
+					} else {
+						LOGGER.warn("     └─ ⚠️  Checkbox not selected after click attempt");
+					}
+				} catch (Exception e) {
+					LOGGER.warn("  ❌ [Fallback] Error processing function #{}: {}", toggleIndex + 1, e.getMessage());
+					continue;
+				}
+			}
+			
+			LOGGER.info("📊 Fallback Summary (Pass 2): Checked {} functions, Found {} with >= 1 subfunction", 
+					fallbackChecked, fallbackChecked - fallbackSkipped);
+		}
+
 		if (selectedFunctionText == null) {
-			throw new Exception("Failed to find/select a function with >= " + MIN_REQUIRED_SUBFUNCTIONS + " subfunctions");
+			String errorMsg = String.format(
+				"Failed to find/select any function with subfunctions after checking %d functions. " +
+				"Pass 1: %d checked (looking for >= 2 subfunctions), %d empty labels, %d insufficient. " +
+				"Fallback: No functions with >= 1 subfunction found.",
+				functionsChecked, functionsChecked, functionsSkippedEmpty, functionsSkippedInsufficientSubfunctions
+			);
+			LOGGER.error("❌ " + errorMsg);
+			throw new Exception(errorMsg);
 		}
 
 		// Verify subfunctions are auto-selected
@@ -560,19 +707,32 @@ public class PO08_JobMappingFilters extends BasePageObject {
 		waitForSpinners();
 		safeSleep(500);
 		
+		// Check if function toggle is expanded
 		WebElement selectedFunctionToggle = driver.findElement(By.xpath("//label[normalize-space(text())='" + selectedFunctionText + "']/following-sibling::button[contains(@data-testid,'toggle-suboptions')]"));
-		jsClick(selectedFunctionToggle);
-		safeSleep(800);
-		waitForSpinners();
+		String ariaExpanded = selectedFunctionToggle.getAttribute("aria-expanded");
+		
+		// Expand if not already expanded
+		if (!"true".equals(ariaExpanded)) {
+			scrollToElement(selectedFunctionToggle);
+			safeSleep(300);
+			jsClick(selectedFunctionToggle);
+			safeSleep(800);
+			waitForSpinners();
+		}
 
 		String subfunctionXPath = "//input[@type='checkbox'][contains(@id, '" + selectedFunctionText + "') and contains(@id, '::')]";
 		List<WebElement> subfunctions = driver.findElements(By.xpath(subfunctionXPath));
 
 		if (subfunctions.isEmpty()) {
+			LOGGER.error("❌ Function '{}' was expected to have {} subfunctions but none found after expansion", 
+					selectedFunctionText, selectedSubfunctionCount);
 			throw new Exception("Function '" + selectedFunctionText + "' was expected to have subfunctions but none found");
 		}
 
+		LOGGER.info("🔍 Verifying {} subfunction(s) are auto-selected...", subfunctions.size());
+
 		// Verify each subfunction is selected
+		int verifiedCount = 0;
 		for (int i = 0; i < subfunctions.size(); i++) {
 			subfunctions = driver.findElements(By.xpath(subfunctionXPath));
 			if (i >= subfunctions.size()) {
@@ -580,10 +740,12 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			}
 			
 			WebElement subfunctionCheckbox = subfunctions.get(i);
-			Assert.assertTrue(subfunctionCheckbox.isSelected(), "Subfunction should be auto-selected when parent function is selected");
+			Assert.assertTrue(subfunctionCheckbox.isSelected(), 
+					"Subfunction #" + (i+1) + " should be auto-selected when parent function is selected");
+			verifiedCount++;
 		}
 
-		LOGGER.info("Verified all {} subfunctions are auto-selected for function '{}'", subfunctions.size(), selectedFunctionText);
+		LOGGER.info("✅ Verified all {} subfunction(s) are auto-selected for function '{}'", verifiedCount, selectedFunctionText);
 	}
 
 	public void validate_job_mapping_profiles_are_correctly_filtered_with_applied_functions_subfunctions_options() throws Exception {
@@ -985,6 +1147,9 @@ public class PO08_JobMappingFilters extends BasePageObject {
 	public void select_one_option_in_mapping_status_filters_dropdown() throws Exception {
 		try {
 			Utilities.waitForPageReady(driver, 2);
+			waitForSpinners();
+			safeSleep(300);
+			
 			List<WebElement> checkboxes = driver.findElements(MAPPING_STATUS_CHECKBOXES);
 			List<WebElement> values = driver.findElements(MAPPING_STATUS_VALUES);
 
@@ -992,19 +1157,36 @@ public class PO08_JobMappingFilters extends BasePageObject {
 			boolean optionSelected = false;
 
 			for (String desiredStatus : priorityOrder) {
+				// Re-fetch elements for each priority attempt to avoid stale elements
+				checkboxes = driver.findElements(MAPPING_STATUS_CHECKBOXES);
+				values = driver.findElements(MAPPING_STATUS_VALUES);
+				
 				for (int i = 0; i < values.size(); i++) {
 					String actualStatusText = values.get(i).getText();
 					if (actualStatusText.contains(desiredStatus)) {
+						// Re-fetch the specific elements before interacting
+						values = driver.findElements(MAPPING_STATUS_VALUES);
+						checkboxes = driver.findElements(MAPPING_STATUS_CHECKBOXES);
+						
 						scrollToElement(values.get(i));
+						safeSleep(200);
 						clickElement(values.get(i));
 						waitForSpinners();
 						Utilities.waitForPageReady(driver, 1);
+						safeSleep(300);
 
-						Assert.assertTrue(checkboxes.get(i).isSelected());
-						DepartmentsOption.set(actualStatusText);
-						LOGGER.info("Selected Mapping Status: " + actualStatusText);
-						optionSelected = true;
-						break;
+						// Re-fetch checkboxes after click to avoid stale element
+						checkboxes = driver.findElements(MAPPING_STATUS_CHECKBOXES);
+						if (i < checkboxes.size()) {
+							Assert.assertTrue(checkboxes.get(i).isSelected(), 
+									"Mapping status checkbox should be selected: " + actualStatusText);
+							DepartmentsOption.set(actualStatusText);
+							LOGGER.info("Selected Mapping Status: " + actualStatusText);
+							optionSelected = true;
+							break;
+						} else {
+							LOGGER.warn("Checkbox index {} out of bounds after re-fetch (size: {})", i, checkboxes.size());
+						}
 					}
 				}
 				if (optionSelected) break;

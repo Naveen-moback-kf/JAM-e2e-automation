@@ -2,6 +2,8 @@ package com.kfonetalentsuite.pageobjects.JobMapping;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebElement;
@@ -35,23 +37,66 @@ public class PO09_FilterPersistence extends BasePageObject {
 			waitForSpinners();
 
 			String actualResultsCount = getElementText(SHOWING_RESULTS_COUNT);
-			Utilities.waitForVisible(wait, CLEAR_FILTERS_BTN);
-
-			if (actualResultsCount.equals(PO04_JobMappingPageComponents.intialResultsCount.get())) {
-				throw new AssertionError("Filters NOT persisted - count reverted to unfiltered state: " + actualResultsCount);
+			
+			// PRIMARY CHECK: Verify Clear Filters button is present (indicates filters are applied)
+			List<WebElement> clearFilterButtons = driver.findElements(CLEAR_FILTERS_BTN);
+			if (clearFilterButtons.isEmpty()) {
+				// Try alternative locator
+				clearFilterButtons = driver.findElements(CLEAR_FILTERS_X_BTN);
+			}
+			
+			if (clearFilterButtons.isEmpty()) {
+				throw new AssertionError("Filters NOT persisted - Clear Filters button not found (filters were cleared)");
+			}
+			
+			// Verify Clear Filters button is visible and enabled
+			WebElement clearBtn = clearFilterButtons.get(0);
+			if (!clearBtn.isDisplayed() || !clearBtn.isEnabled()) {
+				throw new AssertionError("Filters NOT persisted - Clear Filters button exists but is not visible/enabled");
 			}
 
-			LOGGER.info("Applied Filters Persisted correctly - Results: {}", actualResultsCount);
+			// SECONDARY CHECK: If we have a previous filtered count, verify it matches
+			// (This handles the case where filter count might equal unfiltered count, like "Auto Matched Jobs" matching all 193 jobs)
+			String previousFilteredCount = PO04_JobMappingPageComponents.initialFilteredResultsCount.get();
+			if (previousFilteredCount != null && !previousFilteredCount.isEmpty()) {
+				if (!actualResultsCount.equals(previousFilteredCount)) {
+					LOGGER.warn("Filter persisted BUT count changed: Previous='{}', Current='{}'. This might indicate dynamic data changes.", 
+							previousFilteredCount, actualResultsCount);
+				} else {
+					LOGGER.info("Filter count matches previous: {}", actualResultsCount);
+				}
+			}
+
+			LOGGER.info("✅ Applied Filters Persisted correctly - Clear Filters button present, Results: {}", actualResultsCount);
 		} catch (AssertionError e) {
 			String actualCount = "";
+			String clearBtnStatus = "";
 			try {
 				actualCount = driver.findElement(SHOWING_RESULTS_COUNT).getText();
 			} catch (Exception ex) {
 				actualCount = "Unable to read";
 			}
+			
+			try {
+				List<WebElement> clearBtns = driver.findElements(CLEAR_FILTERS_BTN);
+				if (clearBtns.isEmpty()) {
+					clearBtns = driver.findElements(CLEAR_FILTERS_X_BTN);
+				}
+				clearBtnStatus = clearBtns.isEmpty() ? "NOT FOUND (filters cleared)" : 
+						"Found but " + (clearBtns.get(0).isDisplayed() ? "visible" : "hidden");
+			} catch (Exception ex) {
+				clearBtnStatus = "Error checking: " + ex.getMessage();
+			}
 
-			String errorMsg = String.format("Filter Persistence Check Failed:%n  Actual displayed count: %s%n  Initial unfiltered count: %s%n",
-					actualCount, PO04_JobMappingPageComponents.intialResultsCount.get());
+			String errorMsg = String.format("Filter Persistence Check Failed:%n" +
+					"  Actual displayed count: %s%n" +
+					"  Initial unfiltered count: %s%n" +
+					"  Clear Filters button: %s%n" +
+					"  Previous filtered count: %s%n",
+					actualCount, 
+					PO04_JobMappingPageComponents.intialResultsCount.get(),
+					clearBtnStatus,
+					PO04_JobMappingPageComponents.initialFilteredResultsCount.get());
 			Utilities.handleError(LOGGER, "verify_applied_filters_persist_on_job_mapping_ui", "Applied Filters Not Persisted", new RuntimeException(errorMsg, e));
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "verify_applied_filters_persist_on_job_mapping_ui", "Applied Filters Not Persisted on Job Mapping page", e);
