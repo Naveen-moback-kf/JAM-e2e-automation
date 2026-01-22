@@ -40,18 +40,18 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 	public void skipScenarioIfMissingDataTipMessageNotDisplayed() {
 		LOGGER.info("Checking prerequisite for Missing Data Tip Message...");
 		
-		// Check if this is a CSV file manipulation scenario (prerequisite already met if CSV exists)
+		// Check if this is an Excel file manipulation scenario (prerequisite already met if Excel exists)
 		try {
-			String csvPath = PO35_ReuploadMissingDataProfiles.csvFilePath.get();
-			if (csvPath != null && !csvPath.equals("NOT_SET")) {
-				java.io.File csvFile = new java.io.File(csvPath);
-				if (csvFile.exists()) {
-					LOGGER.info("CSV file exists at: " + csvPath + " - prerequisite assumed met (file manipulation scenario)");
+			String excelPath = PO35_ReuploadMissingDataProfiles.excelFilePath.get();
+			if (excelPath != null && !excelPath.equals("NOT_SET")) {
+				java.io.File excelFile = new java.io.File(excelPath);
+				if (excelFile.exists()) {
+					LOGGER.info("Excel file exists at: " + excelPath + " - prerequisite assumed met (file manipulation scenario)");
 					return;
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.debug("CSV file check exception: " + e.getMessage());
+			LOGGER.debug("Excel file check exception: " + e.getMessage());
 		}
 		
 		// Small wait to ensure page is loaded
@@ -154,8 +154,8 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 		} catch (Exception e) {
 			// Check if this is a Feature 35 verification scenario (after re-upload)
 			// For these scenarios, missing tip message = successful fix, allow to proceed
-			String csvPath = PO35_ReuploadMissingDataProfiles.csvFilePath.get();
-			if (csvPath != null && !csvPath.equals("NOT_SET")) {
+			String excelPath = PO35_ReuploadMissingDataProfiles.excelFilePath.get();
+			if (excelPath != null && !excelPath.equals("NOT_SET")) {
 				LOGGER.info("Feature 35 verification scenario - Missing Data Tip Message NOT found");
 				LOGGER.info("This indicates all profiles were successfully fixed - scenario will proceed to verify");
 				return; // Allow scenario to proceed - tip message absence is expected after successful fix

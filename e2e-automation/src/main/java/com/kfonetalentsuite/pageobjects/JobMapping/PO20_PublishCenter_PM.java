@@ -35,10 +35,10 @@ public class PO20_PublishCenter_PM extends BasePageObject {
 			WebElement publishCenterBtn = Utilities.waitForClickable(wait, PUBLISH_CENTER_BTN);
 			Assert.assertTrue(publishCenterBtn.isEnabled());
 			tryClickWithStrategies(publishCenterBtn);
-			LOGGER.info("Clicked on Publish Center button in My Organization's Job Profiles screen in PM");
+			LOGGER.info("Clicked on Publish Center button in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "click_on_publish_center_button",
-					"Issue in clicking on Publish Center button in My Organization's Job Profiles screen in PM", e);
+					"Issue in clicking on Publish Center button in HCM Sync Profiles screen in PM", e);
 		}
 	}
 

@@ -97,8 +97,8 @@ kfonetalentsuite/
 │           │   │       ├── 03PublishJobProfile.feature
 │           │   │       ├── 04-32...
 │           │   │       └── ...
-│           ├── JobCatalogBackups/    # Job Catalog CSV backup files (auto-created before refresh)
-│           ├── Job Catalog with 100 profiles.csv  # Test data file
+│           ├── JobCatalogBackups/    # Job Catalog Excel backup files (auto-created before refresh)
+│           ├── JobCatalogNewFormat-100 Profiles.xlsx  # Test data file (Excel format)
 │           ├── config.properties      # Enhanced configuration with Excel reporting toggle
 │           ├── cucumber.properties    # Cucumber specific configuration
 │           └── log4j2.properties     # Optimized logging (INFO level, app-specific loggers)

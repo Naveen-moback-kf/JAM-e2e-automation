@@ -1,4 +1,4 @@
-﻿package stepdefinitions.JobMapping;
+package stepdefinitions.JobMapping;
 
 import java.io.IOException;
 
@@ -44,49 +44,49 @@ public class SD35_ReuploadMissingDataProfiles {
 		PageObjectManager.getInstance().getReuploadMissingDataProfiles().extract_details_of_top_10_profiles_from_jobs_missing_data_screen();
 	}
 
-	@Then("Create CSV file with extracted profiles in Job Catalog format")
-	public void create_csv_file_with_extracted_profiles_in_job_catalog_format() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().create_csv_file_with_extracted_profiles_in_job_catalog_format();
+	@Then("Create Excel file with extracted profiles in Job Catalog format")
+	public void create_excel_file_with_extracted_profiles_in_job_catalog_format() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().create_excel_file_with_extracted_profiles_in_job_catalog_format();
 	}
 
-	@And("Save CSV file as {string} in test resources folder")
-	public void save_csv_file_as_in_test_resources_folder(String fileName) throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().save_csv_file_as_in_test_resources_folder(fileName);
+	@And("Save Excel file as {string} in test resources folder")
+	public void save_excel_file_as_in_test_resources_folder(String fileName) throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().save_excel_file_as_in_test_resources_folder(fileName);
 	}
 
-	@And("Verify CSV file is created successfully with correct headers")
-	public void verify_csv_file_is_created_successfully_with_correct_headers() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_csv_file_is_created_successfully_with_correct_headers();
+	@And("Verify Excel file is created successfully with correct headers")
+	public void verify_excel_file_is_created_successfully_with_correct_headers() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_excel_file_is_created_successfully_with_correct_headers();
 	}
 
-	@And("Verify CSV file contains extracted profile data")
-	public void verify_csv_file_contains_extracted_profile_data() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_csv_file_contains_extracted_profile_data();
+	@And("Verify Excel file contains extracted profile data")
+	public void verify_excel_file_contains_extracted_profile_data() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_excel_file_contains_extracted_profile_data();
 	}
 
-	@Given("CSV file with missing data profiles exists")
-	public void csv_file_with_missing_data_profiles_exists() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().csv_file_with_missing_data_profiles_exists();
+	@Given("Excel file with missing data profiles exists")
+	public void Excel_file_with_missing_data_profiles_exists() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().excel_file_with_missing_data_profiles_exists();
 	}
 
-	@Then("Read the exported CSV file with missing data profiles")
-	public void read_the_exported_csv_file_with_missing_data_profiles() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().read_the_exported_csv_file_with_missing_data_profiles();
+	@Then("Read the exported Excel file with missing data profiles")
+	public void read_the_exported_excel_file_with_missing_data_profiles() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().read_the_exported_excel_file_with_missing_data_profiles();
 	}
 
-	@And("Identify profiles with missing Grade value in CSV")
-	public void identify_profiles_with_missing_grade_value_in_csv() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().identify_profiles_with_missing_grade_value_in_csv();
+	@And("Identify profiles with missing Grade value in Excel")
+	public void identify_profiles_with_missing_grade_value_in_excel() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().identify_profiles_with_missing_grade_value_in_excel();
 	}
 
-	@And("Identify profiles with missing Department value in CSV")
-	public void identify_profiles_with_missing_department_value_in_csv() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().identify_profiles_with_missing_department_value_in_csv();
+	@And("Identify profiles with missing Department value in Excel")
+	public void identify_profiles_with_missing_department_value_in_excel() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().identify_profiles_with_missing_department_value_in_excel();
 	}
 
-	@And("Identify all profiles with any missing values in CSV")
-	public void identify_all_profiles_with_any_missing_values_in_csv() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().identify_all_profiles_with_any_missing_values_in_csv();
+	@And("Identify all profiles with any missing values in Excel")
+	public void identify_all_profiles_with_any_missing_values_in_excel() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().identify_all_profiles_with_any_missing_values_in_excel();
 	}
 
 	@Then("Fill missing Grade values with appropriate grade codes")
@@ -119,34 +119,34 @@ public class SD35_ReuploadMissingDataProfiles {
 		PageObjectManager.getInstance().getReuploadMissingDataProfiles().fill_missing_job_sub_family_values_with_default_value("Operations");
 	}
 
-	@And("Save the updated CSV file with filled Grade data")
-	public void save_the_updated_csv_file_with_filled_grade_data() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().save_the_updated_csv_file_with_filled_data();
+	@And("Save the updated Excel file with filled Grade data")
+	public void save_the_updated_excel_file_with_filled_grade_data() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().save_the_updated_excel_file_with_filled_data();
 	}
 
-	@And("Save the updated CSV file with filled Department data")
-	public void save_the_updated_csv_file_with_filled_department_data() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().save_the_updated_csv_file_with_filled_data();
+	@And("Save the updated Excel file with filled Department data")
+	public void save_the_updated_excel_file_with_filled_department_data() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().save_the_updated_excel_file_with_filled_data();
 	}
 
-	@And("Save the updated CSV file with all missing data filled")
-	public void save_the_updated_csv_file_with_all_missing_data_filled() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().save_the_updated_csv_file_with_filled_data();
+	@And("Save the updated Excel file with all missing data filled")
+	public void save_the_updated_excel_file_with_all_missing_data_filled() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().save_the_updated_excel_file_with_filled_data();
 	}
 
-	@And("Verify updated CSV file has no empty Grade values")
-	public void verify_updated_csv_file_has_no_empty_grade_values() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_updated_csv_file_has_no_empty_grade_values();
+	@And("Verify updated Excel file has no empty Grade values")
+	public void verify_updated_excel_file_has_no_empty_grade_values() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_updated_excel_file_has_no_empty_grade_values();
 	}
 
-	@And("Verify updated CSV file has no empty Department values")
-	public void verify_updated_csv_file_has_no_empty_department_values() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_updated_csv_file_has_no_empty_department_values();
+	@And("Verify updated Excel file has no empty Department values")
+	public void verify_updated_excel_file_has_no_empty_department_values() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_updated_excel_file_has_no_empty_department_values();
 	}
 
-	@And("Verify updated CSV file has no empty required fields")
-	public void verify_updated_csv_file_has_no_empty_required_fields() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_updated_csv_file_has_no_empty_required_fields();
+	@And("Verify updated Excel file has no empty required fields")
+	public void verify_updated_excel_file_has_no_empty_required_fields() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_updated_excel_file_has_no_empty_required_fields();
 	}
 
 	@Then("Capture the count of jobs with missing data before re-upload")
@@ -184,9 +184,9 @@ public class SD35_ReuploadMissingDataProfiles {
 		PageObjectManager.getInstance().getReuploadMissingDataProfiles().wait_and_refresh_job_mapping_page_after_upload();
 	}
 
-	@Then("Search for first re-uploaded profile by Job Name from CSV")
-	public void search_for_first_reuploaded_profile_by_job_name_from_csv() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().search_for_first_reuploaded_profile_by_job_name_from_csv();
+	@Then("Search for first re-uploaded profile by Job Name from Excel")
+	public void search_for_first_reuploaded_profile_by_job_name_from_excel() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().search_for_first_reuploaded_profile_by_job_name_from_excel();
 	}
 
 	@Then("Search for first re-uploaded profile by Job Code in Missing Data screen")
@@ -214,9 +214,12 @@ public class SD35_ReuploadMissingDataProfiles {
 		PageObjectManager.getInstance().getReuploadMissingDataProfiles().verify_profile_is_not_found_in_jobs_missing_data_screen();
 	}
 
-	@Then("Upload generated CSV file using Browse Files button")
-	public void upload_generated_csv_file_using_browse_files_button() throws IOException {
-		PageObjectManager.getInstance().getReuploadMissingDataProfiles().upload_generated_csv_file();
+	@Then("Upload generated Excel file using Browse Files button")
+	public void upload_generated_excel_file_using_browse_files_button() throws IOException {
+		PageObjectManager.getInstance().getReuploadMissingDataProfiles().upload_generated_excel_file();
 	}
 }
+
+
+
 

@@ -166,10 +166,41 @@ public class PO05_PublishJobProfile extends BasePageObject {
 	public void click_on_view_published_toggle_button_to_turn_on() {
 		try {
 			Utilities.waitForPageReady(driver, 3);
-			WebElement toggle = driver.findElement(VIEW_PUBLISHED_TOGGLE);
-			if ("true".equals(toggle.getAttribute("aria-checked")) || toggle.isSelected()) {
-				LOGGER.info("View published toggle button is already ON");
+			Utilities.waitForSpinnersToDisappear(driver, 5);
+			safeSleep(500); // Small wait to ensure toggle state is stable
+			
+			// Check toggle state by detecting CSS classes
+			// When ON: bg-[#007BC7] (blue) and translate-x-[18px] (circle moved right)
+			// When OFF: bg-gray or similar and translate-x-[0px] or no translate
+			boolean isCurrentlyOn = false;
+			String detectionMethod = "";
+			
+			try {
+				// Method 1: Check the moving circle's position (most reliable)
+				WebElement toggleCircle = driver.findElement(By.xpath("//label[@for='toggleSwitch']//div[@class and contains(@class,'absolute')]"));
+				String circleClass = toggleCircle.getAttribute("class");
+				isCurrentlyOn = circleClass != null && circleClass.contains("translate-x-[18px]");
+				detectionMethod = "circle position (translate-x-[18px])";
+				LOGGER.info("Toggle state detected via {} - class: '{}', interpreted as: {}", 
+						detectionMethod, circleClass, isCurrentlyOn ? "ON" : "OFF");
+			} catch (Exception e) {
+				// Method 2: Check background color of the toggle track
+				try {
+					WebElement toggleTrack = driver.findElement(By.xpath("//label[@for='toggleSwitch']//div[contains(@class,'rounded-full') and contains(@class,'bg-')]"));
+					String trackClass = toggleTrack.getAttribute("class");
+					isCurrentlyOn = trackClass != null && trackClass.contains("bg-[#007BC7]");
+					detectionMethod = "track background color (bg-[#007BC7])";
+					LOGGER.info("Toggle state detected via {} - class: '{}', interpreted as: {}", 
+							detectionMethod, trackClass, isCurrentlyOn ? "ON" : "OFF");
+				} catch (Exception ex) {
+					LOGGER.warn("Could not reliably detect toggle state - will proceed with click");
+				}
+			}
+			
+			if (isCurrentlyOn) {
+				LOGGER.info("View published toggle button is already ON - no action needed");
 			} else {
+				LOGGER.info("View published toggle button is OFF - clicking to turn ON");
 				clickElement(VIEW_PUBLISHED_TOGGLE);
 				Utilities.waitForPageReady(driver, 3);
 				LOGGER.info("View published toggle button is turned ON");

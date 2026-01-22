@@ -3,21 +3,22 @@ import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locator
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.common.Utilities;
+import com.kfonetalentsuite.utils.JobMapping.ExcelMissingDataHandler;
 public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO35_ReuploadMissingDataProfiles.class);
@@ -34,15 +35,25 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 	public static ThreadLocal<String> firstProfileExpectedDepartment = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> firstProfileExpectedJobFamily = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<String> firstProfileExpectedJobSubFamily = ThreadLocal.withInitial(() -> "NOT_SET");
-	public static ThreadLocal<String> csvFilePath = ThreadLocal.withInitial(() -> "NOT_SET");
+	public static ThreadLocal<String> excelFilePath = ThreadLocal.withInitial(() -> "NOT_SET");
 	public static ThreadLocal<Integer> searchResultsFoundCount = ThreadLocal.withInitial(() -> 0);
-	private static final String CSV_HEADER = "Client Job Code,Client Job Title,Department,Job Family,Job Sub Family,Job Grade,Is Executive";
-	private static final String DEFAULT_CSV_FILENAME = "MissingDataProfiles_ToFix.csv";
-	// Column indices for Job Mapping table (same as PO25)
-	// Column 1 = Checkbox, Column 2 = Job Name/Code, Column 3 = Grade, Column 4 = Department
-	private static final int GRADE_COLUMN_INDEX = 3;
-	private static final int DEPARTMENT_COLUMN_INDEX = 4;
-	// Function/SubFunction are in the next row (expandable row) under span[2]
+	private static final String DEFAULT_EXCEL_FILENAME = "MissingDataProfiles_ToFix.xlsx";
+	private static final String BACKUP_DIR = "src/test/resources/MissingDataBackups";
+	
+	// Excel structure constants (matching JobCatalogNewFormat)
+	// Note: Missing data columns C, D, E, K (Function, Subfunction, Grade, Department) 
+	// are handled by ExcelMissingDataHandler utility class
+	private static final int HEADER_ROW = 4; // Row 5 in Excel (0-indexed = 4)
+	private static final int DATA_START_ROW = 6; // Row 7 in Excel (0-indexed = 6)
+	private static final int JOB_TITLE_COLUMN = 0; // Column A (0-indexed = 0)
+	private static final int JOB_CODE_COLUMN = 1; // Column B (0-indexed = 1)
+	private static final int JOB_FAMILY_COLUMN = 2; // Column C (0-indexed = 2) - Function
+	private static final int JOB_GRADE_COLUMN = 4; // Column E (0-indexed = 4)
+	private static final int DEPARTMENT_COLUMN = 10; // Column K (0-indexed = 10)
+	
+	// Job Mapping page table column indices (for UI validation)
+	private static final int GRADE_COLUMN_INDEX = 3; // Column 3 in Job Mapping table
+	private static final int DEPARTMENT_COLUMN_INDEX = 4; // Column 4 in Job Mapping table
 
 	public PO35_ReuploadMissingDataProfiles() {
 		super();
@@ -226,42 +237,43 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void create_csv_file_with_extracted_profiles_in_job_catalog_format() {
+	public void create_excel_file_with_extracted_profiles_in_job_catalog_format() {
 		try {
 			List<String[]> profiles = extractedProfiles.get();
 
 			if (profiles == null || profiles.isEmpty()) {
-				throw new IOException("No profiles available to create CSV file");
+				throw new IOException("No profiles available to create Excel file");
 			}
 
 			String filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-					+ File.separator + "resources" + File.separator + DEFAULT_CSV_FILENAME;
+					+ File.separator + "resources" + File.separator + DEFAULT_EXCEL_FILENAME;
 
-			csvFilePath.set(filePath);
+			String templatePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
+					+ File.separator + "resources" + File.separator + "JobCatalogNewFormat-100 Profiles.xlsx";
 
-			try (FileWriter writer = new FileWriter(filePath)) {
-				writer.write(CSV_HEADER + "\n");
-				for (String[] profile : profiles) {
-					writer.write(profileToCsvLine(profile) + "\n");
-				}
+			boolean success = ExcelMissingDataHandler.createExcelFileWithProfiles(profiles, filePath, templatePath);
+
+			if (success) {
+				excelFilePath.set(filePath);
+				LOGGER.info("Excel file created successfully at: " + filePath);
+			} else {
+				throw new IOException("Failed to create Excel file");
 			}
 
-			LOGGER.info("CSV file created with " + profiles.size() + " profiles at: " + filePath);
-
 		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "create_csv_file", "Failed to create CSV file", e);
+			Utilities.handleError(LOGGER, "create_excel_file", "Failed to create Excel file", e);
 		}
 	}
 
-	public void save_csv_file_as_in_test_resources_folder(String fileName) {
+	public void save_excel_file_as_in_test_resources_folder(String fileName) {
 		try {
 			String filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
 					+ File.separator + "resources" + File.separator + fileName;
 
-			csvFilePath.set(filePath);
+			excelFilePath.set(filePath);
 
 			File defaultFile = new File(System.getProperty("user.dir") + File.separator + "src" + File.separator
-					+ "test" + File.separator + "resources" + File.separator + DEFAULT_CSV_FILENAME);
+					+ "test" + File.separator + "resources" + File.separator + DEFAULT_EXCEL_FILENAME);
 
 			if (defaultFile.exists()) {
 				File newFile = new File(filePath);
@@ -271,93 +283,98 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			LOGGER.info("CSV file saved as: " + fileName);
 
 		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "save_csv_file", "Failed to save CSV file", e);
+			Utilities.handleError(LOGGER, "save_excel_file", "Failed to save Excel file", e);
 		}
 	}
 
-	public void verify_csv_file_is_created_successfully_with_correct_headers() {
+	public void verify_excel_file_is_created_successfully_with_correct_headers() {
 		try {
-			String filePath = csvFilePath.get();
-			File csvFile = new File(filePath);
+			String filePath = excelFilePath.get();
+			File excelFile = new File(filePath);
 
-			Assert.assertTrue(csvFile.exists(), "CSV file should exist at: " + filePath);
+			Assert.assertTrue(excelFile.exists(), "Excel file should exist at: " + filePath);
 
-			try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
-				String headerLine = reader.readLine();
-				Assert.assertNotNull(headerLine, "CSV file should have header line");
-				Assert.assertEquals(headerLine.trim(), CSV_HEADER, "CSV header should match expected format");
+			// Verify Excel file has correct structure
+			try (FileInputStream fis = new FileInputStream(excelFile);
+				 Workbook workbook = new XSSFWorkbook(fis)) {
+				
+				Sheet sheet = workbook.getSheetAt(0);
+				Row headerRow = sheet.getRow(HEADER_ROW);
+				
+				Assert.assertNotNull(headerRow, "Excel file should have header row at row " + (HEADER_ROW + 1));
+				
+				// Check key headers
+				Assert.assertNotNull(headerRow.getCell(JOB_TITLE_COLUMN), "Job Title header should exist");
+				Assert.assertNotNull(headerRow.getCell(JOB_CODE_COLUMN), "Job Code header should exist");
+				Assert.assertNotNull(headerRow.getCell(JOB_FAMILY_COLUMN), "Job Family header should exist");
+				Assert.assertNotNull(headerRow.getCell(JOB_GRADE_COLUMN), "Job Grade header should exist");
+				Assert.assertNotNull(headerRow.getCell(DEPARTMENT_COLUMN), "Department header should exist");
 			}
 
-			LOGGER.info("CSV file verified with correct headers");
+			LOGGER.info("Excel file verified with correct headers");
 
 		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "verify_csv_headers", "Failed to verify CSV file headers", e);
+			Utilities.handleError(LOGGER, "verify_excel_headers", "Failed to verify Excel file headers", e);
 		}
 	}
 
-	public void verify_csv_file_contains_extracted_profile_data() {
+	public void verify_excel_file_contains_extracted_profile_data() {
 		try {
-			String filePath = csvFilePath.get();
-			int lineCount = 0;
-
-			try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-				while (reader.readLine() != null) {
-					lineCount++;
-				}
+			String filePath = excelFilePath.get();
+			
+			try (FileInputStream fis = new FileInputStream(filePath);
+				 Workbook workbook = new XSSFWorkbook(fis)) {
+				
+				Sheet sheet = workbook.getSheetAt(0);
+				int lastRow = sheet.getLastRowNum();
+				int dataRows = lastRow - DATA_START_ROW + 1;
+				
+				Assert.assertTrue(dataRows > 0, "Excel file should contain profile data");
+				LOGGER.info("Excel file contains " + dataRows + " profile records");
 			}
 
-			int dataRows = lineCount - 1;
-			Assert.assertTrue(dataRows > 0, "CSV file should contain profile data");
-
-			LOGGER.info("CSV file contains " + dataRows + " profile records");
-
 		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "verify_csv_data", "Failed to verify CSV file data", e);
+			Utilities.handleError(LOGGER, "verify_excel_data", "Failed to verify Excel file data", e);
 		}
 	}
 
-	public void csv_file_with_missing_data_profiles_exists() {
+	public void excel_file_with_missing_data_profiles_exists() {
 		try {
-			String filePath = csvFilePath.get();
+			String filePath = excelFilePath.get();
 			if (filePath == null || filePath.isEmpty() || filePath.equals("NOT_SET")) {
 				filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-						+ File.separator + "resources" + File.separator + DEFAULT_CSV_FILENAME;
-				csvFilePath.set(filePath);
+						+ File.separator + "resources" + File.separator + DEFAULT_EXCEL_FILENAME;
+				excelFilePath.set(filePath);
 			}
 
-			File csvFile = new File(filePath);
-			Assert.assertTrue(csvFile.exists(), "CSV file should exist for processing");
-			LOGGER.info("Confirmed CSV file exists at: " + filePath);
+			File excelFile = new File(filePath);
+			Assert.assertTrue(excelFile.exists(), "Excel file should exist for processing: " + filePath);
+			LOGGER.info("Confirmed Excel file exists at: " + filePath);
 
 		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "csv_file_exists", "CSV file does not exist", e);
+			Utilities.handleError(LOGGER, "excel_file_exists", "Excel file does not exist", e);
 		}
 	}
 
-	public void read_the_exported_csv_file_with_missing_data_profiles() {
+	public void read_the_exported_excel_file_with_missing_data_profiles() {
 		try {
-			String filePath = csvFilePath.get();
-			List<String[]> profiles = new ArrayList<>();
-
-			try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-				String line;
-				boolean isHeader = true;
-
-				while ((line = reader.readLine()) != null) {
-					if (isHeader) {
-						isHeader = false;
-						continue;
-					}
-					String[] values = parseCsvLine(line);
-					profiles.add(values);
-				}
+			String filePath = excelFilePath.get();
+			
+			// Use ExcelMissingDataHandler to read Excel file
+			List<String[]> profiles = ExcelMissingDataHandler.readExcelFile(filePath);
+			
+			if (profiles == null) {
+				LOGGER.warn("No profiles found in Excel file - initializing empty list");
+				profiles = new ArrayList<>();
+			} else if (profiles.isEmpty()) {
+				LOGGER.warn("Excel file contains no profile data");
 			}
 
 			extractedProfiles.set(profiles);
-			LOGGER.info("Read " + profiles.size() + " profiles from CSV file");
+			LOGGER.info("Read " + profiles.size() + " profiles from Excel file");
 
 		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "read_csv_file", "Failed to read CSV file", e);
+			Utilities.handleError(LOGGER, "read_excel_file", "Failed to read Excel file", e);
 		}
 	}
 
@@ -469,26 +486,35 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void save_the_updated_csv_file_with_filled_data() {
+	public void save_the_updated_excel_file_with_filled_data() {
 		try {
-			String filePath = csvFilePath.get();
+			String filePath = excelFilePath.get();
 			List<String[]> profiles = extractedProfiles.get();
 
-			try (FileWriter writer = new FileWriter(filePath)) {
-				writer.write(CSV_HEADER + "\n");
-				for (String[] profile : profiles) {
-					writer.write(profileToCsvLine(profile) + "\n");
-				}
+			// Create backup before overwriting
+			String backupPath = ExcelMissingDataHandler.createBackup(filePath, BACKUP_DIR);
+			if (backupPath != null) {
+				LOGGER.info("Backup created: " + backupPath);
 			}
 
-			LOGGER.info("Updated CSV file saved with " + profiles.size() + " profiles");
+			// Use ExcelMissingDataHandler to write Excel file
+			String templatePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
+					+ File.separator + "resources" + File.separator + "JobCatalogNewFormat-100 Profiles.xlsx";
+			
+			boolean success = ExcelMissingDataHandler.createExcelFileWithProfiles(profiles, filePath, templatePath);
+			
+			if (success) {
+				LOGGER.info("Updated Excel file saved with " + profiles.size() + " profiles");
+			} else {
+				throw new IOException("Failed to save updated Excel file");
+			}
 
 		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "save_updated_csv", "Failed to save updated CSV file", e);
+			Utilities.handleError(LOGGER, "save_updated_excel", "Failed to save updated Excel file", e);
 		}
 	}
 
-	public void verify_updated_csv_file_has_no_empty_grade_values() {
+	public void verify_updated_excel_file_has_no_empty_grade_values() {
 		try {
 			List<String[]> profiles = extractedProfiles.get();
 
@@ -506,7 +532,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_updated_csv_file_has_no_empty_department_values() {
+	public void verify_updated_excel_file_has_no_empty_department_values() {
 		try {
 			List<String[]> profiles = extractedProfiles.get();
 
@@ -524,7 +550,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void verify_updated_csv_file_has_no_empty_required_fields() {
+	public void verify_updated_excel_file_has_no_empty_required_fields() {
 		try {
 			List<String[]> profiles = extractedProfiles.get();
 
@@ -540,7 +566,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			if (!profiles.isEmpty()) {
 				String[] firstProfile = profiles.get(0);
 				
-				// CSV Format: Client Job Code, Client Job Title, Department, Job Family, Job Sub Family, Job Grade, Is Executive
+				// Excel Format: Client Job Code, Client Job Title, Department, Job Family, Job Sub Family, Job Grade, Is Executive
 				// Indices:    0                 1                 2           3           4               5          6
 				
 				if (firstProfile.length > 5) {
@@ -851,7 +877,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void search_for_first_reuploaded_profile_by_job_name_from_csv() {
+	public void search_for_first_reuploaded_profile_by_job_name_from_excel() {
 		try {
 			String jobName = firstProfileJobName.get();
 
@@ -1471,7 +1497,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void identify_profiles_with_missing_grade_value_in_csv() {
+	public void identify_profiles_with_missing_grade_value_in_excel() {
 		try {
 			List<String[]> profiles = extractedProfiles.get();
 			int missingCount = 0;
@@ -1489,7 +1515,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void identify_profiles_with_missing_department_value_in_csv() {
+	public void identify_profiles_with_missing_department_value_in_excel() {
 		try {
 			List<String[]> profiles = extractedProfiles.get();
 			int missingCount = 0;
@@ -1507,7 +1533,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void identify_all_profiles_with_any_missing_values_in_csv() {
+	public void identify_all_profiles_with_any_missing_values_in_excel() {
 		try {
 			List<String[]> profiles = extractedProfiles.get();
 			int missingCount = 0;
@@ -1546,37 +1572,37 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void upload_generated_csv_file() {
+	public void upload_generated_excel_file() {
 		try {
-			String filePath = csvFilePath.get();
+			String filePath = excelFilePath.get();
 
 			if (filePath == null || filePath.isEmpty() || filePath.equals("NOT_SET")) {
 				filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-						+ File.separator + "resources" + File.separator + DEFAULT_CSV_FILENAME;
+						+ File.separator + "resources" + File.separator + DEFAULT_EXCEL_FILENAME;
 			}
 
 			File csvFile = new File(filePath);
 			if (!csvFile.exists()) {
-				throw new IOException("Generated CSV file does not exist at: " + filePath);
+				throw new IOException("Generated Excel file does not exist at: " + filePath);
 			}
 
-			LOGGER.info("Uploading generated CSV file: " + csvFile.getName());
+			LOGGER.info("Uploading generated Excel file: " + csvFile.getName());
 
 			PO02_AddMoreJobsFunctionality po02 = new PO02_AddMoreJobsFunctionality();
 			po02.upload_file_using_browse_files_button(filePath);
 
-			LOGGER.info("Successfully uploaded generated CSV file");
+			LOGGER.info("Successfully uploaded generated Excel file");
 
 		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "upload_generated_csv_file", "Failed to upload generated CSV file", e);
+			Utilities.handleError(LOGGER, "upload_generated_excel_file", "Failed to upload generated Excel file", e);
 		}
 	}
 
-	public String getGeneratedCsvFilePath() {
-		String filePath = csvFilePath.get();
+	public String getGeneratedexcelFilePath() {
+		String filePath = excelFilePath.get();
 		if (filePath == null || filePath.isEmpty() || filePath.equals("NOT_SET")) {
 			filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-					+ File.separator + "resources" + File.separator + DEFAULT_CSV_FILENAME;
+					+ File.separator + "resources" + File.separator + DEFAULT_EXCEL_FILENAME;
 		}
 		return filePath;
 	}
@@ -1594,7 +1620,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		firstProfileExpectedDepartment.remove();
 		firstProfileExpectedJobFamily.remove();
 		firstProfileExpectedJobSubFamily.remove();
-		csvFilePath.remove();
+		excelFilePath.remove();
 		searchResultsFoundCount.remove();
 	}
 
@@ -1631,58 +1657,6 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 
 		return value;
-	}
-
-	private String escapeCsvField(String value) {
-		if (value == null || value.isEmpty()) {
-			return "";
-		}
-		value = cleanExtractedText(value);
-
-		if (value.isEmpty()) {
-			return "";
-		}
-
-		String escaped = value.replace("\"", "\"\"");
-		return "\"" + escaped + "\"";
-	}
-
-	private String profileToCsvLine(String[] profile) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < profile.length; i++) {
-			if (i > 0) {
-				sb.append(",");
-			}
-			sb.append(escapeCsvField(profile[i]));
-		}
-		return sb.toString();
-	}
-
-	private String[] parseCsvLine(String line) {
-		List<String> values = new ArrayList<>();
-		StringBuilder currentValue = new StringBuilder();
-		boolean insideQuotes = false;
-
-		for (int i = 0; i < line.length(); i++) {
-			char c = line.charAt(i);
-
-			if (c == '"') {
-				if (insideQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
-					currentValue.append('"');
-					i++;
-				} else {
-					insideQuotes = !insideQuotes;
-				}
-			} else if (c == ',' && !insideQuotes) {
-				values.add(currentValue.toString());
-				currentValue = new StringBuilder();
-			} else {
-				currentValue.append(c);
-			}
-		}
-		values.add(currentValue.toString());
-
-		return values.toArray(new String[0]);
 	}
 
 	/**
@@ -1757,4 +1731,6 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 }
+
+
 

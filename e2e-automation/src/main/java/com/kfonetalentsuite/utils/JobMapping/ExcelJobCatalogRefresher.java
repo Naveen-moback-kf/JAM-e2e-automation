@@ -35,7 +35,6 @@ public class ExcelJobCatalogRefresher {
 	private static boolean hasRefreshedThisSession = false;
 	
 	// Excel structure constants
-	private static final int HEADER_ROW = 4; // Row 5 in Excel (0-indexed = 4)
 	private static final int DATA_START_ROW = 6; // Row 7 in Excel (0-indexed = 6)
 	private static final int JOB_TITLE_COLUMN = 0; // Column A (0-indexed = 0)
 	private static final int JOB_CODE_COLUMN = 1; // Column B (0-indexed = 1)
