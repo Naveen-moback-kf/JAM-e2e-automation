@@ -5,11 +5,23 @@ import java.io.IOException;
 import com.kfonetalentsuite.manager.PageObjectManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 
 public class SD23_InfoMessageMissingDataProfiles extends DriverManager {	
 	public SD23_InfoMessageMissingDataProfiles() {
 		super();		
+	}
+	
+	// Prerequisite Checks
+	@Given("Skip scenario if first profile was not found")
+	public void skip_scenario_if_first_profile_was_not_found() throws IOException {
+		PageObjectManager.getInstance().getInfoMessageMissingDataProfiles().skipScenarioIfFirstProfileNotFound();
+	}
+	
+	@Given("Skip scenario if second profile was not found")
+	public void skip_scenario_if_second_profile_was_not_found() throws IOException {
+		PageObjectManager.getInstance().getInfoMessageMissingDataProfiles().skipScenarioIfSecondProfileNotFound();
 	}
 
 	// Profile Info Message Verification Steps

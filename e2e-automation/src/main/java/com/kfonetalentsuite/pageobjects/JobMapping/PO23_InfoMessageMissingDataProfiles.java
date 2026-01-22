@@ -26,6 +26,48 @@ public class PO23_InfoMessageMissingDataProfiles extends BasePageObject {
 	public PO23_InfoMessageMissingDataProfiles() {
 		super();
 	}
+	
+	/**
+	 * Checks if the first profile with missing data was successfully found.
+	 * Used as a prerequisite check for scenarios that depend on finding the first profile.
+	 * @return true if first profile was found, false otherwise
+	 */
+	public static boolean wasFirstProfileFound() {
+		return currentRowIndexStatic.get() > 0 && !jobNameWithInfoMessage.get().isEmpty();
+	}
+	
+	/**
+	 * Checks if the second profile with missing data was successfully found.
+	 * Used as a prerequisite check for scenarios that depend on finding the second profile.
+	 * @return true if second profile was found, false otherwise
+	 */
+	public static boolean wasSecondProfileFound() {
+		return secondCurrentRowIndexStatic.get() > 0 && !secondJobNameWithInfoMessage.get().isEmpty();
+	}
+	
+	/**
+	 * Skips the current scenario if the first profile was not found.
+	 * This prevents downstream scenarios from failing when no profile with missing data exists.
+	 */
+	public void skipScenarioIfFirstProfileNotFound() {
+		if (!wasFirstProfileFound()) {
+			LOGGER.warn("SKIPPED: First profile with missing data was not found in previous scenario");
+			throw new org.testng.SkipException("Cannot proceed - First profile with missing data was not found");
+		}
+		LOGGER.info("First profile was found - scenario will proceed");
+	}
+	
+	/**
+	 * Skips the current scenario if the second profile was not found.
+	 * This prevents downstream scenarios from failing when no second profile with missing data exists.
+	 */
+	public void skipScenarioIfSecondProfileNotFound() {
+		if (!wasSecondProfileFound()) {
+			LOGGER.warn("SKIPPED: Second profile with missing data was not found in previous scenario");
+			throw new org.testng.SkipException("Cannot proceed - Second profile with missing data was not found");
+		}
+		LOGGER.info("Second profile was found - scenario will proceed");
+	}
 
 	private static ThreadLocal<List<WebElement>> profilesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);
 	private static ThreadLocal<List<Integer>> rowIndicesWithInfoMessages = ThreadLocal.withInitial(ArrayList::new);

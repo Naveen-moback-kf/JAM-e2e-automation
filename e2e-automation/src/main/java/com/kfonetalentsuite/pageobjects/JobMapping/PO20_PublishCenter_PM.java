@@ -1,6 +1,6 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.PublishCenter.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
+import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.HCMSyncProfiles.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

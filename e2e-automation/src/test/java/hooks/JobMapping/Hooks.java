@@ -22,7 +22,7 @@ import com.kfonetalentsuite.utils.JobMapping.AllureReportingManager;
 import com.kfonetalentsuite.utils.common.ScreenshotHandler;
 import com.kfonetalentsuite.utils.common.SessionManager;
 import com.kfonetalentsuite.utils.common.CommonVariableManager;
-import com.kfonetalentsuite.webdriverManager.DriverManager;
+// import com.kfonetalentsuite.webdriverManager.DriverManager; // Commented out - only needed if forceKillChromeProcesses is re-enabled
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -45,7 +45,7 @@ public class Hooks implements ISuiteListener {
 		String featureFileName = featureName.substring(featureName.lastIndexOf("/") + 1);
 		String threadId = Thread.currentThread().getName();
 		ExcelReportListener.setCurrentScenario(threadId, scenarioName);
-		LOGGER.info("▶ START: {} [{}]", scenarioName, featureFileName);
+		LOGGER.info("▶️  START: {} [{}]", scenarioName, featureFileName);
 	}
 
 	@After
@@ -53,9 +53,9 @@ public class Hooks implements ISuiteListener {
 		String scenarioName = scenario.getName();
 		
 		if (scenario.isFailed()) {
-			LOGGER.error("✗ FAILED: {}", scenarioName);
+			LOGGER.error("❌ FAILED: {}", scenarioName);
 		} else {
-			LOGGER.info("✓ PASSED: {}", scenarioName);
+			LOGGER.info("✅ PASSED: {}", scenarioName);
 		}
 		
 		PageObjectManager.reset();
@@ -70,10 +70,10 @@ public class Hooks implements ISuiteListener {
 		
 		if (isDefaultSuite) {
 			// Running individual runner, not a test suite
-			LOGGER.info("EXECUTION: Individual Test Runner");
+			LOGGER.info("🎯 EXECUTION: Individual Test Runner");
 		} else {
 			// Running actual test suite
-			LOGGER.info("TEST SUITE: {}", suiteName);
+			LOGGER.info("📋 TEST SUITE: {}", suiteName);
 		}
 		
 		AllureReportingManager.checkAndPerformDailyReset();
@@ -84,14 +84,17 @@ public class Hooks implements ISuiteListener {
 	public void onFinish(ISuite suite) {
 		String suiteName = suite.getName();
 		boolean isDefaultSuite = "Default suite".equals(suiteName);
-		LOGGER.info("CLEANUP: Finalizing execution...");
+		LOGGER.info("🧹 CLEANUP: Finalizing execution...");
 		cleanupAllThreadLocals();
-		DriverManager.forceKillChromeProcesses();
+		
+		// DISABLED: Force kill closes ALL Chrome processes including manually opened browsers
+		// Only use this if you need aggressive cleanup and no other Chrome instances should be running
+		// DriverManager.forceKillChromeProcesses();
 		
 		if (isDefaultSuite) {
-			LOGGER.info("EXECUTION COMPLETED");
+			LOGGER.info("🏁 EXECUTION COMPLETED");
 		} else {
-			LOGGER.info("TEST SUITE COMPLETED: {}", suiteName);
+			LOGGER.info("🏁 TEST SUITE COMPLETED: {}", suiteName);
 		}
 	}
 
@@ -177,10 +180,10 @@ public class Hooks implements ISuiteListener {
 			PO22_MissingDataTipMessage.initialJobCount.remove();
 			cleanedCount++;
 
-			LOGGER.info("ThreadLocal cleanup: {} variables cleared", cleanedCount);
+			LOGGER.info("🧹 ThreadLocal cleanup: {} variables cleared", cleanedCount);
 
 		} catch (Exception e) {
-			LOGGER.warn("ThreadLocal cleanup failed: {}", e.getMessage());
+			LOGGER.warn("⚠️  ThreadLocal cleanup failed: {}", e.getMessage());
 		}
 	}
 }

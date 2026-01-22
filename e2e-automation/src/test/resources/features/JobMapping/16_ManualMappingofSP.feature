@@ -39,6 +39,7 @@ Feature: Using Find Match button, Manually Map Success Profile for the Organizat
 
   @Verify_Mapped_SP_Details
   Scenario: Verify details of SP which is Mapped to Organization Job
+    Given Skip scenario if all profiles are already mapped
     When User is in Job Mapping page
     #Then Search for Organization Job with Manually Mapped SP
     Then Verify Organization Job with new Mapped SP is displaying on Top of Profiles List
@@ -48,6 +49,7 @@ Feature: Using Find Match button, Manually Map Success Profile for the Organizat
 
   @JobProfileDetailsPopup
   Scenario: Validate content in manually mapped Job profile details popup
+    Given Skip scenario if all profiles are already mapped
     When User is on profile details popup of manually mapped profile
     Then Verify profile header matches with mapped profile name
     Then User should verify Profile Level dropdown is available in details popup and Validate levels present inside dropdown

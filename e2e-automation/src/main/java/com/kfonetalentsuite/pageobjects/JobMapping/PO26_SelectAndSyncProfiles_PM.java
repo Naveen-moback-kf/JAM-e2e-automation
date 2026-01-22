@@ -1,6 +1,5 @@
 package com.kfonetalentsuite.pageobjects.JobMapping;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.PMSelectionScreen.*;
-import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.JobMappingScreen.*;
 import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locators.Common.*;
 
 import org.apache.logging.log4j.LogManager;
@@ -189,9 +188,23 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 			wait.until(ExpectedConditions.invisibilityOfElementLocated(PAGE_LOAD_SPINNER));
 			Utilities.waitForPageReady(driver, 2);
 
-			// Step 1: Get total profile count from "Showing X of Y Success Profiles" text
+		// Step 1: Get total profile count from "Showing X of Y Success Profiles" text
+		try {
+			// Try PM-specific locators for the count element
+			WebElement countElement = null;
 			try {
-				WebElement countElement = findElement(SHOWING_RESULTS_COUNT);
+				// Try PM-specific locator first
+				countElement = driver.findElement(By.xpath("//div[contains(text(),'Showing') or contains(text(),'Success Profiles')]"));
+			} catch (Exception e1) {
+				// Try alternative generic locator
+				try {
+					countElement = driver.findElement(By.xpath("//div[contains(text(),'Showing')]"));
+				} catch (Exception e2) {
+					// Element not found with either locator - this is OK for PM screen
+				}
+			}
+			
+			if (countElement != null) {
 				String countText = countElement.getText().trim();
 
 				// Parse text like "Showing 50 of 2842 Success Profiles"
@@ -204,14 +217,14 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 						LOGGER.info("Total profiles to process: " + totalProfiles);
 					}
 				}
-			} catch (Exception e) {
-				LOGGER.warn("Could not extract total profile count from text: " + e.getMessage());
 			}
+		} catch (Exception e) {
+			// Silent failure - will log below if totalProfiles is still 0
+		}
 
-			if (totalProfiles == 0) {
-				LOGGER.warn("Could not determine total profile count. Will scroll until no more data loads.");
-				LOGGER.info("Could not determine total profile count. Scrolling through all available profiles...");
-			}
+		if (totalProfiles == 0) {
+			LOGGER.info("Total profile count not available - will scroll until all profiles are loaded");
+		}
 
 			// Step 2: Scroll to load all profiles
 			LOGGER.info("Loading all profiles by scrolling...");
@@ -253,14 +266,19 @@ public class PO26_SelectAndSyncProfiles_PM extends BasePageObject {
 				Utilities.waitForPageReady(driver, 2);
 				safeSleep(1000);
 
-				currentRowCount = findElements(ALL_ROWS).size();
+			currentRowCount = findElements(ALL_ROWS).size();
 
-				// Log progress every 10 scrolls or when new data loads
-				if (scrollCount % 10 == 0 || currentRowCount != previousRowCount) {
-					int percentComplete = totalProfiles > 0 ? (currentRowCount * 100 / totalProfiles) : 0;
+			// Log progress every 10 scrolls or when new data loads
+			if (scrollCount % 10 == 0 || currentRowCount != previousRowCount) {
+				if (totalProfiles > 0) {
+					int percentComplete = (currentRowCount * 100 / totalProfiles);
 					LOGGER.info("Scroll {}/{}: Loaded {} profiles ({}% complete)", 
 							scrollCount, maxScrollAttempts, currentRowCount, percentComplete);
+				} else {
+					LOGGER.info("Scroll {}/{}: Loaded {} profiles", 
+							scrollCount, maxScrollAttempts, currentRowCount);
 				}
+			}
 
 				if (currentRowCount == previousRowCount) {
 					noChangeCount++;

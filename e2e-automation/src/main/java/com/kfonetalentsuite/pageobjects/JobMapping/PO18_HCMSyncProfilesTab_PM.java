@@ -575,7 +575,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 		// Check if dropdown is already open
 		boolean isDropdownOpen = false;
 		try {
-			List<WebElement> filterElements = driver.findElements(Locators.JobMappingScreen.FILTER_OPTIONS);
+			List<WebElement> filterElements = driver.findElements(Locators.ProfileManagerScreen.FILTER_OPTIONS);
 			isDropdownOpen = !filterElements.isEmpty() && filterElements.get(0).isDisplayed();
 		} catch (Exception ex) {
 			isDropdownOpen = false;
@@ -590,7 +590,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			clickWithFallback(FILTERS_DROPDOWN_BTN);
 			LOGGER.info("Clicked on filters dropdown button in HCM Sync Profiles screen");
 
-			Utilities.waitForVisible(wait, Locators.JobMappingScreen.FILTER_OPTIONS);
+			Utilities.waitForVisible(wait, Locators.ProfileManagerScreen.FILTER_OPTIONS);
 			LOGGER.debug("Filters dropdown opened");
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "click_on_filters_dropdown_button_in_hcm_sync_profiles_tab",
@@ -601,7 +601,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 	public void verify_options_available_inside_filters_dropdown_in_hcm_sync_profiles_tab() {
 		try {
 			// Use locator-based wait to avoid stale element
-			Utilities.waitForVisible(wait, Locators.JobMappingScreen.FILTER_OPTIONS);
+			Utilities.waitForVisible(wait, Locators.ProfileManagerScreen.FILTER_OPTIONS);
 			Utilities.waitForSpinnersToDisappear(driver, 5);
 			safeSleep(500);
 
@@ -644,7 +644,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 
 		// Close the dropdown after verification
 		try {
-			WebElement filterOptionsElement = driver.findElement(Locators.JobMappingScreen.FILTER_OPTIONS);
+			WebElement filterOptionsElement = driver.findElement(Locators.ProfileManagerScreen.FILTER_OPTIONS);
 			if (filterOptionsElement.isDisplayed()) {
 				jsClick(findElement(FILTERS_DROPDOWN_BTN));
 				Utilities.waitForInvisible(wait, filterOptionsElement);
@@ -734,7 +734,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
 				}
 			}
-			Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
+			Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.ProfileManagerScreen.FILTER_OPTIONS)));
 			LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
 			LOGGER.debug("Stack trace:", e);
@@ -911,7 +911,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
 				}
 			}
-			Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
+			Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.ProfileManagerScreen.FILTER_OPTIONS)));
 			LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
 			LOGGER.debug("Stack trace:", e);
@@ -1079,7 +1079,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 			try {
 				js.executeScript("window.scrollTo(0, 0);");
 				Utilities.waitForVisible(wait, findElement(HCM_SYNC_PROFILES_HEADER)).click();
-				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
+				Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.ProfileManagerScreen.FILTER_OPTIONS)));
 				LOGGER.info("Filters dropdown closed after selecting different Levels option");
 			} catch (Exception e) {
 				LOGGER.warn("Issue closing filters dropdown: " + e.getMessage());
@@ -1423,7 +1423,7 @@ public class PO18_HCMSyncProfilesTab_PM extends BasePageObject {
 					jsClick(findElement(HCM_SYNC_PROFILES_HEADER));
 				}
 			}
-			Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.JobMappingScreen.FILTER_OPTIONS)));
+			Assert.assertTrue(Utilities.waitForInvisible(wait, findElement(Locators.ProfileManagerScreen.FILTER_OPTIONS)));
 			LOGGER.info("Filters dropdown closed successfully in HCM Sync Profiles screen in PM");
 		} catch (Exception e) {
 			LOGGER.debug("Stack trace:", e);

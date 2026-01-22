@@ -30,7 +30,8 @@ Feature: Verify Info Message for Multiple Profiles with Missing Data
   @Verify_Info_Message_Persistence
   Scenario: Verify Info Message persists in Job Comparison page for first profile
     # Validates info message persistence when navigating to Job Comparison via "View Other Matches" for first profile
-    Given Skip scenario if Missing Data Tip Message is not displayed
+    # Prerequisite: Check if first profile was actually found in previous scenario
+    Given Skip scenario if first profile was not found
     When User is in Job Comparison Page
     Then Verify Info Message is still displayed in Job Comparison page
     And Verify Info Message contains same text about reduced match accuracy
@@ -59,8 +60,10 @@ Feature: Verify Info Message for Multiple Profiles with Missing Data
   @Verify_Second_Info_Message_Persistence
   Scenario: Verify Info Message persists in Job Comparison page for second profile
     # Validates info message persistence when navigating to Job Comparison via "View Other Matches" for second profile
-    Given Skip scenario if Missing Data Tip Message is not displayed
+    # Prerequisite: Check if second profile was actually found in previous scenario
+    Given Skip scenario if second profile was not found
     When User is in Job Comparison Page
     And Verify Info Message is still displayed in Job Comparison page for second profile
     And Verify Info Message contains same text about reduced match accuracy for second profile
+    And Navigate back to Job Mapping page from Job Comparison
     

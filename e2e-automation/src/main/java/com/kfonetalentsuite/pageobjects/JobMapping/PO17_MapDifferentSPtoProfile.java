@@ -60,8 +60,8 @@ public class PO17_MapDifferentSPtoProfile extends BasePageObject {
 		Boolean mapSPValue = mapSP.get();
 		
 		if (mapSPValue == null || !mapSPValue) {
-			LOGGER.warn("SKIPPED: All profiles are already mapped with BIC profiles - No unmapped profiles available for manual mapping");
-			throw new org.testng.SkipException("All profiles are already mapped with BIC profiles - No unmapped profiles available for manual mapping");
+			LOGGER.warn("SKIPPED: All profiles are Auto mapped with BIC profiles - No profiles available for manual mapping");
+			throw new org.testng.SkipException("All profiles are Auto mapped with BIC profiles - No profiles available for manual mapping");
 		}
 	}
 

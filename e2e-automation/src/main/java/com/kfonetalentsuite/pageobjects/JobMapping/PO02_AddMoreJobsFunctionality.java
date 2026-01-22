@@ -107,8 +107,16 @@ public class PO02_AddMoreJobsFunctionality extends BasePageObject {
 	}
 
 	public void upload_job_catalog_file_using_browse_files_button() {
+		// Upload Excel format job catalog
 		String filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-				+ File.separator + "resources" + File.separator + "Job Catalog with 100 profiles.csv";
+				+ File.separator + "resources" + File.separator + "JobCatalogNewFormat-100 Profiles.xlsx";
+		
+		File file = new File(filePath);
+		if (!file.exists()) {
+			throw new RuntimeException("Job catalog Excel file not found: " + filePath);
+		}
+		
+		LOGGER.info("Using Excel format: JobCatalogNewFormat-100 Profiles.xlsx");
 		upload_file_using_browse_files_button(filePath);
 	}
 

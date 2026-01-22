@@ -383,36 +383,36 @@ public class BasePageObject {
 			public static final By VISIBLE_ROWS = By.xpath("//tbody//tr[contains(@class,'cursor-pointer')]");
 		
 			// PO09 - Filter Persistence
-			public static final By ORG_JOB_GRADE_SORT_ICON = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div/kf-icon");
-			public static final By MATCHED_SP_GRADE_SORT_ICON = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[3]/div/kf-icon");
+			public static final By ORG_JOB_GRADE_SORT_ICON = By.xpath("//*[@id='org-job-container']/div/table/thead/tr/th[3]/div/span/*[contains(@class,'blue')]");
+			public static final By MATCHED_SP_GRADE_SORT_ICON = By.xpath("//*[@id='kf-job-container']/div/table/thead/tr/th[2]/div/span/*[contains(@class,'blue')]");
 		
 			// PO10/PO12 - Shared profile details
-			public static final By PROFILE_1_GRADE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-grade')]");
-			public static final By PROFILE_1_LEVEL = By.xpath("//div[@class='shadow']//div[contains(@id,'card-level')]");
-			public static final By PROFILE_1_FUNCTION = By.xpath("//div[@class='shadow']//div[contains(@id,'card-function')]");
-			public static final By PROFILE_1_SENIORITY = By.xpath("//div[@class='shadow']//div[contains(@id,'card-seniority')]");
-			public static final By PROFILE_2_GRADE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-grade')][2]");
-			public static final By PROFILE_2_LEVEL = By.xpath("//div[@class='shadow']//div[contains(@id,'card-level')][2]");
-			public static final By PROFILE_2_FUNCTION = By.xpath("//div[@class='shadow']//div[contains(@id,'card-function')][2]");
-			public static final By PROFILE_2_SENIORITY = By.xpath("//div[@class='shadow']//div[contains(@id,'card-seniority')][2]");
-			public static final By PROFILE_3_GRADE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-grade')][3]");
-			public static final By PROFILE_3_LEVEL = By.xpath("//div[@class='shadow']//div[contains(@id,'card-level')][3]");
-			public static final By PROFILE_3_FUNCTION = By.xpath("//div[@class='shadow']//div[contains(@id,'card-function')][3]");
-			public static final By PROFILE_3_SENIORITY = By.xpath("//div[@class='shadow']//div[contains(@id,'card-seniority')][3]");
+			public static final By PROFILE_1_GRADE = By.xpath("(//div[@class='shadow']//div[contains(@id,'grade')])[1]");
+			public static final By PROFILE_1_LEVEL = By.xpath("(//div[@class='shadow']//div[contains(@id,'level')])[1]");
+			public static final By PROFILE_1_FUNCTION = By.xpath("(//div[@class='shadow']//div[contains(@id,'function')])[1]");
+			public static final By PROFILE_1_SENIORITY = By.xpath("(//div[@class='shadow']//div[contains(@id,'seniority')])[1]");
+			public static final By PROFILE_2_GRADE = By.xpath("(//div[@class='shadow']//div[contains(@id,'grade')])[2]");
+			public static final By PROFILE_2_LEVEL = By.xpath("(//div[@class='shadow']//div[contains(@id,'level')])[2]");
+			public static final By PROFILE_2_FUNCTION = By.xpath("(//div[@class='shadow']//div[contains(@id,'function')])[2]");
+			public static final By PROFILE_2_SENIORITY = By.xpath("(//div[@class='shadow']//div[contains(@id,'seniority')])[2]");
+			public static final By PROFILE_3_GRADE = By.xpath("(//div[@class='shadow']//div[contains(@id,'grade')])[3]");
+			public static final By PROFILE_3_LEVEL = By.xpath("(//div[@class='shadow']//div[contains(@id,'level')])[3]");
+			public static final By PROFILE_3_FUNCTION = By.xpath("(//div[@class='shadow']//div[contains(@id,'function')])[3]");
+			public static final By PROFILE_3_SENIORITY = By.xpath("(//div[@class='shadow']//div[contains(@id,'seniority')])[3]");
 			// Additional profile details (PO10, PO12)
-			public static final By PROFILE_1_TITLE = By.xpath("//div[@class='shadow']//div[contains(@id,'card-title')]");
-			public static final By PROFILE_1_SELECT_BTN = By.xpath("//div[@class='shadow']//div[contains(@id,'card-header')][1]//span");
+			public static final By PROFILE_1_TITLE = By.xpath("(//div[@class='shadow']//div[contains(@id,'card-title')])[1]");
+			public static final By PROFILE_1_SELECT_BTN = By.xpath("(//div[@class='shadow']//div[contains(@id,'card-header')][1]//span)[1]");
 			public static final By PROFILE_1_RECOMMENDED_TAG = By.xpath("//div[@class='shadow']//div[contains(@id,'recommended-title')]");
-			public static final By PROFILE_1_MANAGERIAL = By.xpath("//div[@class='shadow']//div[contains(@id,'managerial-experience')]");
-			public static final By PROFILE_1_EDUCATION = By.xpath("//div[@class='shadow']//div[contains(@id,'education')]");
-			public static final By PROFILE_1_GENERAL_EXP = By.xpath("//div[@class='shadow']//div[contains(@id,'general-experience')]");
-			public static final By PROFILE_1_ROLE_SUMMARY = By.xpath("//div[@class='shadow']//div[contains(@id,'role-summary')]");
-			public static final By PROFILE_1_RESPONSIBILITIES = By.xpath("//div[@class='shadow']//div[contains(@id,'responsibilities')]");
-			public static final By VIEW_MORE_RESPONSIBILITIES = By.xpath("//div[contains(@id,'responsibilities')]//button[@data-testid='view-more-responsibilities']");
-			public static final By PROFILE_1_COMPETENCIES = By.xpath("//div[@class='shadow']//div[contains(@id,'behavioural-competencies')]");
-			public static final By VIEW_MORE_COMPETENCIES = By.xpath("//div[contains(@id,'behavioural-competencies')]//button[@data-testid='view-more-competencies']");
-			public static final By PROFILE_1_SKILLS = By.xpath("//div[@class='shadow']//div[contains(@id,'skills')]");
-			public static final By VIEW_MORE_SKILLS = By.xpath("//div[contains(@id,'skills')]//button[@data-testid='view-more-skills']");
+			public static final By PROFILE_1_MANAGERIAL = By.xpath("(//div[@class='shadow']//div[contains(@id,'managerial-experience')])[1]");
+			public static final By PROFILE_1_EDUCATION = By.xpath("(//div[@class='shadow']//div[contains(@id,'education')])[1]");
+			public static final By PROFILE_1_GENERAL_EXP = By.xpath("(//div[@class='shadow']//div[contains(@id,'general-experience')])[1]");
+			public static final By PROFILE_1_ROLE_SUMMARY = By.xpath("(//div[@class='shadow']//div[contains(@id,'role-summary')])[1]");
+			public static final By PROFILE_1_RESPONSIBILITIES = By.xpath("(//div[@class='shadow']//div[contains(@id,'responsibilities')])[1]");
+			public static final By VIEW_MORE_RESPONSIBILITIES = By.xpath("(//div[contains(@id,'responsibilities')]//button[@data-testid='view-more-responsibilities'])[1]");
+			public static final By PROFILE_1_COMPETENCIES = By.xpath("(//div[@class='shadow']//div[contains(@id,'behavioural-competencies')])[1]");
+			public static final By VIEW_MORE_COMPETENCIES = By.xpath("(//div[contains(@id,'behavioural-competencies')]//button[@data-testid='view-more-competencies'])[1]");
+			public static final By PROFILE_1_SKILLS = By.xpath("(//div[@class='shadow']//div[contains(@id,'skills')])[1]");
+			public static final By VIEW_MORE_SKILLS = By.xpath("(//div[contains(@id,'skills')]//button[@data-testid='view-more-skills'])[1]");
 		
 			// PO10 - Custom SP in Job Comparison
 			public static final By SEARCH_BAR_JC = By.xpath("//input[contains(@id,'jobcompare-search')]");
@@ -565,7 +565,7 @@ public class BasePageObject {
 			public static final By PM_BTN = By.xpath("//a[contains(text(),'Profile Manager')]");
 		
 		// Page Headers
-			public static final By HCM_SYNC_PROFILES_HEADER = By.xpath("//h1[contains(text(),'HCM Sync Profiles')] | //div[contains(@class,'header') and contains(text(),'HCM Sync')]");
+			public static final By HCM_SYNC_PROFILES_HEADER = By.xpath("//span[contains(text(),'HCM Sync Profiles')] | //div[contains(@class,'menu-tem') and contains(text(),'HCM Sync')]");
 			public static final By HCM_SYNC_PROFILES_TITLE = By.xpath("//h1[contains(text(),'HCM Sync Profiles')]");
 			public static final By HCM_SYNC_PROFILES_TITLE_DESC = By.xpath("//p[contains(text(),'Select a job profile')]");
 			public static final By NO_SP_MSG = By.xpath("//div[contains(text(),'no Success Profiles')]");
@@ -705,24 +705,25 @@ public class BasePageObject {
 		}
 		
 		// PM SELECTION/SYNC SCREEN (Used in PO26, PO28, PO32)
-		public static class PMSelectionScreen {
-			public static final By ALL_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-checkbox]");
-			public static final By SELECTED_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]");
-			// FIXED: More specific locator to target chevron beside table header checkbox, not search dropdown
-			public static final By CHEVRON_BUTTON = By.xpath("//thead//th//kf-icon[contains(@class,'arrow-down') or @icon='arrow-down'] | //thead//th//*[contains(@class,'chevron')]");
-			public static final By HEADER_CHECKBOX = By.xpath("//thead//tr//th[1]//div[1]//kf-checkbox//div");
-			public static final By SYNC_BUTTON = By.xpath("//button[contains(@class,'custom-export')] | //button[contains(text(),'Sync with HCM')]");
-			public static final By SEARCH_BAR = By.xpath("//input[@type='search']");
-			public static final By CLEAR_ALL_FILTERS_BTN = By.xpath("//a[contains(text(),'Clear All')]");
-			
-			// PO26 - Select and Sync Profiles
-			public static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
-			public static final By ALL_ROWS = By.xpath("//tbody//tr");
-			
-			// PO32 - Clear Profile Selection (PM specific)
-			public static final By PM_ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
-			public static final By PM_NONE_BTN = By.xpath("//*[contains(text(),'None')]");
-		}
+	public static class PMSelectionScreen {
+		public static final By ALL_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-checkbox]");
+		public static final By SELECTED_PROFILE_ROWS = By.xpath("//tbody//tr[.//kf-icon[@icon='checkbox-check' and contains(@class,'ng-star-inserted')]]");
+		// FIXED: More specific locator to target chevron beside table header checkbox, not search dropdown
+		public static final By CHEVRON_BUTTON = By.xpath("//thead//th//kf-icon[contains(@class,'arrow-down') or @icon='arrow-down'] | //thead//th//*[contains(@class,'chevron')]");
+		public static final By HEADER_CHECKBOX = By.xpath("//thead//tr//th[1]//div[1]//kf-checkbox//div");
+		public static final By SYNC_BUTTON = By.xpath("//button[contains(@class,'custom-export')] | //button[contains(text(),'Sync with HCM')]");
+		public static final By SEARCH_BAR = By.xpath("//input[@type='search']");
+		public static final By CLEAR_ALL_FILTERS_BTN = By.xpath("//a[contains(text(),'Clear All')]");
+		
+		// PO26 - Select and Sync Profiles
+		public static final By ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
+		public static final By ALL_ROWS = By.xpath("//tbody//tr");
+		public static final By SHOWING_RESULTS_COUNT = By.xpath("//div[contains(text(),'Showing') or contains(text(),'Success Profiles')]");
+		
+		// PO32 - Clear Profile Selection (PM specific)
+		public static final By PM_ALL_CHECKBOXES = By.xpath("//tbody//tr//td[1]//div[1]//kf-checkbox");
+		public static final By PM_NONE_BTN = By.xpath("//*[contains(text(),'None')]");
+	}
 		
 		// JAM SELECTION SCREEN (Used in PO29, PO30, PO31, PO33, PO35, PO36)
 		public static class JAMSelectionScreen {

@@ -9,7 +9,7 @@ import org.testng.annotations.Listeners;
 import com.kfonetalentsuite.listeners.ExcelReportListener;
 import com.kfonetalentsuite.utils.JobMapping.AllureReportingManager;
 import io.qameta.allure.testng.AllureTestNg;
-import com.kfonetalentsuite.utils.JobMapping.JobCatalogRefresher;
+import com.kfonetalentsuite.utils.JobMapping.ExcelJobCatalogRefresher;
 import com.kfonetalentsuite.utils.common.DynamicTagResolver;
 import com.kfonetalentsuite.webdriverManager.CustomizeTestNGCucumberRunner;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
@@ -45,18 +45,18 @@ public class Runner02_AddMoreJobsFunctionality extends CustomizeTestNGCucumberRu
 	@BeforeClass(alwaysRun = true)
 	public void refreshJobCatalogBeforeTests() {
 		try {
-			LOGGER.info("Runner02: Refreshing Job Catalog Before Execution    ");
+			LOGGER.info("Runner02: Refreshing Excel Job Catalog Before Execution");
 			
-			boolean success = JobCatalogRefresher.refreshJobCatalog();
+			boolean success = ExcelJobCatalogRefresher.refreshJobCatalog();
 			
 			if (success) {
-				LOGGER.info("Job Catalog refreshed successfully for Runner02");
+				LOGGER.info("Excel Job Catalog refreshed successfully for Runner02");
 			} else {
-				LOGGER.warn("Job Catalog refresh encountered issues - check logs");
+				LOGGER.warn("Excel Job Catalog refresh encountered issues - check logs");
 			}
 			
 		} catch (Exception e) {
-			LOGGER.error("Job Catalog refresh failed: {}", e.getMessage(), e);
+			LOGGER.error("Excel Job Catalog refresh failed: {}", e.getMessage(), e);
 			// Don't fail the test execution, just log the error
 		}
 	}

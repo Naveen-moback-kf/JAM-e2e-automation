@@ -157,6 +157,23 @@ public class PO25_MissingDataFunctionality extends BasePageObject {
 		return fieldValue.trim();
 	}
 
+	// ═══════════════════════════════════════════════════════════════════════════
+	// PREREQUISITE CHECK METHODS
+	// ═══════════════════════════════════════════════════════════════════════════
+
+	/**
+	 * Checks if a profile with missing data was found in the forward flow scenario.
+	 * Throws SkipException if no profile was found, allowing subsequent steps to skip gracefully.
+	 */
+	public void skip_scenario_if_profile_not_found_in_forward_flow() {
+		if (!forwardScenarioFoundProfile.get()) {
+			String dataType = currentDataType.get();
+			LOGGER.warn("SKIPPED: No job profile with missing {} was found in previous step", dataType);
+			throw new org.testng.SkipException("Cannot proceed - No job profile with missing " + dataType + " was found");
+		}
+		LOGGER.info("Prerequisite met: Job profile with missing {} was found", currentDataType.get());
+	}
+
 	// Sorting header locators (from PO17_ValidateSortingFunctionality_JAM)
 	// ═══════════════════════════════════════════════════════════════════════════
 	// SORTING METHODS

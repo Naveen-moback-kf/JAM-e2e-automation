@@ -13,6 +13,7 @@ Feature: Validate Jobs with Missing Data in Job Mapping UI
     When User is in Job Mapping page
     Then Sort Job Profiles by "<SortColumn>" in Ascending order
     Then Find job profile in Job Mapping page where "<DataType>" is missing
+    Given Skip scenario if profile with missing data was not found
     And Extract "<DataType>" job details from found profile in Job Mapping page
     Then Click on "View & Re-upload jobs" link in Missing Data Tip Message
     Then Verify user is navigated to Jobs with Missing "<DataType>" Data screen

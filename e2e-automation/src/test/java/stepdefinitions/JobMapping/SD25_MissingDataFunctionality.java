@@ -5,12 +5,19 @@ import java.io.IOException;
 import com.kfonetalentsuite.manager.PageObjectManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;
 
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 public class SD25_MissingDataFunctionality extends DriverManager {	
 	public SD25_MissingDataFunctionality() {
 		super();
+	}
+
+	// Prerequisite Checks
+	@Given("Skip scenario if profile with missing data was not found")
+	public void skip_scenario_if_profile_not_found_in_forward_flow() throws IOException {
+		PageObjectManager.getInstance().getMissingDataFunctionality().skip_scenario_if_profile_not_found_in_forward_flow();
 	}
 
 	@Then("Sort Job Profiles by {string} in Ascending order")
