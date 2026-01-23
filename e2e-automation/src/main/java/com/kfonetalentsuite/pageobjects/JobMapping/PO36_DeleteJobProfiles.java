@@ -145,7 +145,7 @@ public class PO36_DeleteJobProfiles extends BasePageObject {
 			// Verify success title
 			WebElement successTitle = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), DELETE_SUCCESS_TITLE);
 			Assert.assertTrue(successTitle.isDisplayed(), "Delete success title should be displayed");
-			Assert.assertEquals(successTitle.getText(), "Job Profiles Deleted", "Success title should match");
+			Assert.assertEquals(successTitle.getText(), "Job Profiles Deleted Successfully", "Success title should match");
 			
 			// Verify success message
 			WebElement successMsg = Utilities.waitForVisible(new WebDriverWait(driver, Duration.ofSeconds(5)), DELETE_SUCCESS_MSG);

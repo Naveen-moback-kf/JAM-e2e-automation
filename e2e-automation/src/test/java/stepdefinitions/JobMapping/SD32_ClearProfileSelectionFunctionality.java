@@ -1,4 +1,4 @@
-﻿package stepdefinitions.JobMapping;
+package stepdefinitions.JobMapping;
 
 import com.kfonetalentsuite.manager.PageObjectManager;
 import com.kfonetalentsuite.webdriverManager.DriverManager;

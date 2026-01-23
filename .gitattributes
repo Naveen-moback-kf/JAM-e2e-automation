@@ -1,0 +1,43 @@
+# Git Attributes - Ensures consistent file handling across platforms
+# Prevents encoding and line ending issues
+
+# Auto-detect text files and normalize line endings to LF in repository
+* text=auto
+
+# Explicitly declare text files (will be normalized to LF in repo)
+*.java text
+*.xml text
+*.properties text
+*.feature text
+*.md text
+*.txt text
+*.json text
+*.yml text
+*.yaml text
+
+# Shell scripts - always use LF (even on Windows checkout)
+*.sh text eol=lf
+
+# Windows scripts - always use CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files - don't modify
+*.xlsx binary
+*.xls binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.jar binary
+*.class binary
+*.dll binary
+*.exe binary
+*.so binary
+*.dylib binary
+
+# Documentation
+README* text
+LICENSE* text
+CHANGELOG* text

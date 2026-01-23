@@ -863,6 +863,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			safeSleep(180000); // 3 minutes fixed wait
 
 			LOGGER.info("Refreshing Job Mapping page...");
+			dismissKeepWorkingPopupIfPresent();
 			driver.navigate().refresh();
 			Utilities.waitForPageReady(driver, 5);
 			Utilities.waitForSpinnersToDisappear(driver, 15);
@@ -972,9 +973,13 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			Utilities.waitForPageReady(driver, 2);
 			WebElement searchInput = Utilities.waitForClickable(wait, SEARCH_INPUT_MISSING_DATA);
 			searchInput.clear();
+			safeSleep(500); // Allow clear to complete
 			searchInput.sendKeys(jobCode);
 
+			// Wait for search/filter to be applied
 			Utilities.waitForPageReady(driver, 3);
+			safeSleep(2000); // Additional wait for client-side filtering to complete
+			
 			LOGGER.info("Searched for profile by Job Code in Missing Data screen: " + jobCode);
 
 		} catch (Exception e) {
@@ -1428,14 +1433,22 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			boolean profileFound = false;
 			List<WebElement> rows = findElements(JOB_ROWS_MISSING_DATA);
 					
-					LOGGER.info("Attempt {}/{}: Checking if profile '{}' is removed from Missing Data screen ({} rows total)", 
-							attempt, maxRetries, searchedJobCode, rows.size());
+					// Filter to only check VISIBLE rows (ignore hidden/filtered rows in DOM)
+					List<WebElement> visibleRows = new ArrayList<>();
+					for (WebElement row : rows) {
+						if (row.isDisplayed()) {
+							visibleRows.add(row);
+						}
+					}
 					
-			for (WebElement row : rows) {
+					LOGGER.info("Attempt {}/{}: Checking if profile '{}' is removed from Missing Data screen ({} visible rows out of {} total DOM rows)", 
+							attempt, maxRetries, searchedJobCode, visibleRows.size(), rows.size());
+					
+			for (WebElement row : visibleRows) {
 				String rowText = row.getText();
 				if (rowText.contains(searchedJobCode)) {
 					profileFound = true;
-							LOGGER.info("Profile '{}' still found in row: {}", searchedJobCode, rowText.substring(0, Math.min(100, rowText.length())));
+							LOGGER.info("Profile '{}' still found in visible row: {}", searchedJobCode, rowText.substring(0, Math.min(100, rowText.length())));
 					break;
 				}
 			}

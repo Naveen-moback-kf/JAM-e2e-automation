@@ -53,18 +53,25 @@
 			<version>5.6.4</version>
 		</dependency>
 		
-		<!-- UPDATED: Log4j (Security Critical) -->
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
+	<!-- UPDATED: Log4j (Security Critical) -->
+	<dependency>
+		<groupId>org.apache.logging.log4j</groupId>
+		<artifactId>log4j-core</artifactId>
+		<version>${log4j.version}</version>
+	</dependency>
 
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
+	<dependency>
+		<groupId>org.apache.logging.log4j</groupId>
+		<artifactId>log4j-api</artifactId>
+		<version>${log4j.version}</version>
+	</dependency>
+	
+	<!-- SLF4J to Log4j2 Binding - Removes SLF4J warnings -->
+	<dependency>
+		<groupId>org.apache.logging.log4j</groupId>
+		<artifactId>log4j-slf4j2-impl</artifactId>
+		<version>${log4j.version}</version>
+	</dependency>
 
 		<!-- UPDATED: Apache POI - Latest Version with Security Fixes -->
 		<dependency>

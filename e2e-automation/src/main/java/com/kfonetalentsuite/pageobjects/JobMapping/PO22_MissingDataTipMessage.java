@@ -40,20 +40,6 @@ public class PO22_MissingDataTipMessage extends BasePageObject {
 	public void skipScenarioIfMissingDataTipMessageNotDisplayed() {
 		LOGGER.info("Checking prerequisite for Missing Data Tip Message...");
 		
-		// Check if this is an Excel file manipulation scenario (prerequisite already met if Excel exists)
-		try {
-			String excelPath = PO35_ReuploadMissingDataProfiles.excelFilePath.get();
-			if (excelPath != null && !excelPath.equals("NOT_SET")) {
-				java.io.File excelFile = new java.io.File(excelPath);
-				if (excelFile.exists()) {
-					LOGGER.info("Excel file exists at: " + excelPath + " - prerequisite assumed met (file manipulation scenario)");
-					return;
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.debug("Excel file check exception: " + e.getMessage());
-		}
-		
 		// Small wait to ensure page is loaded
 		safeSleep(1000);
 		
