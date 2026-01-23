@@ -66,7 +66,8 @@ public class Hooks implements ISuiteListener {
 	@Override
 	public void onStart(ISuite suite) {
 		String suiteName = suite.getName();
-		boolean isDefaultSuite = "Default suite".equals(suiteName);
+		// Case-insensitive check: Eclipse uses "Default suite", IntelliJ uses "Default Suite"
+		boolean isDefaultSuite = suiteName != null && suiteName.equalsIgnoreCase("Default suite");
 		
 		if (isDefaultSuite) {
 			// Running individual runner, not a test suite
@@ -83,7 +84,8 @@ public class Hooks implements ISuiteListener {
 	@Override
 	public void onFinish(ISuite suite) {
 		String suiteName = suite.getName();
-		boolean isDefaultSuite = "Default suite".equals(suiteName);
+		// Case-insensitive check: Eclipse uses "Default suite", IntelliJ uses "Default Suite"
+		boolean isDefaultSuite = suiteName != null && suiteName.equalsIgnoreCase("Default suite");
 		LOGGER.info("🧹 CLEANUP: Finalizing execution...");
 		cleanupAllThreadLocals();
 		
