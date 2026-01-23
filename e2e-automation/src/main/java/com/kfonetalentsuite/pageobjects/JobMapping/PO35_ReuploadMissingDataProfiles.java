@@ -5,6 +5,7 @@ import static com.kfonetalentsuite.pageobjects.JobMapping.BasePageObject.Locator
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import com.kfonetalentsuite.utils.common.Utilities;
 import com.kfonetalentsuite.utils.JobMapping.ExcelMissingDataHandler;
@@ -23,6 +25,17 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	private static final Logger LOGGER = LogManager.getLogger(PO35_ReuploadMissingDataProfiles.class);
 	
+	// Timing Constants
+	private static final int BACKEND_PROCESSING_WAIT_MS = 180000; // 3 minutes
+	private static final int SEARCH_RETRY_DELAY_MS = 30000; // 30 seconds
+	private static final int VALIDATION_POLL_INTERVAL_MS = 20000; // 20 seconds
+	private static final int MISSING_DATA_CHECK_RETRY_DELAY_MS = 10000; // 10 seconds
+	private static final int ICON_CHECK_RETRY_DELAY_MS = 8000; // 8 seconds
+	private static final int MAX_SEARCH_RETRIES = 5;
+	private static final int MAX_VALIDATION_ATTEMPTS = 5;
+	private static final int MAX_MISSING_DATA_RETRIES = 5;
+	
+	// ThreadLocal variables for test data
 	public static ThreadLocal<Integer> missingDataCountBefore = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> missingDataCountAfter = ThreadLocal.withInitial(() -> 0);
 	public static ThreadLocal<Integer> totalResultsCountBefore = ThreadLocal.withInitial(() -> 0);
@@ -54,6 +67,14 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 	// Job Mapping page table column indices (for UI validation)
 	private static final int GRADE_COLUMN_INDEX = 3; // Column 3 in Job Mapping table
 	private static final int DEPARTMENT_COLUMN_INDEX = 4; // Column 4 in Job Mapping table
+
+	/**
+	 * Helper: Build test resources file path
+	 */
+	private static String buildResourcePath(String fileName) {
+		return System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
+				+ File.separator + "resources" + File.separator + fileName;
+	}
 
 	public PO35_ReuploadMissingDataProfiles() {
 		super();
@@ -119,14 +140,9 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 	public void capture_total_count_of_profiles_in_jobs_missing_data_screen() {
 		try {
 			Utilities.waitForPageReady(driver, 3);
-			int totalCount = findElements(JOB_ROWS_MISSING_DATA).size();
-
-			if (totalCount > 0) {
-				totalProfilesInMissingDataScreen.set(totalCount);
-				LOGGER.info("Captured total profiles in Missing Data screen: " + totalCount);
-			} else {
-				LOGGER.info("No profiles found in Missing Data screen");
-			}
+			int totalCount = findElements(JOB_ROWS_IN_MISSING_DATA_SCREEN).size();
+			totalProfilesInMissingDataScreen.set(totalCount);
+			LOGGER.info("Captured {} profiles in Missing Data screen", totalCount);
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "capture_total_count", "Failed to capture total profile count", e);
 		}
@@ -137,17 +153,10 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			Utilities.waitForPageReady(driver, 3);
 			List<String[]> profiles = new ArrayList<>();
 
-			List<WebElement> currentRows = findElements(JOB_ROWS_MISSING_DATA);
+			List<WebElement> currentRows = findElements(JOB_ROWS_IN_MISSING_DATA_SCREEN);
 			int totalAvailable = currentRows.size();
 			int maxProfiles = Math.min(10, totalAvailable);
-
-			if (totalAvailable < 10) {
-				LOGGER.info("Found " + totalAvailable + " profiles (less than 10). Fetching all available profiles.");
-			} else {
-				LOGGER.info("Found " + totalAvailable + " profiles. Fetching top 10 profiles.");
-			}
-
-			LOGGER.info("Extracting details of {} profiles from Missing Data screen", maxProfiles);
+			LOGGER.info("Extracting details of {} profiles from Missing Data screen (out of {})", maxProfiles, totalAvailable);
 			int extractedCount = 0;
 
 			for (int i = 0; i < maxProfiles && extractedCount < 10; i++) {
@@ -245,11 +254,8 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				throw new IOException("No profiles available to create Excel file");
 			}
 
-			String filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-					+ File.separator + "resources" + File.separator + DEFAULT_EXCEL_FILENAME;
-
-			String templatePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-					+ File.separator + "resources" + File.separator + "JobCatalogNewFormat-100 Profiles.xlsx";
+			String filePath = buildResourcePath(DEFAULT_EXCEL_FILENAME);
+			String templatePath = buildResourcePath("JobCatalogNewFormat-100 Profiles.xlsx");
 
 			boolean success = ExcelMissingDataHandler.createExcelFileWithProfiles(profiles, filePath, templatePath);
 
@@ -267,13 +273,10 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 
 	public void save_excel_file_as_in_test_resources_folder(String fileName) {
 		try {
-			String filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-					+ File.separator + "resources" + File.separator + fileName;
-
+			String filePath = buildResourcePath(fileName);
 			excelFilePath.set(filePath);
 
-			File defaultFile = new File(System.getProperty("user.dir") + File.separator + "src" + File.separator
-					+ "test" + File.separator + "resources" + File.separator + DEFAULT_EXCEL_FILENAME);
+			File defaultFile = new File(buildResourcePath(DEFAULT_EXCEL_FILENAME));
 
 			if (defaultFile.exists()) {
 				File newFile = new File(filePath);
@@ -342,8 +345,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		try {
 			String filePath = excelFilePath.get();
 			if (filePath == null || filePath.isEmpty() || filePath.equals("NOT_SET")) {
-				filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-						+ File.separator + "resources" + File.separator + DEFAULT_EXCEL_FILENAME;
+				filePath = buildResourcePath(DEFAULT_EXCEL_FILENAME);
 				excelFilePath.set(filePath);
 			}
 
@@ -378,112 +380,49 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		}
 	}
 
-	public void fill_missing_grade_values_with_default_grade(String defaultGrade) {
+	// CONSOLIDATED: Generic method to fill missing values
+	private void fillMissingFieldValue(int fieldIndex, String fieldName, String defaultValue, 
+	                                    ThreadLocal<String> expectedValueStorage) {
 		try {
 			List<String[]> profiles = extractedProfiles.get();
 			int filledCount = 0;
 
 			for (int i = 0; i < profiles.size(); i++) {
 				String[] profile = profiles.get(i);
-				if (profile.length > 5 && (profile[5] == null || profile[5].trim().isEmpty())) {
-					profile[5] = defaultGrade;
+				if (profile.length > fieldIndex && (profile[fieldIndex] == null || profile[fieldIndex].trim().isEmpty())) {
+					profile[fieldIndex] = defaultValue;
 					filledCount++;
 					
-					// Store expected value for first profile
-					if (i == 0) {
-						firstProfileExpectedGrade.set(defaultGrade);
-						LOGGER.info("First profile expected Grade value set to: '{}'", defaultGrade);
+					if (i == 0 && expectedValueStorage != null) {
+						expectedValueStorage.set(defaultValue);
+						LOGGER.info("First profile expected {} set to: '{}'", fieldName, defaultValue);
 					}
 				}
 			}
 
 			extractedProfiles.set(profiles);
-			LOGGER.info("Filled " + filledCount + " missing Grade values with: " + defaultGrade);
+			LOGGER.info("Filled {} missing {} values with: {}", filledCount, fieldName, defaultValue);
 
 		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "fill_missing_grade", "Failed to fill missing Grade values", e);
+			Utilities.handleError(LOGGER, "fill_missing_" + fieldName.toLowerCase().replace(" ", "_"),
+					"Failed to fill missing " + fieldName + " values", e);
 		}
+	}
+
+	public void fill_missing_grade_values_with_default_grade(String defaultGrade) {
+		fillMissingFieldValue(5, "Grade", defaultGrade, firstProfileExpectedGrade);
 	}
 
 	public void fill_missing_department_values_with_default_department(String defaultDepartment) {
-		try {
-			List<String[]> profiles = extractedProfiles.get();
-			int filledCount = 0;
-
-			for (int i = 0; i < profiles.size(); i++) {
-				String[] profile = profiles.get(i);
-				if (profile.length > 2 && (profile[2] == null || profile[2].trim().isEmpty())) {
-					profile[2] = defaultDepartment;
-					filledCount++;
-					
-					// Store expected value for first profile
-					if (i == 0) {
-						firstProfileExpectedDepartment.set(defaultDepartment);
-						LOGGER.info("First profile expected Department value set to: '{}'", defaultDepartment);
-					}
-				}
-			}
-
-			extractedProfiles.set(profiles);
-			LOGGER.info("Filled " + filledCount + " missing Department values with: " + defaultDepartment);
-
-		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "fill_missing_department", "Failed to fill missing Department values", e);
-		}
+		fillMissingFieldValue(2, "Department", defaultDepartment, firstProfileExpectedDepartment);
 	}
 
 	public void fill_missing_job_family_values_with_default_value(String defaultValue) {
-		try {
-			List<String[]> profiles = extractedProfiles.get();
-			int filledCount = 0;
-
-			for (int i = 0; i < profiles.size(); i++) {
-				String[] profile = profiles.get(i);
-				if (profile.length > 3 && (profile[3] == null || profile[3].trim().isEmpty())) {
-					profile[3] = defaultValue;
-					filledCount++;
-					
-					// Store expected value for first profile
-					if (i == 0) {
-						firstProfileExpectedJobFamily.set(defaultValue);
-						LOGGER.info("First profile expected Job Family value set to: '{}'", defaultValue);
-					}
-				}
-			}
-
-			extractedProfiles.set(profiles);
-			LOGGER.info("Filled " + filledCount + " missing Job Family values with: " + defaultValue);
-
-		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "fill_missing_job_family", "Failed to fill missing Job Family values", e);
-		}
+		fillMissingFieldValue(3, "Job Family", defaultValue, firstProfileExpectedJobFamily);
 	}
 
 	public void fill_missing_job_sub_family_values_with_default_value(String defaultValue) {
-		try {
-			List<String[]> profiles = extractedProfiles.get();
-			int filledCount = 0;
-
-			for (int i = 0; i < profiles.size(); i++) {
-				String[] profile = profiles.get(i);
-				if (profile.length > 4 && (profile[4] == null || profile[4].trim().isEmpty())) {
-					profile[4] = defaultValue;
-					filledCount++;
-					
-					// Store expected value for first profile
-					if (i == 0) {
-						firstProfileExpectedJobSubFamily.set(defaultValue);
-						LOGGER.info("First profile expected Job Sub Family value set to: '{}'", defaultValue);
-					}
-				}
-			}
-
-			extractedProfiles.set(profiles);
-			LOGGER.info("Filled " + filledCount + " missing Job Sub Family values with: " + defaultValue);
-
-		} catch (Exception e) {
-			Utilities.handleError(LOGGER, "fill_missing_job_sub_family", "Failed to fill missing Job Sub Family values", e);
-		}
+		fillMissingFieldValue(4, "Job Sub Family", defaultValue, firstProfileExpectedJobSubFamily);
 	}
 
 	public void save_the_updated_excel_file_with_filled_data() {
@@ -498,8 +437,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			}
 
 			// Use ExcelMissingDataHandler to write Excel file
-			String templatePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-					+ File.separator + "resources" + File.separator + "JobCatalogNewFormat-100 Profiles.xlsx";
+			String templatePath = buildResourcePath("JobCatalogNewFormat-100 Profiles.xlsx");
 			
 			boolean success = ExcelMissingDataHandler.createExcelFileWithProfiles(profiles, filePath, templatePath);
 			
@@ -617,7 +555,6 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			
 			Boolean searchCleared = (Boolean) js.executeScript(clearScript);
 			if (searchCleared != null && searchCleared) {
-				LOGGER.info("✓ Search bar cleared");
 				safeSleep(2000);
 			}
 			
@@ -626,20 +563,19 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				WebElement clearFiltersBtn = driver.findElement(CLEAR_FILTERS_BTN);
 				if (clearFiltersBtn.isDisplayed()) {
 					clickElement(CLEAR_FILTERS_BTN);
-					LOGGER.info("✓ Clicked 'Clear Filters' button");
 					safeSleep(3000);
 					Utilities.waitForSpinnersToDisappear(driver, 10);
-					waitForBackgroundDataLoad(); // Wait for full data to reload
+					waitForBackgroundDataLoad();
 					safeSleep(2000);
 				}
 			} catch (Exception e) {
-				LOGGER.debug("Clear Filters button not found or not clickable: {}", e.getMessage());
+				LOGGER.debug("Clear Filters button not available: {}", e.getMessage());
 			}
 			
-			LOGGER.info("✓ All filters cleared successfully");
+			LOGGER.info("✓ Filters cleared");
 			
 		} catch (Exception clearEx) {
-			LOGGER.debug("Could not clear filters: {}", clearEx.getMessage());
+			LOGGER.debug("Filter clear issue: {}", clearEx.getMessage());
 		}
 			
 			WebElement resultsElement = Utilities.waitForVisible(wait, SHOWING_JOB_RESULTS);
@@ -762,8 +698,8 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			}
 
 			// Retry logic: Sometimes the count takes time to update
-			int maxRetries = 5;
-			int retryDelay = 10000; // 10 seconds
+			int maxRetries = MAX_MISSING_DATA_RETRIES;
+			int retryDelay = MISSING_DATA_CHECK_RETRY_DELAY_MS;
 			
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
@@ -859,19 +795,18 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		try {
 			// Simple fixed wait approach - let the profile verification scenario handle smart retries
 			LOGGER.info("Waiting for backend to process uploaded data...");
-			LOGGER.info("Waiting 3 minutes for backend processing (profile validation will have smart retries)...");
-			safeSleep(180000); // 3 minutes fixed wait
+			LOGGER.info("Waiting {} seconds for backend processing...", BACKEND_PROCESSING_WAIT_MS / 1000);
+			safeSleep(BACKEND_PROCESSING_WAIT_MS);
 
 			LOGGER.info("Refreshing Job Mapping page...");
 			dismissKeepWorkingPopupIfPresent();
 			driver.navigate().refresh();
 			Utilities.waitForPageReady(driver, 5);
 			Utilities.waitForSpinnersToDisappear(driver, 15);
-			waitForBackgroundDataLoad(); // Wait for background data API to complete
+			waitForBackgroundDataLoad();
 			safeSleep(2000);
 
-			LOGGER.info("✓ Backend wait completed - page refreshed and ready for validation");
-			LOGGER.info("Note: Profile verification scenario will retry if data is not yet updated");
+			LOGGER.info("✓ Backend wait completed - page refreshed");
 
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "wait_and_refresh", "Failed to wait and refresh Job Mapping page", e);
@@ -889,71 +824,49 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			LOGGER.info("Searching for re-uploaded profile by Job Name: " + jobName);
 
 			// Retry logic with dynamic polling: Profile might not be searchable immediately after backend processing
-			// Use same polling strategy as profile validation - 30 second intervals, up to 20 attempts (10 minutes)
-			int maxRetries = 20; // 20 attempts × 30 seconds = 10 minutes
-			int retryDelay = 30000; // 30 seconds
+			int maxRetries = MAX_SEARCH_RETRIES;
+			int retryDelay = SEARCH_RETRY_DELAY_MS;
 			
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
-					LOGGER.info("=== Search Attempt {}/{} for Job Name: '{}' ===", attempt, maxRetries, jobName);
+					LOGGER.info("Search attempt {}/{} for Job Name: '{}'", attempt, maxRetries, jobName);
 					
-					// Refresh page before each attempt to ensure fresh data
-					LOGGER.debug("Refreshing page to get latest data...");
 					driver.navigate().refresh();
 			Utilities.waitForPageReady(driver, 3);
 					waitForBackgroundDataLoad();
 					safeSleep(2000);
-					LOGGER.debug("Page refreshed and ready");
 					
 			Utilities.waitForSpinnersToDisappear(driver, 10);
-					LOGGER.debug("Spinners cleared");
 
-					LOGGER.debug("Waiting for search input element to be clickable...");
 			WebElement searchInput = Utilities.waitForClickable(wait, JOB_SEARCH_INPUT);
-					LOGGER.debug("Search input element is clickable");
-					
 			searchInput.clear();
 			safeSleep(500);
-					LOGGER.debug("Search input cleared, sending keys: '{}'", jobName);
-					
 			searchInput.sendKeys(jobName);
-					LOGGER.debug("Keys sent");
 
 			safeSleep(2000);
-					LOGGER.debug("Waiting for spinners after search...");
 			Utilities.waitForSpinnersToDisappear(driver, 10);
 			Utilities.waitForPageReady(driver, 3);
-					LOGGER.debug("Search completed, checking results...");
 
-					// Check if search returned results
 					List<WebElement> results = findElements(SEARCH_RESULTS_ROWS);
-					LOGGER.info("Search returned {} results", results.size());
 					
 					if (!results.isEmpty()) {
-						LOGGER.info("✓ Search completed for Job Name: " + jobName + " (found " + results.size() + " results)");
+						LOGGER.info("✓ Found {} search results for '{}'", results.size(), jobName);
 						return;
 					}
 					
-					// No results yet
 					if (attempt < maxRetries) {
-						LOGGER.info("Attempt {}/{}: Profile not found yet. Waiting 30 seconds before next attempt...", attempt, maxRetries);
+						LOGGER.info("No results yet, waiting 30 seconds before retry...");
 						safeSleep(retryDelay);
-						// Page will be refreshed at the start of the next attempt
 					} else {
-						LOGGER.info("Search completed for Job Name: " + jobName + " (no results found after " + maxRetries + " attempts - 10 minutes)");
+						LOGGER.warn("No results found after {} attempts", maxRetries);
 					}
 
 				} catch (Exception retryEx) {
 					if (attempt == maxRetries) {
-						LOGGER.error("Final attempt {}/{} failed with exception: {} - {}", 
-								attempt, maxRetries, retryEx.getClass().getSimpleName(), retryEx.getMessage());
 						throw retryEx;
 					}
-					LOGGER.warn("Attempt {}/{} failed with exception: {} - {}", 
-							attempt, maxRetries, retryEx.getClass().getSimpleName(), retryEx.getMessage());
-					LOGGER.info("Waiting 30 seconds before next attempt...");
-					safeSleep(retryDelay);
-					// Page will be refreshed at the start of the next attempt
+					LOGGER.warn("Attempt {}/{} failed: {}", attempt, maxRetries, retryEx.getMessage());
+					safeSleep(SEARCH_RETRY_DELAY_MS);
 				}
 			}
 
@@ -970,17 +883,26 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 				throw new IOException("No job code captured for search");
 			}
 
-			Utilities.waitForPageReady(driver, 2);
-			WebElement searchInput = Utilities.waitForClickable(wait, SEARCH_INPUT_MISSING_DATA);
+		Utilities.waitForPageReady(driver, 2);
+		
+		// Try to find search input - but don't fail if it doesn't exist
+		// Missing Data screen may not have a search bar
+		try {
+			WebDriverWait shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
+			WebElement searchInput = Utilities.waitForClickable(shortWait, SEARCH_INPUT_MISSING_DATA);
 			searchInput.clear();
 			safeSleep(500); // Allow clear to complete
 			searchInput.sendKeys(jobCode);
 
-			// Wait for search/filter to be applied
-			Utilities.waitForPageReady(driver, 3);
-			safeSleep(2000); // Additional wait for client-side filtering to complete
-			
-			LOGGER.info("Searched for profile by Job Code in Missing Data screen: " + jobCode);
+				// Wait for search/filter to be applied
+				Utilities.waitForPageReady(driver, 3);
+				safeSleep(2000); // Additional wait for client-side filtering to complete
+				
+				LOGGER.info("Searched for profile by Job Code in Missing Data screen: " + jobCode);
+			} catch (Exception searchEx) {
+				LOGGER.info("No search input found in Missing Data screen (may not have search functionality) - will check all rows instead");
+				LOGGER.debug("Search input exception: {}", searchEx.getMessage());
+			}
 
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "search_by_job_code_missing_data",
@@ -1070,8 +992,8 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			String expectedJobCode = firstProfileJobCode.get();
 
 			// Retry logic: Missing data icon might take time to disappear
-			int maxRetries = 5;
-			int retryDelay = 8000; // 8 seconds
+			int maxRetries = MAX_MISSING_DATA_RETRIES;
+			int retryDelay = ICON_CHECK_RETRY_DELAY_MS;
 			
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 				try {
@@ -1174,12 +1096,11 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			LOGGER.info("  Job Family: '{}'", expectedFamily);
 			LOGGER.info("  Job Sub Family: '{}'", expectedSubFamily);
 
-			// Dynamic polling: Check every 20 seconds for up to 10 minutes
-			int maxPollingAttempts = 30; // 30 attempts × 20 seconds = 10 minutes
-			int pollingInterval = 20000; // 20 seconds
-			long startTime = System.currentTimeMillis();
+			// Dynamic polling: Check every 20 seconds for up to 2 minutes
+			int maxPollingAttempts = MAX_VALIDATION_ATTEMPTS;
+			int pollingInterval = VALIDATION_POLL_INTERVAL_MS;
 			
-			LOGGER.info("Starting dynamic polling (checking every 20 seconds for up to 10 minutes)...");
+			LOGGER.info("Starting polling (every {} seconds for {} attempts)...", pollingInterval / 1000, maxPollingAttempts);
 			
 			for (int attempt = 1; attempt <= maxPollingAttempts; attempt++) {
 				try {
@@ -1191,7 +1112,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 						driver.navigate().refresh();
 						Utilities.waitForPageReady(driver, 2);
 						waitForBackgroundDataLoad();
-						safeSleep(pollingInterval);
+						safeSleep(VALIDATION_POLL_INTERVAL_MS);
 						reSearchProfile();
 						continue;
 					}
@@ -1204,16 +1125,15 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 						driver.navigate().refresh();
 						Utilities.waitForPageReady(driver, 2);
 						waitForBackgroundDataLoad();
-						safeSleep(pollingInterval);
+						safeSleep(VALIDATION_POLL_INTERVAL_MS);
 						reSearchProfile();
 						continue;
 					}
 					
 					List<WebElement> cells = jobRow.findElements(By.tagName("td"));
 					
-					long elapsedSeconds = (System.currentTimeMillis() - startTime) / 1000;
-					LOGGER.info("Attempt {}/{} (elapsed: {}s): Found Job Code '{}', extracting values from UI...", 
-							attempt, maxPollingAttempts, elapsedSeconds, expectedJobCode);
+					LOGGER.info("Attempt {}/{}: Found Job Code '{}', extracting values from UI...", 
+							attempt, maxPollingAttempts, expectedJobCode);
 					
 					// Extract actual values from UI
 					String actualGrade = "";
@@ -1307,79 +1227,20 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 						}
 					}
 					
-					// STRICT VALIDATION - All fields must match
+					// STRICT VALIDATION using helper method
 					StringBuilder errors = new StringBuilder();
-					int matchCount = 0;
-					int totalChecks = 0;
+					int[] matchCount = {0};
+					int[] totalChecks = {0};
 					
-					// Validate Grade (STRICT)
-					if (!expectedGrade.equals("NOT_SET")) {
-						totalChecks++;
-						if (actualGrade.isEmpty() || actualGrade.equalsIgnoreCase("N/A") || 
-							actualGrade.equals("-") || actualGrade.equalsIgnoreCase("--")) {
-							errors.append(String.format("\n  ❌ Grade is empty/N/A: '%s'", actualGrade));
-						} else if (!actualGrade.equalsIgnoreCase(expectedGrade)) {
-							errors.append(String.format("\n  ❌ Grade MISMATCH - Expected: '%s', Actual: '%s'", 
-									expectedGrade, actualGrade));
-						} else {
-							matchCount++;
-							LOGGER.info("  ✓ Grade matches: '{}'", actualGrade);
-						}
-					}
-					
-					// Validate Department (STRICT)
-					if (!expectedDept.equals("NOT_SET")) {
-						totalChecks++;
-						if (actualDept.isEmpty() || actualDept.equalsIgnoreCase("N/A") || 
-							actualDept.equals("-") || actualDept.equalsIgnoreCase("--")) {
-							errors.append(String.format("\n  ❌ Department is empty/N/A: '%s'", actualDept));
-						} else if (!actualDept.equalsIgnoreCase(expectedDept)) {
-							errors.append(String.format("\n  ❌ Department MISMATCH - Expected: '%s', Actual: '%s'", 
-									expectedDept, actualDept));
-						} else {
-							matchCount++;
-							LOGGER.info("  ✓ Department matches: '{}'", actualDept);
-						}
-					}
-					
-					// Validate Job Family (STRICT)
-					if (!expectedFamily.equals("NOT_SET")) {
-						totalChecks++;
-						if (actualFunction.isEmpty() || actualFunction.equalsIgnoreCase("N/A") || 
-							actualFunction.equals("-") || actualFunction.equalsIgnoreCase("--")) {
-							errors.append(String.format("\n  ❌ Job Family is empty/N/A: '%s'", actualFunction));
-						} else if (!actualFunction.equalsIgnoreCase(expectedFamily)) {
-							errors.append(String.format("\n  ❌ Job Family MISMATCH - Expected: '%s', Actual: '%s'", 
-									expectedFamily, actualFunction));
-						} else {
-							matchCount++;
-							LOGGER.info("  ✓ Job Family matches: '{}'", actualFunction);
-						}
-					}
-					
-					// Validate Job Sub Family (STRICT)
-					if (!expectedSubFamily.equals("NOT_SET")) {
-						totalChecks++;
-						if (actualSubFunction.isEmpty() || actualSubFunction.equalsIgnoreCase("N/A") || 
-							actualSubFunction.equals("-") || actualSubFunction.equalsIgnoreCase("--")) {
-							errors.append(String.format("\n  ❌ Job Sub Family is empty/N/A: '%s'", actualSubFunction));
-						} else if (!actualSubFunction.equalsIgnoreCase(expectedSubFamily)) {
-							errors.append(String.format("\n  ❌ Job Sub Family MISMATCH - Expected: '%s', Actual: '%s'", 
-									expectedSubFamily, actualSubFunction));
-						} else {
-							matchCount++;
-							LOGGER.info("  ✓ Job Sub Family matches: '{}'", actualSubFunction);
-						}
-					}
+					validateFieldValue("Grade", expectedGrade, actualGrade, errors, matchCount, totalChecks);
+					validateFieldValue("Department", expectedDept, actualDept, errors, matchCount, totalChecks);
+					validateFieldValue("Job Family", expectedFamily, actualFunction, errors, matchCount, totalChecks);
+					validateFieldValue("Job Sub Family", expectedSubFamily, actualSubFunction, errors, matchCount, totalChecks);
 					
 					// Check if ALL validations passed
-					if (matchCount == totalChecks && totalChecks > 0) {
-						// SUCCESS! All values are correct
-						long totalWaitSeconds = (System.currentTimeMillis() - startTime) / 1000;
-						long totalWaitMinutes = totalWaitSeconds / 60;
-						String successMsg = String.format("✓ ALL VALUES VALIDATED after %d min %d sec (attempt %d/%d): Grade='%s', Dept='%s', Family='%s', SubFamily='%s'",
-								totalWaitMinutes, totalWaitSeconds % 60, attempt, maxPollingAttempts, 
-								actualGrade, actualDept, actualFunction, actualSubFunction);
+					if (matchCount[0] == totalChecks[0] && totalChecks[0] > 0) {
+						String successMsg = String.format("✓ ALL VALUES VALIDATED (attempt %d/%d): Grade='%s', Dept='%s', Family='%s', SubFamily='%s'",
+								attempt, maxPollingAttempts, actualGrade, actualDept, actualFunction, actualSubFunction);
 						LOGGER.info(successMsg);
 						LOGGER.info("===== VALIDATION PASSED =====");
 				return;
@@ -1388,19 +1249,17 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 					// Not all values match yet - continue polling
 					if (attempt < maxPollingAttempts) {
 						LOGGER.warn("Attempt {}/{}: {}/{} fields validated. Errors:{}", 
-								attempt, maxPollingAttempts, matchCount, totalChecks, errors.toString());
-						LOGGER.info("Waiting 20 seconds before next polling attempt...");
-						safeSleep(pollingInterval);
+								attempt, maxPollingAttempts, matchCount[0], totalChecks[0], errors.toString());
+						LOGGER.info("Waiting {} seconds before next polling attempt...", VALIDATION_POLL_INTERVAL_MS / 1000);
+						safeSleep(VALIDATION_POLL_INTERVAL_MS);
 						driver.navigate().refresh();
 						Utilities.waitForPageReady(driver, 2);
 						waitForBackgroundDataLoad();
 						safeSleep(2000);
 						reSearchProfile();
 					} else {
-						long totalWaitSeconds = (System.currentTimeMillis() - startTime) / 1000;
-						long totalWaitMinutes = totalWaitSeconds / 60;
-						String failMsg = String.format("Profile values NOT fully validated after %d min %d sec (%d attempts, %d/%d fields matched).%s",
-								totalWaitMinutes, totalWaitSeconds % 60, maxPollingAttempts, matchCount, totalChecks, errors.toString());
+						String failMsg = String.format("Profile values NOT fully validated after %d attempts (%d/%d fields matched).%s",
+								maxPollingAttempts, matchCount[0], totalChecks[0], errors.toString());
 						LOGGER.error("===== VALIDATION FAILED =====");
 						Assert.fail(failMsg);
 					}
@@ -1409,8 +1268,9 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 					if (attempt == maxPollingAttempts) {
 						throw retryEx;
 					}
-					LOGGER.info("Attempt {}/{} encountered error, continuing polling in 20 seconds...", attempt, maxPollingAttempts);
-					safeSleep(pollingInterval);
+					LOGGER.info("Attempt {}/{} encountered error, retrying in {} seconds...", 
+							attempt, maxPollingAttempts, VALIDATION_POLL_INTERVAL_MS / 1000);
+					safeSleep(VALIDATION_POLL_INTERVAL_MS);
 				}
 			}
 
@@ -1422,62 +1282,65 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 	public void verify_profile_is_not_found_in_jobs_missing_data_screen() {
 		try {
 			// Retry logic: Profile removal from Missing Data screen might take time
-			int maxRetries = 5;
-			int retryDelay = 10000; // 10 seconds
+			int maxRetries = MAX_MISSING_DATA_RETRIES;
+			int retryDelay = MISSING_DATA_CHECK_RETRY_DELAY_MS;
 			String searchedJobCode = firstProfileJobCode.get();
+			
+			LOGGER.info("Verifying profile '{}' is removed from Missing Data screen", searchedJobCode);
 			
 			for (int attempt = 1; attempt <= maxRetries; attempt++) {
 		try {
 			Utilities.waitForPageReady(driver, 3);
 
 			boolean profileFound = false;
-			List<WebElement> rows = findElements(JOB_ROWS_MISSING_DATA);
+			
+			// Load all profiles by scrolling (if pagination/lazy loading exists)
+			try {
+				scrollToLoadAllProfiles();
+			} catch (Exception scrollEx) {
+				LOGGER.debug("Scroll to load profiles: {}", scrollEx.getMessage());
+			}
+			
+			// Get all rows after loading
+			List<WebElement> rows = findElements(JOB_ROWS_IN_MISSING_DATA_SCREEN);
 					
-					// Filter to only check VISIBLE rows (ignore hidden/filtered rows in DOM)
-					List<WebElement> visibleRows = new ArrayList<>();
-					for (WebElement row : rows) {
-						if (row.isDisplayed()) {
+				// Filter to visible data rows
+				List<WebElement> visibleRows = new ArrayList<>();
+				for (WebElement row : rows) {
+					try {
+						if (row.isDisplayed() && !row.getText().trim().isEmpty()) {
 							visibleRows.add(row);
 						}
+					} catch (Exception e) {
+						LOGGER.debug("Skipping row: {}", e.getMessage());
 					}
-					
-					LOGGER.info("Attempt {}/{}: Checking if profile '{}' is removed from Missing Data screen ({} visible rows out of {} total DOM rows)", 
-							attempt, maxRetries, searchedJobCode, visibleRows.size(), rows.size());
-					
-			for (WebElement row : visibleRows) {
-				String rowText = row.getText();
-				if (rowText.contains(searchedJobCode)) {
-					profileFound = true;
-							LOGGER.info("Profile '{}' still found in visible row: {}", searchedJobCode, rowText.substring(0, Math.min(100, rowText.length())));
-					break;
 				}
+					
+					LOGGER.info("Attempt {}/{}: Checking {} visible rows (out of {} DOM rows)", 
+							attempt, maxRetries, visibleRows.size(), rows.size());
+				
+		for (WebElement row : visibleRows) {
+			String rowText = row.getText();
+			if (rowText.contains(searchedJobCode)) {
+				profileFound = true;
+						LOGGER.warn("❌ Profile '{}' still found: {}", searchedJobCode, 
+								rowText.replaceAll("\\n", " | ").substring(0, Math.min(150, rowText.length())));
+				break;
 			}
+		}
 
 					if (!profileFound) {
-						// Success! Profile not found
-						LOGGER.info("✓ Profile no longer appears in Missing Data screen (verified on attempt " + attempt + ")");
+						LOGGER.info("✓ Profile '{}' removed from Missing Data screen (attempt {})", searchedJobCode, attempt);
 						return;
 					}
 					
-					// Profile still found
 					if (attempt < maxRetries) {
-						LOGGER.info("Attempt {}/{}: Profile still in Missing Data screen. Refreshing and retrying in 10 seconds...", 
-								attempt, maxRetries);
+						LOGGER.info("Attempt {}/{}: Profile still present. Retrying in {} sec...", 
+								attempt, maxRetries, retryDelay / 1000);
 						driver.navigate().refresh();
 						Utilities.waitForPageReady(driver, 3);
-						waitForBackgroundDataLoad(); // Wait for background data API to complete
+						waitForBackgroundDataLoad();
 						safeSleep(retryDelay);
-						
-						// Re-search for the profile
-						try {
-							WebElement searchInput = Utilities.waitForClickable(wait, SEARCH_INPUT_MISSING_DATA);
-							searchInput.clear();
-							safeSleep(500);
-							searchInput.sendKeys(searchedJobCode);
-							safeSleep(2000);
-						} catch (Exception searchEx) {
-							LOGGER.debug("Could not perform search in Missing Data screen: {}", searchEx.getMessage());
-						}
 					} else {
 						Assert.fail("Profile should NOT be found in Jobs Missing Data screen after re-upload (still found after " + maxRetries + " attempts)");
 					}
@@ -1494,6 +1357,41 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 		} catch (Exception e) {
 			Utilities.handleError(LOGGER, "verify_profile_not_in_missing_data",
 					"Profile still found in Missing Data screen", e);
+		}
+	}
+	
+	/**
+	 * Scrolls through the Missing Data screen to load all profiles (if lazy loading is used)
+	 */
+	private void scrollToLoadAllProfiles() {
+		try {
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			long lastHeight = (long) js.executeScript("return document.body.scrollHeight");
+			int scrollAttempts = 0;
+			int maxScrollAttempts = 10; // Prevent infinite scrolling
+			
+			while (scrollAttempts < maxScrollAttempts) {
+				// Scroll to bottom
+				js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+				safeSleep(1000); // Wait for lazy load
+				
+				// Calculate new scroll height and compare
+				long newHeight = (long) js.executeScript("return document.body.scrollHeight");
+				if (newHeight == lastHeight) {
+					// No more content to load
+					break;
+				}
+				lastHeight = newHeight;
+				scrollAttempts++;
+			}
+			
+			// Scroll back to top
+			js.executeScript("window.scrollTo(0, 0);");
+			safeSleep(500);
+			
+			LOGGER.debug("Scrolled through page {} times to load all profiles", scrollAttempts);
+		} catch (Exception e) {
+			LOGGER.debug("Error during scroll to load all profiles: {}", e.getMessage());
 		}
 	}
 
@@ -1590,8 +1488,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			String filePath = excelFilePath.get();
 
 			if (filePath == null || filePath.isEmpty() || filePath.equals("NOT_SET")) {
-				filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-						+ File.separator + "resources" + File.separator + DEFAULT_EXCEL_FILENAME;
+				filePath = buildResourcePath(DEFAULT_EXCEL_FILENAME);
 			}
 
 			File csvFile = new File(filePath);
@@ -1614,8 +1511,7 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 	public String getGeneratedexcelFilePath() {
 		String filePath = excelFilePath.get();
 		if (filePath == null || filePath.isEmpty() || filePath.equals("NOT_SET")) {
-			filePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-					+ File.separator + "resources" + File.separator + DEFAULT_EXCEL_FILENAME;
+			filePath = buildResourcePath(DEFAULT_EXCEL_FILENAME);
 		}
 		return filePath;
 	}
@@ -1642,6 +1538,36 @@ public class PO35_ReuploadMissingDataProfiles extends BasePageObject {
 			return "";
 		}
 		return value;
+	}
+
+	/**
+	 * Helper method to validate a single field value
+	 * @return true if field matches expected value, false otherwise
+	 */
+	private boolean validateFieldValue(String fieldName, String expected, String actual, 
+	                                    StringBuilder errors, int[] matchCounter, int[] totalCounter) {
+		if (expected == null || expected.equals("NOT_SET")) {
+			return true; // Skip validation for unset fields
+		}
+		
+		totalCounter[0]++;
+		
+		// Check for empty/null/N/A values
+		if (actual == null || actual.trim().isEmpty() || 
+		    actual.equalsIgnoreCase("N/A") || actual.equals("-") || actual.equalsIgnoreCase("--")) {
+			errors.append(String.format("\n  ❌ %s is empty/N/A: '%s'", fieldName, actual == null ? "null" : actual));
+			return false;
+		}
+		
+		if (!actual.equalsIgnoreCase(expected)) {
+			errors.append(String.format("\n  ❌ %s MISMATCH - Expected: '%s', Actual: '%s'", 
+					fieldName, expected, actual));
+			return false;
+		}
+		
+		matchCounter[0]++;
+		LOGGER.info("  ✓ {} matches: '{}'", fieldName, actual);
+		return true;
 	}
 
 	private String cleanExtractedText(String value) {

@@ -53,7 +53,7 @@ public abstract class CustomizeTestNGCucumberRunner extends DriverManager {
 		if (DriverManager.getDriver() == null) {
 			String runnerName = this.getClass().getSimpleName();
 			LOGGER.warn(" Driver is null in " + runnerName + " - initializing");
-			DriverManager.launchBrowser();
+			DriverManager.getInstance().launchBrowser();
 			LOGGER.info("... Driver initialization verified in " + runnerName);
 		}
 	}

@@ -45,7 +45,9 @@ public class Hooks implements ISuiteListener {
 		String featureFileName = featureName.substring(featureName.lastIndexOf("/") + 1);
 		String threadId = Thread.currentThread().getName();
 		ExcelReportListener.setCurrentScenario(threadId, scenarioName);
+		LOGGER.info("========================================================================================");
 		LOGGER.info("▶️  START: {} [{}]", scenarioName, featureFileName);
+		LOGGER.info("========================================================================================");
 	}
 
 	@After
@@ -53,9 +55,13 @@ public class Hooks implements ISuiteListener {
 		String scenarioName = scenario.getName();
 		
 		if (scenario.isFailed()) {
+			LOGGER.info("========================================================================================");
 			LOGGER.error("❌ FAILED: {}", scenarioName);
+			LOGGER.info("========================================================================================");
 		} else {
+			LOGGER.info("========================================================================================");
 			LOGGER.info("✅ PASSED: {}", scenarioName);
+			LOGGER.info("========================================================================================");
 		}
 		
 		PageObjectManager.reset();

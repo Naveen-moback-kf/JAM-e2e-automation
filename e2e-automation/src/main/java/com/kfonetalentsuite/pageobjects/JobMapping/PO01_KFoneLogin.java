@@ -30,7 +30,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 	public PO01_KFoneLogin() {
 		super();
 		if (this.driver == null) {
-			DriverManager.launchBrowser();
+			DriverManager.getInstance().launchBrowser();
 			this.driver = DriverManager.getDriver();
 		}
 		if (this.driver == null) {
@@ -43,7 +43,7 @@ public class PO01_KFoneLogin extends BasePageObject {
 			if (this.driver == null) {
 				this.driver = DriverManager.getDriver();
 				if (this.driver == null) {
-					DriverManager.launchBrowser();
+					DriverManager.getInstance().launchBrowser();
 					this.driver = DriverManager.getDriver();
 				}
 			}

@@ -23,6 +23,7 @@ import com.kfonetalentsuite.utils.common.CommonVariableManager;
 import com.kfonetalentsuite.utils.common.Utilities;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import io.qameta.allure.Step;
 
 public class DriverManager {
 	// THREAD-SAFE: Each thread gets its own WebDriver instance for parallel
@@ -32,20 +33,36 @@ public class DriverManager {
 
 	// THREAD-SAFE: Each thread gets its own WebDriverWait instance
 	private static ThreadLocal<WebDriverWait> wait = ThreadLocal.withInitial(() -> null);
+	
+	// Singleton instance for non-static method access
+	private static final DriverManager INSTANCE = new DriverManager();
+	
+	/**
+	 * Get singleton instance for non-static method calls
+	 * @return DriverManager instance
+	 */
+	public static DriverManager getInstance() {
+		return INSTANCE;
+	}
 
 	@BeforeMethod
 	public void initializeDriver() {
 		if (DriverManager.getDriver() == null) {
 			try {
-				DriverManager.launchBrowser();
+				this.launchBrowser();
 			} catch (Exception e) {
 				LOGGER.error("Exception in DriverManager initialization: {}", e.getMessage(), e);
 			}
 		}
 	}
 
-	@BeforeTest
-	public static void launchBrowser() {
+	/**
+	 * Launch browser - called by TestNG @BeforeTest or manually via getInstance()
+	 * Note: This is an instance method to comply with TestNG best practices
+	 */
+	@Step("Initialize WebDriver browser session")
+	@BeforeTest(alwaysRun = true)
+	public void launchBrowser() {
 		// Check if driver is already initialized AND session is active
 		if (driver.get() != null && isSessionActive()) {
 			return; // Already initialized, skip
@@ -405,7 +422,7 @@ public class DriverManager {
 
 	public static WebDriver getDriver() {
 		if (driver.get() == null) {
-			launchBrowser();
+			getInstance().launchBrowser();
 		}
 		return driver.get();
 	}
@@ -437,7 +454,7 @@ public class DriverManager {
 					}
 					driver.set(null);
 				}
-				launchBrowser();
+				getInstance().launchBrowser();
 				return isSessionActive();
 			} catch (Exception e) {
 				LOGGER.error("Session recovery failed: {}", e.getMessage());
