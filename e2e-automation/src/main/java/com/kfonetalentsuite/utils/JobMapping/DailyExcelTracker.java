@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +20,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import io.cucumber.testng.CucumberOptions;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -303,8 +301,6 @@ public class DailyExcelTracker {
 
 			parseTestMethods(content, summary);
 
-			recalculateTestCountsForCrossBrowser(summary, content);
-
 			if (summary.featureResults.isEmpty() && summary.totalTests > 0) {
 				LOGGER.debug(
 						"INCONSISTENT STATE: Found {} total tests but no features created - possible XML parsing issue",
@@ -376,16 +372,12 @@ public class DailyExcelTracker {
 					String status = ExcelReportingHelper.extractStringFromXML(methodBlock, "status=\"([^\"]+)\"");
 
 					if (methodName != null && !methodName.isEmpty() && status != null) {
-						if (methodName.equals("runScenario") || methodName.equals("runCrossBrowserTest")) {
+						if (methodName.equals("runScenario")) {
 							String actualRunnerClass = className.substring(className.lastIndexOf('.') + 1);
 
-							if (methodName.equals("runCrossBrowserTest")) {
-								LOGGER.debug("TESTNG XML - Found runCrossBrowserTest in {}", className);
-								handleCrossBrowserTestMethod(methodBlock, className, status, summary);
-							} else {
-								String actualScenarioName = extractScenarioNameFromParameters(methodBlock);
-								// FIXED: Use same feature name extraction logic as cross-browser execution
-								String actualFeatureName = extractFeatureNameFromRunnerClass(actualRunnerClass);
+							String actualScenarioName = extractScenarioNameFromParameters(methodBlock);
+							// Use same feature name extraction logic
+							String actualFeatureName = extractFeatureNameFromRunnerClass(actualRunnerClass);
 
 								ScenarioDetail scenario = new ScenarioDetail();
 								scenario.scenarioName = (actualScenarioName != null && !actualScenarioName.isEmpty())
@@ -417,18 +409,16 @@ public class DailyExcelTracker {
 										scenario.errorStackTrace = exceptionDetails.stackTrace;
 
 										LOGGER.debug("Captured exception details for scenario '{}'",
-												actualScenarioName);
-									} else {
-										LOGGER.warn("No exception details found for testKey '{}', scenario '{}'",
-												testKey, actualScenarioName);
-									}
+										actualScenarioName);
+								} else {
+									LOGGER.warn("No exception details found for testKey '{}', scenario '{}'",
+											testKey, actualScenarioName);
 								}
-
-								addScenarioToFeature(summary, scenario, className, actualFeatureName);
 							}
 
-						} else {
+							addScenarioToFeature(summary, scenario, className, actualFeatureName);
 						}
+
 					} else {
 					}
 				}
@@ -438,199 +428,20 @@ public class DailyExcelTracker {
 
 	}
 
-	private static void handleCrossBrowserTestMethod(String methodBlock, String className, String status,
-			TestResultsSummary summary) {
-		try {
-			String browserName = extractBrowserNameFromParameters(methodBlock);
-			if (browserName == null) {
-				browserName = "Unknown Browser";
-			}
-
-			String runnerClass = className.substring(className.lastIndexOf('.') + 1);
-
-			String featureName = extractFeatureNameFromRunnerClass(runnerClass);
-
-			List<String> realScenarioNames = extractRealScenarioNamesFromFeatureFiles(runnerClass);
-			String convertedStatus = convertTestNGStatusToBusiness(status);
-
-			if (realScenarioNames.isEmpty()) {
-				LOGGER.debug("CROSS-BROWSER ISSUE - No real scenario names found for {}, using fallback", runnerClass);
-				realScenarioNames.add("Cross-Browser Test Execution");
-			}
-
-			// IMPORTANT: For feature-specific runners, we need to determine which scenarios
-			List<String> actuallyExecutedScenarios = filterActuallyExecutedScenarios(realScenarioNames, runnerClass);
-
-			for (String scenarioName : actuallyExecutedScenarios) {
-				String finalStatus = convertedStatus;
-				if (convertedStatus != null && convertedStatus.contains("FAILED")) {
-					if (com.kfonetalentsuite.listeners.ExcelReportListener.didScenarioPassInRetry(scenarioName)) {
-						finalStatus = "PASSED";
-						LOGGER.debug("Retry passed (CrossBrowser): '{}'", scenarioName);
-					}
-				}
-				addOrUpdateCrossBrowserScenario(summary, className, featureName, scenarioName, browserName,
-						finalStatus);
-			}
-
-		} catch (Exception e) {
-			LOGGER.error("CROSS-BROWSER ERROR - Failed to handle method: {}", e.getMessage());
-		}
-	}
-
-	private static List<String> filterActuallyExecutedScenarios(List<String> allScenarios, String runnerClass) {
-
-		return allScenarios;
-	}
-
-	private static synchronized void addOrUpdateCrossBrowserScenario(TestResultsSummary summary, String className,
-			String featureName, String scenarioName, String browserName, String status) {
-
-		FeatureResult feature = summary.featureResults.stream().filter(f -> className.equals(f.runnerClassName))
-				.findFirst().orElse(null);
-
-		if (feature == null) {
-			feature = new FeatureResult();
-			feature.featureName = featureName;
-			feature.businessDescription = generateBusinessDescription(featureName);
-			feature.scenarios = new ArrayList<>();
-			feature.duration = generateDuration();
-			feature.runnerClassName = className;
-			summary.featureResults.add(feature);
-		}
-
-		ScenarioDetail existingScenario = feature.scenarios.stream().filter(s -> scenarioName.equals(s.scenarioName))
-				.findFirst().orElse(null);
-
-		if (existingScenario != null) {
-			if (existingScenario.browserStatus == null) {
-				existingScenario.browserStatus = new HashMap<>();
-			}
-			existingScenario.browserStatus.put(browserName.toLowerCase(), status);
-
-			if ("FAILED".equals(status) || existingScenario.status == null) {
-				existingScenario.status = status;
-			}
-
-			LOGGER.debug("Updated existing scenario '{}' with {}: {} (browsers: {})", scenarioName, browserName, status,
-					existingScenario.browserStatus.keySet());
-		} else {
-			String runnerClass = className.substring(className.lastIndexOf('.') + 1);
-			int scenarioOrder = getScenarioOrderFromFeatureFile(runnerClass, scenarioName);
-
-			ScenarioDetail newScenario = new ScenarioDetail();
-			newScenario.scenarioName = scenarioName;
-			newScenario.businessDescription = "Cross-browser validation: " + scenarioName;
-			newScenario.status = status;
-			newScenario.browserStatus = new HashMap<>();
-			newScenario.browserStatus.put(browserName.toLowerCase(), status);
-			newScenario.scenarioOrder = scenarioOrder;
-
-			insertScenarioInOrder(feature.scenarios, newScenario);
-
-			LOGGER.debug("Created new scenario '{}' with {}: {} (order: {})", scenarioName, browserName, status,
-					scenarioOrder);
-		}
-
-		feature.totalScenarios = feature.scenarios.size();
-		feature.passed = (int) feature.scenarios.stream().filter(s -> s.status != null && s.status.contains("PASSED"))
-				.count();
-		feature.failed = (int) feature.scenarios.stream().filter(s -> s.status != null && s.status.contains("FAILED"))
-				.count();
-		feature.skipped = (int) feature.scenarios.stream().filter(s -> s.status != null && s.status.contains("SKIPPED"))
-				.count();
-	}
-
-	private static int getScenarioOrderFromFeatureFile(String runnerClass, String scenarioName) {
-		try {
-			List<String> orderedScenarios = extractRealScenarioNamesFromFeatureFiles(runnerClass);
-
-			for (int i = 0; i < orderedScenarios.size(); i++) {
-				if (orderedScenarios.get(i).equals(scenarioName)) {
-					return i;
-				}
-			}
-
-			LOGGER.warn("SCENARIO ORDER - '{}' not found in feature file, using default order", scenarioName);
-			return 999; // Default to end if not found
-
-		} catch (Exception e) {
-			LOGGER.error("SCENARIO ORDER ERROR - Failed to determine order for '{}': {}", scenarioName, e.getMessage());
-			return 999; // Default to end if error
-		}
-	}
-
-	private static void insertScenarioInOrder(List<ScenarioDetail> scenarios, ScenarioDetail newScenario) {
-		int insertIndex = scenarios.size(); // Default: insert at end
-
-		for (int i = 0; i < scenarios.size(); i++) {
-			if (scenarios.get(i).scenarioOrder > newScenario.scenarioOrder) {
-				insertIndex = i;
-				break;
-			}
-		}
-
-		scenarios.add(insertIndex, newScenario);
-	}
-
-	private static String extractBrowserNameFromParameters(String methodBlock) {
-		try {
-			String cdataPattern = "<param\\s+index=\"0\">.*?<value>.*?<!\\[CDATA\\[([^\\]]+)\\]\\]>.*?</value>.*?</param>";
-			java.util.regex.Pattern p = java.util.regex.Pattern.compile(cdataPattern, java.util.regex.Pattern.DOTALL);
-			java.util.regex.Matcher matcher = p.matcher(methodBlock);
-
-			if (matcher.find()) {
-				String browserName = matcher.group(1);
-				return browserName;
-			}
-
-			String simplePattern = "<param\\s+index=\"0\">.*?<value>([^<]+)</value>.*?</param>";
-			p = java.util.regex.Pattern.compile(simplePattern, java.util.regex.Pattern.DOTALL);
-			matcher = p.matcher(methodBlock);
-
-			if (matcher.find()) {
-				String browserName = matcher.group(1).trim();
-				return browserName;
-			}
-
-			String quotedPattern = "<param\\s+index=\"0\">.*?<value>.*?[\"']([^\"']+)[\"'].*?</value>.*?</param>";
-			p = java.util.regex.Pattern.compile(quotedPattern, java.util.regex.Pattern.DOTALL);
-			matcher = p.matcher(methodBlock);
-
-			if (matcher.find()) {
-				String browserName = matcher.group(1).trim();
-				return browserName;
-			}
-
-			String debugPattern = "<param\\s+index=\"0\">.*?</param>";
-			p = java.util.regex.Pattern.compile(debugPattern, java.util.regex.Pattern.DOTALL);
-			matcher = p.matcher(methodBlock);
-			if (matcher.find()) {
-				LOGGER.error("BROWSER EXTRACTION DEBUG - Parameter 0 structure: {}", matcher.group(0));
-			}
-
-			LOGGER.error("BROWSER EXTRACTION FAILED - No browser name found in method parameters");
-
-		} catch (Exception e) {
-			LOGGER.error("BROWSER EXTRACTION ERROR - Exception: {}", e.getMessage());
-		}
-		return null;
-	}
-
 	private static String extractFeatureNameFromRunnerClass(String runnerClass) {
 		String actualFeatureName = getActualFeatureNameFromFiles(runnerClass);
 		if (actualFeatureName != null && !actualFeatureName.isEmpty()) {
 			return actualFeatureName;
 		}
 
-		if (runnerClass.contains("LoginPage") || runnerClass.contains("CrossBrowser01")) {
+		if (runnerClass.contains("LoginPage")) {
 			return "Login Authentication";
-		} else if (runnerClass.contains("JobProfile") || runnerClass.contains("CrossBrowser04")) {
+		} else if (runnerClass.contains("JobProfile")) {
 			return "Job Profile Management";
-		} else if (runnerClass.contains("Header") || runnerClass.contains("CrossBrowser05")) {
+		} else if (runnerClass.contains("Header")) {
 			return "UI Header Validation";
 		} else {
-			return "Cross-Browser Test Feature";
+			return "Test Feature";
 		}
 	}
 
@@ -664,80 +475,6 @@ public class DailyExcelTracker {
 		} catch (Exception e) {
 		}
 		return null;
-	}
-
-	private static List<String> extractRealScenarioNamesFromFeatureFiles(String runnerClass) {
-		List<String> allScenarios = new ArrayList<>();
-
-		try {
-
-			CucumberOptionsData cucumberData = extractCucumberOptionsFromRunnerClass(runnerClass);
-			if (cucumberData == null || cucumberData.tags == null || cucumberData.tags.length == 0) {
-				LOGGER.error("SPECIFIC-FEATURE FAILED - No CucumberOptions data found for: {}", runnerClass);
-				return allScenarios;
-			}
-
-			for (String featureFilePath : cucumberData.features) {
-
-				File featureFile = new File(featureFilePath);
-				if (featureFile.isDirectory()) {
-					LOGGER.warn(
-							"DIRECTORY DETECTED - Feature path '{}' is a directory, expanding to find .feature files",
-							featureFilePath);
-
-					// FIXED: Expand directory to find all .feature files
-					List<File> featureFiles = findFeatureFilesInDirectory(featureFile);
-					LOGGER.warn("DIRECTORY EXPANSION - Found {} .feature files in directory: {}", featureFiles.size(),
-							featureFilePath);
-
-					for (File individualFeatureFile : featureFiles) {
-						List<String> fileScenarios = parseScenarioNamesFromFeatureFile(individualFeatureFile.getPath(),
-								cucumberData.tags);
-						allScenarios.addAll(fileScenarios);
-
-						if (runnerClass.contains("CrossBrowser05") || runnerClass.contains("HeaderSection")) {
-							LOGGER.warn("CROSSBROWSER05 DIRECTORY FILE - {}: {} scenarios",
-									individualFeatureFile.getName(), fileScenarios.size());
-							for (String scenario : fileScenarios) {
-								LOGGER.warn("  - Directory scenario: '{}'", scenario);
-							}
-						}
-					}
-
-				} else if (!featureFile.exists()) {
-					LOGGER.error("FEATURE FILE NOT FOUND: {}", featureFilePath);
-					continue;
-				} else {
-					List<String> fileScenarios = parseScenarioNamesFromFeatureFile(featureFilePath, cucumberData.tags);
-					allScenarios.addAll(fileScenarios);
-				}
-			}
-
-			Set<String> uniqueScenarios = new HashSet<>(allScenarios);
-			allScenarios = new ArrayList<>(uniqueScenarios);
-
-			LOGGER.info(
-					"FIXED SCENARIO EXTRACTION - Runner: {}, Total unique scenarios: {} (from {} specific feature files)",
-					runnerClass, allScenarios.size(), cucumberData.features.length);
-			LOGGER.debug("EXTRACTED SCENARIOS: {}", allScenarios);
-
-			if (runnerClass.contains("CrossBrowser05") || runnerClass.contains("HeaderSection")) {
-				LOGGER.warn("=== CROSSBROWSER05 DEBUG ===");
-				LOGGER.warn("Runner: {}", runnerClass);
-				LOGGER.warn("Tags parsed: {}", Arrays.toString(cucumberData.tags));
-				LOGGER.warn("Feature files: {}", Arrays.toString(cucumberData.features));
-				LOGGER.warn("Total scenarios found: {}", allScenarios.size());
-				for (String scenario : allScenarios) {
-					LOGGER.warn("  - Scenario: '{}'", scenario);
-				}
-				LOGGER.warn("=== END DEBUG ===");
-			}
-
-		} catch (Exception e) {
-			LOGGER.error("SPECIFIC-FEATURE EXTRACTION ERROR for {}: {}", runnerClass, e.getMessage());
-		}
-
-		return allScenarios;
 	}
 
 	private static String extractFeatureFileName(String runnerClassName) {
@@ -774,7 +511,7 @@ public class DailyExcelTracker {
 
 	private static String extractRunnerNumber(String runnerClass) {
 		try {
-			java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("CrossBrowser(\\d+)_");
+			java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("Runner(\\d+)_");
 			java.util.regex.Matcher matcher = pattern.matcher(runnerClass);
 
 			if (matcher.find()) {
@@ -873,161 +610,6 @@ public class DailyExcelTracker {
 		return null;
 	}
 
-	private static CucumberOptionsData extractCucumberOptionsFromRunnerClass(String runnerClass) {
-		try {
-			String fullClassName = "testrunners.JobMapping.crossbrowser." + runnerClass;
-
-			Class<?> runnerClazz = Class.forName(fullClassName);
-
-			if (runnerClazz.isAnnotationPresent(CucumberOptions.class)) {
-				CucumberOptions cucumberOptions = runnerClazz.getAnnotation(CucumberOptions.class);
-
-				String tagsString = cucumberOptions.tags();
-				String[] features = cucumberOptions.features();
-
-				String[] individualTags = parseTagsString(tagsString);
-
-				return new CucumberOptionsData(individualTags, features);
-			} else {
-				LOGGER.error("REFLECTION FAILED - No @CucumberOptions found in: {}", fullClassName);
-			}
-
-		} catch (Exception e) {
-			LOGGER.error("REFLECTION ERROR - Failed to extract tags from {}: {}", runnerClass, e.getMessage());
-		}
-
-		return null;
-	}
-
-	private static class CucumberOptionsData {
-		public String[] tags;
-		public String[] features;
-
-		public CucumberOptionsData(String[] tags, String[] features) {
-			this.tags = tags;
-			this.features = features;
-		}
-	}
-
-	private static List<File> findFeatureFilesInDirectory(File directory) {
-		List<File> featureFiles = new ArrayList<>();
-
-		if (!directory.exists() || !directory.isDirectory()) {
-			return featureFiles;
-		}
-
-		try {
-			File[] files = directory.listFiles();
-			if (files != null) {
-				for (File file : files) {
-					if (file.isDirectory()) {
-						featureFiles.addAll(findFeatureFilesInDirectory(file));
-					} else if (file.getName().endsWith(".feature")) {
-						featureFiles.add(file);
-					}
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error searching directory for feature files: {}", e.getMessage());
-		}
-
-		return featureFiles;
-	}
-
-	private static String[] parseTagsString(String tagsString) {
-		if (tagsString == null || tagsString.trim().isEmpty()) {
-			return new String[0];
-		}
-
-		String[] rawTags = tagsString.split("\\s+or\\s+");
-		List<String> cleanedTags = new ArrayList<>();
-
-		for (String tag : rawTags) {
-			String cleanedTag = tag.trim();
-			if (!cleanedTag.isEmpty() && cleanedTag.startsWith("@")) {
-				cleanedTags.add(cleanedTag);
-			}
-		}
-
-		return cleanedTags.toArray(new String[0]);
-	}
-
-	private static List<String> parseScenarioNamesFromFeatureFile(String featureFilePath, String[] targetTags) {
-		List<String> scenarioNames = new ArrayList<>();
-
-		try {
-			File featureFile = new File(featureFilePath);
-			if (!featureFile.exists()) {
-				LOGGER.error("FEATURE FILE NOT FOUND: {}", featureFilePath);
-				return scenarioNames;
-			}
-
-			List<String> lines = java.nio.file.Files.readAllLines(featureFile.toPath());
-
-			boolean hasFeatureLevelTag = false;
-			for (String line : lines) {
-				line = line.trim();
-				if (line.startsWith("Feature:")) {
-					break; // Stop checking after Feature line
-				}
-				for (String tag : targetTags) {
-					if (containsTag(line, tag)) {
-						hasFeatureLevelTag = true;
-						break;
-					}
-				}
-				if (hasFeatureLevelTag)
-					break;
-			}
-
-			if (hasFeatureLevelTag) {
-				for (String line : lines) {
-					line = line.trim();
-					if (line.startsWith("Scenario:")) {
-						String scenarioName = line.substring(9).trim();
-						scenarioNames.add(scenarioName);
-					}
-				}
-			} else {
-				for (int i = 0; i < lines.size(); i++) {
-					String line = lines.get(i).trim();
-
-					boolean hasTargetTag = false;
-					for (String tag : targetTags) {
-						if (containsTag(line, tag)) {
-							hasTargetTag = true;
-							break;
-						}
-					}
-
-					if (hasTargetTag) {
-						for (int j = i + 1; j < lines.size(); j++) {
-							String nextLine = lines.get(j).trim();
-							if (nextLine.startsWith("Scenario:")) {
-								String scenarioName = nextLine.substring(9).trim();
-								scenarioNames.add(scenarioName);
-								break;
-							} else if (nextLine.startsWith("@")) {
-								break;
-							}
-						}
-					}
-				}
-			}
-
-		} catch (Exception e) {
-		}
-
-		return scenarioNames;
-	}
-
-	private static boolean containsTag(String line, String tag) {
-		return line.equals(tag) || // Exact line match
-				line.startsWith(tag + " ") || // Tag at start followed by space
-				line.endsWith(" " + tag) || // Tag at end preceded by space
-				line.contains(" " + tag + " "); // Tag surrounded by spaces
-	}
-
 	private static void createBrowserStatusCells(Row dataRow, ScenarioDetail scenario, Workbook workbook) {
 		String[] browsers = { "chrome", "firefox", "edge" };
 
@@ -1059,128 +641,6 @@ public class DailyExcelTracker {
 			return scenario.status;
 		} else {
 			return ""; // Empty cell for unused browsers in normal execution
-		}
-	}
-
-	private static void recalculateTestCountsForCrossBrowser(TestResultsSummary summary, String content) {
-		try {
-			boolean isCrossBrowserExecution = content.contains("runCrossBrowserTest")
-					|| content.contains("CrossBrowser");
-
-			if (isCrossBrowserExecution && !summary.featureResults.isEmpty()) {
-				int totalScenarios = 0;
-				int passedScenarios = 0;
-				int failedScenarios = 0;
-				int skippedScenarios = 0;
-
-				for (FeatureResult feature : summary.featureResults) {
-					totalScenarios += feature.totalScenarios;
-					passedScenarios += feature.passed;
-					failedScenarios += feature.failed;
-					skippedScenarios += feature.skipped;
-				}
-
-				if (totalScenarios > 0) {
-
-					summary.totalTests = totalScenarios;
-					summary.passedTests = passedScenarios;
-					summary.failedTests = failedScenarios;
-					summary.skippedTests = skippedScenarios;
-
-					summary.passRate = totalScenarios > 0 ? (double) passedScenarios / totalScenarios * 100 : 0;
-					summary.failRate = totalScenarios > 0 ? (double) failedScenarios / totalScenarios * 100 : 0;
-					summary.skipRate = totalScenarios > 0 ? (double) skippedScenarios / totalScenarios * 100 : 0;
-
-					LOGGER.debug("Cross-browser scenario counts - Total: {}, Passed: {}, Failed: {}, Skipped: {}",
-							totalScenarios, passedScenarios, failedScenarios, skippedScenarios);
-				}
-			}
-			
-			recalculateCountsFromUniqueScenarios(summary);
-
-		} catch (Exception e) {
-			LOGGER.debug("Failed to recalculate cross-browser test counts: {}", e.getMessage());
-		}
-	}
-
-	private static void recalculateCountsFromUniqueScenarios(TestResultsSummary summary) {
-		try {
-			if (summary.featureResults.isEmpty()) {
-				return;
-			}
-			
-			int totalUniqueScenarios = 0;
-			int passedScenarios = 0;
-			int failedScenarios = 0;
-			int skippedScenarios = 0;
-			
-			java.util.Set<String> processedScenarios = new java.util.HashSet<>();
-			
-			for (FeatureResult feature : summary.featureResults) {
-				int featurePassed = 0;
-				int featureFailed = 0;
-				int featureSkipped = 0;
-				
-				if (feature.scenarios != null) {
-					for (ScenarioDetail scenario : feature.scenarios) {
-						String scenarioKey = (feature.featureName + "_" + scenario.scenarioName).toLowerCase().trim();
-						
-						if (processedScenarios.contains(scenarioKey)) {
-							continue;
-						}
-						processedScenarios.add(scenarioKey);
-						
-						totalUniqueScenarios++;
-						
-						if (scenario.status != null) {
-							String statusUpper = scenario.status.toUpperCase();
-							if (statusUpper.contains("PASSED") || statusUpper.contains("SUCCESS")) {
-								passedScenarios++;
-								featurePassed++;
-							} else if (statusUpper.contains("FAILED") || statusUpper.contains("FAILURE")) {
-								failedScenarios++;
-								featureFailed++;
-							} else if (statusUpper.contains("SKIPPED") || statusUpper.contains("SKIP")) {
-								skippedScenarios++;
-								featureSkipped++;
-							} else {
-								failedScenarios++;
-								featureFailed++;
-							}
-						}
-					}
-				}
-				
-				feature.totalScenarios = featurePassed + featureFailed + featureSkipped;
-				feature.passed = featurePassed;
-				feature.failed = featureFailed;
-				feature.skipped = featureSkipped;
-			}
-			
-			if (totalUniqueScenarios > 0) {
-				int rawTotal = summary.totalTests;
-				int rawFailed = summary.failedTests;
-				
-				if (rawTotal != totalUniqueScenarios || rawFailed != failedScenarios) {
-					LOGGER.debug("Retry count fix: {} raw -> {} unique ({} failed)", 
-							rawTotal, totalUniqueScenarios, failedScenarios);
-					
-					summary.totalTests = totalUniqueScenarios;
-					summary.passedTests = passedScenarios;
-					summary.failedTests = failedScenarios;
-					summary.skippedTests = skippedScenarios;
-					
-					summary.passRate = totalUniqueScenarios > 0 ? (double) passedScenarios / totalUniqueScenarios * 100 : 0;
-					summary.failRate = totalUniqueScenarios > 0 ? (double) failedScenarios / totalUniqueScenarios * 100 : 0;
-					summary.skipRate = totalUniqueScenarios > 0 ? (double) skippedScenarios / totalUniqueScenarios * 100 : 0;
-					
-					LOGGER.debug("Unique counts: {} total, {} passed, {} failed", 
-							totalUniqueScenarios, passedScenarios, failedScenarios);
-				}
-			}
-			
-		} catch (Exception e) {
-			LOGGER.debug("Failed to recalculate unique scenario counts: {}", e.getMessage());
 		}
 	}
 
@@ -3547,80 +3007,11 @@ public class DailyExcelTracker {
 	}
 
 	private static String detectExecutionType(TestResultsSummary summary) {
-		String runnerName = getPrimaryRunnerName(summary);
-		if (runnerName != null && runnerName.toLowerCase().contains("crossbrowser")) {
-			return "Cross-Browser";
-		}
 		return "Normal";
 	}
 
 	private static String getBrowserResults(TestResultsSummary summary) {
-		String executionType = detectExecutionType(summary);
-
-		if ("Cross-Browser".equals(executionType)) {
-			// FIXED: Cross-browser execution - Show ACTUAL browser status summary from test
-			StringBuilder browserResults = new StringBuilder();
-
-			String[] browsers = { "Chrome", "Firefox", "Edge" };
-			for (int i = 0; i < browsers.length; i++) {
-				String browser = browsers[i];
-
-				// FIXED: Get actual browser status from cross-browser test results
-				String status = analyzeBrowserStatus(summary, browser);
-
-				browserResults.append(browser).append(":").append(status);
-				if (i < browsers.length - 1) {
-					browserResults.append(" ");
-				}
-			}
-
-			return browserResults.toString();
-		} else {
-			return detectNormalExecutionBrowser();
-		}
-	}
-
-	private static String analyzeBrowserStatus(TestResultsSummary summary, String browserName) {
-		String browserKey = browserName.toLowerCase();
-
-		boolean hasAnyResult = false;
-		boolean hasAnyFailure = false;
-
-		LOGGER.debug("Analyzing browser status for '{}' (key: '{}'), featureResults count: {}", browserName,
-				browserKey, summary.featureResults != null ? summary.featureResults.size() : 0);
-
-		for (FeatureResult feature : summary.featureResults) {
-			if (feature.scenarios != null) {
-				LOGGER.debug("Feature '{}' has {} scenarios", feature.featureName, feature.scenarios.size());
-				for (ScenarioDetail scenario : feature.scenarios) {
-					LOGGER.debug("Scenario '{}', browserStatus: {}", scenario.scenarioName,
-							scenario.browserStatus != null ? scenario.browserStatus.keySet() : "null");
-
-					if (scenario.browserStatus != null && scenario.browserStatus.containsKey(browserKey)) {
-						hasAnyResult = true;
-						String status = scenario.browserStatus.get(browserKey);
-						LOGGER.debug("Found browser status for {}: '{}'", browserKey, status);
-
-						if (status != null && status.contains("FAILED")) {
-							hasAnyFailure = true;
-							break; // If any scenario failed in this browser, mark browser as failed
-						}
-					}
-				}
-			}
-			if (hasAnyFailure)
-				break; // Early exit if we found a failure
-		}
-
-		if (!hasAnyResult) {
-			LOGGER.warn("No test results found for browser: {}", browserName);
-			return ""; // Question mark for unknown status
-		}
-
-		String finalStatus = hasAnyFailure ? "" : "";
-		LOGGER.debug("Browser {}: {} (fail:{}, result:{})", browserName, finalStatus,
-				hasAnyFailure, hasAnyResult);
-		return finalStatus; // Fail if any scenario failed, pass if all passed
+		return detectNormalExecutionBrowser();
 	}
 
 	private static String detectNormalExecutionBrowser() {
@@ -3825,27 +3216,7 @@ public class DailyExcelTracker {
 
 		return totalRows;
 	}
-
-	private static String getCrossBrowserRunnerFromProperties() {
-		try {
-			for (String propName : System.getProperties().stringPropertyNames()) {
-				if (propName.startsWith("current.runner.class.")) {
-					String runnerClassName = System.getProperty(propName);
-					if (runnerClassName != null && runnerClassName.contains("CrossBrowser")) {
-						String cleanName = runnerClassName.contains(".")
-								? runnerClassName.substring(runnerClassName.lastIndexOf('.') + 1)
-								: runnerClassName;
-						LOGGER.debug("Found cross-browser runner from properties: {}", cleanName);
-						return cleanName;
-					}
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.debug("Failed to get cross-browser runner from properties: {}", e.getMessage());
-		}
-		return null;
-	}
-
+	
 	private static volatile String lastKnownUsername = null;
 	private static volatile String lastKnownClientName = null;
 
@@ -3952,11 +3323,6 @@ public class DailyExcelTracker {
 
 	private static String getPrimaryRunnerName(TestResultsSummary summary) {
 		if (summary.featureResults == null || summary.featureResults.isEmpty()) {
-			String crossBrowserRunner = getCrossBrowserRunnerFromProperties();
-			if (crossBrowserRunner != null) {
-				return crossBrowserRunner;
-			}
-
 			LOGGER.warn("No feature results found, returning 'Unknown Runner'");
 			return "Unknown Runner";
 		}
@@ -3983,12 +3349,6 @@ public class DailyExcelTracker {
 			return combinedRunners;
 		}
 
-		String crossBrowserRunner = getCrossBrowserRunnerFromProperties();
-		if (crossBrowserRunner != null) {
-			LOGGER.debug("No standard runners found, using cross-browser runner: {}", crossBrowserRunner);
-			return crossBrowserRunner;
-		}
-
 		LOGGER.warn(" No runners found, using fallback");
 		return "Unknown Runner";
 	}
@@ -3999,10 +3359,6 @@ public class DailyExcelTracker {
 			String className = runnerClassName.contains(".")
 					? runnerClassName.substring(runnerClassName.lastIndexOf('.') + 1)
 					: runnerClassName;
-
-			if (className.contains("CrossBrowser")) {
-				return className; // Keep full cross-browser runner name
-			}
 
 			return className;
 		}
@@ -4015,22 +3371,7 @@ public class DailyExcelTracker {
 		return "Unknown";
 	}
 
-	@SuppressWarnings({ "unused", "all" }) // Suppress warnings for revertible visual enhancements (else branches are
-
-	public static class CrossBrowserMetrics {
-		public int totalCrossBrowserRuns = 0;
-		public Map<String, BrowserStats> browserStats = new HashMap<>();
-		public double overallCompatibilityScore = 0.0;
-		public String mostReliableBrowser = "Chrome";
-		public String leastReliableBrowser = "Edge";
-		public List<String> recentCrossBrowserExecutions = new ArrayList<>();
-		public int totalScenariosExecuted = 0;
-		public int totalIssuesFound = 0;
-		public String avgCrossBrowserDuration = "0m 0s";
-		public String lastExecutionDate = "";
-		public double crossBrowserValue = 3.0; // 3x coverage multiplier
-	}
-
+	@SuppressWarnings({ "unused", "all" }) 
 	public static class BrowserStats {
 		public String browserName = "";
 		public int totalRuns = 0;

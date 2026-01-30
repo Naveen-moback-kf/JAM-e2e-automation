@@ -5,7 +5,6 @@ A comprehensive, enterprise-grade end-to-end automation testing framework for Ko
 ## 🚀 Key Features
 
 - **Parallel Execution**: Run tests in parallel for 3-5x faster execution
-- **Cross-Browser Testing**: Support for Chrome, Firefox, and Edge
 - **Data-Driven Testing**: Excel-based test data management (TestData.xlsx)
 - **Comprehensive Reporting**: Excel reports, Allure reports, and TestNG reports
 - **CI/CD Integration**: GitHub Actions workflow with configurable inputs
@@ -34,7 +33,7 @@ kfonetalentsuite/
 ├── src/
 │   ├── main/java/com/kfonetalentsuite/
 │   │   ├── listeners/           # TestNG listeners with Excel integration
-│   │   │   └── ExcelReportListener.java      # Enhanced Excel reporting (Normal and Cross-Browser execution)
+│   │   │   └── ExcelReportListener.java      # Enhanced Excel reporting
 │   │   ├── manager/            # Page Object Manager
 │   │   │   └── PageObjectManager.java        # Centralized page object management
 │   │   ├── pageobjects/        # 31 Page Objects with screenshot functionality
@@ -63,8 +62,7 @@ kfonetalentsuite/
 │   │   │       ├── SessionManager.java      # Session management
 │   │   │       └── KeepAwakeUtil.java       # System keep-alive
 │   │   └── webdriverManager/   # Enhanced WebDriver with session recovery
-│   │       ├── DriverManager.java            # Normal execution browser management
-│   │       ├── CrossBrowserDriverManager.java # Cross-browser execution management
+│   │       ├── DriverManager.java            # Browser management
 │   │       └── CustomizeTestNGCucumberRunner.java
 │   └── test/
 │       ├── java/
@@ -78,15 +76,11 @@ kfonetalentsuite/
 │       │   │   └── hooks/       # Test hooks and scenario management
 │       │   │       ├── ScenarioHooks.java
 │       │   │       └── ConditionalScenarioSkip.java
-│       │   └── testrunners/     # Test runners (33 Normal + 26 Cross-Browser)
+│       │   └── testrunners/     # Test runners (36 total)
 │       │       └── functional/JobMapping/
 │       │           ├── Runner01_LoginPage.java
 │       │           ├── Runner01_KFoneLogin.java
-│       │           ├── Runner02-Runner32... (33 Normal Test Runners)
-│       │           └── crossbrowser/         # Cross-Browser Test Runners (26 files)
-│       │               ├── CrossBrowser01_LoginPageRunner.java
-│       │               ├── CrossBrowser02-CrossBrowser32...
-│       │               └── ...
+│       │           └── Runner02-Runner36... (36 Test Runners)
 │       └── resources/
 │           ├── features/        # Cucumber feature files
 │           │   ├── functional/
@@ -284,28 +278,6 @@ The framework is designed for parallel execution with:
 
 ---
 
-### Cross-Browser Test Execution
-
-1. **Cross-Browser Login Tests (Chrome + Firefox + Edge)**
-   ```bash
-   mvn test -Dtest=CrossBrowser01_LoginPageRunner
-   ```
-
-2. **Cross-Browser Job Profile Details Tests**
-   ```bash
-   mvn test -Dtest=CrossBrowser04_JobProfileDetailsPopupRunner
-   ```
-
-3. **Cross-Browser Header Section Tests**
-   ```bash
-   mvn test -Dtest=CrossBrowser05_HeaderSectionRunner
-   ```
-
-4. **All Cross-Browser Tests**
-   ```bash
-   mvn test -Dtest="CrossBrowser*"
-   ```
-
 ### Test Suite Execution Strategy
 
 #### **📊 Test Suite Hierarchy & Execution Times**
@@ -464,25 +436,13 @@ mvn test -Dexcel.reporting=false
 **Location**: `ExcelReports/JobMappingAutomationTestResults.xlsx`
 
 **Features**:
-- **Dual Dashboard Architecture**: Separate "Automation QA Dashboard" and "Cross-Browser QA Dashboard" sheets
-- **Cross-Browser Analytics**: Browser compatibility scores, reliability rankings, and compatibility metrics
-- **Browser Status Columns**: Individual Chrome/Firefox/Edge status tracking in Test Results Summary
-- **Executive Summary**: High-level pass/fail metrics with business context for both execution types
+- **Comprehensive Dashboard**: "Automation QA Dashboard" sheet with detailed execution analytics
+- **Browser Status Tracking**: Individual browser status tracking in Test Results Summary
+- **Executive Summary**: High-level pass/fail metrics with business context
 - **Detailed Breakdowns**: Feature-wise results with scenario-level details and browser-specific outcomes
 - **Smart Daily Reset**: Automatically resets for new day, appends same-day executions
 - **Historical Tracking**: Enhanced execution history with browser results and execution type detection
 - **Professional Format**: Business-ready Excel suitable for stakeholder distribution
-
-### 🌐 Cross-Browser Dashboard Features
-
-**Sheet**: "Cross-Browser QA Dashboard"
-
-**Specialized Metrics**:
-- **Compatibility Score**: Overall browser compatibility percentage
-- **Business Impact Assessment**: Risk evaluation based on browser compatibility results  
-- **Browser Breakdown**: Individual Chrome/Firefox/Edge performance analytics
-- **Cross-Browser Coverage**: Multi-platform testing value and reliability rankings
-- **Most Reliable Browser**: Automated browser performance ranking system
 
 **Auto-Generation**: Automatically created after each test execution via `@Listeners` annotation
 
@@ -716,8 +676,7 @@ All page objects now include:
 **Core Utilities**:
 - `ScreenshotHandler.java` - Advanced screenshot management with ExtentReports integration
 - `DriverManager.java` - **Thread-Safe** WebDriver management with `ThreadLocal` isolation and session recovery
-- `CrossBrowserDriverManager.java` - Multi-browser WebDriver management for cross-browser testing
-- `DailyExcelTracker.java` - Dual-dashboard Excel reporting with cross-browser analytics
+- `DailyExcelTracker.java` - Excel reporting with comprehensive analytics
 - `ExcelReportListener.java` - **Thread-Safe** Excel report generation with `AtomicInteger` counters for parallel execution
 - `PDFReportGenerator.java` - Excel to PDF conversion utilities
 
@@ -905,12 +864,11 @@ java -cp "target/classes:lib/*" com.kfonetalentsuite.utils.PDFReportGenerator
   - **Sequential Mode** (1 thread): Sanity 5-10 min | Smoke 15-25 min | Regression 60-90 min
 - **Thread-Safe Variables**: 150+ `ThreadLocal` conversions for parallel execution safety
 - **Atomic Counters**: 6 `AtomicInteger` counters for race-free statistics
-- **Cross-Browser Coverage**: 26 cross-browser runners supporting Chrome, Firefox, and Edge
 - **Step Definitions**: 31 step definition files for complete BDD coverage
 - **Supported Environments**: 5 environments (Dev, QA, Stage, ProdEU, ProdUS) + KFOne integration
 - **Authentication Methods**: 4 different authentication workflows (Standard, SAML, SSO, Non-SSO)
-- **Reporting Formats**: Dual Excel dashboards (Normal + Cross-Browser), HTML, JSON, XML with visual evidence
-- **Dashboard Analytics**: 2 specialized dashboards with browser compatibility metrics
+- **Reporting Formats**: Excel dashboards, HTML, JSON, XML with visual evidence
+- **Dashboard Analytics**: Specialized dashboard with comprehensive metrics
 - **Code Quality**: Professional codebase with consistent package naming and optimized logging
 - **Utils Packages**: 2 consolidated packages (`common/` - 5 files, `JobMapping/` - 12 files)
 - **Test Suite Coverage**: Complete documentation in TEST_SUITE_COVERAGE.md
@@ -922,17 +880,15 @@ java -cp "target/classes:lib/*" com.kfonetalentsuite.utils.PDFReportGenerator
 **Maintained By**: QA Automation Team  
 **Execution Mode**: Parallel (3-5 threads) - Sequential mode also supported  
 - 🎯 **Enhanced Maintainability**: Improved code organization for better debugging and reporting
-- 🌐 **Cross-Browser Support**: 26 cross-browser runners with complete Chrome/Firefox/Edge coverage
-- 📊 **Dual Dashboard Architecture**: Separate dashboards for Normal and Cross-Browser execution analytics
-- 🎯 **Browser Compatibility Analytics**: Compatibility scoring and business impact assessment
-- 📈 **Enhanced Excel Reporting**: Browser status columns and execution type detection
+- 📊 **Comprehensive Dashboard**: Enhanced Excel reporting with detailed execution analytics
+- 🎯 **Performance Analytics**: Execution metrics and business impact assessment
+- 📈 **Enhanced Excel Reporting**: Status tracking and execution type detection
 - ⚙️ **Configuration Improvements**: Unified configuration management with better defaults
 
-#### **v2.0.0 (September 2025)** - Advanced Analytics & Cross-Browser Release
-- 🌐 **Cross-Browser Testing Suite**: Multi-browser parallel execution framework
-- 📊 **Advanced Analytics**: Specialized cross-browser compatibility metrics
+#### **v2.0.0 (September 2025)** - Advanced Analytics Release
+- 📊 **Advanced Analytics**: Specialized metrics and comprehensive reporting
 - 🎨 **Professional Color Coding**: Complete visual styling system for dashboards
-- 🔄 **Thread-Safe Execution**: Reliable parallel cross-browser testing
+- 🔄 **Thread-Safe Execution**: Reliable parallel testing execution
 - ✨ **Advanced Screenshot System**: Comprehensive failure capture across all page objects
 - 🔄 **Session Recovery**: Screen-off immunity with automatic session restoration  
 - ⚙️ **Robust Configuration**: Headless mode management and enhanced property loading
@@ -948,7 +904,7 @@ java -cp "target/classes:lib/*" com.kfonetalentsuite.utils.PDFReportGenerator
 - **Enhanced Analytics**: Machine learning-based test execution trend analysis
 - **Performance Benchmarking**: Response time analysis and performance metrics
 - ~~**Parallel Execution**~~: ✅ **COMPLETED** (v2.3.0) - Thread-safe parallel execution implemented
-- **Cross-Browser CI/CD**: Enhanced pipeline support with parallel cross-browser execution
+- **Enhanced CI/CD**: Enhanced pipeline support with parallel execution
 - **Mobile Testing**: Extension to mobile automation capabilities
 - **API Integration**: Comprehensive API testing framework integration
 - **Visual Regression**: Screenshot comparison and visual testing capabilities

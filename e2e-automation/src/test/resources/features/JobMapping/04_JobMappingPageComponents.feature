@@ -78,6 +78,7 @@ Feature: Verify Components in Job Mapping Page
     Then User should verify Publish button is displaying on first job profile
     Then Click on checkbox of first job profile
     Then Click on checkbox of second job profile
+    Then User should verify Publish Selected Profiles button is enabled
     Then Click on Publish Selected Profiles button
     Then User should get success profile published popup
     And Close the success profile published popup

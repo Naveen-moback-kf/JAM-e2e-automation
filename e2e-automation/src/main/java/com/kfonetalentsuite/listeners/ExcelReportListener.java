@@ -51,9 +51,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 	// Thread-safe storage for current scenario information
 	private static final Map<String, String> currentScenarios = new ConcurrentHashMap<>();
 
-	// Store cross-browser runner information
-	private static final Map<String, String> crossBrowserRunnerNames = new ConcurrentHashMap<>();
-
 	// ENHANCED: Store actual exception details for Excel reporting
 	private static final Map<String, ExceptionDetails> testExceptionDetails = new ConcurrentHashMap<>();
 
@@ -121,37 +118,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 
 	public static void clearCurrentScenario(String threadId) {
 		currentScenarios.remove(threadId);
-	}
-
-	private void setCrossBrowserRunnerInfo(ITestResult result) {
-		try {
-			String testClassName = result.getTestClass().getName();
-
-			// Check if this is a cross-browser test
-			if (testClassName.contains("CrossBrowser") || testClassName.contains("crossbrowser")) {
-				// Extract browser name from parameters
-				Object[] parameters = result.getParameters();
-				if (parameters != null && parameters.length > 0) {
-					String browserName = String.valueOf(parameters[0]);
-					if (browserName != null && (browserName.equals("chrome") || browserName.equals("firefox")
-							|| browserName.equals("edge"))) {
-						// Store the runner class name with browser info
-						String threadId = Thread.currentThread().getName();
-						crossBrowserRunnerNames.put(threadId, testClassName);
-
-						// Also store for DailyExcelTracker
-						System.setProperty("current.runner.class." + threadId, testClassName);
-						System.setProperty("current.browser.name." + threadId, browserName);
-					}
-				}
-			}
-		} catch (Exception e) {
-			// Silent - not critical for test execution
-		}
-	}
-
-	public static String getCrossBrowserRunnerName(String threadId) {
-		return crossBrowserRunnerNames.get(threadId);
 	}
 
 	private String getCurrentScenarioName() {
@@ -290,7 +256,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 
 			clearExceptionDetails();
 			clearScenariosPassedInRetry();
-			crossBrowserRunnerNames.clear();
 			resetProgress();
 			System.gc();
 
@@ -458,10 +423,6 @@ public class ExcelReportListener implements IExecutionListener, ISuiteListener, 
 
 	@Override
 	public void onTestStart(ITestResult result) {
-		// Set runner class name for cross-browser tests
-		if (isExcelReportingEnabled()) {
-			setCrossBrowserRunnerInfo(result);
-		}
 		// No logging needed for individual test starts - reduces noise
 	}
 

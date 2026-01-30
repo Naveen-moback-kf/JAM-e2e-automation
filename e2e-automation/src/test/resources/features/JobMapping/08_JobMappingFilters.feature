@@ -152,9 +152,4 @@ Feature: Validate All Filter Types in Job Mapping UI
     Then Click on "FunctionsSubfunctions" Filters dropdown button
     Then Select a Function and verify all Subfunctions inside Function are selected automatically
     And Close the Filters dropdown
-
-  @ValidateMultipleFiltersResults
-  Scenario: Validate results with multiple filters applied in View Published screen
-    When User is in View Published screen with multiple filters applied
     Then Validate Job Mapping Profiles are correctly filtered with applied Grades Departments and FunctionsSubfunctions Options
-

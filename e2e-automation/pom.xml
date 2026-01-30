@@ -21,8 +21,6 @@
 		
 		<!-- Default test suite - can be overridden via -DsuiteXmlFile=<suite>.xml -->
 		<suiteXmlFile>JAM_SanityTestSuite.xml</suiteXmlFile>
-		
-		<!-- Cross-browser testing now handled by individual runners like AutoRun_CrossBrowser_LoginPageRunner01 -->
 	</properties>
 
 	<dependencies>
@@ -161,7 +159,7 @@
 				</configuration>
 			</plugin>
 			
-			<!-- ENHANCED: Surefire Plugin for TestNG with Cross-Browser Support -->
+			<!-- Surefire Plugin for TestNG -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -222,6 +220,26 @@
 				<resultsDirectory>${project.basedir}/AllureReports/allure-results</resultsDirectory>
 				<!-- Report generated at project root (not in target/) -->
 				<reportDirectory>${project.basedir}/AllureReports/allure-report</reportDirectory>
+			</configuration>
+		</plugin>
+
+		<!-- ADDED: Maven JAR Plugin to generate MANIFEST.MF -->
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-jar-plugin</artifactId>
+			<version>3.3.0</version>
+			<configuration>
+				<archive>
+					<manifest>
+						<addClasspath>true</addClasspath>
+						<mainClass>com.kfonetalentsuite.testrunners.MainRunner</mainClass>
+					</manifest>
+					<manifestEntries>
+						<Built-By>${user.name}</Built-By>
+						<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+						<Implementation-Version>${project.version}</Implementation-Version>
+					</manifestEntries>
+				</archive>
 			</configuration>
 		</plugin>
 		</plugins>
